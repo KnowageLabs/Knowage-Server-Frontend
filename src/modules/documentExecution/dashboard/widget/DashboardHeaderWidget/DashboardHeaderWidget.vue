@@ -62,7 +62,7 @@ export default defineComponent({
         },
         async getWidgetData() {
             this.loading = true
-            this.widgetData = await getWidgetData(this.dashboardId, this.propWidget, this.datasets, this.$http, true, this.activeSelections, { searchText: '', searchColumns: [] }, this.dashboards[this.dashboardId].configuration)
+            this.widgetData = await getWidgetData(this.dashboardId, this.propWidget, this.datasets, this.$http, true, this.activeSelections, { searchText: '', searchColumns: [] }, this.dashboards[this.dashboardId].configuration, null, false)
             this.activeSelections = deepcopy(this.getSelections(this.dashboardId))
             this.loading = false
         }

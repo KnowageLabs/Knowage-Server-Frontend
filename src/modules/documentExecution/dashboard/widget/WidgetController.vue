@@ -340,7 +340,7 @@ export default defineComponent({
                 this.widgetInitialData = selectorWidgetsData[widgetId].initialData
                 return selectorWidgetsData[widgetId].initialData
             } else {
-                const fetchedData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, true, [], this.search, this.dashboards[this.dashboardId].configuration)
+                const fetchedData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, true, [], this.search, this.dashboards[this.dashboardId].configuration, null, false)
                 this.widgetInitialData = fetchedData
                 return fetchedData
             }
@@ -368,10 +368,10 @@ export default defineComponent({
                 const associativeSelections = this.getAssociativeSelectionsFromStoreIfDatasetIsBeingUsedInAssociation()
 
                 if (selectorWidgetsData[widgetId]?.initialData) this.widgetData = selectorWidgetsData[widgetId].widgetData
-                else this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, isInitialCall, this.activeSelections, this.search, this.dashboards[this.dashboardId].configuration, associativeSelections)
+                else this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, isInitialCall, this.activeSelections, this.search, this.dashboards[this.dashboardId].configuration, associativeSelections, false)
             } else {
                 if (selectorWidgetsData[widgetId]?.initialData) this.widgetData = selectorWidgetsData[widgetId].widgetData
-                else this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, isInitialCall, [], this.search, this.dashboards[this.dashboardId].configuration)
+                else this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, isInitialCall, [], this.search, this.dashboards[this.dashboardId].configuration, null, false)
             }
 
             this.setWidgetLoading(false)

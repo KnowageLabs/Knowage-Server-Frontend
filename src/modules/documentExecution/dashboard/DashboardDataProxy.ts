@@ -34,7 +34,7 @@ export const getData = (item) =>
         }, 1000)
     })
 
-export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], searchParams: IWidgetSearch, dashboardConfig: IDashboardConfiguration, associativeResponseSelections?: any, resetPagination?: boolean) => {
+export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], searchParams: IWidgetSearch, dashboardConfig: IDashboardConfiguration, associativeResponseSelections?: any, resetPagination?: boolean, likeSelections?, drillLevel?) => {
     switch (widget.type) {
         case 'table':
             return await getTableWidgetData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, searchParams, associativeResponseSelections, resetPagination)
@@ -45,7 +45,7 @@ export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets:
         case 'text':
             return await getWebComponentWidgetData('text', dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'highcharts':
-            return await getHighchartsWidgetData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+            return await getHighchartsWidgetData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections, likeSelections, drillLevel)
         case 'chartJS':
             return await getChartJSWidgetData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'customchart':
