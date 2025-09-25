@@ -6,9 +6,9 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
-import { ISelection, IVariable, IWidget, IWidgetColumn } from '../../../Dashboard'
+import { IDashboardDataset, ISelection, IVariable, IWidget, IWidgetColumn } from '../../../Dashboard'
 import { IHighchartsChartModel } from '../../../interfaces/highcharts/DashboardHighchartsWidget'
-import { mapActions } from 'pinia'
+import { mapActions, mapState } from 'pinia'
 import { updateStoreSelections, executeChartCrossNavigation } from '../../interactionsHelpers/InteractionHelper'
 import { openNewLinkChartWidget } from '../../interactionsHelpers/InteractionLinkHelper'
 import { formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart, formatPictorialChart, formatStreamgraphChart, formatPackedBubble, formatVariables } from './HighchartsModelFormattingHelpers'
@@ -38,6 +38,7 @@ import HighchartsFunnel from 'highcharts/modules/funnel'
 import HighchartsDumbbell from 'highcharts/modules/dumbbell'
 import HighchartsStreamgraph from 'highcharts/modules/streamgraph'
 import HighchartsAnnotations from 'highcharts/modules/annotations'
+import { getWidgetData } from '../../../DashboardDataProxy'
 
 HighchartsMore(Highcharts)
 HighchartsSolidGauge(Highcharts)
@@ -72,6 +73,10 @@ export default defineComponent({
         propVariables: { type: Array as PropType<IVariable[]>, required: true }
     },
     emits: ['datasetInteractionPreview'],
+    setup() {
+        const dashStore = store()
+        return { dashStore }
+    },
     data() {
         return {
             chartID: crypto.randomUUID(),
@@ -95,6 +100,9 @@ export default defineComponent({
     },
     unmounted() {
         this.removeEventListeners()
+    },
+    computed: {
+        ...mapState(store, ['dashboards'])
     },
     methods: {
         ...mapActions(store, ['setSelections', 'getDatasetLabel', 'getDashboardDatasets', 'getDashboardDrivers']),
@@ -232,18 +240,34 @@ export default defineComponent({
                 const dashboardDatasets = this.getDashboardDatasets(this.dashboardId)
                 this.drillLevel++
                 const category = this.widgetModel.columns[this.drillLevel - 1]
+
                 this.likeSelections.push({ [category.columnName]: event.point.name })
+                this.formatLikeSelections(this.likeSelections)
+
                 this.highchartsInstance.showLoading(this.$t('common.info.dataLoading'))
-                const tempData = await getChartDrilldownData(this.dashboardId, this.widgetModel, dashboardDatasets, this.$http, false, this.propActiveSelections, this.likeSelections, this.drillLevel)
+
+                const tempData = await getWidgetData(this.dashboardId, this.widgetModel, dashboardDatasets, this.$http, false, this.propActiveSelections, { searchText: '', searchColumns: [] }, this.dashboards[this.dashboardId].configuration, null, false, this.likeSelections, this.drillLevel)
+                tempData.initialCall = false
                 const newSeries = this.widgetModel.settings.chartModel.setData(tempData, this.widgetModel)
+
                 this.highchartsInstance.hideLoading()
-                newSeries.forEach((serie: any) => {
-                    this.highchartsInstance.addSeriesAsDrilldown(event.point, {
-                        data: serie.data,
-                        name: event.point.name,
-                        dataLabels: tempDataLabelSettings
-                    })
+
+                const newSerieToAdd = newSeries.find((serie: any) => serie.name === event.point.series.name)
+                this.highchartsInstance.addSeriesAsDrilldown(event.point, {
+                    id: newSerieToAdd.id,
+                    data: newSerieToAdd.data,
+                    name: event.point.name,
+                    dataLabels: tempDataLabelSettings
                 })
+                //TODO: Leave it for now, maybe we need to revert back to forEach, but it has to be tested first
+                // newSeries.forEach((serie: any) => {
+                //     this.highchartsInstance.addSeriesAsDrilldown(event.point, {
+                //         id: serie.id,
+                //         data: serie.data,
+                //         name: event.point.name,
+                //         dataLabels: tempDataLabelSettings
+                //     })
+                // })
                 if (!['heatmap', 'dependencywheel', 'sankey', 'spline'].includes(this.chartModel.chart.type)) this.widgetModel.settings.chartModel.updateSeriesLabelSettings(this.widgetModel)
                 this.setSeriesEvents()
             } else if (this.widgetModel.settings.interactions.crossNavigation.enabled) {
@@ -381,6 +405,19 @@ export default defineComponent({
         },
         cancelSonify() {
             this.highchartsInstance.sonification.cancel()
+        },
+        formatLikeSelections(likeSelections) {
+            const datasets = this.getDashboardDatasets(this.dashboardId)
+            const datasetIndex = datasets.findIndex((dataset: IDashboardDataset) => this.widgetModel.dataset === dataset.id)
+            const selectedDataset = datasets[datasetIndex]
+            const formattedLikeSelections = {}
+
+            likeSelections.forEach((likeSelection: any) => {
+                const key = Object.keys(likeSelection)[0]
+                formattedLikeSelections[key] = likeSelection[key]
+            })
+            const datasetLabel = selectedDataset.dsLabel as any
+            return { [datasetLabel]: formattedLikeSelections }
         }
     }
 })

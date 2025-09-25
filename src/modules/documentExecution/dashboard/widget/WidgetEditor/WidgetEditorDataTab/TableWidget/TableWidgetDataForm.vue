@@ -3,6 +3,22 @@
         <q-toolbar class="kn-toolbar kn-toolbar--secondary">
             <q-toolbar-title>{{ $t('dashboard.widgetEditor.toolbars.general') }}</q-toolbar-title>
         </q-toolbar>
+        <!-- <div class="row q-col-gutter-md p-p-3">
+            <q-select class="col-6" v-model="sortingColumn" :options="sortingColumnOptions" option-value="id" option-label="alias" outlined emitValue clearable dense square :label="$t('dashboard.widgetEditor.sortingColumn')" @update:model-value="sortingChanged">
+                <template v-slot:selected-item="scope">
+                    {{ sortingColumnOptions.find((tempColumn: IWidgetColumn) => tempColumn.id === scope.opt)?.alias ?? '' }}
+                </template>
+            </q-select>
+            <q-select class="col-6" v-model="sortingOrder" :options="commonDescriptor.sortingOrderOptions" outlined emitValue clearable dense square :label="$t('dashboard.widgetEditor.drillSortingOrder')" option-label="label" option-value="value" @update:model-value="selectedColumnUpdated">
+                <template v-slot:option="scope">
+                    <q-item v-bind="scope.itemProps">
+                        <q-item-section>
+                            <q-item-label>{{ $t(scope.opt.label) }}</q-item-label>
+                        </q-item-section>
+                    </q-item>
+                </template>
+            </q-select>
+        </div> -->
         <q-card-section class="p-pb-0">
             <div class="p-fluid p-grid p-formgrid">
                 <span class="p-field p-float-label p-col-12 p-lg-6">

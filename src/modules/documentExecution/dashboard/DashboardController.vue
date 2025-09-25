@@ -317,16 +317,16 @@ export default defineComponent({
             }
         },
         async fetchInitialWidgetData(widget: any) {
-            return await getWidgetData(this.dashboardId, widget, this.model?.configuration?.datasets, this.$http, true, [], { searchText: '', searchColumns: [] }, this.model.configuration)
+            return await getWidgetData(this.dashboardId, widget, this.model?.configuration?.datasets, this.$http, true, [], { searchText: '', searchColumns: [] }, this.model.configuration, null, false)
         },
         async fetchWidgetDataWithStaticSelections(widget: any) {
             const nonDynamicSelections = this.model.configuration.selections.filter((selection) => !selection.dynamic)
             //TODO - should add associative selections here? look at WidgetController.vue, loadInitialData() for associations?
-            return await getWidgetData(this.dashboardId, widget, this.model?.configuration?.datasets, this.$http, false, nonDynamicSelections, { searchText: '', searchColumns: [] }, this.model.configuration)
+            return await getWidgetData(this.dashboardId, widget, this.model?.configuration?.datasets, this.$http, false, nonDynamicSelections, { searchText: '', searchColumns: [] }, this.model.configuration, null, false)
         },
         async fetchWidgetDataWithDynamicSelections(widget: any) {
             //TODO - should add associative selections here? look at WidgetController.vue, loadInitialData() for associations?
-            return await getWidgetData(this.dashboardId, widget, this.model?.configuration?.datasets, this.$http, false, this.model.configuration.selections, { searchText: '', searchColumns: [] }, this.model.configuration)
+            return await getWidgetData(this.dashboardId, widget, this.model?.configuration?.datasets, this.$http, false, this.model.configuration.selections, { searchText: '', searchColumns: [] }, this.model.configuration, null, false)
         },
         updateSelectorOptions(widget: any) {
             this.selectorWidgetsData[widget.id]?.initialData?.rows?.forEach((initialOption: any) => {
