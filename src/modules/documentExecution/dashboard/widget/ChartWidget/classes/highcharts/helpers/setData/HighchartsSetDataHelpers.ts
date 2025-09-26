@@ -223,6 +223,10 @@ const updateXAxisForGroupingCategoriesData = (model: any, categoryValuesMap: any
     })
 }
 
+const removeXAxisCategories = (model: any) => {
+    if (model.xAxis && model.xAxis[0]) delete model.xAxis[0].categories
+}
+
 export const setGroupedBySeriesData = (model: any, data: any, attributeColumns: any[], measureColumns: any[]) => {
     if (!data || !attributeColumns[0] || measureColumns.length < 2) return
     const attributeColumn = attributeColumns[0]
@@ -274,6 +278,7 @@ export const setGroupedByCategoriesData = (model: any, data: any, attributeColum
 
     const measureSerieElementValueMap = {} as any
     createSeriesForGroupedByCategoriesData(model, categoryValueMap, measureSerieElementValueMap)
+    removeXAxisCategories(model)
 }
 
 const setUniqueCategoriesValuesFromCategoryValueMap = (uniqueCategoryValues: string[], categoryValueMap: any) => {
