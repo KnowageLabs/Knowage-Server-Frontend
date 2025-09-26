@@ -30,6 +30,12 @@ export const changeChartType = (chartType: string, widget: IWidget, isEnterprise
         widget.settings.chart.colors = tempWidgetColors
         widget.settings.chartModel = createNewHighchartsModel(widget, type, oldChartModel, chartType.endsWith('Stacked'), chartType.endsWith('Inverted'), chartType.endsWith('Jitter'))
         widget.settings.chartModel.updateChartColorSettings(widget)
+        if (typeof widget.settings.chartModel.setLineXAxis === 'function') {
+            widget.settings.chartModel.setLineXAxis()
+        }
+        if (typeof widget.settings.chartModel.setLineYAxis === 'function') {
+            widget.settings.chartModel.setLineYAxis()
+        }
     } else {
         widget.type = 'chartJS'
         widget.settings = createNewChartJSSettings()
