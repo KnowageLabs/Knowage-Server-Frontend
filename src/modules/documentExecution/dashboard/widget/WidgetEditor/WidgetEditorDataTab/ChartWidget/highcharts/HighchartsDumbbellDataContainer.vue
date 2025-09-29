@@ -1,18 +1,6 @@
 <template>
     <div v-if="widgetModel" class="p-d-flex p-flex-column">
-        <WidgetEditorColumnTable
-            class="p-m-2 p-order-1"
-            :widget-model="widgetModel"
-            :items="columnTableItems['ATTRIBUTES'] ?? []"
-            :settings="attributesColumnSettings"
-            :chart-type="chartType"
-            :error="isAttributesTableInvalid()"
-            @rowReorder="onColumnsReorder($event, 'ATTRIBUTES')"
-            @itemAdded="onColumnAdded"
-            @itemUpdated="onColumnItemUpdate"
-            @itemSelected="setSelectedColumn($event, null)"
-            @itemDeleted="onColumnDelete"
-        ></WidgetEditorColumnTable>
+        <WidgetEditorColumnTable class="p-m-2 p-order-1" :widget-model="widgetModel" :items="columnTableItems['ATTRIBUTES'] ?? []" :settings="attributesColumnSettings" :chart-type="chartType" :error="isAttributesTableInvalid()" :selected-dataset-columns="selectedDatasetColumns" @rowReorder="onColumnsReorder($event, 'ATTRIBUTES')" @itemAdded="onColumnAdded" @itemUpdated="onColumnItemUpdate" @itemDeleted="onColumnDelete"></WidgetEditorColumnTable>
         <WidgetEditorColumnTable
             v-for="axis in ['start', 'end']"
             :key="axis"
@@ -23,34 +11,33 @@
             :settings="getValuesAxisSettings(axis)"
             :chart-type="chartType"
             :axis="axis"
+            :selected-dataset-columns="selectedDatasetColumns"
             :error="isAxisTableInvalid(axis)"
             @rowReorder="onColumnsReorder($event, axis)"
             @itemAdded="onColumnAdded($event, axis)"
             @itemUpdated="onColumnItemUpdate"
-            @itemSelected="setSelectedColumn($event, axis)"
             @itemDeleted="onColumnDelete"
         ></WidgetEditorColumnTable>
-        <ChartWidgetColumnForm class="p-m-2" :style="{ order: formFlexOrder }" :widget-model="widgetModel" :selected-column="selectedColumn" :chart-type="chartType"></ChartWidgetColumnForm>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IDataset, IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IDataset, IDatasetColumn, IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '../../../../../DashboardHelpers'
 import { removeSerieFromWidgetModel } from '../../../helpers/chartWidget/highcharts/HighchartsDataTabHelpers'
 import descriptor from '../../TableWidget/TableWidgetDataDescriptor.json'
 import highchartDescriptor from './HighchartsDataContainerDescriptor.json'
 import commonDescriptor from '../../common/WidgetCommonDescriptor.json'
 import WidgetEditorColumnTable from '../../common/WidgetEditorColumnTable.vue'
-import ChartWidgetColumnForm from '../common/ChartWidgetColumnForm.vue'
 
 export default defineComponent({
     name: 'highcharts-dumbbell-data-container',
-    components: { WidgetEditorColumnTable, ChartWidgetColumnForm },
+    components: { WidgetEditorColumnTable },
     props: {
         propWidgetModel: { type: Object as PropType<IWidget>, required: true },
-        selectedDataset: { type: Object as PropType<IDataset | null> }
+        selectedDataset: { type: Object as PropType<IDataset | null> },
+        selectedDatasetColumns: { type: Array as PropType<IDatasetColumn[]>, required: true }
     },
     data() {
         return {
@@ -150,14 +137,6 @@ export default defineComponent({
                 emitter.emit('refreshWidgetWithData', this.widgetModel.id)
                 if (this.widgetModel.columns[index].id === this.selectedColumn?.id) this.selectedColumn = { ...this.widgetModel.columns[index] }
             }
-        },
-        setSelectedColumn(column: IWidgetColumn, axis: string | null) {
-            if (axis) {
-                this.formFlexOrder = axis === 'start' ? 3 : 5
-            } else {
-                this.formFlexOrder = 1
-            }
-            this.selectedColumn = { ...column }
         },
         onColumnDelete(column: IWidgetColumn) {
             const index = this.widgetModel.columns.findIndex((tempColumn: IWidgetColumn) => tempColumn.id === column.id)

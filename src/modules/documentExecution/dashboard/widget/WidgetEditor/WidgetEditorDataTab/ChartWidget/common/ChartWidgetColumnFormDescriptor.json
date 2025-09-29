@@ -1,10 +1,6 @@
 {
     "serieTypeOptions": [
         {
-            "label": "",
-            "value": ""
-        },
-        {
             "label": "dashboard.widgetEditor.visualizationType.bar",
             "value": "bar"
         },

@@ -11,46 +11,33 @@
             :chart-type="chartType"
             :axis="axis"
             :error="isAxisTableInvalid(axis)"
+            :selected-dataset-columns="selectedDatasetColumns"
             @rowReorder="onColumnsReorder($event, axis)"
             @itemAdded="onColumnAdded($event, axis)"
             @itemUpdated="onColumnItemUpdate"
-            @itemSelected="setSelectedColumn($event, axis)"
             @itemDeleted="onColumnDelete"
         ></WidgetEditorColumnTable>
-        <WidgetEditorColumnTable
-            class="p-m-2 p-order-5"
-            :widget-model="widgetModel"
-            :items="columnTableItems['MEASURES'] ?? []"
-            :settings="valuesColumnSettings"
-            :chart-type="chartType"
-            :error="isMeasureTableInvalid()"
-            @rowReorder="onColumnsReorder($event, 'MEASURES')"
-            @itemAdded="onColumnAdded($event, null)"
-            @itemUpdated="onColumnItemUpdate"
-            @itemSelected="setSelectedColumn($event, null)"
-            @itemDeleted="onColumnDelete"
-        ></WidgetEditorColumnTable>
-        <ChartWidgetColumnForm class="p-m-2" :style="{ order: formFlexOrder }" :widget-model="widgetModel" :selected-column="selectedColumn" :chart-type="chartType"></ChartWidgetColumnForm>
+        <WidgetEditorColumnTable class="p-m-2 p-order-5" :widget-model="widgetModel" :items="columnTableItems['MEASURES'] ?? []" :settings="valuesColumnSettings" :chart-type="chartType" :error="isMeasureTableInvalid()" :selected-dataset-columns="selectedDatasetColumns" @rowReorder="onColumnsReorder($event, 'MEASURES')" @itemAdded="onColumnAdded($event, null)" @itemUpdated="onColumnItemUpdate" @itemDeleted="onColumnDelete"></WidgetEditorColumnTable>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IDataset, IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IDataset, IDatasetColumn, IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '../../../../../DashboardHelpers'
 import { removeSerieFromWidgetModel } from '../../../helpers/chartWidget/highcharts/HighchartsDataTabHelpers'
 import descriptor from '../../TableWidget/TableWidgetDataDescriptor.json'
 import highchartDescriptor from './HighchartsDataContainerDescriptor.json'
 import commonDescriptor from '../../common/WidgetCommonDescriptor.json'
 import WidgetEditorColumnTable from '../../common/WidgetEditorColumnTable.vue'
-import ChartWidgetColumnForm from '../common/ChartWidgetColumnForm.vue'
 
 export default defineComponent({
     name: 'highcharts-sankey-data-container',
-    components: { WidgetEditorColumnTable, ChartWidgetColumnForm },
+    components: { WidgetEditorColumnTable },
     props: {
         propWidgetModel: { type: Object as PropType<IWidget>, required: true },
-        selectedDataset: { type: Object as PropType<IDataset | null> }
+        selectedDataset: { type: Object as PropType<IDataset | null> },
+        selectedDatasetColumns: { type: Array as PropType<IDatasetColumn[]>, required: true }
     },
     data() {
         return {
@@ -156,14 +143,6 @@ export default defineComponent({
                 emitter.emit('refreshWidgetWithData', this.widgetModel.id)
                 if (this.widgetModel.columns[index].id === this.selectedColumn?.id) this.selectedColumn = { ...this.widgetModel.columns[index] }
             }
-        },
-        setSelectedColumn(column: IWidgetColumn, axis: string | null) {
-            if (axis) {
-                this.formFlexOrder = axis === 'from' ? 1 : 3
-            } else {
-                this.formFlexOrder = 5
-            }
-            this.selectedColumn = { ...column }
         },
         onColumnDelete(column: IWidgetColumn) {
             const index = this.widgetModel.columns.findIndex((tempColumn: IWidgetColumn) => tempColumn.id === column.id)
