@@ -24,6 +24,7 @@
                     </Column>
                     <Column :style="settings.buttonColumnStyle">
                         <template #body="slotProps">
+                            <Button v-if="widgetType === 'highcharts' || widgetType === 'chartjs'" class="p-button-link" :icon="sortIcon(slotProps.data.orderType)" v-tooltip.top="slotProps.data.orderType ?? 'NONE'" @click="toggleSort(slotProps.data)" />
                             <Button v-if="slotProps.data.formula" v-tooltip.top="$t('common.edit')" icon="fas fa-calculator" class="p-button-link" @click.stop="openCalculatedFieldDialog(slotProps.data)"></Button>
                             <Button v-if="slotProps.data.type === 'pythonFunction'" v-tooltip.top="$t('common.edit')" icon="fas fa-superscript" class="p-button-link" @click.stop="openFunctionsColumnDialog(slotProps.data)"></Button>
                         </template>
@@ -35,7 +36,7 @@
                         </template>
                     </Column>
                     <template #expansion="slotProps">
-                        <ChartWidgetColumnForm v-if="widgetType === 'highcharts' || widgetType === 'chartjs'" :widget-model="widgetModel" :selected-column="slotProps.data" :chart-type="chartType"></ChartWidgetColumnForm>
+                        <ChartWidgetColumnForm v-if="widgetType === 'highcharts' || widgetType === 'chartjs'" :widget-model="widgetModel" :selected-column="slotProps.data" :chart-type="chartType" :selected-dataset-columns="selectedDatasetColumns"></ChartWidgetColumnForm>
                         <TableWidgetColumnForm v-else :widget-model="widgetModel" :selected-column="slotProps.data"></TableWidgetColumnForm>
                     </template>
                 </DataTable>
@@ -46,7 +47,7 @@
 
 <script lang="ts">
 import { defineComponent, inject, PropType } from 'vue'
-import { IWidget, IWidgetColumn, IWidgetFunctionColumn } from '../../../../Dashboard'
+import { IDatasetColumn, IWidget, IWidgetColumn, IWidgetFunctionColumn } from '../../../../Dashboard'
 import { emitter } from '../../../../DashboardHelpers'
 import { addChartColumnToTable } from '../../helpers/chartWidget/ChartWidgetDataTabHelpers'
 import { createNewWidgetColumn } from '../../helpers/WidgetEditorHelpers'
@@ -62,7 +63,7 @@ import TableWidgetColumnForm from '../TableWidget/TableWidgetColumnForm.vue'
 export default defineComponent({
     name: 'widget-editor-column-table',
     components: { Column, DataTable, Dropdown, InlineMessage, ChartWidgetColumnForm, TableWidgetColumnForm },
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, items: { type: Array, required: true }, settings: { type: Object, required: true }, chartType: { type: String }, axis: { type: String }, error: { type: Boolean } },
+    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, items: { type: Array, required: true }, settings: { type: Object, required: true }, chartType: { type: String }, axis: { type: String }, error: { type: Boolean }, selectedDatasetColumns: { type: Array as PropType<IDatasetColumn[]>, required: true } },
     emits: ['rowReorder', 'itemUpdated', 'itemDeleted', 'itemAdded', 'singleItemReplaced'],
     data() {
         return {
@@ -117,7 +118,6 @@ export default defineComponent({
     created() {
         this.setEventListeners()
         this.loadItems()
-        console.log('settings', this.settings)
     },
     unmounted() {
         this.removeEventListeners()
@@ -230,8 +230,22 @@ export default defineComponent({
             this.deleteItem(functionColumn, -1)
             this.onFunctionsColumnAdded(functionColumn)
         },
-        testMe(event) {
-            console.log('itemUpdated', event)
+        sortIcon(orderType) {
+            if (orderType === 'ASC') return 'fas fa-arrow-up-short-wide'
+            if (orderType === 'DESC') return 'fas fa-arrow-down-wide-short'
+            return 'fas fa-arrows-up-down' // default/no sort
+        },
+        toggleSort(col) {
+            const isMeasure = col.fieldType === 'MEASURE'
+            const next = { null: 'ASC', ASC: 'DESC', DESC: null }
+            const newOrder = next[col.orderType]
+
+            this.widgetModel.columns.forEach((c) => {
+                if (c === col) return
+                if (isMeasure || c.fieldType === 'MEASURE') c.orderType = null
+            })
+
+            col.orderType = newOrder
         }
     }
 })

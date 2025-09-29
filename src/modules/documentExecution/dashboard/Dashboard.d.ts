@@ -492,6 +492,7 @@ export interface IWidgetColumn {
     formula?: string
     formulaEditor?: string
     drillOrder?: IDrillOrderItem
+    orderColumn?: string
     orderType?: string
     sort?: string
     serieType?: string
