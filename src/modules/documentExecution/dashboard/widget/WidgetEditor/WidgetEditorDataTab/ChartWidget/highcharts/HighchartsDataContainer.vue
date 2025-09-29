@@ -9,11 +9,11 @@
                 <HighchartsLimitSettings :widget-model="widgetModel"> </HighchartsLimitSettings>
             </q-card-section>
         </q-card>
-        <HighchartsBubbleDataContainer v-if="['bubble'].includes(chartType)" :prop-widget-model="widgetModel" :selected-dataset="selectedDataset" :selected-dataset-columns="selectedDatasetColumns"></HighchartsBubbleDataContainer>
-        <HighchartsSankeyDataContainer v-else-if="['dependencywheel', 'sankey', 'streamgraph', 'packedbubble'].includes(chartType)" :prop-widget-model="widgetModel" :selected-dataset="selectedDataset" :selected-dataset-columns="selectedDatasetColumns"></HighchartsSankeyDataContainer>
-        <HighchartsDumbbellDataContainer v-else-if="['dumbbell'].includes(chartType)" :prop-widget-model="widgetModel" :selected-dataset="selectedDataset" :selected-dataset-columns="selectedDatasetColumns"></HighchartsDumbbellDataContainer>
-        <HighchartsScatterDataContainer v-else-if="['scatter'].includes(chartType)" :prop-widget-model="widgetModel" :selected-dataset="selectedDataset" :selected-dataset-columns="selectedDatasetColumns"></HighchartsScatterDataContainer>
-        <HighchartsCommonDataContainer v-else :prop-widget-model="widgetModel" :selected-dataset="selectedDataset" :selected-dataset-columns="selectedDatasetColumns"></HighchartsCommonDataContainer>
+        <HighchartsBubbleDataContainer v-if="['bubble'].includes(chartType)" :prop-widget-model="widgetModel" :selected-dataset="selectedDataset"></HighchartsBubbleDataContainer>
+        <HighchartsSankeyDataContainer v-else-if="['dependencywheel', 'sankey', 'streamgraph', 'packedbubble'].includes(chartType)" :prop-widget-model="widgetModel" :selected-dataset="selectedDataset"></HighchartsSankeyDataContainer>
+        <HighchartsDumbbellDataContainer v-else-if="['dumbbell'].includes(chartType)" :prop-widget-model="widgetModel" :selected-dataset="selectedDataset"></HighchartsDumbbellDataContainer>
+        <HighchartsScatterDataContainer v-else-if="['scatter'].includes(chartType)" :prop-widget-model="widgetModel" :selected-dataset="selectedDataset"></HighchartsScatterDataContainer>
+        <HighchartsCommonDataContainer v-else :prop-widget-model="widgetModel" :selected-dataset="selectedDataset"></HighchartsCommonDataContainer>
     </div>
 </template>
 
@@ -31,7 +31,7 @@ import HighchartsLimitSettings from './HighchartsLimitSettings.vue'
 export default defineComponent({
     name: 'highcharts-widget-data-container',
     components: { ChartWidgetChartTypeDropdown, HighchartsBubbleDataContainer, HighchartsCommonDataContainer, HighchartsSankeyDataContainer, HighchartsLimitSettings, HighchartsDumbbellDataContainer, HighchartsScatterDataContainer },
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, selectedDataset: { type: Object as PropType<IDataset | null> }, selectedDatasetColumns: { type: Array as PropType<IDatasetColumn[]>, required: true } },
+    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, selectedDataset: { type: Object as PropType<IDataset | null> } },
     emits: ['selectedChartTypeChanged'],
     data() {
         return {}

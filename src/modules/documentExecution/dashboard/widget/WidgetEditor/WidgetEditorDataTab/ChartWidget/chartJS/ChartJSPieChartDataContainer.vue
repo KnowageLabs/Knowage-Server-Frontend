@@ -1,25 +1,14 @@
 <template>
     <div v-if="widget" class="p-d-flex p-flex-column">
-        <WidgetEditorColumnTable
-            class="p-m-2 p-order-1"
-            :widget-model="widget"
-            :items="columnTableItems['ATTRIBUTES'] ?? []"
-            :settings="{ ...commonDescriptor.columnTableSettings, ...chartJSDescriptor.pieChartColumnTableSettings[0] }"
-            :error="isAttributesTableInvalid()"
-            :selected-dataset-columns="selectedDatasetColumns"
-            @rowReorder="onColumnsReorder"
-            @itemAdded="onColumnAdded"
-            @itemUpdated="onColumnItemUpdate"
-            @itemDeleted="onColumnDelete"
-        ></WidgetEditorColumnTable>
-        <WidgetEditorColumnTable class="p-m-2 p-order-3" :widget-model="widget" :items="columnTableItems['MEASURES'] ?? []" :settings="{ ...commonDescriptor.columnTableSettings, ...chartJSDescriptor.pieChartColumnTableSettings[1] }" :error="isMeasureTableInvalid()" :selected-dataset-columns="selectedDatasetColumns" @itemAdded="onColumnAdded" @itemUpdated="onColumnItemUpdate" @itemDeleted="onColumnDelete"></WidgetEditorColumnTable>
+        <WidgetEditorColumnTable class="p-m-2 p-order-1" :widget-model="widget" :items="columnTableItems['ATTRIBUTES'] ?? []" :settings="{ ...commonDescriptor.columnTableSettings, ...chartJSDescriptor.pieChartColumnTableSettings[0] }" :error="isAttributesTableInvalid()" @rowReorder="onColumnsReorder" @itemAdded="onColumnAdded" @itemUpdated="onColumnItemUpdate" @itemDeleted="onColumnDelete"></WidgetEditorColumnTable>
+        <WidgetEditorColumnTable class="p-m-2 p-order-3" :widget-model="widget" :items="columnTableItems['MEASURES'] ?? []" :settings="{ ...commonDescriptor.columnTableSettings, ...chartJSDescriptor.pieChartColumnTableSettings[1] }" :error="isMeasureTableInvalid()" @itemAdded="onColumnAdded" @itemUpdated="onColumnItemUpdate" @itemDeleted="onColumnDelete"></WidgetEditorColumnTable>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { emitter } from '../../../../../DashboardHelpers'
-import { IDataset, IDatasetColumn, IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IDataset, IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import descriptor from '../../TableWidget/TableWidgetDataDescriptor.json'
 import chartJSDescriptor from './ChartJSDataContainerDescriptor.json'
 import commonDescriptor from '../../common/WidgetCommonDescriptor.json'
@@ -30,8 +19,7 @@ export default defineComponent({
     components: { WidgetEditorColumnTable },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
-        selectedDataset: { type: Object as PropType<IDataset | null> },
-        selectedDatasetColumns: { type: Array as PropType<IDatasetColumn[]>, required: true }
+        selectedDataset: { type: Object as PropType<IDataset | null> }
     },
     data() {
         return {

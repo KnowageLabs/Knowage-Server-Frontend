@@ -9,7 +9,6 @@
             :chart-type="chartType"
             :error="isAttributesTableInvalid()"
             @rowReorder="onColumnsReorder($event, 'ATTRIBUTES')"
-            :selected-dataset-columns="selectedDatasetColumns"
             @itemAdded="onColumnAdded($event, null)"
             @itemUpdated="onColumnItemUpdate"
             @itemDeleted="onColumnDelete"
@@ -26,7 +25,6 @@
             :axis="axis"
             :error="isAxisTableInvalid(axis)"
             @rowReorder="onColumnsReorder($event, axis)"
-            :selected-dataset-columns="selectedDatasetColumns"
             @itemAdded="onColumnAdded($event, axis)"
             @itemUpdated="onColumnItemUpdate"
             @itemDeleted="onColumnDelete"
@@ -43,15 +41,13 @@ import descriptor from '../../TableWidget/TableWidgetDataDescriptor.json'
 import highchartDescriptor from './HighchartsDataContainerDescriptor.json'
 import commonDescriptor from '../../common/WidgetCommonDescriptor.json'
 import WidgetEditorColumnTable from '../../common/WidgetEditorColumnTable.vue'
-import ChartWidgetColumnForm from '../common/ChartWidgetColumnForm.vue'
 
 export default defineComponent({
     name: 'highcharts-scatter-data-container',
-    components: { WidgetEditorColumnTable, ChartWidgetColumnForm },
+    components: { WidgetEditorColumnTable },
     props: {
         propWidgetModel: { type: Object as PropType<IWidget>, required: true },
-        selectedDataset: { type: Object as PropType<IDataset | null> },
-        selectedDatasetColumns: { type: Array as PropType<IDatasetColumn[]>, required: true }
+        selectedDataset: { type: Object as PropType<IDataset | null> }
     },
     data() {
         return {

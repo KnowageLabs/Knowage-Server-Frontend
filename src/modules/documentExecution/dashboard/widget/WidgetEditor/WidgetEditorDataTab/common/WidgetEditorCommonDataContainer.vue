@@ -20,7 +20,10 @@ import WidgetEditorColumnTable from './WidgetEditorColumnTable.vue'
 export default defineComponent({
     name: 'widget-editor-common-data-container',
     components: { TableWidgetDataForm, TableWidgetColumnForm, WidgetEditorColumnTable },
-    props: { propWidgetModel: { type: Object as PropType<IWidget>, required: true }, selectedDataset: { type: Object as PropType<IDataset | null> } },
+    props: {
+        propWidgetModel: { type: Object as PropType<IWidget>, required: true },
+        selectedDataset: { type: Object as PropType<IDataset | null> }
+    },
     data() {
         return {
             descriptor,

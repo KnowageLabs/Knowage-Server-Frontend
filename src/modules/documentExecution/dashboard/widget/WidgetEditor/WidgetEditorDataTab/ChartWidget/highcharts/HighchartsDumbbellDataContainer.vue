@@ -11,7 +11,6 @@
             :settings="getValuesAxisSettings(axis)"
             :chart-type="chartType"
             :axis="axis"
-            :selected-dataset-columns="selectedDatasetColumns"
             :error="isAxisTableInvalid(axis)"
             @rowReorder="onColumnsReorder($event, axis)"
             @itemAdded="onColumnAdded($event, axis)"
@@ -23,7 +22,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IDataset, IDatasetColumn, IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IDataset, IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '../../../../../DashboardHelpers'
 import { removeSerieFromWidgetModel } from '../../../helpers/chartWidget/highcharts/HighchartsDataTabHelpers'
 import descriptor from '../../TableWidget/TableWidgetDataDescriptor.json'
@@ -36,8 +35,7 @@ export default defineComponent({
     components: { WidgetEditorColumnTable },
     props: {
         propWidgetModel: { type: Object as PropType<IWidget>, required: true },
-        selectedDataset: { type: Object as PropType<IDataset | null> },
-        selectedDatasetColumns: { type: Array as PropType<IDatasetColumn[]>, required: true }
+        selectedDataset: { type: Object as PropType<IDataset | null> }
     },
     data() {
         return {

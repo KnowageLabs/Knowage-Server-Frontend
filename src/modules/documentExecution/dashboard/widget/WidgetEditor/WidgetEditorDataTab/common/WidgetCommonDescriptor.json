@@ -233,11 +233,11 @@
         },
         "columns": [
             {
-                "field": "alias",
-                "style": "max-width: 200px"
+                "field": "columnName"
             },
             {
-                "field": "columnName"
+                "field": "alias",
+                "style": "max-width: 200px"
             },
             {
                 "field": "aggregation",

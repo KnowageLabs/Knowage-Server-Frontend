@@ -1,7 +1,7 @@
 <template>
     <div v-if="widgetModel">
         <ChartWidgetChartTypeDropdown :widget-model="widgetModel" @selectedChartTypeChanged="$emit('selectedChartTypeChanged', $event)"></ChartWidgetChartTypeDropdown>
-        <ChartJSPieChartDataContainer :widget-model="widgetModel" :selected-dataset="selectedDataset" :selected-dataset-columns="selectedDatasetColumns"></ChartJSPieChartDataContainer>
+        <ChartJSPieChartDataContainer :widget-model="widgetModel" :selected-dataset="selectedDataset"></ChartJSPieChartDataContainer>
     </div>
 </template>
 
@@ -16,8 +16,7 @@ export default defineComponent({
     components: { ChartWidgetChartTypeDropdown, ChartJSPieChartDataContainer },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
-        selectedDataset: { type: Object as PropType<IDataset | null> },
-        selectedDatasetColumns: { type: Array as PropType<IDatasetColumn[]>, required: true }
+        selectedDataset: { type: Object as PropType<IDataset | null> }
     },
     emits: ['selectedChartTypeChanged'],
     data() {
