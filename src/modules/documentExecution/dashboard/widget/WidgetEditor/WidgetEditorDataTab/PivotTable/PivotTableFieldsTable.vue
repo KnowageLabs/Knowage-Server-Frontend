@@ -126,7 +126,6 @@ export default defineComponent({
             this.$emit('rowReorder', { fields: event.value, fieldType: this.fieldType })
         },
         onDropComplete(event: any) {
-            console.log('DROP COMPLETE', event)
             if (event.dataTransfer.getData('text/plain') === 'b') return
             const eventData = JSON.parse(event.dataTransfer.getData('text/plain'))
             const tempColumn = createNewWidgetColumn(eventData, this.widgetType)
