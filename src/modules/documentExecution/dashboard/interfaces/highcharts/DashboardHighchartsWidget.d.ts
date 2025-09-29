@@ -91,6 +91,7 @@ export interface IHighchartsChartModel {
         noData: string
     }
     chart: {
+        reflow: boolean
         options3d: IHighchartsOptions3D
         type: string
         backgroundColor?: any

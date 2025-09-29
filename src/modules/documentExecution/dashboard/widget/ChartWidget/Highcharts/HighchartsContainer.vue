@@ -85,7 +85,9 @@ export default defineComponent({
             highchartsInstance: {} as any,
             drillLevel: 0,
             likeSelections: [] as any[],
-            variables: [] as IVariable[]
+            variables: [] as IVariable[],
+            originalReflow: null,
+            handleMouseUp: null as (() => void) | null
         }
     },
     watch: {
@@ -100,6 +102,10 @@ export default defineComponent({
     },
     unmounted() {
         this.removeEventListeners()
+
+        if (this.handleMouseUp) {
+            window.removeEventListener('mouseup', this.handleMouseUp)
+        }
     },
     computed: {
         ...mapState(store, ['dashboards'])
@@ -111,11 +117,15 @@ export default defineComponent({
             emitter.on('refreshChart', this.onRefreshChart)
             emitter.on('widgetResized', this.resizeChart)
             emitter.on('chartTypeChanged', this.onRefreshChart)
+            this.listenOnMouseUp()
         },
         removeEventListeners() {
             emitter.off('refreshChart', this.onRefreshChart)
             emitter.off('widgetResized', this.resizeChart)
             emitter.off('chartTypeChanged', this.onRefreshChart)
+            if (this.handleMouseUp) {
+                window.removeEventListener('mouseup', this.handleMouseUp)
+            }
         },
         loadVariables() {
             this.variables = this.propVariables
@@ -126,6 +136,28 @@ export default defineComponent({
             if (this.chartModel?.chart.type === 'wordcloud') return
             this.loadVariables()
             this.updateChartModel()
+        },
+        listenOnMouseUp() {
+            const originalAddEvent = Highcharts.addEvent
+            this.highchartsInstance.addEvent = function (el, type, fn, options) {
+                if (el === window && type === 'resize') {
+                    return
+                }
+                return originalAddEvent(el, type, fn, options)
+            }
+            this.highchartsInstance.addEvent = originalAddEvent
+            this.originalReflow = this.highchartsInstance.reflow
+            this.highchartsInstance.reflow = function () {}
+            window.addEventListener('mouseup', () => {
+                this.highchartsInstance?.reflow()
+            })
+            const handleMouseUp = () => {
+                if (this.highchartsInstance && this.originalReflow) {
+                    this.originalReflow.call(this.highchartsInstance)
+                }
+            }
+
+            window.addEventListener('mouseup', handleMouseUp)
         },
         updateChartModel() {
             if (!this.chartModel) return
@@ -328,9 +360,12 @@ export default defineComponent({
             return selection
         },
         resizeChart() {
-            setTimeout(() => {
-                this.highchartsInstance.reflow()
-            }, 100)
+            console.log(this.highchartsInstance)
+            this.highchartsInstance.series.forEach((serie: any) => {
+                serie.data.forEach((d: any) => {
+                    if (d.dataLabelUpper) d.dataLabelUpper.destroy()
+                })
+            })
         },
         getModelForRender() {
             const formattedChartModel = deepcopy(this.chartModel)
