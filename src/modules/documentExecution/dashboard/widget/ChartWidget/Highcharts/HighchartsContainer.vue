@@ -129,6 +129,10 @@ export default defineComponent({
         },
         updateChartModel() {
             if (!this.chartModel) return
+
+            const chartContainer = document.getElementById(this.chartID)
+            if (!chartContainer) return
+
             Highcharts.setOptions({ lang: { noData: this.chartModel.lang.noData } })
             this.widgetModel.settings.chartModel.updateChartColorSettings(this.widgetModel)
 
