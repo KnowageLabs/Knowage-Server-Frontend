@@ -1,21 +1,6 @@
 <template>
-    <div v-if="widgetModel" class="p-grid">
-        <FieldTable
-            v-for="(field, index) in widgetModel.fields"
-            :key="index"
-            class="p-col-12"
-            :field-type="index"
-            :widget-model="widgetModel"
-            :items="field"
-            :settings="descriptor[index]"
-            :error="getErrorForFieldType(index)"
-            @row-reorder="onFieldsReorder"
-            @item-added="onFieldAdded"
-            @item-selected="setSelectedField"
-            @item-updated="onFieldItemUpdate"
-            @item-deleted="onFieldDelete"
-        />
-        <FieldForm :widget-model="widgetModel" :selected-column="selectedField" />
+    <div v-if="widgetModel" class="p-d-flex p-flex-column p-mx-3">
+        <FieldTable v-for="(field, index) in widgetModel.fields" :key="index" class="p-mb-3" :field-type="index" :widget-model="widgetModel" :items="field" :settings="descriptor[index]" :error="getErrorForFieldType(index)" @row-reorder="onFieldsReorder" @item-added="onFieldAdded" @item-selected="setSelectedField" @item-updated="onFieldItemUpdate" @item-deleted="onFieldDelete" />
     </div>
 </template>
 
@@ -26,11 +11,10 @@ import { IWidget, IDataset, IWidgetColumn } from '@/modules/documentExecution/da
 import { emitter } from '../../../../DashboardHelpers'
 import { removeColumnFromPivotTableWidgetModel } from '../../helpers/pivotTableWidget/PivotTableFunctions'
 import FieldTable from './PivotTableFieldsTable.vue'
-import FieldForm from './PivotTableFieldForm.vue'
 
 export default defineComponent({
     name: 'pivot-table-data-container',
-    components: { FieldTable, FieldForm },
+    components: { FieldTable },
     props: { propWidgetModel: { type: Object as PropType<IWidget>, required: true }, selectedDataset: { type: Object as PropType<IDataset | null> } },
     data() {
         return {

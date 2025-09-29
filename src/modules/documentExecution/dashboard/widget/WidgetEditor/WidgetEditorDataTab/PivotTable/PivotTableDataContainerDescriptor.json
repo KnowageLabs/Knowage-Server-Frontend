@@ -37,16 +37,16 @@
     ],
     "columns": {
         "buttonColumnStyle": {
-            "min-width": "125px",
-            "text-align": "end"
+            "text-align": "end",
+            "width": "94px"
         },
         "columns": [
             {
-                "field": "alias",
-                "style": "max-width: 200px"
+                "field": "columnName"
             },
             {
-                "field": "columnName"
+                "field": "alias",
+                "style": "max-width: 200px"
             },
             {
                 "field": "aggregation",
@@ -58,21 +58,21 @@
         "dropIsActive": true,
         "label": "dashboard.widgetEditor.pivotColumns",
         "rowReorder": {
-            "rowReorderColumnStyle": "width: 3rem"
+            "rowReorderColumnStyle": "width: 2rem; text-align: center;"
         }
     },
     "data": {
         "buttonColumnStyle": {
-            "min-width": "125px",
-            "text-align": "end"
+            "text-align": "end",
+            "width": "94px"
         },
         "columns": [
             {
-                "field": "alias",
-                "style": "max-width: 200px"
+                "field": "columnName"
             },
             {
-                "field": "columnName"
+                "field": "alias",
+                "style": "max-width: 200px"
             },
             {
                 "field": "aggregation",
@@ -84,21 +84,21 @@
         "dropIsActive": true,
         "label": "dashboard.widgetEditor.pivotData",
         "rowReorder": {
-            "rowReorderColumnStyle": "width: 3rem"
+            "rowReorderColumnStyle": "width: 2rem; text-align: center;"
         }
     },
     "filters": {
         "buttonColumnStyle": {
-            "min-width": "125px",
-            "text-align": "end"
+            "text-align": "end",
+            "width": "94px"
         },
         "columns": [
             {
-                "field": "alias",
-                "style": "max-width: 200px"
+                "field": "columnName"
             },
             {
-                "field": "columnName"
+                "field": "alias",
+                "style": "max-width: 200px"
             },
             {
                 "field": "aggregation",
@@ -110,21 +110,21 @@
         "dropIsActive": true,
         "label": "dashboard.widgetEditor.pivotFilters",
         "rowReorder": {
-            "rowReorderColumnStyle": "width: 3rem"
+            "rowReorderColumnStyle": "width: 2rem; text-align: center;"
         }
     },
     "rows": {
         "buttonColumnStyle": {
-            "min-width": "125px",
-            "text-align": "end"
+            "text-align": "end",
+            "width": "94px"
         },
         "columns": [
             {
-                "field": "alias",
-                "style": "max-width: 200px"
+                "field": "columnName"
             },
             {
-                "field": "columnName"
+                "field": "alias",
+                "style": "max-width: 200px"
             },
             {
                 "field": "aggregation",
@@ -136,7 +136,7 @@
         "dropIsActive": true,
         "label": "dashboard.widgetEditor.pivotRows",
         "rowReorder": {
-            "rowReorderColumnStyle": "width: 3rem"
+            "rowReorderColumnStyle": "width: 2rem; text-align: center;"
         }
     },
     "sortOptions": [
