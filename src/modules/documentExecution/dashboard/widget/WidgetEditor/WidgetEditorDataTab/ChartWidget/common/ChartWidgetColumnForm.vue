@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent, inject, PropType } from 'vue'
 import { IDatasetColumn, IWidget, IWidgetColumn, IWidgetColumnFilter } from '../../../../../Dashboard'
 import { emitter } from '../../../../../DashboardHelpers'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
@@ -46,13 +46,14 @@ import descriptor from './ChartWidgetColumnFormDescriptor.json'
 export default defineComponent({
     name: 'table-widget-column-form',
     components: { Dropdown, WidgetEditorFilterForm },
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, selectedColumn: { type: Object as PropType<IWidgetColumn | null>, required: true }, chartType: { type: String, required: true }, selectedDatasetColumns: { type: Array as PropType<IDatasetColumn[]>, required: true } },
+    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, selectedColumn: { type: Object as PropType<IWidgetColumn | null>, required: true }, chartType: { type: String, required: true } },
     data() {
         return {
             descriptor,
             commonDescriptor,
             column: null as IWidgetColumn | null,
-            getTranslatedLabel
+            getTranslatedLabel,
+            selectedDatasetColumns: inject('selectedDatasetColumns', []) as unknown as IDatasetColumn[]
         }
     },
     computed: {

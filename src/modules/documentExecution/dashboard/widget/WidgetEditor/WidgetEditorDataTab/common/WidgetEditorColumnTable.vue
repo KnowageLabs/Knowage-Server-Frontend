@@ -36,7 +36,7 @@
                         </template>
                     </Column>
                     <template #expansion="slotProps">
-                        <ChartWidgetColumnForm v-if="widgetType === 'highcharts' || widgetType === 'chartjs'" :widget-model="widgetModel" :selected-column="slotProps.data" :chart-type="chartType" :selected-dataset-columns="selectedDatasetColumns"></ChartWidgetColumnForm>
+                        <ChartWidgetColumnForm v-if="widgetType === 'highcharts' || widgetType === 'chartjs'" :widget-model="widgetModel" :selected-column="slotProps.data" :chart-type="chartType"></ChartWidgetColumnForm>
                         <TableWidgetColumnForm v-else :widget-model="widgetModel" :selected-column="slotProps.data"></TableWidgetColumnForm>
                     </template>
                 </DataTable>
@@ -63,7 +63,7 @@ import TableWidgetColumnForm from '../TableWidget/TableWidgetColumnForm.vue'
 export default defineComponent({
     name: 'widget-editor-column-table',
     components: { Column, DataTable, Dropdown, InlineMessage, ChartWidgetColumnForm, TableWidgetColumnForm },
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, items: { type: Array, required: true }, settings: { type: Object, required: true }, chartType: { type: String }, axis: { type: String }, error: { type: Boolean }, selectedDatasetColumns: { type: Array as PropType<IDatasetColumn[]>, required: true } },
+    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, items: { type: Array, required: true }, settings: { type: Object, required: true }, chartType: { type: String }, axis: { type: String }, error: { type: Boolean } },
     emits: ['rowReorder', 'itemUpdated', 'itemDeleted', 'itemAdded', 'singleItemReplaced'],
     data() {
         return {

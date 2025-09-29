@@ -11,7 +11,6 @@
             @rowReorder="onColumnsReorder($event, 'ATTRIBUTES')"
             @itemAdded="onColumnAdded"
             @itemUpdated="onColumnItemUpdate"
-            @itemSelected="setSelectedColumn($event, 2)"
             @itemDeleted="onColumnDelete"
         ></WidgetEditorColumnTable>
         <WidgetEditorColumnTable
@@ -24,7 +23,6 @@
             @rowReorder="onColumnsReorder($event, 'MEASURES')"
             @itemAdded="onColumnAdded"
             @itemUpdated="onColumnItemUpdate"
-            @itemSelected="setSelectedColumn($event, 4)"
             @itemDeleted="onColumnDelete"
         ></WidgetEditorColumnTable>
         <ChartWidgetColumnForm class="p-m-2" :style="{ order: formFlexOrder }" :widget-model="widgetModel" :selected-column="selectedColumn" :chart-type="chartType"></ChartWidgetColumnForm>
@@ -113,10 +111,6 @@ export default defineComponent({
                 emitter.emit('refreshWidgetWithData', this.widgetModel.id)
                 if (this.widgetModel.columns[index].id === this.selectedColumn?.id) this.selectedColumn = { ...this.widgetModel.columns[index] }
             }
-        },
-        setSelectedColumn(column: IWidgetColumn, formFlexOrder: number) {
-            this.formFlexOrder = formFlexOrder
-            this.selectedColumn = { ...column }
         },
         onColumnDelete(column: IWidgetColumn) {
             const index = this.widgetModel.columns.findIndex((tempColumn: IWidgetColumn) => tempColumn.id === column.id)
