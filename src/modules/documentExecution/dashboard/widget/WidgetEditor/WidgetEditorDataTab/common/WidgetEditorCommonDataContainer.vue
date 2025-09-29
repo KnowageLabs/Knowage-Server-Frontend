@@ -2,7 +2,6 @@
     <div v-if="widgetModel" class="p-m-3">
         <TableWidgetDataForm v-if="widgetType !== 'discovery'" class="p-mb-3" :widget-model="widgetModel" :sorting-column-options="columnTableItems"></TableWidgetDataForm>
         <WidgetEditorColumnTable :widget-model="widgetModel" :items="columnTableItems" :settings="descriptor.columnTableSettings" @rowReorder="onColumnsReorder" @itemAdded="onColumnAdded" @itemUpdated="onColumnItemUpdate" @itemDeleted="onColumnDelete"></WidgetEditorColumnTable>
-        <TableWidgetColumnForm :widget-model="widgetModel" :selected-column="selectedColumn"></TableWidgetColumnForm>
     </div>
 </template>
 
@@ -14,12 +13,11 @@ import { addColumnToDiscoveryWidgetModel, removeColumnFromDiscoveryWidgetModel }
 import { emitter } from '../../../../DashboardHelpers'
 import descriptor from './WidgetCommonDescriptor.json'
 import TableWidgetDataForm from '../TableWidget/TableWidgetDataForm.vue'
-import TableWidgetColumnForm from '../TableWidget/TableWidgetColumnForm.vue'
 import WidgetEditorColumnTable from './WidgetEditorColumnTable.vue'
 
 export default defineComponent({
     name: 'widget-editor-common-data-container',
-    components: { TableWidgetDataForm, TableWidgetColumnForm, WidgetEditorColumnTable },
+    components: { TableWidgetDataForm, WidgetEditorColumnTable },
     props: {
         propWidgetModel: { type: Object as PropType<IWidget>, required: true },
         selectedDataset: { type: Object as PropType<IDataset | null> }

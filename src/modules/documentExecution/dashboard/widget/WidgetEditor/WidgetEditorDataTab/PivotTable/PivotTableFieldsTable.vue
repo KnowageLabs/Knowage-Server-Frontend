@@ -1,47 +1,51 @@
 <template>
-    <div class="widget-editor-card p-d-flex p-flex-column">
-        <div class="p-d-flex p-flex-column">
-            <label v-if="settings?.label" class="kn-material-input-label">{{ $t(settings?.label) }}</label>
-            <small v-if="settings?.hint">{{ $t(settings?.hint) }}</small>
-        </div>
-
-        <div class="p-d-flex p-flex-column kn-flex" :class="{ 'dropzone-active': settings.dropIsActive, ['widget-editor-column-table-invalid']: error && fieldType !== 'filters' }" @drop.stop="onDropComplete($event)" @dragover.prevent @dragenter.prevent @dragleave.prevent>
-            <span v-if="settings.dropIsActive && rows.length === 0" class="drag-columns-hint">{{ $t(settings.dragColumnsHint) }}</span>
-            <DataTable v-else v-model:filters="filters" :value="rows" class="p-datatable-sm kn-table table-headers-hidden p-m-2" :data-key="settings.dataKey" :global-filter-fields="settings.globalFilterFields" :responsive-layout="'scroll'" :breakpoint="'600px'" @rowReorder="onRowReorder">
-                <Column v-if="rowReorderEnabled" :row-reorder="rowReorderEnabled" :style="settings.rowReorder.rowReorderColumnStyle" />
-                <Column>
-                    <template #body="slotProps">
-                        <i :class="getIcon(slotProps.data)"></i>
-                    </template>
-                </Column>
-                <Column v-for="column in settings.columns" :key="column.field" class="kn-truncated" :field="column.field" :header="column.header ? $t(column.header) : ''" :sortable="column.sortable">
-                    <template #body="slotProps">
-                        <div :style="column.style ?? ''">
-                            <InputText v-if="column.field === 'alias'" v-model="slotProps.data[column.field]" class="kn-material-input" @change="onColumnAliasRenamed(slotProps.data)" />
-                            <Dropdown v-else-if="column.field === 'aggregation' && aggregationDropdownIsVisible(slotProps.data)" v-model="slotProps.data[column.field]" class="kn-material-input column-aggregation-dropdown" :options="getAggregationOptions(slotProps.data)" option-label="label" option-value="value" @change="$emit('itemUpdated', slotProps.data)" />
-                            <span v-else-if="column.field === 'columnName'" class="kn-truncated">{{ '(' + slotProps.data[column.field] + ')' }}</span>
-                            <span v-else-if="!slotProps.data.formula" class="kn-truncated">{{ slotProps.data[column.field] }}</span>
-                        </div>
-                    </template>
-                </Column>
-                <Column :style="settings.buttonColumnStyle">
-                    <template #body="slotProps">
-                        <div>
+    <q-card :class="{ ['widget-editor-column-table-invalid']: error && fieldType !== 'filters', 'dropzone-active': listDragActive }" flat bordered>
+        <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+            <q-toolbar-title v-if="settings.label">{{ $t(settings.label) }}</q-toolbar-title>
+            <Button v-if="settings.hint" v-tooltip.left="$t(settings.hint)" icon="pi pi-question-circle" class="p-button-text p-button-plain" />
+        </q-toolbar>
+        <q-card-section class="p-p-0">
+            <div @drop.stop="onDropComplete($event)" @dragover.prevent @dragenter.prevent @dragleave.prevent>
+                <InlineMessage v-if="settings.dropIsActive && rows.length === 0" class="p-d-flex p-flex-row p-jc-center p-ai-center p-m-1 p-p-5" severity="info" closable="false">{{ $t(settings.dragColumnsHint) }}</InlineMessage>
+                <DataTable v-else v-model:filters="filters" :value="rows" v-model:expandedRows="expandedRows" class="kn-table p-datatable-sm editor-col-table" :data-key="settings.dataKey" :global-filter-fields="settings.globalFilterFields" collapsedRowIcon="fas fa-cog" expandedRowIcon="fas fa-cog" :responsive-layout="'scroll'" :breakpoint="'600px'" @rowReorder="onRowReorder">
+                    <Column v-if="rowReorderEnabled" :row-reorder="rowReorderEnabled" style="padding-top: 5px" :style="settings.rowReorder.rowReorderColumnStyle" />
+                    <Column :style="settings.rowReorder.rowReorderColumnStyle">
+                        <template #body="slotProps">
+                            <i :class="getIcon(slotProps.data)"></i>
+                        </template>
+                    </Column>
+                    <Column v-for="column in settings.columns" :key="column.field" class="kn-truncated p-pl-2" :field="column.field" :header="column.header ? $t(column.header) : ''" :sortable="column.sortable">
+                        <template #body="slotProps">
+                            <q-input v-if="column.field === 'alias'" :label="$t('common.alias')" v-model="slotProps.data[column.field]" dense square @change="onColumnAliasRenamed(slotProps.data)" />
+                            <q-select v-else-if="column.field === 'aggregation' && aggregationDropdownIsVisible(slotProps.data)" v-model="slotProps.data[column.field]" :options="getAggregationOptions(slotProps.data)" emitValue dense option-label="label" option-value="value" @update:model-value="$emit('itemUpdated', slotProps.data)" />
+                            <q-input v-else-if="column.field === 'columnName'" :label="$t('components.knCalculatedField.columnName')" v-model="slotProps.data[column.field]" dense square readonly />
+                            <span v-else-if="!slotProps.data.formula && column.field !== 'columnName'" class="kn-truncated 2">{{ slotProps.data[column.field] }}</span>
+                        </template>
+                    </Column>
+                    <Column :style="settings.buttonColumnStyle">
+                        <template #body="slotProps">
+                            <Button v-if="fieldType !== 'data'" v-tooltip.top="$t('common.sort')" :icon="getColumnSortIcon(slotProps.data)" class="p-button-link" @click.stop="changeColumnSort(slotProps.data)"></Button>
                             <Button v-if="slotProps.data.formula" v-tooltip.top="$t('common.edit')" icon="fas fa-calculator" class="p-button-link" @click.stop="openCalculatedFieldDialog(slotProps.data)"></Button>
                             <Button v-if="slotProps.data.type === 'pythonFunction'" v-tooltip.top="$t('common.edit')" icon="fas fa-superscript" class="p-button-link" @click.stop="openFunctionsColumnDialog(slotProps.data)"></Button>
-                            <Button v-if="fieldType !== 'data'" v-tooltip.top="$t('common.sort')" :icon="getColumnSortIcon(slotProps.data)" class="p-button-link" @click.stop="changeColumnSort(slotProps.data)"></Button>
-                            <Button v-tooltip.top="$t('common.edit')" icon="fas fa-cog" class="p-button-link" data-test="edit-button" @click.stop="$emit('itemSelected', slotProps.data)"></Button>
+                        </template>
+                    </Column>
+                    <Column expander style="width: 10px" />
+                    <Column style="width: 10px">
+                        <template #body="slotProps">
                             <Button v-tooltip.top="$t('common.delete')" icon="pi pi-trash" class="p-button-link" data-test="delete-button" @click.stop="deleteItem(slotProps.data, slotProps.index)"></Button>
-                        </div>
+                        </template>
+                    </Column>
+                    <template #expansion="slotProps">
+                        <TableWidgetColumnForm :widget-model="widgetModel" :selected-column="slotProps.data"></TableWidgetColumnForm>
                     </template>
-                </Column>
-            </DataTable>
-        </div>
-    </div>
+                </DataTable>
+            </div>
+        </q-card-section>
+    </q-card>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent, inject, PropType } from 'vue'
 import { filterDefault } from '@/helpers/commons/filterHelper'
 import { IWidget, IWidgetColumn, IWidgetFunctionColumn } from '../../../../Dashboard'
 import { emitter } from '../../../../DashboardHelpers'
@@ -52,10 +56,12 @@ import Dropdown from 'primevue/dropdown'
 import commonDescriptor from '../common/WidgetCommonDescriptor.json'
 import descriptor from './PivotTableDataContainerDescriptor.json'
 import deepcopy from 'deepcopy'
+import InlineMessage from 'primevue/inlinemessage'
+import TableWidgetColumnForm from '../TableWidget/TableWidgetColumnForm.vue'
 
 export default defineComponent({
     name: 'widget-editor-column-table',
-    components: { Column, DataTable, Dropdown },
+    components: { Column, DataTable, Dropdown, InlineMessage, TableWidgetColumnForm },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, items: { type: Array, required: true }, settings: { type: Object, required: true }, fieldType: { type: String }, error: { type: Boolean } },
     emits: ['rowReorder', 'itemUpdated', 'itemSelected', 'itemDeleted', 'itemAdded', 'singleItemReplaced'],
     data() {
@@ -64,7 +70,9 @@ export default defineComponent({
             commonDescriptor,
             rows: [] as IWidgetColumn[],
             filters: {} as any,
-            inputValuesMap: {}
+            inputValuesMap: {},
+            listDragActive: inject('listDragActive', false) as boolean,
+            expandedRows: []
         }
     },
     computed: {
@@ -118,6 +126,7 @@ export default defineComponent({
             this.$emit('rowReorder', { fields: event.value, fieldType: this.fieldType })
         },
         onDropComplete(event: any) {
+            console.log('DROP COMPLETE', event)
             if (event.dataTransfer.getData('text/plain') === 'b') return
             const eventData = JSON.parse(event.dataTransfer.getData('text/plain'))
             const tempColumn = createNewWidgetColumn(eventData, this.widgetType)
@@ -138,7 +147,7 @@ export default defineComponent({
             this.$emit('itemDeleted', item)
         },
         aggregationDropdownIsVisible(row: any) {
-            return row.fieldType === 'MEASURE' && this.widgetType !== 'discovery' && !row.formula
+            return row.fieldType === 'MEASURE' && !row.formula
         },
         updateSelectedColumn(selectedColumn: IWidgetColumn) {
             const index = this.rows.findIndex((tempColumn: IWidgetColumn) => tempColumn.id === selectedColumn.id)
@@ -215,22 +224,17 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.drag-columns-hint {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 1;
-}
-.table-headers-hidden {
-    ::v-deep(.p-datatable-header) {
+.editor-col-table {
+    :deep(.p-datatable-thead) {
         display: none;
     }
-}
-.column-aggregation-dropdown {
-    min-width: 200px;
-    max-width: 400px;
+    :deep(.p-datatable-row-expansion > td) {
+        padding: 0px !important;
+    }
 }
 .widget-editor-column-table-invalid {
-    border: 1.5px dashed red !important;
+    border: 1px solid rgba(255, 0, 0, 0.61);
+    border-radius: 0px 0px 6px 6px;
+    box-shadow: 0px 0px 3px 1px rgba(255, 0, 0, 0.637) !important;
 }
 </style>
