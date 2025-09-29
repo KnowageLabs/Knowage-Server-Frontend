@@ -108,7 +108,7 @@ export default defineComponent({
                 if (localStorage.getItem('locale')) {
                     storedLocale = localStorage.getItem('locale')
                 }
-                localStorage.setItem('locale', storedLocale)
+                localStorage.setItem('locale', storedLocale.replace('_', '-'))
                 localStorage.setItem('token', response.data.userUniqueIdentifier)
 
                 this.setLocale(storedLocale)
@@ -119,7 +119,7 @@ export default defineComponent({
                 this.$primevue.config.locale.dateFormat = primeVueDate(getLocale(true))
 
                 const language = this.$i18n
-                const splittedLanguage = language.locale.split('_')
+                const splittedLanguage = language.locale.split('-')
 
                 if (responseLocale !== storedLocale) {
                     let url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/servlet/AdapterHTTP?'

@@ -5,7 +5,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IDataset, ISelection, IVariable } from '../../Dashboard'
-import { mapActions } from 'pinia'
+import { mapActions, mapState } from 'pinia'
 import { IWidget } from '../../Dashboard'
 import { updateStoreSelections, executeChartCrossNavigation } from '../interactionsHelpers/InteractionHelper'
 import { CustomChartDatastore } from '../WidgetEditor/WidgetEditorSettingsTab/CustomChartWidget/datastore/CustomChartWidgetDatastore'
@@ -58,6 +58,7 @@ export default defineComponent({
         this.loadWidgetState()
         this.loadDataToShow()
         this.loadProfileAttributesToDatastore()
+        this.loadDriversToDatastore()
         this.loadVariablesToDatastore()
     },
     unmounted() {
@@ -66,7 +67,9 @@ export default defineComponent({
         this.iframeDocument = null
         this.loadedScriptsCount = 0
     },
-
+    computed: {
+        ...mapState(store, ['dashboards'])
+    },
     methods: {
         ...mapActions(store, ['getInternationalization', 'setSelections', 'getAllDatasets', 'getDashboardDrivers', 'getProfileAttributes', 'getCurrentDashboardView']),
         ...mapActions(appStore, ['setError']),
@@ -81,6 +84,13 @@ export default defineComponent({
                 this.setError({ title: this.$t('common.error.generic'), msg: event.data.error?.message ?? '' })
             } else if (event.data.type === 'clickManager') this.onClickManager(event.data.payload.columnName, event.data.payload.columnValue)
             else if (event.data.type === 'setState') this.onSetState(event.data.payload)
+        },
+        loadDriversToDatastore() {
+            const formattedDrivers = this.getDashboardDrivers(this.dashboardId).reduce((acc: Record<string, any>, driver: any) => {
+                acc[driver.name] = driver.value
+                return acc
+            }, {})
+            this.datastore.setDrivers(formattedDrivers)
         },
         loadProfileAttributesToDatastore() {
             const profileAttributes = this.getProfileAttributes()
@@ -106,7 +116,9 @@ export default defineComponent({
             if (!this.propWidget.settings || !this.propWidget.settings.editor) return
 
             this.htmlContent = this.propWidget.settings.editor.html
-            this.webComponentCss = this.propWidget.settings.editor.css
+            this.webComponentCss = ''
+            if (this.dashboards[this.dashboardId]) this.webComponentCss = this.dashboards[this.dashboardId].configuration?.cssToRender
+            this.webComponentCss += this.propWidget.settings.editor.css
             this.webComponentJs = this.propWidget.settings.editor.js
 
             this.renderCustomWidget()

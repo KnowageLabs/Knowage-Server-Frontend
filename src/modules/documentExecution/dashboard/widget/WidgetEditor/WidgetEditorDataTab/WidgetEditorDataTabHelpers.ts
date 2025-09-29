@@ -14,7 +14,7 @@ const store = useStore()
 export const changeChartType = (chartType: string, widget: IWidget, isEnterprise: boolean) => {
     const selectedThemeId = widget.settings?.style?.themeId ?? null
     delete widget.invalid
-    const tempWidgetColors = widget.settings.chartModel?.model?.colors ? [...widget.settings.chartModel.model.colors] : [...descriptor.defaultColors]
+    const tempWidgetColors = widget.settings.chartModel?.model?.colors && widget.settings.chartModel.model.colors.length > 0 ? [...widget.settings.chartModel.model.colors] : [...descriptor.defaultColors]
     const originalChartStyle = widget.settings.style
 
     if (chartType === 'wordcloud') {
@@ -30,6 +30,12 @@ export const changeChartType = (chartType: string, widget: IWidget, isEnterprise
         widget.settings.chart.colors = tempWidgetColors
         widget.settings.chartModel = createNewHighchartsModel(widget, type, oldChartModel, chartType.endsWith('Stacked'), chartType.endsWith('Inverted'), chartType.endsWith('Jitter'))
         widget.settings.chartModel.updateChartColorSettings(widget)
+        if (typeof widget.settings.chartModel.setLineXAxis === 'function') {
+            widget.settings.chartModel.setLineXAxis()
+        }
+        if (typeof widget.settings.chartModel.setLineYAxis === 'function') {
+            widget.settings.chartModel.setLineYAxis()
+        }
     } else {
         widget.type = 'chartJS'
         widget.settings = createNewChartJSSettings()

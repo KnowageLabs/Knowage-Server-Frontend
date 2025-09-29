@@ -68,7 +68,11 @@ export default defineComponent({
                              * 
                              */
                             static sort(sortOptions:string|object):datastore
-                            /**
+                             /**
+                             * @output drivers object that contains drivers for the currently used document as key:value (ie: {SbiDriver:'SbiDriver', AnotherDriver:'AnotherDriver'})
+                             */
+                            static getDrivers():drivers
+                             /**
                              * @param filterOptions object that contains datasets columns names for properties and the value to be filtered. (ie: {column:'value'})
                              * @param strict Optional, if set to true will return just the items exactly corresponding to the selected filters
                              * 

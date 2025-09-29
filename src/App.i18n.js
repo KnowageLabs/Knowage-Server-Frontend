@@ -5,14 +5,14 @@ const currentLocale = localStorage.getItem('locale') ? localStorage.getItem('loc
 
 const i18n = createI18n({
     locale: currentLocale,
-    fallbackLocale: 'en_US',
+    fallbackLocale: 'en-US',
     messages: {}
 })
 
-import('@/i18n/en_US/messages.json').then((messages) => {
-    import('@/i18n/en_US/helper-messages.json').then((m) => {
-        i18n.global.setLocaleMessage('en_US', messages.default)
-        i18n.global.mergeLocaleMessage('en_US', m.default)
+import('@/i18n/en-US/messages.json').then((messages) => {
+    import('@/i18n/en-US/helper-messages.json').then((m) => {
+        i18n.global.setLocaleMessage('en-US', messages.default)
+        i18n.global.mergeLocaleMessage('en-US', m.default)
     })
 })
 
