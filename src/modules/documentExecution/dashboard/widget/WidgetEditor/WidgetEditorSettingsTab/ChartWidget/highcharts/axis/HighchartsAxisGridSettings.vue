@@ -74,6 +74,11 @@ export default defineComponent({
     methods: {
         loadModel() {
             this.axisModel = (this.axis === 'x' && this.chartType !== 'bar') || (this.chartType === 'bar' && this.axis === 'y') ? this.widgetModel.settings.chartModel.model.xAxis[0] : this.widgetModel.settings.chartModel.model.yAxis[0]
+            if (this.type === 'major') {
+                this.axisModel.gridLineColor = '#000000'
+            } else {
+                this.axisModel.minorGridLineColor = '#000000'
+            }
         },
         onSelectionColorChanged(event: string | null) {
             if (!event || !this.axisModel) return
