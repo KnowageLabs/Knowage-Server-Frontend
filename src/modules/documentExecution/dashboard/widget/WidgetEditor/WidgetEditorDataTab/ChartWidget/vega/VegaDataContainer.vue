@@ -1,6 +1,13 @@
 <template>
     <div v-if="widgetModel">
-        <ChartWidgetChartTypeDropdown :widget-model="widgetModel" @selectedChartTypeChanged="$emit('selectedChartTypeChanged', $event)"></ChartWidgetChartTypeDropdown>
+        <q-card class="p-mx-2" flat bordered>
+            <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+                <q-toolbar-title>{{ $t('dashboard.widgetEditor.toolbars.general') }}</q-toolbar-title>
+            </q-toolbar>
+            <q-card-section>
+                <ChartWidgetChartTypeDropdown :widget-model="widgetModel" @selectedChartTypeChanged="$emit('selectedChartTypeChanged', $event)"></ChartWidgetChartTypeDropdown>
+            </q-card-section>
+        </q-card>
         <VegaCommonDataContainer :prop-widget-model="widgetModel" :selected-dataset="selectedDataset"></VegaCommonDataContainer>
     </div>
 </template>
