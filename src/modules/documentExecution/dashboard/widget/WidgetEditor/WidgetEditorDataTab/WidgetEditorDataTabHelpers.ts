@@ -30,12 +30,7 @@ export const changeChartType = (chartType: string, widget: IWidget, isEnterprise
         widget.settings.chart.colors = tempWidgetColors
         widget.settings.chartModel = createNewHighchartsModel(widget, type, oldChartModel, chartType.endsWith('Stacked'), chartType.endsWith('Inverted'), chartType.endsWith('Jitter'))
         widget.settings.chartModel.updateChartColorSettings(widget)
-        if (typeof widget.settings.chartModel.setLineXAxis === 'function') {
-            widget.settings.chartModel.setLineXAxis()
-        }
-        if (typeof widget.settings.chartModel.setLineYAxis === 'function') {
-            widget.settings.chartModel.setLineYAxis()
-        }
+        applyAxis(widget.settings.chartModel)
     } else {
         widget.type = 'chartJS'
         widget.settings = createNewChartJSSettings()
@@ -58,4 +53,109 @@ const reapplyThemeToChartWidget = (widget: IWidget, selectedThemeId: number | nu
     const selectedTheme = themes.find((theme: IDashboardTheme) => theme.id === selectedThemeId)
     if (!selectedTheme) return
     applyStylesToWidget(widget.settings.style, selectedTheme, selectedTheme.config['chart'])
+}
+
+const applyAxis = (chartModel: any) => {
+    //bar
+    if (typeof chartModel.setBarXAxis === 'function') {
+        chartModel.setBarXAxis()
+    }
+    if (typeof chartModel.setBarYAxis === 'function') {
+        chartModel.setBarYAxis()
+    }
+    //bubble
+    if (typeof chartModel.setBubbleXAxis === 'function') {
+        chartModel.setBubbleXAxis()
+    }
+    if (typeof chartModel.setBubbleYAxis === 'function') {
+        chartModel.setBubbleYAxis()
+    }
+    //chord
+    if (typeof chartModel.setChordXAxis === 'function') {
+        chartModel.setChordXAxis()
+    }
+    if (typeof chartModel.setChordYAxis === 'function') {
+        chartModel.setChordYAxis()
+    }
+    //dumbbell
+    if (typeof chartModel.setDumbbellXAxis === 'function') {
+        chartModel.setDumbbellXAxis()
+    }
+    if (typeof chartModel.setDumbbellYAxis === 'function') {
+        chartModel.setDumbbellYAxis()
+    }
+    //gauge
+    if (typeof chartModel.setGaugeYAxis === 'function') {
+        chartModel.setGaugeYAxis()
+    }
+    //heatmap
+    if (typeof chartModel.setHeatmapXAxis === 'function') {
+        chartModel.setHeatmapXAxis()
+    }
+    if (typeof chartModel.setHeatmapYAxis === 'function') {
+        chartModel.setHeatmapYAxis()
+    }
+    //line
+    if (typeof chartModel.setLineXAxis === 'function') {
+        chartModel.setLineXAxis()
+    }
+    if (typeof chartModel.setLineYAxis === 'function') {
+        chartModel.setLineYAxis()
+    }
+    //packedBubble
+    if (typeof chartModel.setPackedBubbleXAxis === 'function') {
+        chartModel.setPackedBubbleXAxis()
+    }
+    if (typeof chartModel.setPackedBubbleYAxis === 'function') {
+        chartModel.setPackedBubbleYAxis()
+    }
+    //parallel
+    if (typeof chartModel.setParallelXAxis === 'function') {
+        chartModel.setParallelXAxis()
+    }
+    if (typeof chartModel.setParallelYAxis === 'function') {
+        chartModel.setParallelYAxis()
+    }
+    //pictorial
+    if (typeof chartModel.setPictorialXAxis === 'function') {
+        chartModel.setPictorialXAxis()
+    }
+    if (typeof chartModel.setPictorialYAxis === 'function') {
+        chartModel.setPictorialYAxis()
+    }
+    //radar
+    if (typeof chartModel.setRadarXAxis === 'function') {
+        chartModel.setRadarXAxis()
+    }
+    if (typeof chartModel.setRadarYAxis === 'function') {
+        chartModel.setRadarYAxis()
+    }
+    //scatter
+    if (typeof chartModel.setScatterXAxis === 'function') {
+        chartModel.setScatterXAxis()
+    }
+    if (typeof chartModel.setScatterYAxis === 'function') {
+        chartModel.setScatterYAxis()
+    }
+    //streamGraph
+    if (typeof chartModel.setStreamgraphXAxis === 'function') {
+        chartModel.setStreamgraphXAxis()
+    }
+    if (typeof chartModel.setStreamgraphYAxis === 'function') {
+        chartModel.setStreamgraphYAxis()
+    }
+    //sunburst
+    if (typeof chartModel.setSunburstXAxis === 'function') {
+        chartModel.setSunburstXAxis()
+    }
+    if (typeof chartModel.setSunburstYAxis === 'function') {
+        chartModel.setSunburstYAxis()
+    }
+    //waterfall
+    if (typeof chartModel.setWaterfallXAxis === 'function') {
+        chartModel.setWaterfallXAxis()
+    }
+    if (typeof chartModel.setWaterfallYAxis === 'function') {
+        chartModel.setWaterfallYAxis()
+    }
 }
