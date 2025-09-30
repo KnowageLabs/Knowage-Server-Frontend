@@ -56,106 +56,19 @@ const reapplyThemeToChartWidget = (widget: IWidget, selectedThemeId: number | nu
 }
 
 const applyAxis = (chartModel: any) => {
-    //bar
-    if (typeof chartModel.setBarXAxis === 'function') {
-        chartModel.setBarXAxis()
-    }
-    if (typeof chartModel.setBarYAxis === 'function') {
-        chartModel.setBarYAxis()
-    }
-    //bubble
-    if (typeof chartModel.setBubbleXAxis === 'function') {
-        chartModel.setBubbleXAxis()
-    }
-    if (typeof chartModel.setBubbleYAxis === 'function') {
-        chartModel.setBubbleYAxis()
-    }
-    //chord
-    if (typeof chartModel.setChordXAxis === 'function') {
-        chartModel.setChordXAxis()
-    }
-    if (typeof chartModel.setChordYAxis === 'function') {
-        chartModel.setChordYAxis()
-    }
-    //dumbbell
-    if (typeof chartModel.setDumbbellXAxis === 'function') {
-        chartModel.setDumbbellXAxis()
-    }
-    if (typeof chartModel.setDumbbellYAxis === 'function') {
-        chartModel.setDumbbellYAxis()
-    }
-    //gauge
-    if (typeof chartModel.setGaugeYAxis === 'function') {
-        chartModel.setGaugeYAxis()
-    }
-    //heatmap
-    if (typeof chartModel.setHeatmapXAxis === 'function') {
-        chartModel.setHeatmapXAxis()
-    }
-    if (typeof chartModel.setHeatmapYAxis === 'function') {
-        chartModel.setHeatmapYAxis()
-    }
-    //line
-    if (typeof chartModel.setLineXAxis === 'function') {
-        chartModel.setLineXAxis()
-    }
-    if (typeof chartModel.setLineYAxis === 'function') {
-        chartModel.setLineYAxis()
-    }
-    //packedBubble
-    if (typeof chartModel.setPackedBubbleXAxis === 'function') {
-        chartModel.setPackedBubbleXAxis()
-    }
-    if (typeof chartModel.setPackedBubbleYAxis === 'function') {
-        chartModel.setPackedBubbleYAxis()
-    }
-    //parallel
-    if (typeof chartModel.setParallelXAxis === 'function') {
-        chartModel.setParallelXAxis()
-    }
-    if (typeof chartModel.setParallelYAxis === 'function') {
-        chartModel.setParallelYAxis()
-    }
-    //pictorial
-    if (typeof chartModel.setPictorialXAxis === 'function') {
-        chartModel.setPictorialXAxis()
-    }
-    if (typeof chartModel.setPictorialYAxis === 'function') {
-        chartModel.setPictorialYAxis()
-    }
-    //radar
-    if (typeof chartModel.setRadarXAxis === 'function') {
-        chartModel.setRadarXAxis()
-    }
-    if (typeof chartModel.setRadarYAxis === 'function') {
-        chartModel.setRadarYAxis()
-    }
-    //scatter
-    if (typeof chartModel.setScatterXAxis === 'function') {
-        chartModel.setScatterXAxis()
-    }
-    if (typeof chartModel.setScatterYAxis === 'function') {
-        chartModel.setScatterYAxis()
-    }
-    //streamGraph
-    if (typeof chartModel.setStreamgraphXAxis === 'function') {
-        chartModel.setStreamgraphXAxis()
-    }
-    if (typeof chartModel.setStreamgraphYAxis === 'function') {
-        chartModel.setStreamgraphYAxis()
-    }
-    //sunburst
-    if (typeof chartModel.setSunburstXAxis === 'function') {
-        chartModel.setSunburstXAxis()
-    }
-    if (typeof chartModel.setSunburstYAxis === 'function') {
-        chartModel.setSunburstYAxis()
-    }
-    //waterfall
-    if (typeof chartModel.setWaterfallXAxis === 'function') {
-        chartModel.setWaterfallXAxis()
-    }
-    if (typeof chartModel.setWaterfallYAxis === 'function') {
-        chartModel.setWaterfallYAxis()
+    const funcArray = [chartModel.setBarXAxis, chartModel.setBarYAxis, chartModel.setBubbleXAxis, chartModel.setBubbleYAxis,
+        chartModel.setChordXAxis, chartModel.setChordYAxis, chartModel.setDumbbellXAxis, chartModel.setDumbbellYAxis,
+        chartModel.setGaugeYAxis, chartModel.setHeatmapXAxis, chartModel.setHeatmapYAxis, chartModel.setLineXAxis, chartModel.setLineYAxis,
+    chartModel.setPackedBubbleXAxis, chartModel.setPackedBubbleYAxis, chartModel.setParallelXAxis, chartModel.setParallelYAxis,
+    chartModel.setPictorialXAxis, chartModel.setPictorialYAxis, chartModel.setRadarXAxis, chartModel.setRadarYAxis,
+    chartModel.setScatterXAxis, chartModel.setScatterYAxis, chartModel.setStreamgraphXAxis, chartModel.setStreamgraphYAxis,
+    chartModel.setSunburstXAxis, chartModel.setSunburstYAxis, chartModel.setWaterfallXAxis, chartModel.setWaterfallYAxis]
+
+
+    for (let i = 0; i < funcArray.length; i++) {
+        const func = funcArray[i]
+        if (typeof func === 'function') {
+            func()
+        }
     }
 }
