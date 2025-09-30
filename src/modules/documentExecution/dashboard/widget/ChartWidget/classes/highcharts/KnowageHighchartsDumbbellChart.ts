@@ -15,6 +15,7 @@ export class KnowageHighchartsDumbbellChart extends KnowageHighcharts {
             if (!this.model.plotOptions.dumbbell) this.setPlotOptions()
         }
         this.model.chart.type = 'dumbbell'
+        this.model.chart.reflow = false
         if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
         this.model.chart.inverted = true
         delete this.model.sonification
