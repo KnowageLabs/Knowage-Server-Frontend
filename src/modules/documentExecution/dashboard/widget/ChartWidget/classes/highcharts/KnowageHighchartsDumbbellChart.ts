@@ -16,6 +16,12 @@ export class KnowageHighchartsDumbbellChart extends KnowageHighcharts {
         }
         this.model.chart.type = 'dumbbell'
         this.model.chart.reflow = false
+
+        if (this.model.yAxis && this.model.yAxis[0]) {
+            const yAxis = this.model.yAxis[0]
+            if (!yAxis.gridLineDashStyle && !yAxis.tickInterval) yAxis.gridLineColor = ''
+            if (!yAxis.minorGridLineDashStyle && !yAxis.minorTickInterval) yAxis.minorGridLineColor = ''
+        }
         if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
         this.model.chart.inverted = true
         delete this.model.sonification
