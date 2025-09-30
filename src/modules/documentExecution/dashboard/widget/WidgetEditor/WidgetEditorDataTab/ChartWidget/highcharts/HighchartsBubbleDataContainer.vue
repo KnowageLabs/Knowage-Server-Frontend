@@ -1,8 +1,8 @@
 <template>
-    <div v-if="widgetModel" class="p-d-flex p-flex-column">
+    <div v-if="widgetModel" class="p-d-flex p-flex-column p-mx-3">
         <WidgetEditorColumnTable
             v-if="['pie', 'heatmap', 'radar', 'column', 'bubble', 'scatter', 'line', 'treemap', 'sunburst'].includes(chartType)"
-            class="p-m-2 p-order-1"
+            class="p-mb-3 p-order-1"
             :widget-model="widgetModel"
             :items="columnTableItems['ATTRIBUTES'] ?? []"
             :settings="columnTableSettings"
@@ -16,7 +16,7 @@
         <WidgetEditorColumnTable
             v-for="axis in ['Y', 'X', 'Z']"
             :key="axis"
-            class="p-m-2"
+            class="p-mb-3"
             :class="{ 'p-order-3': axis === 'Y', 'p-order-5': axis === 'X', 'p-order-6': axis === 'Z' }"
             :widget-model="widgetModel"
             :items="columnTableItems[axis] ?? []"
