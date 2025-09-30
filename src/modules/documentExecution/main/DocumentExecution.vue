@@ -30,23 +30,25 @@
                 <Olap v-else-if="showExecutedDocument && mode === 'olap'" :id="urlData?.sbiExecutionId" :olap-id="document.id" :olap-name="document.label" :reload-trigger="reloadTrigger" :olap-custom-view-visible="olapCustomViewVisible" :hidden-form-data-prop="hiddenFormData" @closeOlapCustomView="olapCustomViewVisible = false" @applyCustomView="executeOlapCustomView" @executeCrossNavigation="executeOLAPCrossNavigation"></Olap>
                 <DashboardController v-else-if="showExecutedDocument && propMode === 'document-execution-cross-navigation-popup' && document" :visible="filtersData && filtersData.isReadyForExecution && !loading" :document="document" :reload-trigger="reloadTrigger" :mode="'dashboard-popup'" :filters-data="filtersData" :new-dashboard-mode="false"></DashboardController>
                 <div v-show="mode === 'dashboard' || newDashboardMode" class="p-d-flex p-flex-row" style="height: 100%">
-                    <template v-for="(item, index) in breadcrumbs" :key="index">
-                        <DashboardController
-                            :visible="((filtersData && filtersData.isReadyForExecution) || newDashboardMode) && !loading && !schedulationsTableVisible && (item.label === document.name || newDashboardMode || (crossNavigationDialogVisible && index === breadcrumbs.length - 1))"
-                            :document="item.document"
-                            :reload-trigger="reloadTrigger"
-                            :hidden-form-data="item.hiddenFormData"
-                            :filters-data="item.filtersData"
-                            :new-dashboard-mode="newDashboardMode"
-                            :mode="mode"
-                            :prop-view="dashboardView"
-                            :filtersLoaded="filtersLoaded"
-                            @executeView="executeView"
-                            @dashboardIdSet="onSetDashboardId($event, item)"
-                            @newDashboardSaved="onNewDashboardSaved"
-                            @executeCrossNavigation="onExecuteCrossNavigation"
-                        ></DashboardController>
-                    </template>
+                    <keep-alive>
+                        <template v-for="(item, index) in breadcrumbs" :key="index">
+                            <DashboardController
+                                :visible="((filtersData && filtersData.isReadyForExecution) || newDashboardMode) && !loading && !schedulationsTableVisible && (item.label === document.name || newDashboardMode || (crossNavigationDialogVisible && index === breadcrumbs.length - 1))"
+                                :document="item.document"
+                                :reload-trigger="reloadTrigger"
+                                :hidden-form-data="item.hiddenFormData"
+                                :filters-data="item.filtersData"
+                                :new-dashboard-mode="newDashboardMode"
+                                :mode="mode"
+                                :prop-view="dashboardView"
+                                :filtersLoaded="filtersLoaded"
+                                @executeView="executeView"
+                                @dashboardIdSet="onSetDashboardId($event, item)"
+                                @newDashboardSaved="onNewDashboardSaved"
+                                @executeCrossNavigation="onExecuteCrossNavigation"
+                            ></DashboardController>
+                        </template>
+                    </keep-alive>
                 </div>
             </div>
             <iframe v-for="(item, index) in breadcrumbs" v-show="mode === 'iframe' && filtersData && filtersData.isReadyForExecution && !loading && !schedulationsTableVisible && (item.label === document.name || (crossNavigationContainerData && index === breadcrumbs.length - 1))" :key="index" ref="documentFrame" :name="'documentFrame' + index" class="document-execution-iframe"></iframe>
