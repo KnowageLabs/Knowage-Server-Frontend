@@ -278,7 +278,7 @@
             "category": "menuConfiguration",
             "dbname": "ENG_GPT_INTEGRATION",
             "ee": true,
-            "fieldName": "EngGPTIntegration",
+            "fieldName": "ableToUseEngGPT",
             "label": "managers.rolesManagement.authorizations.enableEngGptIntegration",
             "visible": false
         }
