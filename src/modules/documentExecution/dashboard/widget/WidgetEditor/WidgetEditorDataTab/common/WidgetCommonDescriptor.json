@@ -43,6 +43,7 @@
             "value": "area"
         },
         {
+            "eeOnly": true,
             "label": "dashboard.widgetEditor.chartTypes.stackedAreaChart",
             "value": "areaStacked"
         },
@@ -55,14 +56,17 @@
             "value": "column"
         },
         {
+            "eeOnly": true,
             "label": "dashboard.widgetEditor.chartTypes.stackedColumnChart",
             "value": "columnStacked"
         },
         {
+            "eeOnly": true,
             "label": "dashboard.widgetEditor.chartTypes.barChart",
             "value": "bar"
         },
         {
+            "eeOnly": true,
             "label": "dashboard.widgetEditor.chartTypes.stackedBarChart",
             "value": "barStacked"
         },
@@ -77,6 +81,7 @@
             "value": "bubble"
         },
         {
+            "eeOnly": true,
             "label": "dashboard.widgetEditor.chartTypes.radar",
             "value": "radar"
         },
