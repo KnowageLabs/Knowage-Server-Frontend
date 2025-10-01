@@ -3674,6 +3674,7 @@
         }
     },
     "menu": {
+        "AiManagement": "AI Management",
         "Categories": "Categories",
         "DashboardThemeManagement": "Dashboard Themes",
         "ThemeManagement": "Themes",
