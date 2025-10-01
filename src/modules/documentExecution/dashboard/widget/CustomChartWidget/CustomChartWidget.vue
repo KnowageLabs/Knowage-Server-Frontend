@@ -116,8 +116,8 @@ export default defineComponent({
             if (!this.propWidget.settings || !this.propWidget.settings.editor) return
 
             this.htmlContent = this.propWidget.settings.editor.html
-            this.webComponentCss = ''
-            if (this.dashboards[this.dashboardId]) this.webComponentCss = this.dashboards[this.dashboardId].configuration?.cssToRender
+            this.webComponentCss = 'body { margin: 0; padding: 0; box-sizing: border-box; }'
+            if (this.dashboards[this.dashboardId]) this.webComponentCss += this.dashboards[this.dashboardId].configuration?.cssToRender
             this.webComponentCss += this.propWidget.settings.editor.css
             this.webComponentJs = this.propWidget.settings.editor.js
 
