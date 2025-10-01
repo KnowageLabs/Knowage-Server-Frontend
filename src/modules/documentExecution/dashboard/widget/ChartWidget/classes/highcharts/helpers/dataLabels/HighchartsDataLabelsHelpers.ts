@@ -99,7 +99,7 @@ export const updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable = (model: a
                 delete data.dataLabels.alignTo
                 data.dataLabels.align = 'center'
             }
-            if (model?.chart?.type === 'treemap') {
+            if (model?.chart?.type === 'treemap' || model?.chart?.type === 'streamgraph') {
                 delete data.dataLabels.alignTo
             }
         })
