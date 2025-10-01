@@ -74,9 +74,9 @@ export default defineComponent({
     methods: {
         loadModel() {
             this.axisModel = (this.axis === 'x' && this.chartType !== 'bar') || (this.chartType === 'bar' && this.axis === 'y') ? this.widgetModel.settings.chartModel.model.xAxis[0] : this.widgetModel.settings.chartModel.model.yAxis[0]
-            if (this.type === 'major') {
+            if (this.type === 'major' && this.axisModel.gridLineColor === '') {
                 this.axisModel.gridLineColor = '#000000'
-            } else {
+            } else if (this.type === 'minor' && this.axisModel.minorGridLineColor === '') {
                 this.axisModel.minorGridLineColor = '#000000'
             }
         },
