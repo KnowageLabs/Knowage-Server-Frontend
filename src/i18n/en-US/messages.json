@@ -3215,6 +3215,7 @@
                 "enableDashboardThemeManagement": "Enable Dashboard Theme Management",
                 "enableDataPreparation": "Enable Data Preparation",
                 "enableDossier": "Enable Dossier",
+                "enableEngGptIntegration": "Enable EngGpt Integration",
                 "functionsCatalogUsage": "Functions Catalog Usage",
                 "hierarchiesManagement": "Manage Hierarchies",
                 "items": "Items for user menu",

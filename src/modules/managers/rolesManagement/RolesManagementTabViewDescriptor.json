@@ -273,6 +273,14 @@
             "fieldName": "ableToUseDashboardThemeManagement",
             "label": "managers.rolesManagement.authorizations.enableDashboardThemeManagement",
             "visible": false
+        },
+        {
+            "category": "menuConfiguration",
+            "dbname": "ENG_GPT_INTEGRATION",
+            "ee": true,
+            "fieldName": "EngGPTIntegration",
+            "label": "managers.rolesManagement.authorizations.enableEngGptIntegration",
+            "visible": false
         }
     ],
     "card": {

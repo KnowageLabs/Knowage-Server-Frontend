@@ -2857,6 +2857,7 @@
                 "enableDashboardThemeManagement": "Abilita gestione temi dashboard",
                 "enableDataPreparation": "Abilita Data Preparation",
                 "enableDossier": "Abilita Dossier",
+                "enableEngGptIntegration": "Abilita Integrazione con EngGpt",
                 "federatedDataset": "Federated Dataset",
                 "functionsCatalogUsage": "Functions Catalog Usage",
                 "hierarchiesManagement": "Manage Hierarchies",

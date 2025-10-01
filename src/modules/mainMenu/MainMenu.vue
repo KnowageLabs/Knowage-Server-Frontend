@@ -43,7 +43,7 @@
                 </template>
             </ul>
         </div>
-        <KnChatbot v-if="isEnterpriseValid && configurations['KNOWAGE.AI.URL']" />
+        <KnChatbot v-if="isEnterpriseValid && configurations['KNOWAGE.AI.URL'] && user?.functionalities.includes('EngGPTIntegration')" />
     </div>
 </template>
 
