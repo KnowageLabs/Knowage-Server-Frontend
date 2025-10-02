@@ -31,10 +31,11 @@
 <script setup lang="ts">
 import mainStore from '@/App.store'
 import axios from 'axios'
-import { onMounted, ref, Ref } from 'vue'
+import { onMounted, onUnmounted, ref, Ref } from 'vue'
 import KnHint from '@/components/UI/KnHint.vue'
 
 const store = mainStore()
+const polling: Ref<number | null> = ref(null)
 const update: Ref<Date | string | null> = ref(null)
 const loading: Ref<boolean> = ref(false)
 const updateError: Ref<string | null> = ref(null)
@@ -45,6 +46,18 @@ onMounted(() => {
             getLastUpdate()
         }
     }, 2000)
+    polling.value = setInterval(() => {
+        if (store.isEnterprise && store.configurations['KNOWAGE.AI.URL']) {
+            getLastUpdate()
+        }
+    }, 10000)
+})
+
+onUnmounted(() => {
+    if (polling.value) {
+        clearInterval(polling.value)
+        polling.value = null
+    }
 })
 
 async function syncronize() {
@@ -71,10 +84,10 @@ async function syncronize() {
 
 function getLastUpdate() {
     axios
-        .post(store.configurations['KNOWAGE.AI.URL'] + '/last_update', { 
+        .post(store.configurations['KNOWAGE.AI.URL'] + '/last_update', {
             tenant: store.user.organization,
-            token: localStorage.getItem('token'),
-         })
+            token: localStorage.getItem('token')
+        })
         .then((response) => {
             if (response.data.status === 'Loaded') {
                 update.value = response.data.data.lastKBUpdate

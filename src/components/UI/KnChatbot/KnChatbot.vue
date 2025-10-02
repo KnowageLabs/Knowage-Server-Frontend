@@ -14,7 +14,7 @@
                 <div ref="chatContainer" class="col q-ml-sm" style="overflow-y: auto; overflow-x: hidden">
                     <div v-for="message in chat" class="q-mr-md relative-position">
                         <q-chat-message :name="message.role === 'assistant' ? 'AI' : 'user'" :avatar="message.role === 'assistant' ? avatarImg : undefined" :sent="message.role === 'user'">
-                            <div>{{ message.content }}</div>
+                            <vue-markdown-it :source="message.content"></vue-markdown-it>
                         </q-chat-message>
 
                         <q-chip v-if="message.url" clickable class="dashboard-link" size="sm" color="accent" text-color="white" icon="open_in_new" @click="followLink(message.url)"> {{ $t('ai.dashboardLink') }} </q-chip>
@@ -59,6 +59,7 @@ import { useRouter } from 'vue-router'
 import { IChat } from './KnChatbot'
 import avatarImg from '@/assets/images/chatbot/chatty.webp'
 import { useI18n } from 'vue-i18n'
+import { VueMarkdownIt } from '@f3ve/vue-markdown-it'
 
 const router = useRouter()
 const store = mainStore()
@@ -100,7 +101,7 @@ function toggleChatbot() {
 }
 
 function followLink(url) {
-    router.push({ path: url })
+    router.push(url)
 }
 
 async function sendMessage() {
