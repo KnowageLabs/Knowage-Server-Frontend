@@ -10,9 +10,9 @@
         <q-tooltip v-else-if="helpConfig.visualizationType === 'tooltip' && helpConfig.type === 'link'">{{ helpConfig.url }}</q-tooltip>
     </div>
 
-    <div class="widgetButtonBarContainer">
+    <div v-if="widgetButtonBarVisible" class="widgetButtonBarContainer">
         <i class="fa-solid fa-grip-vertical drag-handle drag-widget-icon"></i>
-        <Button v-if="widgetButtonBarVisible" type="button" icon="fa-solid fa-ellipsis-h" class="p-button-outlined p-button-rounded widgetMenuButton" @click="qMenuShown = true" />
+        <Button type="button" icon="fa-solid fa-ellipsis-h" class="p-button-outlined p-button-rounded widgetMenuButton" @click="qMenuShown = true" />
     </div>
 
     <div class="qmenu-anchor">
@@ -71,15 +71,25 @@ export default defineComponent({
         return {
             qMenuShown: false,
             dashboardModel: null as IDashboard | null,
-            helpDialogVisible: false
+            helpDialogVisible: false,
+            isCtrlKeyPressed: false
         }
+    },
+    mounted() {
+        window.addEventListener('keydown', this.handleCtrlKey)
+        window.addEventListener('keyup', this.handleCtrlKey)
+    },
+
+    beforeUnmount() {
+        window.removeEventListener('keydown', this.handleCtrlKey)
+        window.removeEventListener('keyup', this.handleCtrlKey)
     },
     computed: {
         widgetButtonBarVisible() {
             const dashboardModel = this.getDashboard(this.dashboardId)
             const widgetMenuEnabled = dashboardModel?.configuration?.menuWidgets?.enableWidgetMenu && this.widget?.settings?.configuration?.widgetMenu?.enabled
-            if (this.document.seeAsFinalUser && widgetMenuEnabled) return true
-            if (canEditDashboard(this.document)) return true
+            if (this.isCtrlKeyPressed || widgetMenuEnabled) return true
+            // if (canEditDashboard(this.document)) return true - commented to always hide the menu unless ctrl is pressed or menu is enabled
             return widgetMenuEnabled
         },
         helpConfig(): IWidgetHelpSettings {
@@ -120,6 +130,9 @@ export default defineComponent({
         handleHelpClick() {
             if (this.helpConfig.visualizationType === 'tooltip' && this.helpConfig.type === 'link') window.open(this.helpConfig.url, '_blank')
             else if (this.helpConfig.visualizationType === 'pop-up') this.helpDialogVisible = true
+        },
+        handleCtrlKey(event) {
+            this.isCtrlKeyPressed = event.ctrlKey
         }
     }
 })

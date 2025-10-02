@@ -359,8 +359,7 @@ const getDatasetIdsFromDashboardModel = (dashboardModel: IDashboard | any) => {
 }
 
 export const canEditDashboard = (document): boolean => {
-    if (!store.user || !document) return false
-    if (document.seeAsFinalUser) return false
+    if (!store.user || !document || document.seeAsFinalUser) return false
     return store.user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) || document.creationUser === store.user.userId
 }
 

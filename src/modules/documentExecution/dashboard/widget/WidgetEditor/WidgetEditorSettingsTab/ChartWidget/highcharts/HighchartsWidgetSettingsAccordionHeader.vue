@@ -1,7 +1,8 @@
 <template>
     <div class="p-d-flex p-flex-row p-ai-center">
         <InputSwitch v-if="model" v-model="model[property]" class="p-mr-3" @click.stop="onModelChange"></InputSwitch>
-        <label class="kn-material-input-label">{{ title ? $t(title) : '' }}</label>
+        <label class="kn-material-input-label">{{ title ? $t(title) : '' }} </label>
+        <Button v-if="title?.includes('menuConfiguration')" v-tooltip.top="$t('dashboard.widgetEditor.menuConfigurationTooltip')" icon="pi pi-question-circle" class="p-button-text p-button-plain p-button-sm p-p-0 p-ml-auto" />
     </div>
 </template>
 

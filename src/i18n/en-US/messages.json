@@ -578,9 +578,6 @@
         },
         "widgetEditor": {
             "absolute": "Absolute",
-            "toolbars": {
-                "general": "General Settings"
-            },
             "accessibility": {
                 "enabelKeyboardNavigation": "Enable Keyboard Navigation",
                 "exposeAsGroupOnly": "Expose As Group Only",
@@ -1259,6 +1256,7 @@
             },
             "maxZoom": "Max Zoom",
             "menuConfiguration": "Menu Configuration",
+            "menuConfigurationTooltip": "Holding down CTRL key will force the menu to show when it is hidden.",
             "noData": {
                 "title": "No data"
             },
@@ -1387,6 +1385,9 @@
             "title": "Widget Editor",
             "titles": {
                 "title": "Title"
+            },
+            "toolbars": {
+                "general": "General Settings"
             },
             "tooltip": {
                 "title": "Tooltip"
