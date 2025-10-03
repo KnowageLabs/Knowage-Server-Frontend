@@ -13,6 +13,7 @@
     },
     "main": "main.ts",
     "dependencies": {
+        "@f3ve/vue-markdown-it": "^0.2.3",
         "@fortawesome/fontawesome-free": "6.4.0",
         "@guolao/vue-monaco-editor": "1.5.4",
         "@noction/vue-draggable-grid": "^1.11.0",
