@@ -5,7 +5,7 @@
                 <thead>
                     <tr>
                         <th v-for="(column, index) of columns.slice(1).filter((col) => col.isVisible !== false)" :key="index" class="pivot-header" :style="{ ...descriptor.pivotStyles.header, width: column.size ? `${column.size}px` : undefined }">
-                            {{ column.field }}
+                            {{ column.title ?? column.field }}
                             <i v-if="column.isEditable && column.type !== 'merge' && column.columnInfo.type !== 'boolean'" class="pi pi-pencil edit-icon p-ml-2" />
                         </th>
                         <th class="pivot-header" :style="descriptor.pivotStyles.iconColumn" />
