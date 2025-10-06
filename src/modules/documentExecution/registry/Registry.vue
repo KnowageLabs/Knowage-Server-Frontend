@@ -37,6 +37,7 @@
                         @pageChanged="updatePagination"
                         @warningChanged="setWarningState"
                         @sortingChanged="onSortingChanged"
+                        @clonedRowRemoved="onClonedRowRemoved"
                     ></RegistryDatatable>
                 </div>
             </div>
@@ -344,6 +345,10 @@ export default defineComponent({
             this.pagination.size = 0
             this.sortModel = sortModel
             await this.reloadRegistryData(true)
+        },
+        onClonedRowRemoved(row: any) {
+            const index = this.updatedRows.findIndex((el: any) => el.uniqueId === row.uniqueId)
+            if (index !== -1) this.updatedRows.splice(index, 1)
         }
     }
 })

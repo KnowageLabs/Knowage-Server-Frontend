@@ -49,7 +49,7 @@ export default defineComponent({
         stopWarningsState: { type: Array },
         dataLoading: { type: Boolean }
     },
-    emits: ['rowChanged', 'rowDeleted', 'pageChanged', 'warningChanged', 'saveRegistry', 'sortingChanged'],
+    emits: ['rowChanged', 'rowDeleted', 'pageChanged', 'warningChanged', 'saveRegistry', 'sortingChanged', 'clonedRowRemoved'],
     data() {
         return {
             registryDescriptor,
@@ -364,6 +364,7 @@ export default defineComponent({
                 rowsForTableDeletion.forEach((val) => {
                     const foundIndex = this.rows.indexOf(val)
                     if (foundIndex != -1) this.rows.splice(foundIndex, 1)
+                    this.$emit('clonedRowRemoved', val)
                 })
                 this.gridApi.applyTransaction({ remove: rowsForTableDeletion })
             }
@@ -403,8 +404,8 @@ export default defineComponent({
             })
         },
         addRowToFirstPosition(newRow: any) {
-            this.rows.unshift(newRow)
             this.gridApi.applyTransaction({ addIndex: 0, add: [newRow] })
+            // this.rows.unshift(newRow) - causes aggrid to loose track of edited rows
         },
         onDropdownChange(payload: any) {
             const column = payload.column
