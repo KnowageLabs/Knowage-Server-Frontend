@@ -1,5 +1,5 @@
 <template>
-    <div v-if="column">
+    <div class="editable-field-container" v-if="column">
         <InputNumber v-if="typeof row[column.field].data === 'number'" v-model="row[column.field].data" :style="knPivotTableDescriptor.pivotStyles.inputFields" class="kn-material-input" :locale="getLocaleString()" @input="$emit('rowChanged', row)" />
         <InputText v-else-if="column.editorType !== 'COMBO' && column.columnInfo.type !== 'date' && column.columnInfo.type !== 'timestamp'" v-model="row[column.field].data" :style="knPivotTableDescriptor.pivotStyles.inputFields" class="kn-material-input" :type="setDataType(column.columnInfo.type)" @input="$emit('rowChanged', row)" />
         <Calendar
@@ -122,8 +122,11 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.pivot-calendar .p-inputtext {
-    border: none;
-    background-color: transparent;
+.editable-field-container {
+    :deep(.p-component) {
+        border: none;
+        background-color: transparent;
+        width: 100%;
+    }
 }
 </style>
