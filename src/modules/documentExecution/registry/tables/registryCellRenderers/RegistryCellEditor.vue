@@ -94,6 +94,7 @@ export default defineComponent({
         this.loadRow()
         this.loadColumnOptions()
         this.value = this.getInitialValue()
+        this.formatNumberConfiguration()
     },
     methods: {
         loadRow() {
