@@ -206,7 +206,7 @@ export default defineComponent({
         },
         onRowChanged(row: any) {
             const tempRow = { ...row }
-            const index = this.updatedRows.findIndex((el: any) => el.uniqueId === tempRow.uniqueId)
+            const index = this.isPivot ? this.updatedRows.findIndex((el: any) => el.id === tempRow.id) : this.updatedRows.findIndex((el: any) => el.uniqueId === tempRow.uniqueId)
             index === -1 ? this.updatedRows.push(tempRow) : (this.updatedRows[index] = tempRow)
         },
         async saveRegistry() {
