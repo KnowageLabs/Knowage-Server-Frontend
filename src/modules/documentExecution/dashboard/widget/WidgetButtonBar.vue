@@ -9,7 +9,6 @@
         <q-tooltip v-if="helpConfig.visualizationType === 'tooltip' && helpConfig.type === 'free-text'">{{ helpConfig.text }}</q-tooltip>
         <q-tooltip v-else-if="helpConfig.visualizationType === 'tooltip' && helpConfig.type === 'link'">{{ helpConfig.url }}</q-tooltip>
     </div>
-
     <div v-if="widgetButtonBarVisible" class="widgetButtonBarContainer">
         <i class="fa-solid fa-grip-vertical drag-handle drag-widget-icon"></i>
         <Button type="button" icon="fa-solid fa-ellipsis-h" class="p-button-outlined p-button-rounded widgetMenuButton" @click="qMenuShown = true" />
@@ -87,7 +86,9 @@ export default defineComponent({
     computed: {
         widgetButtonBarVisible() {
             const dashboardModel = this.getDashboard(this.dashboardId)
-            const widgetMenuEnabled = dashboardModel?.configuration?.menuWidgets?.enableWidgetMenu && this.widget?.settings?.configuration?.widgetMenu?.enabled
+            const widgetMenuModel = this.widget?.settings?.configuration?.widgetMenu
+
+            const widgetMenuEnabled = dashboardModel?.configuration?.menuWidgets?.enableWidgetMenu && (widgetMenuModel?.enabled || widgetMenuModel?.enabled === undefined)
             if (this.isCtrlKeyPressed || widgetMenuEnabled) return true
             // if (canEditDashboard(this.document)) return true - commented to always hide the menu unless ctrl is pressed or menu is enabled
             return widgetMenuEnabled
