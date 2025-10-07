@@ -34,7 +34,7 @@ export const formatRegistryNumber = (column: any) => {
     if (!result) return null
 
     const useGrouping = result[1].includes('.') || result[1].includes(',')
-    const configuration = { useGrouping: useGrouping, minFractionDigits: column.columnInfo?.precision ?? 6, maxFractionDigits: column.columnInfo?.precision ?? 6 }
+    const configuration = { useGrouping: useGrouping, minFractionDigits: column.columnInfo?.precision ?? 2, maxFractionDigits: column.columnInfo?.precision ?? 2 }
     // if (!isFrontendFormatCompatibleWithBackendFormat(column, configuration)) return null //disabled for the moment, lack of understanding of purpose after we added precision
 
     return configuration
