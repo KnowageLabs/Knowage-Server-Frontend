@@ -140,7 +140,7 @@ export default defineComponent({
                     'font-family': this.model.legend.itemStyle.fontFamily,
                     'font-size': this.model.legend.itemStyle.fontSize,
                     'font-weight': this.model.legend.itemStyle.fontWeight,
-                    'border-color': '',
+                    'border-color': this.model.legend.borderColor ?? '',
                     color: this.model.legend.itemStyle.color,
                     'background-color': this.model.legend.backgroundColor
                 }
