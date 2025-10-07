@@ -1,5 +1,4 @@
-import { formatNumber } from "./qbeHelpers"
-
+import { formatNumber } from './qbeHelpers'
 
 export function setInputDataType(columnType: string) {
     switch (columnType) {
@@ -25,25 +24,23 @@ export function getInputStep(dataType: string) {
     }
 }
 
-export const numberFormatRegex = '^(####|#\.###|#\,###){1}([,.]?)(#*)$' //eslint-disable-line no-useless-escape 
+export const numberFormatRegex = '^(####|#.###|#,###){1}([,.]?)(#*)$' //eslint-disable-line no-useless-escape
 
 export const formatRegistryNumber = (column: any) => {
     if (column.columnInfo?.type === 'int') return { useGrouping: true, minFractionDigits: 0, maxFractionDigits: 0 }
-    if (!column.format) return null
+    if (!column.columnInfo?.format) return null
 
-    const result = column.format.trim().match(numberFormatRegex)
+    const result = column.columnInfo?.format.trim().match(numberFormatRegex)
     if (!result) return null
 
     const useGrouping = result[1].includes('.') || result[1].includes(',')
-    const maxFractionDigits = result[3].length
-    const configuration = { useGrouping: useGrouping, minFractionDigits: maxFractionDigits, maxFractionDigits: maxFractionDigits }
-    if (!isFrontendFormatCompatibleWithBackendFormat(column, configuration)) return null
+    const configuration = { useGrouping: useGrouping, minFractionDigits: column.columnInfo?.precision ?? 6, maxFractionDigits: column.columnInfo?.precision ?? 6 }
+    // if (!isFrontendFormatCompatibleWithBackendFormat(column, configuration)) return null //disabled for the moment, lack of understanding of purpose after we added precision
 
     return configuration
-
 }
 
-const isFrontendFormatCompatibleWithBackendFormat = (column: any, frontendConfiguration: { useGrouping: boolean, minFractionDigits: number, maxFractionDigits: number }) => {
+const isFrontendFormatCompatibleWithBackendFormat = (column: any, frontendConfiguration: { useGrouping: boolean; minFractionDigits: number; maxFractionDigits: number }) => {
     const backendNumberConfiguration = formatNumber(column.columnInfo)
     return frontendConfiguration.maxFractionDigits <= backendNumberConfiguration?.minFractionDigits
 }

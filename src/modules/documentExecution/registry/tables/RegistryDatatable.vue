@@ -17,7 +17,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { luxonFormatDate, formatDateWithLocale, localeDate, primeVueDate, getLocale } from '@/helpers/commons/localeHelper'
+import { luxonFormatDate, formatDateWithLocale, localeDate, primeVueDate, getLocale, formatNumberWithLocale } from '@/helpers/commons/localeHelper'
 import { setInputDataType, formatRegistryNumber } from '@/helpers/commons/tableHelpers'
 import { AxiosResponse } from 'axios'
 import { mapActions } from 'pinia'
@@ -261,10 +261,9 @@ export default defineComponent({
                 }
             } else if (['int', 'float', 'decimal', 'long'].includes(el.columnInfo?.type)) {
                 el.valueFormatter = (params: any) => {
-                    let configuration = { useGrouping: false, minFractionDigits: 0, maxFractionDigits: 0 } as { useGrouping: boolean; minFractionDigits: number; maxFractionDigits: number } | null
-                    configuration = formatRegistryNumber(el)
+                    let configuration = formatRegistryNumber(el)
 
-                    const formattedValue = Intl.NumberFormat(locale, { useGrouping: configuration?.useGrouping, minimumFractionDigits: configuration?.minFractionDigits, maximumFractionDigits: configuration?.maxFractionDigits ?? 2 }).format(params.value)
+                    const formattedValue = Intl.NumberFormat(locale, { useGrouping: configuration?.useGrouping, minimumFractionDigits: configuration?.minFractionDigits, maximumFractionDigits: configuration?.maxFractionDigits }).format(params.value)
 
                     if ('NaN' === formattedValue) return '*'
                     return formattedValue
