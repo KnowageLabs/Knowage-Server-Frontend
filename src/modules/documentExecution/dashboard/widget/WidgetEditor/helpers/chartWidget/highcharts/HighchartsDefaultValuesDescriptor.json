@@ -201,6 +201,18 @@
             "text": ""
         }
     },
+    "defaultBubbleTooltip": {
+        "backgroundColor": "",
+        "enabled": true,
+        "pointFormat": "{series.name}<br><span style=\"color: {point.color};\">{point.x}, {point.y}, {point.z}</span>",
+        "style": {
+            "color": "",
+            "fontFamily": "",
+            "fontSize": "",
+            "fontWeight": "",
+            "textOutline": "none"
+        }
+    },
     "defaultDateTypeSettings": {
         "enabled": false,
         "format": ""

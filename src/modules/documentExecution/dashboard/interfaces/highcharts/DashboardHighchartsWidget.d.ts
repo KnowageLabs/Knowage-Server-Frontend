@@ -105,6 +105,7 @@ export interface IHighchartsChartModel {
     accessibility: IHighchartsAccessibilitySettings
     series: any[]
     plotOptions: {
+        bubble?: any
         pie?: any
         gauge?: any
         solidgauge?: any

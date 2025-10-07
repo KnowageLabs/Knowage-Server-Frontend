@@ -1,6 +1,6 @@
-import { IWidgetSelection } from "@/modules/documentExecution/dashboard/Dashboard"
-import { IHighchartsAccessibilitySettings, IHighchartsLegend, IHighchartsNoDataConfiguration, IHighchartsOptions3D, IHighchartsSerieAccessibility, IHighchartsSerieLabelSettings, IHighchartsSeriesLabelsSetting, IHighchartsTooltip, ISerieAccessibilitySetting } from "@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget"
-import deepcopy from "deepcopy"
+import { IWidgetSelection } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IHighchartsAccessibilitySettings, IHighchartsLegend, IHighchartsNoDataConfiguration, IHighchartsOptions3D, IHighchartsSerieAccessibility, IHighchartsSerieLabelSettings, IHighchartsSeriesLabelsSetting, IHighchartsTooltip, ISerieAccessibilitySetting } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
+import deepcopy from 'deepcopy'
 import descriptor from './HighchartsDefaultValuesDescriptor.json'
 
 export const getDefaultNoDataConfiguration = () => {
@@ -44,10 +44,12 @@ export const getDefaultAllSeriesAccessibilitySettings = () => {
 }
 
 export const getDefaultSeriesSettings = () => {
-    const defaultSeriesSettings = [{
-        names: ['all'],
-        label: getDefaultSerieLabelSettings()
-    }] as IHighchartsSeriesLabelsSetting[]
+    const defaultSeriesSettings = [
+        {
+            names: ['all'],
+            label: getDefaultSerieLabelSettings()
+        }
+    ] as IHighchartsSeriesLabelsSetting[]
     return defaultSeriesSettings
 }
 
@@ -77,6 +79,10 @@ export const getDafaultPaneOptions = () => {
 
 export const getDefaultActivityGaugePaneOptions = () => {
     return deepcopy(descriptor.defaultActivityGaugePaneOptions)
+}
+
+export const getDefaultBubbleTooltip = () => {
+    return deepcopy(descriptor.defaultBubbleTooltip)
 }
 
 export const getDefaultActivityGaugeTooltip = () => {
