@@ -24,7 +24,7 @@
                     </Column>
                     <Column :style="settings.buttonColumnStyle">
                         <template #body="slotProps">
-                            <Button v-if="(widgetType === 'highcharts' && chartType !== 'bubble') || widgetType === 'chartjs' || widgetType === 'vega'" class="p-button-link" :icon="sortIcon(slotProps.data.orderType)" v-tooltip.top="slotProps.data.orderType ?? 'NONE'" @click="toggleSort(slotProps.data)" />
+                            <Button v-if="showSortButton" class="p-button-link" :icon="sortIcon(slotProps.data.orderType)" v-tooltip.top="slotProps.data.orderType ?? 'NONE'" @click="toggleSort(slotProps.data)" />
                             <Button v-if="slotProps.data.formula" v-tooltip.top="$t('common.edit')" icon="fas fa-calculator" class="p-button-link" @click.stop="openCalculatedFieldDialog(slotProps.data)"></Button>
                             <Button v-if="slotProps.data.type === 'pythonFunction'" v-tooltip.top="$t('common.edit')" icon="fas fa-superscript" class="p-button-link" @click.stop="openFunctionsColumnDialog(slotProps.data)"></Button>
                         </template>
@@ -100,14 +100,17 @@ export default defineComponent({
         }
     },
     computed: {
-        widgetType() {
+        widgetType(): string | undefined {
             return this.widgetModel?.type
+        },
+        chartType(): string | undefined {
+            return this.widgetModel?.settings?.chartModel?.model?.chart?.type
         },
         rowReorderEnabled(): boolean {
             return this.widgetModel && (['table', 'html', 'text', 'discovery', 'customchart'].includes(this.widgetModel.type) || this.chartType !== 'heatmap') && this.rows.length > 1
         },
-        chartType() {
-            return this.widgetModel?.settings.chartModel?.model?.chart.type
+        showSortButton(): boolean {
+            return (this.widgetType === 'highcharts' && this.chartType !== 'bubble') || this.widgetType === 'chartjs' || (this.widgetType === 'vega' && this.chartType !== 'wordcloud')
         }
     },
     watch: {
