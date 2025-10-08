@@ -24,7 +24,7 @@
                     </Column>
                     <Column :style="settings.buttonColumnStyle">
                         <template #body="slotProps">
-                            <Button v-if="widgetType === 'highcharts' || widgetType === 'chartjs' || widgetType === 'vega'" class="p-button-link" :icon="sortIcon(slotProps.data.orderType)" v-tooltip.top="slotProps.data.orderType ?? 'NONE'" @click="toggleSort(slotProps.data)" />
+                            <Button v-if="(widgetType === 'highcharts' && chartType !== 'bubble') || widgetType === 'chartjs' || widgetType === 'vega'" class="p-button-link" :icon="sortIcon(slotProps.data.orderType)" v-tooltip.top="slotProps.data.orderType ?? 'NONE'" @click="toggleSort(slotProps.data)" />
                             <Button v-if="slotProps.data.formula" v-tooltip.top="$t('common.edit')" icon="fas fa-calculator" class="p-button-link" @click.stop="openCalculatedFieldDialog(slotProps.data)"></Button>
                             <Button v-if="slotProps.data.type === 'pythonFunction'" v-tooltip.top="$t('common.edit')" icon="fas fa-superscript" class="p-button-link" @click.stop="openFunctionsColumnDialog(slotProps.data)"></Button>
                         </template>
