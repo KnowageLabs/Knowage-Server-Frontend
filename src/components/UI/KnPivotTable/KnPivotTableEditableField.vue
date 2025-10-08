@@ -13,15 +13,7 @@
             :date-format="column.columnInfo.type === 'date' ? getCurrentLocaleDefaultDateFormat(column) : ''"
             @date-select="$emit('rowChanged', row)"
         />
-        <Dropdown
-            v-else-if="column.editorType === 'COMBO' && columnOptions[column.field] && columnOptions[column.field][row[column.dependences]?.data]?.length"
-            v-model="row[column.field].data"
-            class="kn-material-input"
-            :options="columnOptions[column.field] ? columnOptions[column.field][row[column.dependences]?.data] : []"
-            :placeholder="$t('documentExecution.registry.select')"
-            @change="$emit('dropdownChanged', { row: row, column: column })"
-            @before-show="$emit('dropdownOpened', { row: row, column: column })"
-        >
+        <Dropdown v-else-if="column.editorType === 'COMBO'" v-model="row[column.field].data" class="kn-material-input" :options="columnOptions[column.field] ? columnOptions[column.field][row[column.dependences]?.data] : []" :placeholder="$t('documentExecution.registry.select')" @change="$emit('dropdownChanged', { row: row, column: column })" @before-show="$emit('dropdownOpened', { row: row, column: column })">
             <template #value="slotProps">
                 <div v-if="slotProps.value">
                     <span>{{ slotProps.value }}</span>
@@ -123,10 +115,13 @@ export default defineComponent({
 
 <style scoped>
 .editable-field-container {
-    :deep(.p-component) {
+    .p-dropdown {
+        width: 100%;
+    }
+    :deep(.p-component, p-dropdown) {
         border: none;
         background-color: transparent;
-        width: 100%;
+        width: 100% !important;
     }
 }
 </style>
