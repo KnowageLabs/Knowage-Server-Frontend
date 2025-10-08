@@ -110,7 +110,8 @@ export default defineComponent({
             return this.widgetModel && (['table', 'html', 'text', 'discovery', 'customchart'].includes(this.widgetModel.type) || this.chartType !== 'heatmap') && this.rows.length > 1
         },
         showSortButton(): boolean {
-            return (this.widgetType === 'highcharts' && this.chartType !== 'bubble') || this.widgetType === 'chartjs' || (this.widgetType === 'vega' && this.chartType !== 'wordcloud')
+            if (this.widgetType === 'highcharts' && this.chartType === 'bubble') return this.axis === 'dimensions'
+            return this.widgetType === 'highcharts' || this.widgetType === 'chartjs' || (this.widgetType === 'vega' && this.chartType !== 'wordcloud')
         }
     },
     watch: {
