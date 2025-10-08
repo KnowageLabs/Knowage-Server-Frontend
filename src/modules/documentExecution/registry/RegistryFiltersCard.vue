@@ -11,7 +11,7 @@
             <div class="filter-container">
                 <form class="p-fluid p-formgrid p-grid fields-container" @submit="filterRegistry">
                     <template v-for="(filter, index) in filters.filter((fil) => fil.presentation !== 'DRIVER')" :key="index">
-                        <RegistryFilterCard :id="id" class="kn-flex" :prop-filter="filter" :entity="entity" :clear-trigger="clearFiltersTrigger" @changed="setFilterValue($event, index)" @valid="setFilterButtonDisabled"> </RegistryFilterCard>
+                        <RegistryFilterCard :id="id" class="kn-flex" :prop-filter="filter" :entity="entity" :clear-trigger="clearFiltersTrigger" @changed="setFilterValue($event, index, filter)" @valid="setFilterButtonDisabled"> </RegistryFilterCard>
                     </template>
                 </form>
 
@@ -59,8 +59,9 @@ export default defineComponent({
         loadFilters() {
             this.filters = this.propFilters ? this.propFilters.filter((filter: any) => filter.visible) : []
         },
-        setFilterValue(value: string, index: number) {
-            this.filters[index].filterValue = value
+        setFilterValue(value: string, index: number, filter) {
+            const filterIndex = this.filters.findIndex((fil) => fil.field === filter.field)
+            this.filters[filterIndex].filterValue = value
         },
         clearAllFilters() {
             this.filters.forEach((el: any) => (el.filterValue = ''))
