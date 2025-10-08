@@ -34,7 +34,7 @@ export const getFormattedDateCategoryValue = (dateString: string, dateFormat: st
 }
 
 export const setRegularData = (model: any, widgetModel: IWidget, data: any, attributeColumns: any[], measureColumns: any[], drilldownEnabled: boolean, dateFormat: string, variables: IVariable[]) => {
-    if (widgetModel?.settings?.sortingColumn && widgetModel?.settings?.sortingOrder && data?.rows && model?.chart?.type !== 'dumbbell') data = formatDataRowsWhenUsingTheExternalSortingColumn(data, widgetModel, measureColumns)
+    // if (widgetModel?.settings?.sortingColumn && widgetModel?.settings?.sortingOrder && data?.rows && model?.chart?.type !== 'dumbbell') data = formatDataRowsWhenUsingTheExternalSortingColumn(data, widgetModel, measureColumns)
 
     const attributeColumn = attributeColumns[0]
     if (!attributeColumn || !attributeColumn.metadata) return
