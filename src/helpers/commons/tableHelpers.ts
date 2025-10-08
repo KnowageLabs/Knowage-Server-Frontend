@@ -32,12 +32,7 @@ export const formatRegistryNumber = (column: any) => {
     const configTypeToUse = registryConfigType ?? backendConfigType
 
     if (configTypeToUse === 'int' || !configTypeToUse) return { useGrouping: true, minFractionDigits: 0, maxFractionDigits: 0 }
-
-    const result = column.columnInfo?.format.trim().match(numberFormatRegex)
-    if (!result) return null
-
-    const useGrouping = result[1].includes('.') || result[1].includes(',')
-    const configuration = { useGrouping: useGrouping, minFractionDigits: column.columnInfo?.precision ?? 2, maxFractionDigits: column.columnInfo?.precision ?? 2 }
+    const configuration = { useGrouping: true, minFractionDigits: column.columnInfo?.precision ?? 2, maxFractionDigits: column.columnInfo?.precision ?? 2 }
 
     return configuration
 }
