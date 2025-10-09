@@ -79,8 +79,8 @@ const getCellConditionalStyle = (cellConditionalStyles: ITableWidgetConditionalS
 }
 
 const isCellConditionMet = (cellConditionalStyle: ITableWidgetConditionalStyle, cellParams: any) => {
-    if (cellConditionalStyle.condition.formula) return eval(replacePlaceholders(cellParams, cellConditionalStyle.condition.formula, cellParams.dashboardVariables, cellParams.dashboardDrivers, false))
-    else return !cellConditionalStyle.condition.formula && isConditionMet(cellConditionalStyle.condition, cellParams.value, cellParams.dashboardVariables, cellParams.dashboardDrivers)
+    if (cellConditionalStyle.condition.formula) return eval(replacePlaceholders(cellParams, cellConditionalStyle.condition.formula, cellParams.colDef.cellRendererParams.dashboardVariables, cellParams.colDef.cellRendererParams.dashboardDrivers, false))
+    else return !cellConditionalStyle.condition.formula && isConditionMet(cellConditionalStyle.condition, cellParams.value, cellParams.colDef.cellRendererParams.dashboardVariables, cellParams.colDef.cellRendererParams.dashboardDrivers)
 }
 
 const getBrotherConditionalStyle = (brotherConditionalStyles: ITableWidgetConditionalStyle[], cellParams: any) => {
@@ -92,9 +92,8 @@ const getBrotherConditionalStyle = (brotherConditionalStyles: ITableWidgetCondit
 
 const isBrotherConditionMet = (cellConditionalStyle: ITableWidgetConditionalStyle, cellParams: any) => {
     const columnDataMap = cellParams.columnDataMap
-
     if (cellConditionalStyle.condition.formula) return cellConditionalStyle.applyToWholeRow && eval(replacePlaceholders(cellParams, cellConditionalStyle.condition.formula, cellParams.dashboardVariables, cellParams.dashboardDrivers, false))
-    else return cellConditionalStyle.applyToWholeRow && !cellConditionalStyle.condition.formula && isConditionMet(cellConditionalStyle.condition, cellParams.data[columnDataMap[cellConditionalStyle.target]], cellParams.variables, cellParams.drivers)
+    else return cellConditionalStyle.applyToWholeRow && !cellConditionalStyle.condition.formula && isConditionMet(cellConditionalStyle.condition, cellParams.data[columnDataMap[cellConditionalStyle.target]], cellParams.colDef.cellRendererParams.dashboardVariables, cellParams.colDef.cellRendererParams.dashboardDrivers)
 }
 
 const replacePlaceholders = (cellParams, formula, variables: IVariable[], drivers: IDashboardDriver[], skipAdapting: boolean) => {
