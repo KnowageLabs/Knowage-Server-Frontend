@@ -27,14 +27,11 @@ export function getInputStep(dataType: string) {
 export const numberFormatRegex = '^(####|#.###|#,###){1}([,.]?)(#*)$' //eslint-disable-line no-useless-escape
 
 export const formatRegistryNumber = (column: any) => {
-    const registryConfigType = column.type
-    const backendConfigType = column.columnInfo.type
-    const configTypeToUse = registryConfigType ?? backendConfigType
+    const configTypeToUse = column.type ?? column.columnInfo?.type
+    const precisionToUse = column.precision ?? column.columnInfo?.precision
 
     if (configTypeToUse === 'int' || !configTypeToUse) return { useGrouping: true, minFractionDigits: 0, maxFractionDigits: 0 }
-    const configuration = { useGrouping: true, minFractionDigits: column.columnInfo?.precision ?? 2, maxFractionDigits: column.columnInfo?.precision ?? 2 }
-
-    return configuration
+    return { useGrouping: true, minFractionDigits: precisionToUse ?? 2, maxFractionDigits: precisionToUse ?? 2 }
 }
 
 const isFrontendFormatCompatibleWithBackendFormat = (column: any, frontendConfiguration: { useGrouping: boolean; minFractionDigits: number; maxFractionDigits: number }) => {
