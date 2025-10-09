@@ -12,13 +12,13 @@
                     </tr>
                 </thead>
 
-                <tr v-for="(row, index) of mappedRows" :key="index">
+                <tr v-for="(row, index) of mappedRows" :key="index" :class="{ 'summary-row': isSummaryRow(row) }" :style="isSummaryRow(row) ? { backgroundColor: propConfiguration?.summaryColor || '#00AAAA' } : {}">
                     <template v-for="(column, i) of columns.slice(1).filter((col) => col.isVisible !== false)" :key="i">
                         <td v-if="row[column.field].rowSpan > 0" class="pivot-data" :rowspan="row[column.field].rowSpan" :style="{ ...descriptor.pivotStyles.row, width: column.size ? `${column.size}px` : undefined }">
-                            <KnPivotTableEditableField v-if="column.isEditable && column.type !== 'merge'" :column="column" :prop-row="row" :combo-column-options="columnOptions" @rowChanged="setRowEdited(row)" @dropdownChanged="onDropdownChange" @dropdownOpened="$emit('dropdownOpened', $event)"></KnPivotTableEditableField>
+                            <KnPivotTableEditableField v-if="column.isEditable && column.type !== 'merge' && !isSummaryRow(row)" :column="column" :prop-row="row" :combo-column-options="columnOptions" @rowChanged="setRowEdited(row)" @dropdownChanged="onDropdownChange" @dropdownOpened="$emit('dropdownOpened', $event)"></KnPivotTableEditableField>
 
-                            <Checkbox v-else-if="column.editorType === 'TEXT' && column.columnInfo.type === 'boolean'" v-model="row[column.field].data" :binary="true" :disabled="!column.isEditable || column.type === 'merge'" @change="setRowEdited(row)"></Checkbox>
-                            <span v-if="!column.isEditable">
+                            <Checkbox v-else-if="column.editorType === 'TEXT' && column.columnInfo.type === 'boolean' && !isSummaryRow(row)" v-model="row[column.field].data" :binary="true" :disabled="!column.isEditable || column.type === 'merge'" @change="setRowEdited(row)"></Checkbox>
+                            <span v-if="!column.isEditable || isSummaryRow(row)">
                                 <span v-if="row[column.field].data && column.columnInfo?.type === 'date'">
                                     {{ getFormattedDate(row[column.field].data, 'yyyy-MM-dd', getCurrentLocaleDefaultDateFormat(column)) }}
                                 </span>
@@ -132,6 +132,13 @@ export default defineComponent({
     },
 
     methods: {
+        isSummaryRow(row: any) {
+            const firstColumnField = this.columns[0]?.field
+            if (!firstColumnField) return false
+
+            const firstColumnValue = row[firstColumnField]?.data
+            return firstColumnValue === '' || firstColumnValue === null || firstColumnValue === undefined || (typeof firstColumnValue === 'string' && firstColumnValue.trim() === '')
+        },
         mapRows() {
             this.mappedRows = this.rows.map((row) => {
                 const newRow = { id: row.id }
@@ -255,5 +262,9 @@ export default defineComponent({
 .pivot-table .pivot-header,
 .pivot-table .pivot-data {
     border: 3px solid #5d8dbb93;
+}
+
+.pivot-table .summary-row {
+    font-weight: bold;
 }
 </style>
