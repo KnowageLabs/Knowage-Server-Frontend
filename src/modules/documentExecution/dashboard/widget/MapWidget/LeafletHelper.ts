@@ -165,8 +165,8 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             if (target.type === 'dataset') {
                 visualizationDataType = VisualizationDataType.DATASET_ONLY
                 spatialAttribute = target.columns.filter((i) => i.fieldType === 'SPATIAL_ATTRIBUTE')[0]
-                geoColumn = getColumnName(spatialAttribute.name, data[target.name])
-                dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[target.name])
+                geoColumn = getColumnName(spatialAttribute.name, data[target.label])
+                dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[target.label])
             } else {
                 visualizationDataType = VisualizationDataType.LAYER_ONLY
                 layersData = await getLayerData(target)
