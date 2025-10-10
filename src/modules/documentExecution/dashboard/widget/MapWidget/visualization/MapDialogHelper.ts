@@ -41,14 +41,14 @@ export const createDialogFromDataset = (tooltip: boolean, layerVisualizationSett
 
 export const addDialogToMarker = (data: any, model: IWidget, target: IMapWidgetLayer, layerVisualizationSettings: IMapWidgetVisualizationType, row: any, marker: any, activeSelections: ISelection[], dashboardId: string, variables: IVariable[]) => {
     if (model.settings.dialog?.enabled) {
-        const popup = createDialogFromDataset(false, layerVisualizationSettings, model.settings.dialog, data[target.name], row, model, activeSelections, dashboardId, variables)
+        const popup = createDialogFromDataset(false, layerVisualizationSettings, model.settings.dialog, data[target.label], row, model, activeSelections, dashboardId, variables)
         if (popup) marker.bindPopup(popup)
     }
 }
 
 export const addTooltipToMarker = (data: any, model: IWidget, target: IMapWidgetLayer, layerVisualizationSettings: IMapWidgetVisualizationType, row: any, marker: any, activeSelections: ISelection[], dashboardId: string, variables: IVariable[]) => {
     if (model.settings.tooltips?.enabled) {
-        const tooltip = createDialogFromDataset(true, layerVisualizationSettings, model.settings.tooltips, data[target.name], row, model, activeSelections, dashboardId, variables)
+        const tooltip = createDialogFromDataset(true, layerVisualizationSettings, model.settings.tooltips, data[target.label], row, model, activeSelections, dashboardId, variables)
         if (tooltip) marker.bindTooltip(tooltip)
     }
 }
@@ -68,7 +68,7 @@ export const addTooltipToMarkerForLayerData = (feature: ILayerFeature, model: IW
 // Function that creates popup/tooltip for the maps that use layers as the target
 const createDialogForLayerData = (feature: ILayerFeature, tooltip: boolean, layerVisualizationSettings: IMapWidgetVisualizationType, settings: IMapTooltipSettings | IMapDialogSettings, value: string | number | ChartValuesRecord, widgetModel: IWidget, activeSelections: ISelection[], dashboardId: string, variables: IVariable[], foreignKeyValue?: string | null) => {
     const container = document.createElement('div')
-    const layersList = settings.layers.filter((layer: IMapTooltipSettingsLayer) => layer.name === layerVisualizationSettings.target) as any
+    const layersList = settings.layers.filter((layer: IMapTooltipSettingsLayer) => layer.label === layerVisualizationSettings.target) as any
 
     if (layersList?.length === 0) return null
 

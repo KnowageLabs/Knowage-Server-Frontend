@@ -95,7 +95,7 @@ const getOldCrossNavigation = (widget: any) => {
         case 'customchart':
         case 'static-pivot-table':
         case 'discovery':
-            return widget.cross.cross
+            return widget.cross.cross || widget.cross
         default:
             return widget.cross
     }

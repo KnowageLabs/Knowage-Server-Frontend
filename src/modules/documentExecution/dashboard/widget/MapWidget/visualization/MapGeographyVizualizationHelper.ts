@@ -5,7 +5,7 @@ import L from 'leaflet'
 
 // Showing only the defined data, no measures, no extra logic. It will show all Point, LineString and Polygon from WKT.
 export const addGeography = (data: any, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, markerBounds: any[], layersData: any, map: any, bounds: any) => {
-    if (data && data[target.name]) {
+    if (data && data[target.label]) {
         addGeograhyFromData(data, target, dataColumn, spatialAttribute, geoColumn, layerGroup, markerBounds)
     } else {
         addGeographyUsingLayers(layersData, spatialAttribute, layerGroup, markerBounds, bounds)
@@ -13,7 +13,7 @@ export const addGeography = (data: any, target: IMapWidgetLayer, dataColumn: str
 }
 
 const addGeograhyFromData = (data: any, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, markerBounds: any[]) => {
-    for (const row of data[target.name].rows) {
+    for (const row of data[target.label].rows) {
         const coordinates = getCoordinates(spatialAttribute, row[geoColumn], null)
         if (!coordinates) return
         const marker = addMarker(coordinates, layerGroup, null, row[dataColumn], spatialAttribute)

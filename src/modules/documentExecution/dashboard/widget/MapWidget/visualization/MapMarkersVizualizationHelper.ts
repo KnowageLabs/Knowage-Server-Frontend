@@ -6,7 +6,7 @@ import { getConditionalStyleUsingTargetDataset, getCoordinatesFromWktPointFeatur
 
 // Showing markers from the data using geoColumn for the dataset, and property for the layer features (only Points allowed)
 export const addMarkers = (data: any, model: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], layersData: any, targetDatasetData: any, variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
-    if (data && data[target.name]) {
+    if (data && data[target.label]) {
         addMarkersFromData(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, variables, activeSelections, dashboardId)
     } else {
         addMarkersUsingLayers(targetDatasetData, layersData, dataColumn, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds, model, variables, activeSelections, dashboardId)
@@ -18,7 +18,7 @@ const addMarkersFromData = (data: any, widgetModel: IWidget, target: IMapWidgetL
 }
 
 export const addMarkersOrClustersFromData = (data: any, widgetModel: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], variables: IVariable[], activeSelections: ISelection[], dashboardId: string, clusters?: any) => {
-    for (const row of data[target.name].rows) {
+    for (const row of data[target.label].rows) {
         createAndAddMarkerFromData(row, data, widgetModel, target, layerVisualizationSettings, dataColumn, spatialAttribute, geoColumn, markerBounds, variables, layerGroup, activeSelections, dashboardId, clusters)
     }
 
@@ -26,7 +26,7 @@ export const addMarkersOrClustersFromData = (data: any, widgetModel: IWidget, ta
 }
 
 const createAndAddMarkerFromData = (row: any, data: any, widgetModel: IWidget, target: IMapWidgetLayer, layerVisualizationSettings: IMapWidgetVisualizationType, dataColumn: string, spatialAttribute: any, geoColumn: string, markerBounds: any[], variables: IVariable[], layerGroup: any, activeSelections: ISelection[], dashboardId: string, clusters?: any) => {
-    const dataColumnIndex = getTargetDataColumn(data[target.name], layerVisualizationSettings, dataColumn)
+    const dataColumnIndex = getTargetDataColumn(data[target.label], layerVisualizationSettings, dataColumn)
     const value = row[dataColumnIndex]
 
     const filter = layerVisualizationSettings.filter

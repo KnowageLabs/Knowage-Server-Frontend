@@ -4,24 +4,8 @@ import { addMarkersOrClustersFromData, createMarkerForVisualization, getMappedDa
 import L from 'leaflet'
 import * as mapWidgetDefaultValues from '../../WidgetEditor/helpers/mapWidget/MapWidgetDefaultValues'
 
-export const addClusters = (
-    data: any,
-    model: IWidget,
-    target: IMapWidgetLayer,
-    dataColumn: string,
-    spatialAttribute: any,
-    geoColumn: string,
-    layerGroup: any,
-    layerVisualizationSettings: IMapWidgetVisualizationType,
-    markerBounds: any[],
-    layersData: any,
-    targetDatasetData: any,
-    variables: IVariable[],
-    clusters: any,
-    activeSelections: ISelection[],
-    dashboardId: string
-) => {
-    if (data && data[target.name]) {
+export const addClusters = (data: any, model: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], layersData: any, targetDatasetData: any, variables: IVariable[], clusters: any, activeSelections: ISelection[], dashboardId: string) => {
+    if (data && data[target.label]) {
         addClustersFromData(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, clusters, variables, activeSelections, dashboardId)
     } else {
         addClustersUsingLayers(targetDatasetData, layersData, dataColumn, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds, model, clusters, variables, activeSelections, dashboardId)
@@ -84,21 +68,7 @@ const addClustersUsingLayers = (targetDatasetData: any | null, layersData: any, 
     layerGroup.addLayer(clusters)
 }
 
-const addClusterUsingLayersFeature = (
-    feature: ILayerFeature,
-    layerVisualizationSettings: IMapWidgetVisualizationType,
-    mappedData: any,
-    layerGroup: any,
-    spatialAttribute: any,
-    widgetModel: IWidget,
-    markerBounds: any[],
-    clusters: any,
-    coord: any[] | null,
-    variables: IVariable[],
-    dataColumnIndex: string | null,
-    activeSelections: ISelection[],
-    dashboardId: string
-) => {
+const addClusterUsingLayersFeature = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, spatialAttribute: any, widgetModel: IWidget, markerBounds: any[], clusters: any, coord: any[] | null, variables: IVariable[], dataColumnIndex: string | null, activeSelections: ISelection[], dashboardId: string) => {
     const marker = createMarkerForVisualization(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, coord, variables, dataColumnIndex, activeSelections, dashboardId)
     if (marker) clusters.addLayer(marker)
 }
