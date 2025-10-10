@@ -85,6 +85,7 @@ export const getFormattedCrossNavigation = (widget: any) => {
 }
 
 const getOldCrossNavigation = (widget: any) => {
+    if (!widget.cross) return null
     switch (widget.type) {
         case 'chart':
             return widget.content.cross
