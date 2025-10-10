@@ -13,38 +13,14 @@
                 <template #header>
                     <span>{{ $t('managers.mondrianSchemasManagement.detail.title') }}</span>
                 </template>
-                <DetailCard
-                    :scope-types="scopeTypes"
-                    :category-types="categoryTypes"
-                    :selected-dataset="selectedDataset"
-                    :selected-dataset-versions="selectedDatasetVersions"
-                    :available-tags="availableTags"
-                    :loading="loading"
-                    @reloadVersions="getSelectedDatasetVersions"
-                    @loadingOlderVersion="$emit('loadingOlderVersion')"
-                    @olderVersionLoaded="onOlderVersionLoaded"
-                    @touched="$emit('touched')"
-                />
+                <DetailCard :scope-types="scopeTypes" :category-types="categoryTypes" :selected-dataset="selectedDataset" :selected-dataset-versions="selectedDatasetVersions" :available-tags="availableTags" :loading="loading" @reloadVersions="getSelectedDatasetVersions" @loadingOlderVersion="$emit('loadingOlderVersion')" @olderVersionLoaded="onOlderVersionLoaded" @touched="$emit('touched')" />
             </TabPanel>
 
             <TabPanel>
                 <template #header>
                     <span>{{ $t('kpi.alert.type') }}</span>
                 </template>
-                <TypeCard
-                    :active-tab="activeTab"
-                    :selected-dataset="selectedDataset"
-                    :dataset-types="filteredDatasetTypes"
-                    :data-sources="dataSources"
-                    :business-models="businessModels"
-                    :script-types="scriptTypes"
-                    :parent-valid="v$.$invalid"
-                    :python-environments="pythonEnvironments"
-                    :r-environments="rEnvironments"
-                    @fileUploaded="selectedDataset.fileUploaded = true"
-                    @queryEdited="showMetadataQueryInfo = true"
-                    @touched="$emit('touched')"
-                />
+                <TypeCard :active-tab="activeTab" :selected-dataset="selectedDataset" :dataset-types="filteredDatasetTypes" :data-sources="dataSources" :business-models="businessModels" :script-types="scriptTypes" :parent-valid="v$.$invalid" :python-environments="pythonEnvironments" :r-environments="rEnvironments" @fileUploaded="selectedDataset.fileUploaded = true" @queryEdited="showMetadataQueryInfo = true" @touched="$emit('touched')" />
             </TabPanel>
 
             <TabPanel>
@@ -268,7 +244,7 @@ export default defineComponent({
         //#region ===================== Save/Update Dataset & Tags =================================================
         async saveDataset() {
             const dsToSave = { ...this.selectedDataset } as any
-            if (this.user?.functionalities?.includes(UserFunctionalitiesConstants.DATA_PREPARATION) && dsToSave.id) {
+            if (this.user?.enterprise && this.user?.functionalities?.includes(UserFunctionalitiesConstants.DATA_PREPARATION) && dsToSave.id) {
                 await this.$http
                     .get(import.meta.env.VITE_KNOWAGE_DATA_PREPARATION_CONTEXT + '/api/1.0/instance/dataset/' + dsToSave.id, { headers: { 'X-Disable-Interceptor': 'true' } })
                     .then((response: AxiosResponse<any>) => {
