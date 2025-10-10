@@ -1,36 +1,8 @@
 <template>
-    <InputText
-        v-if="column && column.editorType !== 'COMBO' && column.columnInfo?.type !== 'date' && column.columnInfo?.type !== 'timestamp' && getDataType(column.columnInfo?.type) === 'text'"
-        v-model="row[column.field]"
-        class="kn-material-input"
-        :type="'text'"
-        :step="getStep(column.columnInfo?.type)"
-        @input="$emit('rowChanged', row)"
-    />
-    <InputNumber
-        v-if="column && column.editorType !== 'COMBO' && column.columnInfo?.type !== 'date' && column.columnInfo?.type !== 'timestamp' && getDataType(column.columnInfo?.type) === 'number'"
-        v-model="row[column.field]"
-        class="kn-material-input p-inputtext-sm"
-        :use-grouping="useGrouping"
-        :locale="locale"
-        :min-fraction-digits="minFractionDigits"
-        :max-fraction-digits="maxFractionDigits"
-        :disabled="!column.isEditable"
-        @blur="onInputNumberChange"
-    >
+    <InputText v-if="column && column.editorType !== 'COMBO' && column.columnInfo?.type !== 'date' && column.columnInfo?.type !== 'timestamp' && getDataType(column.columnInfo?.type) === 'text'" v-model="row[column.field]" class="kn-material-input" :type="'text'" :step="getStep(column.columnInfo?.type)" @input="$emit('rowChanged', row)" />
+    <InputNumber v-if="column && column.editorType !== 'COMBO' && column.columnInfo?.type !== 'date' && column.columnInfo?.type !== 'timestamp' && getDataType(column.columnInfo?.type) === 'number'" v-model="row[column.field]" class="kn-material-input p-inputtext-sm" :use-grouping="useGrouping" :locale="locale" :min-fraction-digits="minFractionDigits" :max-fraction-digits="maxFractionDigits" :disabled="!column.isEditable" @blur="onInputNumberChange">
     </InputNumber>
-    <Dropdown
-        v-else-if="column && column.editorType === 'COMBO'"
-        v-model="row[column.field]"
-        class="kn-material-input"
-        :options="getOptions(column, row)"
-        option-value="column_1"
-        option-label="column_1"
-        :filter="true"
-        @change="$emit('dropdownChanged', { row: row, column: column })"
-        @before-show="$emit('dropdownOpened', { row: row, column: column })"
-    >
-    </Dropdown>
+    <Dropdown v-else-if="column && column.editorType === 'COMBO'" v-model="row[column.field]" class="kn-material-input" :options="getOptions(column, row)" option-value="column_1" option-label="column_1" :filter="true" @change="$emit('dropdownChanged', { row: row, column: column })" @before-show="$emit('dropdownOpened', { row: row, column: column })"> </Dropdown>
     <Calendar
         v-else-if="column && (column.columnInfo?.type === 'date' || column.columnInfo?.type === 'timestamp')"
         v-model="row[column.field]"
@@ -46,7 +18,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { setInputDataType, getInputStep, formatNumber } from '@/helpers/commons/tableHelpers'
+import { setInputDataType, getInputStep, formatRegistryNumber } from '@/helpers/commons/tableHelpers'
 import { formatDate, getLocale } from '@/helpers/commons/localeHelper'
 import { luxonFormatDate, primeVueDate } from '@/helpers/commons/localeHelper'
 import Calendar from 'primevue/calendar'
@@ -106,13 +78,7 @@ export default defineComponent({
             }
         },
         formatNumberConfiguration() {
-            if (this.column?.columnInfo?.type === 'int') {
-                this.useGrouping = false
-                this.minFractionDigits = 0
-                this.maxFractionDigits = 0
-                return
-            }
-            const configuration = formatNumber(this.column)
+            const configuration = formatRegistryNumber(this.column)
             if (configuration) {
                 this.useGrouping = configuration.useGrouping
                 this.minFractionDigits = configuration.minFractionDigits

@@ -1,6 +1,6 @@
 <template>
     <div class="editable-field-container" v-if="column">
-        <InputNumber v-if="typeof row[column.field].data === 'number'" v-model="row[column.field].data" :style="knPivotTableDescriptor.pivotStyles.inputFields" class="kn-material-input" :locale="getLocaleString()" @input="$emit('rowChanged', row)" />
+        <InputNumber v-if="typeof row[column.field].data === 'number'" v-model="row[column.field].data" :style="knPivotTableDescriptor.pivotStyles.inputFields" class="kn-material-input" :use-grouping="useGrouping" :min-fraction-digits="minFractionDigits" :max-fraction-digits="maxFractionDigits" :disabled="!column.isEditable" :locale="locale" @input="$emit('rowChanged', row)" />
         <InputText v-else-if="column.editorType !== 'COMBO' && column.columnInfo.type !== 'date' && column.columnInfo.type !== 'timestamp'" v-model="row[column.field].data" :style="knPivotTableDescriptor.pivotStyles.inputFields" class="kn-material-input" :type="setDataType(column.columnInfo.type)" @input="$emit('rowChanged', row)" />
         <Calendar
             v-else-if="column.columnInfo.type === 'date' || column.columnInfo.type === 'timestamp'"
@@ -30,7 +30,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { setInputDataType, getInputStep } from '@/helpers/commons/tableHelpers'
+import { setInputDataType, getInputStep, formatRegistryNumber } from '@/helpers/commons/tableHelpers'
 import { formatDate, getLocale } from '@/helpers/commons/localeHelper'
 import { luxonFormatDate, primeVueDate } from '@/helpers/commons/localeHelper'
 import Calendar from 'primevue/calendar'
@@ -47,7 +47,11 @@ export default defineComponent({
         return {
             knPivotTableDescriptor,
             row: {} as any,
-            columnOptions: [] as any[]
+            columnOptions: [] as any[],
+            useGrouping: false,
+            locale: '',
+            minFractionDigits: 2,
+            maxFractionDigits: 2
         }
     },
     computed: {
@@ -69,16 +73,19 @@ export default defineComponent({
     created() {
         this.loadRow()
         this.loadColumnOptions()
+        this.formatNumberConfiguration()
+        this.setDefaultLocale()
     },
     methods: {
         loadRow() {
             this.row = this.propRow
-            const data = this.row[this.column?.field]?.data
-            if (data && typeof data === 'string') {
-                if (this.column?.columnInfo.type === 'date') {
-                    this.row[this.column.field].data = new Date(luxonFormatDate(data, 'yyyy-MM-dd', 'yyyy-MM-dd'))
-                } else if (this.column?.columnInfo.type === 'timestamp' && this.row[this.column.field] !== '') {
-                    this.row[this.column.field].data = new Date(luxonFormatDate(data, 'yyyy-MM-dd HH:mm:ss.S', 'yyyy-MM-dd HH:mm:ss.S'))
+            if (this.column && (this.row[this.column.field] || this.row[this.column.field] === 0 || this.row[this.column.field] === '')) {
+                if (this.column.columnInfo?.type === 'date' && typeof this.row[this.column.field] === 'string') {
+                    this.row[this.column.field] = this.row[this.column.field] ? new Date(luxonFormatDate(this.row[this.column.field], 'yyyy-MM-dd', 'yyyy-MM-dd')) : null
+                } else if (this.column.columnInfo?.type === 'timestamp' && typeof this.row[this.column.field] === 'string' && this.row[this.column.field] !== '') {
+                    this.row[this.column.field] = new Date(luxonFormatDate(this.row[this.column.field], 'yyyy-MM-dd HH:mm:ss.S', 'yyyy-MM-dd HH:mm:ss.S'))
+                } else if (this.column.editorType !== 'COMBO' && this.column.columnInfo?.type !== 'date' && this.column.columnInfo?.type !== 'timestamp' && this.getDataType(this.column.columnInfo?.type) === 'number') {
+                    this.formatNumberConfiguration()
                 }
             }
         },
@@ -108,6 +115,21 @@ export default defineComponent({
             }
 
             return localeMap[currentLocale] || 'en-US' // fallback to en-US
+        },
+        getDataType(columnType: string) {
+            return setInputDataType(columnType)
+        },
+        formatNumberConfiguration() {
+            const configuration = formatRegistryNumber(this.column)
+            if (configuration) {
+                this.useGrouping = configuration.useGrouping
+                this.minFractionDigits = configuration.minFractionDigits
+                this.maxFractionDigits = configuration.maxFractionDigits
+            }
+        },
+        setDefaultLocale() {
+            const locale = getLocale()
+            this.locale = locale ? locale.replace('_', '-') : ''
         }
     }
 })
