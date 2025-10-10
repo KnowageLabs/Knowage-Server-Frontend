@@ -8,7 +8,7 @@ import axios from 'axios'
 export const getMapWidgetData = async (dashboardId: any, dashboardConfig: any, widget: IWidget, datasets: IDashboardDataset[], initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const tempResponse = {}
     const datasetOnly = widget.layers.filter((e) => e.type === 'dataset')
-    const datasetsInWidget = datasetOnly.map((e) => e.name)
+    const datasetsInWidget = datasetOnly.map((e) => e.label)
     const usedDatasets = datasets.filter((e) => datasetsInWidget.includes(e.dsLabel))
 
     for (const selectedDataset of usedDatasets) {
