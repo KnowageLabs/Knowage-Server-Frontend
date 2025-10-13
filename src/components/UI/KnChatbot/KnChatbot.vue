@@ -54,7 +54,7 @@
 <script setup lang="ts">
 import mainStore from '@/App.store'
 import axios from 'axios'
-import { nextTick, reactive, ref } from 'vue'
+import { nextTick, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { IChat } from './KnChatbot'
 import avatarImg from '@/assets/images/chatbot/chatty.webp'
@@ -83,6 +83,10 @@ const bottomAnchor = ref(null)
 const body = reactive({
     conversationId: crypto.randomUUID()
 } as any)
+
+onMounted(() => {
+    scrollToBottom()
+})
 
 function newChat() {
     chat.value = [
@@ -116,7 +120,7 @@ async function sendMessage() {
     body.dashboard = null
     body.drivers = null
 
-    if (router.currentRoute.value?.params?.mode === 'dashboard') {
+    if (router.currentRoute.value?.name === 'dashboard' || router.currentRoute.value?.params?.mode === 'dashboard') {
         if (!dashStore) {
             const dashboardStoreModule = await import('@/modules/documentExecution/dashboard/Dashboard.store')
             dashStore = dashboardStoreModule.default()
@@ -163,9 +167,9 @@ async function sendToAI() {
         .then((response) => {
             if (response.data) {
                 let tempResponse: IChat = {
-                    role: response.data.role,
+                    role: 'assistant',
                     content: response.data.response,
-                    turnId: 1
+                    turnId: chat.value[chat.value.length - 1].turnId + 1
                 }
                 if (response.data.urlDashboard) {
                     tempResponse.url = response.data.urlDashboard
@@ -175,7 +179,7 @@ async function sendToAI() {
                 chat.value.push({
                     role: 'assistant',
                     content: 'Sorry, I cannot help you with that.',
-                    turnId: 1
+                    turnId: chat.value[chat.value.length - 1].turnId + 1
                 })
             }
             console.log(response.data)
@@ -184,7 +188,7 @@ async function sendToAI() {
             chat.value.push({
                 role: 'assistant',
                 content: 'Sorry, I cannot help you with that.',
-                turnId: 1
+                turnId: chat.value[chat.value.length - 1].turnId + 1
             })
         })
         .finally(() => {
