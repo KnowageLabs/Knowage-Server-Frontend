@@ -54,7 +54,7 @@
 <script setup lang="ts">
 import mainStore from '@/App.store'
 import axios from 'axios'
-import { nextTick, onMounted, reactive, ref } from 'vue'
+import { nextTick, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { IChat } from './KnChatbot'
 import avatarImg from '@/assets/images/chatbot/chatty.webp'
@@ -84,8 +84,10 @@ const body = reactive({
     conversationId: crypto.randomUUID()
 } as any)
 
-onMounted(() => {
-    scrollToBottom()
+watch(showAlert, (val) => {
+    if (val) {
+        scrollToBottom()
+    }
 })
 
 function newChat() {
@@ -120,7 +122,7 @@ async function sendMessage() {
     body.dashboard = null
     body.drivers = null
 
-    if (router.currentRoute.value?.name === 'dashboard' || router.currentRoute.value?.params?.mode === 'dashboard') {
+    if (['dashboard', 'dashboard-execution'].includes(String(router.currentRoute.value?.name)) || router.currentRoute.value?.params?.mode === 'dashboard') {
         if (!dashStore) {
             const dashboardStoreModule = await import('@/modules/documentExecution/dashboard/Dashboard.store')
             dashStore = dashboardStoreModule.default()
