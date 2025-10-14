@@ -24,11 +24,14 @@
                 </template>
                 <template #end>
                     <Button v-if="designerButtonVisible" :label="$t('documentExecution.olap.openDesigner')" class="p-button-text p-button-rounded p-button-plain kn-white-color" @click="openDesignerConfirm" />
+                    <Button v-if="showTemplateContent && !isEditMode" icon="fa-solid fa-pen-to-square" v-tooltip.bottom="$t('workspace.myAnalysis.menuItems.editTemplate')" class="p-button-text p-button-rounded p-button-plain kn-white-color" @click="enterEditMode" />
+                    <Button v-if="isEditMode" icon="pi pi-save" v-tooltip.bottom="$t('common.save')" class="p-button-text p-button-rounded p-button-plain kn-white-color" @click="saveEditedTemplate" />
+                    <Button v-if="isEditMode" icon="pi pi-times" v-tooltip.bottom="$t('common.cancel')" class="p-button-text p-button-rounded p-button-plain kn-white-color" @click="cancelEdit" />
                 </template>
             </Toolbar>
             <div id="driver-details-container" class="kn-flex kn-relative">
                 <div id="monaco-container" :style="mainDescriptor.style.absoluteScroll">
-                    <knMonaco v-if="showTemplateContent" v-model="selectedTemplateContent" class="kn-height-full" :options="{ wordWrap: 'on', readOnly: true }" :language="getEditorLanguage" @keyup="$emit('touched')"></knMonaco>
+                    <DocumentDetailsHistoryEditor v-if="showTemplateContent" v-model="selectedTemplateContent" class="kn-height-full" :options="{ wordWrap: 'on', readOnly: !isEditMode }" :language="getEditorLanguage" :original-content="isEditMode ? originalTemplateContent : ''" :show-diff="isEditMode" @keyup="$emit('touched')"> </DocumentDetailsHistoryEditor>
                     <div v-else>
                         <InlineMessage severity="info" class="p-m-2 kn-width-full"> {{ $t('documentExecution.documentDetails.history.templateHint') }}</InlineMessage>
                     </div>
@@ -44,7 +47,6 @@ import { defineComponent, PropType } from 'vue'
 import { AxiosResponse } from 'axios'
 import { iDocument } from '@/modules/documentExecution/documentDetails/DocumentDetails'
 import { downloadDirect } from '@/helpers/commons/fileHelper'
-import knMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
 import { mapState } from 'pinia'
 import { startOlap } from '../../dialogs/olapDesignerDialog/DocumentDetailOlapHelpers'
 import mainDescriptor from '@/modules/documentExecution/documentDetails/DocumentDetailsDescriptor.json'
@@ -54,10 +56,11 @@ import KnListBox from '@/components/UI/KnListBox/KnListBox.vue'
 import KnInputFile from '@/components/UI/KnInputFile.vue'
 import InlineMessage from 'primevue/inlinemessage'
 import mainStore from '../../../../../App.store'
+import DocumentDetailsHistoryEditor from './DocumentDetailsHistoryEditor.vue'
 
 export default defineComponent({
     name: 'document-drivers',
-    components: { KnListBox, KnInputFile, knMonaco, InlineMessage },
+    components: { KnListBox, KnInputFile, DocumentDetailsHistoryEditor, InlineMessage },
     props: { selectedDocument: { type: Object as PropType<iDocument>, required: true }, refresh: { type: Boolean, required: false } },
 
     setup() {
@@ -75,7 +78,9 @@ export default defineComponent({
             selectedTemplateContent: '' as any,
             loading: false,
             triggerUpload: false,
-            uploading: false
+            uploading: false,
+            isEditMode: false,
+            originalTemplateContent: '' as string
         }
     },
     computed: {
@@ -140,14 +145,19 @@ export default defineComponent({
     methods: {
         async getAllTemplates() {
             this.loading = true
-            this.$http
+            return this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/templates`)
-                .then((response: AxiosResponse<any>) => (this.listOfTemplates = response.data as iTemplate[]))
+                .then((response: AxiosResponse<any>) => {
+                    this.listOfTemplates = response.data as iTemplate[]
+                    return response.data
+                })
                 .finally(() => (this.loading = false))
         },
         async getSelectedTemplate(templateId) {
             this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/templates/selected/${templateId}`, { headers: { 'X-Disable-Errors': 'true' } }).then((response: AxiosResponse<any>) => {
-                this.selectedTemplateFileType == 'sbicockpit' || this.selectedTemplateFileType == 'json' || this.selectedTemplateFileType == 'sbigeoreport' ? (this.selectedTemplateContent = JSON.stringify(response.data, null, 4)) : (this.selectedTemplateContent = response.data)
+                const content = this.selectedTemplateFileType == 'sbicockpit' || this.selectedTemplateFileType == 'json' || this.selectedTemplateFileType == 'sbigeoreport' ? JSON.stringify(response.data, null, 4) : response.data
+                this.selectedTemplateContent = content
+                this.originalTemplateContent = content
             })
         },
 
@@ -160,6 +170,7 @@ export default defineComponent({
         selectTemplate(event) {
             this.selectedTemplate = event as iTemplate
             this.setFileType(event)
+            this.isEditMode = false
             this.getSelectedTemplate(event.id)
         },
         setUploadType() {
@@ -283,6 +294,29 @@ export default defineComponent({
         },
         openKpiDocumentDesigner() {
             this.$router.push(`/kpi-edit/${this.selectedDocument.id}?from=documentDetail`)
+        },
+        enterEditMode() {
+            this.isEditMode = true
+            this.originalTemplateContent = this.selectedTemplateContent
+        },
+        cancelEdit() {
+            this.isEditMode = false
+            this.selectedTemplateContent = this.originalTemplateContent
+        },
+        async saveEditedTemplate() {
+            const fileExtension = this.selectedTemplateFileType
+            let blob: Blob
+
+            let mimeType = 'text/plain'
+            if (fileExtension === 'json' || fileExtension === 'sbicockpit' || fileExtension === 'sbigeoreport') mimeType = 'application/json'
+            else if (fileExtension === 'xml' || fileExtension === 'rptdesign') mimeType = 'application/xml'
+            else if (fileExtension === 'xls') mimeType = 'application/vnd.ms-excel'
+
+            blob = new Blob([this.selectedTemplateContent], { type: mimeType })
+            const file = new File([blob], this.selectedTemplate.name, { type: mimeType })
+
+            this.uploadTemplate(file)
+            this.isEditMode = false
         }
     }
 })
