@@ -74,12 +74,14 @@ export class KnowageHighchartsScatterChart extends KnowageHighcharts {
     setData(data: any, widgetModel: IWidget, variables: IVariable[]) {
         this.model.series = []
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
+        const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
+        const attributeColumn = attributeColumns[0]?.column as IWidgetColumn;
         const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
-        this.model.plotOptions.scatter.jitter ? this.setJitteredChartData(data, measureColumns, dateFormat) : this.setRegularData(data, measureColumns, dateFormat, widgetModel)
+        this.model.plotOptions.scatter.jitter ? this.setJitteredChartData(data, attributeColumn, measureColumns, dateFormat) : this.setRegularData(data, attributeColumn, measureColumns, dateFormat, widgetModel)
         return this.model.series
     }
 
-    setRegularData(data: any, measureColumns: any[], dateFormat: string, widgetModel: IWidget) {
+    setRegularData(data: any, attributeColumn: IWidgetColumn, measureColumns: any[], dateFormat: string, widgetModel: IWidget) {
         const firstMeasure = measureColumns.find((measureColumn: any) => measureColumn.column.axis === 'X')
         const secondMeasure = measureColumns.find((measureColumn: any) => measureColumn.column.axis === 'Y')
 
@@ -88,19 +90,38 @@ export class KnowageHighchartsScatterChart extends KnowageHighcharts {
 
         const column = secondMeasure.column as IWidgetColumn
         const metadata = secondMeasure.metadata as any
-        const serieElement = { id: 0, name: getColumnAlias(column, columnAliases), data: [] as any[], connectNulls: true }
-        data?.rows?.forEach((row: any) => {
-            serieElement.data.push({
-                x: row[firstMeasure.metadata.dataIndex],
-                name: dateFormat && ['date', 'timestamp'].includes(firstMeasure.metadata.type) ? getFormattedDateCategoryValue(row[firstMeasure.metadata.dataIndex], dateFormat, firstMeasure.metadata.type) : '' + row[firstMeasure.metadata.dataIndex],
-                y: row[metadata.dataIndex],
-                drilldown: false
+
+        if (attributeColumn) {
+            const firstStat = (data?.stats && typeof data.stats === 'object') ? data.stats['1'] : undefined
+            if (firstStat) {
+                firstStat.distinct.forEach((distinctValue: any) => {
+                    let serieEl = {id: distinctValue, name: distinctValue, data: [] as any[]}
+                    data?.rows?.forEach((row: any) => {
+                        if (row.column_1 !== distinctValue) return
+                        this.setSerieElementData(serieEl, row, firstMeasure, dateFormat, metadata);
+                    })
+                    this.model.series.push(serieEl)
+                })
+            }
+        } else {
+            const serieElement = { id: 0, name: getColumnAlias(column, columnAliases), data: [] as any[], connectNulls: true }
+            data?.rows?.forEach((row: any) => {
+                this.setSerieElementData(serieElement, row, firstMeasure, dateFormat, metadata);
             })
-        })
-        this.model.series.push(serieElement)
+            this.model.series.push(serieElement)
+        }
     }
 
-    setJitteredChartData(data: any, measureColumns: any[], dateFormat: string) {
+    private setSerieElementData(serieElement: any, row: any, firstMeasure, dateFormat: string, metadata) {
+        serieElement.data.push({
+            x: row[firstMeasure.metadata.dataIndex],
+            name: dateFormat && ['date', 'timestamp'].includes(firstMeasure.metadata.type) ? getFormattedDateCategoryValue(row[firstMeasure.metadata.dataIndex], dateFormat, firstMeasure.metadata.type) : '' + row[firstMeasure.metadata.dataIndex],
+            y: row[metadata.dataIndex],
+            drilldown: false
+        })
+    }
+
+    setJitteredChartData(data: any, attributeColumn: IWidgetColumn, measureColumns: any[], dateFormat: string) {
         const firstMeasure = measureColumns.find((measureColumn: any) => measureColumn.column.axis === 'X')
         const measureColumn = measureColumns.find((measureColumn: any) => measureColumn.column.axis === 'Y')
         if (!firstMeasure || !measureColumn || !data.rows) return
@@ -108,21 +129,33 @@ export class KnowageHighchartsScatterChart extends KnowageHighcharts {
         const seriesMapByAttributeValueIndex: { [key: string]: { id: number; name: string; data: any[]; connectNulls: boolean } } = {}
         const uniqueValues: string[] = []
 
-        data.rows.forEach((row: any) => {
-            const attributeValue = dateFormat && ['date', 'timestamp'].includes(firstMeasure.metadata.type) ? getFormattedDateCategoryValue(row[firstMeasure.metadata.dataIndex], dateFormat, firstMeasure.metadata.type) : '' + row[firstMeasure.metadata.dataIndex]
+        if (!attributeColumn) return
 
-            if (!seriesMapByAttributeValueIndex[attributeValue]) {
-                const index = uniqueValues.length
-                uniqueValues.push(attributeValue)
-                seriesMapByAttributeValueIndex[attributeValue] = { id: index, name: attributeValue, data: [], connectNulls: true }
-            }
+        const firstStat = (data?.stats && typeof data.stats === 'object') ? data.stats['1'] : undefined
+        if (firstStat) {
+            firstStat.distinct.forEach((distinctValue: any) => {
+                let serieEl = {id: distinctValue, name: distinctValue, data: [] as any[]}
+                data?.rows?.forEach((row: any) => {
+                    if (row.column_1 !== distinctValue) return
+                    if (!seriesMapByAttributeValueIndex[distinctValue]) {
+                        const index = uniqueValues.length
+                        uniqueValues.push(distinctValue)
+                        seriesMapByAttributeValueIndex[distinctValue] = {
+                            id: index,
+                            name: distinctValue,
+                            data: [],
+                            connectNulls: true
+                        }
+                    }
 
-            seriesMapByAttributeValueIndex[attributeValue].data.push({
-                x: seriesMapByAttributeValueIndex[attributeValue].id,
-                name: attributeValue,
-                y: row[measureColumn.metadata.dataIndex]
+                    seriesMapByAttributeValueIndex[distinctValue].data.push({
+                        name: distinctValue,
+                        y: row[measureColumn.metadata.dataIndex]
+                    })
+                })
+                this.model.series.push(serieEl)
             })
-        })
+        }
 
         this.model.series = uniqueValues.map((value) => seriesMapByAttributeValueIndex[value])
     }

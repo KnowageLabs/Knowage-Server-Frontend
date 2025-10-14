@@ -41,6 +41,7 @@ import descriptor from '../../TableWidget/TableWidgetDataDescriptor.json'
 import highchartDescriptor from './HighchartsDataContainerDescriptor.json'
 import commonDescriptor from '../../common/WidgetCommonDescriptor.json'
 import WidgetEditorColumnTable from '../../common/WidgetEditorColumnTable.vue'
+import dashboardStore from "@/modules/documentExecution/dashboard/Dashboard.store";
 
 export default defineComponent({
     name: 'highcharts-scatter-data-container',
@@ -48,6 +49,10 @@ export default defineComponent({
     props: {
         propWidgetModel: { type: Object as PropType<IWidget>, required: true },
         selectedDataset: { type: Object as PropType<IDataset | null> }
+    },
+    setup() {
+      const store = dashboardStore()
+      return { store }
     },
     data() {
         return {
@@ -173,15 +178,18 @@ export default defineComponent({
         },
         isAttributesTableInvalid() {
             let invalid = false
-            if (this.columnTableItems['ATTRIBUTES'].length === 0) invalid = true
+            if (this.columnTableItems['ATTRIBUTES'].length > 1) invalid = true
             else {
-                switch (this.chartType) {
-                    case 'scatter':
-                        invalid = this.columnTableItems['ATTRIBUTES'].length !== 1
-                        break
-                    default:
-                        invalid = false
+              if (this.chartType === 'scatter') {
+                if (this.widgetModel.settings.chartModel?.model?.plotOptions?.scatter?.jitter) {
+                  invalid = this.columnTableItems['ATTRIBUTES'].length !== 1
+                } else {
+                  invalid = this.columnTableItems['ATTRIBUTES'].length > 1
+                  this.store.setHighchartsScatterAttributePresent(this.columnTableItems['ATTRIBUTES'].length > 0)
                 }
+              } else {
+                invalid = false
+              }
             }
             if (!this.widgetModel.invalid) this.widgetModel.invalid = {}
             this.widgetModel.invalid.attributesInvalid = invalid

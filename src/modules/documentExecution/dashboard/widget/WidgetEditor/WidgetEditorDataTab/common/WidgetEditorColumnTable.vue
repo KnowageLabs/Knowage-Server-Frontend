@@ -59,12 +59,17 @@ import deepcopy from 'deepcopy'
 import InlineMessage from 'primevue/inlinemessage'
 import ChartWidgetColumnForm from '../ChartWidget/common/ChartWidgetColumnForm.vue'
 import TableWidgetColumnForm from '../TableWidget/TableWidgetColumnForm.vue'
+import dashboardStore from "@/modules/documentExecution/dashboard/Dashboard.store";
 
 export default defineComponent({
     name: 'widget-editor-column-table',
     components: { Column, DataTable, Dropdown, InlineMessage, ChartWidgetColumnForm, TableWidgetColumnForm },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, items: { type: Array, required: true }, settings: { type: Object, required: true }, chartType: { type: String }, axis: { type: String }, error: { type: Boolean } },
     emits: ['rowReorder', 'itemUpdated', 'itemDeleted', 'itemAdded', 'singleItemReplaced'],
+    setup() {
+      const store = dashboardStore()
+      return { store }
+    },
     data() {
         return {
             commonDescriptor,
@@ -156,6 +161,13 @@ export default defineComponent({
             if (event.dataTransfer.getData('text/plain') === 'b') return
             const eventData = JSON.parse(event.dataTransfer.getData('text/plain'))
             const tempColumn = createNewWidgetColumn(eventData, this.widgetType)
+            if (this.widgetType === 'highcharts' && this.chartType === 'scatter' && !this.store.getHighchartsScatterAttributePresent()) {
+              if (tempColumn.fieldType === 'MEASURE') {
+                tempColumn.aggregation = 'NONE'
+              } else if (tempColumn.fieldType === 'ATTRIBUTE') {
+                this.store.setHighchartsScatterAttributePresent(true)
+              }
+            }
             if (['table', 'html', 'text', 'highcharts', 'chartJS', 'discovery', 'customchart', 'vega', 'python', 'r'].includes(this.widgetModel.type)) {
                 if (['chartJS', 'highcharts', 'vega'].includes(this.widgetModel.type)) {
                     if (this.axis) tempColumn.axis = this.axis
@@ -179,6 +191,9 @@ export default defineComponent({
                     }
                 }
             } else {
+                if (this.widgetType === 'highcharts' && this.chartType === 'scatter' && this.store.getHighchartsScatterAttributePresent() && item.fieldType === 'ATTRIBUTE') {
+                  this.store.setHighchartsScatterAttributePresent(false)
+                }
                 this.rows.splice(index, 1)
                 this.$emit('itemDeleted', item)
             }

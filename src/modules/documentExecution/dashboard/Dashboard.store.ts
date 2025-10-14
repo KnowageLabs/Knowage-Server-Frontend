@@ -19,7 +19,8 @@ const store = defineStore('dashboardStore', {
             profileAttributes: [] as { name: string; value: string }[],
             allThemes: [] as IDashboardTheme[],
             dataProxyQueue: {},
-            pythonEnvironments: [] as iPythonConfiguration[]
+            pythonEnvironments: [] as iPythonConfiguration[],
+            isHighchartsScatterAttributePresent: false
         }
     },
     actions: {
@@ -220,6 +221,12 @@ const store = defineStore('dashboardStore', {
         },
         setPythonEnvironments(pythonEnvironments: iPythonConfiguration[]) {
             this.pythonEnvironments = pythonEnvironments
+        },
+        setHighchartsScatterAttributePresent(isHighchartsScatterAttributePresent: boolean) {
+            this.isHighchartsScatterAttributePresent = isHighchartsScatterAttributePresent
+        },
+        getHighchartsScatterAttributePresent() {
+            return this.isHighchartsScatterAttributePresent
         }
     }
 })

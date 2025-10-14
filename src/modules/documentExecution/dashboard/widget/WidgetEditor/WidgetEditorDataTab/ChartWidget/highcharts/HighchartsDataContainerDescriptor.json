@@ -172,7 +172,7 @@
         {
             "attributesOnly": true,
             "hint": "dashboard.widgetEditor.highcharts.scatterJitter.dimensionsTableHint",
-            "label": "Dimension"
+            "label": "Grouping"
         }
     ],
     "scatterJitterChartColumnTableSettings": [
@@ -189,7 +189,7 @@
         {
             "attributesOnly": true,
             "hint": "dashboard.widgetEditor.highcharts.scatterJitter.dimensionsTableHint",
-            "label": "Dimension"
+            "label": "Grouping"
         }
     ],
     "solidgaugeChartColumnTableSettings": [
