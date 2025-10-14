@@ -1,17 +1,25 @@
 import { IDashboardDriver, IVariable } from '../../Dashboard'
 import { columnFieldRegex, parameterTextCompatibilityRegex, variableTextCompatibilityRegex } from '../../helpers/common/DashboardRegexHelper'
 
-export const replaceVariablesPlaceholdersByVariableName = (originalString: string, variables: IVariable[]) => {
-    if (!originalString) return originalString
+export const replaceVariablesPlaceholdersByVariableName = (originalValue: string | number, variables: IVariable[]) => {
+    if (!originalValue) return originalValue
 
-    originalString = originalString.replace(variableTextCompatibilityRegex, (match: string, variableName: string) => {
+    if (typeof originalValue !== 'string') {
+        try {
+            originalValue = originalValue.toString()
+        } catch (error) {
+            return ''
+        }
+    }
+
+    originalValue = originalValue.replace(variableTextCompatibilityRegex, (match: string, variableName: string) => {
         if (variables && variables.length > 0) {
             const dashboardVariable = variables.find((variable: IVariable) => variable.name === variableName)
             if (dashboardVariable) return dashboardVariable.value ?? ''
         }
         return ''
     })
-    return originalString
+    return originalValue
 }
 
 export const replaceDriversPlaceholdersByDriverUrlName = (originalString: string, drivers: IDashboardDriver[]) => {
