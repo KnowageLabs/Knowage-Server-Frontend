@@ -34,6 +34,7 @@ export class KnowageHighchartsWaterfallChart extends KnowageHighcharts {
     }
 
     setData(data: any, widgetModel: IWidget, variables: IVariable[]) {
+        if (!data || data.results === 0) return
         this.model.series = []
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
