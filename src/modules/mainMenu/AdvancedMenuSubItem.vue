@@ -6,7 +6,7 @@
                 <img v-else :src="item.custIcon" />
             </q-item-section>
             <q-item-section class="relative-position">
-                <q-btn flat square align="left" :label="getInternationalizedValue(subItem)" class="text-lowercase fit text-weight-regular" :to="link">
+                <q-btn flat square align="left" :label="getInternationalizedValue(subItem)" class="text-lowercase fit text-weight-regular" :to="subItem.to ? link(subItem) : null" :href="subItem.url ? link(subItem) : undefined" @click="onClick($event, subItem)">
                     <q-badge v-if="subItem.badge > 0" color="accent" floating>{{ subItem.badge }}</q-badge>
                 </q-btn>
             </q-item-section>
@@ -23,18 +23,27 @@
 <script lang="ts" setup>
 import AdvancedMenuSubItem from './AdvancedMenuSubItem.vue'
 import { useQuasar } from 'quasar'
-import { computed } from 'vue'
 import { getInternationalizedValue, cleanUrl } from './AdvancedMainMenuHelper'
 
 const props = defineProps<{
     item: any
 }>()
 
+const emit = defineEmits(['click'])
 const $q = useQuasar()
 
-const link = computed(() => {
-    return cleanUrl(props.item)
-})
+function link(item) {
+    return cleanUrl(item)
+}
+
+function onClick(event, item): void {
+    if (item.command) {
+        emit('click', {
+            originalEvent: event,
+            item: item
+        })
+    }
+}
 </script>
 <style lang="scss" scoped>
 .q-item__section--main ~ .q-item__section--side {

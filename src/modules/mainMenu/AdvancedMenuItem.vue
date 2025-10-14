@@ -6,7 +6,7 @@
         <q-icon v-else :name="props.item.iconCls || 'insert_drive_file'" size="14px" />
         <q-tooltip :delay="500">{{ getInternationalizedValue(props.item) }}</q-tooltip>
         <q-menu v-if="props.item.items" :anchor="$q.screen.lt.md ? 'bottom left' : 'top right'" self="top left" :model-value="props.item.visible" @hide="props.item.visible = false">
-            <advanced-menu-sub-item :item="props.item" />
+            <advanced-menu-sub-item :item="props.item" @click="onClick($event, item)" />
         </q-menu>
     </q-btn>
 </template>
