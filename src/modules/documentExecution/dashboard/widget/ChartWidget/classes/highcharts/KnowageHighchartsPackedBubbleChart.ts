@@ -61,9 +61,9 @@ export class KnowageHighchartsPackedBubbleChart extends KnowageHighcharts {
             const secondAttributeValue = row[secondAttributeColumn.metadata.dataIndex]
             const measureValue = row[measureColumn.metadata.dataIndex]
 
-            if (!result[secondAttributeValue]) result[secondAttributeValue] = {}
-            if (!result[secondAttributeValue][firstAttributeValue]) result[secondAttributeValue][firstAttributeValue] = []
-            result[secondAttributeValue][firstAttributeValue].push(measureValue)
+            if (!result[firstAttributeValue]) result[firstAttributeValue] = {}
+            if (!result[firstAttributeValue][secondAttributeValue]) result[firstAttributeValue][secondAttributeValue] = []
+            result[firstAttributeValue][secondAttributeValue].push(measureValue)
         })
 
         const categories: string[] = Object.keys(result)
@@ -74,13 +74,24 @@ export class KnowageHighchartsPackedBubbleChart extends KnowageHighcharts {
             keys.forEach((key) => allKeys.add(key))
         })
 
-        allKeys.forEach((key) => {
-            const data: { name: string; value: number }[] = categories.map((category) => {
-                const values = result[category][key]
-                return values ? { name: category, value: values.reduce((sum, value) => sum + value, 0) } : { name: category, value: 0 }
+        let maxValue = 0;
+        categories.forEach((category) => {
+            const data = Array.from(allKeys)
+                .map((key) => {
+                    const values = result[category][key]
+                    if (!values) return
+                    const value = values.reduce((sum, v) => sum + v, 0)
+                    if (value > maxValue) maxValue = value
+                    return { name: key, value }
+                })
+                .filter(Boolean)
+            this.model.series.push({
+                name: category,
+                data: data,
             })
-            this.model.series.push({ name: key, data })
         })
+
+        this.model.plotOptions.packedbubble.zMax = maxValue * 1.5
         this.model.xAxis[0].categories = []
         this.model.xAxis[0].categories = [...categories]
     }
