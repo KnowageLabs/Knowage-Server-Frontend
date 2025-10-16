@@ -35,13 +35,13 @@ const createAndAddMarkerFromData = (row: any, data: any, widgetModel: IWidget, t
     const conditionalStyle = getVizualizationConditionalStyles(widgetModel, layerVisualizationSettings.target, layerVisualizationSettings.targetMeasure, value, variables)
     const coordinates = getCoordinates(spatialAttribute, row[geoColumn], null)
     if (!coordinates) return
-    const marker = addMarker(coordinates, layerGroup, layerVisualizationSettings.markerConf ?? null, row[dataColumnIndex], spatialAttribute, conditionalStyle?.['background-color'], conditionalStyle?.icon)
+
+    const container = clusters ?? layerGroup
+    const marker = addMarker(coordinates, container, layerVisualizationSettings.markerConf ?? null, row[dataColumnIndex], spatialAttribute, conditionalStyle?.['background-color'], conditionalStyle?.icon)
 
     addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker, activeSelections, dashboardId, variables)
     addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker, activeSelections, dashboardId, variables)
     if (!clusters) markerBounds.push(marker.getLatLng())
-
-    clusters ? clusters.addLayer(marker) : layerGroup.addLayer(marker)
 
     return marker
 }
@@ -95,7 +95,9 @@ export const createMarkerForVisualization = (feature: ILayerFeature, layerVisual
 
     addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker, activeSelections, dashboardId, variables)
     addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker, activeSelections, dashboardId, variables)
-    markerBounds.push(marker.getLatLng())
-
+    const isClusterGroup = typeof (layerGroup as any)?.getAllChildMarkers === 'function'
+    if (!isClusterGroup) {
+        markerBounds.push(marker.getLatLng())
+    }
     return marker
 }
