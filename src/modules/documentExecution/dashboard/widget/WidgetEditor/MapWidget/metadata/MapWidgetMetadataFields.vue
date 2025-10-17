@@ -19,7 +19,7 @@
                         <Dropdown v-model="field.fieldType" class="kn-material-input" :options="descriptor.columnTypeOptions" :disabled="true"></Dropdown>
                         <label class="kn-material-input-label">{{ $t('common.type') }}</label>
                     </div>
-                    <div v-if="field.fieldType === 'MEASURE'" class="p-field p-float-label p-fluid kn-flex p-ml-2">
+                    <div v-if="field.fieldType === 'MEASURE' && !field.formula" class="p-field p-float-label p-fluid kn-flex p-ml-2">
                         <Dropdown v-model="field.aggregationSelected" class="kn-material-input" :options="descriptor.columnAggregationOptions" option-value="value" option-label="label"></Dropdown>
                         <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.aggregation') }}</label>
                     </div>
