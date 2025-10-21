@@ -1,6 +1,7 @@
 import { ISelection, IVariable, IWidget } from '../../../Dashboard'
 import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import { addMarker, getColumnName, getCoordinates } from '../LeafletHelper'
+import { executeMapInteractions } from '../interactions/MapInteractionsHelper'
 import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData } from './MapDialogHelper'
 import { getConditionalStyleUsingTargetDataset, getCoordinatesFromWktPointFeature, getFeatureValues, getTargetDataColumn, getVizualizationConditionalStyles, isConditionMet, transformDataUsingForeignKeyReturningAllColumns } from './MapVisualizationHelper'
 
@@ -39,9 +40,64 @@ const createAndAddMarkerFromData = (row: any, data: any, widgetModel: IWidget, t
     const container = clusters ?? layerGroup
     const marker = addMarker(coordinates, container, layerVisualizationSettings.markerConf ?? null, row[dataColumnIndex], spatialAttribute, conditionalStyle?.['background-color'], conditionalStyle?.icon)
 
+    // Debug: log marker creation info
+    try {
+        // eslint-disable-next-line no-console
+        console.log('MapMarkers: created marker from data', { target: target?.label, coordinates, marker, layerVisualizationSettingsId: layerVisualizationSettings.id })
+    } catch (err) {
+        // ignore
+    }
+
     addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker, activeSelections, dashboardId, variables)
     addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker, activeSelections, dashboardId, variables)
     if (!clusters) markerBounds.push(marker.getLatLng())
+
+    // Attach click handler to trigger interactions (selection/crossNavigation/link/preview)
+    try {
+        if (!widgetModel.settings.dialog.enabled) {
+            marker.on &&
+                marker.on('click', (ev: any) => {
+                    try {
+                        const selectionConfig = widgetModel?.settings?.interactions?.selection?.selections?.find((s: any) => s.vizualizationType?.target === layerVisualizationSettings.target)
+                        if (!selectionConfig || !selectionConfig.column) return
+
+                        const column = selectionConfig.column
+                        // build dataMap from dataset meta and row
+                        const meta = data[target.label]
+                        const dataMap: Record<string, any> = {}
+                        meta?.metaData?.fields?.forEach((field: any) => {
+                            if (!field.dataIndex) return
+                            dataMap[field.header] = row[field.dataIndex]
+                        })
+
+                        const colName = getColumnName(column, meta)
+                        const value = row[colName]
+                        const dataValue = `${column}: ${value}`
+
+                        const fakeElement: any = {
+                            getAttribute: (name: string) => (name === 'data-value' ? dataValue : null),
+                            _dataMap: dataMap
+                        }
+
+                        executeMapInteractions({ currentTarget: fakeElement }, widgetModel, layerVisualizationSettings, activeSelections, dashboardId, variables)
+                    } catch (err) {
+                        // ignore
+                    }
+                })
+        } else {
+            // If dialog is enabled, open the bound popup on click so the dialog shows
+            marker.on &&
+                marker.on('click', (ev: any) => {
+                    try {
+                        if (marker.getPopup && marker.getPopup()) marker.openPopup()
+                    } catch (err) {
+                        // ignore
+                    }
+                })
+        }
+    } catch (err) {
+        // ignore
+    }
 
     return marker
 }
@@ -93,11 +149,57 @@ export const createMarkerForVisualization = (feature: ILayerFeature, layerVisual
     if (!coordinates) return
     const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.markerConf ?? null, value as any, spatialAttribute, conditionalStyle?.['background-color'], conditionalStyle?.icon)
 
+    // Debug: log marker creation info for layer features
+    try {
+        // eslint-disable-next-line no-console
+        console.log('MapMarkers: created marker for layer feature', { feature, coordinates: coordinates.reverse ? coordinates.reverse() : coordinates, marker, layerVisualizationSettingsId: layerVisualizationSettings.id })
+    } catch (err) {
+        // ignore
+    }
+
     addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker, activeSelections, dashboardId, variables)
     addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker, activeSelections, dashboardId, variables)
     const isClusterGroup = typeof (layerGroup as any)?.getAllChildMarkers === 'function'
     if (!isClusterGroup) {
         markerBounds.push(marker.getLatLng())
+    }
+    // Attach click handler for layer-based features as well
+    try {
+        // If dialog is enabled, clicking should open the popup; otherwise trigger interactions
+        if (widgetModel?.settings?.dialog?.enabled) {
+            marker.on &&
+                marker.on('click', (ev: any) => {
+                    try {
+                        if (marker.getPopup && marker.getPopup()) marker.openPopup()
+                    } catch (err) {
+                        // ignore
+                    }
+                })
+        } else {
+            marker.on &&
+                marker.on('click', (ev: any) => {
+                    try {
+                        const selectionConfig = widgetModel?.settings?.interactions?.selection?.selections?.find((s: any) => s.vizualizationType?.target === layerVisualizationSettings.target)
+                        if (!selectionConfig || !selectionConfig.column) return
+
+                        const column = selectionConfig.column
+                        const dataMap = feature.properties ?? {}
+                        const valueForColumn = feature.properties?.[column]
+                        const dataValue = `${column}: ${valueForColumn}`
+
+                        const fakeElement: any = {
+                            getAttribute: (name: string) => (name === 'data-value' ? dataValue : null),
+                            _dataMap: dataMap
+                        }
+
+                        executeMapInteractions({ currentTarget: fakeElement }, widgetModel, layerVisualizationSettings, activeSelections, dashboardId, variables)
+                    } catch (err) {
+                        // ignore
+                    }
+                })
+        }
+    } catch (err) {
+        // ignore
     }
     return marker
 }
