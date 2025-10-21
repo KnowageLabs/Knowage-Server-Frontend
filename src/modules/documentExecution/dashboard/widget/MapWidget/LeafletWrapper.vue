@@ -149,7 +149,7 @@ onMounted(async () => {
             map.invalidateSize()
         }, 200)
     } catch (error: any) {
-        console.log('------- ERROR"', error)
+        console.error('------- ERROR"', error)
         appStore.setError({
             title: t('common.toast.errorTitle'),
             msg: error ? error.message : ''
