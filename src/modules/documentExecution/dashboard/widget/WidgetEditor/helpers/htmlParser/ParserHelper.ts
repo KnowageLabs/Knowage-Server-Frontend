@@ -84,8 +84,22 @@ export const parseHtml = (tempWidgetModel: IWidget, tempDrivers: any[], tempVari
             wrappedHtmlToRender = wrappedHtmlToRender.replace(gt, '$1&gt;$3')
             wrappedHtmlToRender = wrappedHtmlToRender.replace(lt, '$1&lt;$3')
 
+            const svgBlocks: string[] = []
+            if (/<svg[\s\S]*?>[\s\S]*?<\/svg>/i.test(wrappedHtmlToRender)) {
+                wrappedHtmlToRender = wrappedHtmlToRender.replace(/<svg[\s\S]*?>[\s\S]*?<\/svg>/gi, (match) => {
+                    let svg = match
+                    if (!/xmlns=/i.test(svg)) {
+                        svg = svg.replace(/^<svg\b/i, '<svg xmlns="http://www.w3.org/2000/svg"')
+                    }
+                    const placeholder = `@@SVG_PLACEHOLDER_${svgBlocks.length}@@`
+                    svgBlocks.push(svg)
+                    return placeholder
+                })
+            }
+
             const parseHtmlFunctionsResult = parseHtmlFunctions(wrappedHtmlToRender)
-            trustedHtml = sanitizeHtml(parseHtmlFunctionsResult, {
+
+            let sanitized = sanitizeHtml(parseHtmlFunctionsResult, {
                 allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img']),
                 allowedAttributes: {
                     '*': ['*'],
@@ -93,6 +107,14 @@ export const parseHtml = (tempWidgetModel: IWidget, tempDrivers: any[], tempVari
                 },
                 allowedSchemes: ['data', 'http', 'https']
             })
+
+            if (svgBlocks.length) {
+                svgBlocks.forEach((svg, idx) => {
+                    sanitized = sanitized.replace(`@@SVG_PLACEHOLDER_${idx}@@`, svg)
+                })
+            }
+
+            trustedHtml = sanitized
         }
     } catch (error: any) {
         setError(tempWidgetModel, toast, error, 'html')
