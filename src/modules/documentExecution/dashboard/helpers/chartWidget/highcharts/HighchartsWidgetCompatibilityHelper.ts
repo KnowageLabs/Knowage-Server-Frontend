@@ -24,6 +24,7 @@ import * as widgetCommonDefaultValues from '../../../widget/WidgetEditor/helpers
 import * as highchartsDefaultValues from '../../../widget/WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
 const columnNameIdMap = {}
+import { IHighchartsAdvancedPropertySettings, IHighchartsSeriesSetting } from '../../../interfaces/highcharts/DashboardHighchartsWidget'
 
 export const formatHighchartsWidget = (widget: any) => {
     const oldChart = widget.content?.chartTemplate?.CHART
@@ -37,6 +38,7 @@ export const formatHighchartsWidget = (widget: any) => {
     } as IWidget
 
     formattedWidget.settings = getFormattedWidgetSettings(widget, oldChart?.type) as IHighchartsWidgetSettings
+    formattedWidget.settings.advancedSettings = getFormattedAdvancedSettings(widget, oldChart)
     getFiltersForColumns(formattedWidget, widget)
     formattedWidget.settings.chartModel = createChartModel(widget, oldChart?.type, oldChart?.seriesStacking)
 
@@ -50,7 +52,7 @@ const getFormattedWidgetSettings = (widget: any, chartType: string) => {
         chartModel: null,
         configuration: getFormattedConfiguration(widget, chartType),
         accesssibility: { seriesAccesibilitySettings: getFormattedSeriesAccesibilitySettings(widget) },
-        series: { seriesSettings: getFormattedSerieLabelsSettings(widget) },
+        series: { seriesSettings: getFormattedSerieLabelsSettings(widget), aliases: [] },
         interactions: getFormattedInteractions(widget) as IWidgetInteractions,
         style: getFormattedStyle(widget),
         chart: { colors: getFormattedColorSettings(widget) as any },
@@ -123,6 +125,18 @@ const getFormmatedAxisLinesSettings = (widget: any) => {
         formattedAxisLinesSettings.crosshairWidth = oldChartModel.AXES_LIST.style.brushWidth
     }
     return formattedAxisLinesSettings
+}
+
+const getFormattedAdvancedSettings = (widget: any, oldChart) => {
+    if (oldChart?.advanced) {
+        const advancedSettings: IHighchartsAdvancedPropertySettings[] = []
+        Object.keys(oldChart.advanced).forEach((propertyPath: string) => {
+            const propertyValue = (oldChart.advanced as any)[propertyPath]
+            if (propertyValue !== undefined && propertyValue !== null && propertyValue !== '') advancedSettings.push({ propertyPath, propertyValue: propertyValue })
+            else if (propertyValue === '') advancedSettings.push({ propertyPath, propertyValue: '' })
+        })
+        return advancedSettings
+    }
 }
 
 const getProperDateTimeFormat = (oldDateFormat: string) => {
