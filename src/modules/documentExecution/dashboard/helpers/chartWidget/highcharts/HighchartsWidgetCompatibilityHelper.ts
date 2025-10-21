@@ -160,6 +160,11 @@ export const getColumnId = (widgetColumnName: string) => {
 
 const createChartModel = (widget: any, chartType: string, isStacking: boolean) => {
     const widgetContentChartTemplate = widget.content.chartTemplate
+
+    // Cockpit BAR charts have ORIENTATION rather than BAR/COLUMN type.
+    const orientation = widgetContentChartTemplate?.CHART?.orientation
+    const mappedBarType = orientation === 'horizontal' ? 'bar' : 'column'
+
     switch (chartType) {
         case 'PIE':
             return new KnowageHighchartsPieChart(widgetContentChartTemplate)
@@ -172,7 +177,7 @@ const createChartModel = (widget: any, chartType: string, isStacking: boolean) =
         case 'AREA':
             return new KnowageHighchartsBarChart(widgetContentChartTemplate, 'area', isStacking)
         case 'BAR':
-            return new KnowageHighchartsBarChart(widgetContentChartTemplate, 'bar', isStacking)
+            return new KnowageHighchartsBarChart(widgetContentChartTemplate, mappedBarType, isStacking)
         case 'COLUMN':
             return new KnowageHighchartsBarChart(widgetContentChartTemplate, 'column', isStacking)
         case 'BUBBLE':
