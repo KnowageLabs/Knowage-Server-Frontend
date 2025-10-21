@@ -76,7 +76,11 @@ const addCategoryColumn = (category: IOldModelCategory, widgetColumNameMap: any,
     if (widgetColumNameMap[category.column]) {
         const tempColumn = { ...widgetColumNameMap[category.column] }
         if (category.orderType) tempColumn.orderType = category.orderType === 'desc' ? 'DESC' : 'ASC'
-        if (chartHasDrilldown(widget, chartLibrary) && category.drillOrder) tempColumn.drillOrder = createDrillOrder(category.drillOrder[category.column].orderColumn, category.drillOrder[category.column].orderType)
+        if (chartHasDrilldown(widget, chartLibrary) && category.drillOrder) {
+            // tempColumn.drillOrder = createDrillOrder(category.drillOrder[category.column].orderColumn, category.drillOrder[category.column].orderType) - old condition
+            tempColumn.orderType = category.drillOrder[category.column].orderType ? category.drillOrder[category.column].orderType.toUpperCase() : ''
+            tempColumn.orderColumn = category.drillOrder[category.column].orderColumn ? category.drillOrder[category.column].orderColumn : ''
+        }
         formattedColumns.push(tempColumn)
     }
 }
@@ -86,7 +90,8 @@ const chartCanHaveOnlyOneAttribute = (widget: any, chartLibrary: 'chartJS' | 'hi
 }
 
 const chartHasDrilldown = (widget: any, chartLibrary: 'chartJS' | 'highcharts' | 'vega') => {
-    return chartLibrary === 'highcharts' && store.user.enterprise && widget.content.chartTemplate.CHART.type === 'PIE'
+    // return chartLibrary === 'highcharts' && store.user.enterprise && widget.content.chartTemplate.CHART.type === 'PIE' - old condition
+    return chartLibrary === 'highcharts' && store.user.enterprise
 }
 
 const addDrillColumnsFromCategory = (category: IOldModelCategory, widgetColumNameMap: any, formattedColumns: IWidgetColumn[]) => {
@@ -96,7 +101,9 @@ const addDrillColumnsFromCategory = (category: IOldModelCategory, widgetColumNam
         if (widgetColumNameMap[columnNameTrimmed]) {
             const tempColumn = { ...widgetColumNameMap[columnNameTrimmed], drillOrder: createDrillOrder(null, '') }
             if (category.drillOrder && category.drillOrder[columnNameTrimmed]) {
-                tempColumn.drillOrder = createDrillOrder(category.drillOrder[columnNameTrimmed].orderColumn, category.drillOrder[columnNameTrimmed].orderType)
+                // tempColumn.drillOrder = createDrillOrder(category.drillOrder[columnNameTrimmed].orderColumn, category.drillOrder[columnNameTrimmed].orderType) - old condition
+                tempColumn.orderType = category.drillOrder[columnNameTrimmed].orderType ? category.drillOrder[columnNameTrimmed].orderType.toUpperCase() : ''
+                tempColumn.orderColumn = category.drillOrder[columnNameTrimmed].orderColumn ? category.drillOrder[columnNameTrimmed].orderColumn : ''
             }
             formattedColumns.push(tempColumn)
         }
