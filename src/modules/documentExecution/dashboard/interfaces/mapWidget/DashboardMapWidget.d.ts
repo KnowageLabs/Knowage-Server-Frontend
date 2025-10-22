@@ -28,6 +28,9 @@ export interface IMapWidgetSelectionConfiguration {
 export interface IMapWidgetSelection {
     vizualizationType: IMapWidgetVisualizationType | null
     column: string | null
+    prefix: string | null
+    suffix: string | null
+    precision: number | null
 }
 export interface IMapWidgetCrossNavigation {
     enabled: boolean
@@ -111,6 +114,7 @@ export interface IMapWidgetVisualizationType {
     properties?: IMapWidgetLayerProperty[]
     filter?: IMapWidgetLayerFilter
     layerName?: string
+    label?: string
 }
 
 export interface IMapWidgetVisualizationTypeMarker {
@@ -241,6 +245,7 @@ export interface IMapDialogSettings {
         'background-color': string
     }
     layers: IMapDialogSettingsProperty[]
+    selections: IMapWidgetSelection[]
 }
 
 export interface IMapDialogSettingsProperty {

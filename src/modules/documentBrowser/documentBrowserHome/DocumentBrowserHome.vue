@@ -44,17 +44,7 @@
         </div>
 
         <div id="detail-container" class="p-d-flex p-flex-column">
-            <DocumentBrowserDetail
-                v-if="selectedFolder || searchMode"
-                :prop-documents="searchMode ? searchedDocuments : documents"
-                :breadcrumbs="breadcrumbs"
-                :search-mode="searchMode"
-                @breadcrumbClicked="setSelectedBreadcrumb($event)"
-                @documentCloned="loadDocuments"
-                @documentStateChanged="loadDocuments"
-                @itemSelected="$emit('itemSelected', $event)"
-                @showDocumentDetails="openDocumentDetails"
-            ></DocumentBrowserDetail>
+            <DocumentBrowserDetail v-if="selectedFolder || searchMode" :prop-documents="searchMode ? searchedDocuments : documents" :breadcrumbs="breadcrumbs" :search-mode="searchMode" @breadcrumbClicked="setSelectedBreadcrumb($event)" @documentCloned="loadDocuments" @documentStateChanged="loadDocuments" @itemSelected="$emit('itemSelected', $event)" @showDocumentDetails="openDocumentDetails"></DocumentBrowserDetail>
             <DocumentBrowserHint v-else data-test="document-browser-hint"></DocumentBrowserHint>
         </div>
     </div>
@@ -242,7 +232,7 @@ export default defineComponent({
             this.items.push({ label: this.$t('documentBrowser.genericDocument'), command: () => this.createNewDocument() })
             if (this.hasCreateCockpitFunctionality) {
                 this.items.push({ label: this.$t('common.cockpit'), command: () => this.createNewCockpit() })
-                this.items.push({ label: this.$t('dashboard.dashboard'), beta: true, command: () => this.createNewDashboard() })
+                this.items.push({ label: this.$t('dashboard.dashboard'), command: () => this.createNewDashboard() })
             }
         },
         createNewDocument() {
