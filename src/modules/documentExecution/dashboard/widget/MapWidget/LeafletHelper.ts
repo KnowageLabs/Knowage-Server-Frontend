@@ -15,6 +15,8 @@ import { createHeatmapVisualization } from './visualization/MapHeatmapVizualizat
 import { addMapCharts } from './visualization/MapChartsVizualizationHelper'
 import useAppStore from '@/App.store'
 import i18n from '@/App.i18n'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
+import { executeMapInteractions } from './interactions/MapInteractionsHelper'
 
 const appStore = useAppStore()
 const { t } = i18n.global
@@ -81,6 +83,34 @@ export const addMarker = (position: number[] | string, container: any, settings:
         })
     else marker = createMarker(position, settings, colorFromConditionalStyles, iconFromConditionalStyles).addTo(container)
     marker.knProperties = { measureValue: value, layerId: container.knProperties.layerId }
+    // Attach a click handler to each marker to open popup (if bound) and print marker information to console
+    try {
+        marker.on &&
+            marker.on('click', (ev: any) => {
+                // If a popup is bound, open it on click
+                try {
+                    if (marker.getPopup && marker.getPopup()) marker.openPopup()
+                } catch (err) {
+                    // ignore
+                }
+
+                // Print useful marker information for debugging
+                try {
+                    const popupContent = marker.getPopup ? (marker.getPopup() ? marker.getPopup().getContent() : null) : null
+                    // emit event so parent wrapper or other components can react
+                    try {
+                        emitter.emit('mapMarkerClicked', { knProperties: marker.knProperties, eventLatLng: ev?.latlng ?? null, markerLatLng: marker.getLatLng ? marker.getLatLng() : null, popupContent })
+                    } catch (emitErr) {
+                        // ignore
+                    }
+                } catch (err) {
+                    // eslint-disable-next-line no-console
+                    console.log('Map marker clicked (could not fetch full details)', marker.knProperties)
+                }
+            })
+    } catch (err) {
+        // ignore if marker doesn't support events
+    }
     return marker
 }
 
@@ -250,7 +280,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             }
 
             if (layerVisualizationSettings.type === 'geography') {
-                addGeography(data, target, dataColumn, spatialAttribute, geoColumn, layerGroup, markerBounds, layersData, map, bounds)
+                addGeography(data, model, target, layerVisualizationSettings, dataColumn, spatialAttribute, geoColumn, layerGroup, markerBounds, layersData, variables, activeSelections, dashboardId, map, bounds)
             }
         }
 

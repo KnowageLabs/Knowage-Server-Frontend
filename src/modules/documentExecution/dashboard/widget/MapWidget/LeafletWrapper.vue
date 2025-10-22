@@ -149,7 +149,7 @@ onMounted(async () => {
             map.invalidateSize()
         }, 200)
     } catch (error: any) {
-        console.log('------- ERROR"', error)
+        console.error('------- ERROR"', error)
         appStore.setError({
             title: t('common.toast.errorTitle'),
             msg: error ? error.message : ''
@@ -212,7 +212,7 @@ const handleLegendUpdated = (legendData: Record<string, any> | undefined) => {
 
 .customLeafletPopup {
     margin: 0px 0px;
-    padding: 0px 5px !important;
+    padding: 0px 5px;
     background: white;
     min-width: 150px;
     max-width: 400px;

@@ -3,7 +3,7 @@
         <form v-if="crossNavigationConfiguration" class="p-fluid p-formgrid p-grid p-col-12 p-m-1">
             <div v-for="(crossNavigationConfig, index) in crossNavigationConfiguration.crossNavigationVizualizationTypes" :key="index" class="p-col-12 p-fluid p-formgrid p-grid">
                 <div class="p-col-12 p-fluid p-formgrid p-grid p-ai-center">
-                    <q-select filled dense class="p-sm-12 p-md-4" v-model="crossNavigationConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options options-dense option-label="layerName" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="crossNavigationDisabled" @update:modelValue="onVizualizationTypeChange(crossNavigationConfig)"></q-select>
+                    <q-select filled dense class="p-sm-12 p-md-4" v-model="crossNavigationConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options options-dense option-label="label" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="crossNavigationDisabled" @update:modelValue="onVizualizationTypeChange(crossNavigationConfig)"></q-select>
                     <div class="p-col-4 p-d-flex p-flex-column">
                         <div class="p-d-flex p-flex-column kn-flex p-mx-2 p-mb-4">
                             <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.interactions.crossNavigationName') }}</label>
@@ -223,13 +223,14 @@ export default defineComponent({
         getFilteredVisualizationTypeOptions(currentIndex: number) {
             if (!this.crossNavigationConfiguration) return this.visualizationTypeOptions
 
-            const selectedLayerIds = this.crossNavigationConfiguration.crossNavigationVizualizationTypes
+            // when checking already-selected visualizations prefer label comparison (labels are unique in the editor context)
+            const selectedLabels = this.crossNavigationConfiguration.crossNavigationVizualizationTypes
                 .map((crossNavigationConfig: IMapWidgetCrossNavigationVisualizationTypeConfig, index: number) => {
-                    return index !== currentIndex ? crossNavigationConfig.vizualizationType?.target : null
+                    return index !== currentIndex ? crossNavigationConfig.vizualizationType?.label ?? null : null
                 })
-                .filter((id): id is string => !!id)
+                .filter((l): l is string => !!l)
 
-            return this.visualizationTypeOptions.filter((vizualizationType: IMapWidgetVisualizationType) => !selectedLayerIds.includes(vizualizationType.target))
+            return this.visualizationTypeOptions.filter((vizualizationType: IMapWidgetVisualizationType) => !selectedLabels.includes(vizualizationType.label ?? ''))
         },
         async onVizualizationTypeChange(crossNavigationConfig: IMapWidgetCrossNavigationVisualizationTypeConfig) {
             crossNavigationConfig.column = ''

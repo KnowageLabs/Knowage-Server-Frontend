@@ -10,19 +10,14 @@
             <div v-show="dropzoneTopVisible[index]" class="p-col-12 form-list-item-dropzone-active" @drop.stop="onDropComplete($event, 'before', index)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
             <div class="p-col-12 form-list-item-dropzone" :class="{ 'form-list-item-dropzone-active': dropzoneTopVisible[index] }" @drop.stop="onDropComplete($event, 'before', index)" @dragover.prevent @dragenter.prevent="displayDropzone('top', index)" @dragleave.prevent="hideDropzone('top', index)"></div>
 
-            <div class="p-d-flex kn-flex p-ai-center" :draggable="true" @dragstart.stop="onDragStart($event, index)">
-                <i class="pi pi-th-large kn-cursor-pointer"></i>
-                <div class="kn-flex p-mx-2 p-d-flex p-flex-row" style="gap: 0.5em">
-                    <span class="p-float-label kn-flex">
-                        <Dropdown v-model="dialogProperty.name" :disabled="dialogSettingsDisabled" class="kn-material-input kn-width-full" :options="widgetModel.layers" option-value="layerId" option-label="name" show-clear @change="onLayerChange(dialogProperty)"></Dropdown>
-                        <label class="kn-material-input-label">{{ $t('common.layer') }}</label>
-                    </span>
-                    <span class="p-float-label kn-flex">
-                        <MultiSelect v-model="dialogProperty.columns" :disabled="dialogSettingsDisabled" class="kn-material-input kn-width-full" :options="getColumnOptionsFromLayer(dialogProperty)" option-label="alias" option-value="name"></MultiSelect>
-                        <label class="kn-material-input-label">{{ $t('common.columns') }}</label>
-                    </span>
+            <div class="p-col-12 p-d-flex p-flex-column" :draggable="true" @dragstart.stop="onDragStart($event, index)">
+                <div class="row items-center q-mb-sm">
+                    <i class="pi pi-th-large kn-cursor-pointer"></i>
+                    <i class="pi pi-th-large kn-cursor-pointer"></i>
+                    <q-select class="col-6" filled dense :model-value="dialogProperty.name" :disable="dialogSettingsDisabled" :options="getFilteredVisualizationTypeOptions(index)" option-label="label" option-value="target" emit-value map-options options-dense :label="$t('dashboard.widgetEditor.visualizationType.title')" @update:model-value="(val) => onVisualizationSelected(val, dialogProperty)"></q-select>
+                    <q-select class="col-5 q-ml-sm" filled dense v-model="dialogProperty.columns" :disable="dialogSettingsDisabled" :options="getColumnOptionsFromLayer(dialogProperty)" emit-value map-options options-dense option-label="alias" option-value="name"></q-select>
                 </div>
-                <div class="p-d-flex p-flex-row p-jc-center p-ai-center">
+                <div class="q-col-gutter" style="gap: 0.5em; margin-left: auto">
                     <i v-if="index === 0" class="pi pi-plus-circle kn-cursor-pointer" data-test="new-button" @click="addDialog()"></i>
                     <i v-if="index !== 0" class="pi pi-trash kn-cursor-pointer" data-test="delete-button" @click="removeDialog(index)"></i>
                 </div>
@@ -43,7 +38,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetStyleToolbarModel } from '@/modules/documentExecution/dashboard/Dashboard'
-import { IMapDialogSettings, IMapTooltipSettingsLayer, IMapWidgetLayer, IMapWidgetLayerProperty } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
+import { IMapDialogSettings, IMapTooltipSettingsLayer, IMapWidgetLayer, IMapWidgetLayerProperty, IMapWidgetSelection, IMapWidgetSelectionConfiguration, IMapWidgetVisualizationType } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { IMapDialogSettingsProperty } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { mapActions } from 'pinia'
 import appStore from '@/App.store'
@@ -65,7 +60,9 @@ export default defineComponent({
             dialogSettings: null as IMapDialogSettings | null,
             dropzoneTopVisible: {},
             dropzoneBottomVisible: {},
-            propertiesCache: new Map<string, { name: string; alias: string }[]>()
+            propertiesCache: new Map<string, { name: string; alias: string }[]>(),
+            selectionConfiguration: null as IMapWidgetSelectionConfiguration | null,
+            visualizationTypeOptions: [] as IMapWidgetVisualizationType[]
         }
     },
     computed: {
@@ -80,7 +77,18 @@ export default defineComponent({
     methods: {
         ...mapActions(appStore, ['setLoading']),
         loadDialogSettings() {
-            if (this.widgetModel?.settings?.dialog) this.dialogSettings = this.widgetModel.settings.dialog
+            if (this.widgetModel?.settings?.dialog) {
+                // sanitize: remove dialog layers that point to non-dataset widget layers (prevent non-dataset dialog entries)
+                const original = this.widgetModel.settings.dialog
+                const sanitizedLayers = (original.layers || []).filter((lp: any) => {
+                    const targetLayer = this.widgetModel.layers.find((l: IMapWidgetLayer) => l.layerId === lp.name)
+                    // keep if target not found (conservative) or if it's a dataset
+                    if (!targetLayer) return true
+                    return targetLayer.type === 'dataset'
+                })
+                this.dialogSettings = { ...original, layers: sanitizedLayers }
+            }
+            this.loadSelectionConfiguration()
         },
         async loadPropertiesForDialogSettings() {
             if (!this.dialogSettings?.layers) return
@@ -126,7 +134,8 @@ export default defineComponent({
         hideDropzone(position: string, index: number) {
             position === 'top' ? (this.dropzoneTopVisible[index] = false) : (this.dropzoneBottomVisible[index] = false)
         },
-        getColumnOptionsFromLayer(dialogProperty: IMapDialogSettingsProperty) {
+        getColumnOptionsFromLayer(dialogProperty: IMapDialogSettingsProperty | null) {
+            if (!dialogProperty) return []
             const layer = this.widgetModel.layers.find((layer: any) => layer.layerId === dialogProperty.name)
             if (!layer) return []
             else if (layer.type === 'dataset') return layer.columns
@@ -160,6 +169,48 @@ export default defineComponent({
             this.dialogSettings.style['justify-content'] = model['justify-content'] ?? defaultDialogSettings.style['justify-content']
             this.dialogSettings.style.color = model.color ?? defaultDialogSettings.style.color
             this.dialogSettings.style['background-color'] = model['background-color'] ?? defaultDialogSettings.style['background-color']
+        },
+        loadSelectionConfiguration() {
+            // Ensure dialogSettings remains the widget dialog configuration
+            if (this.widgetModel?.settings?.dialog) this.dialogSettings = this.widgetModel.settings.dialog
+
+            // Load selections separately; keep existing structure unchanged
+            this.selectionConfiguration = this.widgetModel?.settings?.interactions?.selection ?? null
+            if (this.selectionConfiguration && this.selectionConfiguration.selections?.length === 0) this.selectionConfiguration.selections.push({ vizualizationType: null, column: '' } as IMapWidgetSelection)
+            this.loadVisualizationTypeOptions()
+        },
+        loadVisualizationTypeOptions() {
+            this.visualizationTypeOptions = []
+            if (!this.widgetModel?.settings?.visualizations) return
+            this.widgetModel.settings.visualizations.forEach((visualization: IMapWidgetVisualizationType) => {
+                const mapLayer = this.widgetModel.layers.find((layer: IMapWidgetLayer) => layer.layerId === visualization.target)
+                if (mapLayer && mapLayer.type === 'dataset') this.visualizationTypeOptions.push(visualization)
+            })
+        },
+        getFilteredVisualizationTypeOptions(currentIndex: number) {
+            if (!this.dialogSettings) return this.visualizationTypeOptions
+
+            // build a list of already-selected targets (layer ids) for other dialog entries
+            const selectedTargets = this.dialogSettings.layers
+                .map((layerConfig: any, index: number) => {
+                    return index !== currentIndex ? layerConfig.name ?? null : null
+                })
+                .filter((t): t is string => !!t)
+
+            // filter out visualization options whose target is already selected in dialog layers
+            return this.visualizationTypeOptions.filter((vizualizationType: IMapWidgetVisualizationType) => !selectedTargets.includes(vizualizationType.target))
+        },
+        onVizualizationTypeChange(selectionConfig: IMapWidgetSelection) {
+            selectionConfig.column = ''
+        },
+        onVisualizationSelected(value: string | null, dialogProperty: IMapDialogSettingsProperty | null) {
+            if (!dialogProperty) return
+            // value is the visualization target (layerId). Keep data structure: dialogProperty.name holds layerId
+            dialogProperty.name = value ?? ''
+            // reset columns when visualization/layer changes
+            dialogProperty.columns = []
+            // ensure we load properties for this layer if needed
+            this.onLayerChange(dialogProperty)
         }
     }
 })
