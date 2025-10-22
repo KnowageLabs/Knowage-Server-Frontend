@@ -13,6 +13,7 @@
             <div class="p-col-12 p-d-flex p-flex-column" :draggable="true" @dragstart.stop="onDragStart($event, index)">
                 <div class="row items-center q-mb-sm">
                     <i class="pi pi-th-large kn-cursor-pointer"></i>
+                    <i class="pi pi-th-large kn-cursor-pointer"></i>
                     <q-select class="col-6" filled dense :model-value="dialogProperty.name" :disable="dialogSettingsDisabled" :options="getFilteredVisualizationTypeOptions(index)" option-label="label" option-value="target" emit-value map-options options-dense :label="$t('dashboard.widgetEditor.visualizationType.title')" @update:model-value="(val) => onVisualizationSelected(val, dialogProperty)"></q-select>
                     <q-select class="col-5 q-ml-sm" filled dense v-model="dialogProperty.columns" :disable="dialogSettingsDisabled" :options="getColumnOptionsFromLayer(dialogProperty)" emit-value map-options options-dense option-label="alias" option-value="name"></q-select>
                 </div>
@@ -76,7 +77,17 @@ export default defineComponent({
     methods: {
         ...mapActions(appStore, ['setLoading']),
         loadDialogSettings() {
-            if (this.widgetModel?.settings?.dialog) this.dialogSettings = this.widgetModel.settings.dialog
+            if (this.widgetModel?.settings?.dialog) {
+                // sanitize: remove dialog layers that point to non-dataset widget layers (prevent non-dataset dialog entries)
+                const original = this.widgetModel.settings.dialog
+                const sanitizedLayers = (original.layers || []).filter((lp: any) => {
+                    const targetLayer = this.widgetModel.layers.find((l: IMapWidgetLayer) => l.layerId === lp.name)
+                    // keep if target not found (conservative) or if it's a dataset
+                    if (!targetLayer) return true
+                    return targetLayer.type === 'dataset'
+                })
+                this.dialogSettings = { ...original, layers: sanitizedLayers }
+            }
             this.loadSelectionConfiguration()
         },
         async loadPropertiesForDialogSettings() {

@@ -2,8 +2,25 @@ import { ISelection, IVariable, IWidget } from '../../../Dashboard'
 import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import { addMarker, getColumnName, getCoordinates } from '../LeafletHelper'
 import { executeMapInteractions } from '../interactions/MapInteractionsHelper'
-import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData } from './MapDialogHelper'
+import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData, createDialogFromDataset } from './MapDialogHelper'
 import { getConditionalStyleUsingTargetDataset, getCoordinatesFromWktPointFeature, getFeatureValues, getTargetDataColumn, getVizualizationConditionalStyles, isConditionMet, transformDataUsingForeignKeyReturningAllColumns } from './MapVisualizationHelper'
+
+const findInteractionColumnForVisualization = (widgetModel: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType): string | null => {
+    // try selection
+    const selectionConfig = widgetModel?.settings?.interactions?.selection?.selections?.find((s: any) => s.vizualizationType?.id === layerVisualizationSettings.id || s.vizualizationType?.target === layerVisualizationSettings.target || s.vizualizationType?.label === layerVisualizationSettings.label)
+    if (selectionConfig?.column) return selectionConfig.column
+
+    const crossNavConfig = widgetModel?.settings?.interactions?.crossNavigation?.crossNavigationVizualizationTypes?.find((c: any) => c.vizualizationType?.id === layerVisualizationSettings.id || c.vizualizationType?.target === layerVisualizationSettings.target || c.vizualizationType?.label === layerVisualizationSettings.label)
+    if (crossNavConfig?.column) return crossNavConfig.column
+
+    const linkConfig = widgetModel?.settings?.interactions?.link?.linkVizualizationTypes?.find((l: any) => l.vizualizationType?.id === layerVisualizationSettings.id || l.vizualizationType?.target === layerVisualizationSettings.target || l.vizualizationType?.label === layerVisualizationSettings.label)
+    if (linkConfig?.column) return linkConfig.column
+
+    const previewConfig = widgetModel?.settings?.interactions?.preview?.previewVizualizationTypes?.find((p: any) => p.vizualizationType?.id === layerVisualizationSettings.id || p.vizualizationType?.target === layerVisualizationSettings.target || p.vizualizationType?.label === layerVisualizationSettings.label)
+    if (previewConfig?.column) return previewConfig.column
+
+    return null
+}
 
 // Showing markers from the data using geoColumn for the dataset, and property for the layer features (only Points allowed)
 export const addMarkers = (data: any, model: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], layersData: any, targetDatasetData: any, variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
@@ -58,10 +75,52 @@ const createAndAddMarkerFromData = (row: any, data: any, widgetModel: IWidget, t
             marker.on &&
                 marker.on('click', (ev: any) => {
                     try {
-                        const selectionConfig = widgetModel?.settings?.interactions?.selection?.selections?.find((s: any) => s.vizualizationType?.target === layerVisualizationSettings.target)
-                        if (!selectionConfig || !selectionConfig.column) return
+                        // Try to replicate the dialog's DOM and fire a clickable item that matches a crossNavigation config (so
+                        // the same code path as the dialog is used). If no matching clickable is found, fall back to the synthetic event.
+                        try {
+                            const popup = createDialogFromDataset(false, layerVisualizationSettings, widgetModel.settings.dialog, data[target.label], row, widgetModel, activeSelections, dashboardId, variables)
+                            const content = popup && (popup as any).getContent ? (popup as any).getContent() : null
+                            if (content && content.querySelector) {
+                                // Collect all clickable items
+                                const clickables = Array.from(content.querySelectorAll('.clickable-custom-leaflet-list-item')) as HTMLElement[]
 
-                        const column = selectionConfig.column
+                                const columnsMatchLocal = (configuredColumn: string | null | undefined, clickedColumn: string) => {
+                                    if (!configuredColumn) return false
+                                    if (!clickedColumn) return false
+                                    const a = configuredColumn.trim().toLowerCase()
+                                    const b = clickedColumn.trim().toLowerCase()
+                                    if (a === b) return true
+                                    if (a.includes(b) || b.includes(a)) return true
+                                    return false
+                                }
+
+                                const crossNavConfigs = widgetModel?.settings?.interactions?.crossNavigation?.crossNavigationVizualizationTypes ?? []
+
+                                for (const item of clickables) {
+                                    const dataValue = item.getAttribute('data-value') ?? ''
+                                    const [rawValueColumn] = dataValue.split(':')
+                                    const itemColumn = (rawValueColumn || '').trim()
+
+                                    const matched = crossNavConfigs.some((c: any) => {
+                                        const viz = c.vizualizationType
+                                        const vizMatches = viz && (viz.id === layerVisualizationSettings.id || viz.target === layerVisualizationSettings.target || viz.label === layerVisualizationSettings.label)
+                                        return vizMatches && columnsMatchLocal(c.column, itemColumn)
+                                    })
+
+                                    if (matched) {
+                                        item.click()
+                                        return
+                                    }
+                                }
+                            }
+                        } catch (err) {
+                            // ignore and fall back to synthetic event
+                        }
+
+                        // Fallback: previous behavior — find an interaction column and synthesize an event
+                        const column = findInteractionColumnForVisualization(widgetModel, layerVisualizationSettings)
+                        if (!column) return
+
                         // build dataMap from dataset meta and row
                         const meta = data[target.label]
                         const dataMap: Record<string, any> = {}
@@ -179,10 +238,9 @@ export const createMarkerForVisualization = (feature: ILayerFeature, layerVisual
             marker.on &&
                 marker.on('click', (ev: any) => {
                     try {
-                        const selectionConfig = widgetModel?.settings?.interactions?.selection?.selections?.find((s: any) => s.vizualizationType?.target === layerVisualizationSettings.target)
-                        if (!selectionConfig || !selectionConfig.column) return
+                        const column = findInteractionColumnForVisualization(widgetModel, layerVisualizationSettings)
+                        if (!column) return
 
-                        const column = selectionConfig.column
                         const dataMap = feature.properties ?? {}
                         const valueForColumn = feature.properties?.[column]
                         const dataValue = `${column}: ${valueForColumn}`

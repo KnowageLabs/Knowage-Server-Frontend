@@ -3,7 +3,7 @@ import { ILayerFeature, IMapDialogSettings, IMapDialogSettingsProperty, IMapTool
 import { getColumnName } from '../LeafletHelper'
 import L from 'leaflet'
 import { ChartValuesRecord } from './MapChartsVizualizationHelper'
-import { executeMapInteractions } from '../interactions/MapInteractionsHelper'
+import { executeMapInteractions, matchesVisualizationType, columnsMatch } from '../interactions/MapInteractionsHelper'
 
 interface IListItemStyle {
     'justify-content': string
@@ -29,6 +29,41 @@ export const createDialogFromDataset = (tooltip: boolean, layerVisualizationSett
     })) as IMapTooltipSettingsLayer[]
 
     const layersList = normalizedLayers.filter((layer: IMapTooltipSettingsLayer) => layer.name === layerVisualizationSettings.target)
+    // If there are no configured dialog layers for this visualization target, provide a simple fallback
+    // showing the dataset row fields (if any) so the dialog still shows useful information.
+    if (!layersList || layersList.length === 0) {
+        const fallbackList = document.createElement('ul')
+        fallbackList.classList.add('customLeafletPopup')
+
+        const header = document.createElement('li')
+        header.innerHTML = layerVisualizationSettings.layerName ?? layerVisualizationSettings.target ?? ''
+        header.classList.add('customLeafletPopupListHeader')
+        fallbackList.appendChild(header)
+
+        // try to use meta.metaData.fields if present, otherwise fallback to keys of row
+        const keys: string[] = []
+        if (meta?.metaData?.fields && Array.isArray(meta.metaData.fields)) {
+            meta.metaData.fields.forEach((f: any) => {
+                if (f && f.header) keys.push(f.header)
+            })
+        } else if (row && typeof row === 'object') {
+            Object.keys(row).forEach((k) => keys.push(k))
+        }
+
+        if (keys.length === 0) {
+            // nothing informative, show the computed dataColumn or target
+            fallbackList.appendChild(createTooltipListItem(`${layerVisualizationSettings.target}: ${''}`, (settings as any).style, null, widgetModel, layerVisualizationSettings, activeSelections, dashboardId, variables, {}))
+        } else {
+            keys.forEach((k) => {
+                const displayValue = row && typeof row === 'object' ? row[k] ?? '' : ''
+                fallbackList.appendChild(createTooltipListItem(`${k}: ${displayValue}`, (settings as any).style, null, widgetModel, layerVisualizationSettings, activeSelections, dashboardId, variables, row))
+            })
+        }
+
+        if (tooltip) return L.tooltip().setContent(fallbackList)
+        else return L.popup().setContent(fallbackList)
+    }
+
     layersList.forEach((item: IMapTooltipSettingsLayer) => {
         ;(item.columns || []).forEach((column: string) => {
             // search the normalized layers to avoid unexpected non-array `columns` shapes
@@ -75,7 +110,7 @@ export const addTooltipToMarkerForLayerData = (feature: ILayerFeature, model: IW
 }
 
 // Function that creates popup/tooltip for the maps that use layers as the target
-const createDialogForLayerData = (feature: ILayerFeature, tooltip: boolean, layerVisualizationSettings: IMapWidgetVisualizationType, settings: IMapTooltipSettings | IMapDialogSettings, value: string | number | ChartValuesRecord, widgetModel: IWidget, activeSelections: ISelection[], dashboardId: string, variables: IVariable[], foreignKeyValue?: string | null) => {
+export const createDialogForLayerData = (feature: ILayerFeature, tooltip: boolean, layerVisualizationSettings: IMapWidgetVisualizationType, settings: IMapTooltipSettings | IMapDialogSettings, value: string | number | ChartValuesRecord, widgetModel: IWidget, activeSelections: ISelection[], dashboardId: string, variables: IVariable[], foreignKeyValue?: string | null) => {
     const container = document.createElement('div')
     // Normalize settings.layers and prefer a consistent `name` property
     const normalizedLayers = (settings?.layers || []).map((layer: any) => ({
@@ -217,28 +252,28 @@ const checkInteractionsIfColumnIsClickable = (value: string, widgetModel: IWidge
     if (!selectionConfiguration) return false
 
     for (let i = selectionConfiguration.selections.length - 1; i >= 0; i--) {
-        if (layerVisualizationSettings.id === selectionConfiguration.selections[i].vizualizationType?.id && selectionConfiguration.selections[i].column === column) return true
+        if (matchesVisualizationType(selectionConfiguration.selections[i].vizualizationType, layerVisualizationSettings) && columnsMatch(selectionConfiguration.selections[i].column, column)) return true
     }
 
     const crossNavigationConfiguration = (widgetModel?.settings?.interactions?.crossNavigation ?? null) as IMapWidgetCrossNavigation | null
     if (!crossNavigationConfiguration) return false
 
     for (let i = crossNavigationConfiguration.crossNavigationVizualizationTypes.length - 1; i >= 0; i--) {
-        if (layerVisualizationSettings.id === crossNavigationConfiguration.crossNavigationVizualizationTypes[i].vizualizationType?.id && crossNavigationConfiguration.crossNavigationVizualizationTypes[i].column === column) return true
+        if (matchesVisualizationType(crossNavigationConfiguration.crossNavigationVizualizationTypes[i].vizualizationType, layerVisualizationSettings) && columnsMatch(crossNavigationConfiguration.crossNavigationVizualizationTypes[i].column, column)) return true
     }
 
     const linkConfiguration = (widgetModel?.settings?.interactions?.link ?? null) as IMapWidgetLinkConfiguration | null
     if (!linkConfiguration) return false
 
     for (let i = linkConfiguration.linkVizualizationTypes.length - 1; i >= 0; i--) {
-        if (layerVisualizationSettings.id === linkConfiguration.linkVizualizationTypes[i].vizualizationType?.id && linkConfiguration.linkVizualizationTypes[i].column === column) return true
+        if (matchesVisualizationType(linkConfiguration.linkVizualizationTypes[i].vizualizationType, layerVisualizationSettings) && columnsMatch(linkConfiguration.linkVizualizationTypes[i].column, column)) return true
     }
 
     const previewConfiguration = (widgetModel?.settings?.interactions?.preview ?? null) as IMapWidgetPreview | null
     if (!previewConfiguration) return false
 
     for (let i = previewConfiguration.previewVizualizationTypes.length - 1; i >= 0; i--) {
-        if (layerVisualizationSettings.id === previewConfiguration.previewVizualizationTypes[i].vizualizationType?.id && previewConfiguration.previewVizualizationTypes[i].column === column) return true
+        if (matchesVisualizationType(previewConfiguration.previewVizualizationTypes[i].vizualizationType, layerVisualizationSettings) && columnsMatch(previewConfiguration.previewVizualizationTypes[i].column, column)) return true
     }
 
     return false

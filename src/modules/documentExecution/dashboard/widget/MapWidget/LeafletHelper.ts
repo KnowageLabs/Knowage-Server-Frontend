@@ -280,7 +280,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             }
 
             if (layerVisualizationSettings.type === 'geography') {
-                addGeography(data, target, dataColumn, spatialAttribute, geoColumn, layerGroup, markerBounds, layersData, map, bounds)
+                addGeography(data, model, target, layerVisualizationSettings, dataColumn, spatialAttribute, geoColumn, layerGroup, markerBounds, layersData, variables, activeSelections, dashboardId, map, bounds)
             }
         }
 
