@@ -20,13 +20,14 @@ export const createDialogFromDataset = (tooltip: boolean, layerVisualizationSett
     const list = document.createElement('ul')
     list.classList.add('customLeafletPopup')
 
-    // Normalize settings.layers so we always work with an array of layers and columns arrays
+    // Normalize settings.layers so we always work with an array of layers and columns/properties arrays
     const normalizedLayers = (settings?.layers || []).map((layer: any) => ({
         ...layer,
         // prefer the explicit `name` property, fall back to `label` if present
         name: layer.name ?? layer.label ?? '',
-        columns: Array.isArray(layer.columns) ? layer.columns : layer.columns ? [layer.columns] : []
-    })) as IMapTooltipSettingsLayer[]
+        columns: Array.isArray(layer.columns) ? layer.columns : layer.columns ? [layer.columns] : [],
+        properties: Array.isArray(layer.properties) ? layer.properties : layer.properties ? [layer.properties] : []
+    })) as any[]
 
     const layersList = normalizedLayers.filter((layer: IMapTooltipSettingsLayer) => layer.name === layerVisualizationSettings.target)
     // If there are no configured dialog layers for this visualization target, provide a simple fallback
@@ -64,16 +65,22 @@ export const createDialogFromDataset = (tooltip: boolean, layerVisualizationSett
         else return L.popup().setContent(fallbackList)
     }
 
-    layersList.forEach((item: IMapTooltipSettingsLayer) => {
-        ;(item.columns || []).forEach((column: string) => {
-            // search the normalized layers to avoid unexpected non-array `columns` shapes
-            const layerSettings = normalizedLayers.find((layerSettings: any) => layerSettings.name === layerVisualizationSettings.target && (layerSettings.columns || []).includes(column))
+    layersList.forEach((item: any) => {
+        // For dataset targets use columns; for layer targets, prefer properties
+        const candidates = item.columns && item.columns.length > 0 ? item.columns : item.properties || []
+        ;(candidates || []).forEach((column: string) => {
+            // search the normalized layers to avoid unexpected non-array shapes
+            const layerSettings = normalizedLayers.find((layerSettings: any) => layerSettings.name === layerVisualizationSettings.target && ((layerSettings.columns || []).includes(column) || ((layerSettings as any).properties || []).includes(column)))
+
             const value = `${column}: ${row[getColumnName(column, meta)]}`
             const dataMap: Record<string, any> = {}
 
             meta.metaData?.fields.forEach((field: any) => {
                 if (!field.dataIndex) return
-                dataMap[field.header] = row[field.dataIndex]
+                const val = row[field.dataIndex]
+                // populate both name (programmatic column identifier) and header (display label)
+                if (field.name) dataMap[field.name] = val
+                if (field.header) dataMap[field.header] = val
             })
 
             list.appendChild(createTooltipListItem(value, (settings as IMapDialogSettings).style, layerSettings, widgetModel, layerVisualizationSettings, activeSelections, dashboardId, variables, dataMap))
@@ -87,6 +94,49 @@ export const addDialogToMarker = (data: any, model: IWidget, target: IMapWidgetL
     if (model.settings.dialog?.enabled) {
         const popup = createDialogFromDataset(false, layerVisualizationSettings, model.settings.dialog, data[target.label], row, model, activeSelections, dashboardId, variables)
         if (popup) marker.bindPopup(popup)
+        // Re-attach click handlers after Leaflet adds the popup to the DOM. Leaflet
+        // sometimes moves/clones nodes when opening popups which can remove event
+        // listeners attached earlier. Use the popupopen event to attach handlers
+        // to the actual DOM nodes that are shown.
+        try {
+            marker.on &&
+                marker.on('popupopen', () => {
+                    try {
+                        const popup = marker.getPopup ? marker.getPopup() : null
+                        const content = popup && popup.getContent ? popup.getContent() : null
+                        if (content && content.querySelector) {
+                            const clickables = Array.from(content.querySelectorAll('.clickable-custom-leaflet-list-item')) as HTMLElement[]
+                            for (const item of clickables) {
+                                if ((item as any).__kn_listener_attached) continue
+                                item.addEventListener('click', (event) => {
+                                    try {
+                                        const current = (event.currentTarget || event.target) as any
+                                        if (!current._dataMap) {
+                                            const dm = current.getAttribute && current.getAttribute('data-datamap')
+                                            if (dm) {
+                                                try {
+                                                    current._dataMap = JSON.parse(dm)
+                                                } catch (err) {
+                                                    current._dataMap = {}
+                                                }
+                                            }
+                                        }
+                                    } catch (err) {
+                                        // ignore
+                                    }
+
+                                    executeMapInteractions({ currentTarget: item }, model, layerVisualizationSettings, activeSelections, dashboardId, variables)
+                                })
+                                ;(item as any).__kn_listener_attached = true
+                            }
+                        }
+                    } catch (err) {
+                        // ignore
+                    }
+                })
+        } catch (err) {
+            // ignore
+        }
     }
 }
 
@@ -101,6 +151,47 @@ export const addDialogToMarkerForLayerData = (feature: ILayerFeature, model: IWi
     if (!model.settings.dialog?.enabled) return
     const popup = createDialogForLayerData(feature, false, layerVisualizationSettings, model.settings.dialog, value, model, activeSelections, dashboardId, variables, foreignKeyValue)
     if (popup) marker.bindPopup(popup)
+    // Re-attach click handlers after Leaflet opens the popup so they are bound
+    // to the real DOM nodes Leaflet inserted.
+    try {
+        marker.on &&
+            marker.on('popupopen', () => {
+                try {
+                    const popup = marker.getPopup ? marker.getPopup() : null
+                    const content = popup && popup.getContent ? popup.getContent() : null
+                    if (content && content.querySelector) {
+                        const clickables = Array.from(content.querySelectorAll('.clickable-custom-leaflet-list-item')) as HTMLElement[]
+                        for (const item of clickables) {
+                            if ((item as any).__kn_listener_attached) continue
+                            item.addEventListener('click', (event) => {
+                                try {
+                                    const current = (event.currentTarget || event.target) as any
+                                    if (!current._dataMap) {
+                                        const dm = current.getAttribute && current.getAttribute('data-datamap')
+                                        if (dm) {
+                                            try {
+                                                current._dataMap = JSON.parse(dm)
+                                            } catch (err) {
+                                                current._dataMap = {}
+                                            }
+                                        }
+                                    }
+                                } catch (err) {
+                                    // ignore
+                                }
+
+                                executeMapInteractions({ currentTarget: item }, model, layerVisualizationSettings, activeSelections, dashboardId, variables)
+                            })
+                            ;(item as any).__kn_listener_attached = true
+                        }
+                    }
+                } catch (err) {
+                    // ignore
+                }
+            })
+    } catch (err) {
+        // ignore
+    }
 }
 
 export const addTooltipToMarkerForLayerData = (feature: ILayerFeature, model: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, value: string | number | ChartValuesRecord, marker: any, activeSelections: ISelection[], dashboardId: string, variables: IVariable[], foreignKeyValue?: string | null) => {
@@ -116,8 +207,9 @@ export const createDialogForLayerData = (feature: ILayerFeature, tooltip: boolea
     const normalizedLayers = (settings?.layers || []).map((layer: any) => ({
         ...layer,
         name: layer.name ?? layer.label ?? '',
-        columns: Array.isArray(layer.columns) ? layer.columns : layer.columns ? [layer.columns] : []
-    })) as IMapTooltipSettingsLayer[]
+        columns: Array.isArray(layer.columns) ? layer.columns : layer.columns ? [layer.columns] : [],
+        properties: Array.isArray(layer.properties) ? layer.properties : layer.properties ? [layer.properties] : []
+    })) as any[]
 
     const layersList = normalizedLayers.filter((layer: IMapTooltipSettingsLayer) => layer.name === layerVisualizationSettings.target) as any
 
@@ -165,18 +257,20 @@ export const createDialogForLayerData = (feature: ILayerFeature, tooltip: boolea
     const list = document.createElement('ul')
     list.classList.add('customLeafletPopup')
 
-    layersList.forEach((item: IMapTooltipSettingsLayer) => {
+    layersList.forEach((item: any) => {
         if (layerVisualizationSettings.targetDataset && layerVisualizationSettings.targetProperty) {
             const _layerHeader = document.createElement('li')
             _layerHeader.innerHTML = layerVisualizationSettings.layerName ?? ''
             _layerHeader.classList.add('customLeafletPopupListHeader')
             list.appendChild(_layerHeader)
         }
-        ;(item.columns || []).forEach((property: string) => {
-            const layerSettings = settings.layers.find((layerSettings: IMapDialogSettingsProperty | IMapTooltipSettingsLayer) => layerSettings.name === layerVisualizationSettings.target && layerSettings.columns.includes(property))
+        // Candidate keys: columns (from dataset-style settings) or properties (layer-style settings)
+        const candidates = item.columns && item.columns.length > 0 ? item.columns : item.properties || []
+        ;(candidates || []).forEach((property: string) => {
+            const layerSettings = (settings.layers || []).find((layerSettings: any) => layerSettings.name === layerVisualizationSettings.target && ((layerSettings.columns || []).includes(property) || ((layerSettings as any).properties || []).includes(property)))
             const dataMap = feature.properties
             // use normalized layers for safety when available
-            const ls = normalizedLayers.find((s: any) => s.name === layerVisualizationSettings.target && (s.columns || []).includes(property))
+            const ls = normalizedLayers.find((s: any) => s.name === layerVisualizationSettings.target && ((s.columns || []).includes(property) || ((s as any).properties || []).includes(property)))
             list.appendChild(createTooltipListItem(`${property}: ${feature.properties[property] ?? ''}`, (settings as IMapDialogSettings).style, ls || layerSettings, widgetModel, layerVisualizationSettings, activeSelections, dashboardId, variables, dataMap))
         })
     })
@@ -200,7 +294,7 @@ const createTooltipListHeader = (header: string) => {
     return headerElement
 }
 
-const createTooltipListItem = (value: string, style: IListItemStyle | undefined, layerSettings: IMapDialogSettingsProperty | IMapTooltipSettingsLayer | null | undefined, widgetModel: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, activeSelections: ISelection[], dashboardId: string, variables: IVariable[], dataMap?: Record<string, string | number> | null) => {
+export const createTooltipListItem = (value: string, style: IListItemStyle | undefined, layerSettings: IMapDialogSettingsProperty | IMapTooltipSettingsLayer | null | undefined, widgetModel: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, activeSelections: ISelection[], dashboardId: string, variables: IVariable[], dataMap?: Record<string, string | number> | null) => {
     const li = document.createElement('li')
     const [rawValueColumn, rawValue] = value.split(':')
     const column = rawValueColumn.trim()
@@ -217,7 +311,16 @@ const createTooltipListItem = (value: string, style: IListItemStyle | undefined,
         li.classList.add('clickable-custom-leaflet-list-item')
     }
 
-    if (dataMap) (li as any)._dataMap = dataMap
+    if (dataMap) {
+        try {
+            // store a serialized copy so event handlers can recover the dataMap even
+            // if Leaflet moves or clones nodes when attaching popup content
+            li.setAttribute('data-datamap', JSON.stringify(dataMap))
+        } catch (err) {
+            // fall back to attaching directly to the element when serialization fails
+            ;(li as any)._dataMap = dataMap
+        }
+    }
 
     if (style) {
         Object.entries(style).forEach(([key, val]) => {
@@ -227,7 +330,27 @@ const createTooltipListItem = (value: string, style: IListItemStyle | undefined,
         })
     }
 
-    li.addEventListener('click', (event) => executeMapInteractions(event, widgetModel, layerVisualizationSettings, activeSelections, dashboardId, variables))
+    li.addEventListener('click', (event) => {
+        try {
+            const current = (event.currentTarget || event.target) as any
+            // if an attached _dataMap is not present (possible if DOM was cloned),
+            // try to parse it from the serialized attribute
+            if (!current._dataMap) {
+                const dm = current.getAttribute && current.getAttribute('data-datamap')
+                if (dm) {
+                    try {
+                        current._dataMap = JSON.parse(dm)
+                    } catch (err) {
+                        current._dataMap = {}
+                    }
+                }
+            }
+        } catch (err) {
+            // ignore and continue to execute interaction
+        }
+
+        executeMapInteractions(event, widgetModel, layerVisualizationSettings, activeSelections, dashboardId, variables)
+    })
 
     return li
 }
@@ -249,31 +372,35 @@ const checkInteractionsIfColumnIsClickable = (value: string, widgetModel: IWidge
     const column = rawValueColumn.trim()
 
     const selectionConfiguration = (widgetModel?.settings?.interactions?.selection ?? null) as IMapWidgetSelectionConfiguration | null
-    if (!selectionConfiguration) return false
-
-    for (let i = selectionConfiguration.selections.length - 1; i >= 0; i--) {
-        if (matchesVisualizationType(selectionConfiguration.selections[i].vizualizationType, layerVisualizationSettings) && columnsMatch(selectionConfiguration.selections[i].column, column)) return true
+    if (selectionConfiguration && Array.isArray(selectionConfiguration.selections)) {
+        for (let i = selectionConfiguration.selections.length - 1; i >= 0; i--) {
+            const sel = selectionConfiguration.selections[i]
+            if (matchesVisualizationType(sel.vizualizationType, layerVisualizationSettings) && columnsMatch(sel.column, column)) return true
+        }
     }
 
     const crossNavigationConfiguration = (widgetModel?.settings?.interactions?.crossNavigation ?? null) as IMapWidgetCrossNavigation | null
-    if (!crossNavigationConfiguration) return false
-
-    for (let i = crossNavigationConfiguration.crossNavigationVizualizationTypes.length - 1; i >= 0; i--) {
-        if (matchesVisualizationType(crossNavigationConfiguration.crossNavigationVizualizationTypes[i].vizualizationType, layerVisualizationSettings) && columnsMatch(crossNavigationConfiguration.crossNavigationVizualizationTypes[i].column, column)) return true
+    if (crossNavigationConfiguration && Array.isArray(crossNavigationConfiguration.crossNavigationVizualizationTypes)) {
+        for (let i = crossNavigationConfiguration.crossNavigationVizualizationTypes.length - 1; i >= 0; i--) {
+            const cfg = crossNavigationConfiguration.crossNavigationVizualizationTypes[i]
+            if (matchesVisualizationType(cfg.vizualizationType, layerVisualizationSettings) && columnsMatch(cfg.column, column)) return true
+        }
     }
 
     const linkConfiguration = (widgetModel?.settings?.interactions?.link ?? null) as IMapWidgetLinkConfiguration | null
-    if (!linkConfiguration) return false
-
-    for (let i = linkConfiguration.linkVizualizationTypes.length - 1; i >= 0; i--) {
-        if (matchesVisualizationType(linkConfiguration.linkVizualizationTypes[i].vizualizationType, layerVisualizationSettings) && columnsMatch(linkConfiguration.linkVizualizationTypes[i].column, column)) return true
+    if (linkConfiguration && Array.isArray(linkConfiguration.linkVizualizationTypes)) {
+        for (let i = linkConfiguration.linkVizualizationTypes.length - 1; i >= 0; i--) {
+            const cfg = linkConfiguration.linkVizualizationTypes[i]
+            if (matchesVisualizationType(cfg.vizualizationType, layerVisualizationSettings) && columnsMatch(cfg.column, column)) return true
+        }
     }
 
     const previewConfiguration = (widgetModel?.settings?.interactions?.preview ?? null) as IMapWidgetPreview | null
-    if (!previewConfiguration) return false
-
-    for (let i = previewConfiguration.previewVizualizationTypes.length - 1; i >= 0; i--) {
-        if (matchesVisualizationType(previewConfiguration.previewVizualizationTypes[i].vizualizationType, layerVisualizationSettings) && columnsMatch(previewConfiguration.previewVizualizationTypes[i].column, column)) return true
+    if (previewConfiguration && Array.isArray(previewConfiguration.previewVizualizationTypes)) {
+        for (let i = previewConfiguration.previewVizualizationTypes.length - 1; i >= 0; i--) {
+            const cfg = previewConfiguration.previewVizualizationTypes[i]
+            if (matchesVisualizationType(cfg.vizualizationType, layerVisualizationSettings) && columnsMatch(cfg.column, column)) return true
+        }
     }
 
     return false

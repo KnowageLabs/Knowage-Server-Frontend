@@ -57,6 +57,7 @@ import Dropdown from 'primevue/dropdown'
 import WidgetOutputParametersList from '../../common/interactions/crossNavigation/WidgetOutputParametersList.vue'
 import deepcopy from 'deepcopy'
 import { getPropertiesByLayerLabel } from '../../../../MapWidget/MapWidgetDataProxy'
+import { resolveLayerByTarget } from '../../../../MapWidget/LeafletHelper'
 
 export default defineComponent({
     name: 'map-widget-cross-navigation-configuration',
@@ -165,18 +166,24 @@ export default defineComponent({
             this.visualizationTypeOptions = []
             if (!this.widgetModel?.settings?.visualizations) return
             this.widgetModel.settings.visualizations.forEach((visualization: IMapWidgetVisualizationType) => {
-                const mapLayer = this.widgetModel.layers.find((layer: IMapWidgetLayer) => layer.layerId === visualization.target)
+                const mapLayer = resolveLayerByTarget(this.widgetModel, visualization.target)
                 if (mapLayer) this.visualizationTypeOptions.push(visualization)
             })
         },
         availableColumns(vizualizationType: IMapWidgetVisualizationType | null) {
             if (!vizualizationType) return null
 
-            const targetDataset = this.availableDatasets.find((layer: IMapWidgetLayer) => layer.layerId === vizualizationType.target)
-            if (targetDataset) return targetDataset.columns ?? []
+            // If the visualization already has properties loaded, prefer them
+            if (vizualizationType.properties && vizualizationType.properties.length > 0) return vizualizationType.properties
 
-            const targetLayer = this.widgetModel.layers.find((layer: IMapWidgetLayer) => layer.layerId === vizualizationType.target)
-            if (targetLayer && this.propertiesCache.has(targetLayer.layerId)) return this.propertiesCache.get(targetLayer.layerId)
+            // resolve target layer/dataset
+            const target = resolveLayerByTarget(this.widgetModel, vizualizationType.target)
+            if (!target) return []
+
+            if (target.type === 'dataset') return target.columns ?? []
+
+            // layer type
+            if (this.propertiesCache.has(target.layerId)) return this.propertiesCache.get(target.layerId)
 
             return []
         },

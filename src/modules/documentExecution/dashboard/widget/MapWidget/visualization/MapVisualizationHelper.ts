@@ -2,6 +2,7 @@ import deepcopy from 'deepcopy'
 import { IVariable, IWidget } from '../../../Dashboard'
 import { ILayerFeature, IMapWidgetConditionalStyle, IMapWidgetLayer, IMapWidgetLayerFilter, IMapWidgetVisualizationThreshold, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import { replaceVariablesPlaceholdersByVariableName } from '../../interactionsHelpers/InteractionsParserHelper'
+import { resolveLayerByTarget } from '../LeafletHelper'
 
 export const transformDataUsingForeginKey = (rows: any, pivotColumnIndex: string, valueColumnIndex: string) => {
     return rows.reduce((acc: number, row: any) => {
@@ -122,7 +123,7 @@ export const getConditionalStyleUsingTargetDataset = (layerVisualizationSettings
     let targetDataset: IMapWidgetLayer | null = null
 
     if (layerVisualizationSettings.targetDataset) {
-        targetDataset = widgetModel.layers.find((layer: IMapWidgetLayer) => layer.name === layerVisualizationSettings.targetDataset)
+        targetDataset = resolveLayerByTarget(widgetModel, layerVisualizationSettings.targetDataset)
     }
 
     return getVizualizationConditionalStyles(widgetModel, layerVisualizationSettings.target, layerVisualizationSettings.targetProperty, originalVisualizationTypeValue, variables, targetDataset?.layerId)

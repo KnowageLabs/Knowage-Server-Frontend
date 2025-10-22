@@ -19,6 +19,11 @@ import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IMapWidgetSelectionConfiguration, IMapWidgetVisualizationType, IMapWidgetLayer, IMapWidgetSelection } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
+import { resolveLayerByTarget } from '../../../../MapWidget/LeafletHelper'
+import { getPropertiesByLayerLabel } from '../../../../MapWidget/MapWidgetDataProxy'
+import { mapActions } from 'pinia'
+import appStore from '@/App.store'
+import { IMapWidgetLayerProperty } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 
 export default defineComponent({
     name: 'map-widget-selections-configuration',
@@ -27,9 +32,11 @@ export default defineComponent({
     data() {
         return {
             selectionConfiguration: null as IMapWidgetSelectionConfiguration | null,
-            visualizationTypeOptions: [] as IMapWidgetVisualizationType[]
+            visualizationTypeOptions: [] as IMapWidgetVisualizationType[],
+            propertiesCache: new Map<string, IMapWidgetLayerProperty[]>()
         }
     },
+
     computed: {
         selectionsDisabled() {
             return !this.selectionConfiguration || !this.selectionConfiguration.enabled
@@ -43,11 +50,13 @@ export default defineComponent({
     created() {
         this.setEventListeners()
         this.loadSelectionConfiguration()
+        if (this.visualizationTypeOptions.length > 0) this.visualizationTypeOptions.forEach((viz) => this.loadAvailableProperties(viz))
     },
     unmounted() {
         this.removeEventListeners()
     },
     methods: {
+        ...mapActions(appStore, ['setLoading']),
         setEventListeners() {
             emitter.on('mapFieldsUpdated', this.loadSelectionConfiguration)
         },
@@ -56,25 +65,43 @@ export default defineComponent({
         },
         loadSelectionConfiguration() {
             this.selectionConfiguration = this.widgetModel?.settings?.interactions?.selection ?? null
-            if (this.selectionConfiguration?.selections?.length === 0) this.selectionConfiguration?.selections.push({ vizualizationType: null, column: '' })
+            if (this.selectionConfiguration?.selections?.length === 0) this.selectionConfiguration?.selections.push({ vizualizationType: null, column: '', prefix: null, suffix: null, precision: null })
             this.loadVisualizationTypeOptions()
         },
         loadVisualizationTypeOptions() {
             this.visualizationTypeOptions = []
             if (!this.widgetModel?.settings?.visualizations) return
             this.widgetModel.settings.visualizations.forEach((visualization: IMapWidgetVisualizationType) => {
-                const mapLayer = this.widgetModel.layers.find((layer: IMapWidgetLayer) => layer.layerId === visualization.target)
-                if (mapLayer && mapLayer.type === 'dataset') this.visualizationTypeOptions.push(visualization)
+                const mapLayer = resolveLayerByTarget(this.widgetModel, visualization.target)
+                if (!mapLayer) return
+                if (mapLayer.type === 'dataset') {
+                    this.visualizationTypeOptions.push(visualization)
+                    return
+                }
+
+                if (mapLayer.type === 'layer' && visualization.properties && visualization.properties.length > 0) {
+                    this.visualizationTypeOptions.push(visualization)
+                }
             })
         },
         availableAttributeColumns(vizualizationType: IMapWidgetVisualizationType | null) {
             if (!vizualizationType) return null
-            const mapLayer = this.widgetModel.layers.find((layer: IMapWidgetLayer) => layer.layerId === vizualizationType.target)
-            return mapLayer && mapLayer.type === 'dataset' ? mapLayer.columns.filter((column: IWidgetColumn) => column.fieldType === 'ATTRIBUTE') : []
+            const mapLayer = resolveLayerByTarget(this.widgetModel, vizualizationType.target)
+            if (!mapLayer) return []
+
+            if (mapLayer.type === 'dataset') {
+                return mapLayer.columns.filter((column: IWidgetColumn) => column.fieldType === 'ATTRIBUTE')
+            }
+
+            if (vizualizationType.properties && vizualizationType.properties.length > 0) {
+                return vizualizationType.properties.map((p: any) => ({ name: p.property ?? p.name ?? p }))
+            }
+
+            return []
         },
         addSelectionConfiguration() {
             if (this.selectionsDisabled) return
-            if (this.selectionConfiguration) this.selectionConfiguration.selections.push({ vizualizationType: null, column: '' })
+            if (this.selectionConfiguration) this.selectionConfiguration.selections.push({ vizualizationType: null, column: '', prefix: null, suffix: null, precision: null })
         },
         removeSelectionConfiguration(index: number) {
             if (this.selectionsDisabled) return
@@ -95,6 +122,22 @@ export default defineComponent({
         },
         onVizualizationTypeChange(selectionConfig: IMapWidgetSelection) {
             selectionConfig.column = ''
+        },
+        async loadAvailableProperties(visualization: IMapWidgetVisualizationType | null) {
+            if (!visualization || !visualization.target) return
+            // try to fetch properties for layer visualizations (no-op for datasets)
+            const targetLayer = resolveLayerByTarget(this.widgetModel, visualization.target) as IMapWidgetLayer | null
+            if (!targetLayer || targetLayer.type !== 'layer') return
+            if ((this as any).propertiesCache?.has(visualization.target)) {
+                visualization.properties = (this as any).propertiesCache.get(visualization.target)
+                return
+            }
+            ;(this as any).setLoading?.(true)
+            const rawProperties = await getPropertiesByLayerLabel(targetLayer.label)
+            ;(this as any).setLoading?.(false)
+            const properties = (rawProperties || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.property ?? p.name ?? p) } as any))
+            ;(this as any).propertiesCache?.set(targetLayer.layerId, properties)
+            visualization.properties = properties
         }
     }
 })

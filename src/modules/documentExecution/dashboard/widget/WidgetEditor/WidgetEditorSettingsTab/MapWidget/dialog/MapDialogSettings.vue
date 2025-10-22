@@ -13,9 +13,8 @@
             <div class="p-col-12 p-d-flex p-flex-column" :draggable="true" @dragstart.stop="onDragStart($event, index)">
                 <div class="row items-center q-mb-sm">
                     <i class="pi pi-th-large kn-cursor-pointer"></i>
-                    <i class="pi pi-th-large kn-cursor-pointer"></i>
                     <q-select class="col-6" filled dense :model-value="dialogProperty.name" :disable="dialogSettingsDisabled" :options="getFilteredVisualizationTypeOptions(index)" option-label="label" option-value="target" emit-value map-options options-dense :label="$t('dashboard.widgetEditor.visualizationType.title')" @update:model-value="(val) => onVisualizationSelected(val, dialogProperty)"></q-select>
-                    <q-select class="col-5 q-ml-sm" filled dense v-model="dialogProperty.columns" :disable="dialogSettingsDisabled" :options="getColumnOptionsFromLayer(dialogProperty)" emit-value map-options options-dense option-label="alias" option-value="name"></q-select>
+                    <MultiSelect class="col-5 q-ml-sm" v-model="dialogProperty.columns" :disabled="dialogSettingsDisabled" :options="getColumnOptionsFromLayer(dialogProperty)" option-label="alias" option-value="name" display="chip" />
                 </div>
                 <div class="q-col-gutter" style="gap: 0.5em; margin-left: auto">
                     <i v-if="index === 0" class="pi pi-plus-circle kn-cursor-pointer" data-test="new-button" @click="addDialog()"></i>
@@ -49,6 +48,7 @@ import Message from 'primevue/message'
 import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 import * as mapWidgetDefaultValues from '../../../helpers/mapWidget/MapWidgetDefaultValues'
 import { getPropertiesByLayerLabel } from '../../../../MapWidget/MapWidgetDataProxy'
+import { resolveLayerByTarget } from '../../../../MapWidget/LeafletHelper'
 
 export default defineComponent({
     name: 'map-dialog-settings',
@@ -73,21 +73,21 @@ export default defineComponent({
     async mounted() {
         this.loadDialogSettings()
         await this.loadPropertiesForDialogSettings()
+        // preload properties for visualizations targeting layers so they show up in visualization options
+        if (this.widgetModel?.settings?.visualizations) {
+            for (const viz of this.widgetModel.settings.visualizations) {
+                const target = resolveLayerByTarget(this.widgetModel, viz.target)
+                if (target && target.type === 'layer') {
+                    await this.loadAvailablePropertiesForVisualization(viz)
+                }
+            }
+            this.loadVisualizationTypeOptions()
+        }
     },
     methods: {
         ...mapActions(appStore, ['setLoading']),
         loadDialogSettings() {
-            if (this.widgetModel?.settings?.dialog) {
-                // sanitize: remove dialog layers that point to non-dataset widget layers (prevent non-dataset dialog entries)
-                const original = this.widgetModel.settings.dialog
-                const sanitizedLayers = (original.layers || []).filter((lp: any) => {
-                    const targetLayer = this.widgetModel.layers.find((l: IMapWidgetLayer) => l.layerId === lp.name)
-                    // keep if target not found (conservative) or if it's a dataset
-                    if (!targetLayer) return true
-                    return targetLayer.type === 'dataset'
-                })
-                this.dialogSettings = { ...original, layers: sanitizedLayers }
-            }
+            if (this.widgetModel?.settings?.dialog) this.dialogSettings = this.widgetModel.settings.dialog
             this.loadSelectionConfiguration()
         },
         async loadPropertiesForDialogSettings() {
@@ -96,8 +96,8 @@ export default defineComponent({
         },
         async loadAvailableProperties(layer: IMapTooltipSettingsLayer | null) {
             if (!layer) return
-
-            const targetLayer = this.widgetModel.layers.find((tempLayer: IMapWidgetLayer) => tempLayer.layerId === layer.name)
+            // Take into account that `layer.name` may be a visualization target (visualization.target)
+            const targetLayer = resolveLayerByTarget(this.widgetModel, layer.name) as IMapWidgetLayer | null
             if (targetLayer?.type === 'layer') await this.loadAvailablePropertiesInTooltipSettingsForLayer(targetLayer)
         },
         addDialog() {
@@ -136,10 +136,12 @@ export default defineComponent({
         },
         getColumnOptionsFromLayer(dialogProperty: IMapDialogSettingsProperty | null) {
             if (!dialogProperty) return []
-            const layer = this.widgetModel.layers.find((layer: any) => layer.layerId === dialogProperty.name)
+            // dialogProperty.name holds a visualization target (layerId/visualization.target)
+            const layer = resolveLayerByTarget(this.widgetModel, dialogProperty.name) as IMapWidgetLayer | null
             if (!layer) return []
-            else if (layer.type === 'dataset') return layer.columns
-            else return this.propertiesCache.get(layer.layerId) ?? []
+            if (layer.type === 'dataset') return layer.columns ?? []
+            // For layer targets prefer the visualization.properties that may have been preloaded
+            return this.propertiesCache.get(layer.layerId) ?? []
         },
         async onLayerChange(dialogProperty: IMapDialogSettingsProperty) {
             dialogProperty.columns = []
@@ -184,8 +186,30 @@ export default defineComponent({
             if (!this.widgetModel?.settings?.visualizations) return
             this.widgetModel.settings.visualizations.forEach((visualization: IMapWidgetVisualizationType) => {
                 const mapLayer = this.widgetModel.layers.find((layer: IMapWidgetLayer) => layer.layerId === visualization.target)
-                if (mapLayer && mapLayer.type === 'dataset') this.visualizationTypeOptions.push(visualization)
+                if (!mapLayer) return
+                if (mapLayer.type === 'dataset') {
+                    this.visualizationTypeOptions.push(visualization)
+                    return
+                }
+                if (mapLayer.type === 'layer' && visualization.properties && visualization.properties.length > 0) this.visualizationTypeOptions.push(visualization)
             })
+        },
+
+        async loadAvailablePropertiesForVisualization(visualization: IMapWidgetVisualizationType | null) {
+            if (!visualization || !visualization.target) return
+            // if already cached, assign and return
+            if (this.propertiesCache.has(visualization.target)) {
+                visualization.properties = this.propertiesCache.get(visualization.target) as any
+                return
+            }
+            const targetLayer = this.widgetModel.layers.find((layer: IMapWidgetLayer) => visualization.target === layer.layerId)
+            if (!targetLayer || targetLayer.type !== 'layer') return
+            this.setLoading(true)
+            const raw = await getPropertiesByLayerLabel(targetLayer.label)
+            this.setLoading(false)
+            const formatted = raw.map((p: any) => ({ name: String(p.property ?? p.name ?? p), alias: String(p.property ?? p.name ?? p) }))
+            this.propertiesCache.set(targetLayer.layerId, formatted)
+            visualization.properties = formatted as any
         },
         getFilteredVisualizationTypeOptions(currentIndex: number) {
             if (!this.dialogSettings) return this.visualizationTypeOptions

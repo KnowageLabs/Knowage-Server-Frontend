@@ -1,6 +1,5 @@
 import {
     IMapDialogSettings,
-    IMapDialogSettingsProperty,
     IMapTooltipSettings,
     IMapTooltipSettingsLayer,
     IMapWidgetCrossNavigation,
@@ -40,13 +39,13 @@ const removeLayerFromLegend = (layer: IMapWidgetLayer, widgetModel: IWidget) => 
 const removeLayerFromTooltips = (layer: IMapWidgetLayer, widgetModel: IWidget) => {
     if (!widgetModel.settings || !widgetModel.settings.tooltips) return
     const tooltipSettings = widgetModel.settings?.tooltips as IMapTooltipSettings
-    tooltipSettings.layers = tooltipSettings.layers.filter((tooltipLayerSettings: IMapTooltipSettingsLayer) => tooltipLayerSettings.name !== layer.layerId)
+    tooltipSettings.layers = tooltipSettings.layers.filter((tooltipLayerSettings: any) => (tooltipLayerSettings.target ?? tooltipLayerSettings.name) !== layer.layerId)
 }
 
 const removeLayerFromDialog = (layer: IMapWidgetLayer, widgetModel: IWidget) => {
     if (!widgetModel.settings || !widgetModel.settings.dialog) return
     const dialogSettings = widgetModel.settings.dialog as IMapDialogSettings
-    dialogSettings.layers = dialogSettings.layers.filter((dialogLayerSettings: IMapDialogSettingsProperty) => dialogLayerSettings.name !== layer.layerId)
+    dialogSettings.layers = dialogSettings.layers.filter((dialogLayerSettings: any) => (dialogLayerSettings.target ?? dialogLayerSettings.name) !== layer.layerId)
 }
 
 export const removeLayerFromSelections = (layer: IMapWidgetLayer, widgetModel: IWidget) => {
@@ -93,7 +92,7 @@ const removeColumnFromDialogs = (layer: IMapWidgetLayer, column: IWidgetMapLayer
     if (!widgetModel.settings || !widgetModel.settings.tooltips) return
     const tooltipSettings = widgetModel.settings?.tooltips as IMapTooltipSettings
     tooltipSettings.layers.forEach((tooltipLayerSettings: IMapTooltipSettingsLayer) => {
-        if (tooltipLayerSettings.name !== layer.layerId) return
+        if (((tooltipLayerSettings as any).target ?? (tooltipLayerSettings as any).name) !== layer.layerId) return
         tooltipLayerSettings.columns = tooltipLayerSettings.columns.filter((columnName: string) => columnName !== column.name)
     })
 }
@@ -102,7 +101,7 @@ const removeColumnFromTooltips = (layer: IMapWidgetLayer, column: IWidgetMapLaye
     if (!widgetModel.settings || !widgetModel.settings.dialog) return
     const dialogSettings = widgetModel.settings.dialog as IMapDialogSettings
     dialogSettings.layers.forEach((dialogSettingsLayerSettings: IMapTooltipSettingsLayer) => {
-        if (dialogSettingsLayerSettings.name !== layer.layerId) return
+        if (((dialogSettingsLayerSettings as any).target ?? (dialogSettingsLayerSettings as any).name) !== layer.layerId) return
         dialogSettingsLayerSettings.columns = dialogSettingsLayerSettings.columns.filter((columnName: string) => columnName !== column.name)
     })
 }
@@ -126,9 +125,9 @@ const removeColumnFromSelections = (layer: IMapWidgetLayer, column: IWidgetMapLa
 const removeColumnFromCrossNavigation = (layer: IMapWidgetLayer, column: IWidgetMapLayerColumn, widgetModel: IWidget) => {
     if (!widgetModel.settings || !widgetModel.settings.interactions?.interactions) return
     const crossNavigationConfiguration = (widgetModel?.settings?.interactions?.crossNavigation ?? null) as IMapWidgetCrossNavigation | null
-    crossNavigationConfiguration?.crossNavigationVizualizationTypes.forEach((IMapWidgetCrossNavigationVisualizationTypeConfig: IMapWidgetSelection) => {
-        if (IMapWidgetCrossNavigationVisualizationTypeConfig.vizualizationType?.target !== layer.layerId) return
-        if (IMapWidgetCrossNavigationVisualizationTypeConfig.column === column.name) IMapWidgetCrossNavigationVisualizationTypeConfig.column = ''
+    crossNavigationConfiguration?.crossNavigationVizualizationTypes.forEach((cfg: any) => {
+        if (cfg.vizualizationType?.target !== layer.layerId) return
+        if (cfg.column === column.name) cfg.column = ''
     })
 }
 

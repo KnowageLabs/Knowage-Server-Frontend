@@ -1,6 +1,7 @@
 import { ISelection, IVariable, IWidget, IWidgetInteractionParameter } from '../../../Dashboard'
 import { IMapWidgetCrossNavigation, IMapWidgetCrossNavigationVisualizationTypeConfig, IMapWidgetLayer, IMapWidgetLinkConfiguration, IMapWidgetLinkVisualizationTypeConfig, IMapWidgetPreview, IMapWidgetPreviewVisualizationTypeConfig, IMapWidgetSelection, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import { executeMapCrossNavigation, updateStoreSelections } from '../../interactionsHelpers/InteractionHelper'
+import { resolveLayerByTarget } from '../LeafletHelper'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import store from '../../../Dashboard.store'
 import axios from 'axios'
@@ -20,18 +21,7 @@ export const executeMapInteractions = (event: any, widgetModel: IWidget, layerVi
     const column = rawValueColumn.trim()
     const value = rawValue.trim()
 
-    const selectedLayer = widgetModel.layers?.find((layer: IMapWidgetLayer) => {
-        if (!layer) return false
-        const target = layerVisualizationSettings.target
-        // primary match: layer.layerId (string) === target
-        if (layer.layerId === target) return true
-        // fallback: numeric id stored in layer.id
-        if (typeof layer.id !== 'undefined' && '' + layer.id === '' + target) return true
-        // fallback: name or label equality
-        if (layer.name === target) return true
-        if ((layer as any).label === target) return true
-        return false
-    })
+    const selectedLayer = resolveLayerByTarget(widgetModel, layerVisualizationSettings.target) as IMapWidgetLayer | null
 
     // Debug logging
     try {

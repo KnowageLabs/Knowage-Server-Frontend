@@ -4,7 +4,7 @@
             <div class="p-col-12 p-fluid p-formgrid p-grid">
                 <div v-for="(linkConfig, index) in linkConfiguration.linkVizualizationTypes" :key="index" class="p-col-12 p-fluid p-formgrid p-grid">
                     <div class="p-col-12 p-fluid p-formgrid p-grid p-ai-center">
-                        <q-select filled dense class="p-sm-12 p-md-5" v-model="linkConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options options-dense option-label="layerName" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="linksDisabled" @update:modelValue="onVizualizationTypeChange(linkConfig)"></q-select>
+                        <q-select filled dense class="p-sm-12 p-md-5" v-model="linkConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options options-dense option-label="label" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="linksDisabled" @update:modelValue="onVizualizationTypeChange(linkConfig)"></q-select>
                         <q-select filled dense class="p-sm-12 p-md-5 q-ml-sm" v-model="linkConfig.column" :options="availableColumns(linkConfig.vizualizationType)" emit-value map-options option-value="name" option-label="name" options-dense :label="$t('common.column')" :disable="linksDisabled"></q-select>
 
                         <Button v-if="index === 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" @click="addLinkConfiguration" />
@@ -53,6 +53,7 @@ import { IWidget, IWidgetInteractionParameter } from '@/modules/documentExecutio
 import { IMapWidgetVisualizationType, IMapWidgetLayer, IMapWidgetSelection, IMapWidgetLink, IMapWidgetLayerProperty, IMapWidgetLinkVisualizationTypeConfig, IMapWidgetLinkConfiguration } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { getPropertiesByLayerLabel } from '../../../../MapWidget/MapWidgetDataProxy'
+import { resolveLayerByTarget } from '../../../../MapWidget/LeafletHelper'
 import { mapActions } from 'pinia'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import appStore from '@/App.store'
@@ -131,19 +132,32 @@ export default defineComponent({
         loadVisualizationTypeOptions() {
             this.visualizationTypeOptions = []
             if (!this.widgetModel?.settings?.visualizations) return
+            // include visualizations whose target resolves to a layer or dataset
             this.widgetModel.settings.visualizations.forEach((visualization: IMapWidgetVisualizationType) => {
-                const mapLayer = this.widgetModel.layers.find((layer: IMapWidgetLayer) => layer.layerId === visualization.target)
-                if (mapLayer) this.visualizationTypeOptions.push(visualization)
+                const mapLayer = resolveLayerByTarget(this.widgetModel, visualization.target)
+                if (!mapLayer) return
+                // include dataset visualizations
+                if (mapLayer.type === 'dataset') {
+                    this.visualizationTypeOptions.push(visualization)
+                    return
+                }
+                // include layer visualizations only if properties are already available
+                if (mapLayer.type === 'layer' && visualization.properties && visualization.properties.length > 0) {
+                    this.visualizationTypeOptions.push(visualization)
+                }
             })
         },
         availableColumns(vizualizationType: IMapWidgetVisualizationType | null) {
             if (!vizualizationType) return null
 
-            const targetDataset = this.availableDatasets.find((layer: IMapWidgetLayer) => layer.layerId === vizualizationType.target)
-            if (targetDataset) return targetDataset.columns ?? []
+            const target = resolveLayerByTarget(this.widgetModel, vizualizationType.target)
+            if (!target) return []
 
-            const targetLayer = this.widgetModel.layers.find((layer: IMapWidgetLayer) => layer.layerId === vizualizationType.target)
-            if (targetLayer && this.propertiesCache.has(targetLayer.layerId)) return this.propertiesCache.get(targetLayer.layerId)
+            if (target.type === 'dataset') return target.columns ?? []
+
+            // layer target: prefer already-loaded visualization properties
+            if (vizualizationType.properties && vizualizationType.properties.length > 0) return vizualizationType.properties
+            if (this.propertiesCache.has(target.layerId)) return this.propertiesCache.get(target.layerId)
 
             return []
         },
@@ -160,11 +174,13 @@ export default defineComponent({
                 return
             }
 
-            const targetLayer = this.widgetModel.layers.find((layer: IMapWidgetLayer) => visualization.target === layer.layerId)
+            const targetLayer = resolveLayerByTarget(this.widgetModel, visualization.target) as IMapWidgetLayer | null
             if (targetLayer?.type === 'layer') {
                 this.setLoading(true)
-                const properties = await getPropertiesByLayerLabel(targetLayer.label)
+                const rawProperties = await getPropertiesByLayerLabel(targetLayer.label)
                 this.setLoading(false)
+                // normalize properties into IMapWidgetLayerProperty shape ({ property: string }) and also provide a `name` alias
+                const properties: IMapWidgetLayerProperty[] = (rawProperties || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.property ?? p.name ?? p) } as any))
                 this.propertiesCache.set(targetLayer.layerId, properties)
                 visualization.properties = properties
             }
@@ -181,7 +197,7 @@ export default defineComponent({
             if (!this.linkConfiguration) return this.visualizationTypeOptions
 
             const selectedLayerIds = this.linkConfiguration.linkVizualizationTypes
-                .map((selectionConfig: IMapWidgetSelection, index: number) => {
+                .map((selectionConfig: any, index: number) => {
                     return index !== currentIndex ? selectionConfig.vizualizationType?.target : null
                 })
                 .filter((id): id is string => !!id)

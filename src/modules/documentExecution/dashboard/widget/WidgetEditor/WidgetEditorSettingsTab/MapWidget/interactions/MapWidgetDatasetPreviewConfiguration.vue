@@ -30,7 +30,12 @@ import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetInteractionParameter, IDataset, IDatasetParameter } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IMapWidgetLayer, IMapWidgetPreview, IMapWidgetPreviewVisualizationTypeConfig, IMapWidgetVisualizationType } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
+import { resolveLayerByTarget } from '../../../../MapWidget/LeafletHelper'
+import { getPropertiesByLayerLabel } from '../../../../MapWidget/MapWidgetDataProxy'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
+import { mapActions } from 'pinia'
+import appStore from '@/App.store'
+import { IMapWidgetLayerProperty } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import Checkbox from 'primevue/checkbox'
 import Dropdown from 'primevue/dropdown'
 import WidgetOutputParametersList from '../../common/interactions/crossNavigation/WidgetOutputParametersList.vue'
@@ -63,7 +68,8 @@ export default defineComponent({
             parameterList: {} as Record<string, IWidgetInteractionParameter[]>,
             dashboardDatasets: [] as any[],
             selectedDatasetColumnIdMap: {},
-            selectedDatasetColumnNameMap: {}
+            selectedDatasetColumnNameMap: {},
+            propertiesCache: new Map<string, IMapWidgetLayerProperty[]>()
         }
     },
     computed: {
@@ -83,11 +89,20 @@ export default defineComponent({
     created() {
         this.setEventListeners()
         this.initialLoad()
+        // preload properties for layer visualizations so they appear in options immediately
+        if (this.widgetModel?.settings?.visualizations) {
+            this.widgetModel.settings.visualizations.forEach(async (viz: IMapWidgetVisualizationType) => {
+                const target = resolveLayerByTarget(this.widgetModel, viz.target)
+                if (target && target.type === 'layer') await this.loadAvailableProperties(viz)
+            })
+            this.loadVisualizationTypeOptions()
+        }
     },
     unmounted() {
         this.removeEventListeners()
     },
     methods: {
+        ...mapActions(appStore, ['setLoading']),
         setEventListeners() {
             emitter.on('mapFieldsUpdated', this.loadPreviewModel)
         },
@@ -156,8 +171,13 @@ export default defineComponent({
             this.visualizationTypeOptions = []
             if (!this.widgetModel?.settings?.visualizations) return
             this.widgetModel.settings.visualizations.forEach((visualization: IMapWidgetVisualizationType) => {
-                const mapLayer = this.widgetModel.layers.find((layer: IMapWidgetLayer) => layer.layerId === visualization.target)
-                if (mapLayer && mapLayer.type === 'dataset') this.visualizationTypeOptions.push(visualization)
+                const mapLayer = resolveLayerByTarget(this.widgetModel, visualization.target)
+                if (!mapLayer) return
+                if (mapLayer.type === 'dataset') {
+                    this.visualizationTypeOptions.push(visualization)
+                    return
+                }
+                if (mapLayer.type === 'layer' && visualization.properties && visualization.properties.length > 0) this.visualizationTypeOptions.push(visualization)
             })
         },
         getFilteredVisualizationTypeOptions(currentIndex: number) {
@@ -174,23 +194,60 @@ export default defineComponent({
         async onVizualizationTypeChange(previewConfig: IMapWidgetPreviewVisualizationTypeConfig) {
             previewConfig.column = ''
             if (!previewConfig.vizualizationType?.target) return
+            // if visualization targets a dataset, ensure dataset list is available
+            const target = resolveLayerByTarget(this.widgetModel, previewConfig.vizualizationType.target)
+            if (target && target.type === 'dataset') {
+                // select a default dataset if none is chosen
+                if (!previewConfig.dataset && this.dashboardDatasets && this.dashboardDatasets.length > 0) {
+                    previewConfig.dataset = this.dashboardDatasets[0].id
+                }
+                // populate parameters from the selected dataset
+                if (previewConfig.dataset) this.onDatasetChanged(previewConfig)
+            } else if (target && target.type === 'layer') {
+                // for layer targets, ensure properties are loaded and normalized
+                if (!previewConfig.vizualizationType.properties || previewConfig.vizualizationType.properties.length === 0) {
+                    await this.loadAvailableProperties(previewConfig.vizualizationType)
+                }
+            }
             this.loadParameterList()
+        },
+
+        async loadAvailableProperties(visualization: IMapWidgetVisualizationType | null) {
+            if (!visualization || !visualization.target) return
+
+            if (this.propertiesCache.has(visualization.target)) {
+                visualization.properties = this.propertiesCache.get(visualization.target)
+                return
+            }
+
+            const targetLayer = resolveLayerByTarget(this.widgetModel, visualization.target) as IMapWidgetLayer | null
+            if (targetLayer?.type === 'layer') {
+                this.setLoading(true)
+                const rawProperties = await getPropertiesByLayerLabel(targetLayer.label)
+                this.setLoading(false)
+                const properties: IMapWidgetLayerProperty[] = (rawProperties || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.property ?? p.name ?? p) } as any))
+                this.propertiesCache.set(targetLayer.layerId, properties)
+                visualization.properties = properties
+            }
         },
         onParametersChanged(parameters: IWidgetInteractionParameter[], previewConfig: IMapWidgetPreviewVisualizationTypeConfig) {
             if (previewConfig) previewConfig.parameters = parameters
         },
         availableColumns(vizualizationType: IMapWidgetVisualizationType | null) {
             if (!vizualizationType) return null
-
-            const targetDataset = this.availableDatasets.find((layer: IMapWidgetLayer) => layer.layerId === vizualizationType.target)
-            return targetDataset ? targetDataset.columns : []
+            const target = resolveLayerByTarget(this.widgetModel, vizualizationType.target)
+            if (!target) return []
+            if (target.type === 'dataset') return target.columns ?? []
+            // layer target: prefer visualization.properties (already normalized to { property, name })
+            if (vizualizationType.properties && vizualizationType.properties.length > 0) return vizualizationType.properties
+            return []
         },
         onDatasetChanged(previewConfig: IMapWidgetPreviewVisualizationTypeConfig | null) {
             if (!previewConfig) return
             previewConfig.column = ''
             previewConfig.parameters = []
             const index = this.dashboardDatasets.findIndex((dataset: any) => dataset.id === previewConfig?.dataset)
-            if (index !== -1)
+            if (index !== -1) {
                 previewConfig.parameters = this.dashboardDatasets[index].parameters.map((tempParameter: IDatasetParameter) => {
                     return {
                         enabled: true,
@@ -199,6 +256,10 @@ export default defineComponent({
                         value: ''
                     }
                 })
+                // also set previewConfig.column if columns are available in the dataset
+                const dsColumns = this.dashboardDatasets[index].parameters?.filter((p: any) => p.name) ?? []
+                if (dsColumns.length > 0 && !previewConfig.column) previewConfig.column = dsColumns[0].name
+            }
         },
         addPreviewConfiguration() {
             if (this.previewDisabled) return

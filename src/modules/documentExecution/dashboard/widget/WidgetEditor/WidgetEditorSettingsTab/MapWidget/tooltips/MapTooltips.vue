@@ -70,6 +70,11 @@ export default defineComponent({
     },
     async mounted() {
         this.loadTooltips()
+        // normalize legacy `name` -> `target`
+        if (this.tooltip?.layers)
+            this.tooltip.layers.forEach((l: any) => {
+                if (!l.target && l.name) l.target = l.name
+            })
         await this.loadPropertiesForTooltips()
     },
     methods: {
@@ -119,15 +124,17 @@ export default defineComponent({
             position === 'top' ? (this.dropzoneTopVisible[index] = false) : (this.dropzoneBottomVisible[index] = false)
         },
         getColumnOptionsFromLayer(tooltip: IMapTooltipSettingsLayer) {
-            const layer = this.widgetModel.layers.find((layer: any) => layer.layerId === tooltip.name)
+            const targetId = (tooltip as any).target ?? (tooltip as any).name
+            const layer = this.widgetModel.layers.find((layer: any) => layer.layerId === targetId)
             if (!layer) return []
             else if (layer.type === 'dataset') return layer.columns
             else return this.propertiesCache.get(layer.layerId) ?? []
         },
         async onLayerChange(tooltip: IMapTooltipSettingsLayer) {
             tooltip.columns = []
-            const target = this.widgetModel.layers.find((layer: IMapWidgetLayer) => tooltip.name === layer.layerId)
-            if (!target || target.type !== 'layer' || this.propertiesCache.has(tooltip.name)) return
+            const targetId = (tooltip as any).target ?? (tooltip as any).name
+            const target = this.widgetModel.layers.find((layer: IMapWidgetLayer) => targetId === layer.layerId)
+            if (!target || target.type !== 'layer' || this.propertiesCache.has(targetId)) return
             await this.loadAvailablePropertiesInTooltipSettingsForLayer(target)
         },
         async loadAvailablePropertiesInTooltipSettingsForLayer(targetLayer: IMapWidgetLayer) {

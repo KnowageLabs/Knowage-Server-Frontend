@@ -114,6 +114,16 @@ export const addMarker = (position: number[] | string, container: any, settings:
     return marker
 }
 
+// Resolve a layer object from a visualization target string using several fallbacks.
+export const resolveLayerByTarget = (widgetModel: IWidget | any, target: string) => {
+    if (!widgetModel || !widgetModel.layers) return null
+    return widgetModel.layers.find((layer: any) => {
+        if (!layer) return false
+        if (layer.layerId === target) return true
+        return false
+    })
+}
+
 // Used for getting coordinates, if the type is WKT we are transforming them using the wktToGeoJSON from the @terraformer/wkt lib
 export function getCoordinates(spatialAttribute: any, input: string, coord?: string | null | undefined) {
     if (!spatialAttribute) return []
@@ -194,7 +204,17 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             // The backend service for retrieving layers does not work properly for WKT.
             if (target.type === 'dataset') {
                 visualizationDataType = VisualizationDataType.DATASET_ONLY
-                spatialAttribute = target.columns.filter((i) => i.fieldType === 'SPATIAL_ATTRIBUTE')[0]
+                spatialAttribute = (target.columns || []).filter((i) => i.fieldType === 'SPATIAL_ATTRIBUTE')[0]
+
+                // If the dataset target doesn't expose a spatial attribute, skip this
+                // visualization instead of throwing. A dataset without a spatial
+                // attribute cannot be used to produce map markers/geometry.
+                if (!spatialAttribute) {
+                    // eslint-disable-next-line no-console
+                    console.warn(`Skipping visualization ${layerVisualizationSettings.id || layerVisualizationSettings.target} because dataset target '${target.label ?? target.layerId}' has no spatial attribute.`)
+                    continue
+                }
+
                 geoColumn = getColumnName(spatialAttribute.name, data[target.label])
                 dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[target.label])
             } else {

@@ -1,7 +1,7 @@
 import { ISelection, IVariable, IWidget } from '../../../Dashboard'
 import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import { addMarker, getColumnName, getCoordinates } from '../LeafletHelper'
-import { executeMapInteractions } from '../interactions/MapInteractionsHelper'
+import { executeMapInteractions, columnsMatch } from '../interactions/MapInteractionsHelper'
 import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData, createDialogFromDataset } from './MapDialogHelper'
 import { getConditionalStyleUsingTargetDataset, getCoordinatesFromWktPointFeature, getFeatureValues, getTargetDataColumn, getVizualizationConditionalStyles, isConditionMet, transformDataUsingForeignKeyReturningAllColumns } from './MapVisualizationHelper'
 
@@ -84,16 +84,6 @@ const createAndAddMarkerFromData = (row: any, data: any, widgetModel: IWidget, t
                                 // Collect all clickable items
                                 const clickables = Array.from(content.querySelectorAll('.clickable-custom-leaflet-list-item')) as HTMLElement[]
 
-                                const columnsMatchLocal = (configuredColumn: string | null | undefined, clickedColumn: string) => {
-                                    if (!configuredColumn) return false
-                                    if (!clickedColumn) return false
-                                    const a = configuredColumn.trim().toLowerCase()
-                                    const b = clickedColumn.trim().toLowerCase()
-                                    if (a === b) return true
-                                    if (a.includes(b) || b.includes(a)) return true
-                                    return false
-                                }
-
                                 const crossNavConfigs = widgetModel?.settings?.interactions?.crossNavigation?.crossNavigationVizualizationTypes ?? []
 
                                 for (const item of clickables) {
@@ -104,7 +94,7 @@ const createAndAddMarkerFromData = (row: any, data: any, widgetModel: IWidget, t
                                     const matched = crossNavConfigs.some((c: any) => {
                                         const viz = c.vizualizationType
                                         const vizMatches = viz && (viz.id === layerVisualizationSettings.id || viz.target === layerVisualizationSettings.target || viz.label === layerVisualizationSettings.label)
-                                        return vizMatches && columnsMatchLocal(c.column, itemColumn)
+                                        return vizMatches && columnsMatch(c.column, itemColumn)
                                     })
 
                                     if (matched) {
@@ -126,7 +116,9 @@ const createAndAddMarkerFromData = (row: any, data: any, widgetModel: IWidget, t
                         const dataMap: Record<string, any> = {}
                         meta?.metaData?.fields?.forEach((field: any) => {
                             if (!field.dataIndex) return
-                            dataMap[field.header] = row[field.dataIndex]
+                            const val = row[field.dataIndex]
+                            if (field.name) dataMap[field.name] = val
+                            if (field.header) dataMap[field.header] = val
                         })
 
                         const colName = getColumnName(column, meta)

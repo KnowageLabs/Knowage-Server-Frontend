@@ -21,7 +21,7 @@
         "layers": [
             {
                 "columns": [],
-                "name": "",
+                "target": "",
                 "precision": 2,
                 "prefix": "",
                 "suffix": ""
@@ -90,7 +90,7 @@
         "layers": [
             {
                 "columns": [],
-                "name": "",
+                "target": "",
                 "precision": 2,
                 "prefix": "",
                 "suffix": ""
