@@ -500,7 +500,7 @@ export default defineComponent({
             Object.keys(this.parameters.filterStatus).forEach((key: any) => {
                 const parameter = this.parameters.filterStatus[key]
                 if (!parameter.multivalue) {
-                    parameters.push({ urlName: parameter.urlName, value: parameter.parameterValue?.[0] ? parameter.parameterValue[0].value : undefined, description: parameter.parameterValue?.[0] ? parameter.parameterValue[0].description ?? '' : undefined })
+                    parameters.push({ urlName: parameter.urlName, value: parameter.parameterValue?.[0] ? parameter.parameterValue[0].value : '', description: parameter.parameterValue?.[0] ? parameter.parameterValue[0].description ?? '' : undefined })
                 } else {
                     parameters.push({ urlName: parameter.urlName, value: parameter.parameterValue?.map((el: any) => el.value), description: parameter.parameterDescription ?? '' })
                 }
