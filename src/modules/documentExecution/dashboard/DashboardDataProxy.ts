@@ -78,17 +78,21 @@ export const showGetDataError = (error: any, datasetLabel: string | undefined) =
 export const addDriversToData = (dataset, dataToSend) => {
     if (dataset.drivers && dataset.drivers.length > 0) {
         dataset.drivers.forEach((driver: IDashboardDatasetDriver) => {
-            dataToSend.drivers[`${driver.urlName}`] = driver.parameterValue
+            dataToSend.drivers[`${driver.urlName}`] = cleanupDriverValue(driver.parameterValue)
         })
     }
 }
 
+const cleanupDriverValue = (value: any) => {
+    if (Array.isArray(value)) {
+        const filtered = value.filter((item) => item !== '')
+        return filtered.length === 0 ? [] : filtered
+    }
+    return value
+}
+
 const getFormattedDateParameter = (date: any, useDefaultFormat?: boolean): string => {
     const knowageStore = store()
-    console.log('knowageStore', knowageStore)
-    console.log('knowageStore.configurations', knowageStore.configurations)
-    console.log('date format', knowageStore.configurations?.['SPAGOBI.DATE-FORMAT-SERVER.format'])
-
     const format = date instanceof Date ? undefined : 'dd/MM/yyyy'
     const formattedDate = luxonFormatDate(date, format, useDefaultFormat ? undefined : knowageStore.configurations?.['SPAGOBI.DATE-FORMAT-SERVER.format'])
     if (formattedDate === 'Invalid DateTime') {
@@ -109,11 +113,17 @@ export const addParametersToData = (dataset, dashboardId, dataToSend, associativ
                     const driver = documentDrivers[index]
                     if (driver.urlName == matched[0]) {
                         if (driver.type === 'DATE' && driver.value) driver.value = getFormattedDateParameter(driver.value)
-                        if (typeof driver.value === 'string' && driver.multivalue) dataToSend.parameters[`${param.name}`] = driver.value.split(',').map((val) => val.trim())
-                        else dataToSend.parameters[`${param.name}`] = driver.value
+                        if (typeof driver.value === 'string' && driver.multivalue) {
+                            const values = driver.value.split(',').map((val) => val.trim())
+                            dataToSend.parameters[`${param.name}`] = cleanupParameterValue(values)
+                        } else {
+                            dataToSend.parameters[`${param.name}`] = cleanupParameterValue(driver.value)
+                        }
                     }
                 }
-            } else dataToSend.parameters[`${param.name}`] = param.value
+            } else {
+                dataToSend.parameters[`${param.name}`] = cleanupParameterValue(param.value)
+            }
 
             if (associativeResponseSelections && associativeResponseSelections[dataset.dsLabel]) {
                 //associative selections should overwrite anything else, even drivers
@@ -127,6 +137,14 @@ export const addParametersToData = (dataset, dashboardId, dataToSend, associativ
             }
         })
     }
+}
+
+const cleanupParameterValue = (value: any) => {
+    if (Array.isArray(value)) {
+        const filtered = value.filter((item) => item !== '')
+        return filtered.length === 0 ? [] : filtered
+    }
+    return value
 }
 
 export const addVariablesToFormula = (column, dashboardConfig) => {
