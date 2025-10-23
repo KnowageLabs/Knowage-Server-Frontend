@@ -8,7 +8,13 @@
             </Toolbar>
         </template>
 
-        <WorkspaceFolderPickerTree v-if="folders" :prop-folders="folders" @folderSelected="setSelectedParentFolder"></WorkspaceFolderPickerTree>
+        <WorkspaceFolderPickerTree v-if="folders && folders.children?.length > 0" :prop-folders="folders" @folderSelected="setSelectedParentFolder"></WorkspaceFolderPickerTree>
+        <q-banner v-else rounded dense class="bg-warning q-mt-sm text-center">
+            <template v-slot:avatar>
+                <q-icon name="warning" />
+            </template>
+            {{ $t('documentExecution.main.addToWorkspaceNoFolderError') }}
+        </q-banner>
 
         <template #footer>
             <div class="p-d-flex p-flex-row p-jc-end">
@@ -72,9 +78,10 @@ export default defineComponent({
             this.setLoading(false)
         },
         async onSave() {
+            debugger
             if (!this.document || !this.parentFolder) return
             this.setLoading(true)
-            const postData = { biObjectId: this.document.id, parentId: this.parentFolder.id }
+            const postData = { biObjectId: this.document.id, parentId: this.parentFolder }
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/repository/document`, postData)
                 .then(() => {

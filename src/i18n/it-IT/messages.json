@@ -1477,6 +1477,8 @@
         "main": {
             "addToWorkspace": "aggiungi al mio workspace",
             "addToWorkspaceError": "Il documento non può essere aggiunto nel workspace. Esiste già nella cartella padre dell'organizer.",
+            "addToWorkspaceHint": "Seleziona la cartella del workspace in cui vuoi aggiungere il documento",
+            "addToWorkspaceNoFolderError": "Non sono presenti cartelle nel tuo workspace. Aggiungine prima una per poter procedere",
             "cacheCleared": "Cache cancellata corretamente",
             "clearCache": "Cancellazione Cache",
             "copyLink": "copia link",
