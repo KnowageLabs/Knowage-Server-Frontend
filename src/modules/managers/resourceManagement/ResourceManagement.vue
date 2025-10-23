@@ -61,14 +61,11 @@ import ResourceManagementDetail from './ResourceManagementDetail.vue'
 import KnHint from '@/components/UI/KnHint.vue'
 import ResourceManagementCreateFolderDialog from './ResourceManagementCreateFolderDialog.vue'
 import mainStore from '../../../App.store'
+import { mapActions } from 'pinia'
 
 export default defineComponent({
     name: 'resource-management',
     components: { KnHint, ResourceManagementMetadataDialog, ResourceManagementCreateFolderDialog, ResourceManagementDetail, Tree },
-    setup() {
-        const store = mainStore()
-        return { store }
-    },
     data() {
         return {
             descriptor,
@@ -92,6 +89,7 @@ export default defineComponent({
         this.loadPage()
     },
     methods: {
+        ...mapActions(mainStore, ['setError', 'setInfo']),
         createFolder(folderName: string) {
             if (folderName && this.selectedFolder) {
                 const obj = {} as JSON
@@ -109,7 +107,7 @@ export default defineComponent({
                         this.$emit('folderCreated', true)
                     })
                     .catch((error) => {
-                        this.store.setError({
+                        this.setError({
                             title: this.$t('common.error.saving'),
                             msg: this.$t(error)
                         })
@@ -153,13 +151,13 @@ export default defineComponent({
                             })
                             .then(() => {
                                 delete node.edit
-                                this.store.setInfo({
+                                this.setInfo({
                                     title: this.$t('managers.resoruceManagement.renameFolder'),
                                     msg: this.$t('managers.resoruceManagement.folderRenamedSuccessfully')
                                 })
                             })
                             .catch((error) => {
-                                this.store.setError({
+                                this.setError({
                                     title: this.$t('managers.resoruceManagement.renameFolder'),
                                     msg: this.$t(error)
                                 })
@@ -213,13 +211,13 @@ export default defineComponent({
                 })
                 .then(() => {
                     this.loadPage()
-                    this.store.setInfo({
+                    this.setInfo({
                         title: this.$t('common.toast.deleteTitle'),
                         msg: this.$t('common.toast.deleteSuccess')
                     })
                 })
                 .catch(() => {
-                    this.store.setError({
+                    this.setError({
                         title: this.$t('common.toast.deleteTitle'),
                         msg: this.$t('common.toast.deleteFailed')
                     })
