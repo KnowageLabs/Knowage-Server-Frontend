@@ -18,15 +18,6 @@
     },
     "defaultDialogSettings": {
         "enabled": false,
-        "layers": [
-            {
-                "columns": [],
-                "target": "",
-                "precision": 2,
-                "prefix": "",
-                "suffix": ""
-            }
-        ],
         "style": {
             "background-color": "",
             "color": "",
@@ -35,7 +26,22 @@
             "font-style": "",
             "font-weight": "",
             "justify-content": "center"
-        }
+        },
+        "visualizations": [
+            {
+                "columns": [
+                    {
+                        "originalDatasetId": "",
+                        "originalLayerId": "",
+                        "value": ""
+                    }
+                ],
+                "label": "",
+                "precision": 2,
+                "prefix": "",
+                "suffix": ""
+            }
+        ]
     },
     "defaultLegendSettings": {
         "enabled": false,
@@ -90,7 +96,7 @@
         "layers": [
             {
                 "columns": [],
-                "target": "",
+                "name": "",
                 "precision": 2,
                 "prefix": "",
                 "suffix": ""

@@ -24,7 +24,7 @@ const findInteractionColumnForVisualization = (widgetModel: IWidget, layerVisual
 
 // Showing markers from the data using geoColumn for the dataset, and property for the layer features (only Points allowed)
 export const addMarkers = (data: any, model: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], layersData: any, targetDatasetData: any, variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
-    if (data && data[target.label]) {
+    if (data && data[target.id]) {
         addMarkersFromData(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, variables, activeSelections, dashboardId)
     } else {
         addMarkersUsingLayers(targetDatasetData, layersData, dataColumn, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds, model, variables, activeSelections, dashboardId)
@@ -36,7 +36,7 @@ const addMarkersFromData = (data: any, widgetModel: IWidget, target: IMapWidgetL
 }
 
 export const addMarkersOrClustersFromData = (data: any, widgetModel: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], variables: IVariable[], activeSelections: ISelection[], dashboardId: string, clusters?: any) => {
-    for (const row of data[target.label].rows) {
+    for (const row of data[target.id].rows) {
         createAndAddMarkerFromData(row, data, widgetModel, target, layerVisualizationSettings, dataColumn, spatialAttribute, geoColumn, markerBounds, variables, layerGroup, activeSelections, dashboardId, clusters)
     }
 
@@ -44,7 +44,7 @@ export const addMarkersOrClustersFromData = (data: any, widgetModel: IWidget, ta
 }
 
 const createAndAddMarkerFromData = (row: any, data: any, widgetModel: IWidget, target: IMapWidgetLayer, layerVisualizationSettings: IMapWidgetVisualizationType, dataColumn: string, spatialAttribute: any, geoColumn: string, markerBounds: any[], variables: IVariable[], layerGroup: any, activeSelections: ISelection[], dashboardId: string, clusters?: any) => {
-    const dataColumnIndex = getTargetDataColumn(data[target.label], layerVisualizationSettings, dataColumn)
+    const dataColumnIndex = getTargetDataColumn(data[target.id], layerVisualizationSettings, dataColumn)
     const value = row[dataColumnIndex]
 
     const filter = layerVisualizationSettings.filter
@@ -56,14 +56,6 @@ const createAndAddMarkerFromData = (row: any, data: any, widgetModel: IWidget, t
 
     const container = clusters ?? layerGroup
     const marker = addMarker(coordinates, container, layerVisualizationSettings.markerConf ?? null, row[dataColumnIndex], spatialAttribute, conditionalStyle?.['background-color'], conditionalStyle?.icon)
-
-    // Debug: log marker creation info
-    try {
-        // eslint-disable-next-line no-console
-        console.log('MapMarkers: created marker from data', { target: target?.label, coordinates, marker, layerVisualizationSettingsId: layerVisualizationSettings.id })
-    } catch (err) {
-        // ignore
-    }
 
     addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker, activeSelections, dashboardId, variables)
     addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker, activeSelections, dashboardId, variables)
@@ -78,7 +70,7 @@ const createAndAddMarkerFromData = (row: any, data: any, widgetModel: IWidget, t
                         // Try to replicate the dialog's DOM and fire a clickable item that matches a crossNavigation config (so
                         // the same code path as the dialog is used). If no matching clickable is found, fall back to the synthetic event.
                         try {
-                            const popup = createDialogFromDataset(false, layerVisualizationSettings, widgetModel.settings.dialog, data[target.label], row, widgetModel, activeSelections, dashboardId, variables)
+                            const popup = createDialogFromDataset(false, layerVisualizationSettings, widgetModel.settings.dialog, data[target.id], row, widgetModel, activeSelections, dashboardId, variables)
                             const content = popup && (popup as any).getContent ? (popup as any).getContent() : null
                             if (content && content.querySelector) {
                                 // Collect all clickable items
@@ -112,7 +104,7 @@ const createAndAddMarkerFromData = (row: any, data: any, widgetModel: IWidget, t
                         if (!column) return
 
                         // build dataMap from dataset meta and row
-                        const meta = data[target.label]
+                        const meta = data[target.id]
                         const dataMap: Record<string, any> = {}
                         meta?.metaData?.fields?.forEach((field: any) => {
                             if (!field.dataIndex) return
@@ -199,14 +191,6 @@ export const createMarkerForVisualization = (feature: ILayerFeature, layerVisual
     const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
     if (!coordinates) return
     const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.markerConf ?? null, value as any, spatialAttribute, conditionalStyle?.['background-color'], conditionalStyle?.icon)
-
-    // Debug: log marker creation info for layer features
-    try {
-        // eslint-disable-next-line no-console
-        console.log('MapMarkers: created marker for layer feature', { feature, coordinates: coordinates.reverse ? coordinates.reverse() : coordinates, marker, layerVisualizationSettingsId: layerVisualizationSettings.id })
-    } catch (err) {
-        // ignore
-    }
 
     addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker, activeSelections, dashboardId, variables)
     addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker, activeSelections, dashboardId, variables)

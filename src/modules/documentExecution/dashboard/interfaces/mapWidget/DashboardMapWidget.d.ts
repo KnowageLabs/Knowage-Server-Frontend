@@ -244,29 +244,20 @@ export interface IMapDialogSettings {
         color: string
         'background-color': string
     }
-    layers: IMapDialogSettingsProperty[]
-    selections: IMapWidgetSelection[]
-}
-
-export interface IMapDialogSettingsProperty {
-    name: string
-    prefix: string
-    suffix: string
-    precision: number
-    columns: string[]
+    visualizations: IMapTooltipSettingsVisualizations[]
 }
 
 export interface IMapTooltipSettings {
     enabled: boolean
-    layers: IMapTooltipSettingsLayer[]
+    visualizations: IMapTooltipSettingsVisualizations[]
 }
 
-export interface IMapTooltipSettingsLayer {
-    name: string
+export interface IMapTooltipSettingsVisualizations {
+    label: string
     prefix: string
     suffix: string
     precision: number
-    columns: string[]
+    columns: any[]
 }
 
 export interface IMapWidgetStyle {

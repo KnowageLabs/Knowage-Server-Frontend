@@ -21,7 +21,7 @@ export const getMapWidgetData = async (dashboardId: any, dashboardConfig: any, w
         await axios
             .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
             .then((response: AxiosResponse<any>) => {
-                if (selectedDataset.dsLabel) tempResponse[selectedDataset.dsLabel] = response.data
+                if (selectedDataset.id) tempResponse[selectedDataset.id] = response.data
             })
             .catch((error: any) => {
                 showGetDataError(error, selectedDataset.dsLabel)

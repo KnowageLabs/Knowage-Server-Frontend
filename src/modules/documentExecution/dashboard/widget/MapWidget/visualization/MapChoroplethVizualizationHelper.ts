@@ -126,12 +126,12 @@ const createChoroplethClassifiedByEqualIntervalsFromData = (data: any, widgetMod
     if (!layerVisualizationSettings.analysisConf) return
     const defaultChoroplethValues = mapWidgetDefaultValues.getDefaultVisualizationChoroplethConfiguration()
 
-    const valueColumnMinMaxValues = getMinMaxByName(data[target.label].stats, dataColumn)
+    const valueColumnMinMaxValues = getMinMaxByName(data[target.id].stats, dataColumn)
     const numberOfClasses = layerVisualizationSettings.analysisConf?.classes ?? defaultChoroplethValues.classes
     const colorGradients = generateColorGradient(layerVisualizationSettings.analysisConf?.style.color ?? defaultChoroplethValues.style.color, layerVisualizationSettings.analysisConf?.style.toColor ?? defaultChoroplethValues.style.toColor, numberOfClasses)
 
     data[target.name].rows.forEach((row: any) => {
-        const { value, originalValue } = getRowValues(row, dataColumn, layerVisualizationSettings, data[target.label])
+        const { value, originalValue } = getRowValues(row, dataColumn, layerVisualizationSettings, data[target.id])
         if (!value) return
 
         const filter = layerVisualizationSettings.filter

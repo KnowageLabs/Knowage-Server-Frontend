@@ -14,7 +14,7 @@ interface IChartValuesRecord {
 export type ChartValuesRecord = Record<string, IChartValuesRecord>
 
 export const addMapCharts = (data: any, model: IWidget, target: IMapWidgetLayer, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], layersData: any, targetDatasetData: any, variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
-    if (data && data[target.label] && !targetDatasetData) {
+    if (data && data[target.id] && !targetDatasetData) {
         return addMapChartsUsingData(data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, variables, activeSelections, dashboardId)
     } else {
         return addMapChartsUsingLayer(layersData, layerGroup, layerVisualizationSettings, markerBounds, model, variables, activeSelections, dashboardId, targetDatasetData)
@@ -23,10 +23,10 @@ export const addMapCharts = (data: any, model: IWidget, target: IMapWidgetLayer,
 
 const addMapChartsUsingData = (data: any, model: IWidget, target: IMapWidgetLayer, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
     const charts = [] as any[]
-    const fieldMetadata = getFieldMapFromMetadata(data[target.label])
+    const fieldMetadata = getFieldMapFromMetadata(data[target.id])
 
     const id = 'id-' + performance.now().toString(36) + Math.random().toString(36)
-    for (const row of data[target.name].rows) {
+    for (const row of data[target.id].rows) {
         const chartValuesRecord = {} as ChartValuesRecord
 
         layerVisualizationSettings.chartMeasures?.forEach((chartMeasure: string) => {

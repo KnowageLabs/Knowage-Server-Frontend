@@ -6,7 +6,7 @@ import { createDialogForLayerData, addDialogToMarkerForLayerData, addTooltipToMa
 
 // Showing only the defined data, no measures, no extra logic. It will show all Point, LineString and Polygon from WKT.
 export const addGeography = (data: any, model: any, target: IMapWidgetLayer, layerVisualizationSettings: IMapWidgetVisualizationType, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, markerBounds: any[], layersData: any, variables: any[], activeSelections: any[], dashboardId: string, map: any, bounds: any) => {
-    if (data && data[target.label]) {
+    if (data && data[target.id]) {
         addGeograhyFromData(data, model, target, layerVisualizationSettings, dataColumn, spatialAttribute, geoColumn, layerGroup, markerBounds, variables, activeSelections, dashboardId)
     } else {
         addGeographyUsingLayers(layersData, model, target, layerVisualizationSettings, spatialAttribute, layerGroup, markerBounds, bounds, variables, activeSelections, dashboardId)
@@ -14,7 +14,7 @@ export const addGeography = (data: any, model: any, target: IMapWidgetLayer, lay
 }
 
 const addGeograhyFromData = (data: any, model: any, target: IMapWidgetLayer, layerVisualizationSettings: IMapWidgetVisualizationType, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, markerBounds: any[], variables: any[], activeSelections: any[], dashboardId: string) => {
-    for (const row of data[target.label].rows) {
+    for (const row of data[target.id].rows) {
         const coordinates = getCoordinates(spatialAttribute, row[geoColumn], null)
         if (!coordinates) return
         const marker = addMarker(coordinates, layerGroup, null, row[dataColumn], spatialAttribute)
@@ -64,7 +64,6 @@ const addGeographyUsingLayers = (layersData: any, model: any, target: IMapWidget
             const polygon = L.polygon(polygonCoords).addTo(layerGroup)
             bounds.extend(polygon.getBounds())
             try {
-                // bind a simple popup to polygons showing their properties
                 const props = (feature as any).properties ?? {}
                 const keys = Object.keys(props)
                 const list = document.createElement('ul')

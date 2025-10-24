@@ -6,7 +6,6 @@ import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import store from '../../../Dashboard.store'
 import axios from 'axios'
 import { openNewLinkMapWidget } from '../../interactionsHelpers/InteractionLinkHelper'
-import DashboardSaveViewDialog from '../../../DashboardViews/DashboardSaveViewDialog/DashboardSaveViewDialog.vue'
 
 const dashStore = store()
 
@@ -23,17 +22,6 @@ export const executeMapInteractions = (event: any, widgetModel: IWidget, layerVi
 
     const selectedLayer = resolveLayerByTarget(widgetModel, layerVisualizationSettings.target) as IMapWidgetLayer | null
 
-    // Debug logging
-    try {
-        // eslint-disable-next-line no-console
-        console.log('executeMapInteractions: data', data, 'column', column, 'value', value, 'layerVisualizationSettings', { id: layerVisualizationSettings.id, target: layerVisualizationSettings.target, label: layerVisualizationSettings.label })
-        // eslint-disable-next-line no-console
-        console.log('executeMapInteractions: selectedLayer', selectedLayer, 'crossNavigationEnabled?', widgetModel.settings.interactions.crossNavigation?.enabled)
-    } catch (err) {
-        // ignore
-    }
-
-    // Only run selection logic if we found a selectedLayer (selection needs dataset context)
     if (widgetModel.settings.interactions.selection?.enabled && selectedLayer) {
         setMapSelections(column, value, activeSelections, dashboardId, selectedLayer, widgetModel, layerVisualizationSettings)
     }
@@ -54,26 +42,38 @@ export const executeMapInteractions = (event: any, widgetModel: IWidget, layerVi
 export const matchesVisualizationType = (configuredViz: any | null | undefined, activeViz: IMapWidgetVisualizationType) => {
     if (!configuredViz) return false
 
-    // Prefer matching by label (visualization label) when available
     if (configuredViz.label && activeViz.label && configuredViz.label === activeViz.label) return true
 
-    // Match by explicit id when available
     if (configuredViz.id && activeViz.id && configuredViz.id === activeViz.id) return true
 
-    // Match by target field
     if (configuredViz.target && activeViz.target && configuredViz.target === activeViz.target) return true
 
-    // Match by targetType if present (e.g., dataset vs other)
     if (configuredViz.targetType && activeViz.targetType && configuredViz.targetType === activeViz.targetType) return true
 
     return false
 }
 
-export const columnsMatch = (configuredColumn: string | null | undefined, clickedColumn: string) => {
-    if (!configuredColumn) return false
-    if (!clickedColumn) return false
-    const a = configuredColumn.trim().toLowerCase()
-    const b = clickedColumn.trim().toLowerCase()
+export const columnsMatch = (configuredColumn: any | null | undefined, clickedColumn: any) => {
+    if (configuredColumn === null || configuredColumn === undefined) return false
+    if (clickedColumn === null || clickedColumn === undefined) return false
+
+    // If configuredColumn is an array, any member matching is a match
+    if (Array.isArray(configuredColumn)) {
+        for (const cc of configuredColumn) {
+            if (columnsMatch(cc, clickedColumn)) return true
+        }
+        return false
+    }
+
+    // If configuredColumn is an object, try common properties
+    if (typeof configuredColumn === 'object') {
+        const candidate = (configuredColumn && (configuredColumn.name ?? configuredColumn.column ?? configuredColumn.field)) ?? String(configuredColumn)
+        return columnsMatch(candidate, clickedColumn)
+    }
+
+    // Coerce to string and compare defensively
+    const a = String(configuredColumn).trim().toLowerCase()
+    const b = String(clickedColumn).trim().toLowerCase()
     if (a === b) return true
     if (a.includes(b) || b.includes(a)) return true
     return false
@@ -101,28 +101,10 @@ const createNewSelection = (column: string, value: (string | number)[], selected
 }
 
 const startMapCrossNavigation = (column: string, crossNavigationConfiguration: IMapWidgetCrossNavigation, layerVisualizationSettings: IMapWidgetVisualizationType, dataMap: Record<string, string | number> | null, dashboardId: string) => {
-    // Debug pre-check
-    try {
-        // eslint-disable-next-line no-console
-        console.log('startMapCrossNavigation: enabled?', crossNavigationConfiguration?.enabled, 'looking for column', column, 'in visualization', { id: layerVisualizationSettings.id, target: layerVisualizationSettings.target, label: layerVisualizationSettings.label })
-    } catch (err) {
-        // ignore
-    }
-
     const selectedCrossNavigationConfiguration = crossNavigationConfiguration.crossNavigationVizualizationTypes.find((crossNavigationVisTypeConfig: IMapWidgetCrossNavigationVisualizationTypeConfig) => matchesVisualizationType(crossNavigationVisTypeConfig.vizualizationType, layerVisualizationSettings) && columnsMatch(crossNavigationVisTypeConfig.column, column))
 
     if (!selectedCrossNavigationConfiguration) {
-        // eslint-disable-next-line no-console
-        console.log('startMapCrossNavigation: no matching crossNavigation config found for column', column)
         return
-    }
-
-    // Debug matched
-    try {
-        // eslint-disable-next-line no-console
-        console.log('startMapCrossNavigation: matched crossNavigation config', selectedCrossNavigationConfiguration)
-    } catch (err) {
-        // ignore
     }
 
     const formattedOutputParameters = getFormattedOutputParameters(dataMap, selectedCrossNavigationConfiguration.parameters)

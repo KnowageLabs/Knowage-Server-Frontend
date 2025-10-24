@@ -15,7 +15,7 @@
 
                         <q-select v-if="visType && getTargetLayerType(visType) === 'layer' && visType.type !== 'geography'" filled dense class="col q-ml-sm" v-model="visType.targetType" :options="['column', 'property']" emit-value map-options option-value="name" option-label="name" options-dense label="Data Link" @update:modelValue="onDataLinkChange($event, visType)"></q-select>
 
-                        <q-select v-if="getTargetLayerType(visType) === 'layer' && visType.targetType === 'column' && visType.type !== 'geography'" filled dense class="col q-ml-sm" v-model="visType.targetDataset" :options="availableDatasets" emit-value map-options option-value="name" option-label="name" options-dense :label="$t('common.dataset')" @update:modelValue="updateMapWidgetLegendWithSepecificModel(visType)"></q-select>
+                        <q-select v-if="getTargetLayerType(visType) === 'layer' && visType.targetType === 'column' && visType.type !== 'geography'" filled dense class="col q-ml-sm" v-model="visType.targetDataset" :options="availableDatasets" emit-value map-options option-value="layerId" option-label="name" options-dense :label="$t('common.dataset')" @update:modelValue="updateMapWidgetLegendWithSepecificModel(visType)"></q-select>
 
                         <q-select
                             v-if="visType.type !== 'geography' && visType.type !== 'pies' && (getTargetLayerType(visType) === 'dataset' || (visType.targetType === 'column' && visType.targetDataset))"
@@ -188,12 +188,12 @@ export default defineComponent({
         removeEventListeners() {
             emitter.off('mapFieldsUpdated', this.loadVisTypeModel)
         },
-        availableMeasures(dsName: string) {
-            const targetDataset = this.availableDatasets.find((layer: IMapWidgetLayer) => dsName === layer.name || dsName === layer.layerId)
+        availableMeasures(dsId: string) {
+            const targetDataset = this.availableDatasets.find((layer: IMapWidgetLayer) => dsId === layer.layerId)
             return targetDataset ? targetDataset.columns.filter((column: IWidgetColumn) => column.fieldType === 'MEASURE') : []
         },
-        availableTargetDatasetColumns(dsName: string) {
-            const targetDataset = this.availableDatasets.find((layer: IMapWidgetLayer) => dsName === layer.name || dsName === layer.layerId)
+        availableTargetDatasetColumns(dsId: string) {
+            const targetDataset = this.availableDatasets.find((layer: IMapWidgetLayer) => dsId === layer.layerId)
             return targetDataset ? [...targetDataset.columns] : []
         },
         async loadPropertiesForVisualizationTypes() {
@@ -259,7 +259,13 @@ export default defineComponent({
             return this.widgetModel.layers.find((layer: IMapWidgetLayer) => visualization.target === layer.layerId) ? this.widgetModel.layers.find((layer: IMapWidgetLayer) => visualization.target === layer.layerId).type : 'dataset'
         },
         async loadVisTypeModel() {
-            if (this.widgetModel.settings?.visualizations) this.visualizationTypeModel = this.widgetModel.settings?.visualizations as IMapWidgetVisualizationType[]
+            if (this.widgetModel.settings?.visualizations) {
+                this.visualizationTypeModel = this.widgetModel.settings?.visualizations as IMapWidgetVisualizationType[]
+
+                // Normalize common fields so UI controls that expect arrays (multi-select)
+                // receive arrays even if older saved models contain single values.
+                this.visualizationTypeModel.forEach((vis: any) => this.normalizeVisualizationType(vis))
+            }
             this.loadLayersOptions()
             this.loadWidgetLayersMaps()
             this.removelayersFromAvailableOptions()
@@ -267,6 +273,21 @@ export default defineComponent({
             this.updateVisualizationTypesId()
             if (this.widgetModel.settings.visualizations.length === 0) this.widgetModel.settings.visualizations.push(mapWidgetDefaultValues.getDefaultVisualizationSettings()[0])
             this.updateMapWidgetLegendWithExistingVisualizationModels()
+        },
+        normalizeVisualizationType(visualization: any) {
+            // Ensure multi-select bound fields are arrays
+            if (!Array.isArray(visualization.chartMeasures)) {
+                visualization.chartMeasures = visualization.chartMeasures ? [visualization.chartMeasures] : []
+            }
+            if (!Array.isArray(visualization.targetDatasetMeasures)) {
+                visualization.targetDatasetMeasures = visualization.targetDatasetMeasures ? [visualization.targetDatasetMeasures] : []
+            }
+            if (!Array.isArray(visualization.properties)) {
+                visualization.properties = visualization.properties ? visualization.properties : []
+            }
+            // Keep target as a primitive (string) if present. Ensure targetProperty is null when missing
+            if (visualization.targetProperty === undefined) visualization.targetProperty = null
+            if (visualization.targetType === undefined) visualization.targetType = visualization.target ? 'column' : null
         },
         updateVisualizationTypesId() {
             this.visualizationTypeModel?.forEach((visualizationType: IMapWidgetVisualizationType) => {

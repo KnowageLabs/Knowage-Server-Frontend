@@ -32,6 +32,7 @@ import { IMapWidgetLayer, IMapWidgetPreview, IMapWidgetPreviewVisualizationTypeC
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { resolveLayerByTarget } from '../../../../MapWidget/LeafletHelper'
 import { getPropertiesByLayerLabel } from '../../../../MapWidget/MapWidgetDataProxy'
+import normalizeSelectOptions from '../helpers/MapWidgetOptionsHelper'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import { mapActions } from 'pinia'
 import appStore from '@/App.store'
@@ -233,13 +234,13 @@ export default defineComponent({
         onParametersChanged(parameters: IWidgetInteractionParameter[], previewConfig: IMapWidgetPreviewVisualizationTypeConfig) {
             if (previewConfig) previewConfig.parameters = parameters
         },
-        availableColumns(vizualizationType: IMapWidgetVisualizationType | null) {
-            if (!vizualizationType) return null
+        availableColumns(vizualizationType: IMapWidgetVisualizationType | null): any[] {
+            if (!vizualizationType) return []
             const target = resolveLayerByTarget(this.widgetModel, vizualizationType.target)
             if (!target) return []
-            if (target.type === 'dataset') return target.columns ?? []
+            if (target.type === 'dataset') return normalizeSelectOptions(target.columns ?? [])
             // layer target: prefer visualization.properties (already normalized to { property, name })
-            if (vizualizationType.properties && vizualizationType.properties.length > 0) return vizualizationType.properties
+            if (vizualizationType.properties && vizualizationType.properties.length > 0) return normalizeSelectOptions(vizualizationType.properties)
             return []
         },
         onDatasetChanged(previewConfig: IMapWidgetPreviewVisualizationTypeConfig | null) {

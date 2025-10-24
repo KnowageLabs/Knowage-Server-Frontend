@@ -56,6 +56,7 @@ import { getPropertiesByLayerLabel } from '../../../../MapWidget/MapWidgetDataPr
 import { resolveLayerByTarget } from '../../../../MapWidget/LeafletHelper'
 import { mapActions } from 'pinia'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
+import normalizeSelectOptions from '../helpers/MapWidgetOptionsHelper'
 import appStore from '@/App.store'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import Dropdown from 'primevue/dropdown'
@@ -147,17 +148,17 @@ export default defineComponent({
                 }
             })
         },
-        availableColumns(vizualizationType: IMapWidgetVisualizationType | null) {
-            if (!vizualizationType) return null
+        availableColumns(vizualizationType: IMapWidgetVisualizationType | null): any[] {
+            if (!vizualizationType) return []
 
             const target = resolveLayerByTarget(this.widgetModel, vizualizationType.target)
             if (!target) return []
 
-            if (target.type === 'dataset') return target.columns ?? []
+            if (target.type === 'dataset') return normalizeSelectOptions(target.columns ?? [])
 
             // layer target: prefer already-loaded visualization properties
-            if (vizualizationType.properties && vizualizationType.properties.length > 0) return vizualizationType.properties
-            if (this.propertiesCache.has(target.layerId)) return this.propertiesCache.get(target.layerId)
+            if (vizualizationType.properties && vizualizationType.properties.length > 0) return normalizeSelectOptions(vizualizationType.properties)
+            if (this.propertiesCache.has(target.layerId)) return normalizeSelectOptions(this.propertiesCache.get(target.layerId))
 
             return []
         },

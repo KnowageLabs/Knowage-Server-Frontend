@@ -77,8 +77,8 @@ const createHeatmapVisualizationFromData = (map: any, data: any, target: IMapWid
     let max = 0
     const heatMapData = [] as number[][]
 
-    data[target.label].rows.forEach((row: any) => {
-        const dataColumnIndex = getTargetDataColumn(data[target.label], layerVisualizationSettings, dataColumn)
+    data[target.id].rows.forEach((row: any) => {
+        const dataColumnIndex = getTargetDataColumn(data[target.id], layerVisualizationSettings, dataColumn)
         const value = row[dataColumnIndex ?? dataColumn]
 
         const coordinates = getCoordinates(spatialAttribute, row[geoColumn], null)

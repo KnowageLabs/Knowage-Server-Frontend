@@ -16,7 +16,6 @@ import { addMapCharts } from './visualization/MapChartsVizualizationHelper'
 import useAppStore from '@/App.store'
 import i18n from '@/App.i18n'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
-import { executeMapInteractions } from './interactions/MapInteractionsHelper'
 
 const appStore = useAppStore()
 const { t } = i18n.global
@@ -211,12 +210,12 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
                 // attribute cannot be used to produce map markers/geometry.
                 if (!spatialAttribute) {
                     // eslint-disable-next-line no-console
-                    console.warn(`Skipping visualization ${layerVisualizationSettings.id || layerVisualizationSettings.target} because dataset target '${target.label ?? target.layerId}' has no spatial attribute.`)
+                    console.warn(`Skipping visualization ${layerVisualizationSettings.id || layerVisualizationSettings.target} because dataset target '${target.id ?? target.layerId}' has no spatial attribute.`)
                     continue
                 }
 
-                geoColumn = getColumnName(spatialAttribute.name, data[target.label])
-                dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[target.label])
+                geoColumn = getColumnName(spatialAttribute.name, data[target.id])
+                dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[target.id])
             } else {
                 visualizationDataType = VisualizationDataType.LAYER_ONLY
                 layersData = await getLayerData(target)
@@ -254,14 +253,15 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
                 // Use case when we have layer with the external dataset connected with foreign key
                 if (layerVisualizationSettings.targetDataset) {
                     visualizationDataType = VisualizationDataType.DATASET_AND_LAYER
-                    dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[layerVisualizationSettings.targetDataset])
+                    const dsId = layerVisualizationSettings.targetDataset.replace('ds_', '')
+                    dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[dsId])
 
                     const dashboardConfig = dashStore.dashboards[dashboardId]?.configuration
                     const selections = dashStore.getSelections(dashboardId) ?? []
 
                     let targetDatasetTempData = await getMapWidgetData(dashboardId, dashboardConfig, model, dashboardConfig.datasets, false, selections)
 
-                    if (targetDatasetTempData?.[layerVisualizationSettings.targetDataset]) targetDatasetData = targetDatasetTempData[layerVisualizationSettings.targetDataset]
+                    if (targetDatasetTempData?.[dsId]) targetDatasetData = targetDatasetTempData[dsId]
                 }
             }
 

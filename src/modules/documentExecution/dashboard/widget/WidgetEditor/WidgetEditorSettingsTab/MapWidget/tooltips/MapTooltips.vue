@@ -70,11 +70,6 @@ export default defineComponent({
     },
     async mounted() {
         this.loadTooltips()
-        // normalize legacy `name` -> `target`
-        if (this.tooltip?.layers)
-            this.tooltip.layers.forEach((l: any) => {
-                if (!l.target && l.name) l.target = l.name
-            })
         await this.loadPropertiesForTooltips()
     },
     methods: {
