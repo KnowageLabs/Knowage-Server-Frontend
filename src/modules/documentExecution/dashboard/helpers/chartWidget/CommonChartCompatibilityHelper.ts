@@ -76,10 +76,11 @@ const addCategoryColumn = (category: IOldModelCategory, widgetColumNameMap: any,
     if (widgetColumNameMap[category.column]) {
         const tempColumn = { ...widgetColumNameMap[category.column] }
         if (category.orderType) tempColumn.orderType = category.orderType === 'desc' ? 'DESC' : 'ASC'
+        else category.orderType = ''
         if (chartHasDrilldown(widget, chartLibrary) && category.drillOrder) {
             // tempColumn.drillOrder = createDrillOrder(category.drillOrder[category.column].orderColumn, category.drillOrder[category.column].orderType) - old condition
-            tempColumn.orderType = category.drillOrder[category.column].orderType ? category.drillOrder[category.column].orderType.toUpperCase() : ''
-            tempColumn.orderColumn = category.drillOrder[category.column].orderColumn ? category.drillOrder[category.column].orderColumn : ''
+            tempColumn.orderType = category.drillOrder[category.column]?.orderType ? category.drillOrder[category.column].orderType.toUpperCase() : ''
+            tempColumn.orderColumn = category.drillOrder[category.column]?.orderColumn ? category.drillOrder[category.column].orderColumn : ''
         }
         formattedColumns.push(tempColumn)
     }
