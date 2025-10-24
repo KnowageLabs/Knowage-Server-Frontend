@@ -98,6 +98,9 @@
         "vite": "6.3.6",
         "vite-plugin-pwa": "1.0.1"
     },
+    "overrides": {
+        "vega-util": "1.17.3"
+    },
     "exports": {
         ".": {
             "import": "./src/main.ts",
