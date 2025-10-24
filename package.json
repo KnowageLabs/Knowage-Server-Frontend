@@ -99,7 +99,8 @@
         "vite-plugin-pwa": "1.0.1"
     },
     "overrides": {
-        "vega-util": "1.17.3"
+        "vega-util": "1.17.3",
+        "vega-dataflow": "5.7.5"
     },
     "exports": {
         ".": {
