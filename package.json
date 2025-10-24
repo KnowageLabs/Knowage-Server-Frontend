@@ -102,10 +102,10 @@
         "vega-util": "1.17.3",
         "vega-dataflow": "5.7.5",
         "vega-scale": "7.4.1",
-        "vega-statistics": "1.10.1",
-        "vega-expression": "5.0.0",
-        "vega-geo": "5.5.0",
-        "vega-loader": "2.0.0"
+        "vega-statistics": "1.9.0",
+        "vega-expression": "5.1.1",
+        "vega-geo": "4.4.1",
+        "vega-loader": "4.5.3"
     },
     "exports": {
         ".": {
