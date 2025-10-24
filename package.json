@@ -112,7 +112,8 @@
         "vega-view": "5.11.1",
         "vega-view-transforms": "4.5.9",
         "vega-wordcloud": "5.0.0",
-        "vega-selections": "5.4.2"
+        "vega-selections": "5.4.2",
+        "vega-time": "2.1.1"
     },
     "exports": {
         ".": {
