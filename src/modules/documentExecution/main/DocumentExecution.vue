@@ -487,7 +487,35 @@ export default defineComponent({
         },
         async iframeEventsListener(event) {
             if (event.data.type === 'crossNavigation') {
-                executeAngularCrossNavigation(this, event, this.$http)
+                let crossNavigation = {} as any
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/crossNavigation/${this.document.label}/loadCrossNavigationByDocument`).then((response: AxiosResponse<any>) => {
+                    crossNavigation = response.data.find((i: IDashboardCrossNavigation) => i.crossName === event.data.targetCrossNavigation)
+                })
+                if (crossNavigation.document.typeCode === 'DASHBOARD') {
+                    const transformOutputParameters = (outputParams: Record<string, any>) => {
+                        if (!outputParams) return []
+                        return Object.entries(outputParams).map(([key, val]) => {
+                            const values = Array.isArray(val) ? val : [val]
+                            const parameterValue = values.map((v) => ({
+                                value: v,
+                                description: typeof v === 'object' ? JSON.stringify(v) : v
+                            }))
+                            return {
+                                targetDriverUrlName: '',
+                                parameterValue,
+                                multivalue: Array.isArray(val),
+                                type: 'fromSourceDocumentOutputParameter',
+                                parameterType: 'STRING',
+                                outputDriverName: key
+                            }
+                        })
+                    }
+
+                    const transformed = transformOutputParameters(event.data.outputParameters)
+                    this.crossNavigationPopupDialogDocument = getDocumentForCrossNavigation(transformed as ICrossNavigationParameter[], this.filtersData, crossNavigation)
+
+                    this.crossNavigationDialogVisible = true
+                } else executeAngularCrossNavigation(this, event, this.$http)
             } else if (event.data.type === 'preview') {
                 await this.$http
                     .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/datasets/${event.data.dsLabel}`)
