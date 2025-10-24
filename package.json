@@ -99,13 +99,19 @@
         "vite-plugin-pwa": "1.0.1"
     },
     "overrides": {
-        "vega-util": "1.17.3",
+        "vega-util": "2.1.0",
         "vega-dataflow": "5.7.5",
         "vega-scale": "7.4.1",
         "vega-statistics": "1.9.0",
         "vega-expression": "5.1.1",
         "vega-geo": "4.4.1",
-        "vega-loader": "4.5.3"
+        "vega-loader": "4.5.3",
+        "vega-scenegraph": "4.10.1",
+        "vega-parser": "6.4.0",
+        "vega-runtime": "7.1.0",
+        "vega-view": "5.11.1",
+        "vega-view-transforms": "4.5.9",
+        "vega-wordcloud": "5.0.0"
     },
     "exports": {
         ".": {
