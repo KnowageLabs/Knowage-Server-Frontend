@@ -1718,6 +1718,8 @@
             "addToMyRepository": "Add To My Repository",
             "addToWorkspace": "Add to my workspace",
             "addToWorkspaceError": "This document cannot be added to Workspace. It already exists in the root folder of the Organizer",
+            "addToWorkspaceHint": " Add the document to your workspace to easily find it later in the \"My Workspace\" section of your workspace organizer.",
+            "addToWorkspaceNoFolderError": "There are no folders present in the your workspace to add the document. Please create a folder first.",
             "cacheCleared": "Cache succesfully cleared",
             "clearCache": "Clear cache",
             "closeDocumentConfirmMessage": "You are leaving edit mode. Continue?",
