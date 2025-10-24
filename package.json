@@ -63,9 +63,9 @@
         "sanitize-html": "^2.7.3",
         "svg-parser": "^2.0.4",
         "uuid": "8.3.2",
-        "vega": "^5.24.0",
-        "vega-embed": "^6.22.1",
-        "vega-lite": "^5.7.1",
+        "vega": "5.24.0",
+        "vega-embed": "6.22.1",
+        "vega-lite": "5.7.1",
         "vite-plugin-package-version": "^1.0.2",
         "vue": "3.5.13",
         "vue-axios": "3.5.2",
@@ -111,7 +111,8 @@
         "vega-runtime": "7.1.0",
         "vega-view": "5.11.1",
         "vega-view-transforms": "4.5.9",
-        "vega-wordcloud": "5.0.0"
+        "vega-wordcloud": "5.0.0",
+        "vega-selections": "5.4.2"
     },
     "exports": {
         ".": {
