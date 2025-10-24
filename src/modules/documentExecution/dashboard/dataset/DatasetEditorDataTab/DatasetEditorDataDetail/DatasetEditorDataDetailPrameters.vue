@@ -12,7 +12,7 @@
                 </div>
                 <div class="p-field p-col-4">
                     <span class="p-float-label">
-                        <Dropdown id="type" v-model="parameter.modelType" class="kn-material-input" :options="parameterTypes" />
+                        <Dropdown id="type" v-model="parameter.modelType" class="kn-material-input" :options="parameterTypes" @change="onParameterTypeChange(parameter)" />
                         <label for="type" class="kn-material-input-label"> {{ $t('common.type') }}</label>
                     </span>
                 </div>
@@ -131,6 +131,9 @@ export default defineComponent({
         },
         addDriverValueToParameter(driverUrl, paramName) {
             this.selectedDataset.parameters.find((parameter) => parameter.name === paramName).value = '$P{' + driverUrl + '}'
+        },
+        onParameterTypeChange(parameter: any) {
+            if (parameter.multiValue) parameter.value = parameter.modelType === 'static' ? [] : ''
         },
         openDriverDialog(driver: IDashboardDatasetDriver) {
             this.selectedDriver = driver
