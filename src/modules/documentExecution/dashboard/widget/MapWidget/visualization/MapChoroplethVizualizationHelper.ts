@@ -1,11 +1,30 @@
 import { ISelection, IVariable, IWidget } from '../../../Dashboard'
 import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationThreshold, IMapWidgetVisualizationType, IMapWidgetVisualizationTypeChoropleth } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import { getColumnName, getCoordinates, LEGEND_DATA_TYPE, VisualizationDataType } from '../LeafletHelper'
-import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData } from './MapDialogHelper'
+import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData, createDialogFromDataset } from './MapDialogHelper'
+import { executeMapInteractions, columnsMatch } from '../interactions/MapInteractionsHelper'
 import { formatRanges, getConditionalStyleUsingTargetDataset, getCoordinatesFromWktPointFeature, getFeatureValues, getMinMaxByName, getNumericPropertyValues, getQuantiles, getQuantilesFromLayersData, getRowValues, getTargetDataColumn, isConditionMet, sortRanges, transformDataUsingForeignKeyReturningAllColumns, validateNumber } from './MapVisualizationHelper'
 import L from 'leaflet'
 import * as mapWidgetDefaultValues from '../../WidgetEditor/helpers/mapWidget/MapWidgetDefaultValues'
 import { getQuantileSizeMappings, getSizeAndColorRangesForLegend } from './MapBaloonsVizualizationHelper'
+
+// Helper: find the configured interaction column for a visualization (selection/crossNavigation/link/preview)
+const findInteractionColumnForVisualization = (widgetModel: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType): string | null => {
+    // try selection
+    const selectionConfig = widgetModel?.settings?.interactions?.selection?.selections?.find((s: any) => s.vizualizationType?.id === layerVisualizationSettings.id || s.vizualizationType?.target === layerVisualizationSettings.target || s.vizualizationType?.label === layerVisualizationSettings.label)
+    if (selectionConfig?.column) return selectionConfig.column
+
+    const crossNavConfig = widgetModel?.settings?.interactions?.crossNavigation?.crossNavigationVizualizationTypes?.find((c: any) => c.vizualizationType?.id === layerVisualizationSettings.id || c.vizualizationType?.target === layerVisualizationSettings.target || c.vizualizationType?.label === layerVisualizationSettings.label)
+    if (crossNavConfig?.column) return crossNavConfig.column
+
+    const linkConfig = widgetModel?.settings?.interactions?.link?.linkVizualizationTypes?.find((l: any) => l.vizualizationType?.id === layerVisualizationSettings.id || l.vizualizationType?.target === layerVisualizationSettings.target || l.vizualizationType?.label === layerVisualizationSettings.label)
+    if (linkConfig?.column) return linkConfig.column
+
+    const previewConfig = widgetModel?.settings?.interactions?.preview?.previewVizualizationTypes?.find((p: any) => p.vizualizationType?.id === layerVisualizationSettings.id || p.vizualizationType?.target === layerVisualizationSettings.target || p.vizualizationType?.label === layerVisualizationSettings.label)
+    if (previewConfig?.column) return previewConfig.column
+
+    return null
+}
 
 export const createChoropleth = (map: L.Map, data: any, model: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, layersData: any, visualizationDataType: VisualizationDataType, targetDatasetData: any, variables: IVariable[], bounds: any, activeSelections: ISelection[], dashboardId: string) => {
     if (!layerVisualizationSettings.analysisConf) return
@@ -123,9 +142,9 @@ const addChoroplethPolygonUsingLayersPointClassifedByEqualIntervals = (
     const color = colorGradients[getRangeIndexFromEqualIntervals(originalVisualizationTypeValue, minValue, maxValue, numberOfClasses)] ?? defaultChoroplethValues.style.color
 
     const polygon = createPolygon(polygonCoords, color, layerVisualizationSettings, defaultChoroplethValues, layerGroup, bounds, conditionalStyle)
-
     addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables, foreignKeyValue, targetDatasetData, mappedData)
     addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables)
+    attachPolygonInteractionHandlers(polygon, feature, layerVisualizationSettings, widgetModel, activeSelections, dashboardId, variables)
 }
 
 const createChoroplethClassifiedByEqualIntervalsFromData = (data: any, widgetModel: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, bounds: any, variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
@@ -263,8 +282,8 @@ const addChoroplethPolygonUsingLayersPointClassifedByQuantils = (
     const polygon = createPolygon(polygonCoords, color, layerVisualizationSettings, defaultChoroplethValues, layerGroup, bounds, conditionalStyle)
 
     addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables, foreignKeyValue, targetDatasetData, mappedData)
-
     addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables)
+    attachPolygonInteractionHandlers(polygon, feature, layerVisualizationSettings, widgetModel, activeSelections, dashboardId, variables)
 }
 
 const createChoroplethClassifiedByQuantilsFromData = (layerGroup: any, data: any, widgetModel: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerVisualizationSettings: IMapWidgetVisualizationType, bounds: any, variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
@@ -377,9 +396,9 @@ const addChoroplethPolygonUsingLayersPointClassifedByRanges = (layerGroup: any, 
     const polygonCoords = Array.isArray(coordinates) ? (coordinates as any).map((ring: any) => (Array.isArray(ring[0]) ? ring.map(([x, y]: [number, number]) => [y, x]) : [])) : []
 
     const polygon = createPolygon(polygonCoords, rangeIndexAndColor.color, layerVisualizationSettings, defaultChoroplethValues, layerGroup, bounds, conditionalStyle)
-
     addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables, foreignKeyValue, targetDatasetData, mappedData)
     addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables)
+    attachPolygonInteractionHandlers(polygon, feature, layerVisualizationSettings, widgetModel, activeSelections, dashboardId, variables)
 }
 
 const createChoroplethClassifiedByRangesFromData = (layerGroup: any, data: any, widgetModel: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerVisualizationSettings: IMapWidgetVisualizationType, bounds: any, variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
@@ -457,4 +476,72 @@ const createPolygon = (polygonCoords: number[], color: string | null, layerVisua
     const polygon = L.polygon(polygonCoords, { color: conditionalStyle?.['background-color'] ?? color, fillColor: conditionalStyle?.['background-color'] ?? color, weight: layerVisualizationSettings.analysisConf?.style.borderWidth ?? defaultChoroplethValues.style.borderWidth }).addTo(layerGroup)
     bounds.extend(polygon.getBounds())
     return polygon
+}
+
+// Generalized interaction handler for choropleth polygons
+const attachPolygonInteractionHandlers = (polygon: any, feature: any, layerVisualizationSettings: IMapWidgetVisualizationType, widgetModel: IWidget, activeSelections: ISelection[], dashboardId: string, variables: IVariable[]) => {
+    try {
+        if (!widgetModel.settings.dialog?.enabled) {
+            polygon.on &&
+                polygon.on('click', (ev: any) => {
+                    try {
+                        try {
+                            const popup = createDialogFromDataset(false, layerVisualizationSettings, widgetModel.settings.dialog, null, feature, widgetModel, activeSelections, dashboardId, variables)
+                            const content = popup && (popup as any).getContent ? (popup as any).getContent() : null
+                            if (content && content.querySelector) {
+                                const clickables = Array.from(content.querySelectorAll('.clickable-custom-leaflet-list-item')) as HTMLElement[]
+
+                                const crossNavConfigs = widgetModel?.settings?.interactions?.crossNavigation?.crossNavigationVizualizationTypes ?? []
+
+                                for (const item of clickables) {
+                                    const dataValue = item.getAttribute('data-value') ?? ''
+                                    const [rawValueColumn] = dataValue.split(':')
+                                    const itemColumn = (rawValueColumn || '').trim()
+
+                                    const matched = crossNavConfigs.some((c: any) => {
+                                        const viz = c.vizualizationType
+                                        const vizMatches = viz && (viz.id === layerVisualizationSettings.id || viz.target === layerVisualizationSettings.target || viz.label === layerVisualizationSettings.label)
+                                        return vizMatches && columnsMatch(c.column, itemColumn)
+                                    })
+
+                                    if (matched) {
+                                        item.click()
+                                        return
+                                    }
+                                }
+                            }
+                        } catch (err) {
+                            // ignore and fall back to synthetic event
+                        }
+
+                        const column = findInteractionColumnForVisualization(widgetModel, layerVisualizationSettings)
+                        if (!column) return
+
+                        const dataMap = feature.properties ?? {}
+                        const valueForColumn = feature.properties?.[column]
+                        const dataValue = `${column}: ${valueForColumn}`
+
+                        const fakeElement: any = {
+                            getAttribute: (name: string) => (name === 'data-value' ? dataValue : null),
+                            _dataMap: dataMap
+                        }
+
+                        executeMapInteractions({ currentTarget: fakeElement }, widgetModel, layerVisualizationSettings, activeSelections, dashboardId, variables)
+                    } catch (err) {
+                        // ignore
+                    }
+                })
+        } else {
+            polygon.on &&
+                polygon.on('click', (ev: any) => {
+                    try {
+                        if (polygon.getPopup && polygon.getPopup()) polygon.openPopup()
+                    } catch (err) {
+                        // ignore
+                    }
+                })
+        }
+    } catch (err) {
+        // ignore
+    }
 }
