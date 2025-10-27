@@ -81,14 +81,13 @@ const formatMapModelForService = (dashboardId: any, dashboardConfig: IDashboardC
 }
 
 export const getLayerData = async (layer: IMapWidgetLayer) => {
-    let tempResponse = null as any
-    await axios
-        .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/layers/${layer.label}/downloadByLabel/${layer.layerType}`, { headers: { 'X-Disable-Errors': 'true' } })
-        .then((response: AxiosResponse<any>) => (tempResponse = response.data))
-        .catch((error: any) => {
-            showGetDataError(error, '' + layer.id)
-        })
-    return tempResponse
+    try {
+        const response = await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/layers/${layer.label}/downloadByLabel/${layer.layerType}`, { headers: { 'X-Disable-Errors': 'true' } })
+        return response.data
+    } catch (error) {
+        showGetDataError(error, layer.label)
+        return null
+    }
 }
 
 export const getPropertiesByLayerLabel = async (layerLabel: string) => {
