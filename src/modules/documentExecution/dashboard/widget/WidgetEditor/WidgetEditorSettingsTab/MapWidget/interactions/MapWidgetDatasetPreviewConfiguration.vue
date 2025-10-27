@@ -3,15 +3,14 @@
         <form v-if="previewConfiguration" class="p-fluid p-formgrid p-grid p-col-12 p-m-1">
             <div v-for="(previewConfig, index) in previewConfiguration.previewVizualizationTypes" :key="index" class="p-col-12 p-fluid p-formgrid p-grid">
                 <div class="p-col-12 p-fluid p-formgrid p-grid p-ai-center">
-                    <q-select filled dense class="p-sm-12 p-md-4" v-model="previewConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options options-dense option-label="layerName" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="previewDisabled" @update:modelValue="onVizualizationTypeChange(previewConfig)"></q-select>
-                    <q-select filled dense class="p-sm-12 p-md-4 p-px-2" v-model="previewConfig.column" :options="availableColumns(previewConfig.vizualizationType)" emit-value map-options option-value="name" option-label="name" options-dense :label="$t('common.column')" :disable="previewDisabled"></q-select>
-
+                    <q-select filled dense class="p-sm-12 p-md-4" v-model="previewConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options options-dense option-label="label" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="previewDisabled" @update:modelValue="onVizualizationTypeChange(previewConfig)"></q-select>
                     <div class="p-sm-12 p-md-3 p-px-2">
                         <div class="p-d-flex p-flex-column kn-flex">
                             <label class="kn-material-input-label"> {{ $t('common.dataset') }}</label>
                             <Dropdown v-model="previewConfig.dataset" class="kn-material-input" :options="selectedDatasets" option-label="name" option-value="id.dsId" :disabled="previewDisabled" @change="onDatasetChanged(previewConfig)"> </Dropdown>
                         </div>
                     </div>
+                    <q-select filled dense class="p-sm-12 p-md-4 p-px-2" v-model="previewConfig.column" :options="availableColumns(previewConfig.vizualizationType)" emit-value map-options option-label="name" options-dense :label="$t('common.column')" :disable="previewDisabled"></q-select>
 
                     <Button v-if="index === 0" icon="fas fa-plus-circle fa-1x" class="p-md-2 p-button-text p-button-plain p-js-center p-ml-2" @click="addPreviewConfiguration" />
                     <Button v-if="index !== 0" icon="pi pi-trash kn-cursor-pointer" class="p-md-2 p-button-text p-button-plain p-js-center p-ml-2" @click="removePreviewConfiguration(index)" />
@@ -184,13 +183,16 @@ export default defineComponent({
         getFilteredVisualizationTypeOptions(currentIndex: number) {
             if (!this.previewConfiguration) return this.visualizationTypeOptions
 
-            const selectedLayerIds = this.previewConfiguration.previewVizualizationTypes
-                .map((crossNavigationConfig: IMapWidgetPreviewVisualizationTypeConfig, index: number) => {
-                    return index !== currentIndex ? crossNavigationConfig.vizualizationType?.target : null
+            const selectedLabels = this.previewConfiguration.previewVizualizationTypes
+                .map((visualizationConfig: any, index: number) => {
+                    return index !== currentIndex ? visualizationConfig.label ?? null : null
                 })
-                .filter((id): id is string => !!id)
+                .filter((t): t is string => !!t)
 
-            return this.visualizationTypeOptions.filter((vizualizationType: IMapWidgetVisualizationType) => !selectedLayerIds.includes(vizualizationType.target))
+            return this.visualizationTypeOptions.filter((vizualizationType: IMapWidgetVisualizationType) => {
+                const labelKey = vizualizationType.label ?? ''
+                return !selectedLabels.includes(labelKey)
+            })
         },
         async onVizualizationTypeChange(previewConfig: IMapWidgetPreviewVisualizationTypeConfig) {
             previewConfig.column = ''
@@ -236,12 +238,33 @@ export default defineComponent({
         },
         availableColumns(vizualizationType: IMapWidgetVisualizationType | null): any[] {
             if (!vizualizationType) return []
-            const target = resolveLayerByTarget(this.widgetModel, vizualizationType.target)
-            if (!target) return []
-            if (target.type === 'dataset') return normalizeSelectOptions(target.columns ?? [])
-            // layer target: prefer visualization.properties (already normalized to { property, name })
-            if (vizualizationType.properties && vizualizationType.properties.length > 0) return normalizeSelectOptions(vizualizationType.properties)
-            return []
+            const viz = this.widgetModel?.settings?.visualizations?.find((v: any) => v.label === vizualizationType.label)
+            const layer = viz?.target ? (resolveLayerByTarget(this.widgetModel, viz.target) as IMapWidgetLayer | null) : null
+            const datasetLayer = viz?.targetDataset ? (resolveLayerByTarget(this.widgetModel, viz.targetDataset) as IMapWidgetLayer | null) : null
+
+            if (datasetLayer) {
+                // normalize both dataset columns and cached layer properties to IMapWidgetLayerProperty[]
+                let datasetColumns: IMapWidgetLayerProperty[] = []
+                if (datasetLayer.type === 'dataset') {
+                    datasetColumns = (datasetLayer.columns ?? []).map((c: any) => ({ property: c.name, name: c.name, alias: c.alias ?? c.name }))
+                } else {
+                    datasetColumns = this.propertiesCache.get(datasetLayer.layerId) ?? []
+                }
+
+                let layerColumns: IMapWidgetLayerProperty[] = []
+                if (layer) {
+                    if (layer.type === 'dataset') {
+                        layerColumns = (layer.columns ?? []).map((c: any) => ({ property: c.name, name: c.name, alias: c.alias ?? c.name }))
+                    } else {
+                        layerColumns = this.propertiesCache.get(layer.layerId) ?? []
+                    }
+                }
+
+                return [...new Map([...layerColumns, ...datasetColumns].map((item) => [item['name'], item])).values()]
+            }
+            if (!layer) return []
+            if (layer.type === 'dataset') return (layer.columns ?? []).map((c: any) => ({ property: c.name, name: c.name, alias: c.alias ?? c.name }))
+            return this.propertiesCache.get(layer.layerId) ?? []
         },
         onDatasetChanged(previewConfig: IMapWidgetPreviewVisualizationTypeConfig | null) {
             if (!previewConfig) return

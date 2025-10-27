@@ -4,7 +4,7 @@
             <div class="p-col-12 p-d-flex p-flex-column">
                 <div v-for="(selectionConfig, index) in selectionConfiguration.selections" :key="index" class="row items-center q-mb-sm">
                     <q-select filled dense class="col-6" v-model="selectionConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options options-dense option-label="label" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="selectionsDisabled" @update:modelValue="onVizualizationTypeChange(selectionConfig)"></q-select>
-                    <q-select filled dense class="col-5 q-ml-sm" v-model="selectionConfig.column" :options="availableAttributeColumns(selectionConfig.vizualizationType)" emit-value map-options option-value="name" option-label="name" options-dense :label="$t('common.column')" :disable="selectionsDisabled"></q-select>
+                    <q-select filled dense class="col-5 q-ml-sm" v-model="selectionConfig.column" :options="availableAttributeColumns(selectionConfig.vizualizationType)" emit-value map-options option-label="name" options-dense :label="$t('common.column')" :disable="selectionsDisabled"></q-select>
 
                     <Button v-if="index === 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" @click="addSelectionConfiguration" />
                     <Button v-if="index !== 0" icon="pi pi-trash kn-cursor-pointer" class="p-button-text p-button-plain p-js-center p-ml-2" @click="removeSelectionConfiguration(index)" />
@@ -16,14 +16,13 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IMapWidgetSelectionConfiguration, IMapWidgetVisualizationType, IMapWidgetLayer, IMapWidgetSelection } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { resolveLayerByTarget } from '../../../../MapWidget/LeafletHelper'
 import { getPropertiesByLayerLabel } from '../../../../MapWidget/MapWidgetDataProxy'
 import { mapActions } from 'pinia'
 import appStore from '@/App.store'
-import { IMapWidgetLayerProperty } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 
 export default defineComponent({
     name: 'map-widget-selections-configuration',
@@ -33,7 +32,7 @@ export default defineComponent({
         return {
             selectionConfiguration: null as IMapWidgetSelectionConfiguration | null,
             visualizationTypeOptions: [] as IMapWidgetVisualizationType[],
-            propertiesCache: new Map<string, IMapWidgetLayerProperty[]>()
+            propertiesCache: new Map<string, { name: string; alias: string }[]>()
         }
     },
 
@@ -85,19 +84,33 @@ export default defineComponent({
             })
         },
         availableAttributeColumns(vizualizationType: IMapWidgetVisualizationType | null) {
-            if (!vizualizationType) return null
-            const mapLayer = resolveLayerByTarget(this.widgetModel, vizualizationType.target)
-            if (!mapLayer) return []
+            if (!vizualizationType) return []
+            const viz = this.widgetModel?.settings?.visualizations?.find((v: any) => v.label === vizualizationType.label)
+            const layer = viz?.target ? (resolveLayerByTarget(this.widgetModel, viz.target) as IMapWidgetLayer | null) : null
+            const datasetLayer = viz?.targetDataset ? (resolveLayerByTarget(this.widgetModel, viz.targetDataset) as IMapWidgetLayer | null) : null
 
-            if (mapLayer.type === 'dataset') {
-                return mapLayer.columns.filter((column: IWidgetColumn) => column.fieldType === 'ATTRIBUTE')
+            if (datasetLayer) {
+                let datasetColumns: { name: string; alias: string }[] = []
+                if (datasetLayer.type === 'dataset') {
+                    datasetColumns = datasetLayer.columns ?? []
+                } else {
+                    datasetColumns = this.propertiesCache.get(datasetLayer.layerId) ?? []
+                }
+
+                let layerColumns: { name: string; alias: string }[] = []
+                if (layer) {
+                    if (layer.type === 'dataset') {
+                        layerColumns = layer.columns ?? []
+                    } else {
+                        layerColumns = this.propertiesCache.get(layer.layerId) ?? []
+                    }
+                }
+
+                return [...new Map([...layerColumns, ...datasetColumns].map((item) => [item['name'], item])).values()]
             }
-
-            if (vizualizationType.properties && vizualizationType.properties.length > 0) {
-                return vizualizationType.properties.map((p: any) => ({ name: p.property ?? p.name ?? p }))
-            }
-
-            return []
+            if (!layer) return []
+            if (layer.type === 'dataset') return layer.columns ?? []
+            return this.propertiesCache.get(layer.layerId) ?? []
         },
         addSelectionConfiguration() {
             if (this.selectionsDisabled) return
@@ -110,15 +123,16 @@ export default defineComponent({
         getFilteredVisualizationTypeOptions(currentIndex: number) {
             if (!this.selectionConfiguration) return this.visualizationTypeOptions
 
-            // build a list of already-selected targets (layer ids) for other selections
-            const selectedTargets = this.selectionConfiguration.selections
-                .map((selectionConfig: IMapWidgetSelection, index: number) => {
-                    return index !== currentIndex ? selectionConfig.vizualizationType?.target ?? null : null
+            const selectedLabels = this.selectionConfiguration.selections
+                .map((visualizationConfig: any, index: number) => {
+                    return index !== currentIndex ? visualizationConfig.label ?? null : null
                 })
                 .filter((t): t is string => !!t)
 
-            // filter out visualization options whose target is already selected
-            return this.visualizationTypeOptions.filter((vizualizationType: IMapWidgetVisualizationType) => !selectedTargets.includes(vizualizationType.target))
+            return this.visualizationTypeOptions.filter((vizualizationType: IMapWidgetVisualizationType) => {
+                const labelKey = vizualizationType.label ?? ''
+                return !selectedLabels.includes(labelKey)
+            })
         },
         onVizualizationTypeChange(selectionConfig: IMapWidgetSelection) {
             selectionConfig.column = ''

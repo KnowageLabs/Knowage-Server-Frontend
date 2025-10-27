@@ -10,20 +10,7 @@
                             <Dropdown v-model="crossNavigationConfig.name" class="kn-material-input" :options="crossNavigationOptions" :disabled="crossNavigationDisabled"> </Dropdown>
                         </div>
                     </div>
-                    <q-select
-                        filled
-                        dense
-                        class="p-col-3"
-                        v-model="crossNavigationConfig.column"
-                        :options="availableColumns(crossNavigationConfig.vizualizationType)"
-                        emit-value
-                        map-options
-                        :option-value="getTargetLayerType(crossNavigationConfig) === 'layer' ? 'property' : 'name'"
-                        :option-label="getTargetLayerType(crossNavigationConfig) === 'layer' ? 'property' : 'name'"
-                        options-dense
-                        :label="$t('common.column')"
-                        :disable="crossNavigationDisabled"
-                    ></q-select>
+                    <q-select filled dense class="p-col-3" v-model="crossNavigationConfig.column" :options="availableColumns(crossNavigationConfig.vizualizationType)" emit-value map-options :option-label="getTargetLayerType(crossNavigationConfig) === 'layer' ? 'property' : 'name'" options-dense :label="$t('common.column')" :disable="crossNavigationDisabled"></q-select>
 
                     <Button v-if="index === 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" @click="addCrossNavigationConfiguration" />
                     <Button v-if="index !== 0" icon="pi pi-trash kn-cursor-pointer" class="p-button-text p-button-plain p-js-center p-ml-2" @click="removeCrossNavigationConfiguration(index)" />
@@ -171,21 +158,34 @@ export default defineComponent({
             })
         },
         availableColumns(vizualizationType: IMapWidgetVisualizationType | null) {
-            if (!vizualizationType) return null
+            if (!vizualizationType) return []
+            const viz = this.widgetModel?.settings?.visualizations?.find((v: any) => v.label === vizualizationType.label)
+            const layer = viz?.target ? (resolveLayerByTarget(this.widgetModel, viz.target) as IMapWidgetLayer | null) : null
+            const datasetLayer = viz?.targetDataset ? (resolveLayerByTarget(this.widgetModel, viz.targetDataset) as IMapWidgetLayer | null) : null
 
-            // If the visualization already has properties loaded, prefer them
-            if (vizualizationType.properties && vizualizationType.properties.length > 0) return vizualizationType.properties
+            if (datasetLayer) {
+                // normalize both dataset columns and cached layer properties to IMapWidgetLayerProperty[]
+                let datasetColumns: IMapWidgetLayerProperty[] = []
+                if (datasetLayer.type === 'dataset') {
+                    datasetColumns = (datasetLayer.columns ?? []).map((c: any) => ({ property: c.name, name: c.name, alias: c.alias ?? c.name }))
+                } else {
+                    datasetColumns = this.propertiesCache.get(datasetLayer.layerId) ?? []
+                }
 
-            // resolve target layer/dataset
-            const target = resolveLayerByTarget(this.widgetModel, vizualizationType.target)
-            if (!target) return []
+                let layerColumns: IMapWidgetLayerProperty[] = []
+                if (layer) {
+                    if (layer.type === 'dataset') {
+                        layerColumns = (layer.columns ?? []).map((c: any) => ({ property: c.name, name: c.name, alias: c.alias ?? c.name }))
+                    } else {
+                        layerColumns = this.propertiesCache.get(layer.layerId) ?? []
+                    }
+                }
 
-            if (target.type === 'dataset') return target.columns ?? []
-
-            // layer type
-            if (this.propertiesCache.has(target.layerId)) return this.propertiesCache.get(target.layerId)
-
-            return []
+                return [...new Map([...layerColumns, ...datasetColumns].map((item) => [item['name'], item])).values()]
+            }
+            if (!layer) return []
+            if (layer.type === 'dataset') return (layer.columns ?? []).map((c: any) => ({ property: c.name, name: c.name, alias: c.alias ?? c.name }))
+            return this.propertiesCache.get(layer.layerId) ?? []
         },
         async loadPropertiesForVisualizationTypes() {
             if (!this.crossNavigationConfiguration) return
@@ -194,25 +194,25 @@ export default defineComponent({
         },
         async loadAvailableProperties(visualization: IMapWidgetVisualizationType | null) {
             if (!visualization || !visualization.target) return
-
-            if (this.propertiesCache.has(visualization.target)) {
-                visualization.properties = this.propertiesCache.get(visualization.target)
+            // try to fetch properties for layer visualizations (no-op for datasets)
+            const targetLayer = resolveLayerByTarget(this.widgetModel, visualization.target) as IMapWidgetLayer | null
+            if (!targetLayer || targetLayer.type !== 'layer') return
+            if ((this as any).propertiesCache?.has(visualization.target)) {
+                visualization.properties = (this as any).propertiesCache.get(visualization.target)
                 return
             }
-
-            const targetLayer = this.widgetModel.layers.find((layer: IMapWidgetLayer) => visualization.target === layer.layerId)
-            if (targetLayer?.type === 'layer') {
-                this.setLoading(true)
-                const properties = await getPropertiesByLayerLabel(targetLayer.label)
-                this.setLoading(false)
-                this.propertiesCache.set(targetLayer.layerId, properties)
-                visualization.properties = properties
-            }
+            ;(this as any).setLoading?.(true)
+            const rawProperties = await getPropertiesByLayerLabel(targetLayer.label)
+            ;(this as any).setLoading?.(false)
+            const properties = (rawProperties || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.name ?? p.property ?? p), alias: String(p.alias ?? p.name ?? p.property ?? p) } as IMapWidgetLayerProperty))
+            ;(this as any).propertiesCache?.set(targetLayer.layerId, properties)
+            visualization.properties = properties
         },
         async loadAvailablePropertiesInCrossNavigationForLayer(targetLayer: IMapWidgetLayer, visualization: IMapWidgetVisualizationType) {
             this.setLoading(true)
-            const properties = await getPropertiesByLayerLabel(targetLayer.label)
+            const raw = await getPropertiesByLayerLabel(targetLayer.label)
             this.setLoading(false)
+            const properties = (raw || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.name ?? p.property ?? p), alias: String(p.alias ?? p.name ?? p.property ?? p) } as IMapWidgetLayerProperty))
             this.propertiesCache.set(targetLayer.layerId, properties)
             visualization.properties = properties
 
@@ -230,14 +230,16 @@ export default defineComponent({
         getFilteredVisualizationTypeOptions(currentIndex: number) {
             if (!this.crossNavigationConfiguration) return this.visualizationTypeOptions
 
-            // when checking already-selected visualizations prefer label comparison (labels are unique in the editor context)
             const selectedLabels = this.crossNavigationConfiguration.crossNavigationVizualizationTypes
                 .map((crossNavigationConfig: IMapWidgetCrossNavigationVisualizationTypeConfig, index: number) => {
                     return index !== currentIndex ? crossNavigationConfig.vizualizationType?.label ?? null : null
                 })
-                .filter((l): l is string => !!l)
+                .filter((t): t is string => !!t)
 
-            return this.visualizationTypeOptions.filter((vizualizationType: IMapWidgetVisualizationType) => !selectedLabels.includes(vizualizationType.label ?? ''))
+            return this.visualizationTypeOptions.filter((vizualizationType: IMapWidgetVisualizationType) => {
+                const labelKey = vizualizationType.label ?? ''
+                return !selectedLabels.includes(labelKey)
+            })
         },
         async onVizualizationTypeChange(crossNavigationConfig: IMapWidgetCrossNavigationVisualizationTypeConfig) {
             crossNavigationConfig.column = ''

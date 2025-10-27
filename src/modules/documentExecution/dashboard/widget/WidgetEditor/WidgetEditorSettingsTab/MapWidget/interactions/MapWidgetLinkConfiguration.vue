@@ -150,17 +150,33 @@ export default defineComponent({
         },
         availableColumns(vizualizationType: IMapWidgetVisualizationType | null): any[] {
             if (!vizualizationType) return []
+            const viz = this.widgetModel?.settings?.visualizations?.find((v: any) => v.label === vizualizationType.label)
+            const layer = viz?.target ? (resolveLayerByTarget(this.widgetModel, viz.target) as IMapWidgetLayer | null) : null
+            const datasetLayer = viz?.targetDataset ? (resolveLayerByTarget(this.widgetModel, viz.targetDataset) as IMapWidgetLayer | null) : null
 
-            const target = resolveLayerByTarget(this.widgetModel, vizualizationType.target)
-            if (!target) return []
+            if (datasetLayer) {
+                // normalize both dataset columns and cached layer properties to IMapWidgetLayerProperty[]
+                let datasetColumns: IMapWidgetLayerProperty[] = []
+                if (datasetLayer.type === 'dataset') {
+                    datasetColumns = (datasetLayer.columns ?? []).map((c: any) => ({ property: c.name, name: c.name, alias: c.alias ?? c.name }))
+                } else {
+                    datasetColumns = this.propertiesCache.get(datasetLayer.layerId) ?? []
+                }
 
-            if (target.type === 'dataset') return normalizeSelectOptions(target.columns ?? [])
+                let layerColumns: IMapWidgetLayerProperty[] = []
+                if (layer) {
+                    if (layer.type === 'dataset') {
+                        layerColumns = (layer.columns ?? []).map((c: any) => ({ property: c.name, name: c.name, alias: c.alias ?? c.name }))
+                    } else {
+                        layerColumns = this.propertiesCache.get(layer.layerId) ?? []
+                    }
+                }
 
-            // layer target: prefer already-loaded visualization properties
-            if (vizualizationType.properties && vizualizationType.properties.length > 0) return normalizeSelectOptions(vizualizationType.properties)
-            if (this.propertiesCache.has(target.layerId)) return normalizeSelectOptions(this.propertiesCache.get(target.layerId))
-
-            return []
+                return [...new Map([...layerColumns, ...datasetColumns].map((item) => [item['name'], item])).values()]
+            }
+            if (!layer) return []
+            if (layer.type === 'dataset') return (layer.columns ?? []).map((c: any) => ({ property: c.name, name: c.name, alias: c.alias ?? c.name }))
+            return this.propertiesCache.get(layer.layerId) ?? []
         },
         async loadPropertiesForVisualizationTypes() {
             if (!this.linkConfiguration) return
@@ -180,8 +196,8 @@ export default defineComponent({
                 this.setLoading(true)
                 const rawProperties = await getPropertiesByLayerLabel(targetLayer.label)
                 this.setLoading(false)
-                // normalize properties into IMapWidgetLayerProperty shape ({ property: string }) and also provide a `name` alias
-                const properties: IMapWidgetLayerProperty[] = (rawProperties || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.property ?? p.name ?? p) } as any))
+                // normalize properties into IMapWidgetLayerProperty shape ({ property: string, name: string, alias?: string })
+                const properties: IMapWidgetLayerProperty[] = (rawProperties || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.name ?? p.property ?? p), alias: String(p.alias ?? p.name ?? p.property ?? p) } as IMapWidgetLayerProperty))
                 this.propertiesCache.set(targetLayer.layerId, properties)
                 visualization.properties = properties
             }
@@ -197,13 +213,16 @@ export default defineComponent({
         getFilteredVisualizationTypeOptions(currentIndex: number) {
             if (!this.linkConfiguration) return this.visualizationTypeOptions
 
-            const selectedLayerIds = this.linkConfiguration.linkVizualizationTypes
-                .map((selectionConfig: any, index: number) => {
-                    return index !== currentIndex ? selectionConfig.vizualizationType?.target : null
+            const selectedLabels = this.linkConfiguration.linkVizualizationTypes
+                .map((visualizationConfig: any, index: number) => {
+                    return index !== currentIndex ? visualizationConfig.label ?? null : null
                 })
-                .filter((id): id is string => !!id)
+                .filter((t): t is string => !!t)
 
-            return this.visualizationTypeOptions.filter((vizualizationType: IMapWidgetVisualizationType) => !selectedLayerIds.includes(vizualizationType.target))
+            return this.visualizationTypeOptions.filter((vizualizationType: IMapWidgetVisualizationType) => {
+                const labelKey = vizualizationType.label ?? ''
+                return !selectedLabels.includes(labelKey)
+            })
         },
         async onVizualizationTypeChange(linkConfig: IMapWidgetLinkVisualizationTypeConfig) {
             linkConfig.column = ''
@@ -217,8 +236,9 @@ export default defineComponent({
         },
         async loadAvailablePropertiesInLinkConfigurationForLayer(targetLayer: IMapWidgetLayer, visualization: IMapWidgetVisualizationType) {
             this.setLoading(true)
-            const properties = await getPropertiesByLayerLabel(targetLayer.label)
+            const raw = await getPropertiesByLayerLabel(targetLayer.label)
             this.setLoading(false)
+            const properties = (raw || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.name ?? p.property ?? p), alias: String(p.alias ?? p.name ?? p.property ?? p) } as IMapWidgetLayerProperty))
             this.propertiesCache.set(targetLayer.layerId, properties)
             visualization.properties = properties
 
