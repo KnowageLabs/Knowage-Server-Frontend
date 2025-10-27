@@ -391,7 +391,7 @@ export default defineComponent({
                     return { value: valueIndex ? el[valueIndex] : '', description: descriptionIndex ? el[descriptionIndex] : '' }
                 })
             } else if (parameter.selectionType === 'TREE' && parameter.showOnPanel === 'true' && !parameter.multivalue) {
-                parameter.parameterValue[0] = { value: parameter.driverDefaultValue[0][valueIndex], description: parameter.driverDefaultValue[0][descriptionIndex] }
+                parameter.parameterValue[0] = { value: parameter.driverDefaultValue[0]?.[valueIndex] ?? parameter.driverDefaultValue[0]?.value, description: parameter.driverDefaultValue[0]?.[descriptionIndex] ?? parameter.driverDefaultValue[0]?.desc }
             } else if ((parameter.selectionType === 'COMBOBOX' || parameter.selectionType === 'LOOKUP') && parameter.showOnPanel === 'true' && !parameter.multivalue) {
                 parameter.parameterValue[0] = { value: parameter.driverDefaultValue[0][valueIndex], description: parameter.driverDefaultValue[0][descriptionIndex] }
             } else if (parameter.selectionType === 'LOOKUP' && parameter.showOnPanel === 'true' && parameter.multivalue) {
