@@ -46,14 +46,14 @@ const areSelectionValuesEqual = (array1, array2) => {
     return array1.sort().every((item, index) => item === array2.sort()[index])
 }
 
-export const executeCrossNavigation = (documentCrossNavigationOutputParameters: ICrossNavigationParameter[], crossNavigationName: string | undefined) => {
-    const payload = { documentCrossNavigationOutputParameters: documentCrossNavigationOutputParameters, crossNavigationName: crossNavigationName }
+export const executeCrossNavigation = (documentCrossNavigationOutputParameters: ICrossNavigationParameter[], crossNavigationName: string | undefined, dashboardId?: string) => {
+    const payload = { documentCrossNavigationOutputParameters: documentCrossNavigationOutputParameters, crossNavigationName: crossNavigationName, dashboardId: dashboardId }
     emitter.emit('executeCrossNavigation', payload)
 }
 
 export const executeTableWidgetCrossNavigation = (clickedValue: IClickedValue, formattedRow: any, crossNavigationModel: IWidgetCrossNavigation, dashboardId: string) => {
     const outputParameters = getFormattedTableOutputParameters(clickedValue, formattedRow, crossNavigationModel, dashboardId)
-    executeCrossNavigation(outputParameters, crossNavigationModel.name)
+    executeCrossNavigation(outputParameters, crossNavigationModel.name, dashboardId)
 }
 
 const getFormattedTableOutputParameters = (clickedValue: IClickedValue, formattedRow: any, crossNavigationModel: IWidgetCrossNavigation, dashboardId: string) => {
@@ -127,7 +127,7 @@ const getDynamicValueAndTypeForTableDynamicOutputParameter = (clickedValue: ICli
 export const executeHTMLandTextWidgetCrossNavigation = (dynamicValue: string, crossNavigationModel: IWidgetCrossNavigation, dashboardId: string) => {
     const clickedValue = { value: dynamicValue, type: '' }
     const outputParameters = getFormattedHTMLandTextWidgetOutputParameters(clickedValue, crossNavigationModel, dashboardId)
-    executeCrossNavigation(outputParameters, crossNavigationModel.name)
+    executeCrossNavigation(outputParameters, crossNavigationModel.name, dashboardId)
 }
 
 const getFormattedHTMLandTextWidgetOutputParameters = (clickedValue: IClickedValue, crossNavigationModel: IWidgetCrossNavigation, dashboardId: string) => {
@@ -170,7 +170,7 @@ const getDynamicValueAndTypeForHTMLandTextDynamicOutputParameter = (clickedValue
 
 export const executeChartCrossNavigation = (outputParameters: IWidgetInteractionParameter[], crossNavigationModel: IWidgetCrossNavigation, dashboardId: string) => {
     const formattedOutputParameters = getFormattedChartOutputParameters(outputParameters, crossNavigationModel, dashboardId)
-    executeCrossNavigation(formattedOutputParameters, crossNavigationModel.name)
+    executeCrossNavigation(formattedOutputParameters, crossNavigationModel.name, dashboardId)
 }
 
 const getFormattedChartOutputParameters = (outputParameters: IWidgetInteractionParameter[], crossNavigationModel: IWidgetCrossNavigation | IMapWidgetCrossNavigationVisualizationTypeConfig, dashboardId: string) => {
@@ -208,12 +208,12 @@ const getFormattedChartDynamicOutputParameter = (outputParameters: IWidgetIntera
 
 export const executeMapCrossNavigation = (outputParameters: IWidgetInteractionParameter[], crossNavigationConfig: IMapWidgetCrossNavigationVisualizationTypeConfig, dashboardId: string) => {
     const formattedOutputParameters = getFormattedChartOutputParameters(outputParameters, crossNavigationConfig, dashboardId)
-    executeCrossNavigation(formattedOutputParameters, crossNavigationConfig.name)
+    executeCrossNavigation(formattedOutputParameters, crossNavigationConfig.name, dashboardId)
 }
 
 export const executeCrossNavigationForWidgetsWithoutSpecificCrossNavigationSettings = (crossNavigationModel: IWidgetCrossNavigation, dashboardId: string) => {
     const outputParameters = getFormattedImageWidgetOutputParameters(crossNavigationModel, dashboardId)
-    executeCrossNavigation(outputParameters, crossNavigationModel.name)
+    executeCrossNavigation(outputParameters, crossNavigationModel.name, dashboardId)
 }
 
 const getFormattedImageWidgetOutputParameters = (crossNavigationModel: IWidgetCrossNavigation, dashboardId: string) => {
@@ -234,7 +234,7 @@ const getFormattedImageWidgetOutputParameters = (crossNavigationModel: IWidgetCr
 
 export const executePivotTableWidgetCrossNavigation = (outputParameters: IWidgetInteractionParameter[], crossNavigationModel: IWidgetCrossNavigation, dashboardId: string) => {
     const formattedOutputParameters = getFormattedPivotTableOutputParameters(outputParameters, crossNavigationModel, dashboardId)
-    executeCrossNavigation(formattedOutputParameters, crossNavigationModel.name)
+    executeCrossNavigation(formattedOutputParameters, crossNavigationModel.name, dashboardId)
 }
 
 const getFormattedPivotTableOutputParameters = (outputParameters: IWidgetInteractionParameter[], crossNavigationModel: IWidgetCrossNavigation, dashboardId: string) => {

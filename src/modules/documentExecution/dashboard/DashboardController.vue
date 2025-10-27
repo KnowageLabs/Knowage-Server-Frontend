@@ -586,6 +586,8 @@ export default defineComponent({
             this.customHeaderVisible = true
         },
         executeCrossNavigation(payload: any) {
+            if (payload.dashboardId && payload.dashboardId !== this.dashboardId) return
+
             const crossNavigations = this.getCrossNavigations(this.dashboardId)
             payload.crossNavigations = crossNavigations
             this.$emit('executeCrossNavigation', payload)
