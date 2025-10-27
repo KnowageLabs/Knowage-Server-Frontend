@@ -1,6 +1,5 @@
 <template>
     <div id="custom-header-container" class="p-d-flex p-flex-row kn-width-full" @click="onSortRequested">
-        <i v-if="showDefaultNumberFormatIcon()" class="pi pi-exclamation-triangle p-mr-1 p-mt-1" />
         <span class="custom-header-label kn-truncated">
             {{ params.displayName }}
         </span>
