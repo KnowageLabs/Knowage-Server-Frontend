@@ -20,7 +20,12 @@ export const executeMapInteractions = (event: any, widgetModel: IWidget, layerVi
     const column = rawValueColumn.trim()
     const value = rawValue.trim()
 
-    const selectedLayer = resolveLayerByTarget(widgetModel, layerVisualizationSettings.target) as IMapWidgetLayer | null
+    let selectedLayer: IMapWidgetLayer | null = null
+    if (layerVisualizationSettings.targetDataset) {
+        selectedLayer = resolveLayerByTarget(widgetModel, layerVisualizationSettings.targetDataset) as IMapWidgetLayer | null
+    } else {
+        selectedLayer = resolveLayerByTarget(widgetModel, layerVisualizationSettings.target) as IMapWidgetLayer | null
+    }
 
     if (widgetModel.settings.interactions.selection?.enabled && selectedLayer) {
         setMapSelections(column, value, activeSelections, dashboardId, selectedLayer, widgetModel, layerVisualizationSettings)

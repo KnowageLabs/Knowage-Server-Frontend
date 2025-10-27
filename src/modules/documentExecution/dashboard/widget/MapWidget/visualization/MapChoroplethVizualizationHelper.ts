@@ -38,7 +38,7 @@ export const createChoropleth = (map: L.Map, data: any, model: IWidget, target: 
     }
 }
 
-const createChoroplethClassifiedByEqualIntervalsUsingLayers = (layerGroup: any, layersData: any, layerVisualizationSettings: IMapWidgetVisualizationType, widgetModel: IWidget, bounds: any, variables: IVariable[], activeSelections: ISelection[], dashboardId: string, targetDatasetData?: any, dataColumn?: string) => {
+const createChoroplethClassifiedByEqualIntervalsUsingLayers = (layerGroup: any, layersData: any, layerVisualizationSettings: IMapWidgetVisualizationType, widgetModel: IWidget, bounds: any, variables: IVariable[], activeSelections: ISelection[], dashboardId: string, targetDatasetData?: any, dataColumn?: string, foreignKeyColumn?: string) => {
     if (!layerVisualizationSettings.analysisConf) return
 
     let minValue = Number.MIN_SAFE_INTEGER
@@ -72,10 +72,10 @@ const createChoroplethClassifiedByEqualIntervalsUsingLayers = (layerGroup: any, 
 
     layersData.features.forEach((feature: ILayerFeature) => {
         if (feature.geometry?.type === 'Polygon') {
-            addChoroplethPolygonUsingLayersPointClassifedByEqualIntervals(layerGroup, feature, layerVisualizationSettings, mappedData, widgetModel, minValue, maxValue, null, bounds, variables, dataColumnIndex, numberOfClasses, defaultChoroplethValues, colorGradients, activeSelections, dashboardId)
+            addChoroplethPolygonUsingLayersPointClassifedByEqualIntervals(layerGroup, feature, layerVisualizationSettings, mappedData, widgetModel, minValue, maxValue, null, bounds, variables, dataColumnIndex, numberOfClasses, defaultChoroplethValues, colorGradients, activeSelections, dashboardId, targetDatasetData)
         } else if (feature.geometry?.type === 'MultiPolygon') {
             feature.geometry.coordinates?.forEach((coord: any) => {
-                addChoroplethPolygonUsingLayersPointClassifedByEqualIntervals(layerGroup, feature, layerVisualizationSettings, mappedData, widgetModel, minValue, maxValue, coord, bounds, variables, dataColumnIndex, numberOfClasses, defaultChoroplethValues, colorGradients, activeSelections, dashboardId)
+                addChoroplethPolygonUsingLayersPointClassifedByEqualIntervals(layerGroup, feature, layerVisualizationSettings, mappedData, widgetModel, minValue, maxValue, coord, bounds, variables, dataColumnIndex, numberOfClasses, defaultChoroplethValues, colorGradients, activeSelections, dashboardId, targetDatasetData)
             })
         }
     })
@@ -99,9 +99,15 @@ const addChoroplethPolygonUsingLayersPointClassifedByEqualIntervals = (
     defaultChoroplethValues: IMapWidgetVisualizationTypeChoropleth,
     colorGradients: string[],
     activeSelections: ISelection[],
-    dashboardId: string
+    dashboardId: string,
+    targetDatasetData?: any
 ) => {
     const { value, originalVisualizationTypeValue } = getFeatureValues(feature, layerVisualizationSettings, mappedData, dataColumnIndex)
+
+    let foreignKeyValue
+    if (layerVisualizationSettings.targetDatasetForeignKeyColumn) {
+        foreignKeyValue = feature.properties ? feature.properties[layerVisualizationSettings.targetDatasetForeignKeyColumn] : null
+    }
 
     if (!value) return
     validateNumber(value)
@@ -118,7 +124,7 @@ const addChoroplethPolygonUsingLayersPointClassifedByEqualIntervals = (
 
     const polygon = createPolygon(polygonCoords, color, layerVisualizationSettings, defaultChoroplethValues, layerGroup, bounds, conditionalStyle)
 
-    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables)
+    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables, foreignKeyValue, targetDatasetData, mappedData)
     addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables)
 }
 
@@ -130,7 +136,7 @@ const createChoroplethClassifiedByEqualIntervalsFromData = (data: any, widgetMod
     const numberOfClasses = layerVisualizationSettings.analysisConf?.classes ?? defaultChoroplethValues.classes
     const colorGradients = generateColorGradient(layerVisualizationSettings.analysisConf?.style.color ?? defaultChoroplethValues.style.color, layerVisualizationSettings.analysisConf?.style.toColor ?? defaultChoroplethValues.style.toColor, numberOfClasses)
 
-    data[target.name].rows.forEach((row: any) => {
+    data[target.id].rows.forEach((row: any) => {
         const { value, originalValue } = getRowValues(row, dataColumn, layerVisualizationSettings, data[target.id])
         if (!value) return
 
@@ -206,10 +212,10 @@ const createChoroplethClassifiedByQuantilsUsingLayers = (targetDatasetData: any 
 
     layersData.features.forEach((feature: ILayerFeature) => {
         if (feature.geometry?.type === 'Polygon') {
-            addChoroplethPolygonUsingLayersPointClassifedByQuantils(layerGroup, feature, layerVisualizationSettings, mappedData, widgetModel, quantiles, null, bounds, variables, dataColumnIndex, defaultChoroplethValues, colorGradients, activeSelections, dashboardId)
+            addChoroplethPolygonUsingLayersPointClassifedByQuantils(layerGroup, feature, layerVisualizationSettings, mappedData, widgetModel, quantiles, null, bounds, variables, dataColumnIndex, defaultChoroplethValues, colorGradients, activeSelections, dashboardId, targetDatasetData)
         } else if (feature.geometry?.type === 'MultiPolygon') {
             feature.geometry.coordinates?.forEach((coord: any) => {
-                addChoroplethPolygonUsingLayersPointClassifedByQuantils(layerGroup, feature, layerVisualizationSettings, mappedData, widgetModel, quantiles, coord, bounds, variables, dataColumnIndex, defaultChoroplethValues, colorGradients, activeSelections, dashboardId)
+                addChoroplethPolygonUsingLayersPointClassifedByQuantils(layerGroup, feature, layerVisualizationSettings, mappedData, widgetModel, quantiles, coord, bounds, variables, dataColumnIndex, defaultChoroplethValues, colorGradients, activeSelections, dashboardId, targetDatasetData)
             })
         }
     })
@@ -231,9 +237,15 @@ const addChoroplethPolygonUsingLayersPointClassifedByQuantils = (
     defaultChoroplethValues: IMapWidgetVisualizationTypeChoropleth,
     colorGradients: string[],
     activeSelections: ISelection[],
-    dashboardId: string
+    dashboardId: string,
+    targetDatasetData?: any
 ) => {
     const { value, originalVisualizationTypeValue } = getFeatureValues(feature, layerVisualizationSettings, mappedData, dataColumnIndex)
+
+    let foreignKeyValue
+    if (layerVisualizationSettings.targetDatasetForeignKeyColumn) {
+        foreignKeyValue = feature.properties ? feature.properties[layerVisualizationSettings.targetDatasetForeignKeyColumn] : null
+    }
 
     if (!value) return
     validateNumber(value)
@@ -250,7 +262,8 @@ const addChoroplethPolygonUsingLayersPointClassifedByQuantils = (
 
     const polygon = createPolygon(polygonCoords, color, layerVisualizationSettings, defaultChoroplethValues, layerGroup, bounds, conditionalStyle)
 
-    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables)
+    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables, foreignKeyValue, targetDatasetData, mappedData)
+
     addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables)
 }
 
@@ -262,7 +275,7 @@ const createChoroplethClassifiedByQuantilsFromData = (layerGroup: any, data: any
 
     const colorGradients = generateColorGradient(layerVisualizationSettings.analysisConf?.style.color ?? defaultChoroplethValues.style.color, layerVisualizationSettings.analysisConf?.style.toColor ?? defaultChoroplethValues.style.toColor, numberOfClasses)
 
-    data[target.name].rows.forEach((row: any) => {
+    data[target.id].rows.forEach((row: any) => {
         const { value, originalValue } = getRowValues(row, dataColumn, layerVisualizationSettings, data[target.name])
         if (!value) return
 
@@ -327,10 +340,10 @@ const createChoroplethClassifiedByRangesUsingLayers = (layerGroup: any, layersDa
 
     layersData.features.forEach((feature: ILayerFeature) => {
         if (feature.geometry?.type === 'Polygon') {
-            addChoroplethPolygonUsingLayersPointClassifedByRanges(layerGroup, feature, layerVisualizationSettings, mappedData, widgetModel, sortedRanges, null, bounds, variables, dataColumnIndex, activeSelections, dashboardId)
+            addChoroplethPolygonUsingLayersPointClassifedByRanges(layerGroup, feature, layerVisualizationSettings, mappedData, widgetModel, sortedRanges, null, bounds, variables, dataColumnIndex, activeSelections, dashboardId, targetDatasetData)
         } else if (feature.geometry?.type === 'MultiPolygon') {
             feature.geometry.coordinates?.forEach((coord: any) => {
-                addChoroplethPolygonUsingLayersPointClassifedByRanges(layerGroup, feature, layerVisualizationSettings, mappedData, widgetModel, sortedRanges, coord, bounds, variables, dataColumnIndex, activeSelections, dashboardId)
+                addChoroplethPolygonUsingLayersPointClassifedByRanges(layerGroup, feature, layerVisualizationSettings, mappedData, widgetModel, sortedRanges, coord, bounds, variables, dataColumnIndex, activeSelections, dashboardId, targetDatasetData)
             })
         }
     })
@@ -338,8 +351,14 @@ const createChoroplethClassifiedByRangesUsingLayers = (layerGroup: any, layersDa
     return { ranges: getSizeAndColorRangesForLegend(minValue, maxValue, ranges, defaultColor), type: LEGEND_DATA_TYPE.CHOROPLETH_RANGES }
 }
 
-const addChoroplethPolygonUsingLayersPointClassifedByRanges = (layerGroup: any, feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, widgetModel: IWidget, sortedRanges: IMapWidgetVisualizationThreshold[], coord: any[] | null, bounds: any, variables: IVariable[], dataColumnIndex: string | null | undefined, activeSelections: ISelection[], dashboardId: string) => {
+const addChoroplethPolygonUsingLayersPointClassifedByRanges = (layerGroup: any, feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, widgetModel: IWidget, sortedRanges: IMapWidgetVisualizationThreshold[], coord: any[] | null, bounds: any, variables: IVariable[], dataColumnIndex: string | null | undefined, activeSelections: ISelection[], dashboardId: string, targetDatasetData?: any) => {
     const defaultChoroplethValues = mapWidgetDefaultValues.getDefaultVisualizationChoroplethConfiguration()
+
+    let foreignKeyValue
+
+    if (layerVisualizationSettings.targetDatasetForeignKeyColumn) {
+        foreignKeyValue = feature.properties ? feature.properties[layerVisualizationSettings.targetDatasetForeignKeyColumn] : null
+    }
 
     const { value, originalVisualizationTypeValue } = getFeatureValues(feature, layerVisualizationSettings, mappedData, dataColumnIndex)
     if (!value) return
@@ -359,7 +378,7 @@ const addChoroplethPolygonUsingLayersPointClassifedByRanges = (layerGroup: any, 
 
     const polygon = createPolygon(polygonCoords, rangeIndexAndColor.color, layerVisualizationSettings, defaultChoroplethValues, layerGroup, bounds, conditionalStyle)
 
-    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables)
+    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables, foreignKeyValue, targetDatasetData, mappedData)
     addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables)
 }
 
@@ -373,7 +392,7 @@ const createChoroplethClassifiedByRangesFromData = (layerGroup: any, data: any, 
     const sortedRanges = sortRanges(formattedRanges)
     const defaultColor = layerVisualizationSettings.analysisConf?.style?.color ?? ''
 
-    data[target.name].rows.forEach((row: any) => {
+    data[target.id].rows.forEach((row: any) => {
         if (!layerVisualizationSettings.analysisConf) return
         const { value, originalValue } = getRowValues(row, dataColumn, layerVisualizationSettings, data[target.name])
         if (!value) return

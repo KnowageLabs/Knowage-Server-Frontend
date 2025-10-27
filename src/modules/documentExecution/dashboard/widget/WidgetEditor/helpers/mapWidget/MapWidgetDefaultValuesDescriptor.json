@@ -93,10 +93,16 @@
     },
     "defaultTooltip": {
         "enabled": false,
-        "layers": [
+        "visualizations": [
             {
-                "columns": [],
-                "name": "",
+                "columns": [
+                    {
+                        "originalDatasetId": "",
+                        "originalLayerId": "",
+                        "value": ""
+                    }
+                ],
+                "label": "",
                 "precision": 2,
                 "prefix": "",
                 "suffix": ""

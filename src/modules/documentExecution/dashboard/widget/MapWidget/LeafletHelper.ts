@@ -189,6 +189,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             let spatialAttribute = undefined as any
             let geoColumn: any = undefined
             let dataColumn: any = undefined
+            let foreignKeyColumn: any = undefined
             let layersData = null as any
             let visualizationDataType = VisualizationDataType.DATASET_ONLY
             let targetDatasetData = null as any
@@ -255,6 +256,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
                     visualizationDataType = VisualizationDataType.DATASET_AND_LAYER
                     const dsId = layerVisualizationSettings.targetDataset.replace('ds_', '')
                     dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[dsId])
+                    foreignKeyColumn = getColumnName(layerVisualizationSettings.targetDatasetForeignKeyColumn, data[dsId])
 
                     const dashboardConfig = dashStore.dashboards[dashboardId]?.configuration
                     const selections = dashStore.getSelections(dashboardId) ?? []

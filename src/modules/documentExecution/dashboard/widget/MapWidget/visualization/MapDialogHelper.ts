@@ -20,7 +20,6 @@ export const createDialogFromDataset = (tooltip: boolean, layerVisualizationSett
     const list = document.createElement('ul')
     list.classList.add('customLeafletPopup')
 
-    console.log({ meta })
     const visualizationList = settings.visualizations.filter((visualization: IMapTooltipSettingsVisualizations) => visualization.label === layerVisualizationSettings.label)
     visualizationList.forEach((item: IMapTooltipSettingsVisualizations) => {
         item.columns.forEach((column: any) => {
@@ -54,9 +53,9 @@ export const addTooltipToMarker = (data: any, model: IWidget, target: IMapWidget
     }
 }
 
-export const addDialogToMarkerForLayerData = (feature: ILayerFeature, model: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, value: string | number | ChartValuesRecord, marker: any, activeSelections: ISelection[], dashboardId: string, variables: IVariable[], foreignKeyValue?: string | null) => {
+export const addDialogToMarkerForLayerData = (feature: ILayerFeature, model: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, value: string | number | ChartValuesRecord, marker: any, activeSelections: ISelection[], dashboardId: string, variables: IVariable[], foreignKeyValue?: string | null, targetDatasetData?: any, mappedData?: any) => {
     if (!model.settings.dialog?.enabled) return
-    const popup = createDialogForLayerData(feature, false, layerVisualizationSettings, model.settings.dialog, value, model, activeSelections, dashboardId, variables, foreignKeyValue)
+    const popup = createDialogForLayerData(feature, false, layerVisualizationSettings, model.settings.dialog, value, model, activeSelections, dashboardId, variables, foreignKeyValue, targetDatasetData, mappedData)
     if (popup) marker.bindPopup(popup)
 }
 
@@ -67,7 +66,7 @@ export const addTooltipToMarkerForLayerData = (feature: ILayerFeature, model: IW
 }
 
 // Function that creates popup/tooltip for the maps that use layers as the target
-export const createDialogForLayerData = (feature: ILayerFeature, tooltip: boolean, layerVisualizationSettings: IMapWidgetVisualizationType, settings: IMapTooltipSettings | IMapDialogSettings, value: string | number | ChartValuesRecord, widgetModel: IWidget, activeSelections: ISelection[], dashboardId: string, variables: IVariable[], foreignKeyValue?: string | null) => {
+export const createDialogForLayerData = (feature: ILayerFeature, tooltip: boolean, layerVisualizationSettings: IMapWidgetVisualizationType, settings: IMapTooltipSettings | IMapDialogSettings, value: string | number | ChartValuesRecord, widgetModel: IWidget, activeSelections: ISelection[], dashboardId: string, variables: IVariable[], foreignKeyValue?: string | null, targetDatasetData?: any, mappedData?: any) => {
     const container = document.createElement('div')
     const visualizationList = settings.visualizations.filter((visualization: IMapTooltipSettingsVisualizations) => visualization.label === layerVisualizationSettings.label) as any
     if (visualizationList?.length === 0) return null
@@ -78,13 +77,19 @@ export const createDialogForLayerData = (feature: ILayerFeature, tooltip: boolea
         const targetDatasetList = document.createElement('ul')
         targetDatasetList.classList.add('customLeafletPopup')
         targetDatasetList.append(createTooltipListHeader(layerVisualizationSettings.targetDataset))
-        visualizationList.forEach((item: IMapTooltipSettingsVisualizations) => {
-            item.columns.forEach((column: any) => {
-                if (column.fieldType) {
-                    targetDatasetList.append(createTooltipListItem(`${column.name}: ${value}`, (settings as IMapDialogSettings).style, null, widgetModel, layerVisualizationSettings, activeSelections, dashboardId, variables))
-                }
+        if (foreignKeyValue) {
+            const dataRow = mappedData[foreignKeyValue]
+            console.log({ foreignKeyValue, dataRow, targetDatasetData, mappedData })
+            visualizationList.forEach((item: IMapTooltipSettingsVisualizations) => {
+                item.columns.forEach((column: any) => {
+                    if (column.fieldType) {
+                        const columnName = getColumnName(column.name, targetDatasetData)
+                        const value = `${column.name}: ${dataRow[columnName]}`
+                        targetDatasetList.append(createTooltipListItem(value, (settings as IMapDialogSettings).style, null, widgetModel, layerVisualizationSettings, activeSelections, dashboardId, variables))
+                    }
+                })
             })
-        })
+        }
         container.appendChild(targetDatasetList)
     }
 
