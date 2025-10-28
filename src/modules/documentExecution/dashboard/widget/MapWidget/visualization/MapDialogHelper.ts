@@ -71,42 +71,37 @@ export const createDialogForLayerData = (feature: ILayerFeature, tooltip: boolea
     const visualizationList = settings.visualizations.filter((visualization: IMapTooltipSettingsVisualizations) => visualization.label === layerVisualizationSettings.label) as any
     if (visualizationList?.length === 0) return null
 
-    // In the third use case (layer + external dataset), there are two dialogs:
-    // one displaying the layer values and the other showing the values of the target dataset's foreign key column.
-    if (layerVisualizationSettings.targetDataset && layerVisualizationSettings.targetDatasetForeignKeyColumn) {
-        const targetDatasetList = document.createElement('ul')
-        targetDatasetList.classList.add('customLeafletPopup')
-        targetDatasetList.append(createTooltipListHeader(layerVisualizationSettings.targetDataset))
-        if (foreignKeyValue) {
-            const dataRow = mappedData[foreignKeyValue]
-            visualizationList.forEach((item: IMapTooltipSettingsVisualizations) => {
-                item.columns.forEach((column: any) => {
-                    if (column.fieldType) {
-                        const columnName = getColumnName(column.name, targetDatasetData)
-                        const value = `${column.name}: ${dataRow[columnName]}`
-                        targetDatasetList.append(createTooltipListItem(value, (settings as IMapDialogSettings).style, null, widgetModel, layerVisualizationSettings, activeSelections, dashboardId, variables))
-                    }
-                })
-            })
-        }
-        container.appendChild(targetDatasetList)
-    }
-
     const list = document.createElement('ul')
     list.classList.add('customLeafletPopup')
 
+    const targetDatasetList = document.createElement('ul')
+    targetDatasetList.classList.add('customLeafletPopup')
+
     visualizationList.forEach((item: IMapTooltipSettingsVisualizations) => {
-        if (layerVisualizationSettings.targetDataset && layerVisualizationSettings.targetProperty) list.append(createTooltipListHeader(layerVisualizationSettings.layerName ?? ''))
         item.columns.forEach((property: any) => {
             const layerSettings = settings.visualizations.find((dialogSettings: IMapTooltipSettingsVisualizations) => dialogSettings.label === layerVisualizationSettings.label && dialogSettings.columns.includes(property))
             const dataMap = feature.properties
             if (feature.properties[property.name]) {
                 list.append(createTooltipListItem(`${property.name}: ${feature.properties[property.name] ?? ''}`, (settings as IMapDialogSettings).style, layerSettings, widgetModel, layerVisualizationSettings, activeSelections, dashboardId, variables, dataMap))
             }
+
+            if (layerVisualizationSettings.targetDataset && layerVisualizationSettings.targetDatasetForeignKeyColumn) {
+                if (foreignKeyValue) {
+                    const dataRow = mappedData[foreignKeyValue]
+                    if (property.fieldType && !feature.properties[property.name]) {
+                        const columnName = getColumnName(property.name, targetDatasetData)
+                        const value = `${property.name}: ${dataRow[columnName]}`
+                        targetDatasetList.append(createTooltipListItem(value, (settings as IMapDialogSettings).style, null, widgetModel, layerVisualizationSettings, activeSelections, dashboardId, variables))
+                    }
+                }
+            }
         })
     })
 
     container.appendChild(list)
+    if (layerVisualizationSettings.targetDataset && layerVisualizationSettings.targetDatasetForeignKeyColumn) {
+        container.appendChild(targetDatasetList)
+    }
     if (tooltip) return L.tooltip().setContent(container)
     else return L.popup().setContent(container)
 }

@@ -143,7 +143,7 @@ const addChoroplethPolygonUsingLayersPointClassifedByEqualIntervals = (
 
     const polygon = createPolygon(polygonCoords, color, layerVisualizationSettings, defaultChoroplethValues, layerGroup, bounds, conditionalStyle)
     addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables, foreignKeyValue, targetDatasetData, mappedData)
-    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables)
+    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables, foreignKeyValue, targetDatasetData, mappedData)
     attachPolygonInteractionHandlers(polygon, feature, layerVisualizationSettings, widgetModel, activeSelections, dashboardId, variables)
 }
 
@@ -282,7 +282,7 @@ const addChoroplethPolygonUsingLayersPointClassifedByQuantils = (
     const polygon = createPolygon(polygonCoords, color, layerVisualizationSettings, defaultChoroplethValues, layerGroup, bounds, conditionalStyle)
 
     addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables, foreignKeyValue, targetDatasetData, mappedData)
-    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables)
+    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables, foreignKeyValue, targetDatasetData, mappedData)
     attachPolygonInteractionHandlers(polygon, feature, layerVisualizationSettings, widgetModel, activeSelections, dashboardId, variables)
 }
 
@@ -397,7 +397,7 @@ const addChoroplethPolygonUsingLayersPointClassifedByRanges = (layerGroup: any, 
 
     const polygon = createPolygon(polygonCoords, rangeIndexAndColor.color, layerVisualizationSettings, defaultChoroplethValues, layerGroup, bounds, conditionalStyle)
     addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables, foreignKeyValue, targetDatasetData, mappedData)
-    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables)
+    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables, foreignKeyValue, targetDatasetData, mappedData)
     attachPolygonInteractionHandlers(polygon, feature, layerVisualizationSettings, widgetModel, activeSelections, dashboardId, variables)
 }
 

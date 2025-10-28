@@ -164,6 +164,10 @@ export default defineComponent({
         },
         async loadAvailablePropertiesInTooltipSettingsForLayer(targetLayer: IMapWidgetLayer) {
             this.setLoading(true)
+            if (targetLayer.type !== 'layer') {
+                this.setLoading(false)
+                return
+            }
             const properties = await getPropertiesByLayerLabel(targetLayer.label)
             const formattedProperties = this.getPropertiesFormattedForDropdownOptions(properties)
             this.propertiesCache.set(targetLayer.layerId, formattedProperties)
