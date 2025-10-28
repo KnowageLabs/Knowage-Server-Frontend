@@ -37,7 +37,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetStyleToolbarModel } from '@/modules/documentExecution/dashboard/Dashboard'
-import { IMapWidgetLayer, IMapWidgetLayerProperty, IMapWidgetSelectionConfiguration, IMapWidgetVisualizationType } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
+import { IMapDialogSettings, IMapTooltipSettings, IMapWidgetLayer, IMapWidgetLayerProperty, IMapWidgetSelectionConfiguration, IMapWidgetVisualizationType } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { mapActions } from 'pinia'
 import appStore from '@/App.store'
 import descriptor from './MapDialogSettingsDescriptor.json'
@@ -56,11 +56,10 @@ export default defineComponent({
     data() {
         return {
             descriptor,
-            dialogSettings: null as any,
+            dialogSettings: null as IMapDialogSettings | null,
             dropzoneTopVisible: {},
             dropzoneBottomVisible: {},
             propertiesCache: new Map<string, { name: string; alias: string }[]>(),
-            selectionConfiguration: null as IMapWidgetSelectionConfiguration | null,
             visualizationTypeOptions: [] as IMapWidgetVisualizationType[]
         }
     },
@@ -201,20 +200,11 @@ export default defineComponent({
                 this.visualizationTypeOptions.push(visualization)
             })
         },
-        async loadAvailablePropertiesForVisualization(visualization: IMapWidgetVisualizationType | null) {
-            if (!visualization || !visualization.target) return
-            if (this.propertiesCache.has(visualization.target)) {
-                visualization.properties = this.propertiesCache.get(visualization.target) as any
-                return
-            }
-            const targetLayer = this.widgetModel.layers.find((layer: IMapWidgetLayer) => visualization.target === layer.layerId)
-            if (!targetLayer || targetLayer.type !== 'layer') return
-            this.setLoading(true)
-            const raw = await getPropertiesByLayerLabel(targetLayer.label)
-            this.setLoading(false)
-            const formatted = raw.map((p: any) => ({ name: String(p.property ?? p.name ?? p), alias: String(p.property ?? p.name ?? p) }))
-            this.propertiesCache.set(targetLayer.layerId, formatted)
-            visualization.properties = formatted as any
+        onVisualizationSelected(value: string | null, dialogProperty: any) {
+            if (!dialogProperty) return
+            dialogProperty.label = value ?? ''
+            dialogProperty.columns = []
+            this.onLayerChange(dialogProperty)
         },
         getFilteredVisualizationTypeOptions(currentIndex: number) {
             if (!this.dialogSettings) return this.visualizationTypeOptions
@@ -229,15 +219,6 @@ export default defineComponent({
                 const labelKey = vizualizationType.label ?? ''
                 return !selectedLabels.includes(labelKey)
             })
-        },
-        onVizualizationTypeChange(selectionConfig: any) {
-            selectionConfig.column = ''
-        },
-        onVisualizationSelected(value: string | null, dialogProperty: any) {
-            if (!dialogProperty) return
-            dialogProperty.label = value ?? ''
-            dialogProperty.columns = []
-            this.onLayerChange(dialogProperty)
         }
     }
 })
