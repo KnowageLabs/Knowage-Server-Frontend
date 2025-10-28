@@ -14,7 +14,6 @@ class WidgetWebComponent extends HTMLElement {
         wrapper.classList.add('component-wrapper')
 
         wrapper.style.position = 'relative'
-        wrapper.style.overflow = 'auto'
         wrapper.style.height = '100%'
 
         wrapper.textContent = ''
