@@ -463,7 +463,7 @@ export default defineComponent({
             this.timeout = setTimeout(() => {
                 const bottom_px = this.gridApi.getVerticalPixelRange().bottom
                 const grid_height = this.gridApi.getDisplayedRowCount() * this.gridApi.getSizesForCurrentTheme().rowHeight
-                if (bottom_px == grid_height) {
+                if (bottom_px >= grid_height) {
                     const newPaginationStart = this.lazyParams.start + this.registryDescriptor.paginationNumberOfItems
                     this.lazyParams = {
                         paginationStart: newPaginationStart,
