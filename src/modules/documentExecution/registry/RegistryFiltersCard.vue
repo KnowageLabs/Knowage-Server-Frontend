@@ -11,7 +11,7 @@
             <div class="filter-container">
                 <form class="p-fluid p-formgrid p-grid fields-container" @submit="filterRegistry">
                     <template v-for="(filter, index) in filters.filter((fil) => fil.presentation !== 'DRIVER')" :key="index">
-                        <RegistryFilterCard :id="id" class="kn-flex" :prop-filter="filter" :entity="entity" :clear-trigger="clearFiltersTrigger" @changed="setFilterValue($event, index, filter)" @valid="setFilterButtonDisabled"> </RegistryFilterCard>
+                        <RegistryFilterCard :id="id" class="kn-flex" :prop-filter="filter" :entity="entity" :clear-trigger="clearFiltersTrigger" :all-filters="filters" @changed="setFilterValue($event, index, filter)" @valid="setFilterButtonDisabled"> </RegistryFilterCard>
                     </template>
                 </form>
 
@@ -54,14 +54,36 @@ export default defineComponent({
     },
     async created() {
         this.loadFilters()
+        this.setFilterDependencies()
     },
     methods: {
         loadFilters() {
             this.filters = this.propFilters ? this.propFilters.filter((filter: any) => filter.visible) : []
         },
+        setFilterDependencies() {
+            this.filters.forEach((filter: any) => {
+                if (filter.column?.dependences) {
+                    const index = this.filters.findIndex((parentFilter: any) => parentFilter.field === filter.column.dependences)
+                    if (index !== -1) this.filters[index].hasDependencies ? this.filters[index].hasDependencies.push(filter) : (this.filters[index].hasDependencies = [filter])
+                }
+            })
+        },
         setFilterValue(value: string, index: number, filter) {
             const filterIndex = this.filters.findIndex((fil) => fil.field === filter.field)
             this.filters[filterIndex].filterValue = value
+
+            if (this.filters[filterIndex].hasDependencies) this.clearDependentFilterValues(this.filters[filterIndex])
+        },
+        clearDependentFilterValues(parentFilter: any) {
+            if (!parentFilter.hasDependencies) return
+
+            parentFilter.hasDependencies.forEach((dependentFilter: any) => {
+                const index = this.filters.findIndex((fil) => fil.field === dependentFilter.field)
+                if (index !== -1) {
+                    this.filters[index].filterValue = ''
+                    this.clearDependentFilterValues(this.filters[index])
+                }
+            })
         },
         clearAllFilters() {
             this.filters.forEach((el: any) => (el.filterValue = ''))
@@ -74,6 +96,12 @@ export default defineComponent({
         },
         setFilterButtonDisabled(valid) {
             this.filterButtonDisabled = !valid
+        },
+        getFilterValues() {
+            return this.filters.reduce((acc, filter) => {
+                if (filter.filterValue) acc[filter.field] = filter.filterValue
+                return acc
+            }, {})
         }
     }
 })
