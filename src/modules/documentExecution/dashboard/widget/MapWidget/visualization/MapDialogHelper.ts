@@ -59,9 +59,9 @@ export const addDialogToMarkerForLayerData = (feature: ILayerFeature, model: IWi
     if (popup) marker.bindPopup(popup)
 }
 
-export const addTooltipToMarkerForLayerData = (feature: ILayerFeature, model: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, value: string | number | ChartValuesRecord, marker: any, activeSelections: ISelection[], dashboardId: string, variables: IVariable[], foreignKeyValue?: string | null) => {
+export const addTooltipToMarkerForLayerData = (feature: ILayerFeature, model: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, value: string | number | ChartValuesRecord, marker: any, activeSelections: ISelection[], dashboardId: string, variables: IVariable[], foreignKeyValue?: string | null, targetDatasetData?: any, mappedData?: any) => {
     if (!model.settings.tooltips?.enabled) return
-    const tooltip = createDialogForLayerData(feature, true, layerVisualizationSettings, model.settings.tooltips, value, model, activeSelections, dashboardId, variables, foreignKeyValue)
+    const tooltip = createDialogForLayerData(feature, true, layerVisualizationSettings, model.settings.tooltips, value, model, activeSelections, dashboardId, variables, foreignKeyValue, targetDatasetData, mappedData)
     if (tooltip) marker.bindTooltip(tooltip)
 }
 
@@ -79,7 +79,6 @@ export const createDialogForLayerData = (feature: ILayerFeature, tooltip: boolea
         targetDatasetList.append(createTooltipListHeader(layerVisualizationSettings.targetDataset))
         if (foreignKeyValue) {
             const dataRow = mappedData[foreignKeyValue]
-            console.log({ foreignKeyValue, dataRow, targetDatasetData, mappedData })
             visualizationList.forEach((item: IMapTooltipSettingsVisualizations) => {
                 item.columns.forEach((column: any) => {
                     if (column.fieldType) {

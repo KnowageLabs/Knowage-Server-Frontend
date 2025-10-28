@@ -6,18 +6,17 @@ import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, a
 import { getConditionalStyleUsingTargetDataset, getCoordinatesFromWktPointFeature, getFeatureValues, getTargetDataColumn, getVizualizationConditionalStyles, isConditionMet, transformDataUsingForeignKeyReturningAllColumns } from './MapVisualizationHelper'
 
 const findInteractionColumnForVisualization = (widgetModel: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType): string | null => {
-    // try selection
     const selectionConfig = widgetModel?.settings?.interactions?.selection?.selections?.find((s: any) => s.vizualizationType?.id === layerVisualizationSettings.id || s.vizualizationType?.target === layerVisualizationSettings.target || s.vizualizationType?.label === layerVisualizationSettings.label)
-    if (selectionConfig?.column) return selectionConfig.column
+    if (selectionConfig?.column) return selectionConfig.column.name
 
     const crossNavConfig = widgetModel?.settings?.interactions?.crossNavigation?.crossNavigationVizualizationTypes?.find((c: any) => c.vizualizationType?.id === layerVisualizationSettings.id || c.vizualizationType?.target === layerVisualizationSettings.target || c.vizualizationType?.label === layerVisualizationSettings.label)
-    if (crossNavConfig?.column) return crossNavConfig.column
+    if (crossNavConfig?.column) return crossNavConfig.column.name
 
     const linkConfig = widgetModel?.settings?.interactions?.link?.linkVizualizationTypes?.find((l: any) => l.vizualizationType?.id === layerVisualizationSettings.id || l.vizualizationType?.target === layerVisualizationSettings.target || l.vizualizationType?.label === layerVisualizationSettings.label)
-    if (linkConfig?.column) return linkConfig.column
+    if (linkConfig?.column) return linkConfig.column.name
 
     const previewConfig = widgetModel?.settings?.interactions?.preview?.previewVizualizationTypes?.find((p: any) => p.vizualizationType?.id === layerVisualizationSettings.id || p.vizualizationType?.target === layerVisualizationSettings.target || p.vizualizationType?.label === layerVisualizationSettings.label)
-    if (previewConfig?.column) return previewConfig.column
+    if (previewConfig?.column) return previewConfig.column.name
 
     return null
 }
