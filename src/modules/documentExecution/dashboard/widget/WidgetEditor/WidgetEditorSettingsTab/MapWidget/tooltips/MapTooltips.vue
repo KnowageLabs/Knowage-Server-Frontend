@@ -79,7 +79,6 @@ export default defineComponent({
             await Promise.all(this.tooltip.visualizations.map((visualization: IMapTooltipSettingsVisualizations) => this.loadAvailableProperties(visualization)))
         },
         async loadAvailableProperties(visualization: IMapTooltipSettingsVisualizations | null) {
-            debugger
             if (!visualization) return
             const label = visualization?.label ?? visualization
             const viz = this.widgetModel?.settings?.visualizations?.find((v: any) => v.label === label) ?? visualization
