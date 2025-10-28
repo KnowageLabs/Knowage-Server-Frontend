@@ -135,6 +135,11 @@ export function getCoordinates(spatialAttribute: any, input: string, coord?: str
     } else if (spatialAttribute.properties.coordType === 'wkt') {
         const formattedWKTInput = wktToGeoJSON(input)
         return formattedWKTInput?.coordinates ?? []
+    } else {
+        // Default case when coordType is missing or unrecognized
+        spatialAttribute.properties.coordType = 'string'
+        spatialAttribute.properties.coordFormat = 'lon lat'
+        return getCoordinatesFromString(spatialAttribute, input, coord)
     }
 }
 

@@ -61,6 +61,15 @@ export default defineComponent({
     methods: {
         loadSpatialAttribute() {
             this.spatialAttribute = this.propSpatialAttribute
+            if (this.spatialAttribute && this.spatialAttribute.properties) {
+                if (!this.spatialAttribute.properties.coordType) {
+                    this.spatialAttribute.properties.coordType = 'string'
+                }
+
+                if (this.spatialAttribute.properties.coordType === 'string' && !this.spatialAttribute.properties.coordFormat) {
+                    this.spatialAttribute.properties.coordFormat = 'lon lat'
+                }
+            }
         },
         onSpatialAttributeCoordTypeChanged(coordType: string) {
             if (!this.spatialAttribute) return
