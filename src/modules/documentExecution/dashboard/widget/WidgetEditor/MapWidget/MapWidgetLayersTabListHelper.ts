@@ -119,7 +119,7 @@ const removeColumnFromSelections = (layer: IMapWidgetLayer, column: IWidgetMapLa
     const selectionConfiguration = widgetModel.settings.interactions.selection as IMapWidgetSelectionConfiguration
     selectionConfiguration.selections.forEach((selectionConfig: IMapWidgetSelection) => {
         if (selectionConfig.vizualizationType?.target !== layer.layerId) return
-        if (selectionConfig.column === column.name) selectionConfig.column = ''
+        if (selectionConfig.column?.name === column.name) selectionConfig.column = { name: '', alias: '', type: '' }
     })
 }
 
@@ -137,7 +137,7 @@ const removeColumnFromLinks = (layer: IMapWidgetLayer, column: IWidgetMapLayerCo
     const linkConfiguration = (widgetModel?.settings?.interactions?.link ?? null) as IMapWidgetLinkConfiguration | null
     linkConfiguration?.linkVizualizationTypes.forEach((linkConfig: IMapWidgetLinkVisualizationTypeConfig) => {
         if (linkConfig.vizualizationType?.target !== layer.layerId) return
-        if (linkConfig.column === column.name) linkConfig.column = ''
+        if (linkConfig.column?.name === column.name) linkConfig.column = { name: '', alias: '', type: '' }
     })
 }
 
@@ -146,6 +146,6 @@ const removeColumnFromPreview = (layer: IMapWidgetLayer, column: IWidgetMapLayer
     const previewConfiguration = widgetModel.settings.interactions.preview as IMapWidgetPreview | null
     previewConfiguration?.previewVizualizationTypes.forEach((previewConfig: IMapWidgetPreviewVisualizationTypeConfig) => {
         if (previewConfig.vizualizationType?.target !== layer.layerId) return
-        if (previewConfig.column === column.name) previewConfig.column = ''
+        if (previewConfig.column?.name === column.name) previewConfig.column = { name: '', alias: '', type: '' }
     })
 }
