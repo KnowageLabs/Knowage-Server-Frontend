@@ -3,12 +3,16 @@
         <form v-if="previewConfiguration" class="p-fluid p-formgrid p-grid p-col-12 p-m-1">
             <div v-for="(previewConfig, index) in previewConfiguration.previewVizualizationTypes" :key="index" class="p-col-12 p-fluid p-formgrid p-grid">
                 <div class="p-col-12 p-fluid p-formgrid p-grid p-ai-center">
-                    <q-select filled dense class="p-sm-12 p-md-4" v-model="previewConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options options-dense option-label="label" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="previewDisabled" @update:modelValue="onVizualizationTypeChange(previewConfig)"></q-select>
-                    <q-select filled dense class="p-sm-12 p-md-4 p-px-2" v-model="previewConfig.dataset" :options="selectedDatasets" emit-value map-options option-label="name" option-value="id.dsId" options-dense :label="$t('common.dataset')" :disable="previewDisabled" @update:modelValue="onDatasetChanged(previewConfig)"></q-select>
-                    <q-select filled dense class="p-sm-12 p-md-4 p-px-2" v-model="previewConfig.column" :options="availableColumns(previewConfig.vizualizationType)" emit-value map-options option-label="name" options-dense :label="$t('common.column')" :disable="previewDisabled"></q-select>
+                    <q-select filled dense class="p-sm-12 p-md-6" v-model="previewConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options options-dense option-label="label" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="previewDisabled" @update:modelValue="onVizualizationTypeChange(previewConfig)"></q-select>
+                    <q-select filled dense class="p-sm-12 p-md-6 p-px-2" v-model="previewConfig.column" :options="availableColumns(previewConfig.vizualizationType)" emit-value map-options option-label="name" options-dense :label="$t('common.column')" :disable="previewDisabled"></q-select>
 
-                    <Button v-if="index === 0" icon="fas fa-plus-circle fa-1x" class="p-md-2 p-button-text p-button-plain p-js-center p-ml-2" @click="addPreviewConfiguration" />
-                    <Button v-if="index !== 0" icon="pi pi-trash kn-cursor-pointer" class="p-md-2 p-button-text p-button-plain p-js-center p-ml-2" @click="removePreviewConfiguration(index)" />
+                    <div class="p-col-12 p-d-flex p-jc-end p-ai-center" style="gap: 0.5em">
+                        <Button v-if="index === 0" icon="fas fa-plus-circle fa-1x" class="p-md-2 p-button-text p-button-plain p-js-center p-ml-2" @click="addPreviewConfiguration" />
+                        <Button v-if="index !== 0" icon="pi pi-trash kn-cursor-pointer" class="p-md-2 p-button-text p-button-plain p-js-center p-ml-2" @click="removePreviewConfiguration(index)" />
+                    </div>
+                </div>
+                <div class="p-col-12 p-fluid p-formgrid p-grid p-ai-center">
+                    <q-select filled dense class="p-sm-12 p-md-12 p-px-2" v-model="previewConfig.dataset" :options="selectedDatasets" emit-value map-options option-label="name" :option-value="(opt) => opt.id?.dsId" options-dense :label="$t('common.dataset')" :disable="previewDisabled" @update:modelValue="onDatasetChanged(previewConfig)"></q-select>
                 </div>
 
                 <div v-if="previewConfig.vizualizationType?.id" class="p-col-12 p-d-flex p-flex-row p-ai-center p-p-2">
@@ -262,8 +266,6 @@ export default defineComponent({
         },
         onDatasetChanged(previewConfig: IMapWidgetPreviewVisualizationTypeConfig | null) {
             if (!previewConfig) return
-            previewConfig.column = { name: '', alias: '', type: '' }
-            previewConfig.parameters = []
             const index = this.dashboardDatasets.findIndex((dataset: any) => dataset.id === previewConfig?.dataset)
             if (index !== -1) {
                 previewConfig.parameters = this.dashboardDatasets[index].parameters.map((tempParameter: IDatasetParameter) => {

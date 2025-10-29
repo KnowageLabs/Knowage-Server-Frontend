@@ -39,7 +39,6 @@ const removeLayerFromLegend = (layer: IMapWidgetLayer, widgetModel: IWidget) => 
 const removeLayerFromTooltips = (layer: IMapWidgetLayer, widgetModel: IWidget) => {
     if (!widgetModel.settings || !widgetModel.settings.tooltips) return
     const tooltipSettings = widgetModel.settings?.tooltips as IMapTooltipSettings
-    console.log({ tooltipSettings })
     tooltipSettings.visualizations = tooltipSettings.visualizations.filter((tooltipLayerSettings: any) => (tooltipLayerSettings.target ?? tooltipLayerSettings.name) !== layer.layerId)
 }
 

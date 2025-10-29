@@ -3,6 +3,7 @@ import { IDashboardDriver, IWidgetInteractionParameter } from '../../Dashboard'
 import { IChartInteractionValues } from '../../interfaces/chartJS/DashboardChartJSWidget'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import { getActiveSelectionByDatasetAndColumn } from './InteractionHelper'
+import { map } from 'highcharts'
 
 export const formatParameterForPreview = (event: any, parameter: any, widgetType: string, dashboardId: string) => {
     parameter.value = parameter.defaultValue ?? ''
@@ -21,6 +22,8 @@ export const formatParameterForPreview = (event: any, parameter: any, widgetType
             break
         case 'customchart':
             formatCustomChartParameterValue(parameter, parameterSettings, event.columnValue, dashboardId)
+        case 'map':
+            formatMapParameterValue(parameter, parameterSettings, event.formattedOutputParameters, dashboardId)
     }
 }
 
@@ -40,7 +43,11 @@ const formatCustomChartParameterValue = (parameter: any, parameterSettings: IWid
     updateParameterValue(parameter, parameterSettings, null, null, dashboardId)
 }
 
-const updateParameterValue = (parameter: any, parameterSettings: IWidgetInteractionParameter, formattedColumnRow: any, formattedChartValues: IChartInteractionValues | null, dashboardId: string) => {
+const formatMapParameterValue = (parameter: any, parameterSettings: IWidgetInteractionParameter, formattedOutputParameters: any, dashboardId: string) => {
+    updateParameterValue(parameter, parameterSettings, null, null, dashboardId, formattedOutputParameters)
+}
+
+const updateParameterValue = (parameter: any, parameterSettings: IWidgetInteractionParameter, formattedColumnRow: any, formattedChartValues: IChartInteractionValues | null, dashboardId: string, mapFormattedOutputParameters?: any) => {
     const dashStore = dashboardStore()
     const drivers = dashStore.getDashboardDrivers(dashboardId)
     const driversValuesMap = getFormattedDriverValuesMap(drivers)
@@ -53,6 +60,7 @@ const updateParameterValue = (parameter: any, parameterSettings: IWidgetInteract
             parameter.columnName = parameterSettings.column
             if (formattedColumnRow) getFormattedTableDynamicParameterUrl(parameter, parameterSettings, formattedColumnRow)
             else if (formattedChartValues) getFormattedChartDynamicParameterUrl(parameter, parameterSettings, formattedChartValues)
+            else if (mapFormattedOutputParameters) getFormattedMapDynamicParameterUrl(parameter, parameterSettings, mapFormattedOutputParameters)
             break
         case 'driver':
             updateParameterValueFromDriver(parameter, parameterSettings, driversValuesMap)
@@ -76,6 +84,14 @@ const getFormattedTableDynamicParameterUrl = (parameter: IWidgetInteractionParam
 const getFormattedChartDynamicParameterUrl = (parameter: IWidgetInteractionParameter, parameterSettings: IWidgetInteractionParameter, formattedChartValues: IChartInteractionValues | null) => {
     const columnValue = getChartDynamicParameterValue(formattedChartValues, parameter.column ?? parameter.columnName ?? '')
     parameter.value = columnValue ?? ''
+}
+
+const getFormattedMapDynamicParameterUrl = (parameter: any, parameterSettings: IWidgetInteractionParameter, mapFormattedOutputParameters: any) => {
+    mapFormattedOutputParameters.forEach((outputParam: any) => {
+        if (outputParam.name === parameter.name) {
+            parameter.value = outputParam.value
+        }
+    })
 }
 
 const updateParameterValueFromDriver = (parameter: any, parameterSettings: IWidgetInteractionParameter, driversValuesMap: any) => {
