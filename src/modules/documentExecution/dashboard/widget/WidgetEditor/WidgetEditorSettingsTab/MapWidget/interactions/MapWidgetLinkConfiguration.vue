@@ -5,7 +5,7 @@
                 <div v-for="(linkConfig, index) in linkConfiguration.linkVizualizationTypes" :key="index" class="p-col-12 p-fluid p-formgrid p-grid">
                     <div class="p-col-12 p-fluid p-formgrid p-grid p-ai-center">
                         <q-select filled dense class="p-sm-12 p-md-5" v-model="linkConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options options-dense option-label="label" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="linksDisabled" @update:modelValue="onVizualizationTypeChange(linkConfig)"></q-select>
-                        <q-select filled dense class="p-sm-12 p-md-5 q-ml-sm" v-model="linkConfig.column" :options="availableColumns(linkConfig.vizualizationType)" emit-value map-options option-value="name" option-label="name" options-dense :label="$t('common.column')" :disable="linksDisabled"></q-select>
+                        <q-select filled dense class="p-sm-12 p-md-5 q-ml-sm" v-model="linkConfig.column" :options="availableColumns(linkConfig.vizualizationType)" emit-value map-options option-label="name" options-dense :label="$t('common.column')" :disable="linksDisabled"></q-select>
 
                         <Button v-if="index === 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" @click="addLinkConfiguration" />
                         <Button v-if="index !== 0" icon="pi pi-trash kn-cursor-pointer" class="p-button-text p-button-plain p-js-center p-ml-2" @click="removeLinkConfiguration(index)" />
@@ -125,7 +125,7 @@ export default defineComponent({
         },
         async loadLinkConfiguration() {
             this.linkConfiguration = this.widgetModel?.settings?.interactions?.link ?? null
-            if (this.linkConfiguration?.linkVizualizationTypes?.length === 0) this.linkConfiguration?.linkVizualizationTypes.push({ vizualizationType: null, column: '', links: [] })
+            if (this.linkConfiguration?.linkVizualizationTypes?.length === 0) this.linkConfiguration?.linkVizualizationTypes.push({ vizualizationType: null, column: { name: '', alias: '', type: '' }, links: [] })
             if (this.linkConfiguration?.linkVizualizationTypes?.length === 1 && this.linkConfiguration.linkVizualizationTypes[0].links.length === 0) this.linkConfiguration.linkVizualizationTypes[0].links.push({ type: '', baseurl: '', action: '', parameters: [] })
             this.loadVisualizationTypeOptions()
             await this.loadPropertiesForVisualizationTypes()
@@ -204,7 +204,7 @@ export default defineComponent({
         },
         addLinkConfiguration() {
             if (this.linksDisabled) return
-            if (this.linkConfiguration) this.linkConfiguration.linkVizualizationTypes.push({ vizualizationType: null, column: '', links: [] })
+            if (this.linkConfiguration) this.linkConfiguration.linkVizualizationTypes.push({ vizualizationType: null, column: { name: '', alias: '', type: '' }, links: [] })
         },
         removeLinkConfiguration(index: number) {
             if (this.linksDisabled) return
@@ -225,7 +225,7 @@ export default defineComponent({
             })
         },
         async onVizualizationTypeChange(linkConfig: IMapWidgetLinkVisualizationTypeConfig) {
-            linkConfig.column = ''
+            linkConfig.column = { name: '', alias: '', type: '' }
             if (!linkConfig.vizualizationType?.target) return
             const target = this.widgetModel.layers.find((layer: IMapWidgetLayer) => linkConfig.vizualizationType?.target === layer.layerId)
             if (!target || target.type !== 'layer' || this.propertiesCache.has(linkConfig.vizualizationType.target)) {

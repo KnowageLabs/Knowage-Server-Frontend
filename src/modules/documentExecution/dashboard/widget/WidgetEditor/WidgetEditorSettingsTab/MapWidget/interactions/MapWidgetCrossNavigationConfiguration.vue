@@ -4,12 +4,7 @@
             <div v-for="(crossNavigationConfig, index) in crossNavigationConfiguration.crossNavigationVizualizationTypes" :key="index" class="p-col-12 p-fluid p-formgrid p-grid">
                 <div class="p-col-12 p-fluid p-formgrid p-grid p-ai-center">
                     <q-select filled dense class="p-sm-12 p-md-4" v-model="crossNavigationConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options options-dense option-label="label" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="crossNavigationDisabled" @update:modelValue="onVizualizationTypeChange(crossNavigationConfig)"></q-select>
-                    <div class="p-col-4 p-d-flex p-flex-column">
-                        <div class="p-d-flex p-flex-column kn-flex p-mx-2 p-mb-4">
-                            <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.interactions.crossNavigationName') }}</label>
-                            <Dropdown v-model="crossNavigationConfig.name" class="kn-material-input" :options="crossNavigationOptions" :disabled="crossNavigationDisabled"> </Dropdown>
-                        </div>
-                    </div>
+                    <q-select filled dense class="p-col-3 q-ml-sm" v-model="crossNavigationConfig.name" :options="crossNavigationOptions" emit-value map-options option-label="name" options-dense :label="$t('dashboard.widgetEditor.interactions.crossNavigationName')" :disable="crossNavigationDisabled"></q-select>
                     <q-select filled dense class="p-col-3" v-model="crossNavigationConfig.column" :options="availableColumns(crossNavigationConfig.vizualizationType)" emit-value map-options :option-label="getTargetLayerType(crossNavigationConfig) === 'layer' ? 'property' : 'name'" options-dense :label="$t('common.column')" :disable="crossNavigationDisabled"></q-select>
 
                     <Button v-if="index === 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" @click="addCrossNavigationConfiguration" />
@@ -133,7 +128,7 @@ export default defineComponent({
         },
         async loadCrossNavigationConfiguration() {
             this.crossNavigationConfiguration = this.widgetModel?.settings?.interactions?.crossNavigation ?? null
-            if (this.crossNavigationConfiguration?.crossNavigationVizualizationTypes?.length === 0) this.crossNavigationConfiguration?.crossNavigationVizualizationTypes.push({ vizualizationType: null, column: null, name: '', parameters: [] })
+            if (this.crossNavigationConfiguration?.crossNavigationVizualizationTypes?.length === 0) this.crossNavigationConfiguration?.crossNavigationVizualizationTypes.push({ vizualizationType: null, column: { name: '', alias: '', type: '' }, name: '', parameters: [] })
             this.loadVisualizationTypeOptions()
             this.loadCrossNavigationOptions()
             await this.loadPropertiesForVisualizationTypes()
@@ -220,7 +215,7 @@ export default defineComponent({
         },
         addCrossNavigationConfiguration() {
             if (this.crossNavigationDisabled) return
-            if (this.crossNavigationConfiguration) this.crossNavigationConfiguration.crossNavigationVizualizationTypes.push({ vizualizationType: null, column: null, name: '', parameters: [] })
+            if (this.crossNavigationConfiguration) this.crossNavigationConfiguration.crossNavigationVizualizationTypes.push({ vizualizationType: null, column: { name: '', alias: '', type: '' }, name: '', parameters: [] })
             this.loadParameterList()
         },
         removeCrossNavigationConfiguration(index: number) {
@@ -242,7 +237,7 @@ export default defineComponent({
             })
         },
         async onVizualizationTypeChange(crossNavigationConfig: IMapWidgetCrossNavigationVisualizationTypeConfig) {
-            crossNavigationConfig.column = ''
+            crossNavigationConfig.column = { name: '', alias: '', type: '' }
             this.loadParameterList()
             if (!crossNavigationConfig.vizualizationType?.target) return
             const target = this.widgetModel.layers.find((layer: IMapWidgetLayer) => crossNavigationConfig.vizualizationType?.target === layer.layerId)

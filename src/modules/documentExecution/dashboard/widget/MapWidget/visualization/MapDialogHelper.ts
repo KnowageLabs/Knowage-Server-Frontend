@@ -106,13 +106,6 @@ export const createDialogForLayerData = (feature: ILayerFeature, tooltip: boolea
     else return L.popup().setContent(container)
 }
 
-const createTooltipListHeader = (header: string) => {
-    const headerElement = document.createElement('li')
-    headerElement.innerHTML = header
-    headerElement.classList.add('customLeafletPopupListHeader')
-    return headerElement
-}
-
 const createTooltipListItem = (value: string, style: IListItemStyle | undefined, visualizationDialogSettings: IMapTooltipSettingsVisualizations | null | undefined, widgetModel: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, activeSelections: ISelection[], dashboardId: string, variables: IVariable[], dataMap?: Record<string, string | number> | null) => {
     const li = document.createElement('li')
     const [rawValueColumn, rawValue] = value.split(':')
@@ -165,28 +158,28 @@ const checkInteractionsIfColumnIsClickable = (value: string, widgetModel: IWidge
     if (!selectionConfiguration) return false
 
     for (let i = selectionConfiguration.selections.length - 1; i >= 0; i--) {
-        if (layerVisualizationSettings.id === selectionConfiguration.selections[i].vizualizationType?.id && selectionConfiguration.selections[i].column === column) return true
+        if (layerVisualizationSettings.id === selectionConfiguration.selections[i].vizualizationType?.id && selectionConfiguration.selections[i].column?.name === column) return true
     }
 
     const crossNavigationConfiguration = (widgetModel?.settings?.interactions?.crossNavigation ?? null) as IMapWidgetCrossNavigation | null
     if (!crossNavigationConfiguration) return false
 
     for (let i = crossNavigationConfiguration.crossNavigationVizualizationTypes.length - 1; i >= 0; i--) {
-        if (layerVisualizationSettings.id === crossNavigationConfiguration.crossNavigationVizualizationTypes[i].vizualizationType?.id && crossNavigationConfiguration.crossNavigationVizualizationTypes[i].column === column) return true
+        if (layerVisualizationSettings.id === crossNavigationConfiguration.crossNavigationVizualizationTypes[i].vizualizationType?.id && crossNavigationConfiguration.crossNavigationVizualizationTypes[i].column.name === column) return true
     }
 
     const linkConfiguration = (widgetModel?.settings?.interactions?.link ?? null) as IMapWidgetLinkConfiguration | null
     if (!linkConfiguration) return false
 
     for (let i = linkConfiguration.linkVizualizationTypes.length - 1; i >= 0; i--) {
-        if (layerVisualizationSettings.id === linkConfiguration.linkVizualizationTypes[i].vizualizationType?.id && linkConfiguration.linkVizualizationTypes[i].column === column) return true
+        if (layerVisualizationSettings.id === linkConfiguration.linkVizualizationTypes[i].vizualizationType?.id && linkConfiguration.linkVizualizationTypes[i].column?.name === column) return true
     }
 
     const previewConfiguration = (widgetModel?.settings?.interactions?.preview ?? null) as IMapWidgetPreview | null
     if (!previewConfiguration) return false
 
     for (let i = previewConfiguration.previewVizualizationTypes.length - 1; i >= 0; i--) {
-        if (layerVisualizationSettings.id === previewConfiguration.previewVizualizationTypes[i].vizualizationType?.id && previewConfiguration.previewVizualizationTypes[i].column === column) return true
+        if (layerVisualizationSettings.id === previewConfiguration.previewVizualizationTypes[i].vizualizationType?.id && previewConfiguration.previewVizualizationTypes[i].column?.name === column) return true
     }
 
     return false

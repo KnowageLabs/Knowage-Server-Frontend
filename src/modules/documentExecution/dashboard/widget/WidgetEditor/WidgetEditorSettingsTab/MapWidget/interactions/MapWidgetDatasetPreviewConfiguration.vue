@@ -4,12 +4,7 @@
             <div v-for="(previewConfig, index) in previewConfiguration.previewVizualizationTypes" :key="index" class="p-col-12 p-fluid p-formgrid p-grid">
                 <div class="p-col-12 p-fluid p-formgrid p-grid p-ai-center">
                     <q-select filled dense class="p-sm-12 p-md-4" v-model="previewConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options options-dense option-label="label" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="previewDisabled" @update:modelValue="onVizualizationTypeChange(previewConfig)"></q-select>
-                    <div class="p-sm-12 p-md-3 p-px-2">
-                        <div class="p-d-flex p-flex-column kn-flex">
-                            <label class="kn-material-input-label"> {{ $t('common.dataset') }}</label>
-                            <Dropdown v-model="previewConfig.dataset" class="kn-material-input" :options="selectedDatasets" option-label="name" option-value="id.dsId" :disabled="previewDisabled" @change="onDatasetChanged(previewConfig)"> </Dropdown>
-                        </div>
-                    </div>
+                    <q-select filled dense class="p-sm-12 p-md-4 p-px-2" v-model="previewConfig.dataset" :options="selectedDatasets" emit-value map-options option-label="name" option-value="id.dsId" options-dense :label="$t('common.dataset')" :disable="previewDisabled" @update:modelValue="onDatasetChanged(previewConfig)"></q-select>
                     <q-select filled dense class="p-sm-12 p-md-4 p-px-2" v-model="previewConfig.column" :options="availableColumns(previewConfig.vizualizationType)" emit-value map-options option-label="name" options-dense :label="$t('common.column')" :disable="previewDisabled"></q-select>
 
                     <Button v-if="index === 0" icon="fas fa-plus-circle fa-1x" class="p-md-2 p-button-text p-button-plain p-js-center p-ml-2" @click="addPreviewConfiguration" />
@@ -31,7 +26,6 @@ import { IMapWidgetLayer, IMapWidgetPreview, IMapWidgetPreviewVisualizationTypeC
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { resolveLayerByTarget } from '../../../../MapWidget/LeafletHelper'
 import { getPropertiesByLayerLabel } from '../../../../MapWidget/MapWidgetDataProxy'
-import normalizeSelectOptions from '../helpers/MapWidgetOptionsHelper'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import { mapActions } from 'pinia'
 import appStore from '@/App.store'
@@ -195,7 +189,7 @@ export default defineComponent({
             })
         },
         async onVizualizationTypeChange(previewConfig: IMapWidgetPreviewVisualizationTypeConfig) {
-            previewConfig.column = ''
+            previewConfig.column = { name: '', alias: '', type: '' }
             if (!previewConfig.vizualizationType?.target) return
             // if visualization targets a dataset, ensure dataset list is available
             const target = resolveLayerByTarget(this.widgetModel, previewConfig.vizualizationType.target)
@@ -268,7 +262,7 @@ export default defineComponent({
         },
         onDatasetChanged(previewConfig: IMapWidgetPreviewVisualizationTypeConfig | null) {
             if (!previewConfig) return
-            previewConfig.column = ''
+            previewConfig.column = { name: '', alias: '', type: '' }
             previewConfig.parameters = []
             const index = this.dashboardDatasets.findIndex((dataset: any) => dataset.id === previewConfig?.dataset)
             if (index !== -1) {

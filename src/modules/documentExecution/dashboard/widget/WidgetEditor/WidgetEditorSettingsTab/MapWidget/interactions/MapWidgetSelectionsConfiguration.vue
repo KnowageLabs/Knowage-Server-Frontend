@@ -64,7 +64,7 @@ export default defineComponent({
         },
         loadSelectionConfiguration() {
             this.selectionConfiguration = this.widgetModel?.settings?.interactions?.selection ?? null
-            if (this.selectionConfiguration?.selections?.length === 0) this.selectionConfiguration?.selections.push({ vizualizationType: null, column: '', prefix: null, suffix: null, precision: null })
+            if (this.selectionConfiguration?.selections?.length === 0) this.selectionConfiguration?.selections.push({ vizualizationType: null, column: { name: '', alias: '', type: '' }, prefix: null, suffix: null, precision: null })
             this.loadVisualizationTypeOptions()
         },
         loadVisualizationTypeOptions() {
@@ -114,7 +114,7 @@ export default defineComponent({
         },
         addSelectionConfiguration() {
             if (this.selectionsDisabled) return
-            if (this.selectionConfiguration) this.selectionConfiguration.selections.push({ vizualizationType: null, column: '', prefix: null, suffix: null, precision: null })
+            if (this.selectionConfiguration) this.selectionConfiguration.selections.push({ vizualizationType: null, column: { name: '', alias: '', type: '' }, prefix: null, suffix: null, precision: null })
         },
         removeSelectionConfiguration(index: number) {
             if (this.selectionsDisabled) return
@@ -135,7 +135,7 @@ export default defineComponent({
             })
         },
         onVizualizationTypeChange(selectionConfig: IMapWidgetSelection) {
-            selectionConfig.column = ''
+            selectionConfig.column = { name: '', alias: '', type: '' }
         },
         async loadAvailableProperties(visualization: IMapWidgetVisualizationType | null) {
             if (!visualization || !visualization.target) return

@@ -27,10 +27,16 @@ export interface IMapWidgetSelectionConfiguration {
 
 export interface IMapWidgetSelection {
     vizualizationType: IMapWidgetVisualizationType | null
-    column: string | null
+    column: IMapNormalisedInteractionColumn | null
     prefix: string | null
     suffix: string | null
     precision: number | null
+}
+
+export interface IMapNormalisedInteractionColumn {
+    name: string
+    alias: string
+    type: string
 }
 export interface IMapWidgetCrossNavigation {
     enabled: boolean
@@ -40,7 +46,7 @@ export interface IMapWidgetCrossNavigation {
 export interface IMapWidgetCrossNavigationVisualizationTypeConfig {
     name: string
     vizualizationType: IMapWidgetVisualizationType | null
-    column: string | null
+    column: IMapNormalisedInteractionColumn
     parameters: IWidgetInteractionParameter[]
 }
 
@@ -51,7 +57,7 @@ export interface IMapWidgetLinkConfiguration {
 
 export interface IMapWidgetLinkVisualizationTypeConfig {
     vizualizationType: IMapWidgetVisualizationType | null
-    column: string | null
+    column: IMapNormalisedInteractionColumn | null
     links: IMapWidgetLink[]
 }
 export interface IMapWidgetLink {
@@ -72,7 +78,7 @@ export interface IMapWidgetPreviewVisualizationTypeConfig {
     name: string
     vizualizationType: IMapWidgetVisualizationType | null
     dataset: number | null
-    column: string | null
+    column: IMapNormalisedInteractionColumn | null
     parameters: IWidgetInteractionParameter[]
 }
 
