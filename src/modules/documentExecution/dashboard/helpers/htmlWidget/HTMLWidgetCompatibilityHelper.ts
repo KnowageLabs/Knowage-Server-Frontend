@@ -44,8 +44,8 @@ const getFormattedConfiguration = (widget: any) => {
 
 const getFormattedEditor = (widget: any) => {
     return {
-        css: (widget.cssToRender = widget.cssToRender.replaceAll(/#\[kn-widget-id\]/gm, '')),
-        html: (widget.htmlToRender = widget.htmlToRender.replaceAll(/\[kn-parameter="([^"\]]+)_description"\]/gm, '[kn-parameter="$1" description]'))
+        css: (widget.cssToRender = widget.cssToRender?.replaceAll(/#\[kn-widget-id\]/gm, '')),
+        html: (widget.htmlToRender = widget.htmlToRender?.replaceAll(/\[kn-parameter="([^"\]]+)_description"\]/gm, '[kn-parameter="$1" description]'))
     } as IHTMLWidgetEditor
 }
 
