@@ -1,5 +1,6 @@
 import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
 import { IWidget } from '../../Dashboard'
+import deepcopy from 'deepcopy'
 
 export const applySelectedThemeToWidgets = (widgets: IWidget[], selectedTheme: IDashboardTheme, filterType: 'allWidgets' | 'withThemes' | 'withoutThemes' = 'allWidgets') => {
     const selectedThemeConfig = selectedTheme.config
@@ -67,7 +68,7 @@ export const applyStylesToWidget = (widgetStyle, theme: IDashboardTheme, themeSt
             const { text, ...rest } = themeStyle.style[styleProp]
             widgetStyle[styleProp] = { ...rest, text: originalText }
         } else {
-            widgetStyle[styleProp] = themeStyle.style[styleProp]
+            widgetStyle[styleProp] = deepcopy(themeStyle.style[styleProp])
         }
     }
 }
