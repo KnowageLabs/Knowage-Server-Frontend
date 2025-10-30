@@ -52,13 +52,13 @@ const getFormattedPaddingStyle = (widget: any) => {
 }
 
 const getFormattedBorderStyle = (widget: any) => {
-    if (!widget.style || !widget.style.border) return widgetCommonDefaultValues.getDefaultBordersStyle()
+    if (!widget.style || !widget.style.border) return { ...widgetCommonDefaultValues.getDefaultBordersStyle(), enabled: true }
 
     return { enabled: true, properties: { ...widget.style.border, 'border-color': widget.style.border['border-color'] } } as IWidgetBordersStyle
 }
 
 const getFormattedShadowsStyle = (widget: any) => {
-    if (!widget.style || !widget.style.shadow) return widgetCommonDefaultValues.getDefaultShadowsStyle()
+    if (!widget.style || !widget.style.shadow) return { ...widgetCommonDefaultValues.getDefaultShadowsStyle(), enabled: true, properties: { 'box-shadow': ' 0px 2px 3px', color: 'rgb(204, 204, 204)' } }
 
     return {
         enabled: true,
