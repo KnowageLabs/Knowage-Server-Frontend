@@ -8,20 +8,29 @@
                 {{ $t('dashboard.generalSettings.themes.info') }}
             </Message>
             <span class="p-col-12 p-grid p-mt-2">
-                <q-select
-                    v-model="dashboardModelProp.configuration.theme.id"
-                    clearable
-                    emit-value
-                    class="p-col-8"
-                    outlined
-                    :options="availableThemes"
-                    option-value="id"
-                    option-label="themeName"
-                    map-options
-                    :label="$t('dashboard.generalSettings.themes.dashboardTheme')"
-                    @update:model-value="onThemeSelected"
-                />
-                <q-btn color="primary" class="kn-flex" :label="$t('dashboard.generalSettings.themes.editTheme')" />
+                <q-select v-model="dashboardModelProp.configuration.theme.id" clearable emit-value class="p-col-7" outlined :options="availableThemes" option-value="id" option-label="themeName" map-options :label="$t('dashboard.generalSettings.themes.dashboardTheme')" @update:model-value="onThemeSelected" />
+                <q-btn color="primary" class="kn-flex p-mr-2" :label="$t('dashboard.generalSettings.themes.editTheme')" />
+                <q-btn-dropdown color="primary" :label="$t('dashboard.generalSettings.themes.applyTheme')">
+                    <q-list>
+                        <q-item clickable v-close-popup @click="applyThemeToWidgets('allWidgets')">
+                            <q-item-section>
+                                <q-item-label>{{ $t('dashboard.generalSettings.themes.toAllWidgets') }}</q-item-label>
+                            </q-item-section>
+                        </q-item>
+
+                        <q-item clickable v-close-popup @click="applyThemeToWidgets('withoutThemes')">
+                            <q-item-section>
+                                <q-item-label>{{ $t('dashboard.generalSettings.themes.toWidgetsWithoutThemes') }}</q-item-label>
+                            </q-item-section>
+                        </q-item>
+
+                        <q-item clickable v-close-popup @click="applyThemeToWidgets('withThemes')">
+                            <q-item-section>
+                                <q-item-label>{{ $t('dashboard.generalSettings.themes.toWidgetsWithThemes') }}</q-item-label>
+                            </q-item-section>
+                        </q-item>
+                    </q-list>
+                </q-btn-dropdown>
             </span>
         </form>
 
@@ -42,6 +51,7 @@ import { mapActions } from 'pinia'
 import ThemeExamples from '@/modules/managers/dashboardThemeManagement/dashboardThemeManagementExamples/DashboardThemeManagementExamples.vue'
 import KnHint from '@/components/UI/KnHint.vue'
 import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
+import { applySelectedThemeToWidgets } from './ThemesHelper'
 
 export default defineComponent({
     name: 'dashboard-variables',
@@ -76,6 +86,17 @@ export default defineComponent({
         onThemeSelected(selectedThemeId: number | null) {
             const theme = this.availableThemes.find((theme: IDashboardTheme) => theme.id === selectedThemeId)
             if (this.dashboardModelProp.configuration.theme) this.dashboardModelProp.configuration.theme.themeName = theme ? theme.themeName : ''
+        },
+        getSelectedTheme(themeId: number | null) {
+            const allThemes = this.getAllThemes()
+            return allThemes.find((theme: IDashboardTheme) => theme.id === themeId)
+        },
+        applyThemeToWidgets(filterType: 'allWidgets' | 'withThemes' | 'withoutThemes' = 'allWidgets') {
+            if (this.dashboardModel.configuration.theme?.id != null) {
+                const selectedTheme = this.getSelectedTheme(this.dashboardModel.configuration.theme.id)
+                if (selectedTheme) this.dashboardModel.configuration.theme = { ...selectedTheme }
+                applySelectedThemeToWidgets(this.dashboardModel.widgets, this.dashboardModel.configuration.theme, filterType)
+            }
         }
     }
 })

@@ -1,10 +1,14 @@
 import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
 import { IWidget } from '../../Dashboard'
 
-export const applySelectedThemeToWidgets = (widgets: IWidget[], selectedTheme: IDashboardTheme) => {
+export const applySelectedThemeToWidgets = (widgets: IWidget[], selectedTheme: IDashboardTheme, filterType: 'allWidgets' | 'withThemes' | 'withoutThemes' = 'allWidgets') => {
     const selectedThemeConfig = selectedTheme.config
 
     widgets.forEach((widget) => {
+        const hasThemeId = widget.settings?.style?.themeId != null
+        if (filterType === 'withThemes' && !hasThemeId) return
+        if (filterType === 'withoutThemes' && hasThemeId) return
+
         switch (widget.type) {
             case 'table':
                 applyStylesToWidget(widget.settings.style, selectedTheme, selectedThemeConfig.table)

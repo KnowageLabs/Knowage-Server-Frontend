@@ -525,7 +525,11 @@
                 "dashboardTheme": "Dashboard Theme",
                 "dashboardThemeHint": "Work in progress, themes preview will be soon visible here",
                 "editTheme": "Edit Theme",
-                "info": "Theme is a collection of styles that will be applied to all widgets. You can select a one from the available ones or create a new one in Dashboard Theme Manager"
+                "info": "Theme is a collection of styles that will be applied to all widgets. You can select a one from the available ones or create a new one in Dashboard Theme Manager",
+                "applyTheme": "Apply Theme",
+                "toAllWidgets": "to all widgets",
+                "toWidgetsWithoutThemes": "to widgets without themes",
+                "toWidgetsWithThemes": "to widgets with themes"
             },
             "timeFormats": {
                 "dateTimeFull": "Full Date And Time",

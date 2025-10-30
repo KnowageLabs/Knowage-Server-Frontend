@@ -44,12 +44,10 @@ import store from '@/modules/documentExecution/dashboard/Dashboard.store'
 import mainStore from '@/App.store'
 import deepcopy from 'deepcopy'
 import { setVariableValueFromDataset } from './VariablesHelper'
-import { applySelectedThemeToWidgets } from './themes/ThemesHelper'
 import WidgetEditor from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditor.vue'
 import { createCustomHeaderWidget } from './DashboardGeneralSettingsHelper'
 import { IMenuAndWidgets } from '../Dashboard'
 import { addMissingMenuWidgetsConfiguration } from '../DashboardHelpers'
-import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
 import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
@@ -150,19 +148,10 @@ export default defineComponent({
             }
 
             this.dashboardModel.configuration.variables = this.variables
-            if (this.isEnterprise && this.dashboardModel.configuration.theme?.id != null) {
-                const selectedTheme = this.getSelectedTheme(this.dashboardModel.configuration.theme.id)
-                if (selectedTheme) this.dashboardModel.configuration.theme = { ...selectedTheme }
-                applySelectedThemeToWidgets(this.dashboardModel.widgets, this.dashboardModel.configuration.theme)
-            }
             this.updateWidgetMenuSettings()
 
             if (refreshWidgets) emitter.emit('refreshAfterGeneralSettingsChange')
             this.$emit('closeGeneralSettings')
-        },
-        getSelectedTheme(themeId: number | null) {
-            const allThemes = this.getAllThemes()
-            return allThemes.find((theme: IDashboardTheme) => theme.id === themeId)
         },
         saveCustomHeader() {
             const customHeaderRef = this.$refs.widgetEditor as any
