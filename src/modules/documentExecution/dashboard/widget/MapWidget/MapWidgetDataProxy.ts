@@ -17,7 +17,6 @@ export const getMapWidgetData = async (dashboardId: any, dashboardConfig: any, w
         const postData = formatMapModelForService(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
 
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
-        // TODO - Remove mock and uncomment BE call
         await axios
             .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
             .then((response: AxiosResponse<any>) => {

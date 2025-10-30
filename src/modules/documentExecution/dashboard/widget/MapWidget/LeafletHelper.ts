@@ -266,7 +266,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
                     const dashboardConfig = dashStore.dashboards[dashboardId]?.configuration
                     const selections = dashStore.getSelections(dashboardId) ?? []
 
-                    let targetDatasetTempData = await getMapWidgetData(dashboardId, dashboardConfig, model, dashboardConfig.datasets, false, selections)
+                    let targetDatasetTempData = await getMapWidgetData(dashboardId, dashboardConfig, model, dashboardConfig.datasets, false, selections, dashStore.dashboards[dashboardId]?.associations ?? {})
 
                     if (targetDatasetTempData?.[dsId]) targetDatasetData = targetDatasetTempData[dsId]
                 }
