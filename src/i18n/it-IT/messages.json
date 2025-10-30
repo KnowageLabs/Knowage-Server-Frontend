@@ -76,6 +76,8 @@
         "detail": "Detail",
         "details": "dettagli",
         "development": "sviluppo",
+        "disable": "Disabilita",
+        "disableAll": "Disabilita Tutti",
         "document": "Documento",
         "documentDetails": "dettagli documento",
         "documents": "documenti",
@@ -85,6 +87,9 @@
         "driver": "driver",
         "edit": "modifica",
         "email": "Email",
+        "enable": "Abilita",
+        "enableAll": "Abilita tutti",
+        "enabled": "Abilitato",
         "environment": "ambiente",
         "error": {
             "allowedFileTypes": "i file permessi sono {types}",

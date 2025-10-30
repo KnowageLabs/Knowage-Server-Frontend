@@ -15,7 +15,24 @@
                         </q-item-section>
 
                         <q-item-section side>
-                            <q-badge v-if="authorizationCBs[category.categoryName]" color="primary" :label="badgeNumber(category.categoryName)" />
+                            <q-badge v-if="authorizationCBs[category.categoryName]" color="primary" :label="badgeNumber(category.categoryName)">
+                                <q-menu>
+                                    <q-list style="min-width: 100px">
+                                        <q-item clickable v-close-popup @click="enableDisableAll(category.categoryName, true)">
+                                            <q-item-section avatar>
+                                                <q-icon color="primary" name="toggle_on" />
+                                            </q-item-section>
+                                            <q-item-section>{{ $t('common.enableAll') }}</q-item-section>
+                                        </q-item>
+                                        <q-item clickable v-close-popup @click="enableDisableAll(category.categoryName, false)">
+                                            <q-item-section avatar>
+                                                <q-icon color="primary" name="toggle_off" />
+                                            </q-item-section>
+                                            <q-item-section>{{ $t('common.disableAll') }}</q-item-section>
+                                        </q-item>
+                                    </q-list>
+                                </q-menu>
+                            </q-badge>
                         </q-item-section>
                     </template>
                     <q-card v-if="authorizationCBs[category.categoryName] && filteredAuthList(category.categoryName) && filteredAuthList(category.categoryName).length > 0">
@@ -76,6 +93,12 @@ export default defineComponent({
     methods: {
         authChanged(fieldName: string, value: any) {
             this.$emit('authChanged', { fieldName, value })
+        },
+        enableDisableAll(categoryName: string, enable: boolean) {
+            this.filteredAuthList(categoryName).forEach((auth) => {
+                this.role[auth.fieldName] = enable
+                this.authChanged(auth.fieldName, enable)
+            })
         },
         filteredAuthList(categoryName: string) {
             return this.authorizationCBs[categoryName].filter((auth) => auth.label.toLowerCase().includes(this.filter.toLowerCase()))
