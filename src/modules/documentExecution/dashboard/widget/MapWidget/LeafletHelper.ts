@@ -55,10 +55,10 @@ const createMarker = (position: number[] | string, settings: IMapWidgetVisualiza
 
     let icon
 
-    if (!settings.type || settings.type === 'default') {
+    if (!settings.type || (settings.type === 'default' && !markerIcon)) {
         return L.circleMarker(position, defaultMarkerSettings)
     }
-    if (settings.type === 'icon') {
+    if (markerColor && markerIcon) {
         icon = L.divIcon({
             html: `<i ${markerColor ? 'style="color:' + markerColor + '"' : ''} class="${markerIcon || 'fa fa-map-marker'} fa-2x"></i>`,
             shadowUrl: '',
@@ -68,7 +68,7 @@ const createMarker = (position: number[] | string, settings: IMapWidgetVisualiza
     }
     if (settings.type === 'img') icon = L.icon({ iconUrl: settings.img, shadowUrl: settings.img, shadowSize: [1, 1] })
     if (settings.type === 'url') icon = L.icon({ iconUrl: settings.url, shadowUrl: settings.img, iconSize: [30, 30], shadowSize: [1, 1] })
-    if (['img', 'icon', 'url'].includes(settings.type)) return L.marker(position, { icon: icon })
+    if (['img', 'icon', 'url', 'default'].includes(settings.type)) return L.marker(position, { icon: icon })
 }
 
 // Used for creating marker object
