@@ -1117,6 +1117,7 @@
                     "serieName": "Serie name",
                     "serieValue": "Serie value"
                 },
+                "columnInteractionHint": "Select the column to bind the interaction to.",
                 "crossNavigation": "Cross-navigation",
                 "crossNavigationName": "Cross Navigation Name",
                 "directDownload": "Direct download",

@@ -5,7 +5,10 @@
                 <div v-for="(linkConfig, index) in linkConfiguration.linkVizualizationTypes" :key="index" class="p-col-12 p-fluid p-formgrid p-grid">
                     <div class="p-col-12 p-fluid p-formgrid p-grid p-ai-center">
                         <q-select filled dense class="p-sm-12 p-md-5" v-model="linkConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options options-dense option-label="label" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="linksDisabled" @update:modelValue="onVizualizationTypeChange(linkConfig)"></q-select>
-                        <q-select filled dense class="p-sm-12 p-md-5 q-ml-sm" v-model="linkConfig.column" :options="availableColumns(linkConfig.vizualizationType)" emit-value map-options option-label="name" options-dense :label="$t('common.column')" :disable="linksDisabled"></q-select>
+                        <div class="p-sm-12 p-md-5 q-ml-sm" style="display: flex; align-items: flex-start; gap: 6px">
+                            <q-select filled dense style="flex: 1" v-model="linkConfig.column" :options="availableColumns(linkConfig.vizualizationType)" emit-value map-options option-label="name" options-dense :label="$t('common.column')" :disable="linksDisabled"></q-select>
+                            <Button v-tooltip.top="{ value: $t('dashboard.widgetEditor.interactions.columnInteractionHint'), disabled: linksDisabled }" icon="pi pi-info-circle" class="p-button-text p-button-plain p-button-sm" />
+                        </div>
 
                         <Button v-if="index === 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" @click="addLinkConfiguration" />
                         <Button v-if="index !== 0" icon="pi pi-trash kn-cursor-pointer" class="p-button-text p-button-plain p-js-center p-ml-2" @click="removeLinkConfiguration(index)" />

@@ -4,7 +4,10 @@
             <div v-for="(previewConfig, index) in previewConfiguration.previewVizualizationTypes" :key="index" class="p-col-12 p-fluid p-formgrid p-grid">
                 <div class="p-col-12 p-fluid p-formgrid p-grid p-ai-center">
                     <q-select filled dense class="p-sm-12 p-md-6" v-model="previewConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options options-dense option-label="label" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="previewDisabled" @update:modelValue="onVizualizationTypeChange(previewConfig)"></q-select>
-                    <q-select filled dense class="p-sm-12 p-md-6 p-px-2" v-model="previewConfig.column" :options="availableColumns(previewConfig.vizualizationType)" emit-value map-options option-label="name" options-dense :label="$t('common.column')" :disable="previewDisabled"></q-select>
+                    <div class="p-sm-12 p-md-6 p-px-2" style="display: flex; align-items: flex-start; gap: 6px">
+                        <q-select filled dense style="flex: 1" v-model="previewConfig.column" :options="availableColumns(previewConfig.vizualizationType)" emit-value map-options option-label="name" options-dense :label="$t('common.column')" :disable="previewDisabled"></q-select>
+                        <Button v-tooltip.top="{ value: $t('dashboard.widgetEditor.interactions.columnInteractionHint'), disabled: previewDisabled }" icon="pi pi-info-circle" class="p-button-text p-button-plain p-button-sm" />
+                    </div>
 
                     <div class="p-col-12 p-d-flex p-jc-end p-ai-center" style="gap: 0.5em">
                         <Button v-if="index === 0" icon="fas fa-plus-circle fa-1x" class="p-md-2 p-button-text p-button-plain p-js-center p-ml-2" @click="addPreviewConfiguration" />

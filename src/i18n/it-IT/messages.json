@@ -927,6 +927,7 @@
                     "serieName": "Serie name",
                     "serieValue": "Serie value"
                 },
+                "columnInteractionHint": "Seleziona la colonna su cui abilitare l'interazione.",
                 "crossNavigation": "Cross-navigation",
                 "crossNavigationName": "Cross Navigation Name",
                 "directDownload": "Direct download",
