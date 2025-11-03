@@ -81,22 +81,7 @@
                             @update:modelValue="updateMapWidgetLegendWithSepecificModel(visType)"
                         ></q-select>
 
-                        <q-select
-                            v-if="visType && visType.type === 'pies' && visType.targetType !== 'column'"
-                            filled
-                            dense
-                            multiple
-                            class="col q-ml-sm"
-                            v-model="visType.chartMeasures"
-                            :options="availableChartMeasures(visType.targetDataset || visType.target)"
-                            emit-value
-                            map-options
-                            :option-value="getTargetLayerType(visType) === 'layer' && visType.targetType !== 'column' ? 'property' : 'name'"
-                            :option-label="getTargetLayerType(visType) === 'layer' && visType.targetType !== 'column' ? 'property' : 'name'"
-                            options-dense
-                            :label="$t('common.measures')"
-                            @update:modelValue="updateMapWidgetLegendWithSepecificModel(visType)"
-                        ></q-select>
+                        <q-select v-if="visType && visType.type === 'pies'" filled dense multiple class="col q-ml-sm" v-model="visType.chartMeasures" :options="availableChartMeasures(visType.targetDataset || visType.target)" emit-value map-options option-value="name" option-label="name" options-dense :label="$t('common.measures')" @update:modelValue="updateMapWidgetLegendWithSepecificModel(visType)"> </q-select>
 
                         <span class="p-d-flex p-flex-row p-ai-center p-pl-2">
                             {{ $t('common.show') }}
