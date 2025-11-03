@@ -349,6 +349,7 @@ body {
     margin-left: var(--kn-mainmenu-width);
     &.hiddenMenu {
         margin-left: 0;
+        margin-top: 0;
         max-width: 100%;
     }
     flex: 1;

@@ -9,6 +9,7 @@ import workspaceRoutes from '@/modules/workspace/workspace.routes.js'
 import overlayRoutes from '@/overlay/Overlay.routes.js'
 import authHelper from '@/helpers/commons/authHelper'
 import dataPreparationRoutes from '@/modules/workspace/dataPreparation/DataPreparation.routes.js'
+import documentationRoutes from '@/components/documentation/Documentation.routes.js'
 import { loadLanguageAsync } from '@/App.i18n.js'
 import mainStore from '@/App.store'
 
@@ -71,7 +72,7 @@ const closingRoutes = [
     }
 ]
 
-const routes = baseRoutes.concat(managersRoutes).concat(importExportRoutes).concat(kpiRoutes).concat(documentExecutionRoutes).concat(documentBrowserRoutes).concat(workspaceRoutes).concat(overlayRoutes).concat(dataPreparationRoutes).concat(closingRoutes)
+const routes = baseRoutes.concat(managersRoutes).concat(importExportRoutes).concat(kpiRoutes).concat(documentExecutionRoutes).concat(documentBrowserRoutes).concat(workspaceRoutes).concat(overlayRoutes).concat(dataPreparationRoutes).concat(closingRoutes).concat(documentationRoutes)
 
 const router = createRouter({
     base: import.meta.env.VITE_PUBLIC_PATH,

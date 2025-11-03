@@ -129,6 +129,76 @@
             }
         ]
     },
+    "documentation": {
+        "label": "documentation",
+        "properties": [
+            {
+                "key": "--kn-documentation-drawer-color-background",
+                "label": "Drawer Background Color",
+                "type": "color"
+            },
+            {
+                "key": "--kn-documentation-drawer-color",
+                "label": "Drawer Text Color",
+                "type": "color"
+            },
+            {
+                "key": "--kn-documentation-drawer-color-active",
+                "label": "Drawer Active Link Color",
+                "type": "color"
+            },
+            {
+                "key": "--kn-documentation-drawer-font-family",
+                "label": "Drawer Font Family",
+                "type": "text"
+            },
+            {
+                "key": "--kn-documentation-drawer-font-size",
+                "label": "Drawer Font Size",
+                "type": "text"
+            },
+            {
+                "key": "--kn-documentation-content-background",
+                "label": "Content Background",
+                "type": "text"
+            },
+            {
+                "key": "--kn-documentation-content-color",
+                "label": "Content Text Color",
+                "type": "color"
+            },
+            {
+                "key": "--kn-documentation-content-font-family",
+                "label": "Content Font Family",
+                "type": "text"
+            },
+            {
+                "key": "--kn-documentation-content-font-size",
+                "label": "Content Font Size",
+                "type": "text"
+            },
+            {
+                "key": "--kn-documentation-content-code-background",
+                "label": "Code Background Color",
+                "type": "color"
+            },
+            {
+                "key": "--kn-documentation-content-code-color",
+                "label": "Code Text Color",
+                "type": "color"
+            },
+            {
+                "key": "--kn-documentation-content-code-border-radius",
+                "label": "Code Border Radius",
+                "type": "text"
+            },
+            {
+                "key": "--kn-documentation-content-link-color",
+                "label": "Link Color",
+                "type": "color"
+            }
+        ]
+    },
     "hintcard": {
         "label": "hint card",
         "properties": [
