@@ -138,10 +138,10 @@ export default defineComponent({
         },
         updateLayerVisibilityState() {
             const newState: Record<string, boolean> = {}
-            this.widgetModel.layers.forEach((layer: IMapWidgetLayer) => (newState[layer.layerId] = false))
+            this.widgetModel.settings.visualizations.forEach((visualization: IMapWidgetVisualizationType) => (newState[visualization.target] = false))
 
-            const vizualizations = this.widgetModel.settings?.visualizations ? deepcopy(this.widgetModel.settings.visualizations) : []
-            vizualizations.reverse().forEach((vizualization: IMapWidgetVisualizationType) => (newState[vizualization.target] = vizualization.visible))
+            const visualizations = this.widgetModel.settings?.visualizations ? deepcopy(this.widgetModel.settings.visualizations) : []
+            visualizations.reverse().forEach((visualization: IMapWidgetVisualizationType) => (newState[visualization.label] = visualization.visible))
             this.layerVisibilityState = newState
         },
         loadActiveSelections() {

@@ -114,7 +114,7 @@ const createHeatLayer = (map: any, heatMapData: number[][], layerVisualizationSe
                 knProperties: { heatmap: true, layerId: layerId }
             }).addTo(map)
 
-            heatLayer.knProperties = { heatmap: true, layerId: layerId }
+            heatLayer.knProperties = { heatmap: true, layerId: layerId, visualizationLabel: layerVisualizationSettings.label }
 
             if (centerMap) centerAndRedrawTheLayerOnMap(map, heatLayer, tempHeatMapData)
         }, 50)

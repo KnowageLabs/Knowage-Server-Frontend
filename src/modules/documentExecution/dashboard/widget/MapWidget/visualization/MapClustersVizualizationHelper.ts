@@ -44,7 +44,7 @@ export const createClusterGroup = (layerVisualizationSettings: IMapWidgetVisuali
         }
     })
 
-    clusters.knProperties = { cluster: true, layerId: target.layerId }
+    clusters.knProperties = { cluster: true, layerId: target.layerId, visualizationLabel: layerVisualizationSettings.label }
 
     return clusters
 }

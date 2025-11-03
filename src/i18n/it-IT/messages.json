@@ -1041,7 +1041,8 @@
                 "south": "South",
                 "toColor": "To color",
                 "toThreshold": "To (<)",
-                "tooltipHint": "The selected elements will be visible on mouse hover",
+                "tooltipHint": "Gli elementi selezionati saranno visibili al passaggio del mouse sulla mappa",
+                "uniqueLabel": "La label deve essere unica",
                 "visTypes": {
                     "balloons": "Balloons",
                     "choropleth": "Choropleth",

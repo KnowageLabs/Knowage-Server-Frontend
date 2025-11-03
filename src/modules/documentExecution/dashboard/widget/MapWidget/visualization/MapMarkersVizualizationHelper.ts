@@ -54,7 +54,7 @@ const createAndAddMarkerFromData = (row: any, data: any, widgetModel: IWidget, t
     if (!coordinates) return
 
     const container = clusters ?? layerGroup
-    const marker = addMarker(coordinates, container, layerVisualizationSettings.markerConf ?? null, row[dataColumnIndex], spatialAttribute, conditionalStyle?.['background-color'], conditionalStyle?.icon)
+    const marker = addMarker(coordinates, container, layerVisualizationSettings.markerConf ?? null, layerVisualizationSettings.label, row[dataColumnIndex], spatialAttribute, conditionalStyle?.['background-color'], conditionalStyle?.icon)
 
     addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker, activeSelections, dashboardId, variables)
     addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker, activeSelections, dashboardId, variables)
@@ -189,7 +189,7 @@ export const createMarkerForVisualization = (feature: ILayerFeature, layerVisual
     const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, value, variables)
     const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
     if (!coordinates) return
-    const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.markerConf ?? null, value as any, spatialAttribute, conditionalStyle?.['background-color'], conditionalStyle?.icon)
+    const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.markerConf ?? null, layerVisualizationSettings.label, value as any, spatialAttribute, conditionalStyle?.['background-color'], conditionalStyle?.icon)
 
     addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker, activeSelections, dashboardId, variables)
     addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker, activeSelections, dashboardId, variables)

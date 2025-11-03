@@ -101,6 +101,7 @@ export interface IMapWidgetControlPanel {
 
 export interface IMapWidgetVisualizationType {
     id?: string
+    label: string
     target: string
     targetType?: string
     targetDataset?: string
@@ -120,7 +121,6 @@ export interface IMapWidgetVisualizationType {
     properties?: IMapWidgetLayerProperty[]
     filter?: IMapWidgetLayerFilter
     layerName?: string
-    label?: string
 }
 
 export interface IMapWidgetVisualizationTypeMarker {

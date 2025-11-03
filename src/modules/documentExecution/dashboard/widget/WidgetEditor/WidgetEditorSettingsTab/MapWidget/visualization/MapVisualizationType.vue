@@ -10,8 +10,8 @@
                 </div>
                 <div class="p-col-11 p-d-flex p-flex-column">
                     <div class="row items-center q-mb-sm">
-                        <q-input filled dense class="col" v-model="visType.label" label="label"></q-input>
-                        <q-select filled dense class="col" v-model="visType.target" :options="availableLayersOptions" emit-value map-options option-value="layerId" option-label="name" options-dense :label="$t('common.layer')" @update:modelValue="onTargetChange($event, visType)"></q-select>
+                        <q-input filled dense class="col-4 q-ml-sm" v-model="visType.label" :rules="getLabelRules(visTypeIndex)" @blur="normalizeLabel(visType)" label="label"></q-input>
+                        <q-select filled dense class="col q-ml-sm" v-model="visType.target" :options="availableLayersOptions" emit-value map-options option-value="layerId" option-label="name" options-dense :label="$t('common.layer')" @update:modelValue="onTargetChange($event, visType)"></q-select>
 
                         <q-select v-if="visType && getTargetLayerType(visType) === 'layer' && visType.type !== 'geography'" filled dense class="col q-ml-sm" v-model="visType.targetType" :options="['column', 'property']" emit-value map-options option-value="name" option-label="name" options-dense label="Data Link" @update:modelValue="onDataLinkChange($event, visType)"></q-select>
 
@@ -184,6 +184,17 @@ export default defineComponent({
         ...mapActions(appStore, ['setLoading']),
         setEventListeners() {
             emitter.on('mapFieldsUpdated', this.loadVisTypeModel)
+        },
+        isLabelUnique(label: string | null | undefined, currentIndex: number) {
+            if (!label) return false
+            const normalized = label.toString().trim().toLowerCase()
+            return !this.visualizationTypeModel.some((vt: any, idx: number) => idx !== currentIndex && vt.label && vt.label.toString().trim().toLowerCase() === normalized)
+        },
+        normalizeLabel(visType: any) {
+            if (visType && typeof visType.label === 'string') visType.label = visType.label.trim()
+        },
+        getLabelRules(index: number) {
+            return [(val: any) => !!(val && val.toString().trim()) || this.$t('common.required'), (val: any) => this.isLabelUnique(val, index) || this.$t('dashboard.widgetEditor.map.uniqueLabel')]
         },
         removeEventListeners() {
             emitter.off('mapFieldsUpdated', this.loadVisTypeModel)

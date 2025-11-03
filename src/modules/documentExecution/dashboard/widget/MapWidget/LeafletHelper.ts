@@ -72,7 +72,7 @@ const createMarker = (position: number[] | string, settings: IMapWidgetVisualiza
 }
 
 // Used for creating marker object
-export const addMarker = (position: number[] | string, container: any, settings: IMapWidgetVisualizationTypeMarker | IMapWidgetVisualizationTypeBalloons | null, value: number, spatialAttribute: any, colorFromConditionalStyles?: string | undefined, iconFromConditionalStyles?: string | undefined) => {
+export const addMarker = (position: number[] | string, container: any, settings: IMapWidgetVisualizationTypeMarker | IMapWidgetVisualizationTypeBalloons | null, visualizationLabel: string, value: number, spatialAttribute: any, colorFromConditionalStyles?: string | undefined, iconFromConditionalStyles?: string | undefined) => {
     let marker
     if (spatialAttribute?.properties?.coordType === 'json')
         L.geoJSON(JSON.parse(position as string), {
@@ -273,7 +273,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             }
 
             const layerGroup = L.layerGroup().addTo(map)
-            layerGroup.knProperties = { layerId: target.layerId, layerGroup: true }
+            layerGroup.knProperties = { layerId: target.layerId, layerGroup: true, visualizationLabel: layer.label }
 
             if (reloadWithFilters) centerMap = false
 

@@ -8,21 +8,21 @@ const heatmapLayersCache = {} as Record<string, { layer: any; heatMapData: numbe
 export const switchLayerVisibility = (map: L.Map, visibleLayers: any): void => {
     map?.eachLayer((layer: any) => {
         if (layer.knProperties?.layerGroup) {
-            if (!visibleLayers[layer.knProperties.layerId]) {
+            if (!visibleLayers[layer.knProperties.visualizationLabel]) {
                 layer.hide()
             } else {
                 layer.show()
             }
         }
 
-        if (layer.knProperties?.cluster && !visibleLayers[layer.knProperties.layerId]) {
-            clusterLayerCache[layer.knProperties.layerId] = { layer: layer }
+        if (layer.knProperties?.cluster && !visibleLayers[layer.knProperties.visualizationLabel]) {
+            clusterLayerCache[layer.knProperties.visualizationLabel] = { layer: layer }
             layer.remove()
             return
         }
 
-        if (layer.knProperties?.heatmap && !visibleLayers[layer.knProperties.layerId]) {
-            heatmapLayersCache[layer.knProperties.layerId] = { layer: layer, heatMapData: deepcopy(layer._latlngs), heatMapOptions: deepcopy(layer.options) }
+        if (layer.knProperties?.heatmap && !visibleLayers[layer.knProperties.visualizationLabel]) {
+            heatmapLayersCache[layer.knProperties.visualizationLabel] = { layer: layer, heatMapData: deepcopy(layer._latlngs), heatMapOptions: deepcopy(layer.options) }
             map.removeLayer(layer)
             return
         }
