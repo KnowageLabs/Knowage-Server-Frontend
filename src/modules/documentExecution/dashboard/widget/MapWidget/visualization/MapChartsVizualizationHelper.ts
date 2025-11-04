@@ -37,9 +37,10 @@ const addMapChartsUsingData = (data: any, model: IWidget, target: IMapWidgetLaye
         const customIcon = L.divIcon({
             html: `<div id='${id}'></div>`,
             iconSize: [30, 30],
+            iconAnchor: [30, 30],
             className: 'custom-icon'
         })
-        const marker = L.marker(getCoordinates(spatialAttribute, row[geoColumn], null), { icon: customIcon }).addTo(layerGroup)
+        const marker = L.marker(getCoordinates(spatialAttribute, row[geoColumn]), { icon: customIcon }).addTo(layerGroup)
 
         const chart = createVegaChart(chartValuesRecord, layerVisualizationSettings, marker._icon, variables, model)
         charts.push(chart)
@@ -113,6 +114,7 @@ const addChartsUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSet
     const customIcon = L.divIcon({
         html: `<div id='${id}'></div>`,
         iconSize: [30, 30],
+        iconAnchor: [30, 30],
         className: 'custom-icon'
     })
     const marker = L.marker(coordinates.reverse(), { icon: customIcon }).addTo(layerGroup)
