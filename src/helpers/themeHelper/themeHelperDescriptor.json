@@ -178,6 +178,11 @@
                 "type": "text"
             },
             {
+                "key": "--kn-documentation-content-heading-color",
+                "label": "Content Heading Color",
+                "type": "color"
+            },
+            {
                 "key": "--kn-documentation-content-code-background",
                 "label": "Code Background Color",
                 "type": "color"

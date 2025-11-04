@@ -20,6 +20,11 @@ const markdown = examples.examples.markdown
     margin-top: 0;
     padding-left: 20%;
     padding-right: 20%;
+    &:deep(h1),
+    &:deep(h2),
+    &:deep(h3) {
+        color: var(--kn-documentation-content-heading-color);
+    }
     &:deep(a) {
         color: var(--kn-documentation-content-link-color);
     }
