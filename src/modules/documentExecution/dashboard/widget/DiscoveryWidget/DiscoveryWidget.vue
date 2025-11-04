@@ -170,7 +170,7 @@ export default defineComponent({
         },
         loadSearchValue() {
             const dashboardDrivers = this.getDashboardDrivers(this.dashboardId)
-            const searchDriver = dashboardDrivers.find((driver) => driver.driverLabel === this.propWidget.settings.search.driverLabel)
+            const searchDriver = dashboardDrivers?.find((driver) => driver.driverLabel === this.propWidget.settings.search.driverLabel)
             searchDriver ? (this.searchWord = searchDriver.value) : (this.searchWord = this.propWidget.settings.search.defaultValue)
         },
         loadActiveSelections() {
@@ -404,8 +404,8 @@ export default defineComponent({
                         // tempCol.cellStyle = { 'white-space': 'normal' }
 
                         // VISUALIZATION TYPE CONFIGURATION  -----------------------------------------------------------------
-                        const visTypes = this.propWidget.settings.visualization.visualizationTypes as ITableWidgetVisualizationTypes
-                        if (visTypes.enabled) {
+                        const visTypes = this.propWidget.settings?.visualization?.visualizationTypes as ITableWidgetVisualizationTypes
+                        if (visTypes && visTypes.enabled) {
                             const colVisType = this.getColumnVisualizationType(tempCol.colId)
                             tempCol.pinned = colVisType.pinned
                         }
@@ -504,10 +504,10 @@ export default defineComponent({
             else return colStyles.styles[0].properties.width
         },
         getColumnVisibilityCondition(colId, propertyToReturn) {
-            const visCond = this.propWidget.settings.visualization.visibilityConditions
+            const visCond = this.propWidget.settings?.visualization?.visibilityConditions
             let columnHidden = false as boolean
 
-            if (visCond.enabled) {
+            if (visCond && visCond.enabled) {
                 const colConditions = visCond.conditions.filter((condition) => condition.target.includes(colId))
                 //We always take the 1st condition as a priority for the column and use that one.
                 if (colConditions[0]) {

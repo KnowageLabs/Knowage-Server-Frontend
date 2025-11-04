@@ -408,6 +408,10 @@
         "id": 1674120861663,
         "settings": {
             "clickable": true,
+            "conditionalStyles": {
+                "conditions": [],
+                "enabled": false
+            },
             "configuration": {
                 "customMessages": {
                     "hideNoRowsMessage": true,
@@ -615,7 +619,25 @@
                     "target": "all"
                 }
             ],
-            "updatable": true
+            "updatable": true,
+            "visualization": {
+                "visibilityConditions": {
+                    "conditions": [],
+                    "enabled": false
+                },
+                "visualizationTypes": {
+                    "enabled": false,
+                    "types": [
+                        {
+                            "pinned": "",
+                            "prefix": "",
+                            "suffix": "",
+                            "target": "all",
+                            "type": "Text"
+                        }
+                    ]
+                }
+            }
         },
         "style": {},
         "theme": "",
