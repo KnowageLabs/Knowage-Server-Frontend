@@ -109,10 +109,18 @@ const getFormattedCenterTextSettings = (widget: any) => {
 
 const getFormmatedLimitSettings = (widget: any) => {
     const formattedLimitSettings = { enabled: false, itemsNumber: null }
+
     const oldChartModel = widget.content?.chartTemplate?.CHART
     if (oldChartModel && oldChartModel.LIMIT && oldChartModel.LIMIT.style) {
         formattedLimitSettings.itemsNumber = oldChartModel.LIMIT.style.maxNumberOfLines
     }
+
+    const oldChartLimit = widget.content?.limitRows
+    if (oldChartLimit) {
+        formattedLimitSettings.enabled = oldChartLimit?.enable
+        formattedLimitSettings.itemsNumber = oldChartLimit?.rows
+    }
+
     return formattedLimitSettings
 }
 
