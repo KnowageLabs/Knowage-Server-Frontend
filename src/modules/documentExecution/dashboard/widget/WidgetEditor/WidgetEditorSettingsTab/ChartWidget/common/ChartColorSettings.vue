@@ -12,7 +12,7 @@
 
     <ColorPicker v-if="colorPickerVisible" class="dashboard-color-picker click-outside" theme="light" :color="customColorValue" :colors-default="descriptor.defaultColors" :sucker-hide="true" @changeColor="changeColor" />
 
-    <DataTable class="pallete-table p-m-2" :style="descriptor.colorPaletteStyle.table" :value="widgetModel.settings.chart.colors" :reorderable-columns="false" responsive-layout="scroll" @rowReorder="onRowReorder">
+    <DataTable v-if="colorsModel" class="pallete-table p-m-2" :style="descriptor.colorPaletteStyle.table" :value="colorsModel" :reorderable-columns="false" responsive-layout="scroll" @rowReorder="onRowReorder">
         <Column :row-reorder="true" :reorderable-column="false" :style="descriptor.colorPaletteStyle.column">
             <template #body="slotProps">
                 <span class="kn-height-full" :style="`background-color: ${slotProps.data}; color:${getContrastYIQ()}`">
@@ -48,11 +48,16 @@ import 'vue-color-kit/dist/vue-color-kit.css'
 import descriptor from './ChartColorSettingsDescriptor.json'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
+import deepcopy from 'deepcopy'
 
 export default defineComponent({
     name: 'hihgcharts-color-settings',
     components: { DataTable, Column, ColorPicker },
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
+    props: {
+        widgetModel: { type: Object as PropType<IWidget | null>, required: true },
+        themeStyle: { type: Array as PropType<string[] | null>, required: true }
+    },
+    emits: ['styleChanged'],
     setup() {
         const knowageStyleIcon = ref(null)
         const colorPickerVisible = ref(false)
@@ -70,44 +75,53 @@ export default defineComponent({
             editIndex: -1,
             colorPickTimer: null as any,
             useClickOutside,
-            widget: {} as any
+            colorsModel: null as string[] | null
         }
     },
     watch: {
         widgetModel() {
-            this.loadWidgetModel()
+            this.loadColorsModel()
+        },
+        themeStyle() {
+            this.loadColorsModel()
         }
     },
     created() {
         this.setEventListeners()
-        this.loadWidgetModel()
+        this.loadColorsModel()
     },
     unmounted() {
         this.removeEventListeners()
     },
     methods: {
         setEventListeners() {
-            emitter.on('chartTypeChanged', this.loadWidgetModel)
+            emitter.on('chartTypeChanged', this.loadColorsModel)
+            emitter.on('themeSelected', this.loadColorsModel)
         },
         removeEventListeners() {
-            emitter.off('chartTypeChanged', this.loadWidgetModel)
+            emitter.off('chartTypeChanged', this.loadColorsModel)
+            emitter.off('themeSelected', this.loadColorsModel)
         },
-        loadWidgetModel() {
-            this.widget = this.widgetModel
+        loadColorsModel() {
+            if (this.widgetModel?.settings?.chart?.colors) {
+                this.colorsModel = this.widgetModel.settings.chart.colors
+            } else if (this.themeStyle) {
+                this.colorsModel = this.themeStyle
+            }
         },
         toggleColorPicker(index) {
             this.colorPickerVisible = !this.colorPickerVisible
             this.editIndex = index
         },
         onRowReorder(event) {
-            this.widget.settings.chart.colors = [...event.value]
-            this.updateChartModel()
-            emitter.emit('refreshChart', this.widgetModel.id)
+            if (!this.colorsModel) return
+            this.colorsModel.splice(0, this.colorsModel.length, ...event.value)
+            this.colorsChanged()
         },
         addColor() {
-            this.widget.settings.chart.colors.push(this.customColorValue)
-            this.updateChartModel()
-            emitter.emit('refreshChart', this.widgetModel.id)
+            if (!this.colorsModel) return
+            this.colorsModel.push(this.customColorValue)
+            this.colorsChanged()
         },
         changeColor(color) {
             const { r, g, b, a } = color.rgba
@@ -117,19 +131,30 @@ export default defineComponent({
                 this.colorPickTimer = null
             }
             this.colorPickTimer = setTimeout(() => {
+                if (!this.colorsModel) return
                 if (!this.customColorValue) return
-                if (this.editIndex != -1) this.widget.settings.chart.colors[this.editIndex] = `rgba(${r}, ${g}, ${b}, ${a})`
-                else this.customColorValue = `rgba(${r}, ${g}, ${b}, ${a})`
-                emitter.emit('refreshChart', this.widgetModel.id)
+                if (this.editIndex != -1) {
+                    this.colorsModel[this.editIndex] = `rgba(${r}, ${g}, ${b}, ${a})`
+                    this.colorsChanged()
+                } else {
+                    this.customColorValue = `rgba(${r}, ${g}, ${b}, ${a})`
+                }
             }, 200)
         },
         deleteColor(index) {
-            this.widget.settings.chart.colors.splice(index, 1)
-            this.updateChartModel()
-            emitter.emit('refreshChart', this.widgetModel.id)
+            if (!this.colorsModel) return
+            this.colorsModel.splice(index, 1)
+            this.colorsChanged()
         },
-        updateChartModel() {
-            if (this.widget.settings.chartModel?.model) this.widget.settings.chartModel.model.colors = this.widget.settings.chart.colors
+        colorsChanged() {
+            if (this.widgetModel) {
+                this.widgetModel.settings.chart.colors = deepcopy(this.colorsModel)
+                if (this.widgetModel.settings.chartModel?.model) {
+                    this.widgetModel.settings.chartModel.model.colors = deepcopy(this.colorsModel)
+                }
+                emitter.emit('refreshChart', this.widgetModel?.id)
+                this.$emit('styleChanged')
+            }
         },
         getContrastYIQ() {
             //getContrastYIQ(hexcolor) {

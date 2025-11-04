@@ -9,7 +9,7 @@
                 </template>
                 <ChartJSLegendSettings v-if="accordion.type === 'Legend'" :widget-model="widgetModel"></ChartJSLegendSettings>
                 <ChartJSTooltipSettings v-else-if="accordion.type === 'Tooltip'" :widget-model="widgetModel"></ChartJSTooltipSettings>
-                <ChartColorSettings v-else-if="accordion.type === 'Colors'" :widget-model="widgetModel"></ChartColorSettings>
+                <ChartColorSettings v-else-if="accordion.type === 'Colors'" :widget-model="widgetModel" :theme-style="null"></ChartColorSettings>
                 <WidgetSelectionConfiguration v-else-if="accordion.type === 'SelectionConfiguration'" :widget-model="widgetModel"></WidgetSelectionConfiguration>
                 <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
                 <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>

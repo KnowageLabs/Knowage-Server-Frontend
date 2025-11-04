@@ -47,7 +47,7 @@ import KnHint from '@/components/UI/KnHint.vue'
 import DashboardThemeManagementEditor from './DashboardThemeManagementEditor.vue'
 import { IDashboardTheme } from './DashboardThememanagement'
 import deepcopy from 'deepcopy'
-import { getDefaultDashboardThemeConfig } from './DashboardThemeHelper'
+import { getDefaultDashboardThemeConfig, themeBackwardsCompatibility } from './DashboardThemeHelper'
 import { IDashboardThemeConfig } from './DashboardThememanagement'
 import ThemeExamples from './dashboardThemeManagementExamples/DashboardThemeManagementExamples.vue'
 
@@ -107,6 +107,7 @@ export default defineComponent({
         },
         selectTheme(event) {
             this.selectedTheme = deepcopy(event.item) as IDashboardTheme
+            if (this.selectedTheme.config) themeBackwardsCompatibility(this.selectedTheme.config)
         },
         async getAllThemes() {
             this.loading = true
@@ -155,6 +156,8 @@ export default defineComponent({
         },
         onReaderLoad(event) {
             const json = JSON.parse(event.target.result)
+            if (json.config) themeBackwardsCompatibility(json.config)
+
             this.importWidget(json)
         },
         importWidget(json: JSON) {

@@ -12,46 +12,46 @@ export const applySelectedThemeToWidgets = (widgets: IWidget[], selectedTheme: I
 
         switch (widget.type) {
             case 'table':
-                applyStylesToWidget(widget.settings.style, selectedTheme, selectedThemeConfig.table)
+                applyStylesToWidget(widget, selectedTheme, selectedThemeConfig.table)
                 break
             case 'selector':
-                applyStylesToWidget(widget.settings.style, selectedTheme, selectedThemeConfig.selector)
+                applyStylesToWidget(widget, selectedTheme, selectedThemeConfig.selector)
                 break
             case 'html':
-                applyStylesToWidget(widget.settings.style, selectedTheme, selectedThemeConfig.html)
+                applyStylesToWidget(widget, selectedTheme, selectedThemeConfig.html)
                 break
             case 'text':
-                applyStylesToWidget(widget.settings.style, selectedTheme, selectedThemeConfig.text)
+                applyStylesToWidget(widget, selectedTheme, selectedThemeConfig.text)
                 break
             case 'highcharts':
             case 'chartJS':
             case 'vega':
-                applyStylesToWidget(widget.settings.style, selectedTheme, selectedThemeConfig.chart)
+                applyStylesToWidget(widget, selectedTheme, selectedThemeConfig.chart)
                 break
             case 'customchart':
-                applyStylesToWidget(widget.settings.style, selectedTheme, selectedThemeConfig.customChart)
+                applyStylesToWidget(widget, selectedTheme, selectedThemeConfig.customChart)
                 break
             case 'static-pivot-table':
             case 'ce-pivot-table':
-                applyStylesToWidget(widget.settings.style, selectedTheme, selectedThemeConfig.pivot)
+                applyStylesToWidget(widget, selectedTheme, selectedThemeConfig.pivot)
                 break
             case 'discovery':
-                applyStylesToWidget(widget.settings.style, selectedTheme, selectedThemeConfig.discovery)
+                applyStylesToWidget(widget, selectedTheme, selectedThemeConfig.discovery)
                 break
             case 'python':
-                applyStylesToWidget(widget.settings.style, selectedTheme, selectedThemeConfig.python)
+                applyStylesToWidget(widget, selectedTheme, selectedThemeConfig.python)
                 break
             case 'r':
-                applyStylesToWidget(widget.settings.style, selectedTheme, selectedThemeConfig.r)
+                applyStylesToWidget(widget, selectedTheme, selectedThemeConfig.r)
                 break
             case 'selection':
-                applyStylesToWidget(widget.settings.style, selectedTheme, selectedThemeConfig.activeSelections)
+                applyStylesToWidget(widget, selectedTheme, selectedThemeConfig.activeSelections)
                 break
             case 'image':
-                applyStylesToWidget(widget.settings.style, selectedTheme, selectedThemeConfig.image)
+                applyStylesToWidget(widget, selectedTheme, selectedThemeConfig.image)
                 break
             case 'map':
-                applyStylesToWidget(widget.settings.style, selectedTheme, selectedThemeConfig.map)
+                applyStylesToWidget(widget, selectedTheme, selectedThemeConfig.map)
                 break
             default:
                 break
@@ -59,7 +59,8 @@ export const applySelectedThemeToWidgets = (widgets: IWidget[], selectedTheme: I
     })
 }
 
-export const applyStylesToWidget = (widgetStyle, theme: IDashboardTheme, themeStyle) => {
+export const applyStylesToWidget = (widget, theme: IDashboardTheme, themeStyle) => {
+    const widgetStyle = widget.settings.style
     widgetStyle.themeId = theme.id
     widgetStyle.themeName = theme.themeName
     for (const styleProp in themeStyle.style) {
@@ -67,6 +68,8 @@ export const applyStylesToWidget = (widgetStyle, theme: IDashboardTheme, themeSt
             const originalText = widgetStyle[styleProp].text
             const { text, ...rest } = themeStyle.style[styleProp]
             widgetStyle[styleProp] = { ...rest, text: originalText }
+        } else if (styleProp === 'colors') {
+            widget.settings.chart.colors = deepcopy(themeStyle.style[styleProp])
         } else {
             widgetStyle[styleProp] = deepcopy(themeStyle.style[styleProp])
         }

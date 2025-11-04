@@ -52,7 +52,7 @@ export default defineComponent({
             const selectedTheme = this.themes.find((theme: IDashboardTheme) => theme.id === event.value)
             if (!selectedTheme || !this.widget) return
             const widgetTypeForThemes = this.getWidgetTypeForThemes()
-            applyStylesToWidget(this.widget.settings.style, selectedTheme, selectedTheme.config[widgetTypeForThemes])
+            applyStylesToWidget(this.widget, selectedTheme, selectedTheme.config[widgetTypeForThemes])
             emitter.emit('themeSelected')
             this.$emit('themeSelected', selectedTheme.themeName)
         },

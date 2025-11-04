@@ -52,7 +52,7 @@ const reapplyThemeToChartWidget = (widget: IWidget, selectedThemeId: number | nu
     const themes = dashStore.getAllThemes()
     const selectedTheme = themes.find((theme: IDashboardTheme) => theme.id === selectedThemeId)
     if (!selectedTheme) return
-    applyStylesToWidget(widget.settings.style, selectedTheme, selectedTheme.config['chart'])
+    applyStylesToWidget(widget, selectedTheme, selectedTheme.config['chart'])
 }
 
 const applyAxis = (chartModel: any) => {
@@ -158,5 +158,4 @@ const applyAxis = (chartModel: any) => {
     if (typeof chartModel.setWaterfallYAxis === 'function') {
         chartModel.setWaterfallYAxis()
     }
-
 }

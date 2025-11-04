@@ -10,6 +10,7 @@ import * as selectorWidgetDefaultValues from '@/modules/documentExecution/dashbo
 import * as selectionsWidgetDefaultValues from '@/modules/documentExecution/dashboard/widget/WidgetEditor/helpers/selectionsWidget/SelectionsWidgetDefaultValues'
 import * as pivotWidgetDefaultValues from '@/modules/documentExecution/dashboard/widget/WidgetEditor/helpers/pivotTableWidget/PivotTableDefaultValues'
 import { IPivotTableStyle } from '@/modules/documentExecution/dashboard/interfaces/pivotTable/DashboardPivotTableWidget'
+import ChartColorSettingsDescriptor from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/ChartWidget/common/ChartColorSettingsDescriptor.json'
 
 export const getDefaultDashboardThemeConfig = () => {
     const defaultDashboardThemeConfig = {} as IDashboardThemeConfig
@@ -22,6 +23,7 @@ export const getDefaultDashboardThemeConfig = () => {
     addUniqueDiscoveryWidgetStyles(defaultDashboardThemeConfig.discovery.style)
     addUniqueActiveSelectionsWidgetStyles(defaultDashboardThemeConfig.activeSelections.style)
     addUniqueSelectorWidgetStyles(defaultDashboardThemeConfig.selector.style)
+    addUniqueChartWidgetStyles(defaultDashboardThemeConfig.chart.style)
 
     return defaultDashboardThemeConfig
 }
@@ -67,4 +69,15 @@ const addUniqueActiveSelectionsWidgetStyles = (config: ISelectionWidgetStyle) =>
 
 const addUniqueSelectorWidgetStyles = (config: ISelectorWidgetStyle) => {
     config.label = selectorWidgetDefaultValues.getDefaultLabelStyle()
+}
+
+const addUniqueChartWidgetStyles = (config: any) => {
+    config.colors = ChartColorSettingsDescriptor.defaultColors as string[]
+}
+
+export const themeBackwardsCompatibility = (theme: IDashboardThemeConfig) => {
+    if (theme.chart?.style) {
+        const chartStyle = theme.chart.style as any
+        if (!chartStyle.colors) addUniqueChartWidgetStyles(chartStyle)
+    }
 }
