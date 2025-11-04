@@ -6,11 +6,13 @@
                 <label for="fileName" class="kn-material-input-label"> Custom color </label>
             </span>
         </div>
-        <Button class="kn-button kn-button--primary click-outside p-mx-1 p-p-0 kn-flex" :style="`background-color:${customColorValue}`" @click="toggleColorPicker(-1)"></Button>
-        <Button icon="fas fa-plus fa-1x" class="p-button-text p-button-plain p-ml-2" @click="addColor" />
+        <q-btn class="kn-button kn-button--primary p-mx-1 p-p-0 kn-flex" :style="`background-color:${customColorValue}`" unelevated>
+            <q-menu touch-position>
+                <q-color v-model="customColorValue" format-model="hexa" :palette="descriptor.defaultColors" @change="colorsChanged" />
+            </q-menu>
+        </q-btn>
+        <q-btn icon="fas fa-plus" class="p-button-text" color="primary" unelevated @click="addColor"> </q-btn>
     </div>
-
-    <ColorPicker v-if="colorPickerVisible" class="dashboard-color-picker click-outside" theme="light" :color="customColorValue" :colors-default="descriptor.defaultColors" :sucker-hide="true" @changeColor="changeColor" />
 
     <DataTable v-if="colorsModel" class="pallete-table p-m-2" :style="descriptor.colorPaletteStyle.table" :value="colorsModel" :reorderable-columns="false" responsive-layout="scroll" @rowReorder="onRowReorder">
         <Column :row-reorder="true" :reorderable-column="false" :style="descriptor.colorPaletteStyle.column">
@@ -28,7 +30,11 @@
         <Column :row-reorder="true" :reorderable-column="false" :style="descriptor.colorPaletteStyle.column">
             <template #body="slotProps">
                 <span class="kn-height-full" :style="`background-color: ${slotProps.data}; color:${getContrastYIQ()}`">
-                    <i class="pi pi-pencil p-mr-2 click-outside" @click="toggleColorPicker(slotProps.index)"></i>
+                    <i class="pi pi-pencil p-mr-2">
+                        <q-menu touch-position>
+                            <q-color v-model="colorsModel[slotProps.index]" format-model="hexa" @change="colorsChanged" />
+                        </q-menu>
+                    </i>
                     <i class="pi pi-trash p-mr-2" @click="deleteColor(slotProps.index)"></i>
                 </span>
             </template>
@@ -42,9 +48,7 @@
 import { defineComponent, PropType, ref } from 'vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
-import { ColorPicker } from 'vue-color-kit'
 import { useClickOutside } from '../../common/styleToolbar/useClickOutside'
-import 'vue-color-kit/dist/vue-color-kit.css'
 import descriptor from './ChartColorSettingsDescriptor.json'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
@@ -52,29 +56,17 @@ import deepcopy from 'deepcopy'
 
 export default defineComponent({
     name: 'hihgcharts-color-settings',
-    components: { DataTable, Column, ColorPicker },
+    components: { DataTable, Column },
     props: {
         widgetModel: { type: Object as PropType<IWidget | null>, required: true },
         themeStyle: { type: Array as PropType<string[] | null>, required: true }
     },
     emits: ['styleChanged'],
-    setup() {
-        const knowageStyleIcon = ref(null)
-        const colorPickerVisible = ref(false)
-        const contextMenuVisible = ref(false)
-        useClickOutside(knowageStyleIcon, () => {
-            colorPickerVisible.value = false
-            contextMenuVisible.value = false
-        })
-        return { colorPickerVisible, contextMenuVisible, knowageStyleIcon }
-    },
     data() {
         return {
             descriptor,
             customColorValue: '#8D8D8D',
             editIndex: -1,
-            colorPickTimer: null as any,
-            useClickOutside,
             colorsModel: null as string[] | null
         }
     },
@@ -109,10 +101,6 @@ export default defineComponent({
                 this.colorsModel = this.themeStyle
             }
         },
-        toggleColorPicker(index) {
-            this.colorPickerVisible = !this.colorPickerVisible
-            this.editIndex = index
-        },
         onRowReorder(event) {
             if (!this.colorsModel) return
             this.colorsModel.splice(0, this.colorsModel.length, ...event.value)
@@ -122,24 +110,6 @@ export default defineComponent({
             if (!this.colorsModel) return
             this.colorsModel.push(this.customColorValue)
             this.colorsChanged()
-        },
-        changeColor(color) {
-            const { r, g, b, a } = color.rgba
-
-            if (this.colorPickTimer) {
-                clearTimeout(this.colorPickTimer)
-                this.colorPickTimer = null
-            }
-            this.colorPickTimer = setTimeout(() => {
-                if (!this.colorsModel) return
-                if (!this.customColorValue) return
-                if (this.editIndex != -1) {
-                    this.colorsModel[this.editIndex] = `rgba(${r}, ${g}, ${b}, ${a})`
-                    this.colorsChanged()
-                } else {
-                    this.customColorValue = `rgba(${r}, ${g}, ${b}, ${a})`
-                }
-            }, 200)
         },
         deleteColor(index) {
             if (!this.colorsModel) return
