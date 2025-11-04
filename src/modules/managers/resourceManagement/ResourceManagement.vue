@@ -320,6 +320,7 @@ export default defineComponent({
 }
 .foldersTree {
     border-radius: 0;
+    flex: 1 0 0;
 }
 .rightFolderIconsBar {
     align-items: center;

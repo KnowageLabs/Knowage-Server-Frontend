@@ -619,7 +619,8 @@ export default defineComponent({
             if (this.document.typeCode === 'OLAP') {
                 this.exportOlap(type)
             } else if (this.document.typeCode === 'REPORT') {
-                window.open(this.urlData?.url + '&outputType=' + type, 'name', 'resizable=1,height=750,width=1000')
+                let tempUrlData = this.urlData!.url.replace(/([?&]outputType=)[^&]+/, '$1' + type).replace(/([?&]outputType_description=)[^&]+/, '$1' + type)
+                window.open(tempUrlData + '&outputType=' + type, 'name', 'resizable=1,height=750,width=1000')
             } else if (this.document.typeCode === 'DATAMART') {
                 await this.exportRegistry(type.toLowerCase())
             } else if (this.document.typeCode != 'DOCUMENT_COMPOSITE') {
