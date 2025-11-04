@@ -2,7 +2,7 @@ import { IDashboardConfiguration, IDashboardDataset, ISelection, IWidget, IWidge
 import { addDriversToData, addParametersToData, addSelectionsToData, showGetDataError, addVariablesToFormula, addFunctionColumnToTheMeasuresForThePostData } from '../../DashboardDataProxy'
 import { AxiosResponse } from 'axios'
 import { clearDatasetInterval } from '../../helpers/datasetRefresh/DatasetRefreshHelpers'
-import { IMapWidgetLayer, IWidgetMapLayerColumn } from '../../interfaces/mapWidget/DashboardMapWidget'
+import { IMapWidgetLayer } from '../../interfaces/mapWidget/DashboardMapWidget'
 import axios from 'axios'
 
 export const getMapWidgetData = async (dashboardId: any, dashboardConfig: any, widget: IWidget, datasets: IDashboardDataset[], initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
