@@ -49,7 +49,7 @@ const createAndAddMarkerFromData = (row: any, data: any, widgetModel: IWidget, t
     const filter = layerVisualizationSettings.filter
     if (filter?.enabled && !isConditionMet(filter, value)) return null
 
-    const conditionalStyle = getMarkersConditionalStyles(widgetModel, layerVisualizationSettings.target, row, variables, data[target.id])
+    const conditionalStyle = getMarkersConditionalStyles(widgetModel, row, variables, data[target.id])
     const coordinates = getCoordinates(spatialAttribute, row[geoColumn], null)
     if (!coordinates) return
 

@@ -129,7 +129,7 @@ export const getConditionalStyleUsingTargetDataset = (layerVisualizationSettings
     return getVizualizationConditionalStyles(widgetModel, layerVisualizationSettings.target, layerVisualizationSettings.targetProperty, originalVisualizationTypeValue, variables, targetDataset?.layerId)
 }
 
-export const getMarkersConditionalStyles = (widgetModel: IWidget, target: string, valueToCompare: any, variables: IVariable[], data: any, targetDataset?: string | undefined) => {
+export const getMarkersConditionalStyles = (widgetModel: IWidget, valueToCompare: any, variables: IVariable[], data: any) => {
     const conditionalStyles = widgetModel.settings?.conditionalStyles
     if (!conditionalStyles || !conditionalStyles.enabled) return null
     return getMarkerCondition(conditionalStyles.conditions, valueToCompare, data, variables)
