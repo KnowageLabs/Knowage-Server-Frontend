@@ -20,10 +20,19 @@
                 </div>
 
                 <div v-if="defaultValuesModel.valueType === 'STATIC'" class="p-col-12 p-lg-5 p-d-flex p-flex-column">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('common.value') }}</label>
+                    <label class="kn-material-input-label p-mr-2" :style="{ color: hasPendingInput ? 'var(--kn-color-warning)' : '' }">{{ $t('common.value') }}</label>
                     <Calendar v-if="isDateType" v-model="(defaultValuesModel.value as Date)" :disabled="defaultModelDisabled" :manual-input="true" :min-date="getDateRange('startDate')" :max-date="getDateRange('endDate')" @input="defaultValuesChanged" @dateSelect="defaultValuesChanged"></Calendar>
-                    <Chips v-if="!isDateType" v-model="defaultValuesModel.value" class="kn-material-input kn-flex" :disabled="defaultModelDisabled" @change="defaultValuesChanged" aria-describedby="chips-help" />
-                    <small v-if="!isDateType" id="chips-help">{{ $t('common.chipsHint') }}</small>
+
+                    <div v-if="!isDateType && (selectorType === 'multiValue' || selectorType === 'multiDropdown')" class="p-d-flex p-flex-column">
+                        <Chips ref="chipsInput" v-model="defaultValuesModel.value" class="kn-material-input kn-flex" :style="{ borderColor: hasPendingInput ? 'var(--kn-color-warning)' : '' }" :disabled="defaultModelDisabled" @change="defaultValuesChanged" @input="checkPendingInput" @blur="checkPendingInput" aria-describedby="chips-help" />
+                        <small id="chips-help">
+                            <b :style="{ color: hasPendingInput ? 'var(--kn-color-warning)' : '' }">{{ $t('common.chipsHint') }}!</b>
+                        </small>
+                    </div>
+
+                    <div v-if="!isDateType && (selectorType === 'singleValue' || selectorType === 'dropdown')">
+                        <InputText v-model="defaultValuesModel.value" class="kn-material-input kn-width-full" />
+                    </div>
                 </div>
             </div>
             <div class="p-col-2 p-lg-1 p-d-flex p-jc-center">
@@ -52,7 +61,8 @@ export default defineComponent({
         return {
             descriptor,
             defaultValuesModel: null as ISelectorWidgetDefaultValues | null,
-            getTranslatedLabel
+            getTranslatedLabel,
+            hasPendingInput: false
         }
     },
     computed: {
@@ -67,6 +77,9 @@ export default defineComponent({
                 return this.descriptor.defaultValuesTypes.filter((option) => option.value === 'STATIC')
             }
             return this.descriptor.defaultValuesTypes
+        },
+        selectorType() {
+            return this.widgetModel?.settings?.configuration?.selectorType?.modality
         }
     },
     watch: {
@@ -94,6 +107,27 @@ export default defineComponent({
             const dateRange = this.widgetModel.settings.configuration.defaultValues
             if (dateRange[rangeValue]) return new Date(dateRange[rangeValue])
             else return undefined
+        },
+        applyValueWhenLosingFocus(event) {
+            // @blur="applyValueWhenLosingFocus"
+            // Simulate Enter key press to add the current input value
+            const chipsComponent = this.$refs.chipsInput as any
+            if (chipsComponent && chipsComponent.$el) {
+                const inputElement = chipsComponent.$el.querySelector('input')
+                if (inputElement && inputElement.value && inputElement.value.trim() !== '') {
+                    const enterEvent = new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true, cancelable: true })
+                    inputElement.dispatchEvent(enterEvent)
+                }
+            }
+        },
+        checkPendingInput() {
+            const chipsComponent = this.$refs.chipsInput as any
+            if (chipsComponent && chipsComponent.$el) {
+                const inputElement = chipsComponent.$el.querySelector('input')
+                this.hasPendingInput = !!(inputElement && inputElement.value && inputElement.value.trim() !== '')
+            } else {
+                this.hasPendingInput = false
+            }
         }
     }
 })

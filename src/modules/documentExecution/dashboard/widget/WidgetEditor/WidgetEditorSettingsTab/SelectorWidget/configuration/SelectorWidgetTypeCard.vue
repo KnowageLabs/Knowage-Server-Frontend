@@ -52,6 +52,12 @@ export default defineComponent({
         },
         changeSelectorModality(event) {
             this.model.settings.configuration.selectorType.modality = event
+            this.clearDefaultValues()
+        },
+        clearDefaultValues() {
+            if (this.widgetModel.settings && this.widgetModel.settings.configuration && this.widgetModel.settings.configuration.defaultValues) {
+                this.widgetModel.settings.configuration.defaultValues.value = null
+            }
         },
         changeSelectionType(event) {
             this.model.settings.configuration.type = event
