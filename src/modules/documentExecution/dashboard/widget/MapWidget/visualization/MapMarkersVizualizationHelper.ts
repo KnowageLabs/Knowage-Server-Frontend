@@ -3,7 +3,7 @@ import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationType } from '../
 import { addMarker, getColumnName, getCoordinates } from '../LeafletHelper'
 import { executeMapInteractions, columnsMatch } from '../interactions/MapInteractionsHelper'
 import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData, createDialogFromDataset } from './MapDialogHelper'
-import { getConditionalStyleUsingTargetDataset, getCoordinatesFromWktPointFeature, getFeatureValues, getTargetDataColumn, getVizualizationConditionalStyles, isConditionMet, transformDataUsingForeignKeyReturningAllColumns } from './MapVisualizationHelper'
+import { getConditionalStyleUsingTargetDataset, getCoordinatesFromWktPointFeature, getFeatureValues, getMarkersConditionalStyles, getTargetDataColumn, getVizualizationConditionalStyles, isConditionMet, transformDataUsingForeignKeyReturningAllColumns } from './MapVisualizationHelper'
 
 const findInteractionColumnForVisualization = (widgetModel: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType): string | null => {
     const selectionConfig = widgetModel?.settings?.interactions?.selection?.selections?.find((s: any) => s.vizualizationType?.id === layerVisualizationSettings.id || s.vizualizationType?.target === layerVisualizationSettings.target || s.vizualizationType?.label === layerVisualizationSettings.label)
@@ -49,7 +49,7 @@ const createAndAddMarkerFromData = (row: any, data: any, widgetModel: IWidget, t
     const filter = layerVisualizationSettings.filter
     if (filter?.enabled && !isConditionMet(filter, value)) return null
 
-    const conditionalStyle = getVizualizationConditionalStyles(widgetModel, layerVisualizationSettings.target, layerVisualizationSettings.targetMeasure, value, variables)
+    const conditionalStyle = getMarkersConditionalStyles(widgetModel, layerVisualizationSettings.target, row, variables, data[target.id])
     const coordinates = getCoordinates(spatialAttribute, row[geoColumn], null)
     if (!coordinates) return
 

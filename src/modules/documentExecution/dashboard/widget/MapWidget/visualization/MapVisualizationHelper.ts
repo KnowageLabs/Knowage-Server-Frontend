@@ -2,7 +2,7 @@ import deepcopy from 'deepcopy'
 import { IVariable, IWidget } from '../../../Dashboard'
 import { ILayerFeature, IMapWidgetConditionalStyle, IMapWidgetLayer, IMapWidgetLayerFilter, IMapWidgetVisualizationThreshold, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import { replaceVariablesPlaceholdersByVariableName } from '../../interactionsHelpers/InteractionsParserHelper'
-import { resolveLayerByTarget } from '../LeafletHelper'
+import { getColumnDataIndex, resolveLayerByTarget } from '../LeafletHelper'
 
 export const transformDataUsingForeginKey = (rows: any, pivotColumnIndex: string, valueColumnIndex: string) => {
     return rows.reduce((acc: number, row: any) => {
@@ -127,6 +127,28 @@ export const getConditionalStyleUsingTargetDataset = (layerVisualizationSettings
     }
 
     return getVizualizationConditionalStyles(widgetModel, layerVisualizationSettings.target, layerVisualizationSettings.targetProperty, originalVisualizationTypeValue, variables, targetDataset?.layerId)
+}
+
+export const getMarkersConditionalStyles = (widgetModel: IWidget, target: string, valueToCompare: any, variables: IVariable[], data: any, targetDataset?: string | undefined) => {
+    const conditionalStyles = widgetModel.settings?.conditionalStyles
+    if (!conditionalStyles || !conditionalStyles.enabled) return null
+    let style = null as any
+
+    const conditionalStyle = conditionalStyles.conditions?.find((tempConditionalStyle: IMapWidgetConditionalStyle) => tempConditionalStyle.targetLayer === target || tempConditionalStyle.targetLayer === targetDataset)
+
+    const columnDataIndex = getColumnDataIndex(conditionalStyle?.targetColumn, data)
+    if (!columnDataIndex) return null
+
+    valueToCompare = valueToCompare[columnDataIndex]
+
+    if (conditionalStyle) {
+        const tempConditionalStyle = deepcopy(conditionalStyle)
+        if (tempConditionalStyle.condition.value) tempConditionalStyle.condition.value = replaceVariablesPlaceholdersByVariableName(tempConditionalStyle.condition.value, variables)
+        if (tempConditionalStyle.condition.value != null) tempConditionalStyle.condition.value = +tempConditionalStyle.condition.value
+        if (isConditionMet(tempConditionalStyle.condition, valueToCompare)) style = tempConditionalStyle.properties
+    }
+
+    return style
 }
 
 export const getVizualizationConditionalStyles = (widgetModel: IWidget, target: string, targetProperty: string, valueToCompare: any, variables: IVariable[], targetDataset?: string | undefined) => {
