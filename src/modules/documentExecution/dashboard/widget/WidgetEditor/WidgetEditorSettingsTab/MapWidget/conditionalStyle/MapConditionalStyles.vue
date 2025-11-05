@@ -1,5 +1,6 @@
 <template>
     <div v-if="conditionalStylesModel" class="p-grid p-jc-center p-ai-center p-p-4">
+        <Message v-if="areNonConsistentConditionalStylesPresent" class="p-mb-4" severity="warn" :closable="false">{{ $t('dashboard.widgetEditor.map.conditionalStylesNonConsistentWarning') }}</Message>
         <div v-for="(conditionalStyle, index) in conditionalStylesModel.conditions" :key="index" class="dynamic-form-item p-grid p-col-12 p-ai-center p-pt-2">
             <div class="dynamic-form-item p-grid p-col-12 p-ai-center">
                 <div v-show="dropzoneTopVisible[index]" class="p-col-12" @drop.stop="onDropComplete($event, 'before', index)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
@@ -12,8 +13,8 @@
                     <div class="p-col-10 p-d-flex p-flex-column">
                         <div class="p-d-flex p-flex-row">
                             <div class="p-d-flex p-flex-column kn-flex p-p-2">
-                                <label class="kn-material-input-label">{{ $t('common.layer') }}</label>
-                                <Dropdown v-model="conditionalStyle.targetLayer" class="kn-material-input" :options="widgetModel.layers" option-value="layerId" option-label="name" :disabled="conditionalStylesDisabled" @change="onLayerChange(conditionalStyle)"></Dropdown>
+                                <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.visualizationType.title') }}</label>
+                                <Dropdown v-model="conditionalStyle.targetLayer" class="kn-material-input" :options="visualizationTypeOptions" option-value="target" option-label="label" :disabled="conditionalStylesDisabled" @change="onLayerChange(conditionalStyle)"></Dropdown>
                             </div>
                             <div class="p-d-flex p-flex-column kn-flex p-p-2">
                                 <label class="kn-material-input-label">{{ $t('common.column') }}</label>
@@ -104,17 +105,26 @@ export default defineComponent({
             dropzoneBottomVisible: {},
             drivers: [] as IDashboardDriver[],
             propertiesCache: new Map<string, { name: string; alias: string }[]>(),
+            visualizationTypeOptions: [] as any[],
+            areNonConsistentConditionalStylesPresent: false,
             getTranslatedLabel
         }
     },
     computed: {
         conditionalStylesDisabled() {
             return !this.conditionalStylesModel || !this.conditionalStylesModel.enabled
+        },
+        conflictsOnConditionalStyles() {
+            if (!this.conditionalStylesModel) return false
+            return this.checkForNonConsistentConditionalStyles()
         }
     },
     watch: {
         conditionalStylesDisabled() {
             this.onConditionalStylesEnabledChange()
+        },
+        conflictsOnConditionalStyles() {
+            this.areNonConsistentConditionalStylesPresent = this.checkForNonConsistentConditionalStyles()
         }
     },
     async created() {
@@ -122,6 +132,7 @@ export default defineComponent({
         this.loadParameterValuesMap()
         this.loadVariableValuesMap()
         this.loadConditionalStyles()
+        this.loadVisualizations()
         await this.loadPropertiesForConditionalStyles()
     },
     methods: {
@@ -145,8 +156,17 @@ export default defineComponent({
         async loadAvailableProperties(conditionalStyle: IMapWidgetConditionalStyle | null) {
             if (!conditionalStyle) return
 
+            // conditionalStyle.targetLayer stores the layerId (set by visualization selection)
             const targetLayer = this.widgetModel.layers.find((tempLayer: IMapWidgetLayer) => tempLayer.layerId === conditionalStyle.targetLayer)
             if (targetLayer?.type === 'layer') await this.loadAvailablePropertiesInConditionalStylesSettingsForLayer(targetLayer)
+        },
+
+        loadVisualizations() {
+            this.visualizationTypeOptions = []
+            if (!this.widgetModel?.settings?.visualizations) return
+            this.widgetModel.settings.visualizations.forEach((visualization: any) => {
+                this.visualizationTypeOptions.push(visualization)
+            })
         },
         setVisibilityConditionPivotedValues(conditionalStyle: IMapWidgetConditionalStyle) {
             const index = this.variables.findIndex((variable: IVariable) => variable.name === conditionalStyle.condition.variable)
@@ -265,6 +285,16 @@ export default defineComponent({
             return properties.map((property: IMapWidgetLayerProperty) => {
                 return { name: property.property, alias: property.property }
             })
+        },
+        checkForNonConsistentConditionalStyles() {
+            if (!this.conditionalStylesModel) return false
+            const layersSet = [] as string[]
+            this.conditionalStylesModel.conditions.forEach((conditionalStyle: IMapWidgetConditionalStyle) => {
+                const layerColumnKey = `${conditionalStyle.targetLayer}-${conditionalStyle.targetColumn}`
+                layersSet.push(layerColumnKey)
+            })
+
+            return layersSet.length !== new Set(layersSet).size
         }
     }
 })

@@ -979,6 +979,7 @@
                     "title": "Classes method"
                 },
                 "classesNumber": "Classes number",
+                "conditionalStylesNonConsistentWarning": "Attenzione: gli stili condizionali potrebbero non essere coerenti con le impostazioni attuali della mappa.",
                 "controlPanel": {
                     "alwaysShow": "Always show control panel",
                     "dimension": "Control Panel Dimension",

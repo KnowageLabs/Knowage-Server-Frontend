@@ -132,23 +132,42 @@ export const getConditionalStyleUsingTargetDataset = (layerVisualizationSettings
 export const getMarkersConditionalStyles = (widgetModel: IWidget, target: string, valueToCompare: any, variables: IVariable[], data: any, targetDataset?: string | undefined) => {
     const conditionalStyles = widgetModel.settings?.conditionalStyles
     if (!conditionalStyles || !conditionalStyles.enabled) return null
-    let style = null as any
+    return getMarkerCondition(conditionalStyles.conditions, valueToCompare, data, variables)
+}
 
-    const conditionalStyle = conditionalStyles.conditions?.find((tempConditionalStyle: IMapWidgetConditionalStyle) => tempConditionalStyle.targetLayer === target || tempConditionalStyle.targetLayer === targetDataset)
+const getMarkerCondition = (conditions: any[], valueToCompare: any, data: any, variables: IVariable[]) => {
+    let metConditionalStyles: IMapWidgetConditionalStyle[] = []
+    for (const tempConditionalStyle of conditions) {
+        const conditionalStyle = deepcopy(tempConditionalStyle)
+        if (conditionalStyle.condition.value) conditionalStyle.condition.value = replaceVariablesPlaceholdersByVariableName(conditionalStyle.condition.value, variables)
+        if (conditionalStyle.condition.value != null) conditionalStyle.condition.value = +conditionalStyle.condition.value
 
-    const columnDataIndex = getColumnDataIndex(conditionalStyle?.targetColumn, data)
-    if (!columnDataIndex) return null
+        const columnDataIndex = getColumnDataIndex(conditionalStyle?.targetColumn, data)
+        if (!columnDataIndex) return null
 
-    valueToCompare = valueToCompare[columnDataIndex]
+        const selectedValueToCompare = valueToCompare[columnDataIndex]
 
-    if (conditionalStyle) {
-        const tempConditionalStyle = deepcopy(conditionalStyle)
-        if (tempConditionalStyle.condition.value) tempConditionalStyle.condition.value = replaceVariablesPlaceholdersByVariableName(tempConditionalStyle.condition.value, variables)
-        if (tempConditionalStyle.condition.value != null) tempConditionalStyle.condition.value = +tempConditionalStyle.condition.value
-        if (isConditionMet(tempConditionalStyle.condition, valueToCompare)) style = tempConditionalStyle.properties
+        if (isConditionMet(conditionalStyle.condition, selectedValueToCompare)) {
+            metConditionalStyles.push(tempConditionalStyle)
+        }
     }
 
-    return style
+    if (metConditionalStyles.length === 0) return null
+
+    const equalityConditions = metConditionalStyles.filter((conditionalStyle) => conditionalStyle.condition.operator === '=' || conditionalStyle.condition.operator === '==' || conditionalStyle.condition.operator === '!=')
+    if (equalityConditions.length > 0) {
+        return equalityConditions[0].properties
+    }
+    const inConditions = metConditionalStyles.filter((conditionalStyle) => conditionalStyle.condition.operator === 'IN')
+    if (inConditions.length > 0) {
+        return inConditions[0].properties
+    }
+    const rangeConditions = metConditionalStyles.filter((conditionalStyle) => conditionalStyle.condition.operator === '>' || conditionalStyle.condition.operator === '<')
+    if (rangeConditions.length > 0) {
+        return rangeConditions[0].properties
+    }
+
+    return metConditionalStyles[0].properties
 }
 
 export const getVizualizationConditionalStyles = (widgetModel: IWidget, target: string, targetProperty: string, valueToCompare: any, variables: IVariable[], targetDataset?: string | undefined) => {

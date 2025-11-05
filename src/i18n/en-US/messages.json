@@ -1177,6 +1177,7 @@
                 },
                 "classesNumber": "Classes number",
                 "conditionalStylesColumnHint": "Conditional styles apply only when the column is used in the visualization.",
+                "conditionalStylesNonConsistentWarning": "Warning: Conditional styles may not be consistent with the current map settings.",
                 "controlPanel": {
                     "alwaysShow": "Always show control panel",
                     "dimension": "Control Panel Dimension",
