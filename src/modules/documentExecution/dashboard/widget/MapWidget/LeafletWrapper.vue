@@ -112,6 +112,10 @@ const resizeMap = () => {
     }
 }
 
+const onSelectionsDeleted = () => {
+    initializeLayers(map, props.widgetModel, props.data, props.dashboardId, variables, props.propActiveSelections)
+}
+
 const getMapZoomValue = (widgetModel: IWidget | undefined): number => {
     const defaultZoom = 10
 
@@ -126,6 +130,8 @@ const getMapZoomValue = (widgetModel: IWidget | undefined): number => {
 
 onMounted(async () => {
     emitter.on('widgetResized', resizeMap)
+
+    emitter.on('selectionsDeleted', onSelectionsDeleted)
 
     loadVariables()
 
@@ -159,6 +165,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
     emitter.off('widgetResized', resizeMap)
+    emitter.off('selectionsDeleted', onSelectionsDeleted)
     clearLayersCache()
 })
 

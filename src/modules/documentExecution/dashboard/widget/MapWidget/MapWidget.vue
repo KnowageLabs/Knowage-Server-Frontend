@@ -64,6 +64,7 @@ import { IMapWidgetLayer, IMapWidgetVisualizationType, IMapWidgetLayerProperty }
 import deepcopy from 'deepcopy'
 import { getPropertiesByLayerLabel } from './MapWidgetDataProxy'
 import MapLegend from './legend/MapLegend.vue'
+import { emitter } from '../../DashboardHelpers'
 
 export default defineComponent({
     name: 'map-widget',
@@ -96,6 +97,7 @@ export default defineComponent({
         }
     },
     async created() {
+        this.setEventListeners()
         this.loadVariables()
         this.loadWidgetModel()
         this.loadActiveSelections()
@@ -200,6 +202,11 @@ export default defineComponent({
         },
         onLegendUpdated(updatedLegendData: Record<string, any> | null | undefined) {
             this.legendData = updatedLegendData
+        },
+        setEventListeners() {
+            emitter.on('selectionsDeleted', () => {
+                this.loadActiveSelections()
+            })
         }
     }
 })
