@@ -200,6 +200,7 @@ export interface IMapWidgetConditionalStyles {
 }
 
 export interface IMapWidgetConditionalStyle {
+    label: string
     targetLayer: string
     targetColumn: string
     condition: {

@@ -2,7 +2,7 @@ import { ISelection, IVariable, IWidget } from '../../../Dashboard'
 import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import { getColumnName, getCoordinates, LEGEND_DATA_TYPE } from '../LeafletHelper'
 import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData } from './MapDialogHelper'
-import { getCoordinatesFromWktPointFeature, getVizualizationConditionalStyles, isConditionMet, transformDataUsingForeignKeyReturningAllColumns } from './MapVisualizationHelper'
+import { getChartConditionalStyle, getCoordinatesFromWktPointFeature, isConditionMet, transformDataUsingForeignKeyReturningAllColumns } from './MapVisualizationHelper'
 import L from 'leaflet'
 import vegaEmbed from 'vega-embed'
 
@@ -185,7 +185,7 @@ const formatChartColorsAndData = (data: { category: string; value: number | stri
     const chartDomains = chartData.map((item: { category: string; value: number | string }) => item.category)
 
     chartData?.forEach((data: { category: string; value: number }, index: number) => {
-        const conditionalStyle = getVizualizationConditionalStyles(widgetModel, layerVisualizationSettings.target, data.category, data.value, variables)
+        const conditionalStyle = getChartConditionalStyle(widgetModel, layerVisualizationSettings.target, data.category, data.value, variables)
         if (!conditionalStyle) return
         if (chartColors[index]) chartColors[index] = conditionalStyle['background-color']
     })

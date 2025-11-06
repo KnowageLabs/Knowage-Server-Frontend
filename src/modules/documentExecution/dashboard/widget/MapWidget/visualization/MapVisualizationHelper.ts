@@ -119,39 +119,66 @@ export const sortRanges = (ranges: IMapWidgetVisualizationThreshold[]): IMapWidg
     })
 }
 
-export const getConditionalStyleUsingTargetDataset = (layerVisualizationSettings: IMapWidgetVisualizationType, widgetModel: IWidget, originalVisualizationTypeValue: any, variables: IVariable[]) => {
+export const getConditionalStyleUsingTargetDataset = (layerVisualizationSettings: IMapWidgetVisualizationType, widgetModel: IWidget, originalVisualizationTypeValue: any, variables: IVariable[], mappedData?: any, featureProperties?: any, data?: any) => {
     let targetDataset: IMapWidgetLayer | null = null
 
     if (layerVisualizationSettings.targetDataset) {
         targetDataset = resolveLayerByTarget(widgetModel, layerVisualizationSettings.targetDataset)
     }
 
-    return getVizualizationConditionalStyles(widgetModel, layerVisualizationSettings.target, layerVisualizationSettings.targetProperty, originalVisualizationTypeValue, variables, targetDataset?.layerId)
+    if (mappedData && featureProperties) {
+        return getConditionalStyleFromMappedData(layerVisualizationSettings, widgetModel, variables, mappedData, featureProperties, data)
+    } else {
+        return getConditionalStyleFromData(widgetModel, originalVisualizationTypeValue, variables, data)
+    }
 }
 
-export const getMarkersConditionalStyles = (widgetModel: IWidget, valueToCompare: any, variables: IVariable[], data: any) => {
+export const getConditionalStyleFromMappedData = (layerVisualizationSettings: IMapWidgetVisualizationType, widgetModel: IWidget, variables: IVariable[], mappedData: any, featureProperties: any, data: any) => {
     const conditionalStyles = widgetModel.settings?.conditionalStyles
-    if (!conditionalStyles || !conditionalStyles.enabled) return null
-    return getMarkerCondition(conditionalStyles.conditions, valueToCompare, data, variables)
-}
 
-const getMarkerCondition = (conditions: any[], valueToCompare: any, data: any, variables: IVariable[]) => {
     let metConditionalStyles: IMapWidgetConditionalStyle[] = []
-    for (const tempConditionalStyle of conditions) {
+
+    for (const tempConditionalStyle of conditionalStyles?.conditions || []) {
         const conditionalStyle = deepcopy(tempConditionalStyle)
         if (conditionalStyle.condition.value) conditionalStyle.condition.value = replaceVariablesPlaceholdersByVariableName(conditionalStyle.condition.value, variables)
-        if (conditionalStyle.condition.value != null) conditionalStyle.condition.value = +conditionalStyle.condition.value
+        if (conditionalStyle.condition.value != null && valueIsConvertibleToNumber(conditionalStyle.condition.value)) conditionalStyle.condition.value = +conditionalStyle.condition.value
 
-        const columnDataIndex = getColumnDataIndex(conditionalStyle?.targetColumn, data)
-        if (!columnDataIndex) return null
+        if (featureProperties[conditionalStyle?.targetColumn]) {
+            const selectedValueToCompare = featureProperties[conditionalStyle?.targetColumn]
+            if (isConditionMet(conditionalStyle.condition, selectedValueToCompare)) {
+                metConditionalStyles.push(conditionalStyle)
+            }
+        } else {
+            const rowData = mappedData[featureProperties[layerVisualizationSettings.targetDatasetForeignKeyColumn!]]
+            const conditionalStyle = deepcopy(tempConditionalStyle)
+            if (conditionalStyle.condition.value) conditionalStyle.condition.value = replaceVariablesPlaceholdersByVariableName(conditionalStyle.condition.value, variables)
+            if (conditionalStyle.condition.value != null) conditionalStyle.condition.value = +conditionalStyle.condition.value
 
-        const selectedValueToCompare = valueToCompare[columnDataIndex]
+            const columnDataIndex = getColumnDataIndex(conditionalStyle?.targetColumn, data)
+            if (!columnDataIndex) return null
 
-        if (isConditionMet(conditionalStyle.condition, selectedValueToCompare)) {
-            metConditionalStyles.push(tempConditionalStyle)
+            const selectedValueToCompare = rowData[columnDataIndex]
+
+            if (isConditionMet(conditionalStyle.condition, selectedValueToCompare)) {
+                metConditionalStyles.push(tempConditionalStyle)
+            }
         }
     }
 
+    return getStyleByPriority(metConditionalStyles)
+}
+
+const valueIsConvertibleToNumber = (value: any): boolean => {
+    return !isNaN(Number(value))
+}
+
+export const getConditionalStyleFromData = (widgetModel: IWidget, valueToCompare: any, variables: IVariable[], data: any) => {
+    const conditionalStyles = widgetModel.settings?.conditionalStyles
+    if (!conditionalStyles || !conditionalStyles.enabled) return null
+    return getCondition(conditionalStyles.conditions, valueToCompare, data, variables)
+}
+
+const getStyleByPriority = (metConditionalStyles: IMapWidgetConditionalStyle[]) => {
     if (metConditionalStyles.length === 0) return null
 
     const equalityConditions = metConditionalStyles.filter((conditionalStyle) => conditionalStyle.condition.operator === '=' || conditionalStyle.condition.operator === '==' || conditionalStyle.condition.operator === '!=')
@@ -169,8 +196,26 @@ const getMarkerCondition = (conditions: any[], valueToCompare: any, data: any, v
 
     return metConditionalStyles[0].properties
 }
+const getCondition = (conditions: any[], valueToCompare: any, data: any, variables: IVariable[]) => {
+    let metConditionalStyles: IMapWidgetConditionalStyle[] = []
+    for (const tempConditionalStyle of conditions) {
+        const conditionalStyle = deepcopy(tempConditionalStyle)
+        if (conditionalStyle.condition.value) conditionalStyle.condition.value = replaceVariablesPlaceholdersByVariableName(conditionalStyle.condition.value, variables)
+        if (conditionalStyle.condition.value != null && valueIsConvertibleToNumber(conditionalStyle.condition.value)) conditionalStyle.condition.value = +conditionalStyle.condition.value
 
-export const getVizualizationConditionalStyles = (widgetModel: IWidget, target: string, targetProperty: string, valueToCompare: any, variables: IVariable[], targetDataset?: string | undefined) => {
+        const columnDataIndex = getColumnDataIndex(conditionalStyle?.targetColumn, data)
+        if (!columnDataIndex) return null
+
+        const selectedValueToCompare = valueToCompare[columnDataIndex]
+
+        if (isConditionMet(conditionalStyle.condition, selectedValueToCompare)) {
+            metConditionalStyles.push(tempConditionalStyle)
+        }
+    }
+    return getStyleByPriority(metConditionalStyles)
+}
+
+export const getChartConditionalStyle = (widgetModel: IWidget, target: string, targetProperty: string, valueToCompare: any, variables: IVariable[], targetDataset?: string | undefined) => {
     const conditionalStyles = widgetModel.settings?.conditionalStyles
     if (!conditionalStyles || !conditionalStyles.enabled) return null
     let style = null as any

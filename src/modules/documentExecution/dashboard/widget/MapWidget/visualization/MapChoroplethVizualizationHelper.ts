@@ -134,7 +134,7 @@ const addChoroplethPolygonUsingLayersPointClassifedByEqualIntervals = (
     const filter = layerVisualizationSettings.filter
     if (filter?.enabled && !isConditionMet(filter, value)) return
 
-    const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, originalVisualizationTypeValue, variables)
+    const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, originalVisualizationTypeValue, variables, mappedData, feature.properties, targetDatasetData)
 
     const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
     if (!coordinates) return
@@ -162,7 +162,8 @@ const createChoroplethClassifiedByEqualIntervalsFromData = (data: any, widgetMod
         const filter = layerVisualizationSettings.filter
         if (filter?.enabled && !isConditionMet(filter, value)) return
 
-        const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, value, variables)
+        const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, row, variables, null, null, data[target.id])
+
         if (!row[geoColumn]) return
         const coordinates = getCoordinates(spatialAttribute, row[geoColumn], null)
         if (!coordinates) return
@@ -207,7 +208,7 @@ const getEqualIntervalsForLegend = (min: number, max: number, classes: number | 
     return ranges
 }
 
-const createChoroplethClassifiedByQuantilsUsingLayers = (targetDatasetData: any | null, layersData: any, dataColumn: string | null, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, widgetModel: IWidget, bounds: any, variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
+const createChoroplethClassifiedByQuantilsUsingLayers = (targetDatasetData: any | null, layersData: any, dataColumn: string | null, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, widgetModel: IWidget, bounds: any, variables: IVariable[], activeSelections: ISelection[], dashboardId: string, data?: any) => {
     if (!layerVisualizationSettings.analysisConf) return
 
     let quantiles: number[]
@@ -272,7 +273,7 @@ const addChoroplethPolygonUsingLayersPointClassifedByQuantils = (
     const filter = layerVisualizationSettings.filter
     if (filter?.enabled && !isConditionMet(filter, value)) return
 
-    const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, originalVisualizationTypeValue, variables)
+    const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, originalVisualizationTypeValue, variables, mappedData, feature.properties, targetDatasetData)
 
     const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
     if (!coordinates) return
@@ -301,7 +302,8 @@ const createChoroplethClassifiedByQuantilsFromData = (layerGroup: any, data: any
         const filter = layerVisualizationSettings.filter
         if (filter?.enabled && !isConditionMet(filter, value)) return
 
-        const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, value, variables)
+        const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, row, variables, null, null, data[target.id])
+
         const coordinates = getCoordinates(spatialAttribute, row[geoColumn], null)
         if (!coordinates) return
 
@@ -390,7 +392,8 @@ const addChoroplethPolygonUsingLayersPointClassifedByRanges = (layerGroup: any, 
 
     let rangeIndexAndColor = getRangeIndexAndColor(originalVisualizationTypeValue as number, sortedRanges, defaultChoroplethValues.style.color + '')
 
-    const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, originalVisualizationTypeValue, variables)
+    const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, originalVisualizationTypeValue, variables, mappedData, feature.properties, targetDatasetData)
+
     const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
     if (!coordinates) return
     const polygonCoords = Array.isArray(coordinates) ? (coordinates as any).map((ring: any) => (Array.isArray(ring[0]) ? ring.map(([x, y]: [number, number]) => [y, x]) : [])) : []
@@ -422,7 +425,8 @@ const createChoroplethClassifiedByRangesFromData = (layerGroup: any, data: any, 
         let rangeIndexAndColor = getRangeIndexAndColor(originalValue, sortedRanges, defaultColor)
         if (!rangeIndexAndColor) rangeIndexAndColor = { index: 0, color: layerVisualizationSettings.analysisConf?.style.color ?? '' }
 
-        const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, value, variables)
+        const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, row, variables, null, null, data[target.id])
+
         const coordinates = getCoordinates(spatialAttribute, row[geoColumn], null)
         if (!coordinates) return
         const polygonCoords = Array.isArray(coordinates) ? (coordinates as any).map((ring: any) => (Array.isArray(ring[0]) ? ring.map(([x, y]: [number, number]) => [y, x]) : [])) : []

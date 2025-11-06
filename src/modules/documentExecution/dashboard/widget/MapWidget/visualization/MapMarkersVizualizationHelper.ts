@@ -3,7 +3,7 @@ import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationType } from '../
 import { addMarker, getColumnName, getCoordinates } from '../LeafletHelper'
 import { executeMapInteractions, columnsMatch } from '../interactions/MapInteractionsHelper'
 import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData, createDialogFromDataset } from './MapDialogHelper'
-import { getConditionalStyleUsingTargetDataset, getCoordinatesFromWktPointFeature, getFeatureValues, getMarkersConditionalStyles, getTargetDataColumn, getVizualizationConditionalStyles, isConditionMet, transformDataUsingForeignKeyReturningAllColumns } from './MapVisualizationHelper'
+import { getConditionalStyleUsingTargetDataset, getCoordinatesFromWktPointFeature, getFeatureValues, getTargetDataColumn, isConditionMet, transformDataUsingForeignKeyReturningAllColumns } from './MapVisualizationHelper'
 
 const findInteractionColumnForVisualization = (widgetModel: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType): string | null => {
     const selectionConfig = widgetModel?.settings?.interactions?.selection?.selections?.find((s: any) => s.vizualizationType?.id === layerVisualizationSettings.id || s.vizualizationType?.target === layerVisualizationSettings.target || s.vizualizationType?.label === layerVisualizationSettings.label)
@@ -49,7 +49,7 @@ const createAndAddMarkerFromData = (row: any, data: any, widgetModel: IWidget, t
     const filter = layerVisualizationSettings.filter
     if (filter?.enabled && !isConditionMet(filter, value)) return null
 
-    const conditionalStyle = getMarkersConditionalStyles(widgetModel, row, variables, data[target.id])
+    const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, row, variables, null, null, data[target.id])
     const coordinates = getCoordinates(spatialAttribute, row[geoColumn], null)
     if (!coordinates) return
 
@@ -149,10 +149,10 @@ const addMarkersUsingLayers = (targetDatasetData: any | null, layersData: any, d
 
     layersData.features.forEach((feature: ILayerFeature) => {
         if (feature.geometry?.type === 'Point') {
-            addMarkerUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, null, variables, dataColumnIndex, activeSelections, dashboardId)
+            addMarkerUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, null, variables, dataColumnIndex, activeSelections, dashboardId, targetDatasetData)
         } else if (feature.geometry?.type === 'MultiPoint') {
             feature.geometry.coordinates?.forEach((coord: any) => {
-                addMarkerUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, coord, variables, dataColumnIndex, activeSelections, dashboardId)
+                addMarkerUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, coord, variables, dataColumnIndex, activeSelections, dashboardId, targetDatasetData)
             })
         }
     })
@@ -174,11 +174,11 @@ export const getMappedDataAndColumnIndex = (targetDatasetData: any, dataColumn: 
     return { mappedData, dataColumnIndex }
 }
 
-const addMarkerUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, spatialAttribute: any, widgetModel: IWidget, markerBounds: any[], coord: any[] | null, variables: IVariable[], dataColumnIndex: string | null, activeSelections: ISelection[], dashboardId: string) => {
-    createMarkerForVisualization(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, coord, variables, dataColumnIndex, activeSelections, dashboardId)
+const addMarkerUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, spatialAttribute: any, widgetModel: IWidget, markerBounds: any[], coord: any[] | null, variables: IVariable[], dataColumnIndex: string | null, activeSelections: ISelection[], dashboardId: string, targetDatasetData: any) => {
+    createMarkerForVisualization(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, coord, variables, dataColumnIndex, activeSelections, dashboardId, targetDatasetData)
 }
 
-export const createMarkerForVisualization = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, spatialAttribute: any, widgetModel: IWidget, markerBounds: any[], coord: any[] | null, variables: IVariable[], dataColumnIndex: string | null, activeSelections: ISelection[], dashboardId: string) => {
+export const createMarkerForVisualization = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, spatialAttribute: any, widgetModel: IWidget, markerBounds: any[], coord: any[] | null, variables: IVariable[], dataColumnIndex: string | null, activeSelections: ISelection[], dashboardId: string, targetDatasetData: any) => {
     const { value } = getFeatureValues(feature, layerVisualizationSettings, mappedData, dataColumnIndex)
 
     if (!value) return
@@ -186,7 +186,7 @@ export const createMarkerForVisualization = (feature: ILayerFeature, layerVisual
     const filter = layerVisualizationSettings.filter
     if (filter?.enabled && !isConditionMet(filter, value)) return null
 
-    const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, value, variables)
+    const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, value, variables, mappedData, feature.properties, targetDatasetData)
     const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
     if (!coordinates) return
     const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.markerConf ?? null, value as any, spatialAttribute, conditionalStyle?.['background-color'], conditionalStyle?.icon)

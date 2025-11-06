@@ -14,11 +14,11 @@
                         <div class="p-d-flex p-flex-row">
                             <div class="p-d-flex p-flex-column kn-flex p-p-2">
                                 <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.visualizationType.title') }}</label>
-                                <Dropdown v-model="conditionalStyle.targetLayer" class="kn-material-input" :options="visualizationTypeOptions" option-value="target" option-label="label" :disabled="conditionalStylesDisabled" @change="onLayerChange(conditionalStyle)"></Dropdown>
+                                <Dropdown v-model="conditionalStyle.label" class="kn-material-input" :options="visualizationTypeOptions" option-value="label" option-label="label" :disabled="conditionalStylesDisabled" @change="onVisualizationChange(conditionalStyle)"></Dropdown>
                             </div>
                             <div class="p-d-flex p-flex-column kn-flex p-p-2">
                                 <label class="kn-material-input-label">{{ $t('common.column') }}</label>
-                                <Dropdown v-model="conditionalStyle.targetColumn" class="kn-material-input" :options="getColumnOptionsFromLayer(conditionalStyle)" option-label="alias" option-value="name" :disabled="conditionalStylesDisabled"></Dropdown>
+                                <Dropdown v-model="conditionalStyle.targetColumn" class="kn-material-input" :options="getColumnOptionsFromLayer(conditionalStyle)" option-label="name" option-value="name" :disabled="conditionalStylesDisabled"></Dropdown>
                                 <small>{{ $t('dashboard.widgetEditor.map.conditionalStylesColumnHint') }}</small>
                             </div>
                         </div>
@@ -79,7 +79,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetStyleToolbarModel, IVariable, IDashboardDriver } from '@/modules/documentExecution/dashboard/Dashboard'
-import { IMapWidgetConditionalStyle, IMapWidgetConditionalStyles, IMapWidgetLayer, IMapWidgetLayerProperty } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
+import { IMapWidgetConditionalStyle, IMapWidgetConditionalStyles, IMapWidgetLayer, IMapWidgetLayerProperty, IMapWidgetVisualizationType } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import { getSelectedVariable } from '@/modules/documentExecution/dashboard/generalSettings/VariablesHelper'
 import { mapActions } from 'pinia'
@@ -90,6 +90,7 @@ import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyl
 import * as mapWidgetDefaultValues from '../../../helpers/mapWidget/MapWidgetDefaultValues'
 import { getPropertiesByLayerLabel } from '../../../../MapWidget/MapWidgetDataProxy'
 import appStore from '@/App.store'
+import { resolveLayerByTarget } from '../../../../MapWidget/LeafletHelper'
 
 export default defineComponent({
     name: 'map-conditional-styles',
@@ -151,14 +152,23 @@ export default defineComponent({
         },
         async loadPropertiesForConditionalStyles() {
             if (!this.conditionalStylesModel?.conditions) return
-            await Promise.all(this.conditionalStylesModel.conditions.map((conditionalStyle: IMapWidgetConditionalStyle) => this.loadAvailableProperties(conditionalStyle)))
+            if (this.visualizationTypeOptions.length > 0) this.visualizationTypeOptions.forEach((viz) => this.loadAvailableProperties(viz))
         },
-        async loadAvailableProperties(conditionalStyle: IMapWidgetConditionalStyle | null) {
-            if (!conditionalStyle) return
-
-            // conditionalStyle.targetLayer stores the layerId (set by visualization selection)
-            const targetLayer = this.widgetModel.layers.find((tempLayer: IMapWidgetLayer) => tempLayer.layerId === conditionalStyle.targetLayer)
-            if (targetLayer?.type === 'layer') await this.loadAvailablePropertiesInConditionalStylesSettingsForLayer(targetLayer)
+        async loadAvailableProperties(visualization: IMapWidgetVisualizationType | null) {
+            if (!visualization || !visualization.target) return
+            // try to fetch properties for layer visualizations (no-op for datasets)
+            const targetLayer = resolveLayerByTarget(this.widgetModel, visualization.target) as IMapWidgetLayer | null
+            if (!targetLayer || targetLayer.type !== 'layer') return
+            if ((this as any).propertiesCache?.has(visualization.target)) {
+                visualization.properties = (this as any).propertiesCache.get(visualization.target)
+                return
+            }
+            ;(this as any).setLoading?.(true)
+            const rawProperties = await getPropertiesByLayerLabel(targetLayer.label)
+            ;(this as any).setLoading?.(false)
+            const properties = (rawProperties || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.property ?? p.name ?? p) } as any))
+            ;(this as any).propertiesCache?.set(targetLayer.layerId, properties)
+            visualization.properties = properties
         },
 
         loadVisualizations() {
@@ -263,12 +273,35 @@ export default defineComponent({
             position === 'top' ? (this.dropzoneTopVisible[index] = false) : (this.dropzoneBottomVisible[index] = false)
         },
         getColumnOptionsFromLayer(conditionalStyle: IMapWidgetConditionalStyle) {
-            const layer = this.widgetModel.layers.find((layer: any) => layer.layerId === conditionalStyle.targetLayer)
+            if (!conditionalStyle) return []
+            const viz = this.widgetModel?.settings?.visualizations?.find((v: any) => v.label === conditionalStyle.label)
+            const layer = viz?.target ? (resolveLayerByTarget(this.widgetModel, viz.target) as IMapWidgetLayer | null) : null
+            const datasetLayer = viz?.targetDataset ? (resolveLayerByTarget(this.widgetModel, viz.targetDataset) as IMapWidgetLayer | null) : null
+
+            if (datasetLayer) {
+                let datasetColumns: { name: string; alias: string }[] = []
+                if (datasetLayer.type === 'dataset') {
+                    datasetColumns = datasetLayer.columns ?? []
+                } else {
+                    datasetColumns = this.propertiesCache.get(datasetLayer.layerId) ?? []
+                }
+
+                let layerColumns: { name: string; alias: string }[] = []
+                if (layer) {
+                    if (layer.type === 'dataset') {
+                        layerColumns = layer.columns ?? []
+                    } else {
+                        layerColumns = this.propertiesCache.get(layer.layerId) ?? []
+                    }
+                }
+
+                return [...new Map([...layerColumns, ...datasetColumns].map((item) => [item['name'], item])).values()]
+            }
             if (!layer) return []
-            else if (layer.type === 'dataset') return layer.columns
-            else return this.propertiesCache.get(layer.layerId) ?? []
+            if (layer.type === 'dataset') return layer.columns ?? []
+            return this.propertiesCache.get(layer.layerId) ?? []
         },
-        async onLayerChange(conditionalStyle: IMapWidgetConditionalStyle) {
+        async onVisualizationChange(conditionalStyle: IMapWidgetConditionalStyle) {
             conditionalStyle.targetColumn = ''
             const target = this.widgetModel.layers.find((layer: IMapWidgetLayer) => conditionalStyle.targetLayer === layer.layerId)
             if (!target || target.type !== 'layer' || this.propertiesCache.has(conditionalStyle.targetLayer)) return
@@ -290,7 +323,7 @@ export default defineComponent({
             if (!this.conditionalStylesModel) return false
             const layersSet = [] as string[]
             this.conditionalStylesModel.conditions.forEach((conditionalStyle: IMapWidgetConditionalStyle) => {
-                const layerColumnKey = `${conditionalStyle.targetLayer}-${conditionalStyle.targetColumn}`
+                const layerColumnKey = `${conditionalStyle.label}-${conditionalStyle.targetColumn}`
                 layersSet.push(layerColumnKey)
             })
 
