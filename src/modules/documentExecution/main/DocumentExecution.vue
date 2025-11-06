@@ -491,7 +491,7 @@ export default defineComponent({
                 await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/crossNavigation/${this.document.label}/loadCrossNavigationByDocument`).then((response: AxiosResponse<any>) => {
                     crossNavigation = response.data.find((i: IDashboardCrossNavigation) => i.crossName === event.data.targetCrossNavigation)
                 })
-                if (crossNavigation.document.typeCode === 'DASHBOARD') {
+                if (crossNavigation?.document?.typeCode === 'DASHBOARD') {
                     const transformOutputParameters = (outputParams: Record<string, any>) => {
                         if (!outputParams) return []
                         return Object.entries(outputParams).map(([key, val]) => {
