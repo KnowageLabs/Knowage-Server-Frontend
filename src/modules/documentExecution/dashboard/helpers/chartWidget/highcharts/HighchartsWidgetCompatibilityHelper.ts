@@ -1,4 +1,4 @@
-import { IWidget, IWidgetExports, IWidgetHelpSettings, IWidgetInteractions } from '../../../Dashboard'
+import { IWidget, IWidgetColumn, IWidgetExports, IWidgetHelpSettings, IWidgetInteractions } from '../../../Dashboard'
 import { IHighchartsWidgetConfiguration, IHighchartsWidgetSettings } from '../../../interfaces/highcharts/DashboardHighchartsWidget'
 import { KnowageHighchartsPieChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsPieChart'
 import { getFormattedInteractions } from '../../common/WidgetInteractionsHelper'
@@ -37,7 +37,7 @@ export const formatHighchartsWidget = (widget: any) => {
         settings: {} as IHighchartsWidgetSettings
     } as IWidget
 
-    formattedWidget.settings = getFormattedWidgetSettings(widget, oldChart?.type) as IHighchartsWidgetSettings
+    formattedWidget.settings = getFormattedWidgetSettings(widget, oldChart?.type, formattedWidget.columns) as IHighchartsWidgetSettings
     formattedWidget.settings.advancedSettings = getFormattedAdvancedSettings(widget, oldChart)
     getFiltersForColumns(formattedWidget, widget)
     formattedWidget.settings.chartModel = createChartModel(widget, oldChart?.type, oldChart?.seriesStacking)
@@ -45,14 +45,17 @@ export const formatHighchartsWidget = (widget: any) => {
     return formattedWidget
 }
 
-const getFormattedWidgetSettings = (widget: any, chartType: string) => {
+const getFormattedWidgetSettings = (widget: any, chartType: string, widgetColumns) => {
     const formattedSettings = {
         updatable: widget.updateble,
         clickable: widget.cliccable,
         chartModel: null,
         configuration: getFormattedConfiguration(widget, chartType),
         accesssibility: { seriesAccesibilitySettings: getFormattedSeriesAccesibilitySettings(widget) },
-        series: { seriesSettings: getFormattedSerieLabelsSettings(widget), aliases: [] },
+        series: {
+            seriesSettings: getFormattedSerieLabelsSettings(widget),
+            aliases: getFormattedSerieAliasesSettings(widget, widgetColumns)
+        },
         interactions: getFormattedInteractions(widget) as IWidgetInteractions,
         style: getFormattedStyle(widget),
         chart: { colors: getFormattedColorSettings(widget) as any },
@@ -231,4 +234,18 @@ const createGaugeChartInstance = (widgetContentChartTemplate: any) => {
         default:
             return new KnowageHighchartsGaugeSeriesChart(widgetContentChartTemplate)
     }
+}
+
+const getFormattedSerieAliasesSettings = (widget: any, widgetColumns: any) => {
+    const series = widget.content.chartTemplate.CHART.VALUES.SERIE
+    const serieAliases = [] as { column: IWidgetColumn | null; alias: string }[]
+
+    if (!series || series.length === 0) return []
+    else {
+        series.forEach((serie: any) => {
+            const formattedColumn = widgetColumns.find((col: IWidgetColumn) => col.columnName === serie.column)
+            if (serie.column !== serie.name) serieAliases.push({ column: formattedColumn, alias: serie.name })
+        })
+    }
+    return serieAliases
 }
