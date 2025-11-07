@@ -247,7 +247,9 @@ export default defineComponent({
         onClickManager(columnName: string, columnValue: string | number, crossNavigationLabel?: string) {
             if (this.editorMode) return
             if (this.propWidget.settings.interactions.crossNavigation.enabled) {
-                const formattedOutputParameters = formatForCrossNavigation(columnValue, crossNavigationLabel || this.propWidget.settings.interactions.crossNavigation)
+                let crossNavigationInfo = this.propWidget.settings.interactions.crossNavigation
+                if (crossNavigationLabel) crossNavigationInfo.name = crossNavigationLabel
+                const formattedOutputParameters = formatForCrossNavigation(columnValue, crossNavigationInfo)
                 executeChartCrossNavigation(formattedOutputParameters, this.propWidget.settings.interactions.crossNavigation, this.dashboardId)
             } else if (this.propWidget.settings.interactions.preview.enabled) {
                 this.$emit('datasetInteractionPreview', { columnValue: columnValue, previewSettings: this.propWidget.settings.interactions.preview })
