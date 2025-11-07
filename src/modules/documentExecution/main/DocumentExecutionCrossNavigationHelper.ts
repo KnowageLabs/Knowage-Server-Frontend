@@ -222,7 +222,10 @@ const loadDateDriverInitialValue = (parameter: iParameter, crossNavigationParame
         const date = moment(crossNavigationParameter.parameterValue[0].value, 'MM/DD/YYYY', true)
         if (date.isValid()) parameter.parameterValue[0].value = date.toDate()
     } else if (typeof crossNavigationParameter.parameterValue[0].value !== 'number') {
-        if (parameter.parameterValue[0].value instanceof Date) parameter.parameterValue[0].value = null
+        if (parameter.parameterValue[0].value instanceof Date) {
+            //NOTE - causing issues with chart cross navigation, it resets date to null, leaving it here for reference
+            // parameter.parameterValue[0].value = null
+        }
         return
     } else {
         const dateValue = new Date(crossNavigationParameter.parameterValue[0].value)
