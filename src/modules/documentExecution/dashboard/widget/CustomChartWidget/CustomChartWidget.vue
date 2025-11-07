@@ -82,7 +82,7 @@ export default defineComponent({
         iframeEventsListener(event: any) {
             if (event.data.type === 'error' && event.data.editorMode === this.editorMode) {
                 this.setError({ title: this.$t('common.error.generic'), msg: event.data.error?.message ?? '' })
-            } else if (event.data.type === 'clickManager') this.onClickManager(event.data.payload.columnName, event.data.payload.columnValue)
+            } else if (event.data.type === 'clickManager') this.onClickManager(event.data.payload.columnName, event.data.payload.columnValue, event.data.payload.crossNavigationLabel)
             else if (event.data.type === 'setState') this.onSetState(event.data.payload)
         },
         loadDriversToDatastore() {
@@ -244,10 +244,10 @@ export default defineComponent({
         setScriptOnErrorListener(script: any) {
             script.addEventListener('error', () => this.$emit('loading', false))
         },
-        onClickManager(columnName: string, columnValue: string | number) {
+        onClickManager(columnName: string, columnValue: string | number, crossNavigationLabel?: string) {
             if (this.editorMode) return
             if (this.propWidget.settings.interactions.crossNavigation.enabled) {
-                const formattedOutputParameters = formatForCrossNavigation(columnValue, this.propWidget.settings.interactions.crossNavigation)
+                const formattedOutputParameters = formatForCrossNavigation(columnValue, crossNavigationLabel || this.propWidget.settings.interactions.crossNavigation)
                 executeChartCrossNavigation(formattedOutputParameters, this.propWidget.settings.interactions.crossNavigation, this.dashboardId)
             } else if (this.propWidget.settings.interactions.preview.enabled) {
                 this.$emit('datasetInteractionPreview', { columnValue: columnValue, previewSettings: this.propWidget.settings.interactions.preview })

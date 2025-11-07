@@ -304,9 +304,11 @@ export class CustomChartDatastore {
         }
     }
 
-    clickManager(columnName: string, columnValue: string | number) {
-        if (window.frames.document.querySelector('#_KNOWAGE_VUE')) window.postMessage({ type: 'clickManager', payload: { columnName: columnName, columnValue: columnValue } }, location.origin)
-        else window?.parent?.postMessage({ type: 'clickManager', payload: { columnName: columnName, columnValue: columnValue } }, location.origin)
+    clickManager(columnName: string, columnValue: string | number, crossNavigationLabel?: string) {
+        let payload: { columnName: string; columnValue: string | number; crossNavigationLabel?: string } = { columnName: columnName, columnValue: columnValue }
+        if (crossNavigationLabel) payload = { ...payload, crossNavigationLabel: crossNavigationLabel }
+        if (window.frames.document.querySelector('#_KNOWAGE_VUE')) window.postMessage({ type: 'clickManager', payload }, location.origin)
+        else window?.parent?.postMessage({ type: 'clickManager', payload }, location.origin)
     }
 
     getState() {
