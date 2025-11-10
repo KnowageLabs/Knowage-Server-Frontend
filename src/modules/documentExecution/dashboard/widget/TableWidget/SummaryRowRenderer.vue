@@ -1,6 +1,6 @@
 <template>
-    <div class="custom-header-group-container" :style="getSummaryStyle()">
-        <span v-if="!params.hideSummary" class="custom-header-group-label kn-width-full p-d-flex" :style="getSummaryStyle()">
+    <div class="custom-header-group-container" :style="getStyle()">
+        <span v-if="!params.hideSummary" class="custom-header-group-label kn-width-full p-d-flex" :style="getStyle()">
             <b v-if="isFirstColumn()" style="margin-right: 4px" class="p-mr-auto">
                 {{ params.summaryRows[params.node.rowIndex] || '' }}
             </b>
@@ -54,12 +54,34 @@ export default defineComponent({
                 if (parentElement) parentElement.style.pointerEvents = 'none'
             }
         },
+        getStyle() {
+            const summaryStyle = this.params.propWidget.settings.style.summary
+
+            if (summaryStyle.enabled) return this.getSummaryStyle()
+            else return this.getColumnStyle()
+        },
         getSummaryStyle() {
             const styleSettings = this.params.propWidget.settings.style.summary
             const styleString = Object.entries(styleSettings.properties ?? styleSettings)
                 .map(([k, v]) => `${k}:${v}`)
                 .join(';')
             return styleString + ';'
+        },
+
+        getColumnStyle() {
+            const columnStyles = this.params.propWidget.settings.style.columns
+
+            if (columnStyles.enabled) {
+                let columnStyle = null as any
+
+                const allColumnStyle = columnStyles.styles.filter((style) => style.target === 'all')[0].properties
+                if (allColumnStyle) columnStyle = allColumnStyle
+
+                const cellColumnStyle = columnStyles.styles.filter((style) => Array.isArray(style.target) && style.target.includes(this.params.colId))[0]
+                if (cellColumnStyle) columnStyle = cellColumnStyle.properties
+
+                return columnStyle
+            } else return null
         }
     }
 })

@@ -95,6 +95,8 @@ export default defineComponent({
                     return this.widgetModel.settings.interactions.iframe
                 case 'HelpSettings':
                     return this.widgetModel.settings.help
+                case 'SummaryStyle':
+                    return this.widgetModel.settings.style.summary
                 default:
                     return null
             }
@@ -121,6 +123,7 @@ export default defineComponent({
                 case 'BordersStyle':
                 case 'PaddingStyle':
                 case 'ShadowsStyle':
+                case 'SummaryStyle':
                     this.$emit('styleChanged')
                     setTimeout(() => emitter.emit('refreshTable', this.widgetModel.id), 250)
             }

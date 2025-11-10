@@ -172,6 +172,7 @@
     "defaultSummaryStyle": {
         "background-color": "",
         "color": "",
+        "enabled": false,
         "font-family": "",
         "font-size": "",
         "font-style": "",
