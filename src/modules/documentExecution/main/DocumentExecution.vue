@@ -1396,7 +1396,7 @@ export default defineComponent({
             } else {
                 this.document = getDocumentForCrossNavigation(documentCrossNavigationParameters, this.filtersData, crossNavigation)
                 updateBreadcrumbForCrossNavigation(this.breadcrumbs, this.document)
-                await this.loadPage(false, this.document.dsLabel, false)
+                await this.loadPage(false, this.document.dsLabel || this.document.label, false)
             }
         },
         onCrossNavigationPopupClose() {
