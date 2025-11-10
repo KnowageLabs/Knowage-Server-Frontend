@@ -147,7 +147,7 @@ export function getCoordinates(spatialAttribute: any, input: string, coord?: str
     }
 }
 
-const getCoordinatesFromString = (spatialAttribute: any, input: string, coord?: string | null) => {
+export const getCoordinatesFromString = (spatialAttribute: any, input: string, coord?: string | null) => {
     const cleanInput = input.replace(/"/g, '').trim()
     const [firstCoord, secondCoord] = cleanInput.split(' ')
     const isLatLon = spatialAttribute.properties.coordFormat === 'lat lon'
@@ -158,7 +158,16 @@ const getCoordinatesFromString = (spatialAttribute: any, input: string, coord?: 
     return isLatLon ? [firstCoord, secondCoord] : [secondCoord, firstCoord]
 }
 
-const getCoordinatesFromJSONCoordType = (input: string) => {
+export const getCoordinatesFromJSONCoordType = (input: string) => {
+    try {
+        const parsedInput = getParsedInput(input)
+        return parsedInput?.geometry?.coordinates ?? []
+    } catch (error) {
+        throw Error('Spatial attribute coordinates are not a valid JSON!')
+    }
+}
+
+export const getParsedInput = (input: string) => {
     try {
         let sanitizedInput = input
             .replace(/\\/g, '')
@@ -166,10 +175,7 @@ const getCoordinatesFromJSONCoordType = (input: string) => {
             .replace(/:\s*([a-zA-Z_][a-zA-Z0-9_]*)/g, ': "$1"')
 
         const parsedInput = JSON.parse(sanitizedInput)
-
-        if (!parsedInput) return []
-
-        return parsedInput?.geometry?.coordinates ?? []
+        return parsedInput
     } catch (error) {
         throw Error('Spatial attribute coordinates are not a valid JSON!')
     }
