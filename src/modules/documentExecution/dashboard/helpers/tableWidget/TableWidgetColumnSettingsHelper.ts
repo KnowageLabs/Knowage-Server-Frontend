@@ -197,7 +197,14 @@ export const getTooltipFromColumn = (formattedWidget: IWidget, tempColumn: any) 
 
 const addVisualisationTypeAttributeColumn = (formattedWidget: IWidget, tempColumn: any) => {
     formattedWidget.settings.visualization.visualizationTypes.enabled = true
-    formattedWidget.settings.visualization.visualizationTypes.types.push({ target: [getColumnId(tempColumn.name)], type: 'Text', prefix: tempColumn.style?.prefix ?? '', suffix: tempColumn.style?.suffix ?? '', pinned: tempColumn.pinned ?? '' })
+    formattedWidget.settings.visualization.visualizationTypes.types.push({
+        target: [getColumnId(tempColumn.name)],
+        type: 'Text',
+        prefix: tempColumn.style?.prefix ?? '',
+        suffix: tempColumn.style?.suffix ?? '',
+        pinned: tempColumn.pinned ?? '',
+        precision: tempColumn.precision || tempColumn?.style?.precision || 0
+    })
 }
 
 const addVisualisationTypeMeasureColumn = (formattedWidget: IWidget, tempColumn: any) => {
@@ -205,7 +212,7 @@ const addVisualisationTypeMeasureColumn = (formattedWidget: IWidget, tempColumn:
     const tempVisualizationType = {
         target: [getColumnId(tempColumn.name)],
         type: formatColumnVisualizationTypeFromOldModel(tempColumn.visType),
-        precision: tempColumn.precision,
+        precision: tempColumn.precision || tempColumn?.style?.precision || 0,
         prefix: tempColumn.style?.prefix ?? '',
         suffix: tempColumn.style?.suffix,
         pinned: tempColumn.pinned ?? '',
