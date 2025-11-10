@@ -134,7 +134,7 @@ const getConditionalStyleFromColumn = (formattedWidget: IWidget, tempColumn: any
                 value: range.value
             },
             properties: {
-                'justify-content': '',
+                'justify-content': tempColumn.style?.['justify-content'] ?? 'center',
                 'font-family': '',
                 'font-size': '',
                 'font-style': '',
