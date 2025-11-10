@@ -127,7 +127,7 @@ const getConditionalStyleFromColumn = (formattedWidget: IWidget, tempColumn: any
     tempColumn.ranges.forEach((range: any) => {
         const tempConditionalStyle = {
             target: columnId,
-            applyToWholeRow: true,
+            applyToWholeRow: false,
             condition: {
                 type: 'static',
                 operator: range.operator,

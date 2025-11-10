@@ -1,19 +1,4 @@
-import {
-    IWidget,
-    ITableWidgetSettings,
-    ITableWidgetPagination,
-    ITableWidgetConditionalStyle,
-    ITableWidgetTooltipStyle,
-    ITableWidgetStyle,
-    IWidgetInteractions,
-    ITableWidgetConfiguration,
-    IWidgetResponsive,
-    ITableWidgetConditionalStyles,
-    IDashboard,
-    IVariable,
-    IDashboardDriver,
-    IWidgetHelpSettings
-} from '../../Dashboard'
+import { IWidget, ITableWidgetSettings, ITableWidgetPagination, ITableWidgetConditionalStyle, ITableWidgetTooltipStyle, ITableWidgetStyle, IWidgetInteractions, ITableWidgetConfiguration, IWidgetResponsive, ITableWidgetConditionalStyles, IDashboard, IVariable, IDashboardDriver, IWidgetHelpSettings } from '../../Dashboard'
 import { getFormattedConfiguration } from './TableWidgetConfigurationHelper'
 import { getFormattedStyle } from './TableWidgetStyleHelper'
 import { getSettingsFromWidgetColumns } from './TableWidgetColumnSettingsHelper'
@@ -74,7 +59,7 @@ const getFormattedConditionalStyles = (widget: any, formattedDashboardModel: IDa
 const createConditionFromRowThreshold = (rowThreshold: any, formattedDashboardModel: IDashboard, drivers: IDashboardDriver[]) => {
     const conditionStyle = {
         target: rowThreshold.column ? getColumnId(rowThreshold.column) : [],
-        applyToWholeRow: false,
+        applyToWholeRow: true,
         condition: { type: rowThreshold.compareValueType, operator: rowThreshold.condition, value: '' },
         properties: {
             'justify-content': '',
