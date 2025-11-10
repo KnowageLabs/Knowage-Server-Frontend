@@ -17,7 +17,7 @@ export const getFormattedWidgetColumns = (widget: any, columnNameIdMap: any, all
 }
 
 export const getFormattedWidgetColumn = (widgetColumn: any, columnNameIdMap: any) => {
-    const formattedColumn = { id: crypto.randomUUID(), columnName: widgetColumn.name, alias: widgetColumn.alias, type: widgetColumn.type, fieldType: widgetColumn.fieldType, multiValue: widgetColumn.multiValue, filter: {} } as IWidgetColumn
+    const formattedColumn = { id: crypto.randomUUID(), columnName: widgetColumn.name, alias: widgetColumn.aliasToShow ?? widgetColumn.alias, type: widgetColumn.type, fieldType: widgetColumn.fieldType, multiValue: widgetColumn.multiValue, filter: {} } as IWidgetColumn
     if (widgetColumn.isCalculated) {
         formattedColumn.formula = widgetColumn.formula
         formattedColumn.formulaEditor = widgetColumn.formulaEditor
