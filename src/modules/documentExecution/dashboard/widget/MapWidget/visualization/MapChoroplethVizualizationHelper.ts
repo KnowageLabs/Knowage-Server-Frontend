@@ -1,9 +1,10 @@
 import { ISelection, IVariable, IWidget } from '../../../Dashboard'
 import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationThreshold, IMapWidgetVisualizationType, IMapWidgetVisualizationTypeChoropleth } from '../../../interfaces/mapWidget/DashboardMapWidget'
-import { getColumnName, getCoordinates, LEGEND_DATA_TYPE, VisualizationDataType } from '../LeafletHelper'
+import { getColumnName, getCoordinates, getCoordinatesFromJSONCoordType, getCoordinatesFromString, getParsedInput, LEGEND_DATA_TYPE, VisualizationDataType } from '../LeafletHelper'
 import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData, createDialogFromDataset } from './MapDialogHelper'
 import { executeMapInteractions, columnsMatch } from '../interactions/MapInteractionsHelper'
 import { formatRanges, getConditionalStyleUsingTargetDataset, getCoordinatesFromWktPointFeature, getFeatureValues, getMinMaxByName, getNumericPropertyValues, getQuantiles, getQuantilesFromLayersData, getRowValues, getTargetDataColumn, isConditionMet, sortRanges, transformDataUsingForeignKeyReturningAllColumns, validateNumber } from './MapVisualizationHelper'
+import { wktToGeoJSON } from '@terraformer/wkt'
 import L from 'leaflet'
 import * as mapWidgetDefaultValues from '../../WidgetEditor/helpers/mapWidget/MapWidgetDefaultValues'
 import { getQuantileSizeMappings, getSizeAndColorRangesForLegend } from './MapBaloonsVizualizationHelper'
@@ -165,15 +166,9 @@ const createChoroplethClassifiedByEqualIntervalsFromData = (data: any, widgetMod
         const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, row, variables, null, null, data[target.id])
 
         if (!row[geoColumn]) return
-        const coordinates = getCoordinates(spatialAttribute, row[geoColumn], null)
-        if (!coordinates) return
-        const polygonCoords = Array.isArray(coordinates) ? (coordinates as any).map((ring: any) => (Array.isArray(ring[0]) ? ring.map(([x, y]: [number, number]) => [y, x]) : [])) : []
         const color = colorGradients[getRangeIndexFromEqualIntervals(originalValue, valueColumnMinMaxValues?.min ?? Number.MIN_SAFE_INTEGER, valueColumnMinMaxValues?.max ?? Number.MAX_SAFE_INTEGER, numberOfClasses)] ?? defaultChoroplethValues.style.color
 
-        const polygon = createPolygon(polygonCoords, color, layerVisualizationSettings, defaultChoroplethValues, layerGroup, bounds, conditionalStyle)
-
-        addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, polygon, activeSelections, dashboardId, variables)
-        addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, polygon, activeSelections, dashboardId, variables)
+        createPolygonFromDataRow(data, widgetModel, target, layerVisualizationSettings, spatialAttribute, row, geoColumn, color, layerGroup, bounds, conditionalStyle, activeSelections, dashboardId, variables)
     })
 
     return { intervals: getEqualIntervalsForLegend(valueColumnMinMaxValues?.min ?? Number.MIN_SAFE_INTEGER, valueColumnMinMaxValues?.max ?? Number.MAX_SAFE_INTEGER, numberOfClasses), colorGradients: colorGradients, type: LEGEND_DATA_TYPE.CHOROPLETH_INTERVALS }
@@ -304,15 +299,9 @@ const createChoroplethClassifiedByQuantilsFromData = (layerGroup: any, data: any
 
         const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, row, variables, null, null, data[target.id])
 
-        const coordinates = getCoordinates(spatialAttribute, row[geoColumn], null)
-        if (!coordinates) return
-
-        const polygonCoords = Array.isArray(coordinates) ? (coordinates as any).map((ring: any) => (Array.isArray(ring[0]) ? ring.map(([x, y]: [number, number]) => [y, x]) : [])) : []
         const color = colorGradients[getQuantileIndex(quantiles, originalValue)] ?? defaultChoroplethValues.style.color
 
-        const polygon = createPolygon(polygonCoords, color, layerVisualizationSettings, defaultChoroplethValues, layerGroup, bounds, conditionalStyle)
-        addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, polygon, activeSelections, dashboardId, variables)
-        addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, polygon, activeSelections, dashboardId, variables)
+        createPolygonFromDataRow(data, widgetModel, target, layerVisualizationSettings, spatialAttribute, row, geoColumn, color, layerGroup, bounds, conditionalStyle, activeSelections, dashboardId, variables)
     })
 
     return { qunatileMappings: getQuantileSizeMappings(quantiles, layerVisualizationSettings.analysisConf.classes, layerVisualizationSettings.analysisConf.minSize, layerVisualizationSettings.analysisConf.maxSize), colorGradients: colorGradients, type: LEGEND_DATA_TYPE.CHOROPLETH_QUANTILES }
@@ -405,7 +394,6 @@ const addChoroplethPolygonUsingLayersPointClassifedByRanges = (layerGroup: any, 
 }
 
 const createChoroplethClassifiedByRangesFromData = (layerGroup: any, data: any, widgetModel: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerVisualizationSettings: IMapWidgetVisualizationType, bounds: any, variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
-    const defaultChoroplethValues = mapWidgetDefaultValues.getDefaultVisualizationChoroplethConfiguration()
     const valueColumnMinMaxValues = getMinMaxByName(data[target.name].stats, dataColumn)
     const ranges = layerVisualizationSettings.analysisConf?.properties?.thresholds ?? []
     const minValue = valueColumnMinMaxValues?.min ?? 0
@@ -427,14 +415,7 @@ const createChoroplethClassifiedByRangesFromData = (layerGroup: any, data: any, 
 
         const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, row, variables, null, null, data[target.id])
 
-        const coordinates = getCoordinates(spatialAttribute, row[geoColumn], null)
-        if (!coordinates) return
-        const polygonCoords = Array.isArray(coordinates) ? (coordinates as any).map((ring: any) => (Array.isArray(ring[0]) ? ring.map(([x, y]: [number, number]) => [y, x]) : [])) : []
-
-        const polygon = createPolygon(polygonCoords, rangeIndexAndColor.color, layerVisualizationSettings, defaultChoroplethValues, layerGroup, bounds, conditionalStyle)
-
-        addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, polygon, activeSelections, dashboardId, variables)
-        addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, polygon, activeSelections, dashboardId, variables)
+        createPolygonFromDataRow(data, widgetModel, target, layerVisualizationSettings, spatialAttribute, row, geoColumn, rangeIndexAndColor.color, layerGroup, bounds, conditionalStyle, activeSelections, dashboardId, variables)
     })
 
     return { ranges: getSizeAndColorRangesForLegend(minValue, maxValue, ranges, defaultColor), type: LEGEND_DATA_TYPE.CHOROPLETH_RANGES }
@@ -480,6 +461,51 @@ const createPolygon = (polygonCoords: number[], color: string | null, layerVisua
     const polygon = L.polygon(polygonCoords, { color: conditionalStyle?.['background-color'] ?? color, fillColor: conditionalStyle?.['background-color'] ?? color, weight: layerVisualizationSettings.analysisConf?.style.borderWidth ?? defaultChoroplethValues.style.borderWidth }).addTo(layerGroup)
     bounds.extend(polygon.getBounds())
     return polygon
+}
+
+const createPolygonFromDataRow = (data: any, widgetModel: IWidget, target: IMapWidgetLayer, layerVisualizationSettings: IMapWidgetVisualizationType, spatialAttribute: any, row: any, geoColumn: string, color: string | null, layerGroup: any, bounds: any, conditionalStyle: { ['background-color']?: string; icon?: string } | null, activeSelections: ISelection[], dashboardId: string, variables: IVariable[]) => {
+    let coordinates
+    if (!spatialAttribute) return []
+
+    if (spatialAttribute.properties.coordType === 'string') {
+        coordinates = getCoordinatesFromString(spatialAttribute, row[geoColumn], undefined)
+    } else if (spatialAttribute.properties.coordType === 'json') {
+        const parsedInput = getParsedInput(row[geoColumn])
+
+        if (parsedInput) {
+            if (parsedInput.type === 'FeatureCollection') {
+                const polygon = L.geoJSON(parsedInput, {
+                    onEachFeature: function (feature, layer) {
+                        addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, layer, activeSelections, dashboardId, variables)
+                        addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, layer, activeSelections, dashboardId, variables)
+                        attachPolygonInteractionHandlers(layer, feature, layerVisualizationSettings, widgetModel, activeSelections, dashboardId, variables)
+                    }
+                }).addTo(layerGroup)
+                bounds.extend(polygon.getBounds())
+                return
+            } else {
+                coordinates = getCoordinatesFromJSONCoordType(parsedInput)
+            }
+        }
+    } else if (spatialAttribute.properties.coordType === 'wkt') {
+        const formattedWKTInput = wktToGeoJSON(row[geoColumn])
+        coordinates = formattedWKTInput?.coordinates ?? []
+    } else {
+        // Default case when coordType is missing or unrecognized
+        spatialAttribute.properties.coordType = 'string'
+        spatialAttribute.properties.coordFormat = 'lon lat'
+        coordinates = getCoordinatesFromString(spatialAttribute, row[geoColumn], undefined)
+    }
+
+    if (!coordinates) return
+    const polygonCoords = Array.isArray(coordinates) ? (coordinates as any).map((ring: any) => (Array.isArray(ring[0]) ? ring.map(([x, y]: [number, number]) => [y, x]) : [])) : []
+
+    const defaultChoroplethValues = mapWidgetDefaultValues.getDefaultVisualizationChoroplethConfiguration()
+    const polygon = L.polygon(polygonCoords, { color: conditionalStyle?.['background-color'] ?? color, fillColor: conditionalStyle?.['background-color'] ?? color, weight: layerVisualizationSettings.analysisConf?.style.borderWidth ?? defaultChoroplethValues.style.borderWidth }).addTo(layerGroup)
+    bounds.extend(polygon.getBounds())
+    addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, polygon, activeSelections, dashboardId, variables)
+    addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, polygon, activeSelections, dashboardId, variables)
+    attachPolygonInteractionHandlers(polygon, row, layerVisualizationSettings, widgetModel, activeSelections, dashboardId, variables)
 }
 
 // Generalized interaction handler for choropleth polygons
