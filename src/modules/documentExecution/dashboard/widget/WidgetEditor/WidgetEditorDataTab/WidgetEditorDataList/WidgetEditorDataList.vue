@@ -272,6 +272,10 @@ export default defineComponent({
                 allFields.forEach((field) => {
                     if (field.fieldType === 'MEASURE' && !field.formula) this.calcFieldColumns.push({ fieldAlias: `${field.alias}`, fieldLabel: field.columnName })
                 })
+            } else if (this.model?.type === 'highcharts') {
+                this.selectedDatasetColumns.forEach((field) => {
+                    if (field.fieldType === 'MEASURE' && field.type !== 'java.lang.String') this.calcFieldColumns.push({ fieldAlias: `${field.alias}`, fieldLabel: field.name })
+                })
             } else {
                 this.model?.columns.forEach((field) => {
                     if (field.fieldType === 'MEASURE' && !field.formula) this.calcFieldColumns.push({ fieldAlias: `${field.alias}`, fieldLabel: field.columnName })
