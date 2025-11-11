@@ -1356,6 +1356,7 @@
                 "enableColor": "Enable Color",
                 "scale": "Scale",
                 "scaleHint": "Scale Hint Placeholder",
+                "showSeriesName": "Show Series Name",
                 "title": "Series"
             },
             "seriesAccessibility": {

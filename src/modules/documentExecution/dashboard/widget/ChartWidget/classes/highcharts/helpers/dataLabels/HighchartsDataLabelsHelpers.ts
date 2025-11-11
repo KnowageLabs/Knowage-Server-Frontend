@@ -11,6 +11,7 @@ export const updateSeriesLabelSettingsWhenAllOptionIsAvailable = (model: any, wi
 
 const setAllSeriesSettings = (model: any, widgetModel: IWidget) => {
     const allSeriesSettings = widgetModel.settings.series.seriesSettings[0]
+    model.plotOptions.series.label = { enabled: allSeriesSettings.showName }
     if (allSeriesSettings.label.enabled) {
         model.series?.forEach((serie: any) => updateSeriesDataWithSerieSettings(model, serie, allSeriesSettings))
     } else {
@@ -50,6 +51,7 @@ const updateSpecificSeriesLabelSettings = (model: any, serieName: string, series
 }
 
 const updateSeriesDataWithSerieSettings = (model: any, serie: any, seriesSettings: IHighchartsSeriesLabelsSetting) => {
+    serie.label = { enabled: seriesSettings.showName }
     serie.data.forEach((data: any) => {
         if (data instanceof Object) {
             data.dataLabels = {

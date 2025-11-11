@@ -7,9 +7,14 @@
                 <HighchartsSeriesMultiselect v-else :value="serieSetting.names" :available-series-options="availableSeriesOptions" :disabled="!allSeriesOptionEnabled" @change="onSeriesSelected($event, serieSetting)"> </HighchartsSeriesMultiselect>
             </div>
 
-            <div v-if="labelOptionsVisible" class="p-col-5 p-pt-4 p-px-4">
+            <div v-if="labelOptionsVisible" class="p-col-2 p-pt-2 p-px-2">
                 <InputSwitch v-model="serieSetting.label.enabled" @change="modelChanged"></InputSwitch>
                 <label class="kn-material-input-label p-m-3">{{ $t('dashboard.widgetEditor.showLabel') }}</label>
+            </div>
+
+            <div v-if="seriesNameVisible" class="p-col-3 p-pt-2 p-px-2">
+                <InputSwitch v-model="serieSetting.showName" @change="modelChanged"></InputSwitch>
+                <label class="kn-material-input-label p-m-3">{{ $t('dashboard.widgetEditor.series.showSeriesName') }}</label>
             </div>
 
             <div v-if="serieColorPickerVisible" class="p-col-2 p-pt-4 p-px-4">
@@ -149,6 +154,9 @@ export default defineComponent({
         },
         labelOptionsVisible() {
             return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall'].includes(this.model.chart.type)
+        },
+        seriesNameVisible() {
+            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall'].includes(this.model.chart.type)
         }
     },
     watch: {
@@ -273,7 +281,9 @@ export default defineComponent({
         addSerieSetting() {
             const newSerieSetting = {
                 names: [],
-                label: highchartsDefaultValues.getDefaultSerieLabelSettings()
+                label: highchartsDefaultValues.getDefaultSerieLabelSettings(),
+                seriesName: highchartsDefaultValues.getDefaultSerieLabelSettings(),
+                showName: true
             } as IHighchartsSeriesLabelsSetting
             if (this.model?.chart.type === 'gauge') {
                 newSerieSetting.dial = highchartsDefaultValues.getDefaultSerieDialSettings()
