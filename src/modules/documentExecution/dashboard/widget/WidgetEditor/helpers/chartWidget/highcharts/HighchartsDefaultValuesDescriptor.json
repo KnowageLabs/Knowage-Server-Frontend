@@ -136,7 +136,7 @@
     "defaultBarXAxis": {
         "gridLineWidth": 1,
         "labels": {
-            "align": "center",
+            "align": null,
             "rotation": null,
             "style": {
                 "color": "",
@@ -168,7 +168,7 @@
         "gridLineColor": "",
         "gridLineDashStyle": "",
         "labels": {
-            "align": "center",
+            "align": null,
             "rotation": null,
             "style": {
                 "color": "",
