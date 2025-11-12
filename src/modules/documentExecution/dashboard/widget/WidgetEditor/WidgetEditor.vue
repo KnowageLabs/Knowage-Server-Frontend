@@ -92,11 +92,19 @@ export default defineComponent({
         this.loadWidget()
         this.loadSelectedModelDatasets()
         this.loadSelectedModel()
+        window.addEventListener('keydown', this.handleKeyDown)
     },
     unmounted() {
         this.removeEventListeners()
+        window.removeEventListener('keydown', this.handleKeyDown)
     },
     methods: {
+        handleKeyDown(event: KeyboardEvent) {
+            if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+                event.preventDefault()
+                if (!this.widgetIsInvalid) this.save()
+            }
+        },
         setEventListeners() {
             emitter.on('chartPickerVisible', this.changeChartPickerVisbility)
         },
