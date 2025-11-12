@@ -2,13 +2,13 @@
     <div class="map-container">
         <MapLegend v-if="widgetModel?.settings?.legend?.enabled" :propMapWidgetLegend="widgetModel?.settings?.legend" :legend-data="legendData"> </MapLegend>
 
-        <LeafletWrapper v-if="layerVisibilityState" :widget-model="widgetModel" :data="dataToShow" :layer-visibility="layerVisibilityState" :dashboardId="dashboardId" :filtersReloadTrigger="filtersReloadTrigger" :propVariables="variables" :propActiveSelections="activeSelections" @legend-updated="onLegendUpdated"></LeafletWrapper>
+        <LeafletWrapper v-if="visualizationVisibilityState" :widget-model="widgetModel" :data="dataToShow" :layer-visibility="visualizationVisibilityState" :dashboardId="dashboardId" :filtersReloadTrigger="filtersReloadTrigger" :propVariables="variables" :propActiveSelections="activeSelections" @legend-updated="onLegendUpdated"></LeafletWrapper>
 
         <q-btn round push class="kn-parameter-sidebar-showLegend" color="white" text-color="black" size="sm" icon="settings" @click="showPanel = true">
             <q-tooltip :delay="500">{{ $t('common.open') }}</q-tooltip>
         </q-btn>
         <Transition>
-            <div v-if="widgetModel.layers.length > 0 && showPanel" class="kn-parameter-sidebar kn-map-sidebar q-pa-xs" :style="{ width: widgetModel.settings.configuration.controlPanel.dimension || 'auto' }">
+            <div v-if="widgetModel.settings.visualizations.length > 0 && showPanel" class="kn-parameter-sidebar kn-map-sidebar q-pa-xs" :style="{ width: widgetModel.settings.configuration.controlPanel.dimension || 'auto' }">
                 <div class="kn-map-sidebar-options row justify-end items-center" v-if="!widgetModel.settings.configuration.controlPanel.alwaysShow">
                     <q-btn flat round class="q-mr-xs" color="black" size="sm" icon="start" @click="showPanel = false">
                         <q-tooltip :delay="500">{{ $t('common.close') }}</q-tooltip>
@@ -17,15 +17,16 @@
                 <div class="kn-map-sidebar-scroller">
                     <q-list>
                         <q-expansion-item default-opened :label="$t('common.visibility')" icon="preview">
-                            <div v-for="item in widgetModel.layers" :key="item.layerId" class="kn-map-sidebar-layer q-mb-sm">
+                            <div v-for="item in widgetModel.settings.visualizations" :key="item.label" class="kn-map-sidebar-layer q-mb-sm">
                                 <template v-if="isLayerSet(item)">
                                     <div class="row items-center">
-                                        <q-btn flat round class="q-mr-xs option-button" color="black" size="xs" :icon="layerVisibilityState && layerVisibilityState[item.layerId] ? 'visibility' : 'visibility_off'" @click="switchLayerVisibility(item)" />
-                                        {{ item.name }}
+                                        <q-btn flat round class="q-mr-xs option-button" color="black" size="xs" :icon="visualizationVisibilityState && visualizationVisibilityState[item.label] ? 'visibility' : 'visibility_off'" @click="switchLayerVisibility(item)" />
+                                        {{ item.label }}
                                     </div>
                                 </template>
                             </div>
                         </q-expansion-item>
+
                         <q-expansion-item :label="$t('common.filters')" icon="filter_list">
                             <div v-for="visualization in widgetModel?.settings?.visualizations" :key="visualization.layerId" class="kn-map-sidebar-layer">
                                 <template v-if="isVisualizationSet(visualization)">
@@ -83,7 +84,7 @@ export default defineComponent({
         return {
             widgetModel: {} as any,
             activeSelections: [] as ISelection[],
-            layerVisibilityState: null as Record<string, boolean> | null,
+            visualizationVisibilityState: null as Record<string, boolean> | null,
             showPanel: false as Boolean,
             propertiesCache: new Map<string, { name: string; alias: string }[]>(),
             filtersReloadTrigger: false,
@@ -112,7 +113,7 @@ export default defineComponent({
             this.variables = this.propVariables
         },
         isLayerSet(layer) {
-            return this.widgetModel.settings.visualizations.filter((vis) => vis.target === layer.layerId)[0]
+            return this.widgetModel.settings.visualizations.filter((vis) => vis.id === layer.id)[0]
         },
         isVisualizationSet(visualization: IMapWidgetVisualizationType): boolean {
             return this.widgetModel.settings.visualizations.some((tempVisualization: IMapWidgetVisualizationType) => tempVisualization.target === visualization.target)
@@ -140,11 +141,11 @@ export default defineComponent({
         },
         updateLayerVisibilityState() {
             const newState: Record<string, boolean> = {}
-            this.widgetModel.settings.visualizations.forEach((visualization: IMapWidgetVisualizationType) => (newState[visualization.target] = false))
+            this.widgetModel.settings.visualizations.forEach((visualization: IMapWidgetVisualizationType) => (newState[visualization.label] = false))
 
             const visualizations = this.widgetModel.settings?.visualizations ? deepcopy(this.widgetModel.settings.visualizations) : []
             visualizations.reverse().forEach((visualization: IMapWidgetVisualizationType) => (newState[visualization.label] = visualization.visible))
-            this.layerVisibilityState = newState
+            this.visualizationVisibilityState = newState
         },
         loadActiveSelections() {
             this.activeSelections = this.propActiveSelections
@@ -157,8 +158,8 @@ export default defineComponent({
             this.reloadFilters(visualization)
         },
         switchLayerVisibility(layer: any) {
-            if (!this.layerVisibilityState) this.layerVisibilityState = {}
-            this.layerVisibilityState[layer.layerId] = !this.layerVisibilityState[layer.layerId]
+            if (!this.visualizationVisibilityState) this.visualizationVisibilityState = {}
+            this.visualizationVisibilityState[layer.label] = !this.visualizationVisibilityState[layer.label]
         },
         toggleFilter(visualization: IMapWidgetVisualizationType) {
             if (visualization.filter) visualization.filter.enabled = !visualization.filter.enabled
