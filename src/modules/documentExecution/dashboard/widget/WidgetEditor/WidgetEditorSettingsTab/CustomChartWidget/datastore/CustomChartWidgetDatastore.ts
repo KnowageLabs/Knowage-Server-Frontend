@@ -10,6 +10,7 @@ export class CustomChartDatastore {
     profile: any = {}
     state: any = {}
     drivers: any = {}
+    currentSelections: any[] = []
 
     constructor(data) {
         this.data = data
@@ -21,6 +22,10 @@ export class CustomChartDatastore {
 
     setDrivers(drivers) {
         this.drivers = drivers
+    }
+
+    setCurrentSelections(currentSelections) {
+        this.currentSelections = currentSelections
     }
 
     setVariables(variables: IVariable[]) {
@@ -61,6 +66,19 @@ export class CustomChartDatastore {
     parameters() {
         console.warn('CustomChartDatastore.parameters() is deprecated. Use getDrivers() instead.')
         return this.getDrivers()
+    }
+
+    getSelections() {
+        debugger
+        return this.currentSelections
+    }
+
+    /**
+     * @deprecated used by old custom chart. Suggest the new method getDrivers() for new customCharts
+     */
+    selections() {
+        console.warn('CustomChartDatastore.selections() is deprecated. Use getSelections() instead.')
+        return this.getSelections()
     }
 
     getRecords() {
@@ -309,6 +327,11 @@ export class CustomChartDatastore {
         if (crossNavigationLabel) payload = { ...payload, crossNavigationLabel: crossNavigationLabel }
         if (window.frames.document.querySelector('#_KNOWAGE_VUE')) window.postMessage({ type: 'clickManager', payload }, location.origin)
         else window?.parent?.postMessage({ type: 'clickManager', payload }, location.origin)
+    }
+
+    removeSelection(columnName: string) {
+        if (window.frames.document.querySelector('#_KNOWAGE_VUE')) window.postMessage({ type: 'removeSelection', payload: { columnName } }, location.origin)
+        else window?.parent?.postMessage({ type: 'removeSelection', payload: { columnName } }, location.origin)
     }
 
     getState() {
