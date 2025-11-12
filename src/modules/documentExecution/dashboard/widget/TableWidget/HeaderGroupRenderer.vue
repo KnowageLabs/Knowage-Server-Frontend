@@ -21,22 +21,37 @@ export default defineComponent({
         getHeaderGroupStyle() {
             const modelGroups = this.params.propWidget.settings.style.columnGroups
             let columnGroupStyleString = null as any
+            let groupProperties = null as any
 
             if (modelGroups.enabled) {
-                columnGroupStyleString = Object.entries(modelGroups.styles[0].properties)
+                groupProperties = modelGroups.styles[0].properties
+                columnGroupStyleString = Object.entries(groupProperties)
                     .map(([k, v]) => `${k}:${v}`)
                     .join(';')
 
                 modelGroups.styles.forEach((group) => {
                     if (group.target.includes(this.params.colId)) {
-                        columnGroupStyleString = Object.entries(group.properties)
+                        groupProperties = group.properties
+                        columnGroupStyleString = Object.entries(groupProperties)
                             .map(([k, v]) => `${k}:${v}`)
                             .join(';')
                     }
                 })
+
+                const textAlign = this.getTextAlignFromJustifyContent(groupProperties)
+                if (textAlign) columnGroupStyleString += `;text-align:${textAlign};`
             }
 
             return columnGroupStyleString
+        },
+        getTextAlignFromJustifyContent(properties) {
+            if (!properties) return null
+            const justifyContent = properties['justify-content']
+            if (!justifyContent) return null
+
+            if (justifyContent === 'flex-start') return 'left'
+            if (justifyContent === 'flex-end') return 'right'
+            return 'center'
         },
         getHeaderMultiline() {
             const headerConfig = this.params.propWidget.settings.configuration.headers

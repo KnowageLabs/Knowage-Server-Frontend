@@ -31,10 +31,22 @@ export default defineComponent({
     methods: {
         getHeaderStyle() {
             const styleSettings = this.params.propWidget.settings.style.headers
-            const styleString = Object.entries(styleSettings.properties ?? styleSettings)
+            let styleString = Object.entries(styleSettings.properties ?? styleSettings)
                 .map(([k, v]) => `${k}:${v}`)
                 .join(';')
+
+            const textAlign = this.getTextAlignFromJustifyContent(styleSettings)
+            if (textAlign) styleString += `;text-align:${textAlign}`
+
             return styleString + ';'
+        },
+        getTextAlignFromJustifyContent(styleSettings) {
+            const justifyContent = styleSettings.properties['justify-content']
+            if (!justifyContent) return null
+
+            if (justifyContent === 'flex-start') return 'left'
+            if (justifyContent === 'flex-end') return 'right'
+            return 'center'
         },
         getHeaderMultiline() {
             const headerConfig = this.params.propWidget.settings.configuration.headers
