@@ -1,6 +1,6 @@
 <template>
     <div class="custom-header-group-container" :style="getHeaderGroupStyle()">
-        <div class="custom-header-group-label">{{ params.displayName }}</div>
+        <div class="custom-header-group-label" :style="getHeaderMultiline()">{{ params.displayName }}</div>
     </div>
 </template>
 
@@ -37,6 +37,13 @@ export default defineComponent({
             }
 
             return columnGroupStyleString
+        },
+        getHeaderMultiline() {
+            const headerConfig = this.params.propWidget.settings.configuration.headers
+            if (headerConfig.enabled && headerConfig.enabledMultiline) {
+                return ';white-space:normal;word-break:break-word;'
+            }
+            return ''
         }
     }
 })
