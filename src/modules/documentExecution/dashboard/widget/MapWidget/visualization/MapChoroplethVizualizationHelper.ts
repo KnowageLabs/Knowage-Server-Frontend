@@ -458,7 +458,7 @@ const generateColorGradient = (colorStart: string | undefined, colorEnd: string 
 }
 
 const createPolygon = (polygonCoords: number[], color: string | null, layerVisualizationSettings: IMapWidgetVisualizationType, defaultChoroplethValues: IMapWidgetVisualizationTypeChoropleth, layerGroup: any, bounds: any, conditionalStyle: { ['background-color']?: string; icon?: string } | null) => {
-    const polygon = L.polygon(polygonCoords, { color: conditionalStyle?.['background-color'] ?? color, fillColor: conditionalStyle?.['background-color'] ?? color, weight: layerVisualizationSettings.analysisConf?.style.borderWidth ?? defaultChoroplethValues.style.borderWidth }).addTo(layerGroup)
+    const polygon = L.polygon(polygonCoords, { color: conditionalStyle?.['background-color'] ?? color, fillColor: conditionalStyle?.['background-color'] ?? color, fillOpacity: 0.9, weight: layerVisualizationSettings.analysisConf?.style.borderWidth ?? defaultChoroplethValues.style.borderWidth }).addTo(layerGroup)
     bounds.extend(polygon.getBounds())
     return polygon
 }
@@ -501,7 +501,7 @@ const createPolygonFromDataRow = (data: any, widgetModel: IWidget, target: IMapW
     const polygonCoords = Array.isArray(coordinates) ? (coordinates as any).map((ring: any) => (Array.isArray(ring[0]) ? ring.map(([x, y]: [number, number]) => [y, x]) : [])) : []
 
     const defaultChoroplethValues = mapWidgetDefaultValues.getDefaultVisualizationChoroplethConfiguration()
-    const polygon = L.polygon(polygonCoords, { color: conditionalStyle?.['background-color'] ?? color, fillColor: conditionalStyle?.['background-color'] ?? color, weight: layerVisualizationSettings.analysisConf?.style.borderWidth ?? defaultChoroplethValues.style.borderWidth }).addTo(layerGroup)
+    const polygon = L.polygon(polygonCoords, { color: conditionalStyle?.['background-color'] ?? color, fillColor: conditionalStyle?.['background-color'] ?? color, fillOpacity: 0.9, weight: layerVisualizationSettings.analysisConf?.style.borderWidth ?? defaultChoroplethValues.style.borderWidth }).addTo(layerGroup)
     bounds.extend(polygon.getBounds())
     addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, polygon, activeSelections, dashboardId, variables)
     addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, polygon, activeSelections, dashboardId, variables)
