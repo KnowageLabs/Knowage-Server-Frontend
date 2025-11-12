@@ -69,8 +69,10 @@ export class CustomChartDatastore {
     }
 
     getSelections() {
-        debugger
-        return this.currentSelections
+        return this.currentSelections.reduce((acc, item) => {
+            acc[item.columnName] = item.value
+            return acc
+        }, {})
     }
 
     /**
