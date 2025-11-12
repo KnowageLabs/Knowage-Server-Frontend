@@ -278,11 +278,11 @@ export default defineComponent({
                 const category = this.widgetModel.columns[this.drillLevel - 1]
 
                 this.likeSelections.push({ [category.columnName]: event.point.name })
-                this.formatLikeSelections(this.likeSelections)
+                const formattedLikeSelections = this.formatLikeSelections(this.likeSelections)
 
                 this.highchartsInstance.showLoading(this.$t('common.info.dataLoading'))
 
-                const tempData = await getWidgetData(this.dashboardId, this.widgetModel, dashboardDatasets, this.$http, false, this.propActiveSelections, { searchText: '', searchColumns: [] }, this.dashboards[this.dashboardId].configuration, null, false, this.likeSelections, this.drillLevel)
+                const tempData = await getWidgetData(this.dashboardId, this.widgetModel, dashboardDatasets, this.$http, false, this.propActiveSelections, { searchText: '', searchColumns: [] }, this.dashboards[this.dashboardId].configuration, null, false, formattedLikeSelections, this.drillLevel)
                 tempData.initialCall = false
                 const newSeries = this.widgetModel.settings.chartModel.setData(tempData, this.widgetModel)
 

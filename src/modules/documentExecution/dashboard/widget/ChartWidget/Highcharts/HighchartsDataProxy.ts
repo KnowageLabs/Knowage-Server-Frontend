@@ -55,12 +55,12 @@ export const getHighchartsWidgetData = async (dashboardId: any, dashboardConfig:
     const postData = formatChartWidgetForGet(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections, drillLevel, chartType)
     let tempResponse = null as any
 
+    if (likeSelections) postData.likeSelections = likeSelections
+
     const postDataForHash = deepcopy(postData)
     if (itemsLimit && itemsLimit?.enabled) postDataForHash.itemsLimit = itemsLimit
     const dataHash = md5(JSON.stringify(postDataForHash))
     const cachedData = await indexedDB.widgetData.get(dataHash)
-
-    if (likeSelections) postData.likeSelections = likeSelections
 
     if (dashStore.dataProxyQueue[dataHash]) {
         const response = await dashStore.dataProxyQueue[dataHash]
