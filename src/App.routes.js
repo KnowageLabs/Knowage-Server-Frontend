@@ -61,6 +61,11 @@ const baseRoutes = [
         component: () => import('@/views/Unauthorized.vue'),
         props: true,
         meta: { hideMenu: true, public: true }
+    },
+    {
+        path: '/html',
+        name: 'html',
+        component: () => import('@/modules/commons/HtmlRenderer.vue')
     }
 ]
 
