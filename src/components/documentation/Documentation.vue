@@ -59,13 +59,44 @@ onMounted(async () => {
             }
         )
         .then((response: any) => {
-            config.value = response.data
+            const userRole = store.user?.sessionRole || store.user?.defaultRole
+
+            function filterNode(node: any): any | null {
+                if (node == null) return null
+                if (Array.isArray(node)) {
+                    return node.map(filterNode).filter((n) => n !== null)
+                }
+                if (typeof node !== 'object') return node
+
+                if (Array.isArray(node.roles) && userRole && !node.roles.includes(userRole)) {
+                    return null
+                }
+
+                const newNode: any = { ...node }
+                if (Array.isArray(node.content)) {
+                    const filteredContent = node.content.map(filterNode).filter((n) => n !== null)
+                    if (filteredContent.length) {
+                        newNode.content = filteredContent
+                    } else {
+                        delete newNode.content
+                    }
+                }
+                return newNode
+            }
+
+            const filtered = filterNode(response.data)
+            if (!filtered) {
+                config.value = null
+                router.push({ name: '404' })
+            } else {
+                config.value = filtered
+            }
         })
         .catch(() => {
             config.value = null
             router.push({ name: '404' })
         })
-        .finally(store.setLoading(false))
+        .finally(() => store.setLoading(false))
 })
 
 function getLogoUrl() {
