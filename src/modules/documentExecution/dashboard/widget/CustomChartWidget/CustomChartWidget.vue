@@ -71,7 +71,7 @@ export default defineComponent({
         ...mapState(store, ['dashboards'])
     },
     methods: {
-        ...mapActions(store, ['getInternationalization', 'setSelections', 'getAllDatasets', 'getDashboardDrivers', 'getProfileAttributes', 'getCurrentDashboardView']),
+        ...mapActions(store, ['getInternationalization', 'setSelections', 'getAllDatasets', 'getDashboardDrivers', 'getProfileAttributes', 'getCurrentDashboardView', 'removeSelection']),
         ...mapActions(appStore, ['setError']),
         setEventListeners() {
             window.addEventListener('message', this.iframeEventsListener)
@@ -84,6 +84,7 @@ export default defineComponent({
                 this.setError({ title: this.$t('common.error.generic'), msg: event.data.error?.message ?? '' })
             } else if (event.data.type === 'clickManager') this.onClickManager(event.data.payload.columnName, event.data.payload.columnValue, event.data.payload.crossNavigationLabel)
             else if (event.data.type === 'setState') this.onSetState(event.data.payload)
+            else if (event.data.type === 'removeSelection') this.onRemoveSelection(event.data.payload.columnName)
         },
         loadDriversToDatastore() {
             const formattedDrivers = this.getDashboardDrivers(this.dashboardId).reduce((acc: Record<string, any>, driver: any) => {
@@ -99,14 +100,19 @@ export default defineComponent({
         loadVariablesToDatastore() {
             this.datastore.setVariables(this.variables)
         },
+        loadSelectionsToDatastore() {
+            this.datastore.setCurrentSelections(this.activeSelections)
+        },
         loadWidgetState() {
             if (this.propWidget.state) this.datastore.state = this.propWidget.state
         },
         async loadDataToShow() {
             this.dataToShow = this.widgetData
             if (this.widgetData) this.datastore.setData(this.widgetData)
-            setTimeout(() => {}, 250)
-            await this.loadHTML()
+            setTimeout(async () => {
+                await this.loadHTML()
+                this.loadSelectionsToDatastore()
+            }, 250)
         },
         loadActiveSelections() {
             this.activeSelections = this.propActiveSelections
@@ -262,6 +268,9 @@ export default defineComponent({
         },
         createNewSelection(value: (string | number)[], columnName: string) {
             return { datasetId: this.propWidget.dataset as number, datasetLabel: this.getDatasetLabel(this.propWidget.dataset as number), columnName: columnName, value: value, aggregated: false, timestamp: new Date().getTime() }
+        },
+        onRemoveSelection(columnName: string) {
+            this.removeSelection({ datasetId: this.propWidget.dataset as number, columnName: columnName }, this.dashboardId, this.$http)
         },
         getDatasetLabel(datasetId: number) {
             const datasets = this.getAllDatasets()
