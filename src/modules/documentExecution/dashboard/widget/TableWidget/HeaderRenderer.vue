@@ -1,6 +1,6 @@
 <template>
     <div class="custom-header-container" :style="getHeaderStyle()">
-        <div class="custom-header-label" @click="onSortRequested">{{ params.displayName }}</div>
+        <div class="custom-header-label" :style="getHeaderMultiline()" @click="onSortRequested">{{ params.displayName }}</div>
         <i v-if="showAscending" class="pi pi-arrow-up p-button-text p-button-rounded p-button-plain p-p-0 p-ml-1" />
         <i v-if="showDescending" class="pi pi-arrow-down p-button-text p-button-rounded p-button-plain p-p-0 p-ml-1" />
     </div>
@@ -35,6 +35,12 @@ export default defineComponent({
                 .map(([k, v]) => `${k}:${v}`)
                 .join(';')
             return styleString + ';'
+        },
+        getHeaderMultiline() {
+            const headerConfig = this.params.propWidget.settings.configuration.headers
+            if (headerConfig.enabled && headerConfig.enabledMultiline) return ';white-space:normal;word-break:break-word;'
+
+            return ''
         },
         onSortRequested() {
             const sortingColumn = this.params.propWidget.settings.sortingColumn
