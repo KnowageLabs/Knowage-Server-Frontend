@@ -41,12 +41,15 @@ export default defineComponent({
                 this.completeUrl = this.homePage.url
                 if (this.homePage.to) {
                     const to = this.homePage.to?.replaceAll('\\/', '/')
-                    if (this.isFunctionality(to) || this.isADocument(to)) this.$router.push(to)
+                    if (this.isFunctionality(to) || this.isADocument(to) || this.isHTML(to)) this.$router.push(to)
                     else this.completeUrl = import.meta.env.VITE_HOST_URL + this.homePage.to.replaceAll('\\/', '/')
                 }
             } else {
                 this.completeUrl = false
             }
+        },
+        isHTML(to: string): boolean {
+            return to.startsWith('./html')
         },
         isFunctionality(to: string): boolean {
             return to.startsWith('/document-browser') || to.startsWith('/workspace')
