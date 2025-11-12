@@ -1,12 +1,12 @@
 <template>
-    <div class="custom-header-group-container" :style="getStyle()">
+    <div class="custom-header-group-container" :style="getStyle()" style="height: 100%">
         <span v-if="!params.hideSummary" class="custom-header-group-label kn-width-full p-d-flex" :style="getStyle()">
             <b v-if="isFirstColumn()" style="margin-right: 4px" class="p-mr-auto">
-                {{ params.summaryRows[params.node.rowIndex] || '' }}
+                {{ params.summaryRows[params.node.rowIndex] || '\u200B' }}
             </b>
             <!-- Always show value if this column has summary data and it's not a label-only column -->
             <span v-if="shouldShowValue()">
-                {{ params.value ?? '' }}
+                {{ getFormattedValue() || '\u200B' }}
             </span>
         </span>
     </div>
@@ -14,7 +14,7 @@
 
 <script lang="ts">
 import { defineComponent, nextTick } from 'vue'
-import { ITableWidgetSummaryRows } from '../../Dashboard'
+import { formatNumberWithLocale } from '@/helpers/commons/localeHelper'
 
 export default defineComponent({
     props: {
@@ -82,6 +82,15 @@ export default defineComponent({
 
                 return columnStyle
             } else return null
+        },
+        getFormattedValue() {
+            const value = this.params.value
+            if (value === undefined || value === null) return '\u200B'
+
+            const numValue = typeof value === 'number' ? value : parseFloat(value)
+            if (!isNaN(numValue)) return formatNumberWithLocale(numValue)
+
+            return value
         }
     }
 })
