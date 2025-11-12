@@ -63,22 +63,6 @@ export const getTableWidgetData = async (dashboardId: any, dashboardConfig: IDas
                 // 7. finally, we need to resolve the promise from step 3 and remove it from the queue object
                 delete dashStore.dataProxyQueue[dataHash]
             }
-
-            //Keep this as a temporary backup
-            // await $http
-            //     .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
-            //     .then((response: AxiosResponse<any>) => {
-            //         tempResponse = response.data
-            //         if (pagination && pagination?.enabled) widget.settings.pagination.properties.totalItems = response.data.results
-            //     })
-            //     .catch((error: any) => {
-            //         showGetDataError(error, selectedDataset.dsLabel)
-            //     })
-            //     .finally(async () => {
-            //         // TODO - uncomment when realtime dataset example is ready
-            //         // resetDatasetInterval(widget)
-            //         if (dashboardConfig.menuWidgets?.enableCaching && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) addDataToCache(dataHash, tempResponse)
-            //     })
         }
 
         return tempResponse
@@ -118,13 +102,13 @@ const formatTableWidgetModelForService = (dashboardId: any, dashboardConfig: IDa
                 continue
             }
 
-            const measureToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, funct: column.aggregation, orderColumn: column.alias, orderType: '' } as any
+            const measureToPush = { id: column.columnName, alias: column.alias, columnName: column.columnName, funct: column.aggregation, orderColumn: column.columnName, orderType: '' } as any
             column.id === widget.settings.sortingColumn ? (measureToPush.orderType = widget.settings.sortingOrder) : ''
             if (column.formula) measureToPush.formula = addVariablesToFormula(column, dashboardConfig)
 
             dataToSend.aggregations.measures.push(measureToPush)
         } else {
-            const attributeToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, orderType: '', funct: 'NONE' } as any
+            const attributeToPush = { id: column.columnName, alias: column.alias, columnName: column.columnName, orderType: '', funct: 'NONE' } as any
             //sort logic - if column is set as sorting column, change order type
             column.id === widget.settings.sortingColumn ? (attributeToPush.orderType = widget.settings.sortingOrder) : ''
 
