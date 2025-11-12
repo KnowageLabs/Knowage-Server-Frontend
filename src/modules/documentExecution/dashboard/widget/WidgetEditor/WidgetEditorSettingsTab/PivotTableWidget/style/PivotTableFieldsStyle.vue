@@ -5,16 +5,7 @@
                 <div class="p-field p-col-12 p-d-flex p-flex-row">
                     <span class="p-float-label kn-flex">
                         <Dropdown v-if="index === 0" v-model="fieldStyle.target" class="kn-material-input" :options="descriptor.allColumnOption" option-value="value" option-label="label" :disabled="true"> </Dropdown>
-                        <WidgetEditorColumnsMultiselect
-                            v-else
-                            :value="(fieldStyle.target as string[])"
-                            :available-target-options="availableFieldOptions"
-                            :widget-columns-alias-map="widgetFieldsAliasMap"
-                            option-label="alias"
-                            option-value="id"
-                            :disabled="fieldStylesDisabled"
-                            @change="onFieldsSelected($event, fieldStyle)"
-                        />
+                        <WidgetEditorColumnsMultiselect v-else :value="(fieldStyle.target as string[])" :available-target-options="availableFieldOptions" :widget-columns-alias-map="widgetFieldsAliasMap" option-label="alias" option-value="id" :disabled="fieldStylesDisabled" @change="onFieldsSelected($event, fieldStyle)" />
                         <label class="kn-material-input-label"> {{ $t('common.fields') }}</label>
                     </span>
                     <i v-if="widgetModel" :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash', fieldStylesDisabled ? 'icon-disabled' : '']" class="kn-cursor-pointer p-as-center p-ml-3" @click="index === 0 ? addFieldStyle() : removeFieldStyle(index)"></i>
@@ -135,8 +126,8 @@ export default defineComponent({
             this.fieldStyles.styles.push({
                 target: [],
                 properties: {
-                    'background-color': 'rgb(0, 0, 0)',
-                    color: 'rgb(255, 255, 255)',
+                    'background-color': 'rgb(255, 255, 255, 0)',
+                    color: 'rgb(0, 0, 0)',
                     'text-align': '',
                     'font-size': '',
                     'font-family': '',
