@@ -32,7 +32,7 @@
                 <span class="kn-height-full" :style="`background-color: ${slotProps.data}; color:${getContrastYIQ()}`">
                     <i class="pi pi-pencil p-mr-2">
                         <q-menu touch-position>
-                            <q-color v-model="colorsModel[slotProps.index]" format-model="hexa" @change="colorsChanged" />
+                            <q-color v-model="colorsModel[slotProps.index]" format-model="hexa" :palette="descriptor.defaultColors" @change="colorsChanged" />
                         </q-menu>
                     </i>
                     <i class="pi pi-trash p-mr-2" @click="deleteColor(slotProps.index)"></i>
