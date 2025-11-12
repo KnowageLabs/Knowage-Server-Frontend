@@ -33,16 +33,7 @@
                 <div class="p-field p-col-12 p-d-flex p-flex-row">
                     <span class="p-float-label kn-flex">
                         <Dropdown v-if="index === 0" v-model="columnStyle.target" class="kn-material-input p-inputtext-sm" :options="descriptor.allColumnOption" option-value="value" option-label="label" :disabled="true"> </Dropdown>
-                        <WidgetEditorColumnsMultiselect
-                            v-else
-                            :value="(columnStyle.target as string[])"
-                            :available-target-options="availableColumnOptions"
-                            :widget-columns-alias-map="widgetColumnsAliasMap"
-                            option-label="alias"
-                            option-value="id"
-                            :disabled="columnStylesDisabled"
-                            @change="onColumnsSelected($event, columnStyle)"
-                        />
+                        <WidgetEditorColumnsMultiselect v-else :value="(columnStyle.target as string[])" :available-target-options="availableColumnOptions" :widget-columns-alias-map="widgetColumnsAliasMap" option-label="alias" option-value="id" :disabled="columnStylesDisabled" @change="onColumnsSelected($event, columnStyle)" />
                         <label class="kn-material-input-label"> {{ $t('common.columns') }}</label>
                     </span>
                     <i v-if="widgetModel" :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash', columnStylesDisabled ? 'icon-disabled' : '']" class="kn-cursor-pointer p-as-center p-ml-3" @click="index === 0 ? addColumnStyle() : removeColumnStyle(index)"></i>
@@ -194,8 +185,8 @@ export default defineComponent({
                 properties: {
                     'align-items': 'center',
                     width: '',
-                    'background-color': 'rgb(0, 0, 0)',
-                    color: 'rgb(255, 255, 255)',
+                    'background-color': 'rgb(255, 255, 255, 0)',
+                    color: 'rgb(0, 0, 0)',
                     'justify-content': '',
                     'font-size': '',
                     'font-family': '',

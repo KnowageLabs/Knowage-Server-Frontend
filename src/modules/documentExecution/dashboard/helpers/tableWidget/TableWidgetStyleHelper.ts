@@ -38,7 +38,7 @@ const getDefaultColumnGroupsStyle = (widget: any) => {
                 target: [tempGroup.id],
                 properties: {
                     width: 0,
-                    'background-color': tempGroup['background-color'] ?? 'rgb(0, 0, 0)',
+                    'background-color': tempGroup['background-color'] ?? 'rgb(0, 0, 0, 0)',
                     color: tempGroup.color ?? 'rgb(255, 255, 255)',
                     'justify-content': tempGroup['justify-content'] ?? '',
                     'font-size': tempGroup['font-size'] ?? '',
@@ -76,7 +76,7 @@ const getFormattedRowsStyle = (widget: any) => {
         alternatedRows: {
             enabled: widget.settings.alternateRows?.enabled ?? false,
             evenBackgroundColor: widget.settings.alternateRows?.evenRowsColor ?? 'rgb(228, 232, 236)',
-            oddBackgroundColor: widget.settings.alternateRows?.oddRowsColor ?? ''
+            oddBackgroundColor: widget.settings.alternateRows?.oddRowsColor ?? 'rgb(255, 255, 255)'
         }
     }
     return formattedRowsStyle as IWidgetRowsStyle
