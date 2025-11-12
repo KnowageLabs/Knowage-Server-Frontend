@@ -19,7 +19,7 @@
                             <q-input v-if="column.field === 'alias'" :label="$t('common.alias')" v-model="slotProps.data[column.field]" dense square :disable="slotProps.data.type === 'pythonFunction'" @change="onColumnAliasRenamed(slotProps.data)" />
                             <q-select v-else-if="aggregationDropdownIsVisible(column, slotProps.data)" v-model="slotProps.data[column.field]" :options="commonDescriptor.columnAggregationOptions" emitValue dense option-label="label" option-value="value" @update:model-value="$emit('itemUpdated', slotProps.data)" />
                             <q-input v-else-if="column.field === 'columnName'" :label="$t('components.knCalculatedField.columnName')" v-model="slotProps.data[column.field]" dense square readonly @change="onColumnAliasRenamed(slotProps.data)" />
-                            <span v-else-if="!slotProps.data.formula && column.field !== 'columnName'" class="kn-truncated 2">{{ slotProps.data[column.field] }}</span>
+                            <span v-else-if="!slotProps.data.formula && column.field !== 'columnName' && slotProps.data.fieldType !== 'ATTRIBUTE'" class="kn-truncated 2">{{ slotProps.data[column.field] }}</span>
                         </template>
                     </Column>
                     <Column :style="settings.buttonColumnStyle">
@@ -59,7 +59,7 @@ import deepcopy from 'deepcopy'
 import InlineMessage from 'primevue/inlinemessage'
 import ChartWidgetColumnForm from '../ChartWidget/common/ChartWidgetColumnForm.vue'
 import TableWidgetColumnForm from '../TableWidget/TableWidgetColumnForm.vue'
-import dashboardStore from "@/modules/documentExecution/dashboard/Dashboard.store";
+import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 
 export default defineComponent({
     name: 'widget-editor-column-table',
@@ -67,8 +67,8 @@ export default defineComponent({
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, items: { type: Array, required: true }, settings: { type: Object, required: true }, chartType: { type: String }, axis: { type: String }, error: { type: Boolean } },
     emits: ['rowReorder', 'itemUpdated', 'itemDeleted', 'itemAdded', 'singleItemReplaced'],
     setup() {
-      const store = dashboardStore()
-      return { store }
+        const store = dashboardStore()
+        return { store }
     },
     data() {
         return {
@@ -162,11 +162,11 @@ export default defineComponent({
             const eventData = JSON.parse(event.dataTransfer.getData('text/plain'))
             const tempColumn = createNewWidgetColumn(eventData, this.widgetType)
             if (this.widgetType === 'highcharts' && this.chartType === 'scatter' && !this.store.getHighchartsScatterAttributePresent()) {
-              if (tempColumn.fieldType === 'MEASURE') {
-                tempColumn.aggregation = 'NONE'
-              } else if (tempColumn.fieldType === 'ATTRIBUTE') {
-                this.store.setHighchartsScatterAttributePresent(true)
-              }
+                if (tempColumn.fieldType === 'MEASURE') {
+                    tempColumn.aggregation = 'NONE'
+                } else if (tempColumn.fieldType === 'ATTRIBUTE') {
+                    this.store.setHighchartsScatterAttributePresent(true)
+                }
             }
             if (['table', 'html', 'text', 'highcharts', 'chartJS', 'discovery', 'customchart', 'vega', 'python', 'r'].includes(this.widgetModel.type)) {
                 if (['chartJS', 'highcharts', 'vega'].includes(this.widgetModel.type)) {
@@ -192,7 +192,7 @@ export default defineComponent({
                 }
             } else {
                 if (this.widgetType === 'highcharts' && this.chartType === 'scatter' && this.store.getHighchartsScatterAttributePresent() && item.fieldType === 'ATTRIBUTE') {
-                  this.store.setHighchartsScatterAttributePresent(false)
+                    this.store.setHighchartsScatterAttributePresent(false)
                 }
                 this.rows.splice(index, 1)
                 this.$emit('itemDeleted', item)
