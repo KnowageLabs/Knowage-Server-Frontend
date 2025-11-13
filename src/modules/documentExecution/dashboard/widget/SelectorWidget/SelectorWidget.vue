@@ -13,26 +13,12 @@
                 <label :for="`multi-${index}`" class="multi-select-label">{{ value.column_1 }}</label>
             </div>
         </div>
-
         <span v-if="widgetType === 'dropdown'" class="p-float-label p-m-2">
-            <Dropdown v-model="selectedValue" class="kn-width-full" panel-class="selectorCustomDropdownPanel" :options="showMode === 'hideDisabled' ?  options.rows.filter((row: any) => !row.disabled) : options.rows" option-label="column_1" option-value="column_1" :style="getLabelStyle()" :input-style="getLabelStyle()" :panel-style="getLabelStyle()" :option-disabled="showMode === 'showDisabled' ? 'disabled' : ''" @change="singleValueSelectionChanged" />
+            <Dropdown v-model="selectedValue" filter class="kn-width-full" panel-class="selectorCustomDropdownPanel" :options="filteredDropdownOptions" option-label="column_1" option-value="column_1" :style="getLabelStyle()" :input-style="getLabelStyle()" :panel-style="getLabelStyle()" :option-disabled="showMode === 'showDisabled' ? 'disabled' : ''" @change="singleValueSelectionChanged" @filter="filterDropdownOptions" />
         </span>
 
         <span v-if="widgetType === 'multiDropdown'" class="p-float-label p-m-2">
-            <MultiSelect
-                v-model="selectedValues"
-                class="kn-width-full"
-                panel-class="selectorCustomDropdownPanel"
-                :options="showMode === 'hideDisabled' ?  options.rows.filter((row: any) => !row.disabled) : options.rows"
-                option-label="column_1"
-                option-value="column_1"
-                :style="getLabelStyle()"
-                :input-style="getLabelStyle()"
-                :panel-style="getLabelStyle()"
-                :filter="true"
-                :option-disabled="showMode === 'showDisabled' ? 'disabled' : ''"
-                @change="multiValueSelectionChanged"
-            />
+            <MultiSelect v-model="selectedValues" class="kn-width-full" panel-class="selectorCustomDropdownPanel" :options="filteredMultiSelectOptions" option-label="column_1" option-value="column_1" :style="getLabelStyle()" :input-style="getLabelStyle()" :panel-style="getLabelStyle()" :filter="true" :option-disabled="showMode === 'showDisabled' ? 'disabled' : ''" @change="multiValueSelectionChanged" @filter="filterMultiSelectOptions" />
         </span>
 
         <span v-if="widgetType === 'date'" class="p-float-label p-m-2">
@@ -89,6 +75,9 @@ export default defineComponent({
             dashboardDescriptor,
             initialOptions: { rows: [] } as any,
             options: { rows: [] } as any,
+            filteredDropdownOptions: [] as any[],
+            filteredMultiSelectOptions: [] as any[],
+            filterTimeout: null as any,
             selectedValue: null as any,
             selectedValues: [] as any,
             selectedDate: null as any,
@@ -127,6 +116,7 @@ export default defineComponent({
         this.loadActiveSelections()
         this.loadInitialValues()
         this.loadActiveSelectionValue()
+        this.updateFilteredOptionsWithSelectedValue()
     },
     unmounted() {
         this.removeEventListeners()
@@ -142,20 +132,104 @@ export default defineComponent({
             emitter.off('selectionsDeleted', this.onSelectionsDeleted)
         },
         loadInitialValues() {
-            this.initialOptions = deepcopy(this.widgetInitialData)
+            // this.initialOptions = deepcopy(this.widgetInitialData) // potentially not needed, leaving it for reference
+            this.initialOptions = this.widgetInitialData
             this.loadOptions()
         },
         loadOptions() {
             this.loadAvailableOptions(this.dataToShow)
         },
-        //note - checks initialOptions and dataToShow, merges them into one array of options, disabling fields that were not in dataToShow
         loadAvailableOptions(dataToShow: any) {
             this.options = { rows: [] }
             if (!dataToShow || !dataToShow.rows) return
-            this.initialOptions?.rows?.forEach((initialOption: any) => {
-                const index = dataToShow.rows.findIndex((row: any) => row.column_1 === initialOption.column_1)
-                this.options.rows.push({ ...initialOption, disabled: index === -1 })
-            })
+
+            const dataToShowSet = new Set(dataToShow.rows.map((row: any) => row.column_1))
+            const newRows =
+                this.initialOptions?.rows?.map((initialOption: any) => ({
+                    ...initialOption,
+                    disabled: !dataToShowSet.has(initialOption.column_1)
+                })) || []
+
+            this.options.rows = newRows
+
+            const baseOptions = this.showMode === 'hideDisabled' ? newRows.filter((row: any) => !row.disabled) : newRows
+            this.filteredDropdownOptions = this.getInitialDropdownOptions(baseOptions)
+            this.filteredMultiSelectOptions = this.getInitialMultiSelectOptions(baseOptions)
+        },
+        getInitialDropdownOptions(baseOptions: any[]) {
+            const limited = baseOptions.slice(0, 500)
+
+            // for large sets, if selected value is not in the limited set, include it
+            if (this.selectedValue && !limited.find((opt: any) => opt.column_1 === this.selectedValue)) {
+                const selectedOption = baseOptions.find((opt: any) => opt.column_1 === this.selectedValue)
+                if (selectedOption) {
+                    return [selectedOption, ...limited.slice(0, 499)]
+                }
+            }
+
+            return limited
+        },
+        getInitialMultiSelectOptions(baseOptions: any[]) {
+            const limited = baseOptions.slice(0, 500)
+            const selectedOptions: any[] = []
+
+            // for large sets, if selected values are not in the limited set, include them
+            if (this.selectedValues && this.selectedValues.length > 0) {
+                this.selectedValues.forEach((val: any) => {
+                    if (!limited.find((opt: any) => opt.column_1 === val)) {
+                        const selectedOption = baseOptions.find((opt: any) => opt.column_1 === val)
+                        if (selectedOption) {
+                            selectedOptions.push(selectedOption)
+                        }
+                    }
+                })
+            }
+
+            // remove duplicates in case selectedOptions are already in limited
+            if (selectedOptions.length > 0) {
+                return [...selectedOptions, ...limited.slice(0, 500 - selectedOptions.length)]
+            }
+
+            return limited
+        },
+        updateFilteredOptionsWithSelectedValue() {
+            const baseOptions = this.showMode === 'hideDisabled' ? this.options.rows.filter((row: any) => !row.disabled) : this.options.rows
+
+            if (this.widgetType === 'dropdown' && this.selectedValue) {
+                this.filteredDropdownOptions = this.getInitialDropdownOptions(baseOptions)
+            }
+
+            if (this.widgetType === 'multiDropdown' && this.selectedValues?.length > 0) {
+                this.filteredMultiSelectOptions = this.getInitialMultiSelectOptions(baseOptions)
+            }
+        },
+        filterDropdownOptions(event: any) {
+            if (this.filterTimeout) clearTimeout(this.filterTimeout)
+
+            const input = event.value.toLowerCase()
+            const baseOptions = this.showMode === 'hideDisabled' ? this.options.rows.filter((row: any) => !row.disabled) : this.options.rows
+
+            this.filterTimeout = setTimeout(() => {
+                if (input.length >= 2) {
+                    this.filteredDropdownOptions = baseOptions.filter((row: any) => row.column_1.toString().toLowerCase().indexOf(input) > -1)
+                } else {
+                    this.filteredDropdownOptions = this.getInitialDropdownOptions(baseOptions)
+                }
+            }, 300)
+        },
+        filterMultiSelectOptions(event: any) {
+            if (this.filterTimeout) clearTimeout(this.filterTimeout)
+
+            const input = event.value.toLowerCase()
+            const baseOptions = this.showMode === 'hideDisabled' ? this.options.rows.filter((row: any) => !row.disabled) : this.options.rows
+
+            this.filterTimeout = setTimeout(() => {
+                if (input.length >= 2) {
+                    this.filteredMultiSelectOptions = baseOptions.filter((row: any) => row.column_1.toString().toLowerCase().indexOf(input) > -1)
+                } else {
+                    this.filteredMultiSelectOptions = this.getInitialMultiSelectOptions(baseOptions)
+                }
+            }, 300)
         },
         loadActiveSelections() {
             this.activeSelections = this.propActiveSelections

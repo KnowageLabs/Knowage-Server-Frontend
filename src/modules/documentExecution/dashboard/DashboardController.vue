@@ -329,13 +329,14 @@ export default defineComponent({
             return await getWidgetData(this.dashboardId, widget, this.model?.configuration?.datasets, this.$http, false, this.model.configuration.selections, { searchText: '', searchColumns: [] }, this.model.configuration, null, false)
         },
         updateSelectorOptions(widget: any) {
-            this.selectorWidgetsData[widget.id]?.initialData?.rows?.forEach((initialOption: any) => {
-                const index = this.selectorWidgetsData[widget.id].widgetData?.rows?.findIndex((row: any) => row.column_1 === initialOption.column_1) || -1
-                this.selectorWidgetsData[widget.id].selectorOptions.push({
+            // Use Set for O(1) lookup instead of O(n) findIndex - critical for large datasets (500k+ rows)
+            const widgetDataSet = new Set(this.selectorWidgetsData[widget.id].widgetData?.rows?.map((row: any) => row.column_1) || [])
+
+            this.selectorWidgetsData[widget.id].selectorOptions =
+                this.selectorWidgetsData[widget.id]?.initialData?.rows?.map((initialOption: any) => ({
                     ...initialOption,
-                    disabled: index === -1
-                })
-            })
+                    disabled: !widgetDataSet.has(initialOption.column_1)
+                })) || []
         },
         getSelectionValue(selectorDefaultValues: any, enabledOptions: any[]) {
             let selectionValue = null as any
