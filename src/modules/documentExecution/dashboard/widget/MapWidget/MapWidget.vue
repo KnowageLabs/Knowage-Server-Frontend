@@ -16,30 +16,20 @@
                 </div>
                 <div class="kn-map-sidebar-scroller">
                     <q-list>
-                        <q-expansion-item default-opened :label="$t('common.visibility')" icon="preview">
-                            <div v-for="item in widgetModel.settings.visualizations" :key="item.label" class="kn-map-sidebar-layer q-mb-sm">
-                                <template v-if="isLayerSet(item)">
+                        <q-expansion-item default-opened :label="$t('dashboard.widgetEditor.visualizations')" icon="map">
+                            <div v-for="visualization in widgetModel.settings.visualizations" :key="visualization.label" class="kn-map-sidebar-layer q-mb-sm">
+                                <template v-if="isLayerSet(visualization)">
                                     <div class="row items-center">
-                                        <q-btn flat round class="q-mr-xs option-button" color="black" size="xs" :icon="visualizationVisibilityState && visualizationVisibilityState[item.label] ? 'visibility' : 'visibility_off'" @click="switchLayerVisibility(item)" />
-                                        {{ item.label }}
-                                    </div>
-                                </template>
-                            </div>
-                        </q-expansion-item>
-
-                        <q-expansion-item :label="$t('common.filters')" icon="filter_list">
-                            <div v-for="visualization in widgetModel?.settings?.visualizations" :key="visualization.layerId" class="kn-map-sidebar-layer">
-                                <template v-if="isVisualizationSet(visualization)">
-                                    <div class="row items-center">
-                                        <q-btn flat round class="q-mr-xs" color="black" size="xs" :icon="visualization.filter?.enabled ? 'filter_alt_off' : 'filter_alt'" @click="toggleFilter(visualization)">
+                                        <q-btn flat round class="q-mr-xs option-button" color="black" size="xs" :icon="visualizationVisibilityState && visualizationVisibilityState[visualization.label] ? 'visibility' : 'visibility_off'" @click="switchLayerVisibility(visualization)" />
+                                        <q-btn flat round class="q-mr-xs" color="black" size="xs" :icon="visualization.filter?.enabled ? 'filter_alt' : 'filter_alt_off'" @click="toggleFilter(visualization)">
                                             <q-tooltip :delay="500">{{ $t('common.close') }}</q-tooltip>
                                         </q-btn>
-                                        <span class="col">{{ visualization.layerName }}</span>
+                                        {{ visualization.label }}
                                     </div>
-                                    <div class="row items-center" v-if="visualization.filter?.enabled">
-                                        <q-select filled class="col-4 q-mr-xs" v-model="visualization.filter.column" :options="getColumnOptionsFromLayer(visualization)" dense options-dense stack-label emit-value map-options option-label="alias" option-value="name" :label="$t('common.column')" @update:modelValue="onFilterColumnChanged(visualization)" />
-                                        <q-select filled class="col-4 q-mr-xs" v-model="visualization.filter.operator" :options="['=', '>', '<']" dense options-dense stack-label :label="$t('common.operator')" @update:modelValue="onFilterUpdated(visualization)" />
-                                        <q-input type="number" filled class="col" v-model="visualization.filter.value" dense options-dense stack-label :label="$t('common.value')" @blur="onFilterUpdated(visualization)" />
+                                    <q-select filled class="col-4 q-mr-xs q-mt-xs" v-model="visualization.targetMeasure" :options="getColumnOptionsFromLayer(visualization)" dense options-dense stack-label emit-value map-options option-label="alias" option-value="name" :label="$t('common.column')" @update:modelValue="onFilterColumnChanged(visualization)" />
+                                    <div class="row items-center gap-2" v-if="visualization.filter?.enabled">
+                                        <q-select filled class="col-4 q-mr-xs q-mt-xs" v-model="visualization.filter.operator" :options="['=', '>', '<']" dense options-dense stack-label :label="$t('common.operator')" @update:modelValue="onFilterUpdated(visualization)" />
+                                        <q-input filled class="col q-mt-xs" v-model="visualization.filter.value" dense options-dense stack-label :label="$t('common.value')" @blur="onFilterUpdated(visualization)" />
                                         <q-btn v-if="visualization.filter.column || visualization.filter.operator || visualization.filter.value" flat round class="option-button col-2" color="black" size="xs" icon="backspace" @click="resetFilter(visualization)">
                                             <q-tooltip :delay="500">{{ $t('common.reset') }}</q-tooltip>
                                         </q-btn>
@@ -162,11 +152,13 @@ export default defineComponent({
             this.visualizationVisibilityState[layer.label] = !this.visualizationVisibilityState[layer.label]
         },
         toggleFilter(visualization: IMapWidgetVisualizationType) {
-            if (visualization.filter) visualization.filter.enabled = !visualization.filter.enabled
+            if (visualization.filter?.enabled) visualization.filter.enabled = !visualization.filter.enabled
             else visualization.filter = { enabled: true }
             this.reloadFilters(visualization)
         },
         onFilterUpdated(visualization: IMapWidgetVisualizationType) {
+            visualization.filter = visualization.filter || {}
+            visualization.filter.column = visualization.targetMeasure || ''
             this.reloadFilters(visualization)
         },
         getColumnOptionsFromLayer(visualization: IMapWidgetVisualizationType) {
@@ -179,7 +171,7 @@ export default defineComponent({
             }
         },
         getColumnOptionsFromTargetDataset(visualization: IMapWidgetVisualizationType) {
-            const targetDataset = this.widgetModel.layers.find((layer: IMapWidgetLayer) => layer.name === visualization.targetDataset)
+            const targetDataset = this.widgetModel.layers.find((layer: IMapWidgetLayer) => layer.layerId === visualization.targetDataset)
             return targetDataset ? targetDataset.columns.filter((column: IWidgetColumn) => column.fieldType === 'MEASURE') : []
         },
         async loadAvailablePropertiesInTooltipSettingsForLayer(targetLayer: IMapWidgetLayer) {
@@ -195,6 +187,8 @@ export default defineComponent({
             })
         },
         onFilterColumnChanged(visualization: IMapWidgetVisualizationType) {
+            visualization.filter = visualization.filter || {}
+            visualization.filter.column = visualization.targetMeasure || ''
             this.reloadFilters(visualization)
         },
         reloadFilters(visualization: IMapWidgetVisualizationType) {
