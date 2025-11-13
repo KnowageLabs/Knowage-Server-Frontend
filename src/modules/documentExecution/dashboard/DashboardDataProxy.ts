@@ -269,7 +269,7 @@ export const maxRow = (widgetModel) => {
     return tempMaxRow
 }
 
-export const getAggregationsModel = (widgetModel, rawHtml) => {
+export const getAggregationsModel = async (widgetModel, rawHtml) => {
     const aggregationsReg = rawHtml.match(aggregationsRegex)
     if (aggregationsReg) {
         const modelToSend = deepcopy(widgetModel)
