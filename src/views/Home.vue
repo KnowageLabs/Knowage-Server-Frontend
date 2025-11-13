@@ -49,7 +49,7 @@ export default defineComponent({
             }
         },
         isHTML(to: string): boolean {
-            return to.startsWith('./html')
+            return to.startsWith('/html')
         },
         isFunctionality(to: string): boolean {
             return to.startsWith('/document-browser') || to.startsWith('/workspace')
