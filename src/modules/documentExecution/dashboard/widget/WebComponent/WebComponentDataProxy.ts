@@ -16,7 +16,7 @@ export const getWebComponentWidgetData = async (widgetType: 'html' | 'text', das
         const numOfRowsToGet = maxRow(widget)
         const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=0&size=${numOfRowsToGet}&nearRealtime=${!selectedDataset.cache}&limit=${numOfRowsToGet}`
 
-        const aggregationsModel = getAggregationsModel(widget, valueToParse)
+        const aggregationsModel = await getAggregationsModel(widget, valueToParse)
         let aggregationDataset = null as any
         if (aggregationsModel) {
             const aggregationsPostData = formatWebComponentModelForService(dashboardId, dashboardConfig, aggregationsModel, selectedDataset, initialCall, selections, associativeResponseSelections)
