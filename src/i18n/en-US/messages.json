@@ -1466,6 +1466,7 @@
                 "textAndIcon": "Text & Icon",
                 "title": "Visualization Type"
             },
+            "visualizations": "Visualizations",
             "widgetTheme": "Widget Theme",
             "xAxis": "X Axis",
             "yAxis": "Y Axis"
