@@ -123,7 +123,7 @@ export default defineComponent({
         async downloadSnapshot(schedulation: any) {
             this.setLoading(true)
             await this.$http
-                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `2.0/snapshotsContent?OBJECT_ID=${schedulation.biobjId}&SNAPSHOT_ID=${schedulation.id}`, {
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/2.0/snapshotsContent?OBJECT_ID=${schedulation.biobjId}&SNAPSHOT_ID=${schedulation.id}`, {
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                         Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
