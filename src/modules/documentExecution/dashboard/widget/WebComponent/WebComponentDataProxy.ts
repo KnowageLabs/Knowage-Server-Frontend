@@ -28,7 +28,7 @@ export const getWebComponentWidgetData = async (widgetType: 'html' | 'text', das
 
             if (dashStore.dataProxyQueue[dataHash]) {
                 const response = await dashStore.dataProxyQueue[dataHash]
-                return response.data
+                aggregationDataset = response.data
             }
 
             if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) {
@@ -57,7 +57,7 @@ export const getWebComponentWidgetData = async (widgetType: 'html' | 'text', das
 
         if (dashStore.dataProxyQueue[dataHash]) {
             const response = await dashStore.dataProxyQueue[dataHash]
-            return response.data
+            tempResponse = response.data
         }
 
         if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) {
