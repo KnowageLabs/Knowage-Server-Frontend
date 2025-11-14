@@ -47,6 +47,11 @@ onMounted(async () => {
             folderKey.value = null
         })
 
+    if (!folderKey.value) {
+        store.setLoading(false)
+        push404()
+        return
+    }
     await axios
         .post(
             import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/2.0/resources/files/download`,
@@ -85,19 +90,21 @@ onMounted(async () => {
             }
 
             const filtered = filterNode(response.data)
-            if (!filtered) {
-                config.value = null
-                router.push({ name: '404' })
-            } else {
+            if (!filtered) push404()
+            else {
                 config.value = filtered
             }
         })
         .catch(() => {
-            config.value = null
-            router.push({ name: '404' })
+            push404()
         })
         .finally(() => store.setLoading(false))
 })
+
+function push404() {
+    config.value = null
+    router.push({ name: '404' })
+}
 
 function getLogoUrl() {
     if (config.value && config.value.logo) {
