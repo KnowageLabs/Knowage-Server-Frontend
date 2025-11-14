@@ -2,18 +2,7 @@
     <Message class="p-m-2" severity="info" :closable="false" :style="workspaceSchedulationOldSchedulationsTableDescriptor.styles.message">
         {{ $t('workspace.schedulation.oldSchedulationsMessage') }}
     </Message>
-    <DataTable
-        id="old-chedulations-table"
-        v-model:filters="filters"
-        :value="schedulations"
-        class="p-datatable-sm kn-table"
-        data-key="id"
-        :global-filter-fields="workspaceSchedulationOldSchedulationsTableDescriptor.globalFilterFields"
-        :paginator="schedulations.length > 20"
-        :rows="20"
-        responsive-layout="stack"
-        breakpoint="600px"
-    >
+    <DataTable id="old-chedulations-table" v-model:filters="filters" :value="schedulations" class="p-datatable-sm kn-table" data-key="id" :global-filter-fields="workspaceSchedulationOldSchedulationsTableDescriptor.globalFilterFields" :paginator="schedulations.length > 20" :rows="20" responsive-layout="stack" breakpoint="600px">
         <template #empty>
             <Message class="p-m-2" severity="info" :closable="false" :style="workspaceSchedulationOldSchedulationsTableDescriptor.styles.message">
                 {{ $t('common.info.noDataFound') }}
@@ -52,15 +41,13 @@ import DataTable from 'primevue/datatable'
 import Message from 'primevue/message'
 import workspaceSchedulationOldSchedulationsTableDescriptor from './WorkspaceSchedulationOldSchedulationsTableDescriptor.json'
 import mainStore from '../../../../../App.store'
+import { mapActions, mapState } from 'pinia'
+import { downloadDirectFromResponse } from '@/helpers/commons/fileHelper'
 
 export default defineComponent({
     name: 'workspace-schedulation-old-schedulations-table',
     components: { Column, DataTable, Message },
     props: { propSchedulations: { type: Array } },
-    setup() {
-        const store = mainStore()
-        return { store }
-    },
     data() {
         return {
             workspaceSchedulationOldSchedulationsTableDescriptor,
@@ -69,27 +56,38 @@ export default defineComponent({
             user: null as any
         }
     },
+    computed: {
+        ...mapState(mainStore, ['user'])
+    },
     watch: {
         propSchedulations() {
             this.loadSchedulations()
         }
     },
     created() {
-        this.user = (this.store.$state as any).user
         this.loadSchedulations()
     },
     methods: {
+        ...mapActions(mainStore, ['setLoading']),
         loadSchedulations() {
             this.schedulations = this.propSchedulations as ISchedulation[]
         },
         getFormattedDate(date: any, format: any) {
             return formatDate(date, format)
         },
-        downloadSnapshot(schedulation: ISchedulation) {
-            const url = `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_CONTEXT}/servlet/AdapterHTTP?NEW_SESSION=TRUE&user_id=${this.user?.userUniqueIdentifier}&ACTION_NAME=GET_SNAPSHOT_CONTENT&SNAPSHOT_ID=${schedulation.id}&LIGHT_NAVIGATOR_DISABLED=TRUE&OBJECT_ID=${
-                schedulation.biobjId
-            }`
-            window.open(url, '_blank')
+        async downloadSnapshot(schedulation: ISchedulation) {
+            this.setLoading(true)
+            await this.$http
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `2.0/snapshotsContent?OBJECT_ID=${schedulation.biobjId}&SNAPSHOT_ID=${schedulation.id}`, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
+                    }
+                })
+                .then((response) => {
+                    downloadDirectFromResponse(response)
+                })
+                .finally(() => this.setLoading(false))
         }
     }
 })

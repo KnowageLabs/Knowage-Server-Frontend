@@ -37,8 +37,6 @@
                 </template>
             </q-table>
         </div>
-
-        <DocumentExecutionSnapshotDialog :visible="snapshotDialogVisible" :prop-url="url" @close="snapshotDialogVisible = false"></DocumentExecutionSnapshotDialog>
     </div>
 </template>
 
@@ -50,18 +48,15 @@ import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import Message from 'primevue/message'
 import documentExecutionSchedulationsTableDescriptor from './DocumentExecutionSchedulationsTableDescriptor.json'
-import DocumentExecutionSnapshotDialog from './DocumentExecutionSnapshotDialog.vue'
 import mainStore from '../../../../../App.store'
+import { mapActions, mapState } from 'pinia'
+import { downloadDirectFromResponse } from '@/helpers/commons/fileHelper'
 
 export default defineComponent({
     name: 'document-execution-schedulations-table',
-    components: { Column, DataTable, DocumentExecutionSnapshotDialog, Message },
+    components: { Column, DataTable, Message },
     props: { propSchedulations: { type: Array } },
     emits: ['deleteSchedulation', 'close'],
-    setup() {
-        const store = mainStore()
-        return { store }
-    },
     data() {
         return {
             documentExecutionSchedulationsTableDescriptor,
@@ -106,27 +101,38 @@ export default defineComponent({
             ]
         }
     },
+    computed: {
+        ...mapState(mainStore, ['user'])
+    },
     watch: {
         propSchedulations() {
             this.loadSchedulations()
         }
     },
     created() {
-        this.user = (this.store.$state as any).user
         this.loadSchedulations()
     },
     methods: {
+        ...mapActions(mainStore, ['setLoading']),
         loadSchedulations() {
             this.schedulations = this.propSchedulations as any[]
         },
         getFormattedDate(date: any, format: any) {
             return formatDate(date, format)
         },
-        downloadSnapshot(schedulation: any) {
-            this.url = `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_CONTEXT}/servlet/AdapterHTTP?NEW_SESSION=TRUE&user_id=${this.user?.userUniqueIdentifier}&ACTION_NAME=GET_SNAPSHOT_CONTENT&SNAPSHOT_ID=${schedulation.id}&LIGHT_NAVIGATOR_DISABLED=TRUE&OBJECT_ID=${
-                schedulation.biobjId
-            }`
-            this.snapshotDialogVisible = true
+        async downloadSnapshot(schedulation: any) {
+            this.setLoading(true)
+            await this.$http
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `2.0/snapshotsContent?OBJECT_ID=${schedulation.biobjId}&SNAPSHOT_ID=${schedulation.id}`, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
+                    }
+                })
+                .then((response) => {
+                    downloadDirectFromResponse(response)
+                })
+                .finally(() => this.setLoading(false))
         },
         deleteSchedulationConfirm(schedulation: iSchedulation) {
             this.$confirm.require({
