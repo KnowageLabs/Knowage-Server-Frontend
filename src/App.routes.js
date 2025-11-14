@@ -72,7 +72,7 @@ const closingRoutes = [
     }
 ]
 
-const routes = baseRoutes.concat(managersRoutes).concat(importExportRoutes).concat(kpiRoutes).concat(documentExecutionRoutes).concat(documentBrowserRoutes).concat(workspaceRoutes).concat(overlayRoutes).concat(dataPreparationRoutes).concat(closingRoutes).concat(documentationRoutes)
+const routes = baseRoutes.concat(managersRoutes).concat(importExportRoutes).concat(kpiRoutes).concat(documentExecutionRoutes).concat(documentBrowserRoutes).concat(workspaceRoutes).concat(overlayRoutes).concat(dataPreparationRoutes).concat(documentationRoutes).concat(closingRoutes)
 
 const router = createRouter({
     base: import.meta.env.VITE_PUBLIC_PATH,
