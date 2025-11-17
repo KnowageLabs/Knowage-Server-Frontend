@@ -34,7 +34,7 @@
 
         <div v-if="type === 'balloons'" class="p-pl-5 p-col-12 p-lg-3">
             <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.map.rangeLabel') }}</label>
-            <q-range v-model="rangeValue" :min="1" :max="100" label-always @change="onRangeSizeChange" />
+            <q-range v-model="rangeValue" :min="1" :max="100" label-always switch-label-side @change="onRangeSizeChange" />
         </div>
 
         <div v-if="type !== 'balloons'" class="p-float-label p-col-12 p-lg-3 p-fluid">
@@ -42,13 +42,7 @@
             <label class="kn-material-input-label">{{ $t('common.width') }}</label>
         </div>
 
-        <MapVisualizationRangesDialog
-            v-if="rangesDialogVisible"
-            :visible="rangesDialogVisible"
-            :prop-ranges="visualizationTypeConfiguration.properties ? visualizationTypeConfiguration.properties.thresholds : []"
-            @setRanges="onSetRanges"
-            @close="rangesDialogVisible = false"
-        ></MapVisualizationRangesDialog>
+        <MapVisualizationRangesDialog v-if="rangesDialogVisible" :visible="rangesDialogVisible" :prop-ranges="visualizationTypeConfiguration.properties ? visualizationTypeConfiguration.properties.thresholds : []" @setRanges="onSetRanges" @close="rangesDialogVisible = false"></MapVisualizationRangesDialog>
     </div>
 </template>
 
