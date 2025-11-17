@@ -1,7 +1,7 @@
 <template>
     <div class="kn-page">
-        <div class="kn-page-content p-grid p-m-0">
-            <div class="p-col-4 p-sm-4 p-md-3 p-p-0 column">
+        <div class="kn-page-content row p-m-0">
+            <div class="col-3 column p-p-0">
                 <Toolbar class="kn-toolbar kn-toolbar--primary">
                     <template #start>
                         {{ $t('managers.resourceManagement.title') }}
@@ -11,7 +11,7 @@
                         <Button icon="fas fa-folder-plus" class="p-button-text p-button-sm p-button-rounded p-button-plain p-p-0" @click="openCreateFolderDialog"
                     /></template>
                 </Toolbar>
-                <div class="column" style="border: 1px solid var(--kn-list-border-color); flex: 1 0 0">
+                <div class="tree-container column">
                     <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
                     <ResourceManagementMetadataDialog v-model:visibility="displayMetadataDialog" v-model:id="metadataKey"></ResourceManagementMetadataDialog>
                     <ResourceManagementCreateFolderDialog v-model:visibility="folderCreation" :path="selectedFolder ? selectedFolder.relativePath : ''" @createFolder="createFolder" />
@@ -25,7 +25,7 @@
                         <template #default-header="{ node }">
                             <div class="row full-width treeButtons">
                                 <q-icon v-if="!node.custIcon && node.icon" :name="node.icon" class="q-mr-sm" size="sm" />
-                                <span class="col">{{ node.label }}</span>
+                                <span class="col kn-truncated">{{ node.label }}</span>
 
                                 <q-btn v-if="node.modelFolder" flat round dense size="xs" icon="table" :data-test="'move-up-button-' + node.id" @click.stop="openMetadataDialog(node)">
                                     <q-tooltip>{{ $t('managers.resourceManagement.openMetadata') }}</q-tooltip>
@@ -41,7 +41,7 @@
                     </q-tree>
                 </div>
             </div>
-            <div class="p-col-8 p-sm-8 p-md-9 p-p-0 p-m-0 kn-page">
+            <div class="col p-p-0 p-m-0 kn-page">
                 <KnHint v-if="showHint" :title="'managers.resourceManagement.title'" :hint="'managers.resourceManagement.hint'"></KnHint>
                 <ResourceManagementDetail v-if="formVisible" :folder="selectedFolder" :parent-key="folderParentKey" @touched="touched = true" @close="onClose" @inserted="loadPage($event)" @folderCreated="loadPage" @closed="switchToHint()" @fileUploaded="loadPage(false, true)" />
             </div>
@@ -311,6 +311,11 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+.tree-container {
+    border: 1px solid var(--kn-list-border-color);
+    flex: 1 0 0;
+    max-width: 100%;
+}
 #folders-tree {
     flex: 1 0 0;
     overflow: auto;

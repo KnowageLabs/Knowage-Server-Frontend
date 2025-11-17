@@ -1,142 +1,58 @@
 <template>
     <div class="kn-page">
-        <div class="kn-page-content p-grid p-m-0">
-            <div class="p-col-4 p-sm-4 p-md-3 p-p-0 column">
+        <div class="kn-page-content row p-m-0">
+            <div class="col-3 column p-p-0">
                 <Toolbar class="kn-toolbar kn-toolbar--primary">
                     <template #start>
                         <div class="kn-toolbar__title">Log Management</div>
                     </template>
                     <template #end>
                         <Button icon="fas fa-sync-alt" class="p-button-text p-button-sm p-button-rounded p-button-plain p-p-0" @click="loadPage(showHint, formVisible)" />
+                        <Button icon="pi pi-download" class="p-button-text p-button-sm p-button-rounded p-button-plain p-p-0" :aria-label="$t('common.download')" @click="sidebarDownloadClicked" data-test="sidebar-download-button" />
                     </template>
                 </Toolbar>
-                <div class="column sidebar-inner" style="border: 1px solid var(--kn-list-border-color); flex: 1 0 0; position: relative;">
-                    <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
-                    <LogManagementMetadataDialog v-model:visibility="displayMetadataDialog" v-model:id="metadataKey"></LogManagementMetadataDialog>
-                    <LogManagementCreateFolderDialog v-model:visibility="folderCreation" :path="selectedFolder ? selectedFolder.relativePath : ''" @createFolder="createFolder" />
-
+                <div class="search-box">
                     <q-input v-model="filter" class="q-ma-sm" outlined dense square debounce="300" :placeholder="$t('common.search')">
                         <template v-slot:append>
                             <q-icon name="search" />
                         </template>
                     </q-input>
+                </div>
+                <div class="tree-container column">
+                    <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
 
-                    <div class="sidebar-top-actions" aria-hidden="true">
-                        <Button icon="pi pi-download" class="p-button-text p-button-sm p-button-rounded p-button-plain p-p-0" :aria-label="$t('common.download')" @click="sidebarDownloadClicked" data-test="sidebar-download-button" />
-                    </div>
-
-                    <section class="p-m-2">
-                        <!--<div class="collapsible-header p-d-flex p-js-between p-ai-center" role="button" tabindex="0" @click="toggleRootFiles" @keyup.enter="toggleRootFiles" :aria-expanded="rootExpanded">
-                            <div class="p-d-flex p-ai-center">
-                                <q-icon :name="rootExpanded ? 'expand_more' : 'chevron_right'" class="p-mr-sm" />
-                                <strong>Root Files</strong>
-                            </div>
-                            <div class="header-actions p-d-flex p-ai-center">
-                                <input type="checkbox" class="header-select-checkbox" :checked="allRootSelected" @click.stop @change.stop="setRootSelection($event.target.checked)" :title="$t('common.selectAll')" />
-                            </div>
-                        </div>
-
-                        <transition name="slide-vertical">
-                            <ul class="files-list" v-show="rootExpanded && filteredRootFiles && filteredRootFiles.length">
-                                <li v-for="file in filteredRootFiles" :key="file.name" class="root-file-row" @click="openRootFile(file)" title="Click to open">
-                                    <span class="file-name">{{ file.name }}</span>
-                                    <input type="checkbox" class="file-select-checkbox" :title="$t('common.select')" v-model="selectedFiles['root/' + file.name]" @click.stop />
-                                </li>
-                            </ul>
-                        </transition>
-
-                        <div v-if="(!filteredRootFiles || filteredRootFiles.length === 0) && !loading" class="p-mt-md p-text-italic">No files found</div>
-
-                        <q-tree :nodes="folders" node-key="key" label-key="name" children-key="files" default-expand-all v-model:ticked="tickedFiles" tick-strategy="strict"></q-tree>
-                        {{folders}}
-                        <ul class="folders-list-items">
-                            <li v-for="folder in folders" :key="folder.name" class="folder-item">
-                                <div class="collapsible-header p-d-flex p-js-between p-ai-center" role="button" tabindex="0" @click="toggleFolder(folder)" @keyup.enter="toggleFolder(folder)" :aria-expanded="folder.expanded">
-                                    <div class="p-d-flex p-ai-center">
-                                        <q-icon :name="folder.expanded ? 'expand_more' : 'chevron_right'" class="p-mr-sm" />
-                                        <strong class="folder-name">{{ folder.name }}</strong>
-                                    </div>
-                                    <div class="header-actions p-d-flex p-ai-center">
-                                        <input type="checkbox" class="header-select-checkbox" :checked="isAllFolderSelected(folder)" @click.stop @change.stop="setFolderSelection(folder, $event.target.checked)" :title="$t('common.selectAll')" />
-                                    </div>
-                                </div>
-
-                                <transition name="slide-vertical">
-                                    <ul class="files-list" v-show="folder.expanded && folder.files && folder.files.length">
-                                        <li v-for="file in folder.files.filter(f => !filter || (f.name || '').toLowerCase().includes(filter.toLowerCase()))" :key="file.name" class="folder-file-row" @click.stop="openFolderFile(folder, file)">
-                                            <span class="file-name">{{ file.name }}</span>
-                                            <input type="checkbox" class="file-select-checkbox" :title="$t('common.select')" v-model="selectedFiles[folder.name + '/' + file.name]" @click.stop />
-                                        </li>
-                                    </ul>
-                                </transition>
-                            </li>
-                        </ul>-->
+                    <div class="tree-box">
                         <q-tree :nodes="treeNodes" node-key="key" label-key="label" children-key="children" tick-strategy="strict" :ticked.sync="tickedFiles" default-expand-all @update:ticked="onTreeTickedUpdate">
                             <template #default-header="{ node }">
                                 <div class="row full-width treeButtons">
                                     <q-icon v-if="node.icon" :name="node.icon" class="q-mr-sm" size="sm" />
-                                    <span class="col kn-truncated">{{ node.label }}</span>
-
-                                    <!--<q-btn v-if="node.type === 'file'" flat round dense size="xs" icon="visibility" @click.stop="openTreeFile(node)">
-                                        <q-tooltip :delay="200">{{ $t('common.open') }}</q-tooltip>
-                                    </q-btn>
-                                    <q-btn v-if="node.type === 'file'" flat round dense size="xs" icon="download" @click.stop="downloadSingle(node)">
-                                        <q-tooltip :delay="200">{{ $t('common.download') }}</q-tooltip>
-                                    </q-btn>
-
-                                    <q-btn v-if="node.type === 'folder'" flat round dense size="xs" icon="download" @click.stop="downloadDirect(node)">
-                                        <q-tooltip :delay="200">{{ $t('common.download') }}</q-tooltip>
-                                    </q-btn>
-
-                                    <q-btn flat round dense size="xs" icon="more_vert" @click.stop.prevent="menuOpen[node.key] = true" aria-haspopup="true" :aria-label="$t('common.actions')" />
-
-                                    <q-menu v-model="menuOpen[node.key]" anchor="top right" self="top right" @hide="menuOpen[node.key] = false">
-                                        <q-list style="min-width: 160px">
-                                            <q-item clickable v-close-popup @click="onMenuSelectAll(node)">
-                                                <q-item-section>{{ $t('common.selectAll') }}</q-item-section>
-                                            </q-item>
-                                            <q-item clickable v-close-popup @click="onMenuDeselectAll(node)">
-                                                <q-item-section>{{ $t('common.deselectAll') }}</q-item-section>
-                                            </q-item>
-                                            <q-item clickable v-close-popup v-if="node.type === 'file'" @click="downloadSingle(node)">
-                                                <q-item-section>{{ $t('common.download') }}</q-item-section>
-                                            </q-item>
-                                            <q-item clickable v-close-popup v-if="node.type === 'folder' || node.type === 'group'" @click="onMenuDownload(node)">
-                                                <q-item-section>{{ $t('common.download') }}</q-item-section>
-                                            </q-item>
-                                            <q-separator />
-                                            <q-item clickable v-close-popup v-if="node.type === 'folder'" @click="onMenuDelete(node)">
-                                                <q-item-section class="text-negative">{{ $t('common.delete') }}</q-item-section>
-                                            </q-item>
-                                        </q-list>
-                                    </q-menu>-->
+                                    <span class="col kn-truncated" @click.stop="node.type === 'file' && openTreeFile(node)" style="cursor: pointer;">{{ node.label }}</span>
                                 </div>
                             </template>
                         </q-tree>
-                    </section>
+                    </div>
                 </div>
             </div>
             
             <div class="p-col-8 p-sm-8 p-md-9 p-p-0 p-m-0 kn-page">
                 <KnHint v-if="showHint" :title="$t('managers.logManagement.title')" :hint="$t('managers.logManagement.hint')"></KnHint>
 
-                <!--<div v-if="rootFileContentVisible" class="root-file-viewer">
-                    <Toolbar class="file-toolbar kn-toolbar kn-toolbar--secondary">
-                        <template #start>
-                            <div class="kn-toolbar__title file-title">{{ currentRootFile?.name }}</div>
-                        </template>
-                        <template #end>
-                            <div class="file-toolbar-actions">
-                                <Button icon="pi pi-times" class="p-button-text p-button-sm p-button-rounded p-button-plain p-p-0" @click="closeRootViewer" />
-                            </div>
-                        </template>
-                    </Toolbar>
-                    <div class="file-viewer-body p-m-3">
-                        <pre class="file-viewer">{{ currentRootFileContent ?? $t('managers.logManagement.emptyFile') }}</pre>
-                    </div>
-                </div>-->
-
                 <LogManagementDetail v-if="formVisible" :folder="selectedFolder" :parent-key="folderParentKey" @touched="touched = true" @close="onClose" @inserted="loadPage($event)" @folderCreated="loadPage" @closed="switchToHint()" @fileUploaded="loadPage(false, true)" />
+
+                <div v-if="!showHint && !formVisible && currentRootFile" class="root-file-viewer" style="display:flex;flex-direction:column;height:100%;">
+                    <div class="file-toolbar kn-toolbar--secondary">
+                        <div class="file-title">{{ currentRootFile?.name }}</div>
+                        <div class="file-toolbar-actions">
+                            <Button icon="pi pi-times" class="p-button-text p-button-sm p-button-rounded p-button-plain p-p-0" :aria-label="$t('common.close')" @click="closeRootViewer" />
+                        </div>
+                    </div>
+
+                    <div class="file-viewer-body" style="padding:1rem; flex:1 1 auto; overflow:auto;">
+                        <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
+                        <pre v-if="currentRootFileContent" class="file-viewer">{{ currentRootFileContent }}</pre>
+                        <div v-else-if="!loading" class="p-text-italic">{{ $t('managers.logManagement.noContent') ?? 'No Content' }}</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -150,17 +66,13 @@ import Tree from 'primevue/tree'
 import { IFolderTemplate, IFileTemplate } from '@/modules/managers/logManagement/LogManagement'
 import { downloadDirectFromResponseWithCustomName } from '@/helpers/commons/fileHelper'
 import { formatDate } from '@/helpers/commons/localeHelper'
-import LogManagementMetadataDialog from '@/modules/managers/logManagement/LogManagementMetadataDialog.vue'
 import LogManagementDetail from './LogManagementDetail.vue'
 import KnHint from '@/components/UI/KnHint.vue'
-import LogManagementCreateFolderDialog from './LogManagementCreateFolderDialog.vue'
 import mainStore from '../../../App.store'
 import { mapActions } from 'pinia'
-import { COMMON_AXIS_PROPERTIES_INDEX } from 'vega-lite/build/src/axis'
-
 export default defineComponent({
     name: 'log-management',
-    components: { KnHint, LogManagementMetadataDialog, LogManagementCreateFolderDialog, LogManagementDetail, Tree },
+    components: { KnHint, LogManagementDetail, Tree },
     data() {
         return {
             descriptor,
@@ -183,6 +95,7 @@ export default defineComponent({
             selectedRootFilesMap: {} as Record<string, boolean>,
             selectedFiles: {} as Record<string, boolean>,
             tickedFiles: [] as any[],
+            prevTickedFiles: [] as any[],
             currentRootFile: null as IFileTemplate | null,
             currentRootFileContent: '' as string | null,
             rootExpanded: false,
@@ -248,6 +161,7 @@ export default defineComponent({
                     ;(this.selectedFiles as any)[k] = this.selectedFiles[k] ?? false
                 }
                 this.tickedFiles = this.getSelectedfileKeys()
+                this.prevTickedFiles = [...this.tickedFiles]
             } catch (err) {
                 console.error('[LogManagement] loadRootFiles error', err)
                 this.setError({ title: this.$t('common.error'), msg: err?.message ? String(err.message) : JSON.stringify(err) || this.$t('common.error.refresh') })
@@ -264,7 +178,8 @@ export default defineComponent({
         },
         async openRootFile(file: IFileTemplate) {
             if (!file) return
-            this.currentRootFile = file
+            this.currentRootFile = { ...file, name: file.name } as IFileTemplate
+            ;(this.currentRootFile as any).folderName = undefined
             this.rootFileContentVisible = true
             this.currentRootFileContent = null
             this.loading = true
@@ -704,6 +619,7 @@ export default defineComponent({
                 }
                 folder.count = folder.files.length
                 this.tickedFiles = this.getSelectedfileKeys()
+                this.prevTickedFiles = [...this.tickedFiles]
             } catch (err) {
                 // eslint-disable-next-line no-console
                 console.error('[LogManagement] loadFolderFiles error', err)
@@ -720,7 +636,8 @@ export default defineComponent({
         },
         async openFolderFile(folder: any, file: IFileTemplate) {
             if (!file) return
-            this.currentRootFile = { ...file, name: file.name } as IFileTemplate
+            // salva folderName insieme al file per poter scaricare in seguito
+            this.currentRootFile = { ...file, name: file.name, folderName: folder?.name } as IFileTemplate & { folderName?: string }
             this.rootFileContentVisible = true
             this.currentRootFileContent = null
             this.loading = true
@@ -741,15 +658,69 @@ export default defineComponent({
             }
         },
         onTreeTickedUpdate(ticked: string[]) {
-            this.tickedFiles = ticked || []
-            this.selectedFiles = {}
-            for (const k of this.tickedFiles) {
-                try {
-                    this.selectedFiles[k] = true
-                } catch (e) {
-                    ;(this.selectedFiles as any)[k] = true
+            const prev = this.prevTickedFiles || []
+            const added = (ticked || []).filter(k => !prev.includes(k))
+            const removed = (prev || []).filter(k => !(ticked || []).includes(k))
+
+            // helper per recuperare le chiavi figlie di un nodo (root group o folder)
+            const getChildrenKeys = (nodeKey: string): string[] => {
+                if (!nodeKey) return []
+                if (nodeKey === 'root-files-group') {
+                    return (this.filesRoot || []).map((f: any) => 'root/' + f.name)
+                }
+                // folder
+                const folder = (this.folders || []).find((f: any) => ('' + (f.key || f.name)) === '' + nodeKey)
+                if (folder && folder.files) return folder.files.map((f: any) => (folder.name + '/' + f.name))
+                return []
+            }
+            // usa un set per modifiche efficienti
+            const tickedSet = new Set(ticked || [])
+            // se è stato aggiunto un tick su un gruppo/cartella => aggiungi tutti i figli
+            for (const k of added) {
+                if (k === 'root-files-group' || (this.folders || []).some(f => ('' + (f.key || f.name)) === '' + k)) {
+                    for (const childKey of getChildrenKeys(k)) tickedSet.add(childKey)
                 }
             }
+            // se è stato rimosso il tick su un gruppo/cartella => rimuovi tutti i figli
+            for (const k of removed) {
+                if (k === 'root-files-group' || (this.folders || []).some(f => ('' + (f.key || f.name)) === '' + k)) {
+                    for (const childKey of getChildrenKeys(k)) tickedSet.delete(childKey)
+                }
+            }
+
+            // Sincronizza lo stato del parent in funzione dei figli:
+            // - se tutti i figli sono selezionati => assicura che il parent sia tickato
+            // - se non tutti i figli sono selezionati => rimuovi il parent dal set
+            // root
+            const rootChildren = getChildrenKeys('root-files-group')
+            if (rootChildren.length > 0) {
+                const allRoot = rootChildren.every(k => tickedSet.has(k))
+                if (allRoot) tickedSet.add('root-files-group')
+                else tickedSet.delete('root-files-group')
+            }
+            // ogni folder
+            for (const folder of (this.folders || [])) {
+                const folderKey = '' + (folder.key || folder.name)
+                const childKeys = getChildrenKeys(folderKey)
+                if (childKeys.length === 0) {
+                    // se non ci sono figli caricati, rimuovi parent per coerenza (parent non dovrebbe essere tickato senza figli)
+                    tickedSet.delete(folderKey)
+                    continue
+                }
+                const allSelected = childKeys.every(k => tickedSet.has(k))
+                if (allSelected) tickedSet.add(folderKey)
+                else tickedSet.delete(folderKey)
+            }
+
+            // aggiorna tickedFiles e selectedFiles coerentemente
+            this.tickedFiles = Array.from(tickedSet)
+            this.selectedFiles = {}
+            for (const key of this.tickedFiles) {
+                this.selectedFiles[key] = true
+            }
+
+            // salva stato precedente
+            this.prevTickedFiles = [...this.tickedFiles]
         },
         openTreeFile(node: any) {
             if (!node) return
@@ -774,6 +745,64 @@ export default defineComponent({
                 this.tickedFiles = this.getSelectedfileKeys()
             }
         },
+        findFolderByKey(key: string) {
+            return (this.folders || []).find((f: any) => ('' + (f.key || f.name)) === '' + key) || null
+        },
+        isAllSelected(node: any): boolean {
+            if (!node) return false
+
+            if (node.key === 'root-files-group' || node.type === 'group') {
+                if (!this.filesRoot || this.filesRoot.length === 0) return false
+                return this.filesRoot.every((f: any) => !!this.selectedFiles['root/' + f.name])
+            }
+            if (node.type === 'folder') {
+                const folder = this.findFolderByKey(node.key)
+                if (!folder || !folder.files || folder.files.length === 0) return false
+                return folder.files.every((f: any) => !!this.selectedFiles[folder.name + '/' + f.name])
+            }
+            return false
+        },
+        isIndeterminate(node: any): boolean {
+            if (!node) return false
+
+            if (node.key === 'root-files-group' || node.type === 'group') {
+                if (!this.filesRoot || this.filesRoot.length === 0) return false
+                const selectedCount = this.filesRoot.reduce((acc: number, f: any) => acc + (this.selectedFiles['root/' + f.name] ? 1 : 0), 0)
+                return selectedCount > 0 && selectedCount < this.filesRoot.length
+            }
+            if (node.type === 'folder') {
+                const folder = this.findFolderByKey(node.key)
+                if (!folder || !folder.files || folder.files.length === 0) return false
+                const selectedCount = folder.files.reduce((acc: number, f: any) => acc + (this.selectedFiles[folder.name + '/' + f.name] ? 1 : 0), 0)
+                return selectedCount > 0 && selectedCount < folder.files.length
+            }
+            return false
+        },
+        async onHeaderCheckboxChange(node: any, checked: boolean) {
+            if (!node) return
+            if (node.key === 'root-files-group' || node.type === 'group') {
+                this.setRootSelection(checked)
+                // aggiorna tickedFiles dalla mappa selectedFiles
+                this.$nextTick(() => {
+                    this.tickedFiles = this.getSelectedfileKeys()
+                })
+                return
+            }
+            if (node.type === 'folder') {
+                // assicurati che i file siano caricati
+                const folder = this.findFolderByKey(node.key)
+                if (folder) {
+                    if (!folder.files || folder.files.length === 0) {
+                        await this.loadFolderFiles(folder)
+                    }
+                    this.setFolderSelection(folder, checked)
+                    this.$nextTick(() => {
+                        this.tickedFiles = this.getSelectedfileKeys()
+                    })
+                }
+                return
+            }
+        }
     },
 
     computed: {
@@ -836,45 +865,53 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+/* garantisce che la colonna sidebar non venga stretta/ allargata dai figli */
+.col-3.column {
+  min-width: 0; /* essenziale: permette al figlio di scrollare senza espandere la colonna */
+  box-sizing: border-box;
+}
+
 /* Layout generale */
 .kn-page { height: 100vh; }
 .kn-page-content { height: 100%; }
 
-/* Sidebar container */
+/* contenitore tree */
+.tree-container {
+  border: 1px solid var(--kn-list-border-color);
+  flex: 1 0 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: auto;
+}
+
+/* search box: non partecipa allo scroll della lista */
+.search-box {
+  border: 1px solid var(--kn-list-border-color);
+  flex: 0 0 auto;
+  padding: 8px 10px;
+  background: var(--kn-sidebar-bg, transparent);
+  box-sizing: border-box;
+}
+
+/* tree box: area che gestisce tutti gli overflow (verticale + orizzontale) */
+.tree-box {
+  flex: 1 1 0;
+  min-height: 0; /* essenziale per scroll interno in flex container */
+  direction: rtl;
+  overflow: auto;
+  box-sizing: border-box;
+}
+
+/* Sidebar: area scrollabile (ora con overflow-x auto per scrollbar orizzontale globale) */
 .sidebar-inner {
   position: relative;
   display: flex;
   flex-direction: column;
 }
-
-/* Search + button area: keep in normal flow */
-.sidebar-top-actions {
-  position: static;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 0.25rem 0.75rem 0 0;
-  margin-top: 0.4rem;
-  z-index: 2;
-}
-.sidebar-top-actions .p-button {
-  height: 32px;
-  min-width: 32px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-}
-.sidebar-top-actions .p-button:hover {
-  background: rgba(0,0,0,0.04);
-  border-radius: 6px;
-}
-
-/* Scroll solo per la zona liste; scrollbar sul lato sinistro */
 .sidebar-inner section.p-m-2 {
-  direction: rtl;              /* sposta la scrollbar a sinistra */
+  direction: ltr;
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: auto; /* scrollbar orizzontale sull'intero contenitore */
   flex: 1 1 0;
   min-height: 0;
   padding-right: 8px;
@@ -884,64 +921,50 @@ export default defineComponent({
   text-align: left;
 }
 
-/* Webkit scrollbar styling */
-.sidebar-inner section.p-m-2::-webkit-scrollbar { width: 10px; }
+/* q-tree può essere più largo del container: questo forza la scrollbar orizzontale del parent
+   ma non allarga la sidebar grazie a min-width:0 sulla colonna */
+.tree-box .q-tree {
+  direction: ltr;
+  display: inline-block;
+  min-width: max-content;
+  box-sizing: border-box;
+}
+
+/* contenuto nodo: non deve creare scrollbar proprie */
+.q-tree__node__content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap; /* evita wrap dei nomi */
+  box-sizing: border-box;
+}
+
+/* prefisso/suffix non devono spingere la larghezza */
+.q-tree__node__prefix,
+.q-tree__node__suffix {
+  flex: 0 0 auto;
+  box-sizing: border-box;
+}
+
+/* le etichette non devono avere scroll individuale */
+.q-tree__node__label,
+.kn-truncated,
+.file-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+/* Webkit scrollbar styling per il container della sidebar */
+.sidebar-inner section.p-m-2::-webkit-scrollbar { height: 10px; width: 10px; }
 .sidebar-inner section.p-m-2::-webkit-scrollbar-thumb {
   background: rgba(0,0,0,0.12);
   border-radius: 6px;
 }
 .sidebar-inner section.p-m-2::-webkit-scrollbar-track { background: transparent; }
 
-/* Collapsible header (Root Files / Folder headers) */
-.collapsible-header {
-  cursor: pointer;
-  user-select: none;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.25rem 0;
-}
-
-/* Header actions: select-all checkbox + count badge */
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.header-select-checkbox {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-}
-
-/* Badge count */
-.files-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 8px;
-  margin-left: 0.5rem;
-  border-radius: 999px;
-  background: #9f25d3;
-  color: #fff;
-  font-weight: 600;
-  font-size: 0.75rem;
-  line-height: 1;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
-  vertical-align: middle;
-}
-
-/* Liste e righe file - uniformate */
-.files-list,
-.folders-list-items {
-  list-style: none;
-  padding: 0;
-  margin: 0.25rem 0;
-}
-
-/* file rows: use flex to keep checkbox aligned on the right */
+/* altri stili mantenuti per viewer e righe */
 .root-file-row,
 .folder-file-row {
   display: flex;
@@ -954,33 +977,8 @@ export default defineComponent({
   min-width: 0;
 }
 .root-file-row:hover,
-.folder-file-row:hover {
-  background: rgba(0, 0, 0, 0.02);
-}
+.folder-file-row:hover { background: rgba(0,0,0,0.02); }
 
-/* File name: truncate if too long, take available space */
-.file-name {
-  flex: 1 1 auto;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  padding-right: 8px; /* space before checkbox */
-}
-
-/* Checkbox: inline, at the end of the row */
-.file-select-checkbox {
-  flex: 0 0 auto;
-  width: 18px;
-  height: 18px;
-  margin-left: 8px;
-  cursor: pointer;
-}
-
-/* Folder specific small tweaks */
-.folder-item { margin-bottom: 0.25rem; }
-.folder-name { font-weight: 600; }
-
-/* Toolbar and viewer styles (kept consistent) */
 .file-toolbar {
   display: flex;
   align-items: center;
@@ -1009,7 +1007,7 @@ export default defineComponent({
   padding: 1rem;
 }
 
-/* transition (unchanged) */
+/* transition */
 .slide-vertical-enter-active,
 .slide-vertical-leave-active {
   transition: max-height 220ms ease, opacity 200ms ease, padding 200ms ease;
@@ -1027,7 +1025,7 @@ export default defineComponent({
   opacity: 1;
 }
 
-/* responsive tweak */
+/* responsive */
 @media (max-width: 480px) {
   .sidebar-top-actions { margin-top: 0.6rem; }
   .file-name { font-size: 0.95rem; }

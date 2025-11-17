@@ -47,6 +47,11 @@ onMounted(async () => {
             folderKey.value = null
         })
 
+    if (!folderKey.value) {
+        store.setLoading(false)
+        push404()
+        return
+    }
     await axios
         .post(
             import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/2.0/resources/files/download`,
@@ -59,14 +64,47 @@ onMounted(async () => {
             }
         )
         .then((response: any) => {
-            config.value = response.data
+            const userRole = store.user?.sessionRole || store.user?.defaultRole
+
+            function filterNode(node: any): any | null {
+                if (node == null) return null
+                if (Array.isArray(node)) {
+                    return node.map(filterNode).filter((n) => n !== null)
+                }
+                if (typeof node !== 'object') return node
+
+                if (Array.isArray(node.roles) && userRole && !node.roles.includes(userRole)) {
+                    return null
+                }
+
+                const newNode: any = { ...node }
+                if (Array.isArray(node.content)) {
+                    const filteredContent = node.content.map(filterNode).filter((n) => n !== null)
+                    if (filteredContent.length) {
+                        newNode.content = filteredContent
+                    } else {
+                        delete newNode.content
+                    }
+                }
+                return newNode
+            }
+
+            const filtered = filterNode(response.data)
+            if (!filtered) push404()
+            else {
+                config.value = filtered
+            }
         })
         .catch(() => {
-            config.value = null
-            router.push({ name: '404' })
+            push404()
         })
-        .finally(store.setLoading(false))
+        .finally(() => store.setLoading(false))
 })
+
+function push404() {
+    config.value = null
+    router.push({ name: '404' })
+}
 
 function getLogoUrl() {
     if (config.value && config.value.logo) {
