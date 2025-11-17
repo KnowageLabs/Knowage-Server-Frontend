@@ -871,10 +871,6 @@ export default defineComponent({
   box-sizing: border-box;
 }
 
-/* Layout generale */
-.kn-page { height: 100vh; }
-.kn-page-content { height: 100%; }
-
 /* contenitore tree */
 .tree-container {
   border: 1px solid var(--kn-list-border-color);
@@ -900,25 +896,6 @@ export default defineComponent({
   direction: rtl;
   overflow: auto;
   box-sizing: border-box;
-}
-
-/* Sidebar: area scrollabile (ora con overflow-x auto per scrollbar orizzontale globale) */
-.sidebar-inner {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-}
-.sidebar-inner section.p-m-2 {
-  direction: ltr;
-  overflow-y: auto;
-  overflow-x: auto; /* scrollbar orizzontale sull'intero contenitore */
-  flex: 1 1 0;
-  min-height: 0;
-  padding-right: 8px;
-}
-.sidebar-inner section.p-m-2 > * {
-  direction: ltr;
-  text-align: left;
 }
 
 /* q-tree può essere più largo del container: questo forza la scrollbar orizzontale del parent
@@ -956,29 +933,6 @@ export default defineComponent({
   min-width: 0;
 }
 
-/* Webkit scrollbar styling per il container della sidebar */
-.sidebar-inner section.p-m-2::-webkit-scrollbar { height: 10px; width: 10px; }
-.sidebar-inner section.p-m-2::-webkit-scrollbar-thumb {
-  background: rgba(0,0,0,0.12);
-  border-radius: 6px;
-}
-.sidebar-inner section.p-m-2::-webkit-scrollbar-track { background: transparent; }
-
-/* altri stili mantenuti per viewer e righe */
-.root-file-row,
-.folder-file-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.4rem 0.5rem;
-  border-bottom: 1px solid var(--kn-list-border-color);
-  cursor: pointer;
-  min-width: 0;
-}
-.root-file-row:hover,
-.folder-file-row:hover { background: rgba(0,0,0,0.02); }
-
 .file-toolbar {
   display: flex;
   align-items: center;
@@ -1007,27 +961,8 @@ export default defineComponent({
   padding: 1rem;
 }
 
-/* transition */
-.slide-vertical-enter-active,
-.slide-vertical-leave-active {
-  transition: max-height 220ms ease, opacity 200ms ease, padding 200ms ease;
-}
-.slide-vertical-enter-from,
-.slide-vertical-leave-to {
-  max-height: 0;
-  opacity: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-}
-.slide-vertical-enter-to,
-.slide-vertical-leave-from {
-  max-height: 800px;
-  opacity: 1;
-}
-
 /* responsive */
 @media (max-width: 480px) {
-  .sidebar-top-actions { margin-top: 0.6rem; }
   .file-name { font-size: 0.95rem; }
 }
 </style>
