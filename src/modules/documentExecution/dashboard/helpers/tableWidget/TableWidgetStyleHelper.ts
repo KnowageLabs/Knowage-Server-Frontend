@@ -38,8 +38,8 @@ const getDefaultColumnGroupsStyle = (widget: any) => {
                 target: [tempGroup.id],
                 properties: {
                     width: 0,
-                    'background-color': tempGroup['background-color'] ?? 'rgb(0, 0, 0, 0)',
-                    color: tempGroup.color ?? 'rgb(255, 255, 255)',
+                    'background-color': tempGroup['background-color'] ?? 'rgb(0, 0, 0, 1)',
+                    color: tempGroup.color ?? 'rgba(0, 0, 0, 1)',
                     'justify-content': tempGroup['justify-content'] ?? '',
                     'font-size': tempGroup['font-size'] ?? '',
                     'font-family': tempGroup['font-family'] ?? '',
