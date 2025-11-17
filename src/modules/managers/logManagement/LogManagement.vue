@@ -169,13 +169,6 @@ export default defineComponent({
                 this.loading = false
             }
         },
-        filteredRootFiles() {
-            if (!this.filter) {
-                return this.filesRoot
-            }
-            const q = (this.filter || '').toLowerCase()
-            return this.filesRoot.filter((file: any) => (file.name || '').toLowerCase().includes(q))
-        },
         async openRootFile(file: IFileTemplate) {
             if (!file) return
             this.currentRootFile = { ...file, name: file.name } as IFileTemplate
@@ -822,9 +815,11 @@ export default defineComponent({
         },
         treeNodes(): any[] {
             const nodes: any[] = []
+            const q = (this.filter || '').toLowerCase()
 
-            if (this.filesRoot && this.filesRoot.length > 0) {
-                const rootChildren = this.filesRoot.map((f: any) => ({
+            const rootFiles = (this.filesRoot || []).filter((f: any) => !q || (f.name || '').toLowerCase().includes(q))
+            if (rootFiles.length > 0) {
+                const rootChildren = rootFiles.map((f: any) => ({
                     key: 'root/' + f.name,
                     label: f.name,
                     type: 'file',
@@ -840,23 +835,23 @@ export default defineComponent({
                 })
             }
 
-            if (this.folders && this.folders.length > 0) {
-                for (const folder of this.folders) {
-                    const children = (folder.files || []).map((f: any) => ({
-                        key: (folder.name || folder.key) + '/' + f.name,
-                        label: f.name,
-                        type: 'file',
-                        folderName: folder.name,
-                        fileObj: f
-                    }))
-                    nodes.push({
-                        key: folder.key || folder.name,
-                        label: folder.name,
-                        icon: 'folder',
-                        type: 'folder',
-                        children
-                    })
-                }
+        for (const folder of (this.folders || [])) {
+            const matching = (folder.files || []).filter((f: any) => !q || (f.name || '').toLowerCase().includes(q))
+                if (matching.length === 0) continue
+                const children = matching.map((f: any) => ({
+                    key: (folder.name || folder.key) + '/' + f.name,
+                    label: f.name,
+                    type: 'file',
+                    folderName: folder.name,
+                    fileObj: f
+                }))
+                nodes.push({
+                    key: folder.key || folder.name,
+                    label: folder.name,
+                    icon: 'folder',
+                    type: 'folder',
+                    children
+                })
             }
             return nodes
         },
