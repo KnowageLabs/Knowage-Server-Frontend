@@ -130,7 +130,7 @@ export const addParametersToData = (dataset, dashboardId, dataToSend, associativ
                 const paramKey = `$P{${param.name}}`
                 if (associativeResponseSelections[dataset.dsLabel][paramKey]) {
                     const rawValue = associativeResponseSelections[dataset.dsLabel][paramKey][0]
-                    const cleanValue = rawValue.replace(/[()'\s]/g, '')
+                    const cleanValue = rawValue.replace(/[()']/g, '')
 
                     dataToSend.parameters[param.name] = cleanValue
                 }
