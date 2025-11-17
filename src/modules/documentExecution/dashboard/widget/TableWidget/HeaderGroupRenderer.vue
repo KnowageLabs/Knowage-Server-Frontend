@@ -1,6 +1,6 @@
 <template>
-    <div class="custom-header-group-container" :style="getHeaderGroupStyle()">
-        <div class="custom-header-group-label" :style="getHeaderMultiline()">{{ params.displayName }}</div>
+    <div class="custom-header-group-container" :style="getHeaderGroupStyle()" style="width: 100%">
+        <div class="custom-header-group-label p-mx-1" :style="getHeaderMultiline()" style="width: 100%">{{ params.displayName }}</div>
     </div>
 </template>
 
