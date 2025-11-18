@@ -3,7 +3,7 @@
         <div v-if="widgetModel.type !== 'selector'" class="row q-col-gutter-xs p-pb-3">
             <!-- <q-input class="col-4" :label="$t('components.knCalculatedField.columnName')" v-model="column.columnName" dense square disable /> -->
             <!-- <q-input class="col-4" :label="$t('common.alias')" v-model="column.alias" dense square /> -->
-            <q-select class="col-4" v-model="column.fieldType" :options="descriptor.columnTypeOptions" emitValue clearable dense square :label="$t('common.type')" option-value="value" option-label="label" :disable="column.formula !== undefined" @update:model-value="columnTypeChanged">
+            <q-select class="col-4" v-model="column.fieldType" :options="descriptor.columnTypeOptions" emitValue dense square :label="$t('common.type')" option-value="value" option-label="label" :disable="column.formula !== undefined" @update:model-value="columnTypeChanged">
                 <template v-slot:option="scope">
                     <q-item v-bind="scope.itemProps">
                         <q-item-section>
