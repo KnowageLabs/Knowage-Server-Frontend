@@ -21,6 +21,11 @@ export const getWebComponentWidgetData = async (widgetType: 'html' | 'text', das
         if (aggregationsModel) {
             const aggregationsPostData = formatWebComponentModelForService(dashboardId, dashboardConfig, aggregationsModel, selectedDataset, initialCall, selections, associativeResponseSelections)
 
+            // update aggregationsPostData with selections, drivers, and parameters from the full widget model
+            addSelectionsToData(aggregationsPostData, widget, selectedDataset.dsLabel!, initialCall, selections, associativeResponseSelections)
+            addDriversToData(selectedDataset, aggregationsPostData)
+            addParametersToData(selectedDataset, dashboardId, aggregationsPostData, associativeResponseSelections)
+
             const postDataForHash = deepcopy(aggregationsPostData) // making a deepcopy so we can delete options which are used for solr datasets only
             if (numOfRowsToGet) postDataForHash.numOfRowsToGet = numOfRowsToGet // adding pagination in case its being used so we save data for each page
             const dataHash = md5(JSON.stringify(postDataForHash))
