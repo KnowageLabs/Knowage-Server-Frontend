@@ -341,10 +341,25 @@ export default defineComponent({
         return
       }
 
+      const names = Array.from(new Set(
+        keys.map(k => {
+          const s = ('' + k).split('/')
+          return s[s.length - 1] || ''
+        })
+      )).filter(n => !!n)
+
+      if (names.length === 0) {
+        this.setInfo({ title: this.$t('common.info'), msg: this.$t('managers.logManagement.noFilesSelected') ?? 'No files selected for download' })
+        return
+      }
+
+      const payload = { selectedLogsNames: names }
+      console.log('[LogManagement] download payload (names array)', payload)
+
       this.loading = true
       try {
         const url = `${API_BASE}/download`
-        const resp: AxiosResponse<any> = await axios.post(url, keys, {
+        const resp: AxiosResponse<any> = await axios.post(url, payload, {
           responseType: 'arraybuffer',
           transformResponse: [],
           headers: { 'Content-Type': 'application/json', Accept: 'application/zip' }
