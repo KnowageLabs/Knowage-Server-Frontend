@@ -36,9 +36,7 @@
             
             <div class="p-col-8 p-sm-8 p-md-9 p-p-0 p-m-0 kn-page">
                 <KnHint v-if="showHint" :title="$t('managers.logManagement.title')" :hint="$t('managers.logManagement.hint')"></KnHint>
-
-                <LogManagementDetail v-if="formVisible" :folder="selectedFolder" :parent-key="folderParentKey" @touched="touched = true" @close="onClose" @inserted="loadPage($event)" @folderCreated="loadPage" @closed="switchToHint()" @fileUploaded="loadPage(false, true)" />
-
+                  
                 <div v-if="!showHint && !formVisible && currentRootFile" class="root-file-viewer" style="display:flex;flex-direction:column;height:100%;">
                     <div class="file-toolbar kn-toolbar--secondary">
                         <div class="file-title">{{ currentRootFile?.name }}</div>
@@ -65,8 +63,7 @@ import Toolbar from 'primevue/toolbar'
 import Button from 'primevue/button'
 import ProgressBar from 'primevue/progressbar'
 import { QInput, QIcon, QTree } from 'quasar'
-import KnHint from '@/modules/managers/logManagement/LogManagementHint.vue'
-import LogManagementDetail from './LogManagementDetail.vue'
+import KnHint from '@/components/UI/KnHint.vue'
 import mainStore from '../../../App.store'
 import { mapActions } from 'pinia'
 import { downloadDirectFromResponseWithCustomName } from '@/helpers/commons/fileHelper'
@@ -75,7 +72,7 @@ const API_BASE = `${import.meta.env.VITE_KNOWAGE_API_CONTEXT}/api/2.0/resources/
 
 export default defineComponent({
   name: 'log-management',
-  components: { Toolbar, Button, ProgressBar, QInput, QIcon, QTree, KnHint, LogManagementDetail },
+  components: { Toolbar, Button, ProgressBar, QInput, QIcon, QTree, KnHint },
   data() {
     return {
       filter: '' as string,
