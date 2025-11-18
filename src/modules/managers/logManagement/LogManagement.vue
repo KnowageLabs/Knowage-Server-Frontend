@@ -2,15 +2,13 @@
     <div class="kn-page">
         <div class="kn-page-content row p-m-0">
             <div class="col-3 column p-p-0">
-                <Toolbar class="kn-toolbar kn-toolbar--primary">
-                    <template #start>
-                        <div class="kn-toolbar__title">Log Management</div>
-                    </template>
-                    <template #end>
-                        <Button icon="fas fa-sync-alt" class="p-button-text p-button-sm p-button-rounded p-button-plain p-p-0" @click="loadPage(showHint, formVisible)" />
-                        <Button icon="pi pi-download" class="p-button-text p-button-sm p-button-rounded p-button-plain p-p-0" :aria-label="$t('common.download')" @click="sidebarDownloadClicked" data-test="sidebar-download-button" />
-                    </template>
-                </Toolbar>
+                <q-toolbar class="kn-toolbar kn-toolbar--primary">
+                    <div class="kn-toolbar__title">Log Management</div>
+                    <div class="toolbar-actions" role="toolbar" aria-label="log-actions">
+                      <Button icon="fas fa-sync-alt" class="p-button-text p-button-sm p-button-rounded p-button-plain p-p-0" @click="loadPage(showHint, formVisible)" />
+                      <Button icon="pi pi-download" class="p-button-text p-button-sm p-button-rounded p-button-plain p-p-0" :aria-label="$t('common.download')" @click="sidebarDownloadClicked" data-test="sidebar-download-button" />
+                    </div>
+                </q-toolbar>
                 <div class="search-box">
                     <q-input v-model="filter" class="q-ma-sm" outlined dense square debounce="300" :placeholder="$t('common.search')">
                         <template v-slot:append>
@@ -36,21 +34,12 @@
             
             <div class="p-col-8 p-sm-8 p-md-9 p-p-0 p-m-0 kn-page">
                 <KnHint v-if="showHint" :title="$t('managers.logManagement.title')" :hint="$t('managers.logManagement.hint')"></KnHint>
-                  
-                <div v-if="!showHint && !formVisible && currentRootFile" class="root-file-viewer" style="display:flex;flex-direction:column;height:100%;">
-                    <div class="file-toolbar kn-toolbar--secondary">
-                        <div class="file-title">{{ currentRootFile?.name }}</div>
-                        <div class="file-toolbar-actions">
-                            <Button icon="pi pi-times" class="p-button-text p-button-sm p-button-rounded p-button-plain p-p-0" :aria-label="$t('common.close')" @click="closeRootViewer" />
-                        </div>
-                    </div>
-
-                    <div class="file-viewer-body" style="padding:1rem; flex:1 1 auto; overflow:auto;">
-                        <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
-                        <pre v-if="currentRootFileContent" class="file-viewer">{{ currentRootFileContent }}</pre>
-                        <div v-else-if="!loading" class="p-text-italic">{{ $t('managers.logManagement.noContent') ?? 'No Content' }}</div>
-                    </div>
-                </div>
+                <LogManagementDetail
+                    v-else
+                    :file="currentRootFile"
+                    :content="currentRootFileContent"
+                    :loading="loading"
+                    @close="closeRootViewer"/>
             </div>
         </div>
     </div>
@@ -59,10 +48,10 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { AxiosResponse } from 'axios'
-import Toolbar from 'primevue/toolbar'
 import Button from 'primevue/button'
 import ProgressBar from 'primevue/progressbar'
 import KnHint from '@/components/UI/KnHint.vue'
+import LogManagementDetail from './LogManagementDetail.vue'
 import mainStore from '../../../App.store'
 import { mapActions } from 'pinia'
 import { downloadDirectFromResponseWithCustomName } from '@/helpers/commons/fileHelper'
@@ -71,7 +60,7 @@ const API_BASE = `${import.meta.env.VITE_KNOWAGE_API_CONTEXT}/api/2.0/resources/
 
 export default defineComponent({
   name: 'log-management',
-  components: { Toolbar, Button, ProgressBar, KnHint },
+  components: { Button, ProgressBar, KnHint, LogManagementDetail },
   data() {
     return {
       filter: '' as string,
@@ -380,6 +369,13 @@ export default defineComponent({
   box-sizing: border-box;
 }
 
+.toolbar-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+  align-items: center;
+}
+
 /* contenitore tree */
 .tree-container {
   border: 1px solid var(--kn-list-border-color);
@@ -458,10 +454,16 @@ export default defineComponent({
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.file-toolbar-actions { display: flex; gap: 0.5rem; align-items: center; }
+.file-toolbar-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
 .file-viewer-body {
     padding-top: 1rem;
     display: flex;
+    flex: 1 1 auto;
+    overflow: auto;
     flex-direction: column;
     height: 100%;
     box-sizing: border-box;
