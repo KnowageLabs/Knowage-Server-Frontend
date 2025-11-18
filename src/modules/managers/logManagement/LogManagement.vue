@@ -22,7 +22,7 @@
                     <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
 
                     <div class="tree-box">
-                        <q-tree :nodes="treeNodes" node-key="key" label-key="label" children-key="children" tick-strategy="strict" :ticked.sync="tickedFiles" default-expand-all @update:ticked="onTreeTickedUpdate">
+                        <q-tree :nodes="treeNodes" node-key="key" label-key="label" children-key="children" tick-strategy="leaf" v-model:ticked="tickedFiles" default-expand-all>
                             <template #default-header="{ node }">
                                 <div class="row full-width treeButtons">
                                     <q-icon v-if="node.icon" :name="node.icon" class="q-mr-sm" size="sm" />
@@ -58,11 +58,10 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import axios, { AxiosResponse } from 'axios'
+import { AxiosResponse } from 'axios'
 import Toolbar from 'primevue/toolbar'
 import Button from 'primevue/button'
 import ProgressBar from 'primevue/progressbar'
-import { QInput, QIcon, QTree } from 'quasar'
 import KnHint from '@/components/UI/KnHint.vue'
 import mainStore from '../../../App.store'
 import { mapActions } from 'pinia'
@@ -72,7 +71,7 @@ const API_BASE = `${import.meta.env.VITE_KNOWAGE_API_CONTEXT}/api/2.0/resources/
 
 export default defineComponent({
   name: 'log-management',
-  components: { Toolbar, Button, ProgressBar, QInput, QIcon, QTree, KnHint },
+  components: { Toolbar, Button, ProgressBar, KnHint },
   data() {
     return {
       filter: '' as string,
@@ -81,19 +80,13 @@ export default defineComponent({
       filesRoot: [] as Array<any>,
       folders: [] as Array<any>,
       // selection/ticks
-      selectedFiles: {} as Record<string, boolean>, // keys: "root/name" or "folder/name"
       tickedFiles: [] as Array<string>,
-      prevTickedFiles: [] as Array<string>,
       // viewer
       currentRootFile: null as any,
       currentRootFileContent: '' as string | null,
       // ui flags
       showHint: true as boolean,
       formVisible: false as boolean,
-      selectedFolder: null as any,
-      folderParentKey: undefined as unknown,
-      touched: false as boolean,
-      rootFileContentVisible: false as boolean
     }
   },
   mounted() {
@@ -102,25 +95,15 @@ export default defineComponent({
     this.loadFolders()
   },
   methods: {
-    ...mapActions(mainStore, ['setError', 'setInfo']),
+    ...mapActions(mainStore, ['setError', 'setInfo', 'setLoading']),
 
     // --- LOADERS ---
     async loadRootFiles() {
       this.loading = true
       try {
-        const resp: AxiosResponse<any> = await axios.get(`${API_BASE}/root`)
+        const resp: AxiosResponse<any> = await this.$http.get(`${API_BASE}/root`)
         const payload = resp && resp.data ? resp.data : resp
         this.filesRoot = Array.isArray(payload) ? payload.map((f: any) => ({ ...f, name: f.name ?? f.fileName ?? f.filename ?? f.path })) : []
-        // initialize selection map for root files
-        for (const f of this.filesRoot) {
-          const k = `root/${f.name}`
-          this.selectedFiles[k] = this.selectedFiles[k] ?? false
-        }
-        this.tickedFiles = this.getSelectedfileKeys()
-        this.prevTickedFiles = [...this.tickedFiles]
-      } catch (err: any) {
-        console.error('[LogManagement] loadRootFiles error', err)
-        this.setError({ title: this.$t('common.error'), msg: err?.message ? String(err.message) : JSON.stringify(err) || this.$t('common.error.refresh') })
       } finally {
         this.loading = false
       }
@@ -129,21 +112,18 @@ export default defineComponent({
     async loadFolders() {
       this.loading = true
       try {
-        const resp: AxiosResponse<any> = await axios.get(`${API_BASE}/folders`)
+        const resp: AxiosResponse<any> = await this.$http.get(`${API_BASE}/folders`)
         const payload = resp && resp.data ? resp.data : resp
 
-        // payload format may vary; try to extract array of folders
         let foldersArray: any[] = []
         if (Array.isArray(payload)) {
           foldersArray = payload
-        } else if (payload && Array.isArray(payload)) {
-          foldersArray = payload
         } else if (payload && payload.root && Array.isArray(payload.root)) {
-          // sometimes backend returns root/children structure
           const rootNode = payload.root[0]
           foldersArray = Array.isArray(rootNode?.children) ? rootNode.children : []
+        } else if (Array.isArray(payload.children)) {
+          foldersArray = payload.children
         } else {
-          // fallback: find first array value
           for (const k of Object.keys(payload || {})) {
             if (Array.isArray(payload[k])) {
               foldersArray = payload[k]
@@ -157,16 +137,57 @@ export default defineComponent({
           return { name, key: f.key ?? name, files: [], expanded: false, loading: false, count: 0 }
         })
 
-        // eager load files for each folder (best-effort)
-        await Promise.all(this.folders.map(async (folder: any) => {
-          try { await this.loadFolderFiles(folder) } catch (e) { console.warn('[LogManagement] loadFolders -> loadFolderFiles', folder, e) }
+        // eager load files for each folder and replace array entries to trigger reactivity
+        await Promise.all(this.folders.map(async (folder: any, idx: number) => {
+          try {
+            const respFiles: AxiosResponse<any> = await this.$http.get(`${API_BASE}/folders/${encodeURIComponent(folder.name)}/files`)
+            const p = respFiles && respFiles.data ? respFiles.data : respFiles
+            let filesArray: any[] = []
+            if (Array.isArray(p)) filesArray = p
+            else if (Array.isArray(p.files)) filesArray = p.files
+            else {
+              for (const k of Object.keys(p || {})) {
+                if (Array.isArray(p[k])) {
+                  filesArray = p[k];
+                  break
+                }
+              }
+            }
+
+            const normalized = (filesArray || []).map((f: any) => ({
+              ...f,
+              name: f.name ?? f.fileName ?? f.filename ?? f.path,
+              size: f.size ?? f.length ?? 0,
+              lastModified: f.lastModified ?? null
+            }))
+
+            const newFolder = { ...(this.folders[idx] || folder), files: normalized, count: normalized.length, loading: false }
+            if (idx !== -1) {
+              this.folders.splice(idx, 1, newFolder)
+            } else this.folders.push(newFolder)
+          } catch (e) {
+            console.warn('[LogManagement] loadFolders -> loadFolderFiles', folder, e)
+          }
         }))
 
-        this.tickedFiles = this.getSelectedfileKeys()
-        this.prevTickedFiles = [...this.tickedFiles]
-      } catch (err: any) {
-        console.error('[LogManagement] loadFolders error', err)
-        this.setError({ title: this.$t('common.error'), msg: err?.message ? String(err.message) : JSON.stringify(err) || this.$t('common.error.refresh') })
+        // ensure array reference changes so computed/tree components re-evaluate
+        this.folders = [...this.folders]
+
+        // sanitize tickedFiles: keep only leaf keys that actually exist (root/... e folder/...)
+        const validLeafKeys = new Set<string>()
+        for (const f of (this.filesRoot || [])) {
+          if (f && f.name) {
+            validLeafKeys.add(`root/${f.name}`)
+          }
+        }
+        for (const folder of (this.folders || [])) {
+          for (const f of (folder.files || [])) {
+            if (f && f.name) {
+              validLeafKeys.add(`${folder.name}/${f.name}`)
+            }
+          }
+        }
+        this.tickedFiles = (this.tickedFiles || []).filter(k => validLeafKeys.has(k))
       } finally {
         this.loading = false
       }
@@ -176,7 +197,7 @@ export default defineComponent({
       if (!folder || !folder.name) return
       folder.loading = true
       try {
-        const resp: AxiosResponse<any> = await axios.get(`${API_BASE}/folders/${encodeURIComponent(folder.name)}/files`)
+        const resp: AxiosResponse<any> = await this.$http.get(`${API_BASE}/folders/${encodeURIComponent(folder.name)}/files`)
         const payload = resp && resp.data ? resp.data : resp
         // normalize files array
         let filesArray: any[] = []
@@ -189,18 +210,19 @@ export default defineComponent({
         }
         folder.files = (filesArray || []).map((f: any) => ({ ...f, name: f.name ?? f.fileName ?? f.filename ?? f.path, size: f.size ?? f.length ?? 0, lastModified: f.lastModified ?? null }))
         folder.count = folder.files.length
-        // init selected map for these files
-        for (const f of folder.files) {
-          const k = `${folder.name}/${f.name}`
-          this.selectedFiles[k] = this.selectedFiles[k] ?? false
-        }
-        this.tickedFiles = this.getSelectedfileKeys()
-        this.prevTickedFiles = [...this.tickedFiles]
-      } catch (err: any) {
-        console.error('[LogManagement] loadFolderFiles error', err)
-        this.setError({ title: this.$t('common.error'), msg: err?.message ? String(err.message) : JSON.stringify(err) || this.$t('common.error.refresh') })
       } finally {
         folder.loading = false
+      }
+    },
+
+    async loadPage(showHint?: boolean, formVisible?: boolean) {
+      this.showHint = showHint !== undefined ? showHint : this.showHint
+      this.formVisible = formVisible !== undefined ? formVisible : this.formVisible
+      try {
+        this.loading = true
+        await Promise.all([this.loadRootFiles(), this.loadFolders()])
+      } finally {
+        this.loading = false
       }
     },
 
@@ -211,13 +233,10 @@ export default defineComponent({
       this.currentRootFileContent = null
       this.loading = true
       try {
-        const resp: AxiosResponse<any> = await axios.get(`${API_BASE}/root/${encodeURIComponent(file.name)}`, { responseType: 'text' })
+        const resp: AxiosResponse<any> = await this.$http.get(`${API_BASE}/root/${encodeURIComponent(file.name)}`, { responseType: 'text' })
         this.currentRootFileContent = resp.data
         this.showHint = false
         this.formVisible = false
-      } catch (err: any) {
-        console.error('[LogManagement] openRootFile error', err)
-        this.setError({ title: this.$t('common.error.downloading'), msg: err?.message ? String(err.message) : JSON.stringify(err) || this.$t('common.error.refresh') })
       } finally {
         this.loading = false
       }
@@ -229,13 +248,10 @@ export default defineComponent({
       this.currentRootFileContent = null
       this.loading = true
       try {
-        const resp: AxiosResponse<any> = await axios.get(`${API_BASE}/folders/${encodeURIComponent(folder.name)}/files/${encodeURIComponent(file.name)}`, { responseType: 'text' })
+        const resp: AxiosResponse<any> = await this.$http.get(`${API_BASE}/folders/${encodeURIComponent(folder.name)}/files/${encodeURIComponent(file.name)}`, { responseType: 'text' })
         this.currentRootFileContent = resp.data
         this.showHint = false
         this.formVisible = false
-      } catch (err: any) {
-        console.error('[LogManagement] openFolderFile error', err)
-        this.setError({ title: this.$t('common.error.downloading'), msg: err?.message ? String(err.message) : JSON.stringify(err) || this.$t('common.error.refresh') })
       } finally {
         this.loading = false
       }
@@ -271,92 +287,40 @@ export default defineComponent({
 
     // --- TICK / SELECTION LOGIC ---
     getSelectedfileKeys(): string[] {
-      const all = Object.keys(this.selectedFiles).filter(k => !!this.selectedFiles[k])
-      return all.filter(k => typeof k === 'string' && k.includes('/'))
-    },
-
-    onTreeTickedUpdate(ticked: string[]) {
-      const prev = this.prevTickedFiles || []
-      const added = (ticked || []).filter(k => !prev.includes(k))
-      const removed = (prev || []).filter(k => !(ticked || []).includes(k))
-
-      const getChildrenKeys = (nodeKey: string): string[] => {
-        if (!nodeKey) return []
-        if (nodeKey === 'root-files-group') return (this.filesRoot || []).map((f: any) => `root/${f.name}`)
-        // folder
-        const folder = (this.folders || []).find((f: any) => ('' + (f.key || f.name)) === '' + nodeKey)
-        if (folder && folder.files) return folder.files.map((f: any) => `${folder.name}/${f.name}`)
-        return []
-      }
-
-      const tickedSet = new Set(ticked || [])
-
-      // if a parent/group was ticked => add all children
-      for (const k of added) {
-        if (k === 'root-files-group' || (this.folders || []).some(f => ('' + (f.key || f.name)) === '' + k)) {
-          for (const childKey of getChildrenKeys(k)) tickedSet.add(childKey)
-        }
-      }
-      // if parent/group was unticked => remove children
-      for (const k of removed) {
-        if (k === 'root-files-group' || (this.folders || []).some(f => ('' + (f.key || f.name)) === '' + k)) {
-          for (const childKey of getChildrenKeys(k)) tickedSet.delete(childKey)
-        }
-      }
-
-      // sync parent states
-      const rootChildren = getChildrenKeys('root-files-group')
-      if (rootChildren.length > 0) {
-        const allRoot = rootChildren.every(k => tickedSet.has(k))
-        if (allRoot) tickedSet.add('root-files-group')
-        else tickedSet.delete('root-files-group')
-      }
-      for (const folder of (this.folders || [])) {
-        const folderKey = '' + (folder.key || folder.name)
-        const childKeys = getChildrenKeys(folderKey)
-        if (childKeys.length === 0) {
-          tickedSet.delete(folderKey)
-          continue
-        }
-        const allSelected = childKeys.every(k => tickedSet.has(k))
-        if (allSelected) tickedSet.add(folderKey)
-        else tickedSet.delete(folderKey)
-      }
-
-      this.tickedFiles = Array.from(tickedSet)
-      // update selectedFiles map
-      this.selectedFiles = {}
-      for (const k of this.tickedFiles) this.selectedFiles[k] = true
-      this.prevTickedFiles = [...this.tickedFiles]
+      return (this.tickedFiles || []).filter(k => typeof k === 'string'&& k.includes('/'))
     },
 
     // --- DOWNLOAD ---
     async sidebarDownloadClicked() {
       const keys = this.getSelectedfileKeys()
       if (!keys || keys.length === 0) {
-        this.setInfo({ title: this.$t('common.info'), msg: this.$t('managers.logManagement.noFilesSelected') ?? 'No files selected for download' })
+        this.setInfo({
+          title: this.$t('common.info'),
+          msg: this.$t('managers.logManagement.noFilesSelected') ?? 'No files selected for download'
+        })
         return
       }
 
       const names = Array.from(new Set(
-        keys.map(k => {
-          const s = ('' + k).split('/')
-          return s[s.length - 1] || ''
-        })
+        keys.map(k =>
+          k.split('/').pop() || ''
+        )
       )).filter(n => !!n)
-
       if (names.length === 0) {
-        this.setInfo({ title: this.$t('common.info'), msg: this.$t('managers.logManagement.noFilesSelected') ?? 'No files selected for download' })
+        this.setInfo({
+          title: this.$t('common.info'),
+          msg: this.$t('managers.logManagement.noFilesSelected') ?? 'No files selected for download'
+        })
         return
       }
 
       const payload = { selectedLogsNames: names }
-      console.log('[LogManagement] download payload (names array)', payload)
+      console.log('[LogManagement] download payload', payload)
 
       this.loading = true
       try {
         const url = `${API_BASE}/download`
-        const resp: AxiosResponse<any> = await axios.post(url, payload, {
+        const resp: AxiosResponse<any> = await this.$http.post(url, payload, {
           responseType: 'arraybuffer',
           transformResponse: [],
           headers: { 'Content-Type': 'application/json', Accept: 'application/zip' }
@@ -365,20 +329,18 @@ export default defineComponent({
         const contentType = (resp && resp.headers && (resp.headers['content-type'] || resp.headers['Content-Type'])) || ''
         if (!/zip|octet-stream|application\/zip|application\/octet-stream/i.test(contentType || '')) {
           let text = ''
-          try { text = new TextDecoder('utf-8').decode(resp.data) } catch (e) { text = String(resp.data) }
-          this.setError({ title: this.$t('common.error.downloading'), msg: text || this.$t('common.error.refresh') })
+          try {
+            text = new TextDecoder('utf-8').decode(resp.data)
+          } catch (e) {
+            text = String(resp.data)
+          }
+          this.setError({
+            title: this.$t('common.error.downloading'),
+            msg: text || this.$t('common.error.refresh')
+          })
           return
         }
         downloadDirectFromResponseWithCustomName(resp, 'logs.zip')
-      } catch (err: any) {
-        console.error('[LogManagement] sidebarDownloadClicked error', err)
-        if (err && err.response && err.response.data) {
-          let msg = ''
-          try { msg = new TextDecoder('utf-8').decode(err.response.data) } catch { msg = err?.message ? String(err.message) : JSON.stringify(err) }
-          this.setError({ title: this.$t('common.error.downloading'), msg: msg || this.$t('common.error.refresh') })
-        } else {
-          this.setError({ title: this.$t('common.error.downloading'), msg: err?.message ? String(err.message) : JSON.stringify(err) || this.$t('common.error.refresh') })
-        }
       } finally {
         this.loading = false
       }
@@ -443,15 +405,14 @@ export default defineComponent({
   direction: rtl;
   overflow: auto;
   box-sizing: border-box;
-}
-
-/* q-tree può essere più largo del container: questo forza la scrollbar orizzontale del parent
+  /* q-tree può essere più largo del container: questo forza la scrollbar orizzontale del parent
    ma non allarga la sidebar grazie a min-width:0 sulla colonna */
-.tree-box .q-tree {
+ .q-tree {
   direction: ltr;
   display: inline-block;
   min-width: max-content;
   box-sizing: border-box;
+}
 }
 
 /* contenuto nodo: non deve creare scrollbar proprie */
