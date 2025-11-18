@@ -3,7 +3,7 @@
     <q-btn round flat icon="link" @click="copyLink" class="copyButton">
         <q-tooltip :delay="500">{{ $t('documentExecution.main.copyLink') }}</q-tooltip>
     </q-btn>
-    <vue-markdown-it v-if="markdown" :source="markdown" class="markdownContent"> </vue-markdown-it>
+    <vue-markdown-it v-if="markdown" :source="markdown" :options="{html:true}" class="markdownContent"> </vue-markdown-it>
 </template>
 
 <script setup lang="ts">
