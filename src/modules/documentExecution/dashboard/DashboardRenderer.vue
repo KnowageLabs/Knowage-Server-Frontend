@@ -109,7 +109,7 @@ export default defineComponent({
             const fullGridWidgets = this.dashboardModel.widgets?.filter((widget) => widget.settings?.responsive?.fullGrid)
             if (!this.dashboardModel.sheets) this.dashboardModel.sheets = []
             if (this.dashboardModel.sheets.length === 0) this.dashboardModel.sheets.push({ label: this.$t('dashboard.sheets.newSheet'), widgets: { lg: [], md: [], sm: [], xs: [], xxs: [] } })
-            this.activeDashboardSheet = this.dashboardModel.sheets[this.selectedSheetIndex || 0]
+            this.activeDashboardSheet = this.dashboardModel.sheets[this.selectedSheetIndex || 0] || this.dashboardModel.sheets[0]
             if (fullGridWidgets && fullGridWidgets.length > 0) {
                 ;['lg', 'md', 'sm', 'xs', 'xxs'].forEach((size) => {
                     if (this.activeDashboardSheet?.widgets[size] && this.activeDashboardSheet?.widgets[size].some((widget) => widget.id === fullGridWidgets[0].id)) {
