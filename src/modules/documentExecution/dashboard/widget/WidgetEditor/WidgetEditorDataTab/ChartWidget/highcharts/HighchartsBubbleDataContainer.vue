@@ -108,7 +108,7 @@ export default defineComponent({
             this.columnTableItems['X'] = []
             this.columnTableItems['Z'] = []
             this.widgetModel.columns.forEach((column: IWidgetColumn) => {
-                const type = column.axis ? column.axis : 'ATTRIBUTES'
+                const type = column.axis && column.axis !== 'dimensions' ? column.axis : 'ATTRIBUTES'
                 this.columnTableItems[type].push(column)
             })
         },
