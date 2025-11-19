@@ -147,7 +147,10 @@ const store = defineStore('dashboardStore', {
             return this.internationalization
         },
         setAllDatasets(datasets: IDataset[]) {
-            this.allDatasets = datasets
+            datasets.forEach((newDataset: IDataset) => {
+                const existingIndex = this.allDatasets.findIndex((existing: IDataset) => existing.id.dsId === newDataset.id.dsId)
+                if (existingIndex === -1) this.allDatasets.push(newDataset)
+            })
         },
         getDatasetLabel(datasetId: number) {
             const index = this.allDatasets.findIndex((dataset: IDataset) => dataset.id.dsId == datasetId)
