@@ -307,8 +307,8 @@ export const addDataToCache = async (dataHash, tempResponse) => {
     try {
         const newDbData = { id: dataHash, data: tempResponse }
         await indexedDB.widgetData.add({ ...newDbData })
-    } catch (error) {
-        console.group('%c Failed to create IndexDB item.', 'color: red; background-color: #61dbfb')
+    } catch (error: any) {
+        console.group(`%c ${error?.name}, ${error?.message}`, 'color: black; background-color: #61dbfb')
         console.error(error)
         console.groupEnd()
     }
