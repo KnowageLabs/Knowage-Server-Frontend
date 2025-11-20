@@ -3,7 +3,7 @@
         <div class="kn-page-content row p-m-0">
             <div class="col-3 column p-p-0">
                 <q-toolbar class="kn-toolbar kn-toolbar--primary">
-                    <div class="kn-toolbar__title">Log Management</div>
+                    <div>Log Management</div>
                     <div class="toolbar-actions" role="toolbar" aria-label="log-actions">
                       <Button icon="fas fa-sync-alt" class="p-button-text p-button-sm p-button-rounded p-button-plain p-p-0" @click="loadPage(showHint, formVisible)" />
                       <Button icon="pi pi-download" class="p-button-text p-button-sm p-button-rounded p-button-plain p-p-0" :aria-label="$t('common.download')" @click="sidebarDownloadClicked" data-test="sidebar-download-button" />
@@ -38,8 +38,9 @@
                     v-else
                     :file="currentRootFile"
                     :content="currentRootFileContent"
-                    :loading="loading"
-                    @close="closeRootViewer"/>
+                    :loading="viewerLoading"
+                    @close="closeRootViewer"
+                    @refresh="reloadCurrentFile"/>
             </div>
         </div>
     </div>
@@ -65,6 +66,7 @@ export default defineComponent({
     return {
       filter: '' as string,
       loading: false as boolean,
+      viewerLoading: false as boolean,
       // model
       filesRoot: [] as Array<any>,
       folders: [] as Array<any>,
@@ -192,13 +194,13 @@ export default defineComponent({
       if (!file) return
       this.currentRootFile = { ...file, name: file.name }
       this.currentRootFileContent = null
-      this.loading = true
+      this.viewerLoading = true
       try {
         this.currentRootFileContent = await this.fetchData(`${API_BASE}/root/${encodeURIComponent(file.name)}`, { responseType: 'text' })
         this.showHint = false
         this.formVisible = false
       } finally {
-        this.loading = false
+        this.viewerLoading = false
       }
     },
 
@@ -206,13 +208,13 @@ export default defineComponent({
       if (!file || !folder) return
       this.currentRootFile = { ...file, name: file.name, folderName: folder.name }
       this.currentRootFileContent = null
-      this.loading = true
+      this.viewerLoading = true
       try {
         this.currentRootFileContent = await this.fetchData(`${API_BASE}/folders/${encodeURIComponent(folder.name)}/files/${encodeURIComponent(file.name)}`, { responseType: 'text' })
         this.showHint = false
         this.formVisible = false
       } finally {
-        this.loading = false
+        this.viewerLoading = false
       }
     },
 
@@ -235,12 +237,32 @@ export default defineComponent({
       }
     },
 
+    async reloadCurrentFile() {
+      if (!this.currentRootFile) return
+      this.viewerLoading = true
+      try {
+        if (this.currentRootFile.folderName) {
+          this.currentRootFileContent = await this.fetchData(
+            `${API_BASE}/folders/${encodeURIComponent(this.currentRootFile.folderName)}/files/${encodeURIComponent(this.currentRootFile.name)}`,
+            { responseType: 'text' }
+          )
+        } else {
+          this.currentRootFileContent = await this.fetchData(
+            `${API_BASE}/root/${encodeURIComponent(this.currentRootFile.name)}`,
+            { responseType: 'text' }
+          )
+        }
+      } finally {
+        this.viewerLoading = false
+      }
+    },
+
     closeRootViewer() {
         this.currentRootFile = null
         this.currentRootFileContent = null
         this.showHint = true
         this.formVisible = false
-        this.loading = false
+        this.viewerLoading = false
     },
 
     // --- TICK / SELECTION LOGIC ---
@@ -309,116 +331,79 @@ export default defineComponent({
 
 
 <style lang="scss" scoped>
+
+// --- SIDEBAR ---
 .col-3.column {
   min-width: 0;
   box-sizing: border-box;
-}
 
-.toolbar-actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-left: auto;
-  align-items: center;
-}
+  .kn-toolbar {
 
-.tree-container {
-  border: 1px solid var(--kn-list-border-color);
-  flex: 1 0 0;
-  max-width: 100%;
-  box-sizing: border-box;
-  overflow: auto;
-}
+    .toolbar-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-left: auto;
+      align-items: center;
+    }
+  }
 
-.search-box {
-  border: 1px solid var(--kn-list-border-color);
-  flex: 0 0 auto;
-  padding: 8px 10px;
-  background: var(--kn-sidebar-bg, transparent);
-  box-sizing: border-box;
-}
-
-.tree-box {
-  flex: 1 1 0;
-  min-height: 0;
-  direction: rtl;
-  overflow: auto;
-  box-sizing: border-box;
- .q-tree {
-  direction: ltr;
-  display: inline-block;
-  min-width: max-content;
-  box-sizing: border-box;
-}
-}
-
-.q-tree__node__content {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  white-space: nowrap;
-  box-sizing: border-box;
-}
-
-.q-tree__node__prefix,
-.q-tree__node__suffix {
-  flex: 0 0 auto;
-  box-sizing: border-box;
-}
-
-.q-tree__node__label,
-.kn-truncated,
-.file-name {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
-}
-
-.file-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid var(--kn-border-color, #e6e6e6);
-  background: var(--kn-sidebar-bg, transparent);
-  color: inherit;
-}
-.file-title {
-  font-weight: 700;
-  letter-spacing: 1px;
-  font-size: 1rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.file-toolbar-actions {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-.file-viewer-body {
-    padding-top: 1rem;
-    display: flex;
-    flex: 1 1 auto;
-    overflow: auto;
-    flex-direction: column;
-    height: 100%;
+  .search-box {
+    border: 1px solid var(--kn-list-border-color);
+    flex: 0 0 auto;
+    padding: 8px 10px;
+    background: var(--kn-sidebar-bg, transparent);
     box-sizing: border-box;
-}
-.file-viewer {
-  display: block;
-  flex: 1 1 auto;
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-  white-space: pre-wrap;
-  overflow: auto;
-  background: #fff;
-  border: 1px solid #e6e6e6;
-  padding: 1rem;
-  margin: 0;
+  }
+
+  .tree-container {
+    border: 1px solid var(--kn-list-border-color);
+    flex: 1 0 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: auto;
+  
+    .tree-box {
+      flex: 1 1 0;
+      min-height: 0;
+      direction: rtl;
+      overflow: auto;
+      box-sizing: border-box;
+    
+      .q-tree {
+        direction: ltr;
+        display: inline-block;
+        min-width: max-content;
+        box-sizing: border-box;
+        width: 100%;
+      }
+    }
+
+    .q-tree__node__content {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      white-space: nowrap;
+      box-sizing: border-box;
+    }
+
+    .q-tree__node__prefix,
+    .q-tree__node__suffix {
+      flex: 0 0 auto;
+      box-sizing: border-box;
+    }
+
+    .q-tree__node__label,
+    .kn-truncated,
+    .file-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+    }
+  }
 }
 
+// --- RESPONSIVE ---
 @media (max-width: 480px) {
   .file-name { font-size: 0.95rem; }
 }
