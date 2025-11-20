@@ -122,13 +122,13 @@ export default defineComponent({
             if (!this.propWidget.settings || !this.propWidget.settings.editor) return
 
             this.htmlContent = this.propWidget.settings.editor.html
-            this.webComponentCss = 'body { margin: 0; padding: 0; box-sizing: border-box; }'
+            const resetCss = 'body { margin: 0; padding: 0; box-sizing: border-box; }'
             if (this.dashboards[this.dashboardId]?.configuration?.cssToRender) this.webComponentCss += this.dashboards[this.dashboardId].configuration?.cssToRender
             const userCss = this.propWidget.settings.editor.css || ''
             const importMatches = userCss.match(/@import[^;]+;/g) || []
             const imports = importMatches.join('\n')
             const userCssWithoutImports = userCss.replace(/@import[^;]+;/g, '')
-            this.webComponentCss += imports + '\n' + userCssWithoutImports
+            this.webComponentCss = imports + '\n' + resetCss + '\n' + userCssWithoutImports
             this.webComponentJs = this.propWidget.settings.editor.js
 
             this.renderCustomWidget()
