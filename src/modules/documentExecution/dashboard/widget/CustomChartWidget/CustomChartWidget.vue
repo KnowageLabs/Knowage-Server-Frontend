@@ -224,7 +224,7 @@ export default defineComponent({
             else this.loadUserImportScript(this.userScriptsURLs[this.loadedScriptsCount])
         },
         loadUserImportScript(scriptURL: string) {
-            if this.isUserScriptAlreadyLoaded(scriptURL)) {
+            if (this.isUserScriptAlreadyLoaded(scriptURL)) {
                 this.onScriptLoaded()
                 return
             }
