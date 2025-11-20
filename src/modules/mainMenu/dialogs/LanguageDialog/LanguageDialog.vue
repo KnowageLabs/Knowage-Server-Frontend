@@ -74,28 +74,14 @@ export default defineComponent({
     methods: {
         ...mapActions(mainStore, ['setLocale']),
         changeLanguage(language) {
-            const splittedLanguage = language.locale.split('_')
-
-            let url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/servlet/AdapterHTTP?'
-            url += 'ACTION_NAME=CHANGE_LANGUAGE'
-            url += '&LANGUAGE_ID=' + splittedLanguage[0]
-            url += '&COUNTRY_ID=' + splittedLanguage[1].toUpperCase()
-            url += '&SCRIPT_ID=' + (splittedLanguage.length > 2 ? splittedLanguage[2].replaceAll('#', '') : '')
-            url += '&THEME_NAME=sbi_default'
-
             this.$emit('update:loading', true)
-            this.$http.get(url).then(
-                () => {
-                    this.setLocale(language.locale)
-                    localStorage.setItem('locale', language.locale)
-                    this.$i18n.locale = language.locale
 
-                    this.closeDialog()
-                    this.$router.go(0)
-                    this.$forceUpdate()
-                },
-                (error) => console.error(error)
-            )
+            this.setLocale(language.locale)
+            localStorage.setItem('locale', language.locale)
+            this.$i18n.locale = language.locale
+            this.closeDialog()
+            this.$forceUpdate()
+
             this.$emit('update:loading', false)
         },
         closeDialog() {

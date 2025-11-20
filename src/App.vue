@@ -119,25 +119,11 @@ export default defineComponent({
                 this.$primevue.config.locale.dateFormat = primeVueDate(getLocale(true))
 
                 const language = this.$i18n
-                const splittedLanguage = language.locale.split('-')
 
                 if (responseLocale !== storedLocale) {
-                    let url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/servlet/AdapterHTTP?'
-                    url += 'ACTION_NAME=CHANGE_LANGUAGE'
-                    url += '&LANGUAGE_ID=' + splittedLanguage[0]
-                    url += '&COUNTRY_ID=' + splittedLanguage[1].toUpperCase()
-                    url += '&SCRIPT_ID=' + (splittedLanguage.length > 2 ? splittedLanguage[2].replaceAll('#', '') : '')
-                    url += '&THEME_NAME=sbi_default'
-
-                    this.setLoading(true)
-                    this.$http.get(url).then(
-                        () => {
-                            this.setLocale(language.locale)
-                            localStorage.setItem('locale', language.locale)
-                            this.$i18n.locale = language.locale
-                        },
-                        (error) => console.error(error)
-                    )
+                    this.setLocale(language.locale)
+                    localStorage.setItem('locale', language.locale)
+                    this.$i18n.locale = language.locale
                 } else {
                     this.showMenu = true
                 }
