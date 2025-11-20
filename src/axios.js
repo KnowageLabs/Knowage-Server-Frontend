@@ -57,6 +57,7 @@ axios.interceptors.request.use(
 
         if (localStorage.getItem('token') && !config.headers['x-session-polling']) config.headers[import.meta.env.VITE_DEFAULT_AUTH_HEADER] = 'Bearer ' + localStorage.getItem('token')
         if (config.headers['x-session-polling']) delete config.headers['x-session-polling']
+        if (localStorage.getItem('locale')) config.headers['Accept-Language'] = localStorage.getItem('locale')
         return config
     },
     (error) => {
