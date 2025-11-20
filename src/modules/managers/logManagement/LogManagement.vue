@@ -86,13 +86,47 @@ export default defineComponent({
   methods: {
     ...mapActions(mainStore, ['setError', 'setInfo', 'setLoading']),
 
+    // --- HELPERS ---
+    async fetchData(url: string, opts: any = {}) {
+      const resp: AxiosResponse<any> = await this.$http.get(url, opts)
+      return resp && resp.data ? resp.data : resp
+    },
+
+    unwrapArray(payload: any): any[] {
+      if (!payload) return []
+      if (Array.isArray(payload)) return payload
+      if (Array.isArray(payload.files)) return payload.files
+      if (payload.root && Array.isArray(payload.root)) {
+        const rootNode = payload.root[0]
+        if (Array.isArray(rootNode?.children)) return rootNode.children
+      }
+      if (Array.isArray(payload.children)) return payload.children
+      for (const k of Object.keys(payload || {})) {
+        if (Array.isArray(payload[k])) return payload[k]
+      }
+      return []
+    },
+
+    normalizeFile(f: any) {
+      return {
+        ...f,
+        name: f.name ?? f.fileName ?? f.filename ?? f.path,
+        size: f.size ?? f.length ?? 0,
+        lastModified: f.lastModified ?? null
+      }
+    },
+
+    normalizeFilesArray(arr: any[]) {
+      return (arr || []).map((f: any) => this.normalizeFile(f))
+    },
+
     // --- LOADERS ---
     async loadRootFiles() {
       this.loading = true
       try {
-        const resp: AxiosResponse<any> = await this.$http.get(`${API_BASE}/root`)
-        const payload = resp && resp.data ? resp.data : resp
-        this.filesRoot = Array.isArray(payload) ? payload.map((f: any) => ({ ...f, name: f.name ?? f.fileName ?? f.filename ?? f.path })) : []
+        const payload = await this.fetchData(`${API_BASE}/root`)
+        const arr = this.unwrapArray(payload)
+        this.filesRoot = this.normalizeFilesArray(arr)
       } finally {
         this.loading = false
       }
@@ -101,81 +135,27 @@ export default defineComponent({
     async loadFolders() {
       this.loading = true
       try {
-        const resp: AxiosResponse<any> = await this.$http.get(`${API_BASE}/folders`)
-        const payload = resp && resp.data ? resp.data : resp
-
-        let foldersArray: any[] = []
-        if (Array.isArray(payload)) {
-          foldersArray = payload
-        } else if (payload && payload.root && Array.isArray(payload.root)) {
-          const rootNode = payload.root[0]
-          foldersArray = Array.isArray(rootNode?.children) ? rootNode.children : []
-        } else if (Array.isArray(payload.children)) {
-          foldersArray = payload.children
-        } else {
-          for (const k of Object.keys(payload || {})) {
-            if (Array.isArray(payload[k])) {
-              foldersArray = payload[k]
-              break
-            }
-          }
-        }
-
-        this.folders = (foldersArray || []).map((f: any) => {
+        const payload = await this.fetchData(`${API_BASE}/folders`)
+        const foldersArr = this.unwrapArray(payload)
+        this.folders = (foldersArr || []).map((f: any) => {
           const name = f.label ?? f.name ?? f.folderName ?? f.key ?? 'unknown'
           return { name, key: f.key ?? name, files: [], expanded: false, loading: false, count: 0 }
         })
 
-        // eager load files for each folder and replace array entries to trigger reactivity
         await Promise.all(this.folders.map(async (folder: any, idx: number) => {
           try {
-            const respFiles: AxiosResponse<any> = await this.$http.get(`${API_BASE}/folders/${encodeURIComponent(folder.name)}/files`)
-            const p = respFiles && respFiles.data ? respFiles.data : respFiles
-            let filesArray: any[] = []
-            if (Array.isArray(p)) filesArray = p
-            else if (Array.isArray(p.files)) filesArray = p.files
-            else {
-              for (const k of Object.keys(p || {})) {
-                if (Array.isArray(p[k])) {
-                  filesArray = p[k];
-                  break
-                }
-              }
-            }
-
-            const normalized = (filesArray || []).map((f: any) => ({
-              ...f,
-              name: f.name ?? f.fileName ?? f.filename ?? f.path,
-              size: f.size ?? f.length ?? 0,
-              lastModified: f.lastModified ?? null
-            }))
-
-            const newFolder = { ...(this.folders[idx] || folder), files: normalized, count: normalized.length, loading: false }
-            if (idx !== -1) {
-              this.folders.splice(idx, 1, newFolder)
-            } else this.folders.push(newFolder)
+            await this.loadFolderFiles(folder)
+            this.folders.splice(idx, 1, { ...(this.folders[idx] || folder) })
           } catch (e) {
             console.warn('[LogManagement] loadFolders -> loadFolderFiles', folder, e)
           }
         }))
 
-        // ensure array reference changes so computed/tree components re-evaluate
         this.folders = [...this.folders]
 
-        // sanitize tickedFiles: keep only leaf keys that actually exist (root/... e folder/...)
         const validLeafKeys = new Set<string>()
-        for (const f of (this.filesRoot || [])) {
-          if (f && f.name) {
-            validLeafKeys.add(`root/${f.name}`)
-          }
-        }
-        for (const folder of (this.folders || [])) {
-          for (const f of (folder.files || [])) {
-            if (f && f.name) {
-              validLeafKeys.add(`${folder.name}/${f.name}`)
-            }
-          }
-        }
+        for (const f of (this.filesRoot || [])) if (f && f.name) validLeafKeys.add(`root/${f.name}`)
+        for (const folder of (this.folders || [])) for (const f of (folder.files || [])) if (f && f.name) validLeafKeys.add(`${folder.name}/${f.name}`)
         this.tickedFiles = (this.tickedFiles || []).filter(k => validLeafKeys.has(k))
       } finally {
         this.loading = false
@@ -186,19 +166,11 @@ export default defineComponent({
       if (!folder || !folder.name) return
       folder.loading = true
       try {
-        const resp: AxiosResponse<any> = await this.$http.get(`${API_BASE}/folders/${encodeURIComponent(folder.name)}/files`)
-        const payload = resp && resp.data ? resp.data : resp
-        // normalize files array
-        let filesArray: any[] = []
-        if (Array.isArray(payload)) filesArray = payload
-        else if (Array.isArray(payload.files)) filesArray = payload.files
-        else {
-          for (const k of Object.keys(payload || {})) {
-            if (Array.isArray(payload[k])) { filesArray = payload[k]; break }
-          }
-        }
-        folder.files = (filesArray || []).map((f: any) => ({ ...f, name: f.name ?? f.fileName ?? f.filename ?? f.path, size: f.size ?? f.length ?? 0, lastModified: f.lastModified ?? null }))
-        folder.count = folder.files.length
+        const payload = await this.fetchData(`${API_BASE}/folders/${encodeURIComponent(folder.name)}/files`)
+        const arr = this.unwrapArray(payload)
+        const normalized = this.normalizeFilesArray(arr)
+        folder.files = normalized
+        folder.count = normalized.length
       } finally {
         folder.loading = false
       }
@@ -222,8 +194,7 @@ export default defineComponent({
       this.currentRootFileContent = null
       this.loading = true
       try {
-        const resp: AxiosResponse<any> = await this.$http.get(`${API_BASE}/root/${encodeURIComponent(file.name)}`, { responseType: 'text' })
-        this.currentRootFileContent = resp.data
+        this.currentRootFileContent = await this.fetchData(`${API_BASE}/root/${encodeURIComponent(file.name)}`, { responseType: 'text' })
         this.showHint = false
         this.formVisible = false
       } finally {
@@ -237,8 +208,7 @@ export default defineComponent({
       this.currentRootFileContent = null
       this.loading = true
       try {
-        const resp: AxiosResponse<any> = await this.$http.get(`${API_BASE}/folders/${encodeURIComponent(folder.name)}/files/${encodeURIComponent(file.name)}`, { responseType: 'text' })
-        this.currentRootFileContent = resp.data
+        this.currentRootFileContent = await this.fetchData(`${API_BASE}/folders/${encodeURIComponent(folder.name)}/files/${encodeURIComponent(file.name)}`, { responseType: 'text' })
         this.showHint = false
         this.formVisible = false
       } finally {
@@ -270,7 +240,6 @@ export default defineComponent({
         this.currentRootFileContent = null
         this.showHint = true
         this.formVisible = false
-        // opzionale: reset visibilità/loading se serve
         this.loading = false
     },
 
@@ -315,7 +284,6 @@ export default defineComponent({
   },
 
   computed: {
-    // build nodes for q-tree applying simple filter: hides empty groups
     treeNodes(): any[] {
       const nodes: any[] = []
       const q = (this.filter || '').toLowerCase()
@@ -341,9 +309,8 @@ export default defineComponent({
 
 
 <style lang="scss" scoped>
-/* garantisce che la colonna sidebar non venga stretta/ allargata dai figli */
 .col-3.column {
-  min-width: 0; /* essenziale: permette al figlio di scrollare senza espandere la colonna */
+  min-width: 0;
   box-sizing: border-box;
 }
 
@@ -354,7 +321,6 @@ export default defineComponent({
   align-items: center;
 }
 
-/* contenitore tree */
 .tree-container {
   border: 1px solid var(--kn-list-border-color);
   flex: 1 0 0;
@@ -363,7 +329,6 @@ export default defineComponent({
   overflow: auto;
 }
 
-/* search box: non partecipa allo scroll della lista */
 .search-box {
   border: 1px solid var(--kn-list-border-color);
   flex: 0 0 auto;
@@ -372,15 +337,12 @@ export default defineComponent({
   box-sizing: border-box;
 }
 
-/* tree box: area che gestisce tutti gli overflow (verticale + orizzontale) */
 .tree-box {
   flex: 1 1 0;
-  min-height: 0; /* essenziale per scroll interno in flex container */
+  min-height: 0;
   direction: rtl;
   overflow: auto;
   box-sizing: border-box;
-  /* q-tree può essere più largo del container: questo forza la scrollbar orizzontale del parent
-   ma non allarga la sidebar grazie a min-width:0 sulla colonna */
  .q-tree {
   direction: ltr;
   display: inline-block;
@@ -389,23 +351,20 @@ export default defineComponent({
 }
 }
 
-/* contenuto nodo: non deve creare scrollbar proprie */
 .q-tree__node__content {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  white-space: nowrap; /* evita wrap dei nomi */
+  white-space: nowrap;
   box-sizing: border-box;
 }
 
-/* prefisso/suffix non devono spingere la larghezza */
 .q-tree__node__prefix,
 .q-tree__node__suffix {
   flex: 0 0 auto;
   box-sizing: border-box;
 }
 
-/* le etichette non devono avere scroll individuale */
 .q-tree__node__label,
 .kn-truncated,
 .file-name {
@@ -460,7 +419,6 @@ export default defineComponent({
   margin: 0;
 }
 
-/* responsive */
 @media (max-width: 480px) {
   .file-name { font-size: 0.95rem; }
 }
