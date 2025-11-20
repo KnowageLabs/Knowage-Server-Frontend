@@ -63,7 +63,7 @@ const updateParameterValue = (parameter: any, parameterSettings: IWidgetInteract
             else if (mapFormattedOutputParameters) getFormattedMapDynamicParameterUrl(parameter, parameterSettings, mapFormattedOutputParameters)
             break
         case 'driver':
-            updateParameterValueFromDriver(parameter, parameterSettings, driversValuesMap)
+            updateParameterValueFromDriver(parameter, parameterSettings, driversValuesMap, dashboardId)
             break
         case 'selection':
             updateParameterValueFromSelections(parameter, parameterSettings, dashboardId)
@@ -94,9 +94,13 @@ const getFormattedMapDynamicParameterUrl = (parameter: any, parameterSettings: I
     })
 }
 
-const updateParameterValueFromDriver = (parameter: any, parameterSettings: IWidgetInteractionParameter, driversValuesMap: any) => {
-    if (!parameterSettings.driver || !driversValuesMap[parameterSettings.name]) return
-    else parameter.value = driversValuesMap[parameter.name].value
+const updateParameterValueFromDriver = (parameter: any, parameterSettings: IWidgetInteractionParameter, driversValuesMap: any, dashboardId: string) => {
+    const dashStore = dashboardStore()
+    const drivers = dashStore.getDashboardDrivers(dashboardId)
+    const driver = drivers.find((driver: IDashboardDriver) => driver.name === parameterSettings.driver)
+
+    if (!parameterSettings.driver || !driversValuesMap[driver.urlName]) return
+    else parameter.value = driversValuesMap[driver.urlName].value
 }
 
 const updateParameterValueFromSelections = (parameter: any, parameterSettings: IWidgetInteractionParameter, dashboardId: string) => {
