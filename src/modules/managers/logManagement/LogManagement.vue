@@ -290,20 +290,8 @@ export default defineComponent({
         return
       }
 
-      const names = Array.from(new Set(
-        keys.map(k =>
-          k.split('/').pop() || ''
-        )
-      )).filter(n => !!n)
-      if (names.length === 0) {
-        this.setInfo({
-          title: this.$t('common.info'),
-          msg: this.$t('managers.logManagement.noFilesSelected') ?? 'No files selected for download'
-        })
-        return
-      }
-
-      const payload = { selectedLogsNames: names }
+      const normalized = (keys || []).map(k => (typeof k === 'string' && k.startsWith('root/')) ? k.substring('root/'.length) : k)
+      const payload = { selectedLogsNames: normalized }
       console.log('[LogManagement] download payload', payload)
 
       this.loading = true
@@ -311,25 +299,15 @@ export default defineComponent({
         const url = `${API_BASE}/download`
         const resp: AxiosResponse<any> = await this.$http.post(url, payload, {
           responseType: 'arraybuffer',
-          transformResponse: [],
-          headers: { 'Content-Type': 'application/json', Accept: 'application/zip' }
+          transformResponse: []
         })
 
-        const contentType = (resp && resp.headers && (resp.headers['content-type'] || resp.headers['Content-Type'])) || ''
-        if (!/zip|octet-stream|application\/zip|application\/octet-stream/i.test(contentType || '')) {
-          let text = ''
-          try {
-            text = new TextDecoder('utf-8').decode(resp.data)
-          } catch (e) {
-            text = String(resp.data)
-          }
-          this.setError({
-            title: this.$t('common.error.downloading'),
-            msg: text || this.$t('common.error.refresh')
-          })
-          return
-        }
         downloadDirectFromResponseWithCustomName(resp, 'logs.zip')
+      } catch (err: any) {
+        this.setError({
+          title: this.$t('common.error.downloading'),
+          msg: err?.message ?? String(err)
+        })
       } finally {
         this.loading = false
       }
