@@ -15,6 +15,7 @@
 <script lang="ts">
 import { defineComponent, nextTick } from 'vue'
 import { formatNumberWithLocale } from '@/helpers/commons/localeHelper'
+import { ITableWidgetVisualizationTypes } from '../../Dashboard'
 
 export default defineComponent({
     props: {
@@ -88,9 +89,24 @@ export default defineComponent({
             if (value === undefined || value === null) return '\u200B'
 
             const numValue = typeof value === 'number' ? value : parseFloat(value)
-            if (!isNaN(numValue)) return formatNumberWithLocale(numValue)
+            if (!isNaN(numValue)) return this.numberFormatter(numValue)
 
             return value
+        },
+        getColumnVisualizationType(colId) {
+            const visTypes = this.params.propWidget.settings.visualization.visualizationTypes as ITableWidgetVisualizationTypes
+
+            if (visTypes.enabled) {
+                const colVisType = visTypes.types.find((visType) => visType.target.includes(colId))
+                if (colVisType) return colVisType
+                else return visTypes.types[0]
+            } else return null
+        },
+        numberFormatter(cellValue) {
+            const visType = this.getColumnVisualizationType(this.params.colId)
+
+            if (visType?.precision) return formatNumberWithLocale(cellValue, visType.precision)
+            else return formatNumberWithLocale(cellValue, 0)
         }
     }
 })
