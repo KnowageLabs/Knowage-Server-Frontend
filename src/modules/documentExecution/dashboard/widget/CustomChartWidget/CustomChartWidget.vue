@@ -123,8 +123,8 @@ export default defineComponent({
 
             this.htmlContent = this.propWidget.settings.editor.html
             const resetCss = 'body { margin: 0; padding: 0; box-sizing: border-box; }'
-            if (this.dashboards[this.dashboardId]?.configuration?.cssToRender) this.webComponentCss += this.dashboards[this.dashboardId].configuration?.cssToRender
-            const userCss = this.propWidget.settings.editor.css || ''
+            const dashboardCss = this.dashboards[this.dashboardId]?.configuration?.css || ''
+            const userCss = this.propWidget.settings.editor.css || '' + dashboardCss
             const importMatches = userCss.match(/@import[^;]+;/g) || []
             const imports = importMatches.join('\n')
             const userCssWithoutImports = userCss.replace(/@import[^;]+;/g, '')
