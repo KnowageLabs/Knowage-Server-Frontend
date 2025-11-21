@@ -9,12 +9,30 @@
                       <Button icon="pi pi-download" class="p-button-text p-button-sm p-button-rounded p-button-plain p-p-0" :aria-label="$t('common.download')" @click="sidebarDownloadClicked" data-test="sidebar-download-button" />
                     </div>
                 </q-toolbar>
-                <div class="search-box">
-                    <q-input v-model="filter" class="q-ma-sm" outlined dense square debounce="300" :placeholder="$t('common.search')">
+                <div class="filter-box">
+                  <div class="q-pa-md">
+                    <div class="filter-actions">
+                      <q-input v-model="filter" class="q-ma-sm search-filter" outlined dense square debounce="300" :placeholder="$t('common.search')">
                         <template v-slot:append>
-                            <q-icon name="search" />
+                          <q-icon name="search" />
                         </template>
-                    </q-input>
+                      </q-input>
+
+                      <q-btn flat dense round icon="event" aria-label="Open date selector" class="q-ma-sm">
+                        <q-menu cover :auto-close="false">
+                          <q-card class="date-card">
+                            <q-card-section class="q-pa-sm">
+                              <q-date v-model="dateSelection" multiple />
+                            </q-card-section>
+                            <q-card-actions class="justify-center">
+                              <q-btn label="Reset" color="primary" @click="resetDateSelection" />
+                              <q-btn label="Close" color="primary" v-close-popup />
+                            </q-card-actions>
+                          </q-card>
+                        </q-menu>
+                      </q-btn>
+                    </div>
+                  </div>
                 </div>
                 <div class="tree-container column">
                     <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
@@ -24,7 +42,10 @@
                             <template #default-header="{ node }">
                                 <div class="row full-width treeButtons">
                                     <q-icon v-if="node.icon" :name="node.icon" class="q-mr-sm" size="sm" />
-                                    <span class="col kn-truncated" @click.stop="node.type === 'file' && openTreeFile(node)" style="cursor: pointer;">{{ node.label }}</span>
+                                    <div class="col">
+                                      <div class="file-label kn-truncated" @click.stop="node.type === 'file' && openTreeFile(node)" style="cursor: pointer;">{{ node.label }}</div>
+                                      <div v-if="node.lastModified" class="file-meta">{{ formatDate(node.lastModified) }}</div>
+                                    </div>
                                 </div>
                             </template>
                         </q-tree>
@@ -56,6 +77,8 @@ import LogManagementDetail from './LogManagementDetail.vue'
 import mainStore from '../../../App.store'
 import { mapActions } from 'pinia'
 import { downloadDirectFromResponseWithCustomName } from '@/helpers/commons/fileHelper'
+import { formatDate } from '@/helpers/commons/localeHelper'
+import { get } from '@vueuse/core'
 
 const API_BASE = `${import.meta.env.VITE_KNOWAGE_API_CONTEXT}/api/2.0/resources/logs`
 
@@ -63,10 +86,13 @@ export default defineComponent({
   name: 'log-management',
   components: { Button, ProgressBar, KnHint, LogManagementDetail },
   data() {
+    const today = new Date()
+    const todayYMD = `${today.getFullYear()}/${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}`
     return {
       filter: '' as string,
       loading: false as boolean,
       viewerLoading: false as boolean,
+      dateSelection: [todayYMD] as string[],
       // model
       filesRoot: [] as Array<any>,
       folders: [] as Array<any>,
@@ -189,6 +215,34 @@ export default defineComponent({
       }
     },
 
+    formatDate(value: any): string {
+      if (!value) return ''
+      const d = (value instanceof Date) ? value : new Date(value)
+      if (isNaN(d.getTime())) return String(value)
+      return d.toLocaleString()
+    },
+
+    formatSelection(sel: string | string[]) {
+      if (!sel) return ''
+      if (Array.isArray(sel)) return (sel || []).join(', ')
+      return String(sel)
+    },
+
+    toYMD(d: any): string {
+      const dt = new Date(d)
+      if (isNaN(dt.getTime())) return ''
+      const y = dt.getFullYear()
+      const m = String(dt.getMonth() + 1).padStart(2, '0')
+      const day = String(dt.getDate()).padStart(2, '0')
+      return `${y}/${m}/${day}`
+    },
+
+    resetDateSelection() {
+      const today = new Date()
+      const todayYMD = `${today.getFullYear()}/${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}`
+      this.dateSelection = [todayYMD]
+    },
+
     // --- VIEWER ---
     async openRootFile(file: any) {
       if (!file) return
@@ -309,17 +363,42 @@ export default defineComponent({
     treeNodes(): any[] {
       const nodes: any[] = []
       const q = (this.filter || '').toLowerCase()
+      const sel = this.dateSelection || []
 
-      const rootFiles = (this.filesRoot || []).filter((f: any) => !q || (f.name || '').toLowerCase().includes(q))
+      const matchesSelection = (file: any) => {
+        if (!sel || sel.length === 0) return true
+        const fileYMD = this.toYMD(file?.lastModified || file?.modified)
+        return !!fileYMD && sel.includes(fileYMD)
+      }
+
+      const rootFiles = (this.filesRoot || []).filter((f: any) => {
+        const nameMatch = !q || (f.name || '').toLowerCase().includes(q)
+        const dateMatch = matchesSelection(f)
+        return nameMatch && dateMatch
+      })
+      rootFiles.sort((a: any, b: any) => {
+        const ta = a?.lastModified ? new Date(a.lastModified).getTime() : 0
+        const tb = b?.lastModified ? new Date(b.lastModified).getTime() : 0
+        return tb - ta
+      })
       if (rootFiles.length > 0) {
-        const rootChildren = rootFiles.map((f: any) => ({ key: `root/${f.name}`, label: f.name, type: 'file', root: true }))
+        const rootChildren = rootFiles.map((f: any) => ({ key: `root/${f.name}`, label: f.name, type: 'file', root: true, lastModified: f.lastModified }))
         nodes.push({ key: 'root-files-group', label: 'Root Files', icon: 'folder', type: 'group', children: rootChildren })
       }
 
       for (const folder of (this.folders || [])) {
-        const matching = (folder.files || []).filter((f: any) => !q || (f.name || '').toLowerCase().includes(q))
+        const matching = (folder.files || []).filter((f: any) => {
+          const nameMatch = !q || (f.name || '').toLowerCase().includes(q)
+          const dateMatch = matchesSelection(f)
+          return nameMatch && dateMatch
+        })
+        matching.sort((a: any, b: any) => {
+          const ta = a?.lastModified ? new Date(a.lastModified).getTime() : 0
+          const tb = b?.lastModified ? new Date(b.lastModified).getTime() : 0
+          return tb - ta
+        })
         if (matching.length === 0) continue
-        const children = matching.map((f: any) => ({ key: `${folder.name}/${f.name}`, label: f.name, type: 'file', folderName: folder.name }))
+        const children = matching.map((f: any) => ({ key: `${folder.name}/${f.name}`, label: f.name, type: 'file', folderName: folder.name, lastModified: f.lastModified }))
         nodes.push({ key: folder.key || folder.name, label: folder.name, icon: 'folder', type: 'folder', children })
       }
 
@@ -347,12 +426,26 @@ export default defineComponent({
     }
   }
 
-  .search-box {
+  .filter-box {
+    display:flex;
+    align-items:center;
     border: 1px solid var(--kn-list-border-color);
     flex: 0 0 auto;
-    padding: 8px 10px;
+    padding: 0;
     background: var(--kn-sidebar-bg, transparent);
     box-sizing: border-box;
+
+    .filter-actions {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      gap: 0.5rem;
+
+      .search-filter {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+    }
   }
 
   .tree-container {
@@ -399,6 +492,18 @@ export default defineComponent({
       overflow: hidden;
       text-overflow: ellipsis;
       min-width: 0;
+    }
+
+    .file-label {
+      line-height: 1;
+    }
+    .file-meta {
+      font-size: 0.75rem;
+      color: var(--kn-text-secondary-color, #888);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 }
