@@ -48,6 +48,9 @@
             "type": "background-color"
         },
         {
+            "type": "border-color"
+        },
+        {
             "type": "icon"
         }
     ]

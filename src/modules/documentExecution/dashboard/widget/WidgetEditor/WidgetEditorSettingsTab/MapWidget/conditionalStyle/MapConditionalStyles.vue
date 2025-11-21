@@ -235,6 +235,7 @@ export default defineComponent({
         onStyleToolbarChange(model: IWidgetStyleToolbarModel, conditionalStyle: IMapWidgetConditionalStyle) {
             conditionalStyle.properties['background-color'] = model['background-color'] ?? 'rgb(137, 158, 175)'
             conditionalStyle.properties['icon'] = model['icon'] ?? ''
+            conditionalStyle.properties['border-color'] = model['border-color'] ?? 'rgba(0, 0, 0, 1)'
         },
         addConditionalStyle() {
             if (!this.conditionalStylesModel || this.conditionalStylesDisabled) return
