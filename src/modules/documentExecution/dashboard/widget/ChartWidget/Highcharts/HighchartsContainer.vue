@@ -189,6 +189,11 @@ export default defineComponent({
                     series.selected = isSelected
                     modelToRender.series[0].data.forEach((point) => (point.selected = isSelected))
                 })
+            } else if (['column', 'area', 'bar'].includes(modelToRender.chart.type) && modelToRender.plotOptions?.series?.showCheckbox) {
+                modelToRender.series.forEach((series) => {
+                    const isSelected = modelToRender.plotOptions?.series?.showCheckbox
+                    series.selected = isSelected
+                })
             }
 
             modelToRender.chart.events = {
@@ -394,10 +399,13 @@ export default defineComponent({
         },
         onCheckboxClicked(event: any) {
             if (['area', 'bar', 'column'].includes(this.chartModel.chart.type)) {
-                this.highchartsInstance.series[event.target.index].data.forEach((point: any) => {
-                    const dataLabelOptions = point.options.dataLabels
-                    dataLabelOptions.enabled = event.checked
-                    point.update(dataLabelOptions)
+                this.highchartsInstance.xAxis[0].series.forEach((series: any) => {
+                    const checkboxValue = event.item.name
+                    if (series.name === checkboxValue) series.setVisible(event.checked)
+                }, false)
+                this.highchartsInstance.yAxis[0].series.forEach((series: any) => {
+                    const checkboxValue = event.item.name
+                    if (series.name === checkboxValue) series.setVisible(event.checked)
                 }, false)
             } else if (this.chartModel.chart.type === 'pie') {
                 if (!event.item) return
