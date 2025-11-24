@@ -103,13 +103,37 @@ const formatMapModelForService = (dashboardId: any, dashboardConfig: IDashboardC
     return dataToSend
 }
 
-export const getLayerData = async (layer: IMapWidgetLayer) => {
+export const getLayerData = async (layer: IMapWidgetLayer, dashboardConfig?: IDashboardConfiguration) => {
+    const dashStore = dashboardStore()
+    const url = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/layers/${layer.label}/downloadByLabel/${layer.layerType}`
+    const dataHash = md5(url)
+    const canCache = dashboardConfig?.menuWidgets?.enableCaching
+
+    if (dashStore.dataProxyQueue[dataHash]) {
+        try {
+            const existing: AxiosResponse<any> = await dashStore.dataProxyQueue[dataHash]
+            return existing.data
+        } catch (error: any) {
+            showGetDataError(error, layer.label)
+            return null
+        }
+    }
+
+    if (canCache) {
+        const cached = await indexedDB.widgetData.get(dataHash)
+        if (cached?.data) return cached.data
+    }
+
+    dashStore.dataProxyQueue[dataHash] = axios.get(url, { headers: { 'X-Disable-Errors': 'true' } })
     try {
-        const response = await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/layers/${layer.label}/downloadByLabel/${layer.layerType}`, { headers: { 'X-Disable-Errors': 'true' } })
+        const response: AxiosResponse<any> = await dashStore.dataProxyQueue[dataHash]
+        if (canCache) addDataToCache(dataHash, response.data)
         return response.data
-    } catch (error) {
+    } catch (error: any) {
         showGetDataError(error, layer.label)
         return null
+    } finally {
+        delete dashStore.dataProxyQueue[dataHash]
     }
 }
 
