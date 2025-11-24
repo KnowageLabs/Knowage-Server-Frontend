@@ -164,7 +164,7 @@ export default defineComponent({
                 return
             }
             ;(this as any).setLoading?.(true)
-            const rawProperties = await getPropertiesByLayerLabel(targetLayer.label)
+            const rawProperties = await getPropertiesByLayerLabel(targetLayer.label, this.dashboardId)
             ;(this as any).setLoading?.(false)
             const properties = (rawProperties || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.property ?? p.name ?? p) } as any))
             ;(this as any).propertiesCache?.set(targetLayer.layerId, properties)
@@ -310,7 +310,7 @@ export default defineComponent({
         },
         async loadAvailablePropertiesInConditionalStylesSettingsForLayer(targetLayer: IMapWidgetLayer) {
             this.setLoading(true)
-            const properties = await getPropertiesByLayerLabel(targetLayer.label)
+            const properties = await getPropertiesByLayerLabel(targetLayer.label, this.dashboardId)
             const formattedProperties = this.getPropertiesFormattedForDropdownOptions(properties)
             this.propertiesCache.set(targetLayer.layerId, formattedProperties)
             this.setLoading(false)

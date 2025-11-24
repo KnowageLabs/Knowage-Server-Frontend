@@ -197,7 +197,7 @@ export default defineComponent({
                 return
             }
             ;(this as any).setLoading?.(true)
-            const rawProperties = await getPropertiesByLayerLabel(targetLayer.label)
+            const rawProperties = await getPropertiesByLayerLabel(targetLayer.label, this.dashboardId)
             ;(this as any).setLoading?.(false)
             const properties = (rawProperties || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.name ?? p.property ?? p), alias: String(p.alias ?? p.name ?? p.property ?? p) } as IMapWidgetLayerProperty))
             ;(this as any).propertiesCache?.set(targetLayer.layerId, properties)
@@ -205,7 +205,7 @@ export default defineComponent({
         },
         async loadAvailablePropertiesInCrossNavigationForLayer(targetLayer: IMapWidgetLayer, visualization: IMapWidgetVisualizationType) {
             this.setLoading(true)
-            const raw = await getPropertiesByLayerLabel(targetLayer.label)
+            const raw = await getPropertiesByLayerLabel(targetLayer.label, this.dashboardId)
             this.setLoading(false)
             const properties = (raw || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.name ?? p.property ?? p), alias: String(p.alias ?? p.name ?? p.property ?? p) } as IMapWidgetLayerProperty))
             this.propertiesCache.set(targetLayer.layerId, properties)

@@ -25,7 +25,8 @@ export default defineComponent({
     props: {
         selectedLayer: { type: Object as PropType<IMapWidgetLayer | null>, required: true },
         propWidget: { type: Object as PropType<IWidget>, required: true },
-        variables: { type: Array as PropType<IVariable[]>, required: true }
+        variables: { type: Array as PropType<IVariable[]>, required: true },
+        dashboardId: { type: String, required: true }
     },
     data() {
         return {
@@ -73,7 +74,7 @@ export default defineComponent({
             }
 
             this.setLoading(true)
-            const properties = await getPropertiesByLayerLabel(this.layer.label)
+            const properties = await getPropertiesByLayerLabel(this.layer.label, this.dashboardId)
             this.setLoading(false)
             this.propertiesCache.set(this.layer.layerId, properties)
             this.layer.properties = properties

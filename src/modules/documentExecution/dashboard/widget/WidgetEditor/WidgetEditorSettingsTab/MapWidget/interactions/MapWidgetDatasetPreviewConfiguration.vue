@@ -227,7 +227,7 @@ export default defineComponent({
             const targetLayer = resolveLayerByTarget(this.widgetModel, visualization.target) as IMapWidgetLayer | null
             if (targetLayer?.type === 'layer') {
                 this.setLoading(true)
-                const rawProperties = await getPropertiesByLayerLabel(targetLayer.label)
+                const rawProperties = await getPropertiesByLayerLabel(targetLayer.label, this.dashboardId)
                 this.setLoading(false)
                 const properties: IMapWidgetLayerProperty[] = (rawProperties || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.property ?? p.name ?? p) } as any))
                 this.propertiesCache.set(targetLayer.layerId, properties)

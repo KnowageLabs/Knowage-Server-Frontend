@@ -52,7 +52,7 @@ import { resolveLayerByTarget } from '../../../../MapWidget/LeafletHelper'
 export default defineComponent({
     name: 'map-dialog-settings',
     components: { Dropdown, MultiSelect, Message, WidgetEditorStyleToolbar },
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
+    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, dashboardId: { type: [String, Number], required: true } },
     data() {
         return {
             descriptor,
@@ -176,7 +176,7 @@ export default defineComponent({
                 this.setLoading(false)
                 return
             }
-            const properties = await getPropertiesByLayerLabel(targetLayer.label)
+            const properties = await getPropertiesByLayerLabel(targetLayer.label, this.dashboardId)
             const formattedProperties = this.getPropertiesFormattedForDropdownOptions(properties)
             this.propertiesCache.set(targetLayer.layerId, formattedProperties)
             this.setLoading(false)

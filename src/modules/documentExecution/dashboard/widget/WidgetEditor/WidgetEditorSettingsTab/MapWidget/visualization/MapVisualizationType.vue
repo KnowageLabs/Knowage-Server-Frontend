@@ -125,7 +125,7 @@ import { removeVisualizationTypeFromModel } from './MapVisualizationTypeHelpers'
 export default defineComponent({
     name: 'map-visualization-type',
     components: { VisTypeConfig },
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
+    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, dashboardId: { type: [String, Number] as PropType<string | number>, required: false } },
     emits: [],
     data() {
         return {
@@ -206,7 +206,7 @@ export default defineComponent({
             const targetLayer = this.widgetModel.layers.find((layer: IMapWidgetLayer) => visualization.target === layer.layerId)
             if (targetLayer?.type === 'layer') {
                 this.setLoading(true)
-                const properties = await getPropertiesByLayerLabel(targetLayer.label)
+                const properties = await getPropertiesByLayerLabel(targetLayer.label, this.dashboardId)
                 this.setLoading(false)
                 this.propertiesCache.set(targetLayer.layerId, properties)
                 visualization.properties = properties
@@ -214,7 +214,7 @@ export default defineComponent({
         },
         async loadAvailablePropertiesInVisualizationTypeForLayer(targetLayer: IMapWidgetLayer, visualization: IMapWidgetVisualizationType) {
             this.setLoading(true)
-            const properties = await getPropertiesByLayerLabel(targetLayer.label)
+            const properties = await getPropertiesByLayerLabel(targetLayer.label, this.dashboardId)
             this.setLoading(false)
             this.propertiesCache.set(targetLayer.layerId, properties)
             visualization.properties = properties

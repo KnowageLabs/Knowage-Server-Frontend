@@ -16,13 +16,13 @@
                 <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetPaddingStyle>
                 <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetShadowsStyle>
                 <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
-                <MapWidgetSelectionsConfiguration v-else-if="accordion.type === 'Selection'" :visible="accordion.type === 'Selection'" :widget-model="widgetModel"></MapWidgetSelectionsConfiguration>
+                <MapWidgetSelectionsConfiguration v-else-if="accordion.type === 'Selection'" :visible="accordion.type === 'Selection'" :widget-model="widgetModel" :dashboard-id="dashboardId"></MapWidgetSelectionsConfiguration>
                 <MapWidgetCrossNavigationConfiguration v-else-if="accordion.type === 'CrossNavigation'" :visible="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></MapWidgetCrossNavigationConfiguration>
                 <MapWidgetLinkConfiguration v-else-if="accordion.type === 'Link'" :visible="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></MapWidgetLinkConfiguration>
                 <MapWidgetDatasetPreviewConfiguration v-else-if="accordion.type === 'Preview'" :visible="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></MapWidgetDatasetPreviewConfiguration>
-                <WidgetVisType v-else-if="accordion.type === 'VisualizationType'" :widget-model="widgetModel" />
-                <MapTooltips v-else-if="accordion.type === 'Tooltips'" :widget-model="widgetModel"></MapTooltips>
-                <MapDialogSettings v-else-if="accordion.type === 'DialogSettings'" :widget-model="widgetModel"></MapDialogSettings>
+                <WidgetVisType v-else-if="accordion.type === 'VisualizationType'" :widget-model="widgetModel" :dashboard-id="dashboardId" />
+                <MapTooltips v-else-if="accordion.type === 'Tooltips'" :widget-model="widgetModel" :dashboard-id="dashboardId"></MapTooltips>
+                <MapDialogSettings v-else-if="accordion.type === 'DialogSettings'" :widget-model="widgetModel" :dashboard-id="dashboardId"></MapDialogSettings>
                 <MapLegendSettings v-else-if="accordion.type === 'Legend'" :widget-model="widgetModel"></MapLegendSettings>
                 <MapBaseLayerSettings v-else-if="accordion.type === 'Map'" :widget-model="widgetModel"></MapBaseLayerSettings>
                 <MapControlPanelSettings v-else-if="accordion.type === 'ControlPanel'" :widget-model="widgetModel"></MapControlPanelSettings>

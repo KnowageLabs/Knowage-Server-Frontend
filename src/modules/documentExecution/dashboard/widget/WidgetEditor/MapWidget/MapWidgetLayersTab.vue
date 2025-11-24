@@ -1,6 +1,6 @@
 <template>
     <LayersList :widget-model="widget" :datasets="datasets" :selected-datasets="selectedDatasets" @layerSelected="setSelectedLayer"></LayersList>
-    <MapWidgetLayerDetail id="map-widget-layer-detail" class="p-d-flex kn-flex kn-overflow p-p-3" :selected-layer="selectedLayer" :layers="layers" :prop-widget="propWidget" :variables="variables"></MapWidgetLayerDetail>
+    <MapWidgetLayerDetail id="map-widget-layer-detail" class="p-d-flex kn-flex kn-overflow p-p-3" :selected-layer="selectedLayer" :layers="layers" :prop-widget="propWidget" :variables="variables" :dashboard-id="dashboardId"></MapWidgetLayerDetail>
 </template>
 
 <script lang="ts">
@@ -30,7 +30,8 @@ export default defineComponent({
             }
         },
         layers: { type: Array as PropType<ILayer[]>, required: true },
-        variables: { type: Array as PropType<IVariable[]>, required: true }
+        variables: { type: Array as PropType<IVariable[]>, required: true },
+        dashboardId: { type: String, required: true }
     },
     data() {
         return {

@@ -27,7 +27,7 @@ import appStore from '@/App.store'
 export default defineComponent({
     name: 'map-widget-selections-configuration',
     components: {},
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, visible: { type: Boolean } },
+    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, visible: { type: Boolean }, dashboardId: { type: [String, Number], required: true } },
     data() {
         return {
             selectionConfiguration: null as IMapWidgetSelectionConfiguration | null,
@@ -147,7 +147,7 @@ export default defineComponent({
                 return
             }
             ;(this as any).setLoading?.(true)
-            const rawProperties = await getPropertiesByLayerLabel(targetLayer.label)
+            const rawProperties = await getPropertiesByLayerLabel(targetLayer.label, this.dashboardId)
             ;(this as any).setLoading?.(false)
             const properties = (rawProperties || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.property ?? p.name ?? p) } as any))
             ;(this as any).propertiesCache?.set(targetLayer.layerId, properties)

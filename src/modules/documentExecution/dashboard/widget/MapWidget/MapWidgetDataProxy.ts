@@ -137,13 +137,37 @@ export const getLayerData = async (layer: IMapWidgetLayer, dashboardConfig?: IDa
     }
 }
 
-export const getPropertiesByLayerLabel = async (layerLabel: string) => {
-    let properties = [] as any[]
-    await axios
-        .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/layers/getFilter?label=${layerLabel}`)
-        .then((response: AxiosResponse<any>) => (properties = response.data))
-        .catch((error: any) => {
+export const getPropertiesByLayerLabel = async (layerLabel: string, dashboardId?: any) => {
+    const dashStore = dashboardStore()
+    const dashboardConfig = dashStore.getDashboard(dashboardId) as IDashboardConfiguration
+    const url = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/layers/getFilter?label=${layerLabel}`
+    const dataHash = md5(url)
+    const canCache = dashboardConfig?.menuWidgets?.enableCaching
+
+    if (dashStore.dataProxyQueue[dataHash]) {
+        try {
+            const existing: AxiosResponse<any> = await dashStore.dataProxyQueue[dataHash]
+            return existing.data
+        } catch (error: any) {
             showGetDataError(error, '' + layerLabel)
-        })
-    return properties
+            return []
+        }
+    }
+
+    if (canCache) {
+        const cached = await indexedDB.widgetData.get(dataHash)
+        if (cached?.data) return cached.data
+    }
+
+    dashStore.dataProxyQueue[dataHash] = axios.get(url, { headers: { 'X-Disable-Errors': 'true' } })
+    try {
+        const response: AxiosResponse<any> = await dashStore.dataProxyQueue[dataHash]
+        if (canCache) addDataToCache(dataHash, response.data)
+        return response.data
+    } catch (error: any) {
+        showGetDataError(error, '' + layerLabel)
+        return []
+    } finally {
+        delete dashStore.dataProxyQueue[dataHash]
+    }
 }

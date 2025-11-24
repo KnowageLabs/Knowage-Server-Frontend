@@ -1,7 +1,7 @@
 <template>
     <div v-if="layer" class="p-d-flex p-flex-column kn-flex">
         <MapWidgetLayerInfo :selected-layer="layer" :layers="layers"></MapWidgetLayerInfo>
-        <MapWidgetMetadata class="p-mt-2" :selected-layer="layer" :prop-widget="propWidget" :variables="variables"></MapWidgetMetadata>
+        <MapWidgetMetadata class="p-mt-2" :selected-layer="layer" :prop-widget="propWidget" :variables="variables" :dashboard-id="dashboardId"></MapWidgetMetadata>
     </div>
     <div v-else>
         <KnHint class="kn-hint-sm" :title="'dashboard.widgetEditor.map.layerHintTitle'" :hint="'dashboard.widgetEditor.map.layerHintText'" data-test="hint"></KnHint>
@@ -19,7 +19,7 @@ import KnHint from '@/components/UI/KnHint.vue'
 export default defineComponent({
     name: 'map-widget-layer-detail',
     components: { KnHint, MapWidgetLayerInfo, MapWidgetMetadata },
-    props: { selectedLayer: { type: Object as PropType<IMapWidgetLayer | null>, required: true }, layers: { type: Array as PropType<ILayer[]>, required: true }, propWidget: { type: Object as PropType<IWidget>, required: true }, variables: { type: Array as PropType<IVariable[]>, required: true } },
+    props: { selectedLayer: { type: Object as PropType<IMapWidgetLayer | null>, required: true }, layers: { type: Array as PropType<ILayer[]>, required: true }, propWidget: { type: Object as PropType<IWidget>, required: true }, variables: { type: Array as PropType<IVariable[]>, required: true }, dashboardId: { type: String, required: true } },
     data() {
         return {
             layer: null as IMapWidgetLayer | null

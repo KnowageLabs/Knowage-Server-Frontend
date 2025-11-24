@@ -197,7 +197,7 @@ export default defineComponent({
             const targetLayer = resolveLayerByTarget(this.widgetModel, visualization.target) as IMapWidgetLayer | null
             if (targetLayer?.type === 'layer') {
                 this.setLoading(true)
-                const rawProperties = await getPropertiesByLayerLabel(targetLayer.label)
+                const rawProperties = await getPropertiesByLayerLabel(targetLayer.label, this.dashboardId)
                 this.setLoading(false)
                 // normalize properties into IMapWidgetLayerProperty shape ({ property: string, name: string, alias?: string })
                 const properties: IMapWidgetLayerProperty[] = (rawProperties || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.name ?? p.property ?? p), alias: String(p.alias ?? p.name ?? p.property ?? p) } as IMapWidgetLayerProperty))
@@ -239,7 +239,7 @@ export default defineComponent({
         },
         async loadAvailablePropertiesInLinkConfigurationForLayer(targetLayer: IMapWidgetLayer, visualization: IMapWidgetVisualizationType) {
             this.setLoading(true)
-            const raw = await getPropertiesByLayerLabel(targetLayer.label)
+            const raw = await getPropertiesByLayerLabel(targetLayer.label, this.dashboardId)
             this.setLoading(false)
             const properties = (raw || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.name ?? p.property ?? p), alias: String(p.alias ?? p.name ?? p.property ?? p) } as IMapWidgetLayerProperty))
             this.propertiesCache.set(targetLayer.layerId, properties)
