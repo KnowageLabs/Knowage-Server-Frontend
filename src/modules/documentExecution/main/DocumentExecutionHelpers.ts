@@ -61,18 +61,6 @@ export function createToolbarMenuItems(document: any, functions: any, exporters:
         if (exporterMenuItem) exporters?.forEach((exporter: any) => exporterMenuItem.items.push({ icon: 'fa fa-file-excel', label: exporter.name, command: () => functions.export(exporter.name) }))
     }
 
-    if (user.functionalities.includes(UserFunctionalitiesConstants.SEND_MAIL_FUNCTIONALITY) && document.typeCode === 'REPORT') {
-        const index = toolbarMenuItems.findIndex((item: any) => item.label === $t('common.info.info'))
-        if (index !== -1) {
-            toolbarMenuItems[index].items.push({ icon: 'pi pi-envelope', label: $t('common.sendByEmail'), command: () => functions.openMailDialog() })
-        } else {
-            toolbarMenuItems.push({
-                label: $t('common.export'),
-                items: [{ icon: 'pi pi-envelope', label: $t('common.sendByEmail'), command: () => functions.openMailDialog() }]
-            })
-        }
-    }
-
     if (user.functionalities.includes(UserFunctionalitiesConstants.SEE_METADATA_FUNCTIONALITY) && !newDashboardMode) {
         const index = toolbarMenuItems.findIndex((item: any) => item.label === $t('common.info.info'))
         if (index !== -1) toolbarMenuItems[index].items.unshift({ icon: 'pi pi-info-circle', label: $t('common.metadata'), command: () => functions.openMetadata() })
