@@ -1,34 +1,58 @@
-import { IDashboardConfiguration, IDashboardDataset, ISelection, IWidget, IWidgetFunctionColumn } from '@/modules/documentExecution/dashboard/Dashboard'
-import { addDriversToData, addParametersToData, addSelectionsToData, showGetDataError, addVariablesToFormula, addFunctionColumnToTheMeasuresForThePostData } from '../../DashboardDataProxy'
+import { IDashboardConfiguration, IDashboardDataset, ISelection, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
+import { addDriversToData, addParametersToData, addSelectionsToData, showGetDataError, addVariablesToFormula, addFunctionColumnToTheMeasuresForThePostData, addDataToCache } from '../../DashboardDataProxy'
 import { AxiosResponse } from 'axios'
 import { clearDatasetInterval } from '../../helpers/datasetRefresh/DatasetRefreshHelpers'
 import { IMapWidgetLayer } from '../../interfaces/mapWidget/DashboardMapWidget'
 import axios from 'axios'
+import { indexedDB } from '@/idb'
+import { md5 } from 'js-md5'
+import deepcopy from 'deepcopy'
+import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 
-export const getMapWidgetData = async (dashboardId: any, dashboardConfig: any, widget: IWidget, datasets: IDashboardDataset[], initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
-    const tempResponse = {}
+export const getMapWidgetData = async (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
+    const tempResponse = {} as Record<string | number, any>
     const datasetOnly = widget.layers.filter((e) => e.type === 'dataset')
     const datasetsInWidget = datasetOnly.map((e) => e.label)
     const usedDatasets = datasets.filter((e) => datasetsInWidget.includes(e.dsLabel))
+    const dashStore = dashboardStore()
 
     for (const selectedDataset of usedDatasets) {
-        const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=0&size=-1&nearRealtime=true`
-
+        const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=0&size=-1&nearRealtime=${!selectedDataset.cache}`
         const postData = formatMapModelForService(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
 
-        if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
-        await axios
-            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
-            .then((response: AxiosResponse<any>) => {
-                if (selectedDataset.id) tempResponse[selectedDataset.id] = response.data
-            })
-            .catch((error: any) => {
+        const postDataForHash = deepcopy(postData)
+        delete postDataForHash.options
+        const dataHash = md5(JSON.stringify(postDataForHash))
+
+        if (dashStore.dataProxyQueue[dataHash]) {
+            try {
+                const existingResponse: AxiosResponse<any> = await dashStore.dataProxyQueue[dataHash]
+                if (selectedDataset.id) tempResponse[selectedDataset.id] = existingResponse.data
+            } catch (error: any) {
                 showGetDataError(error, selectedDataset.dsLabel)
-            })
-            .finally(() => {
-                // TODO - uncomment when realtime dataset example is ready
-                // resetDatasetInterval(widget)
-            })
+            }
+            continue
+        }
+
+        const cachedData = dashboardConfig?.menuWidgets?.enableCaching ? await indexedDB.widgetData.get(dataHash) : null
+        const canCache = dashboardConfig?.menuWidgets?.enableCaching && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)
+        if (canCache && cachedData && cachedData.data) {
+            if (selectedDataset.id) tempResponse[selectedDataset.id] = cachedData.data
+            continue
+        }
+
+        if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
+        dashStore.dataProxyQueue[dataHash] = axios.post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+
+        try {
+            const response: AxiosResponse<any> = await dashStore.dataProxyQueue[dataHash]
+            if (selectedDataset.id) tempResponse[selectedDataset.id] = response.data
+            if (canCache) addDataToCache(dataHash, response.data)
+        } catch (error: any) {
+            showGetDataError(error, selectedDataset.dsLabel)
+        } finally {
+            delete dashStore.dataProxyQueue[dataHash]
+        }
     }
 
     return tempResponse
