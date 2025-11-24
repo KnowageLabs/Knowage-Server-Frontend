@@ -1,19 +1,5 @@
 <template>
-    <Tree
-        id="folders-tree"
-        v-model:selectionKeys="selectedFolderKey"
-        class="kn-tree kn-column-tree kn-flex p-p-0"
-        scroll-height="calc(100vh - 127px)"
-        maximizable
-        :value="nodes"
-        selection-mode="single"
-        :filter="true"
-        filter-mode="lenient"
-        :expanded-keys="expandedKeys"
-        @node-select="setSelectedFolder"
-        @node-expand="setOpenFolderIcon($event)"
-        @node-collapse="setClosedFolderIcon($event)"
-    >
+    <Tree id="folders-tree" v-model:selectionKeys="selectedFolderKey" class="kn-tree kn-column-tree kn-flex p-p-0" scroll-height="calc(100vh - 127px)" maximizable :value="nodes" selection-mode="single" :filter="true" filter-mode="lenient" :expanded-keys="expandedKeys" @node-select="setSelectedFolder" @node-expand="setOpenFolderIcon($event)" @node-collapse="setClosedFolderIcon($event)">
         <template #default="slotProps">
             <span>{{ getTranslatedLabel(slotProps.node.label) }}</span>
         </template>
@@ -24,12 +10,18 @@
 import { defineComponent, PropType } from 'vue'
 import { iFolder, iNode } from '../DocumentBrowser'
 import Tree from 'primevue/tree'
+import mainStore from '../../../App.store'
+import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 
 export default defineComponent({
     name: 'document-browser-tree',
     components: { Tree },
     props: { propFolders: { type: Array as PropType<Array<iFolder>> }, selectedBreadcrumb: { type: Object }, selectedFolderProp: { type: Object } },
     emits: ['folderSelected'],
+    setup() {
+        const store = mainStore()
+        return { store }
+    },
     data() {
         return {
             folders: [] as iFolder[],
@@ -37,6 +29,12 @@ export default defineComponent({
             selectedFolderKey: {},
             expandedKeys: {},
             selectedFolder: null as any
+        }
+    },
+    computed: {
+        isAdmin(): boolean {
+            const user = (this.store.$state as any).user
+            return user?.isSuperadmin || user?.functionalities?.includes(UserFunctionalitiesConstants.VIEW_MY_FOLDER_ADMIN)
         }
     },
     watch: {
@@ -98,7 +96,7 @@ export default defineComponent({
                     path: '/Personal-Folders'
                 }
             }
-            this.nodes = [personalFolder]
+            this.nodes = this.isAdmin ? [personalFolder] : [] // add Personal Folders if user is admin
             const foldersWithMissingParent = [] as iNode[]
             this.folders.forEach((folder: iFolder) => {
                 const node = { key: folder.name, icon: 'pi pi-folder', id: folder.id, prog: folder.prog, parentId: folder.parentId, label: folder.name, children: [] as iNode[], data: folder }
@@ -136,9 +134,12 @@ export default defineComponent({
                     foldersWithMissingParent.push(folder)
                 }
             } else if (folder.data.codType === 'USER_FUNCT') {
-                folder.data.parentFolder = personalFolder
-                folder.data.parentId = personalFolder.id
-                personalFolder.children?.push(folder)
+                if (this.isAdmin) {
+                    // attach user folders if admin and personal folder exists
+                    folder.data.parentFolder = personalFolder
+                    folder.data.parentId = personalFolder.id
+                    personalFolder.children?.push(folder)
+                }
             } else {
                 this.nodes.push(folder)
             }
