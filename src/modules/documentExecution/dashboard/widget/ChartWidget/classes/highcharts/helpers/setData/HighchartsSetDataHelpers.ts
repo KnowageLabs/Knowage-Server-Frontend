@@ -272,7 +272,7 @@ export const setGroupedByCategoriesData = (model: any, data: any, attributeColum
         const measureForGroupingValue = row[measureForGrouping.metadata.dataIndex]
         if (!categoryValueMap[secondAttributeValue]) categoryValueMap[secondAttributeValue] = {}
         if (!categoryValueMap[secondAttributeValue][firstAttributeValue]) categoryValueMap[secondAttributeValue][firstAttributeValue] = {}
-        if (measureForGroupingValue) categoryValueMap[secondAttributeValue][firstAttributeValue] = measureForGroupingValue
+        if (typeof measureForGroupingValue === 'number') categoryValueMap[secondAttributeValue][firstAttributeValue] = measureForGroupingValue
     })
     setUniqueCategoriesValuesFromCategoryValueMap(uniqueCategoryValues, categoryValueMap)
 
