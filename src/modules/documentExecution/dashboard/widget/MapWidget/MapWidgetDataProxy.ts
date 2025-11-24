@@ -120,14 +120,14 @@ export const getLayerData = async (layer: IMapWidgetLayer, dashboardConfig?: IDa
     }
 
     if (canCache) {
-        const cached = await indexedDB.widgetData.get(dataHash)
+        const cached = await indexedDB.layerData.get(dataHash)
         if (cached?.data) return cached.data
     }
 
     dashStore.dataProxyQueue[dataHash] = axios.get(url, { headers: { 'X-Disable-Errors': 'true' } })
     try {
         const response: AxiosResponse<any> = await dashStore.dataProxyQueue[dataHash]
-        if (canCache) addDataToCache(dataHash, response.data)
+        if (canCache) await indexedDB.layerData.put({ id: dataHash, data: response.data })
         return response.data
     } catch (error: any) {
         showGetDataError(error, layer.label)
@@ -155,14 +155,14 @@ export const getPropertiesByLayerLabel = async (layerLabel: string, dashboardId?
     }
 
     if (canCache) {
-        const cached = await indexedDB.widgetData.get(dataHash)
+        const cached = await indexedDB.layerData.get(dataHash)
         if (cached?.data) return cached.data
     }
 
     dashStore.dataProxyQueue[dataHash] = axios.get(url, { headers: { 'X-Disable-Errors': 'true' } })
     try {
         const response: AxiosResponse<any> = await dashStore.dataProxyQueue[dataHash]
-        if (canCache) addDataToCache(dataHash, response.data)
+        if (canCache) await indexedDB.layerData.put({ id: dataHash, data: response.data })
         return response.data
     } catch (error: any) {
         showGetDataError(error, '' + layerLabel)
