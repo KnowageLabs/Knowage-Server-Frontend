@@ -38,6 +38,7 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
             marker: { symbol: 'circle', lineWidth: 2 }
         }
         this.model.plotOptions.series.showCheckbox = this.model.plotOptions.series.showCheckbox ?? true
+        this.model.plotOptions.series.showInLegend = this.model.plotOptions.series.showInLegend ?? true
         this.model.plotOptions.series.turboThreshold = 200000
     }
 

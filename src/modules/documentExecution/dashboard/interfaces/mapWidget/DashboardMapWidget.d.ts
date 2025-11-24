@@ -187,6 +187,7 @@ export interface IMapWidgetVisualizationTypeChoropleth {
     style: {
         color?: string
         toColor?: string
+        borderColor?: string
         borderWidth?: number
     }
     properties?: {
@@ -214,6 +215,7 @@ export interface IMapWidgetConditionalStyle {
     }
     properties: {
         'background-color': string
+        'border-color': string
         icon: string
     }
 }

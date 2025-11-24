@@ -90,6 +90,7 @@
     "KPI_TARGETS_MANAGEMENT": "KpiTargetsManagement",
     "LICENSE_MANAGEMENT": "LicenseManagement",
     "LICENSE_READ_ONLY": "LicenseReadOnly",
+    "LOG_MANAGEMENT": "LogManagement",
     "LOVS_MANAGEMENT": "LovsManagement",
     "LOVS_VIEW": "LovsView",
     "MANAGE_CALENDAR": "ManageCalendar",
