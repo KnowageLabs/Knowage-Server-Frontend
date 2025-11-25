@@ -13,7 +13,6 @@ import { updateStoreSelections, executeChartCrossNavigation } from '../../intera
 import { openNewLinkChartWidget } from '../../interactionsHelpers/InteractionLinkHelper'
 import { formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart, formatPictorialChart, formatStreamgraphChart, formatPackedBubble, formatVariables } from './HighchartsModelFormattingHelpers'
 import { applyAdvancedSettingsToModelForRender, formatChartAnnotations, formatForCrossNavigation, getFormattedChartValues } from './HighchartsContainerHelpers'
-import { getChartDrilldownData } from '../../../DataProxyHelper'
 import HighchartsSonificationControls from './HighchartsSonificationControls.vue'
 import Highcharts from 'highcharts'
 import Highcharts3D from 'highcharts/highcharts-3d'
@@ -84,6 +83,7 @@ export default defineComponent({
             error: false,
             highchartsInstance: {} as any,
             drillLevel: 0,
+            currentDrillNavigationItem: '',
             likeSelections: [] as any[],
             variables: [] as IVariable[],
             originalReflow: null,
@@ -280,6 +280,9 @@ export default defineComponent({
                 if (!event.point || numberOfAttributeColumns - 1 === this.drillLevel) return
                 const dashboardDatasets = this.getDashboardDatasets(this.dashboardId)
                 this.drillLevel++
+                if (this.drillLevel === 1 && event.point.series.name) {
+                    this.currentDrillNavigationItem = event.point.series.name
+                }
                 const category = this.widgetModel.columns[this.drillLevel - 1]
 
                 this.likeSelections.push({ [category.columnName]: event.point.name })
@@ -293,7 +296,7 @@ export default defineComponent({
 
                 this.highchartsInstance.hideLoading()
 
-                const newSerieToAdd = newSeries.find((serie: any) => serie.name === event.point.series.name)
+                const newSerieToAdd = newSeries.find((serie: any) => serie.name === this.currentDrillNavigationItem)
                 this.highchartsInstance.addSeriesAsDrilldown(event.point, {
                     id: newSerieToAdd.id,
                     data: newSerieToAdd.data,
@@ -461,7 +464,8 @@ export default defineComponent({
 
             likeSelections.forEach((likeSelection: any) => {
                 const key = Object.keys(likeSelection)[0]
-                formattedLikeSelections[key] = likeSelection[key]
+                const escapedLikeSelectionString = likeSelection[key].replace(/'/g, "''")
+                formattedLikeSelections[key] = escapedLikeSelectionString
             })
             const datasetLabel = selectedDataset.dsLabel as any
             return { [datasetLabel]: formattedLikeSelections }
