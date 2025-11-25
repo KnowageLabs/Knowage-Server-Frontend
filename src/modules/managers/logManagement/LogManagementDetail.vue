@@ -11,8 +11,8 @@
     <div class="file-viewer-body">
       <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
       
-      <knMonaco v-if="content" class="file-viewer__editor" v-model="content" language="logLang" :options="{  readOnly: true, wordWrap: 'on', wrappingIndent: 'indent' }"/>
-      <div v-else-if="!loading" class="p-text-italic">{{ $t('managers.logManagement.noContent') ?? 'No Content' }}</div>
+      <knMonaco v-if="typeof content === 'string' && content.length > 0" class="file-viewer__editor" v-model="content" language="logLang" :options="{  readOnly: true, wordWrap: 'on', wrappingIndent: 'indent' }"/>
+      <div v-else-if="!loading" class="p-text-italic">{{ $t('managers.logManagement.FileContentMissing') }}</div>
     </div>
   </div>
 </template>
@@ -22,7 +22,6 @@ import { defineComponent } from 'vue'
 import knMonaco from '@/components/UI/KnMonaco/knMonaco.vue';
 import ProgressBar from 'primevue/progressbar'
 import Button from 'primevue/button'
-import { colors } from 'quasar';
 import { registerLogLanguageForMonaco } from '@/components/UI/KnMonaco/logLang'
 
 try { registerLogLanguageForMonaco() } catch (e) {}

@@ -2986,6 +2986,7 @@
             "title": "Layers Management"
         },
         "logManagement": {
+            "FileContentMissing": "Selected file has no content to display.",
             "hint": "Click on tenant folder to view all it's related files.<br>Click on global folder to view all non tenant related files.<br>Click on Root Files to view all server related files.<br>Click on a file to view it's content.<br>Click on <i class=\"fas fa-sync-alt\"></i> to refresh view items and files content.<br>Click on <i class=\"fa fa-download\"></i> to download selected files.<br>Click on <i class=\"fas fa-calendar-alt\"></i> to filter files by date.",
             "noFilesSelected": "No files selected for download.",
             "title": "Log Management"
