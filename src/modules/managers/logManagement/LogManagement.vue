@@ -3,10 +3,10 @@
         <div class="kn-page-content row p-m-0">
             <div class="col-3 column p-p-0">
                 <q-toolbar class="kn-toolbar kn-toolbar--primary">
-                    <div>Log Management</div>
+                    {{ $t('managers.logManagement.title') }}
                     <div class="toolbar-actions" role="toolbar" aria-label="log-actions">
                       <Button icon="fas fa-sync-alt" class="p-button-text p-button-sm p-button-rounded p-button-plain p-p-0" @click="loadPage(showHint, formVisible)" />
-                      <Button icon="pi pi-download" class="p-button-text p-button-sm p-button-rounded p-button-plain p-p-0" :aria-label="$t('common.download')" @click="sidebarDownloadClicked" data-test="sidebar-download-button" />
+                      <Button icon="fa fa-download" class="p-button-text p-button-sm p-button-rounded p-button-plain p-p-0" :aria-label="$t('common.download')" @click="sidebarDownloadClicked" data-test="sidebar-download-button" />
                     </div>
                 </q-toolbar>
                 <div class="filter-box">
@@ -146,7 +146,12 @@ export default defineComponent({
     },
 
     normalizeFilesArray(arr: any[]) {
-      return (arr || []).map((f: any) => this.normalizeFile(f))
+      return (arr || [])
+        .map((f: any) => this.normalizeFile(f))
+        .filter((f: any) => {
+          const name = (f && f.name) ? String(f.name).toLowerCase() : ''
+          return !name.endsWith('.swp')
+        })
     },
 
     // --- LOADERS ---
@@ -332,8 +337,8 @@ export default defineComponent({
       const keys = this.getSelectedfileKeys()
       if (!keys || keys.length === 0) {
         this.setInfo({
-          title: this.$t('common.info'),
-          msg: this.$t('managers.logManagement.noFilesSelected') ?? 'No files selected for download'
+          title: this.$t('common.info.noElementSelected'),
+          msg: this.$t('managers.logManagement.noFilesSelected')
         })
         return
       }
