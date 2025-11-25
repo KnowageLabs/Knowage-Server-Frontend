@@ -77,8 +77,6 @@ import LogManagementDetail from './LogManagementDetail.vue'
 import mainStore from '../../../App.store'
 import { mapActions } from 'pinia'
 import { downloadDirectFromResponseWithCustomName } from '@/helpers/commons/fileHelper'
-import { formatDate } from '@/helpers/commons/localeHelper'
-import { get } from '@vueuse/core'
 
 const API_BASE = `${import.meta.env.VITE_KNOWAGE_API_CONTEXT}/api/2.0/resources/logs`
 
@@ -171,25 +169,41 @@ export default defineComponent({
       try {
         const payload = await this.fetchData(`${API_BASE}/folders`)
         const foldersArr = this.unwrapArray(payload)
-        this.folders = (foldersArr || []).map((f: any) => {
+
+        // inizializza array folders (senza files)
+        const initialFolders = (foldersArr || []).map((f: any) => {
           const name = f.label ?? f.name ?? f.folderName ?? f.key ?? 'unknown'
           return { name, key: f.key ?? name, files: [], expanded: false, loading: false, count: 0 }
         })
 
-        await Promise.all(this.folders.map(async (folder: any, idx: number) => {
+        // start parallel fetches (non bloccare l'inizializzazione dell'array)
+        const fetchPromises = initialFolders.map(async (folder) => {
           try {
-            await this.loadFolderFiles(folder)
-            this.folders.splice(idx, 1, { ...(this.folders[idx] || folder) })
-          } catch (e) {
-            console.warn('[LogManagement] loadFolders -> loadFolderFiles', folder, e)
+            const payloadFiles = await this.fetchData(`${API_BASE}/folders/${encodeURIComponent(folder.name)}/files`)
+            const arr = this.unwrapArray(payloadFiles)
+            const normalized = this.normalizeFilesArray(arr)
+            return { key: folder.key, files: normalized, count: normalized.length }
+          } catch (err) {
+            console.warn('[LogManagement] loadFolderFiles failed for', folder.name, err)
+            return { key: folder.key, files: [], count: 0 }
           }
-        }))
+        })
 
-        this.folders = [...this.folders]
+        // await tutte le risposte
+        const results = await Promise.all(fetchPromises)
 
+        // applica i risultati una sola volta costruendo il nuovo array
+        const merged = initialFolders.map((f) => {
+          const res = results.find(r => String(r.key) === String(f.key))
+          return { ...f, files: res ? res.files : [], count: res ? res.count : 0 }
+        })
+
+        this.folders = merged
+
+        // mantenere tickedFiles coerente
         const validLeafKeys = new Set<string>()
-        for (const f of (this.filesRoot || [])) if (f && f.name) validLeafKeys.add(`root/${f.name}`)
-        for (const folder of (this.folders || [])) for (const f of (folder.files || [])) if (f && f.name) validLeafKeys.add(`${folder.name}/${f.name}`)
+        for (const rf of (this.filesRoot || [])) if (rf && rf.name) validLeafKeys.add(`root/${rf.name}`)
+        for (const folder of (this.folders || [])) for (const ff of (folder.files || [])) if (ff && ff.name) validLeafKeys.add(`${folder.name}/${ff.name}`)
         this.tickedFiles = (this.tickedFiles || []).filter(k => validLeafKeys.has(k))
       } finally {
         this.loading = false
@@ -226,12 +240,6 @@ export default defineComponent({
       const d = (value instanceof Date) ? value : new Date(value)
       if (isNaN(d.getTime())) return String(value)
       return d.toLocaleString()
-    },
-
-    formatSelection(sel: string | string[]) {
-      if (!sel) return ''
-      if (Array.isArray(sel)) return (sel || []).join(', ')
-      return String(sel)
     },
 
     toYMD(d: any): string {
