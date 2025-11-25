@@ -3,15 +3,15 @@
     <div class="file-toolbar kn-toolbar--secondary">
       <div class="file-title">{{ file?.name }}</div>
       <div class="file-toolbar-actions">
-        <button class="btn-refresh" :aria-label="$t('common.refresh')" @click="$emit('refresh')">⟳</button>
-        <button class="btn-close" :aria-label="$t('common.close')" @click="$emit('close')">✕</button>
+        <Button icon="fas fa-sync-alt" class="p-button-text p-button-sm p-button-rounded p-button-plain p-p-0" :aria-label="$t('common.refresh')" @click="$emit('refresh')" />
+        <Button icon="pi pi-times" class="p-button-text p-button-sm p-button-rounded p-button-plain p-p-0" :aria-label="$t('common.close')" @click="$emit('close')" />
       </div>
     </div>
 
     <div class="file-viewer-body">
       <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
       
-      <knMonaco v-if="content" class="file-viewer__editor" v-model="content" language="text" :options="{  readOnly: true, wordWrap: 'on', wrappingIndent: 'indent' }"/>
+      <knMonaco v-if="content" class="file-viewer__editor" v-model="content" language="logLang" :options="{  readOnly: true, wordWrap: 'on', wrappingIndent: 'indent' }"/>
       <div v-else-if="!loading" class="p-text-italic">{{ $t('managers.logManagement.noContent') ?? 'No Content' }}</div>
     </div>
   </div>
@@ -21,10 +21,15 @@
 import { defineComponent } from 'vue'
 import knMonaco from '@/components/UI/KnMonaco/knMonaco.vue';
 import ProgressBar from 'primevue/progressbar'
+import Button from 'primevue/button'
+import { colors } from 'quasar';
+import { registerLogLanguageForMonaco } from '@/components/UI/KnMonaco/logLang'
+
+try { registerLogLanguageForMonaco() } catch (e) {}
 
 export default defineComponent({
   name: 'LogDetail',
-  components: { ProgressBar, knMonaco },
+  components: { ProgressBar, knMonaco, Button },
   props: {
     file: { type: Object as any, default: null },
     content: { type: String as any, default: '' },
@@ -64,20 +69,12 @@ export default defineComponent({
       gap: 0.5rem;
       align-items: center;
 
-      .btn-refresh {
-        background: transparent;
-        border: none;
-        font-size: 1rem;
-        cursor: pointer;
-        padding: 0.2rem 0.5rem;
-      }
-
-      .btn-close {
-        background: transparent;
-        border: none;
-        font-size: 1rem;
-        cursor: pointer;
-        padding: 0.2rem 0.5rem;
+      .p-button {
+        min-width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
       }
     }
   }

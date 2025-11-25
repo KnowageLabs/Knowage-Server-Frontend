@@ -38,12 +38,12 @@
                     <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
 
                     <div class="tree-box">
-                        <q-tree :nodes="treeNodes" node-key="key" label-key="label" children-key="children" tick-strategy="leaf" v-model:ticked="tickedFiles" default-expand-all>
+                        <q-tree v-if="treeNodes" :nodes="treeNodes" node-key="key" label-key="label" children-key="children" tick-strategy="leaf" v-model:ticked="tickedFiles" v-model:selected="selectedNode" selection="single" selected-color="accent" default-expand-all>
                             <template #default-header="{ node }">
-                                <div class="row full-width treeButtons">
+                                <div class="row full-width treeButtons" role="button" @click.stop="node.type === 'file' && openTreeFile(node)">
                                     <q-icon v-if="node.icon" :name="node.icon" class="q-mr-sm" size="sm" />
                                     <div class="col">
-                                      <div class="file-label kn-truncated" @click.stop="node.type === 'file' && openTreeFile(node)" style="cursor: pointer;">{{ node.label }}</div>
+                                      <div class="file-label">{{ node.label }}</div>
                                       <div v-if="node.lastModified" class="file-meta">{{ formatDate(node.lastModified) }}</div>
                                     </div>
                                 </div>
@@ -93,6 +93,7 @@ export default defineComponent({
       loading: false as boolean,
       viewerLoading: false as boolean,
       dateSelection: [todayYMD] as string[],
+      selectedNode: null as string | null,
       // model
       filesRoot: [] as Array<any>,
       folders: [] as Array<any>,
@@ -274,6 +275,7 @@ export default defineComponent({
 
     openTreeFile(node: any) {
       if (!node || !node.key) return
+      this.selectedNode = String(node.key)
       if (String(node.key).startsWith('root/')) {
         const name = String(node.key).substring('root/'.length)
         const file = this.filesRoot.find((f: any) => f.name === name)
@@ -317,6 +319,7 @@ export default defineComponent({
         this.showHint = true
         this.formVisible = false
         this.viewerLoading = false
+        this.selectedNode = null
     },
 
     // --- TICK / SELECTION LOGIC ---
@@ -410,14 +413,12 @@ export default defineComponent({
 
 
 <style lang="scss" scoped>
-
 // --- SIDEBAR ---
 .col-3.column {
   min-width: 0;
   box-sizing: border-box;
 
   .kn-toolbar {
-
     .toolbar-actions {
       display: flex;
       gap: 0.5rem;
@@ -427,7 +428,6 @@ export default defineComponent({
   }
 
   .filter-box {
-    display:flex;
     align-items:center;
     border: 1px solid var(--kn-list-border-color);
     flex: 0 0 auto;
@@ -437,10 +437,7 @@ export default defineComponent({
 
     .filter-actions {
       display: flex;
-      align-items: center;
-      width: 100%;
-      gap: 0.5rem;
-
+      
       .search-filter {
         flex: 1 1 auto;
         min-width: 0;
@@ -469,6 +466,16 @@ export default defineComponent({
         box-sizing: border-box;
         width: 100%;
       }
+
+      .treeButtons {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        box-sizing: border-box;
+        border-radius: 6px;
+        padding: 0.25rem 0.5rem;
+        cursor: pointer;
+      }
     }
 
     .q-tree__node__content {
@@ -486,7 +493,6 @@ export default defineComponent({
     }
 
     .q-tree__node__label,
-    .kn-truncated,
     .file-name {
       white-space: nowrap;
       overflow: hidden;
@@ -497,6 +503,7 @@ export default defineComponent({
     .file-label {
       line-height: 1;
     }
+    
     .file-meta {
       font-size: 0.75rem;
       color: var(--kn-text-secondary-color, #888);
