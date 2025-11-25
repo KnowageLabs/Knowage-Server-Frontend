@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, watch, onMounted } from 'vue'
 import knMonaco from '@/components/UI/KnMonaco/knMonaco.vue';
 import ProgressBar from 'primevue/progressbar'
 import Button from 'primevue/button'
@@ -26,15 +26,51 @@ import { registerLogLanguageForMonaco } from '@/components/UI/KnMonaco/logLang'
 
 try { registerLogLanguageForMonaco() } catch (e) {}
 
+const API_BASE = `${import.meta.env.VITE_KNOWAGE_API_CONTEXT}/api/2.0/resources/logs`
+
 export default defineComponent({
   name: 'LogDetail',
   components: { ProgressBar, knMonaco, Button },
   props: {
     file: { type: Object as any, default: null },
-    content: { type: String as any, default: '' },
-    loading: { type: Boolean, default: false }
   },
-  emits: ['close', 'refresh']
+  emits: ['close', 'refresh'],
+  data() {
+    return {
+      content: '' as string,
+      loading: false as boolean,
+    }
+  },
+  watch: {
+    file: {
+      immediate: true,
+      handler(newVal: any) {
+        this.loadFileContent(newVal)
+      }
+    }
+  },
+  methods: {
+    async loadFileContent(file: any) {
+      this.content = ''
+      if (!file || !file.name) return
+      this.loading = true
+      try {
+        const url = file.folderName
+          ? `${API_BASE}/folders/${encodeURIComponent(file.folderName)}/files/${encodeURIComponent(file.name)}`
+          : `${API_BASE}/root/${encodeURIComponent(file.name)}`
+        const resp = await (this as any).$http.get(url, { responseType: 'text' })
+        // axios response -> resp.data ; normalize null->''
+        const data = resp && resp.data !== undefined ? resp.data : resp
+        this.content = data == null ? '' : data
+      } catch (e: any) {
+        // optionally notify parent via setError emit/prop; keep it simple here
+        console.error('LogDetail loadFileContent failed', e)
+        this.content = ''
+      } finally {
+        this.loading = false
+      }
+    }
+  }
 })
 </script>
 

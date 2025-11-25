@@ -58,10 +58,7 @@
                 <LogManagementDetail
                     v-else
                     :file="currentRootFile"
-                    :content="currentRootFileContent"
-                    :loading="viewerLoading"
-                    @close="closeRootViewer"
-                    @refresh="reloadCurrentFile"/>
+                    @close="closeRootViewer"/>
             </div>
         </div>
     </div>
@@ -89,7 +86,6 @@ export default defineComponent({
     return {
       filter: '' as string,
       loading: false as boolean,
-      viewerLoading: false as boolean,
       dateSelection: [todayYMD] as string[],
       selectedNode: null as string | null,
       // model
@@ -99,7 +95,6 @@ export default defineComponent({
       tickedFiles: [] as Array<string>,
       // viewer
       currentRootFile: null as any,
-      currentRootFileContent: '' as string | null,
       // ui flags
       showHint: true as boolean,
       formVisible: false as boolean,
@@ -258,32 +253,10 @@ export default defineComponent({
     },
 
     // --- VIEWER ---
-    async openRootFile(file: any) {
+    selectFile(file: any, folderName?: string){
       if (!file) return
-      this.currentRootFile = { ...file, name: file.name }
-      this.currentRootFileContent = null
-      this.viewerLoading = true
-      try {
-        this.currentRootFileContent = await this.fetchData(`${API_BASE}/root/${encodeURIComponent(file.name)}`, { responseType: 'text' })
-        this.showHint = false
-        this.formVisible = false
-      } finally {
-        this.viewerLoading = false
-      }
-    },
-
-    async openFolderFile(folder: any, file: any) {
-      if (!file || !folder) return
-      this.currentRootFile = { ...file, name: file.name, folderName: folder.name }
-      this.currentRootFileContent = null
-      this.viewerLoading = true
-      try {
-        this.currentRootFileContent = await this.fetchData(`${API_BASE}/folders/${encodeURIComponent(folder.name)}/files/${encodeURIComponent(file.name)}`, { responseType: 'text' })
-        this.showHint = false
-        this.formVisible = false
-      } finally {
-        this.viewerLoading = false
-      }
+      this.currentRootFile = { ...file, folderName: folderName || file?.folderName || null }
+      this.showHint = false
     },
 
     onTreeSelected(sel: string | string[]) {
@@ -295,7 +268,7 @@ export default defineComponent({
         const file = this.filesRoot.find((f: any) => f.name === name)
         if (file) {
           this.selectedNode = String(key)
-          this.openRootFile(file)
+          this.selectFile(file)
         }
         return
       }
@@ -308,39 +281,17 @@ export default defineComponent({
         const file = folder?.files?.find((ff: any) => ff.name === fileName)
         if (folder && file) {
           this.selectedNode = String(key)
-          this.openFolderFile(folder, file)
+          this.selectFile(file, folder.name)
         }
         return
       }
     },
 
-    async reloadCurrentFile() {
-      if (!this.currentRootFile) return
-      this.viewerLoading = true
-      try {
-        if (this.currentRootFile.folderName) {
-          this.currentRootFileContent = await this.fetchData(
-            `${API_BASE}/folders/${encodeURIComponent(this.currentRootFile.folderName)}/files/${encodeURIComponent(this.currentRootFile.name)}`,
-            { responseType: 'text' }
-          )
-        } else {
-          this.currentRootFileContent = await this.fetchData(
-            `${API_BASE}/root/${encodeURIComponent(this.currentRootFile.name)}`,
-            { responseType: 'text' }
-          )
-        }
-      } finally {
-        this.viewerLoading = false
-      }
-    },
-
     closeRootViewer() {
-        this.currentRootFile = null
-        this.currentRootFileContent = null
-        this.showHint = true
-        this.formVisible = false
-        this.viewerLoading = false
-        this.selectedNode = null
+      this.currentRootFile = null
+      this.selectedNode = null
+      this.showHint = true
+      this.formVisible = false
     },
 
     // --- TICK / SELECTION LOGIC ---
