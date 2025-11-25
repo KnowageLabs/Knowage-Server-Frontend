@@ -38,9 +38,9 @@
                     <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
 
                     <div class="tree-box">
-                        <q-tree v-if="treeNodes" :nodes="treeNodes" node-key="key" label-key="label" children-key="children" tick-strategy="leaf" v-model:ticked="tickedFiles" v-model:selected="selectedNode" selection="single" selected-color="accent" default-expand-all>
+                        <q-tree v-if="treeNodes" :nodes="treeNodes" node-key="key" label-key="label" children-key="children" tick-strategy="leaf" v-model:ticked="tickedFiles" v-model:selected="selectedNode" @update:selected="onTreeSelected" selection="single" selected-color="accent" default-expand-all>
                             <template #default-header="{ node }">
-                                <div class="row full-width treeButtons" role="button" @click.stop="node.type === 'file' && openTreeFile(node)">
+                                <div class="row full-width treeButtons" role="button">
                                     <q-icon v-if="node.icon" :name="node.icon" class="q-mr-sm" size="sm" />
                                     <div class="col">
                                       <div class="file-label">{{ node.label }}</div>
@@ -278,23 +278,31 @@ export default defineComponent({
       }
     },
 
-    openTreeFile(node: any) {
-      if (!node || !node.key) return
-      this.selectedNode = String(node.key)
-      if (String(node.key).startsWith('root/')) {
-        const name = String(node.key).substring('root/'.length)
+    onTreeSelected(sel: string | string[]) {
+      const key = Array.isArray(sel) ? sel[0] : sel
+      if (!key) return
+
+      if (String(key).startsWith('root/')) {
+        const name = String(key).substring('root/'.length)
         const file = this.filesRoot.find((f: any) => f.name === name)
-        if (file) this.openRootFile(file)
+        if (file) {
+          this.selectedNode = String(key)
+          this.openRootFile(file)
+        }
         return
       }
-      // folder/file
-      const parts = String(node.key).split('/')
+
+      const parts = String(key).split('/')
       if (parts.length >= 2) {
         const folderName = parts[0]
         const fileName = parts.slice(1).join('/')
         const folder = this.folders.find((f: any) => f.name === folderName || String(f.key) === folderName)
         const file = folder?.files?.find((ff: any) => ff.name === fileName)
-        if (folder && file) this.openFolderFile(folder, file)
+        if (folder && file) {
+          this.selectedNode = String(key)
+          this.openFolderFile(folder, file)
+        }
+        return
       }
     },
 
