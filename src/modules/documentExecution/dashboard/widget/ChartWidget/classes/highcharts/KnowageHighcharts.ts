@@ -136,7 +136,7 @@ export class KnowageHighcharts {
         const suffix = seriesLabelSetting.suffix
 
         if (['dependencywheel', 'sankey'].includes(chartType)) return `${prefix}${that.point.weight}${suffix}`
-        if (!that.y && that.key && typeof that.key === 'string') return that.point?.id === 'root' ? that.key : `${prefix}${that.key}${suffix}`
+        if (that.y == undefined && that.key && typeof that.key === 'string') return that.point?.id === 'root' ? that.key : `${prefix}${that.key}${suffix}`
 
         const precision = seriesLabelSetting.precision
         const decimalPoints = Highcharts.getOptions().lang?.decimalPoint
