@@ -850,36 +850,39 @@ export default defineComponent({
             this.loading = false
         },
         async loadURL(olapParameters: any, documentLabel: string | null = null, crossNavigationPopupMode = false) {
-            let error = false
-            const postData = {
-                label: this.document.label,
-                role: this.userRole,
-                parameters: olapParameters ? olapParameters : this.getFormattedParameters(),
-                EDIT_MODE: this.documentMode ? this.documentMode : 'null',
-                IS_FOR_EXPORT: true,
-                SBI_EXECUTION_ID: ''
-            } as any
-            if (this.sbiExecutionId) postData.SBI_EXECUTION_ID = this.sbiExecutionId
-            if (this.document.typeCode === 'MAP') postData.EDIT_MODE = 'edit_map'
-            await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documentexecution/url`, postData)
-                .then((response: AxiosResponse<any>) => {
-                    error = false
-                    this.urlData = response.data
-                    this.sbiExecutionId = this.urlData?.sbiExecutionId as string
-                })
-                .catch((response: AxiosResponse<any>) => {
-                    error = true
-                    this.urlData = response.data
-                    this.sbiExecutionId = this.urlData?.sbiExecutionId as string
-                })
+            // Only call the /documentexecution/url service for OLAP and REGISTRY (DATAMART) documents
+            if (this.document.typeCode === 'OLAP' || this.document.typeCode === 'DATAMART') {
+                let error = false
+                const postData = {
+                    label: this.document.label,
+                    role: this.userRole,
+                    parameters: olapParameters ? olapParameters : this.getFormattedParameters(),
+                    EDIT_MODE: this.documentMode ? this.documentMode : 'null',
+                    IS_FOR_EXPORT: true,
+                    SBI_EXECUTION_ID: ''
+                } as any
+                if (this.sbiExecutionId) postData.SBI_EXECUTION_ID = this.sbiExecutionId
+                if (this.document.typeCode === 'MAP') postData.EDIT_MODE = 'edit_map'
+                await this.$http
+                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documentexecution/url`, postData)
+                    .then((response: AxiosResponse<any>) => {
+                        error = false
+                        this.urlData = response.data
+                        this.sbiExecutionId = this.urlData?.sbiExecutionId as string
+                    })
+                    .catch((response: AxiosResponse<any>) => {
+                        error = true
+                        this.urlData = response.data
+                        this.sbiExecutionId = this.urlData?.sbiExecutionId as string
+                    })
 
-            const index = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name)
-            if (index !== -1) {
-                this.breadcrumbs[index].urlData = this.urlData
-                this.sbiExecutionId = this.urlData?.sbiExecutionId as string
+                const index = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name)
+                if (index !== -1) {
+                    this.breadcrumbs[index].urlData = this.urlData
+                    this.sbiExecutionId = this.urlData?.sbiExecutionId as string
+                }
+                if (error) return
             }
-            if (error) return
             await this.sendForm(documentLabel, crossNavigationPopupMode)
         },
         async loadExporters() {
