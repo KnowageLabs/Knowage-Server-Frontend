@@ -22,6 +22,7 @@ import Dialog from 'primevue/dialog'
 import Listbox from 'primevue/listbox'
 import { mapState, mapActions } from 'pinia'
 import mainStore from '@/App.store'
+import { loadLanguageAsync } from '@/App.i18n.js'
 
 import { AxiosResponse } from 'axios'
 
@@ -39,7 +40,7 @@ export default defineComponent({
     props: {
         visibility: Boolean
     },
-    emits: ['update:visibility', 'update:loading'],
+    emits: ['update:visibility', 'update:loading', 'language-changed'],
     data() {
         return {
             languages: Array<Language>(),
@@ -73,16 +74,19 @@ export default defineComponent({
     },
     methods: {
         ...mapActions(mainStore, ['setLocale']),
-        changeLanguage(language) {
+        async changeLanguage(language) {
+            const tempLanguage = language.locale.replace('_', '-')
             this.$emit('update:loading', true)
 
-            this.setLocale(language.locale)
-            localStorage.setItem('locale', language.locale)
-            this.$i18n.locale = language.locale
+            this.setLocale(tempLanguage)
+            localStorage.setItem('locale', tempLanguage)
+            await loadLanguageAsync(tempLanguage)
+            this.$i18n.locale = tempLanguage
             this.closeDialog()
             this.$forceUpdate()
 
             this.$emit('update:loading', false)
+            this.$emit('language-changed', tempLanguage)
         },
         closeDialog() {
             this.$emit('update:visibility', false)
