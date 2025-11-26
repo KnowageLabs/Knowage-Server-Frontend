@@ -124,10 +124,7 @@ export default defineComponent({
             this.setLoading(true)
             await this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/snapshotsContent?OBJECT_ID=${schedulation.biobjId}&SNAPSHOT_ID=${schedulation.id}`, {
-                    responseType: 'blob',
-                    headers: {
-                        Accept: 'text/html,application/xhtml+xml,application/xml;application/pdf'
-                    }
+                    responseType: 'blob'
                 })
                 .then((response) => {
                     downloadDirectFromResponse(response)

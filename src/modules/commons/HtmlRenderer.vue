@@ -51,6 +51,7 @@ async function getHTMLContent() {
 </script>
 <style lang="scss" scoped>
 .html-renderer {
+    overflow: auto;
     width: 100%;
     height: 100%;
     margin: 0;
