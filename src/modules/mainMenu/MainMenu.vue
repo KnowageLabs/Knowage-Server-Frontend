@@ -1,7 +1,7 @@
 <template>
     <div id="kn-main-menu" ref="mainMenu" class="layout-menu-container">
         <InfoDialog v-model:visibility="display"></InfoDialog>
-        <LanguageDialog v-model:visibility="languageDisplay"></LanguageDialog>
+        <LanguageDialog v-model:visibility="languageDisplay" @language-changed="reloadLanguage"></LanguageDialog>
         <RoleDialog v-model:visibility="roleDisplay" :mandatory="mandatoryRole()"></RoleDialog>
         <DownloadsDialog v-model:visibility="downloadsDisplay"></DownloadsDialog>
         <NewsDialog v-model:visibility="newsDisplay"></NewsDialog>
@@ -316,6 +316,7 @@ export default defineComponent({
                             }
                         } else this.setHomePage({ loading: false })
                     } else this.setHomePage({ loading: false })
+                    this.commonUserFunctionalities = []
                     const responseCommonUserFunctionalities = response.data.commonUserFunctionalities
                     for (const index in responseCommonUserFunctionalities) {
                         const item = responseCommonUserFunctionalities[index]
@@ -353,6 +354,9 @@ export default defineComponent({
                 }
                 return el
             })
+        },
+        async reloadLanguage() {
+            await this.loadMenu(true)
         }
     }
 })

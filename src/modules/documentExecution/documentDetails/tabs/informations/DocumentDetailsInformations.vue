@@ -64,7 +64,7 @@
                                 </div>
 
                                 <div class="p-field p-col-12 p-lg-6">
-                                    <img v-if="selectedDocument?.previewFile && !imagePreview" id="image-preview" :src="getImageUrl" :height="mainDescriptor.style.previewImage" />
+                                    <img v-if="selectedDocument?.previewFile && !imagePreview" id="image-preview" :src="imagePreviewUrl" :height="mainDescriptor.style.previewImage" />
                                     <img v-if="imagePreviewUrl && imagePreview" id="image-preview" :src="imagePreviewUrl" :height="mainDescriptor.style.previewImage" />
                                 </div>
 
@@ -343,8 +343,15 @@ export default defineComponent({
                     return false
             }
         },
-        getImageUrl(): string {
-            return `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=MANAGE_PREVIEW_FILE_ACTION&SBI_ENVIRONMENT=DOCBROWSER&LIGHT_NAVIGATOR_DISABLED=TRUE&operation=DOWNLOAD&fileName=${this.selectedDocument?.previewFile}`
+        getImageUrl(): any {
+            this.$http
+                .get(`${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/preview-file/download?fileName=${this.selectedDocument?.previewFile}`)
+                .then((response) => {
+                    return URL.createObjectURL(response.data)
+                })
+                .catch((error) => {
+                    return ''
+                })
         },
         designerButtonVisible(): boolean {
             return this.document.typeCode == 'OLAP' || this.document.typeCode == 'KPI' || this.document.engine == 'knowagegisengine' || (this.document.engine == 'knowagedossierengine' && this.document.id !== undefined)
@@ -384,12 +391,14 @@ export default defineComponent({
     watch: {
         async selectedDocument() {
             this.setData()
+            await this.setImagePreview(this.getImageUrl)
             await this.getAllTemplates()
         }
     },
     async created() {
         this.setData()
         await this.getAllTemplates()
+        await this.setImagePreview(this.getImageUrl)
         await this.touchValidatedFields()
     },
     validations() {
@@ -402,7 +411,8 @@ export default defineComponent({
             this.document = this.selectedDocument as iDocument
             this.dataset = this.selectedDataset
             this.folders = this.availableFolders as iFolder[]
-            this.resetImagePreview()
+
+            this.setImagePreview()
             this.IsLockedByUser()
         },
         IsLockedByUser() {
@@ -450,10 +460,14 @@ export default defineComponent({
             this.triggerImageUpload = false
             setTimeout(() => (this.uploading = false), 200)
         },
-        setImagePreview(imageFile) {
-            this.imagePreviewUrl = URL.createObjectURL(imageFile)
-            this.imagePreview = true
-            this.store.setInfo({ title: this.$t('common.uploadFileSuccess'), msg: this.$t('documentExecution.documentDetails.info.imageInfo') })
+        setImagePreview(imageFile?: any) {
+            if (imageFile) {
+                this.imagePreviewUrl = URL.createObjectURL(imageFile)
+                this.imagePreview = true
+                this.store.setInfo({ title: this.$t('common.uploadFileSuccess'), msg: this.$t('documentExecution.documentDetails.info.imageInfo') })
+            } else {
+                this.resetImagePreview()
+            }
         },
         resetImagePreview() {
             this.imagePreviewUrl = null

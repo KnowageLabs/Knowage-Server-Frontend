@@ -53,7 +53,7 @@ const baseRoutes = [
     {
         path: '/login',
         name: 'login',
-        redirect: `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_CONTEXT}/servlet/AdapterHTTP?PAGE=LoginPage&NEW_SESSION=TRUE`
+        redirect: `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=LOGOUT_ACTION&LIGHT_NAVIGATOR_DISABLED=TRUE&NEW_SESSION=TRUE`
     },
     {
         path: '/unauthorized',
@@ -83,10 +83,6 @@ const router = createRouter({
     base: import.meta.env.VITE_PUBLIC_PATH,
     history: createWebHistory(import.meta.env.VITE_PUBLIC_PATH),
     routes
-})
-
-router.afterEach(async () => {
-    if (localStorage.getItem('locale')) loadLanguageAsync(localStorage.getItem('locale'))
 })
 
 router.beforeEach(async (to, from, next) => {

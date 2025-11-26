@@ -16,7 +16,7 @@
         </Toolbar>
         <div class="p-m-2 sidebarInfoContainer">
             <div v-if="selectedDocument?.previewFile" class="p-text-center p-my-3">
-                <img id="image-preview" :src="getImageUrl" />
+                <img id="image-preview" :src="previewImage" />
             </div>
             <div v-if="document.name" class="p-my-3">
                 <h3 class="p-m-0">{{ $t('common.name') }}</h3>
@@ -72,15 +72,23 @@ export default defineComponent({
         return {
             UserFunctionalitiesConstants,
             document: null as any,
-            user: null as any
+            user: null as any,
+            previewImage: null as any
         }
     },
     computed: {
         isSuperAdmin(): boolean {
             return this.user?.isSuperadmin
         },
-        getImageUrl(): string {
-            return `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=MANAGE_PREVIEW_FILE_ACTION&SBI_ENVIRONMENT=DOCBROWSER&LIGHT_NAVIGATOR_DISABLED=TRUE&operation=DOWNLOAD&fileName=${this.selectedDocument?.previewFile}`
+        getImageUrl(): any {
+            this.$http
+                .get(`${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/preview-file/download?fileName=${this.selectedDocument?.previewFile}`)
+                .then((response) => {
+                    return URL.createObjectURL(response.data)
+                })
+                .catch((error) => {
+                    return ''
+                })
         },
         canEditDocument(): boolean {
             if (!this.user) return false
@@ -109,6 +117,9 @@ export default defineComponent({
     methods: {
         loadDocument() {
             this.document = this.selectedDocument
+            if (this.selectedDocument?.previewFile) {
+                this.previewImage = this.getImageUrl
+            }
         },
         getFormatedDate(date: any) {
             return formatDate(date, 'MMM DD, YYYY h:mm:ss A')

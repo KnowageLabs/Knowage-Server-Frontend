@@ -49,9 +49,13 @@ export default defineComponent({
             tmpModel: new Array<any>()
         }
     },
-    computed: {},
     mounted() {
         this.tmpModel = this.model || []
+    },
+    watch: {
+        model(newModel) {
+            this.tmpModel = newModel || []
+        }
     },
     updated() {
         //@ts-ignore
