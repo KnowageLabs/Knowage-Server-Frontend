@@ -851,7 +851,7 @@ export default defineComponent({
         },
         async loadURL(olapParameters: any, documentLabel: string | null = null, crossNavigationPopupMode = false) {
             // Only call the /documentexecution/url service for OLAP and REGISTRY (DATAMART) documents
-            if (this.document.typeCode === 'OLAP' || this.document.typeCode === 'DATAMART') {
+            if (!this.document.typeCode === 'DASHBOARD') {
                 let error = false
                 const postData = {
                     label: this.document.label,
