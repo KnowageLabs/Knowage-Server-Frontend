@@ -1,15 +1,13 @@
 import mainStore from '../../App.store'
-import axios from '@/axios.js'
 
 export default {
-    async logout(): Promise<void> {
+    logout(): void {
         const store = mainStore()
         localStorage.clear()
         store.storeClearIndexedDBCache()
         store.setUser({})
         const url = window.location.origin
-        await axios.post(`${url}${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/logout`)
-        window.location.href = `${url}${import.meta.env.VITE_KNOWAGE_CONTEXT}/servlet/AdapterHTTP?PAGE=LoginPage&NEW_SESSION=TRUE`
+        window.location.href = `${url}${import.meta.env.VITE_KNOWAGE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=LOGOUT_ACTION&LIGHT_NAVIGATOR_DISABLED=TRUE&NEW_SESSION=TRUE`
     },
     handleUnauthorized(): void {
         const store = mainStore()
