@@ -399,6 +399,7 @@ export default defineComponent({
     .filter-box {
         align-items: center;
         border: 1px solid var(--kn-list-border-color);
+        border-bottom: 0;
         flex: 0 0 auto;
         padding: 0;
         background: var(--kn-sidebar-bg, transparent);
