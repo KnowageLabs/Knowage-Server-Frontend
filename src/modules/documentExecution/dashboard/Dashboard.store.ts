@@ -100,11 +100,11 @@ const store = defineStore('dashboardStore', {
         setInternationalization(internationalization) {
             this.internationalization = internationalization
         },
-        setSelections(dashboardId: string, selections: ISelection[], $http: any) {
+        async setSelections(dashboardId: string, selections: ISelection[], $http: any) {
             if (this.dashboards[dashboardId]) this.dashboards[dashboardId].selections = selections
             if (!this.dashboards[dashboardId]) return
             if (selections.length > 0 && selectionsUseDatasetWithAssociation(selections, this.dashboards[dashboardId].configuration.associations)) {
-                loadAssociativeSelections(dashboardId, this.dashboards[dashboardId], this.allDatasets, selections, $http)
+                await loadAssociativeSelections(dashboardId, this.dashboards[dashboardId], this.allDatasets, selections, $http)
             } else {
                 emitter.emit('selectionsChanged', { dashboardId: dashboardId, selections: this.dashboards[dashboardId].selections })
             }

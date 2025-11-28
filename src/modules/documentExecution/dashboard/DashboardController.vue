@@ -272,7 +272,7 @@ export default defineComponent({
             this.setDashboardDrivers(this.dashboardId, this.drivers)
 
             await this.fetchAllSelectorDefaultValues()
-            this.store.setSelections(this.dashboardId, this.model.configuration.selections, this.$http)
+            await this.store.setSelections(this.dashboardId, this.model.configuration.selections, this.$http)
             this.store.setDashboardDocument(this.dashboardId, this.document)
             this.store.setExecutionTime(this.dashboardId, new Date())
 
