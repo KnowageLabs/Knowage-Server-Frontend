@@ -43,11 +43,6 @@ const props = defineProps<{
     textToInsert: string
 }>()
 
-registerGroovyLanguageForMonaco()
-registerCFLanguageForMonaco()
-registerKpiLanguageForMonaco()
-registerLogLanguageForMonaco()
-
 watch(
     () => props.textToInsert,
     (cur, prev) => {
@@ -87,8 +82,13 @@ const { language, modelValue, options } = toRefs(props)
 const editorValue = ref(modelValue.value)
 
 onMounted(() => {
+    registerGroovyLanguageForMonaco()
+    registerCFLanguageForMonaco()
+    registerKpiLanguageForMonaco()
+    registerLogLanguageForMonaco()
+
     editor = monaco.editor.create(container.value!, {
-        theme: 'vs',
+        theme: language.value === 'logLang' ? 'logLang' : 'vs', // Applica il tema in base alla lingua
         fontSize: 12,
         scrollBeyondLastLine: false,
         automaticLayout: true,
@@ -112,6 +112,14 @@ onMounted(() => {
 
 watch(modelValue, (cur, prev) => {
     if (cur !== prev && cur !== editor.getValue()!) editor.setValue(cur)
+})
+
+watch(language, (cur) => {
+    if (cur === 'logLang') {
+        monaco.editor.setTheme('logLang')
+    } else {
+        monaco.editor.setTheme('vs')
+    }
 })
 
 const editorObserver = useResizeObserver(container, () => {

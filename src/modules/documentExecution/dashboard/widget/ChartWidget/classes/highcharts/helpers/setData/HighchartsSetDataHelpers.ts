@@ -187,31 +187,31 @@ const setRegularAreaRangeData = (model: any, data: any, attributeColumn: any, ar
 
 export const setGroupedCategoriesData = (model: any, data: any, attributeColumns: any[], measureColumns: any[], dateFormat: string, widgetModel: IWidget) => {
     if (!data || !measureColumns[0] || attributeColumns.length < 2) return
-    const measureColumn = measureColumns[0]
     const firstAttributeColumn = attributeColumns[0]
     const secondAttributeColumn = attributeColumns[1]
 
     const columnAliases = widgetModel.settings?.series?.aliases ?? []
+    measureColumns.forEach((measureColumn: any) => {
+        const serieElement = { id: 0, name: getColumnAlias(measureColumn.column, columnAliases), data: [] as any[], connectNulls: true }
+        const categoryValuesMap: Record<string, { categories: string[] }> = {}
 
-    const serieElement = { id: 0, name: getColumnAlias(measureColumn.column, columnAliases), data: [] as any[], connectNulls: true }
-    const categoryValuesMap: Record<string, { categories: string[] }> = {}
-
-    data.rows.forEach((row: any) => {
-        const firstAttributeValue = dateFormat && ['date', 'timestamp'].includes(firstAttributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[firstAttributeColumn.metadata.dataIndex], dateFormat, firstAttributeColumn.metadata.type) : row[firstAttributeColumn.metadata.dataIndex]
-        const secondAttributeValue = dateFormat && ['date', 'timestamp'].includes(secondAttributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[secondAttributeColumn.metadata.dataIndex], dateFormat, secondAttributeColumn.metadata.type) : row[secondAttributeColumn.metadata.dataIndex]
-        serieElement.data.push({
-            name: `${firstAttributeValue} - ${secondAttributeValue}`,
-            y: row[measureColumn.metadata.dataIndex],
-            drilldown: false
+        data.rows.forEach((row: any) => {
+            const firstAttributeValue = dateFormat && ['date', 'timestamp'].includes(firstAttributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[firstAttributeColumn.metadata.dataIndex], dateFormat, firstAttributeColumn.metadata.type) : row[firstAttributeColumn.metadata.dataIndex]
+            const secondAttributeValue = dateFormat && ['date', 'timestamp'].includes(secondAttributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[secondAttributeColumn.metadata.dataIndex], dateFormat, secondAttributeColumn.metadata.type) : row[secondAttributeColumn.metadata.dataIndex]
+            serieElement.data.push({
+                name: `${firstAttributeValue} - ${secondAttributeValue}`,
+                y: row[measureColumn.metadata.dataIndex],
+                drilldown: false
+            })
+            if (!categoryValuesMap[firstAttributeValue]) categoryValuesMap[firstAttributeValue] = { categories: [] }
+            if (!categoryValuesMap[firstAttributeValue].categories.includes(secondAttributeValue)) {
+                categoryValuesMap[firstAttributeValue].categories.push(secondAttributeValue)
+            }
         })
-        if (!categoryValuesMap[firstAttributeValue]) categoryValuesMap[firstAttributeValue] = { categories: [] }
-        if (!categoryValuesMap[firstAttributeValue].categories.includes(secondAttributeValue)) {
-            categoryValuesMap[firstAttributeValue].categories.push(secondAttributeValue)
-        }
-    })
 
-    updateXAxisForGroupingCategoriesData(model, categoryValuesMap)
-    model.series.push(serieElement)
+        updateXAxisForGroupingCategoriesData(model, categoryValuesMap)
+        model.series.push(serieElement)
+    })
 }
 
 const updateXAxisForGroupingCategoriesData = (model: any, categoryValuesMap: any) => {
