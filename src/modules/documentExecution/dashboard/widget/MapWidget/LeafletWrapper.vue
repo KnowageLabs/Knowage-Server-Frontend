@@ -128,6 +128,17 @@ const getMapZoomValue = (widgetModel: IWidget | undefined): number => {
     return isNaN(parsedZoom) ? defaultZoom : parsedZoom
 }
 
+const getMapCenterValue = (widgetModel: IWidget | undefined): [number, number] | null => {
+    const center = widgetModel?.settings?.configuration?.map?.center
+    if (!center || !Array.isArray(center) || center.length !== 2) return null
+
+    const [lat, lon] = center.map((v: any) => Number.parseFloat(v as any))
+
+    if (Number.isNaN(lat) || Number.isNaN(lon)) return null
+
+    return [lat, lon]
+}
+
 onMounted(async () => {
     emitter.on('widgetResized', resizeMap)
 
@@ -135,10 +146,36 @@ onMounted(async () => {
 
     loadVariables()
 
+    const storedCenter = getMapCenterValue(props.widgetModel)
+    const shouldAutoCenter = props.widgetModel.settings?.configuration?.map?.autoCentering
+    const initialCenter = storedCenter ?? (navigator && !shouldAutoCenter ? await getCoords() : [0, 0])
+
     map = L.map(mapId, {
-        center: navigator && !props.widgetModel.settings?.configuration?.map?.autoCentering ? await getCoords() : [0, 0],
+        center: initialCenter,
         zoom: getMapZoomValue(props.widgetModel),
         attributionControl: false
+    })
+
+    const ensureMapConfig = () => {
+        if (!props.widgetModel.settings) props.widgetModel.settings = {} as any
+        if (!props.widgetModel.settings.configuration) props.widgetModel.settings.configuration = {} as any
+        if (!props.widgetModel.settings.configuration.map) props.widgetModel.settings.configuration.map = {} as any
+    }
+
+    map.on('zoomend', () => {
+        const currentZoom = map.getZoom()
+
+        ensureMapConfig()
+
+        props.widgetModel.settings.configuration.map.zoom = currentZoom
+    })
+
+    map.on('moveend', () => {
+        const center = map.getCenter()
+
+        ensureMapConfig()
+
+        props.widgetModel.settings.configuration.map.center = [center.lat, center.lng]
     })
 
     tile = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {

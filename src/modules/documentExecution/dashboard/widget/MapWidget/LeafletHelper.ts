@@ -322,7 +322,23 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             }
         }
 
-        if (centerMap) centerTheMap(map, markerBounds, bounds, clusters)
+        const mapZoom = model.settings?.configuration?.map?.zoom
+        const parsedZoom = Number.parseInt(mapZoom as any, 10)
+
+        const mapCenter = model.settings?.configuration?.map?.center
+        const hasValidCenter = Array.isArray(mapCenter) && mapCenter.length === 2 && !Number.isNaN(Number.parseFloat(mapCenter[0] as any)) && !Number.isNaN(Number.parseFloat(mapCenter[1] as any))
+
+        if (hasValidCenter) {
+            const [lat, lng] = mapCenter
+            map.setView([Number(lat), Number(lng)], !Number.isNaN(parsedZoom) ? parsedZoom : map.getZoom())
+        } else if (!Number.isNaN(parsedZoom)) {
+            if (markerBounds.length || bounds.isValid() || (clusters && clusters.getLayers().length > 0)) {
+                centerTheMap(map, markerBounds, bounds, clusters)
+            }
+            map.setZoom(parsedZoom)
+        } else if (centerMap) {
+            centerTheMap(map, markerBounds, bounds, clusters)
+        }
     } catch (error: any) {
         console.log('------- ERROR - initializeLayers:', error)
         // TODO - add if needed for user
