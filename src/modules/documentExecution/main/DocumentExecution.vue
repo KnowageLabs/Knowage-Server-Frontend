@@ -886,8 +886,7 @@ export default defineComponent({
             await this.sendForm(documentLabel, crossNavigationPopupMode)
         },
         async loadExporters() {
-            if (!this.urlData || !this.urlData.engineLabel) return
-            const engineLabel = this.urlData.engineLabel
+            const engineLabel = this.urlData?.engineLabel ? this.urlData.engineLabel : 'knowagedashboardengine'
             if (engineLabel !== EnginesConstants.DOSSIER_ENGINE) {
                 await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/exporters/${engineLabel}`).then((response: AxiosResponse<any>) => (this.exporters = response.data.exporters))
             }
