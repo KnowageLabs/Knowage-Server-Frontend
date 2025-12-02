@@ -35,7 +35,6 @@
                             :visible="((filtersData && filtersData.isReadyForExecution) || newDashboardMode) && !loading && !schedulationsTableVisible && (item.label === document.name || newDashboardMode || (crossNavigationDialogVisible && index === breadcrumbs.length - 1))"
                             :document="item.document"
                             :reload-trigger="reloadTrigger"
-                            :hidden-form-data="item.hiddenFormData"
                             :filters-data="item.filtersData"
                             :new-dashboard-mode="newDashboardMode"
                             :mode="mode"
@@ -660,7 +659,11 @@ export default defineComponent({
         },
         async dashboardExport(format) {
             this.setLoading(true)
-            let body = this.hiddenFormData
+            let body = new URLSearchParams()
+            body.set('DOCUMENT_LABEL', this.document.label)
+            body.set('SBI_EXECUTION_ROLE', this.userRole || '')
+            body.set('user_id', this.user.userUniqueIdentifier || '')
+            body.set('document', this.document.id || '')
             let url = import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + `/api/1.0/pages/execute/${format}`
             if (format.includes('xls')) {
                 format = 'spreadsheet'
