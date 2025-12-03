@@ -59,6 +59,7 @@ import DocumentBrowserDetail from './DocumentBrowserDetail.vue'
 import KnFabButton from '@/components/UI/KnFabButton.vue'
 import Menu from 'primevue/menu'
 import mainStore from '../../../App.store'
+import { mapState } from 'pinia'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 import { iFolder } from '../DocumentBrowser'
 
@@ -67,10 +68,6 @@ export default defineComponent({
     components: { DocumentBrowserHint, DocumentBrowserTree, DocumentBrowserDetail, KnFabButton, Menu },
     props: { documentSaved: { type: Object as PropType<any> }, documentSavedTrigger: { type: Boolean } },
     emits: ['itemSelected'],
-    setup() {
-        const store = mainStore()
-        return { store }
-    },
     data() {
         return {
             folders: [] as iFolder[],
@@ -82,7 +79,6 @@ export default defineComponent({
             searchWord: null as any,
             searchMode: false,
             items: [] as any[],
-            user: null as any,
             sidebarVisible: false,
             windowWidth: window.innerWidth,
             loading: false,
@@ -92,14 +88,15 @@ export default defineComponent({
         }
     },
     computed: {
+        ...mapState(mainStore, { storeUser: 'user' }),
         isSuperAdmin(): boolean {
-            return this.user?.isSuperadmin
+            return this.storeUser?.isSuperadmin
         },
         canAddNewDocument(): boolean {
-            return this.user?.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_MANAGEMENT)
+            return this.storeUser?.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_MANAGEMENT)
         },
         hasCreateCockpitFunctionality(): boolean {
-            return this.user.functionalities?.includes(UserFunctionalitiesConstants.CREATE_COCKPIT_FUNCTIONALITY)
+            return this.storeUser?.functionalities?.includes(UserFunctionalitiesConstants.CREATE_COCKPIT_FUNCTIONALITY)
         },
         isSidebarHidden(): boolean {
             if (this.sidebarVisible) {
@@ -121,7 +118,6 @@ export default defineComponent({
         window.addEventListener('resize', this.onResize)
 
         await this.loadFolders()
-        this.user = (this.store.$state as any).user
 
         if (this.$route.name === 'document-browser-functionality') {
             this.setFolderFromRoute()
