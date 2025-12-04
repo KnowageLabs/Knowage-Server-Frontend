@@ -34,12 +34,10 @@
                     <span :class="['p-menuitem-icon', 'fas fa-cog']"></span>
                 </li>
                 <template v-for="(item, i) of allowedUserFunctionalities" :key="i">
-                    <!--MainMenuItem :item="item" :badge="getBadgeValue(item)" @click="itemClick" @mouseover="toggleMenu($event, item)"></MainMenuItem-->
                     <AdvancedMenuItem :item="item" :badge="getBadgeValue(item)" @click="itemClick" @mouseover="setMenu(item)"></AdvancedMenuItem>
                 </template>
                 <template v-for="(item, i) of dynamicUserFunctionalities" :key="i">
                     <AdvancedMenuItem :item="item" :badge="getBadgeValue(item)" @mouseover="setMenu(item)"></AdvancedMenuItem>
-                    <!--MainMenuItem :item="item" :internationalize="true" @click="itemClick" @mouseover="toggleMenu($event, item)"></MainMenuItem-->
                 </template>
             </ul>
         </div>
@@ -51,7 +49,6 @@
 import { defineComponent } from 'vue'
 import InfoDialog from '@/modules/mainMenu/dialogs/InfoDialog.vue'
 import KnChatbot from '@/components/UI/KnChatbot/KnChatbot.vue'
-import MainMenuItem from '@/modules/mainMenu/MainMenuItem.vue'
 import MainMenuAdmin from '@/modules/mainMenu/MainMenuAdmin.vue'
 import AccountDialog from '@/modules/mainMenu/dialogs/AccountDialog.vue'
 import LanguageDialog from '@/modules/mainMenu/dialogs/LanguageDialog/LanguageDialog.vue'
@@ -76,7 +73,6 @@ export default defineComponent({
         AdvancedMenuItem,
         InfoDialog,
         MainMenuAdmin,
-        MainMenuItem,
         LanguageDialog,
         LicenseDialog,
         KnChatbot,

@@ -1,13 +1,30 @@
 import mainStore from '../../App.store'
+import axios from '@/axios.js'
+
+async function invalidateSession(jsps: string[] = [], redirectURI: string): Promise<void> {
+    const jspPromises = jsps.map((p) => {
+        return axios.get(p)
+    })
+
+    await Promise.allSettled([...jspPromises])
+    window.location.href = redirectURI
+}
 
 export default {
-    logout(): void {
-        const store = mainStore()
-        localStorage.clear()
-        store.storeClearIndexedDBCache()
-        store.setUser({})
+    async logout(): Promise<void> {
         const url = window.location.origin
-        window.location.href = `${url}${import.meta.env.VITE_KNOWAGE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=LOGOUT_ACTION&LIGHT_NAVIGATOR_DISABLED=TRUE&NEW_SESSION=TRUE`
+        await axios
+            .post(`${url}${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/logout`)
+            .then((response) => {
+                invalidateSession(response.data.urlEnginesInvalidate, response.data.redirectUrl.replace('${id_token}', sessionStorage.getItem('token') || ''))
+            })
+            .finally(() => {
+                const store = mainStore()
+                localStorage.clear()
+                sessionStorage.clear()
+                store.storeClearIndexedDBCache()
+                store.setUser({})
+            })
     },
     handleUnauthorized(): void {
         const store = mainStore()
