@@ -263,5 +263,17 @@
             "label": "common.values",
             "measuresOnly": true
         }
+    ],
+    "wordcloudChartColumnTableSettings": [
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.wordcloud.dimensionsTableHint",
+            "label": "dashboard.widgetEditor.dimensions"
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.wordcloud.valuesTableHint",
+            "label": "common.values",
+            "measuresOnly": true
+        }
     ]
 }

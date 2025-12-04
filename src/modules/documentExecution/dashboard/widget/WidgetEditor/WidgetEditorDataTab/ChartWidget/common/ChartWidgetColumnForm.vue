@@ -6,15 +6,6 @@
                     {{ selectedDatasetColumns.find((tempColumn: IDatasetColumn) => tempColumn.name === scope.opt)?.alias ?? '' }}
                 </template>
             </q-select>
-            <!-- <q-select class="col-6" v-model="column.orderType" :options="commonDescriptor.sortingOrderOptions" emitValue clearable dense square :label="$t('dashboard.widgetEditor.sortingOrder')" option-value="value" @update:model-value="selectedColumnUpdated">
-                <template v-slot:option="scope">
-                    <q-item v-bind="scope.itemProps">
-                        <q-item-section>
-                            <q-item-label>{{ $t(scope.opt.label) }}</q-item-label>
-                        </q-item-section>
-                    </q-item>
-                </template>
-            </q-select> -->
             <q-select v-if="showTypeDropdown" class="col-6" v-model="column.serieType" :options="descriptor.serieTypeOptions" emitValue clearable dense square :label="$t('dashboard.widgetEditor.visualizationType.title')" option-value="value" @update:model-value="selectedColumnUpdated">
                 <template v-slot:selected-item="scope">
                     {{ $t(descriptor.serieTypeOptions.find((option) => option.value === scope.opt)?.label ?? '') }}

@@ -12,7 +12,7 @@ import { addClusters, createClusterGroup } from './visualization/MapClustersVizu
 import { addGeography } from './visualization/MapGeographyVizualizationHelper'
 import { createChoropleth } from './visualization/MapChoroplethVizualizationHelper'
 import { createHeatmapVisualization } from './visualization/MapHeatmapVizualizationHelper'
-import { addMapCharts } from './visualization/MapChartsVizualizationHelper'
+// import { addMapCharts } from './visualization/MapChartsVizualizationHelper'
 import useAppStore from '@/App.store'
 import i18n from '@/App.i18n'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
@@ -297,10 +297,10 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
                 legendData[layerVisualizationSettings.id] = baloonsData
             }
 
-            if (layerVisualizationSettings.type === 'pies') {
-                const chartsData = addMapCharts(data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, activeSelections, dashboardId)
-                legendData[layerVisualizationSettings.id] = chartsData
-            }
+            // if (layerVisualizationSettings.type === 'pies') {
+            //     const chartsData = addMapCharts(data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, activeSelections, dashboardId)
+            //     legendData[layerVisualizationSettings.id] = chartsData
+            // }
 
             if (layerVisualizationSettings.type === 'clusters') {
                 clusters = createClusterGroup(layerVisualizationSettings, target)

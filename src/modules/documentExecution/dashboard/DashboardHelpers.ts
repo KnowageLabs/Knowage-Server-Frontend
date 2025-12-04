@@ -10,7 +10,6 @@ import { formatHighchartsWidget } from './widget/WidgetEditor/helpers/chartWidge
 import { AxiosResponse } from 'axios'
 import mainStore from '@/App.store'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
-import { formatVegaWidget } from './widget/WidgetEditor/helpers/chartWidget/vega/VegaHelpers'
 import descriptor from './DashboardDescriptor.json'
 import { formatDashboardTableWidgetAfterLoading } from './widget/WidgetEditor/helpers/tableWidget/TableWidgetFunctions'
 import { updateWidgetThemeAndApplyStyle } from './generalSettings/themes/ThemesHelper'
@@ -299,9 +298,6 @@ const formatWidget = (widget: IWidget, datasets: IDataset[]) => {
             break
         case 'highcharts':
             formatHighchartsWidget(widget)
-            break
-        case 'vega':
-            formatVegaWidget(widget)
             break
         case 'map':
             formatMapWidgetAfterDashboardLoading(widget, datasets)

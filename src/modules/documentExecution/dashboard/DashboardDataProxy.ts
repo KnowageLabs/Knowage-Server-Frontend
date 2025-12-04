@@ -56,8 +56,6 @@ export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets:
             return await getCePivotData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'discovery':
             return await getDiscoveryWidgetData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
-        case 'vega':
-            return await getHighchartsWidgetData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'python':
             return await getPythonData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'map':

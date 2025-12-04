@@ -62,10 +62,8 @@
         "reflect-metadata": "^0.1.13",
         "sanitize-html": "^2.7.3",
         "svg-parser": "^2.0.4",
+        "topojson-client": "^3.1.0",
         "uuid": "8.3.2",
-        "vega": "5.24.0",
-        "vega-embed": "6.22.1",
-        "vega-lite": "5.7.1",
         "vite-plugin-package-version": "^1.0.2",
         "vue": "3.5.13",
         "vue-axios": "3.5.2",
@@ -95,25 +93,8 @@
         "material-icons": "^1.10.0",
         "sass": "1.83.4",
         "typescript": "5.7.3",
-        "vite": "6.3.6",
+        "vite": "6.4.1",
         "vite-plugin-pwa": "1.0.1"
-    },
-    "overrides": {
-        "vega-util": "2.1.0",
-        "vega-dataflow": "5.7.5",
-        "vega-scale": "7.4.1",
-        "vega-statistics": "1.9.0",
-        "vega-expression": "5.1.1",
-        "vega-geo": "4.4.1",
-        "vega-loader": "4.5.3",
-        "vega-scenegraph": "4.10.1",
-        "vega-parser": "6.4.0",
-        "vega-runtime": "7.1.0",
-        "vega-view": "5.11.1",
-        "vega-view-transforms": "4.5.9",
-        "vega-wordcloud": "5.0.0",
-        "vega-selections": "5.4.2",
-        "vega-time": "2.1.1"
     },
     "exports": {
         ".": {

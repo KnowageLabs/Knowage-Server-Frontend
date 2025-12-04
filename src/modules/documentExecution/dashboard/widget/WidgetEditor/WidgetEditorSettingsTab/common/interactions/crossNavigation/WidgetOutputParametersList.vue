@@ -29,29 +29,11 @@
                 <label class="kn-material-input-label">{{ $t('common.value') }}</label>
                 <InputText v-model="parameter.value" class="kn-material-input p-inputtext-sm" :disabled="disabled" @change="parametersChanged" />
             </div>
-            <div v-else-if="parameter.type === 'dynamic' && ['table', 'highcharts', 'chartJS', 'static-pivot-table', 'discovery', 'vega', 'map', 'ce-pivot-table'].includes(widgetType)" class="p-sm-12 p-md-7 p-d-flex p-flex-row p-ai-center kn-flex">
+            <div v-else-if="parameter.type === 'dynamic' && ['table', 'highcharts', 'chartJS', 'static-pivot-table', 'discovery', 'map', 'ce-pivot-table'].includes(widgetType)" class="p-sm-12 p-md-7 p-d-flex p-flex-row p-ai-center kn-flex">
                 <div class="p-d-flex p-flex-column kn-flex">
                     <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
-                    <Dropdown
-                        v-if="['table', 'discovery', 'static-pivot-table', 'ce-pivot-table'].includes(widgetType)"
-                        v-model="parameter.column"
-                        class="kn-material-input"
-                        :options="['table', 'discovery'].includes(widgetType) ? widgetModel.columns : pivotTableFields"
-                        option-label="alias"
-                        option-value="columnName"
-                        :disabled="disabled"
-                        @change="parametersChanged"
-                    ></Dropdown>
-                    <Dropdown
-                        v-else-if="widgetType === 'map'"
-                        v-model="parameter.column"
-                        class="kn-material-input"
-                        :options="mapDynamicOptions"
-                        :option-value="getTargetLayerType(crossNavigationConfig ?? previewConfig) === 'layer' ? 'property' : 'name'"
-                        :option-label="getTargetLayerType(crossNavigationConfig ?? previewConfig) === 'layer' ? 'property' : 'name'"
-                        :disabled="disabled"
-                        @change="parametersChanged"
-                    ></Dropdown>
+                    <Dropdown v-if="['table', 'discovery', 'static-pivot-table', 'ce-pivot-table'].includes(widgetType)" v-model="parameter.column" class="kn-material-input" :options="['table', 'discovery'].includes(widgetType) ? widgetModel.columns : pivotTableFields" option-label="alias" option-value="columnName" :disabled="disabled" @change="parametersChanged"></Dropdown>
+                    <Dropdown v-else-if="widgetType === 'map'" v-model="parameter.column" class="kn-material-input" :options="mapDynamicOptions" :option-value="getTargetLayerType(crossNavigationConfig ?? previewConfig) === 'layer' ? 'property' : 'name'" :option-label="getTargetLayerType(crossNavigationConfig ?? previewConfig) === 'layer' ? 'property' : 'name'" :disabled="disabled" @change="parametersChanged"></Dropdown>
                     <Dropdown v-else v-model="parameter.column" class="kn-material-input" :options="chartColumnOptions" option-value="value" :disabled="disabled" @change="parametersChanged">
                         <template #value="slotProps">
                             <span>{{ getTranslatedLabel(slotProps.value, chartColumnOptions, $t) }}</span>
@@ -125,9 +107,7 @@ export default defineComponent({
         },
         chartColumnOptions() {
             if (['table', 'discovery', 'static-pivot-table'].includes(this.widgetType)) return []
-            if (['vega'].includes(this.widgetModel.type)) {
-                return descriptor.vegaChartInteractionDynamicOptions
-            } else if (this.widgetModel.settings.chartModel?.model?.chart?.type === 'heatmap') {
+            if (this.widgetModel.settings.chartModel?.model?.chart?.type === 'heatmap') {
                 return descriptor.chartInteractionDynamicOptions.concat(descriptor.chartInteractionAdditionalDynamicOptions)
             } else {
                 return descriptor.chartInteractionDynamicOptions

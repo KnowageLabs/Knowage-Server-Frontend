@@ -16,7 +16,6 @@
                 <ImageWidget v-if="propWidget.type === 'image'" :widget-model="propWidget" :dashboard-id="dashboardId" :editor-mode="true" :prop-variables="variables" />
                 <CustomChartWidget v-if="propWidget.type == 'customchart' && !loading" :prop-widget="propWidget" :widget-data="widgetData" :prop-active-selections="activeSelections" :editor-mode="true" :dashboard-id="dashboardId" :variables="variables" @loading="customChartLoading = $event"></CustomChartWidget>
                 <DiscoveryWidget v-if="propWidget.type == 'discovery'" :propWidget="propWidget" :datasets="datasets" :dataToShow="widgetData" :editorMode="true" :dashboardId="dashboardId" :propActiveSelections="activeSelections" @pageChanged="getWidgetData" />
-                <VegaContainer v-if="propWidget.type === 'vega' && !loading" :widget-model="propWidget" :data-to-show="widgetData" :editor-mode="true" :dashboard-id="dashboardId" :prop-active-selections="activeSelections" :prop-variables="variables"></VegaContainer>
                 <PythonWidgetContainer v-if="propWidget.type === 'python' && !loading" :widget-model="propWidget" :data-to-show="widgetData" :dashboard-id="dashboardId" :editor-mode="true" />
                 <CEPivotWidget v-if="propWidget.type == 'ce-pivot-table' && !loading" :prop-widget="propWidget" :datasets="datasets" :data-to-show="widgetData" :editor-mode="false" :prop-active-selections="activeSelections" :dashboard-id="dashboardId" />
             </div>
@@ -46,13 +45,12 @@ import ChartJSContainer from '../ChartWidget/ChartJS/ChartJSContainer.vue'
 import ImageWidget from '../ImageWidget/ImageWidget.vue'
 import CustomChartWidget from '../CustomChartWidget/CustomChartWidget.vue'
 import DiscoveryWidget from '../DiscoveryWidget/DiscoveryWidget.vue'
-import VegaContainer from '../ChartWidget/Vega/VegaContainer.vue'
 import PythonWidgetContainer from '../PythonWidget/PythonWidgetContainer.vue'
 import CEPivotWidget from '../cePivotWidget/cePivotWidget.vue'
 
 export default defineComponent({
     name: 'widget-editor-preview',
-    components: { TableWidget, SelectorWidget, ActiveSelectionsWidget, ProgressBar, WebComponentContainer, HighchartsContainer, ChartJSContainer, ImageWidget, CustomChartWidget, DiscoveryWidget, VegaContainer, PythonWidgetContainer, CEPivotWidget },
+    components: { TableWidget, SelectorWidget, ActiveSelectionsWidget, ProgressBar, WebComponentContainer, HighchartsContainer, ChartJSContainer, ImageWidget, CustomChartWidget, DiscoveryWidget, PythonWidgetContainer, CEPivotWidget },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         datasets: { type: Array as PropType<IDashboardDataset[]>, required: true },

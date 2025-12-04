@@ -116,7 +116,7 @@ export default defineComponent({
         },
         showSortButton(): boolean {
             if (this.widgetType === 'highcharts' && this.chartType === 'bubble') return this.axis === 'dimensions'
-            return this.widgetType === 'highcharts' || this.widgetType === 'chartjs' || (this.widgetType === 'vega' && this.chartType !== 'wordcloud')
+            return this.widgetType === 'highcharts' || this.widgetType === 'chartjs'
         }
     },
     watch: {
@@ -168,8 +168,8 @@ export default defineComponent({
                     this.store.setHighchartsScatterAttributePresent(true)
                 }
             }
-            if (['table', 'html', 'text', 'highcharts', 'chartJS', 'discovery', 'customchart', 'vega', 'python', 'r'].includes(this.widgetModel.type)) {
-                if (['chartJS', 'highcharts', 'vega'].includes(this.widgetModel.type)) {
+            if (['table', 'html', 'text', 'highcharts', 'chartJS', 'discovery', 'customchart', 'python', 'r'].includes(this.widgetModel.type)) {
+                if (['chartJS', 'highcharts'].includes(this.widgetModel.type)) {
                     if (this.axis) tempColumn.axis = this.axis
                     addChartColumnToTable(tempColumn, this.rows, this.chartType, this.settings.attributesOnly, this.settings.measuresOnly, this.widgetModel)
                 } else if (['table', 'python', 'r'].includes(this.widgetModel.type) || !this.checkIfColumnIsAlreadyPresent(tempColumn)) this.rows.push(tempColumn as IWidgetColumn)
