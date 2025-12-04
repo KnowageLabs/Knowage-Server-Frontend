@@ -24,7 +24,7 @@ import { KnowageHighchartsDumbbellChart } from '../../../../ChartWidget/classes/
 import { KnowageHighchartsStreamgraphChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsStreamgraphChart'
 import { KnowageHighchartsPackedBubbleChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsPackedBubbleChart'
 import { KnowageHighchartsWaterfallChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsWaterfallChart'
-import { KnowageHighchartsWordcloudChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighChartsWordCloudChart'
+import { KnowageHighchartsWordcloudChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsWordcloudChart'
 
 export const createNewHighchartsSettings = () => {
     const settings = {
