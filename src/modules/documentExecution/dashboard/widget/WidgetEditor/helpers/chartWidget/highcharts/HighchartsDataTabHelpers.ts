@@ -29,6 +29,7 @@ export const addHighchartsColumnToTable = (tempColumn: IWidgetColumn, rows: IWid
         case 'streamgraph':
         case 'packedbubble':
         case 'waterfall':
+        case 'wordcloud':
             addHighchartsColumnToTableRows(tempColumn, rows, chartType, mode, widgetModel)
     }
 }

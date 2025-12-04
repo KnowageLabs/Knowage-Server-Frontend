@@ -1,6 +1,4 @@
 import { createNewDiscoveryWidgetSettings } from './discoveryWidget/DiscoveryWidgetFunctions'
-import { formatVegaForSave } from './chartWidget/vega/VegaBackendSaveHelper'
-import { formatVegaWidget, createNewVegaSettings } from './chartWidget/vega/VegaHelpers'
 import { IWidget, IWidgetColumn } from '../../../Dashboard'
 import { formatTableWidgetForSave } from './tableWidget/TableWidgetBackendSaveHelper'
 import { createNewTableWidgetSettings } from '../helpers/tableWidget/TableWidgetFunctions'
@@ -96,9 +94,6 @@ export const createNewWidgetSettings = (widget: IWidget, dashboardModel: any) =>
         case 'discovery':
             widget.settings = createNewDiscoveryWidgetSettings()
             break
-        case 'vega':
-            widget.settings = createNewVegaSettings()
-            break
         case 'map':
             widget.layers = []
             widget.settings = createNewMapWidgetSettings()
@@ -124,9 +119,6 @@ export function formatWidgetForSave(tempWidget: IWidget) {
         case 'chartJS':
             formatChartJSForSave(widget)
             break
-        case 'vega':
-            formatVegaForSave(widget)
-            break
     }
     ;['state', 'search', 'invalid'].forEach((property: string) => delete widget[property])
     return widget
@@ -147,5 +139,4 @@ export function getRGBColorFromString(color: string) {
 export const recreateKnowageChartModel = (widget: IWidget) => {
     if (widget.type === 'chartJS') formatChartJSWidget(widget)
     else if (widget.type === 'highcharts' && store.user.enterprise) formatHighchartsWidget(widget)
-    else if (widget.type === 'vega') formatVegaWidget(widget)
 }

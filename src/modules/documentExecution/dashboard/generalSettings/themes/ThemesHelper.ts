@@ -25,7 +25,6 @@ export const applySelectedThemeToWidgets = (widgets: IWidget[], selectedTheme: I
                 break
             case 'highcharts':
             case 'chartJS':
-            case 'vega':
                 applyStylesToWidget(widget, selectedTheme, selectedThemeConfig.chart)
                 break
             case 'customchart':

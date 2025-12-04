@@ -323,12 +323,11 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
 
         if (centerMap) centerTheMap(map, markerBounds, bounds, clusters)
     } catch (error: any) {
-        console.log('------- ERROR - initializeLayers:', error)
-        // TODO - add if needed for user
-        // appStore.setError({
-        //     title: t('common.toast.errorTitle'),
-        //     msg: error ? error.message : ''
-        // })
+        console.error('------- ERROR - initializeLayers:', error)
+        appStore.setError({
+            title: t('common.toast.errorTitle'),
+            msg: error ? error.message : ''
+        })
     } finally {
         return legendData
     }

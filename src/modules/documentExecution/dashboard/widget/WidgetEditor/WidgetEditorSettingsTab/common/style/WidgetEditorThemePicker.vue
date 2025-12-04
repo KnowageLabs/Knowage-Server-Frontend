@@ -61,7 +61,6 @@ export default defineComponent({
             switch (this.widget.type) {
                 case 'highcharts':
                 case 'chartJS':
-                case 'vega':
                     return 'chart'
                 case 'customchart':
                     return 'customChart'
