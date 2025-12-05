@@ -57,6 +57,7 @@
                 <HighchartsCenterTextSettings v-else-if="accordion.type === 'CenterTextSettings'" :widget-model="widgetModel"></HighchartsCenterTextSettings>
                 <HighchartsAxisLinesSettings v-else-if="accordion.type === 'AxisLinesSettings'" :widget-model="widgetModel"></HighchartsAxisLinesSettings>
                 <HighchartsSVGSettings v-else-if="accordion.type === 'SVGSettings'" :widget-model="widgetModel"></HighchartsSVGSettings>
+                <HighchartsPieDonutSettings v-else-if="accordion.type === 'PieDonutSettings'" :widget-model="widgetModel"></HighchartsPieDonutSettings>
                 <HighchartsFunnelNeckSettings v-else-if="accordion.type === 'FunnelNeckSettings'" :widget-model="widgetModel"></HighchartsFunnelNeckSettings>
                 <HighchartsAdvancedSettings v-else-if="accordion.type === 'AdvancedSettings'" :prop-widget-model="widgetModel"></HighchartsAdvancedSettings>
                 <HighchartsMarkerSettings v-else-if="accordion.type === 'MarkerSettings'" :widget-model="widgetModel"></HighchartsMarkerSettings>
@@ -124,6 +125,7 @@ import HighchartsSVGSettings from './configuration/HighchartsSVGSettings.vue'
 import WidgetEditorThemePicker from '../../common/style/WidgetEditorThemePicker.vue'
 import Message from 'primevue/message'
 import HighchartsFunnelNeckSettings from '../highcharts/series/HighchartsFunnelNeckSettings.vue'
+import HighchartsPieDonutSettings from '../highcharts/configuration/HighchartsPieDonutSettings.vue'
 import HighchartsAdvancedSettings from '../highcharts/advanced/HighchartsAdvancedSettings.vue'
 import HighchartsMarkerSettings from './settings/marker/HighchartsMarkerSettings.vue'
 import HighchartsConnectorSettings from './settings/connector/HighchartsConnectorSettings.vue'
@@ -189,7 +191,8 @@ export default defineComponent({
         HighchartsAnnotations,
         HighchartsJitterSettings,
         WidgetHelpSettings,
-        HighchartsSeriesAliasesSettings
+        HighchartsSeriesAliasesSettings,
+        HighchartsPieDonutSettings
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
