@@ -975,6 +975,9 @@
                 },
                 "piechart": {
                     "dimensionsTableHint": "Attributes only. Each different value in the selected column will create a different slice. If more than one dimension is present, the list will be the drill-down sequence.",
+                    "donutEnabled": "Donut Enabled",
+                    "donutSettings": "Donut Settings",
+                    "innerSizeLabel": "Inner Size",
                     "valuesTableHint": "Measures only. The selected column will be used as values for every slice."
                 },
                 "pivot": {
