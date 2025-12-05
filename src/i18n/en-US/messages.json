@@ -285,6 +285,7 @@
         "stream": "Stream",
         "string": "String",
         "style": "Style",
+        "superadmin": "Superadmin",
         "suspended": "Suspended",
         "table": {
             "footer": {
@@ -2024,6 +2025,11 @@
             "successfullyCompleted": "Import successfully completed"
         },
         "title": "Import/Export",
+        "users": {
+            "description": "export users from the system",
+            "includePersonalFolder": "Include personal folder",
+            "label": "users"
+        },
         "warning": {
             "newCategoryCreated": "A new category has been created with the name: {parameters}. Check roles definitions accordingly. | The following categories have been created: {parameters}. Check roles definitions accordingly",
             "noTemplate": "No template uploaded for the dossier {parameters}"
