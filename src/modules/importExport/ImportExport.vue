@@ -2,6 +2,7 @@
     <div class="kn-importExport kn-page">
         <ImportDialog v-model:visibility="displayImportDialog"></ImportDialog>
         <ExportDialog v-model:visibility="displayExportDialog" @export="startExport"></ExportDialog>
+        <ExportUsersDialog v-model:visibility="displayExportUsersDialog" @export="startExportUsers"></ExportUsersDialog>
         <Toolbar class="kn-toolbar kn-toolbar--primary">
             <template #start>
                 {{ $t('importExport.title') }}
@@ -11,12 +12,14 @@
                 <Button class="kn-button p-button-text" :disabled="isExportDisabled()" @click="openExportDialog">{{ $t('common.export') }}</Button>
             </template>
         </Toolbar>
+
         <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
-        <div class="kn-page-content p-grid p-m-0">
-            <div class="functionalities-container p-col-3 p-sm-3 p-md-2">
-                <KnTabCard v-for="(functionality, index) in functionalities" :key="index" :element="functionality" :selected="functionality.route === $route.path" :badge="selectedItems[functionality.type].length" @click="selectType(functionality)"> </KnTabCard>
+
+        <div class="p-d-flex kn-flex" style="flex-shrink: 0">
+            <div class="p-col-2">
+                <KnTabCard v-for="(functionality, index) in functionalities" :key="index" :element="functionality" :selected="functionality.route === route.path" @click="selectType(functionality)"> </KnTabCard>
             </div>
-            <div class="p-col p-pt-0">
+            <div class="kn-flex p-d-flex p-flex-column p-mr-2">
                 <router-view v-model:loading="loading" :selected-items="selectedItems" @onItemSelected="getSelectedItems($event)" />
             </div>
         </div>
@@ -25,40 +28,60 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { AxiosResponse } from 'axios'
 import importExportDescriptor from './ImportExportDescriptor.json'
 import ExportDialog from './ExportDialog.vue'
+import ExportUsersDialog from './users/ExportUsersDialog.vue'
 import ImportDialog from './ImportDialog.vue'
 import ProgressBar from 'primevue/progressbar'
 import KnTabCard from '@/components/UI/KnTabCard.vue'
-import { downloadDirectFromResponse } from '@/helpers/commons/fileHelper'
+import { downloadDirectFromResponse, downloadDirectFromResponseWithCustomName } from '@/helpers/commons/fileHelper'
 import { mapState } from 'pinia'
 import mainStore from '../../App.store'
+import type { ISelectedItems } from './ImportExportTypes'
 
 export default defineComponent({
     name: 'import-export',
-    components: { ExportDialog, KnTabCard, ImportDialog, ProgressBar },
+    components: { ExportDialog, ExportUsersDialog, KnTabCard, ImportDialog, ProgressBar },
     emits: ['onItemSelected'],
+    computed: {
+        ...mapState(mainStore, {
+            user: 'user',
+            isEnterprise: 'isEnterprise',
+            licenses: 'licenses'
+        })
+    },
     setup() {
         const store = mainStore()
-        return { store }
+        const router = useRouter()
+        const route = useRoute()
+        return { store, router, route }
     },
     data() {
         return {
             importExportDescriptor: importExportDescriptor,
             displayImportDialog: false,
             displayExportDialog: false,
+            displayExportUsersDialog: false,
             fileName: '',
             loading: false,
             selectedItems: {
                 gallery: [],
-                catalogFunction: []
-            },
-            functionalities: Array<any>()
+                catalogFunction: [],
+                users: []
+            } as ISelectedItems,
+            functionalities: Array<any>(),
+            currentFunctionality: null as any
         }
     },
     mounted() {
-        if (this.isEnterprise) this.setFunctionalities()
+        this.setFunctionalities()
+    },
+    watch: {
+        isEnterprise(newVal) {
+            if (newVal) this.setFunctionalities()
+        }
     },
     methods: {
         async setFunctionalities() {
@@ -88,19 +111,94 @@ export default defineComponent({
             return true
         },
         selectType(type): void {
-            this.$router.push(type.route)
+            // Check if there are selected items in other categories
+            const hasSelectedItems = Object.entries(this.selectedItems).some(([key, items]: [string, any[]]) => {
+                return items.length > 0 && key !== type.type
+            })
+
+            if (hasSelectedItems) {
+                this.$confirm.require({
+                    message: this.$t('importExport.confirmation.clearSelectedItems'),
+                    header: this.$t('common.warning'),
+                    icon: 'pi pi-exclamation-triangle',
+                    accept: () => {
+                        // Clear all selected items
+                        this.selectedItems = {
+                            gallery: [],
+                            catalogFunction: [],
+                            users: []
+                        }
+                        this.currentFunctionality = type
+                        this.router.push(type.route)
+                    }
+                })
+            } else {
+                this.currentFunctionality = type
+                this.router.push(type.route)
+            }
         },
         openImportDialog(): void {
             this.displayImportDialog = !this.displayImportDialog
         },
         openExportDialog(): void {
-            this.displayExportDialog = !this.displayExportDialog
+            if (this.selectedItems.users && this.selectedItems.users.length > 0) {
+                this.displayExportUsersDialog = !this.displayExportUsersDialog
+            } else {
+                this.displayExportDialog = !this.displayExportDialog
+            }
+        },
+        openExportUsersDialog(): void {
+            this.displayExportUsersDialog = !this.displayExportUsersDialog
         },
         async startExport(fileName: string) {
+            if (this.selectedItems.users && this.selectedItems.users.length > 0) {
+                await this.exportUsers(fileName)
+            } else {
+                await this.exportOtherFunctionalities(fileName)
+            }
+        },
+        async startExportUsers(fileName: string, exportPersonalFolder: boolean) {
+            await this.exportUsers(fileName, exportPersonalFolder)
+        },
+        async exportUsers(fileName: string, exportPersonalFolder = true): Promise<void> {
+            const exportData = {
+                USERS_LIST: this.selectedItems.users,
+                EXPORT_FILE_NAME: fileName,
+                EXPORT_PERSONAL_FOLDER: exportPersonalFolder
+            }
+
+            await this.$http
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/serverManager/importExport/users/export`, exportData, {
+                    responseType: 'arraybuffer',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/zip; charset=utf-8'
+                    }
+                })
+                .then(
+                    (response: AxiosResponse<any>) => {
+                        if (response.data.errors) {
+                            this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
+                        } else {
+                            downloadDirectFromResponseWithCustomName(response, fileName)
+                            this.store.setInfo({ title: this.$t('common.downloading'), msg: this.$t('importExport.export.successfullyCompleted') })
+                        }
+
+                        this.selectedItems = {
+                            gallery: [],
+                            catalogFunction: [],
+                            users: []
+                        }
+                        /* closing dialog */
+                        this.openExportUsersDialog()
+                    },
+                    () => this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
+                )
+        },
+        async exportOtherFunctionalities(fileName: string): Promise<void> {
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGE_API_CONTEXT + '/api/1.0/export/bulk', this.streamlineSelectedItemsArray(fileName), {
-                    responseType: 'arraybuffer', // important...because we need to convert it to a blob. If we don't specify this, response.data will be the raw data. It cannot be converted to blob directly.
-
+                    responseType: 'arraybuffer',
                     headers: {
                         'Content-Type': 'application/json',
                         Accept: 'application/zip; charset=utf-8'
@@ -117,7 +215,8 @@ export default defineComponent({
 
                         this.selectedItems = {
                             gallery: [],
-                            catalogFunction: []
+                            catalogFunction: [],
+                            users: []
                         }
                         /* closing dialog */
                         this.openExportDialog()
@@ -141,13 +240,6 @@ export default defineComponent({
             selectedItemsToBE['filename'] = fileName
             return selectedItemsToBE
         }
-    },
-    computed: {
-        ...mapState(mainStore, {
-            user: 'user',
-            isEnterprise: 'isEnterprise',
-            licenses: 'licenses'
-        })
     }
 })
 </script>
