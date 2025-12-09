@@ -163,7 +163,7 @@ export default defineComponent({
 
     mounted() {
         if (/Android|iPhone/i.test(navigator.userAgent)) {
-            this.isMobileDevice = true
+            this.isMobileDevice = false
         }
     },
 
