@@ -1,25 +1,27 @@
 <template>
-    <div class="import-export-users p-d-flex p-flex-column">
-        <div class="q-mb-md row q-gutter-md">
-            <q-input class="col" v-model="searchFilter" dense :placeholder="$t('common.search')" type="text">
+    <div class="import-export-users">
+        <q-card class="p-my-2 p-d-flex">
+            <q-input class="p-col-4" v-model="searchFilter" dense :placeholder="$t('common.search')" type="text">
                 <template #prepend>
                     <q-icon name="search" />
                 </template>
             </q-input>
-            <q-input class="col" v-model="dateFilter" dense type="date" :label="$t('common.date')" @update:model-value="onDateFilterChange">
+            <q-input class="p-col-2" v-model="dateFilter" dense type="date" :label="$t('common.date')" @update:model-value="onDateFilterChange">
                 <template #prepend>
                     <q-icon name="event" />
                 </template>
             </q-input>
-        </div>
+        </q-card>
 
-        <q-table class="sticky-header-table" ref="usersTable" v-model:selected="selectedItems[FUNCTIONALITY]" :rows="filteredUsers" :columns="columns" row-key="id" selection="multiple" :visible-columns="visibleColumns" virtual-scroll :pagination.sync="pagination" :rows-per-page-options="[0]" flat dense>
-            <template #body-cell-isSuperadmin="props">
-                <q-td :props="props">
-                    <q-icon v-if="props.row.isSuperadmin" name="check_circle" color="black" size="xs" />
-                </q-td>
-            </template>
-        </q-table>
+        <q-card class="p-d-flex p-flex-column kn-flex kn-overflow">
+            <q-table class="sticky-header-table" ref="usersTable" v-model:selected="selectedItems[FUNCTIONALITY]" :rows="filteredUsers" :columns="columns" row-key="id" selection="multiple" :visible-columns="visibleColumns" virtual-scroll :pagination.sync="pagination" :rows-per-page-options="[0]" flat dense>
+                <template #body-cell-isSuperadmin="props">
+                    <q-td :props="props">
+                        <q-icon v-if="props.row.isSuperadmin" name="check_circle" color="black" size="xs" />
+                    </q-td>
+                </template>
+            </q-table>
+        </q-card>
     </div>
 </template>
 
@@ -137,9 +139,13 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+.import-export-users {
+    display: flex;
+    flex-direction: column;
+    height: 95vh;
+}
 .sticky-header-table {
-    height: 91vh;
-
+    height: 100%;
     :deep(thead tr th) {
         position: sticky;
         z-index: 1;

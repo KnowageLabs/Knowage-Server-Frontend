@@ -97,7 +97,8 @@
                     "sortable": false
                 }
             ]
-        }
+        },
+        "menu": {}
     },
     "functionalities": [
         {
@@ -123,6 +124,14 @@
             "requiredFunctionality": "ImpExpUsers",
             "route": "/import-export/users",
             "type": "users"
+        },
+        {
+            "description": "importExport.menu.description",
+            "icon": "fas fa-bars",
+            "label": "importExport.menu.label",
+            "requiredFunctionality": "ImpExpMenu",
+            "route": "/import-export/menu",
+            "type": "menu"
         }
     ],
     "iconTypesMap": {

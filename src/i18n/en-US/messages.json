@@ -1981,6 +1981,7 @@
         "welcomeText": "<b>Knowage</b> is the full open source suite for analytics and business intelligence combining traditional and big data sources to provide valuable and meaningful information.<br>Start your analysis now!"
     },
     "importExport": {
+        "clearSelectedItems": "This will clear all the selected items. Are you sure you want to proceed?",
         "catalogFunction": {
             "column": {
                 "label": "Label",
@@ -2006,6 +2007,10 @@
             },
             "description": "export gallery templates",
             "label": "gallery"
+        },
+        "menu": {
+            "description": "export menu items",
+            "label": "menu"
         },
         "import": {
             "completedWithErrors": "Import completed with errors. Please read logs for further information.",

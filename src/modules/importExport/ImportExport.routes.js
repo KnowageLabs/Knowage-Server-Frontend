@@ -19,6 +19,10 @@ const routes = [
             {
                 path: 'users',
                 component: () => import('@/modules/importExport/users/ImportExportUsers.vue')
+            },
+            {
+                path: 'menu',
+                component: () => import('@/modules/importExport/menu/ImportExportMenu.vue')
             }
         ]
     }
