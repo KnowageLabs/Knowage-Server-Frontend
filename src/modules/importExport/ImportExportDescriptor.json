@@ -1,36 +1,29 @@
 {
     "export": {
         "catalogFunction": {
-            "column": {
-                "name": {
+            "column": [
+                {
+                    "align": "left",
                     "field": "name",
-                    "header": "importExport.catalogFunction.column.name",
-                    "style": {
-                        "width": "30%"
-                    }
+                    "label": "importExport.catalogFunction.column.name",
+                    "name": "name",
+                    "sortable": true
                 },
-                "selectionMode": {
-                    "field": "selectionMode",
-                    "header": "",
-                    "style": {
-                        "width": "5%"
-                    }
-                },
-                "tags": {
-                    "field": "tags",
-                    "header": "importExport.catalogFunction.column.tags",
-                    "style": {
-                        "width": "35%"
-                    }
-                },
-                "type": {
+                {
+                    "align": "left",
                     "field": "type",
-                    "header": "importExport.catalogFunction.column.type",
-                    "style": {
-                        "width": "20%"
-                    }
+                    "label": "importExport.catalogFunction.column.type",
+                    "name": "type",
+                    "sortable": true
+                },
+                {
+                    "align": "left",
+                    "field": "tags",
+                    "label": "importExport.catalogFunction.column.tags",
+                    "name": "tags",
+                    "sortable": false
                 }
-            }
+            ]
         },
         "gallery": {
             "column": {
@@ -73,6 +66,7 @@
                 }
             }
         },
+        "menu": {},
         "users": {
             "column": [
                 {
@@ -97,8 +91,7 @@
                     "sortable": false
                 }
             ]
-        },
-        "menu": {}
+        }
     },
     "functionalities": [
         {
