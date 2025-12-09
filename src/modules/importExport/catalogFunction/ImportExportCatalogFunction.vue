@@ -9,7 +9,7 @@
         </q-card>
 
         <q-card class="p-d-flex p-flex-column kn-flex kn-overflow">
-            <q-table class="sticky-header-table" ref="functionsTable" v-model:selected="selectedItems[FUNCTIONALITY]" :rows="filteredFunctions" :columns="columns" row-key="id" selection="multiple" :visible-columns="visibleColumns" virtual-scroll :pagination.sync="pagination" :rows-per-page-options="[0]" flat dense>
+            <q-table class="sticky-header-table" ref="functionsTable" v-model:selected="selectedFunctionItems" :rows="filteredFunctions" :columns="columns" row-key="id" selection="multiple" :visible-columns="visibleColumns" virtual-scroll :pagination.sync="pagination" :rows-per-page-options="[0]" flat dense>
                 <template #body-cell-tags="props">
                     <q-td :props="props">
                         <q-chip v-for="(tag, index) in props.row.tags" :key="index" size="sm" dense color="primary" text-color="white">
@@ -48,11 +48,7 @@ export default defineComponent({
     },
     computed: {
         columns(): any[] {
-            return [
-                { name: 'name', label: this.$t('importExport.catalogFunction.column.name'), field: 'name', align: 'left' },
-                { name: 'type', label: this.$t('importExport.catalogFunction.column.type'), field: 'type', align: 'left' },
-                { name: 'tags', label: this.$t('importExport.catalogFunction.column.tags'), field: 'tags', align: 'left' }
-            ]
+            return importExportDescriptor.export.catalogFunction.column.map((col: any) => ({ ...col, label: this.$t(col.label) }))
         },
         filteredFunctions(): ICatalogFunctionTemplate[] {
             if (!this.searchFilter) return this.functions
