@@ -3,6 +3,8 @@
         <ImportDialog v-model:visibility="displayImportDialog"></ImportDialog>
         <ExportDialog v-model:visibility="displayExportDialog" @export="startExport"></ExportDialog>
         <ExportUsersDialog v-model:visibility="displayExportUsersDialog" @export="startExportUsers"></ExportUsersDialog>
+        <ExportMenuDialog v-model:visibility="displayExportMenuDialog" @export="startExportMenu"></ExportMenuDialog>
+
         <Toolbar class="kn-toolbar kn-toolbar--primary">
             <template #start>
                 {{ $t('importExport.title') }}
@@ -33,6 +35,7 @@ import { AxiosResponse } from 'axios'
 import importExportDescriptor from './ImportExportDescriptor.json'
 import ExportDialog from './ExportDialog.vue'
 import ExportUsersDialog from './users/ExportUsersDialog.vue'
+import ExportMenuDialog from './menu/ExportMenuDialog.vue'
 import ImportDialog from './ImportDialog.vue'
 import ProgressBar from 'primevue/progressbar'
 import KnTabCard from '@/components/UI/KnTabCard.vue'
@@ -43,7 +46,7 @@ import type { ISelectedItems } from './ImportExportTypes'
 
 export default defineComponent({
     name: 'import-export',
-    components: { ExportDialog, ExportUsersDialog, KnTabCard, ImportDialog, ProgressBar },
+    components: { ExportDialog, ExportUsersDialog, ExportMenuDialog, KnTabCard, ImportDialog, ProgressBar },
     emits: ['onItemSelected'],
     computed: {
         ...mapState(mainStore, {
@@ -64,12 +67,14 @@ export default defineComponent({
             displayImportDialog: false,
             displayExportDialog: false,
             displayExportUsersDialog: false,
+            displayExportMenuDialog: false,
             fileName: '',
             loading: false,
             selectedItems: {
                 gallery: [],
                 catalogFunction: [],
-                users: []
+                users: [],
+                menu: []
             } as ISelectedItems,
             functionalities: Array<any>(),
             currentFunctionality: null as any
@@ -118,15 +123,15 @@ export default defineComponent({
 
             if (hasSelectedItems) {
                 this.$confirm.require({
-                    message: this.$t('importExport.confirmation.clearSelectedItems'),
+                    message: this.$t('importExport.clearSelectedItems'),
                     header: this.$t('common.warning'),
                     icon: 'pi pi-exclamation-triangle',
                     accept: () => {
-                        // Clear all selected items
                         this.selectedItems = {
                             gallery: [],
                             catalogFunction: [],
-                            users: []
+                            users: [],
+                            menu: []
                         }
                         this.currentFunctionality = type
                         this.router.push(type.route)
@@ -143,12 +148,17 @@ export default defineComponent({
         openExportDialog(): void {
             if (this.selectedItems.users && this.selectedItems.users.length > 0) {
                 this.displayExportUsersDialog = !this.displayExportUsersDialog
+            } else if (this.selectedItems.menu && this.selectedItems.menu.length > 0) {
+                this.displayExportMenuDialog = !this.displayExportMenuDialog
             } else {
                 this.displayExportDialog = !this.displayExportDialog
             }
         },
         openExportUsersDialog(): void {
             this.displayExportUsersDialog = !this.displayExportUsersDialog
+        },
+        openExportMenuDialog(): void {
+            this.displayExportMenuDialog = !this.displayExportMenuDialog
         },
         async startExport(fileName: string) {
             if (this.selectedItems.users && this.selectedItems.users.length > 0) {
@@ -159,6 +169,9 @@ export default defineComponent({
         },
         async startExportUsers(fileName: string, exportPersonalFolder: boolean) {
             await this.exportUsers(fileName, exportPersonalFolder)
+        },
+        async startExportMenu(fileName: string) {
+            await this.exportMenu(fileName)
         },
         async exportUsers(fileName: string, exportPersonalFolder = true): Promise<void> {
             const exportData = {
@@ -187,10 +200,44 @@ export default defineComponent({
                         this.selectedItems = {
                             gallery: [],
                             catalogFunction: [],
-                            users: []
+                            users: [],
+                            menu: []
                         }
-                        /* closing dialog */
                         this.openExportUsersDialog()
+                    },
+                    () => this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
+                )
+        },
+        async exportMenu(fileName: string): Promise<void> {
+            const exportData = {
+                EXPORT_SELECTED_MENU: this.selectedItems.menu,
+                EXPORT_FILE_NAME: fileName
+            }
+
+            await this.$http
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/serverManager/importExport/menu/export`, exportData, {
+                    responseType: 'arraybuffer',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/zip; charset=utf-8'
+                    }
+                })
+                .then(
+                    (response: AxiosResponse<any>) => {
+                        if (response.data.errors) {
+                            this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
+                        } else {
+                            downloadDirectFromResponseWithCustomName(response, fileName)
+                            this.store.setInfo({ title: this.$t('common.downloading'), msg: this.$t('importExport.export.successfullyCompleted') })
+                        }
+
+                        this.selectedItems = {
+                            gallery: [],
+                            catalogFunction: [],
+                            users: [],
+                            menu: []
+                        }
+                        this.openExportMenuDialog()
                     },
                     () => this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
                 )
@@ -216,7 +263,8 @@ export default defineComponent({
                         this.selectedItems = {
                             gallery: [],
                             catalogFunction: [],
-                            users: []
+                            users: [],
+                            menu: []
                         }
                         /* closing dialog */
                         this.openExportDialog()
