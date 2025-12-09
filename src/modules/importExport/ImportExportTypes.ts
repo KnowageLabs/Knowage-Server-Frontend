@@ -3,9 +3,18 @@ import { ICatalogFunctionTemplate } from '@/modules/importExport/catalogFunction
 import { iUser } from '@/modules/managers/usersManagement/UsersManagement'
 import { iMenuNode } from '../managers/menuManagement/MenuManagement'
 
+export interface IAnalyticalDriverItem {
+    id: number
+    label: string
+    name: string
+    description: string | null
+    catalogType?: string
+}
+
 export interface ISelectedItems {
     gallery: IGalleryTemplate[]
     catalogFunction: ICatalogFunctionTemplate[]
     users: iUser[]
+    analyticalDrivers: IAnalyticalDriverItem[]
     menu: iMenuNode[]
 }

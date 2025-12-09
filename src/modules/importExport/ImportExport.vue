@@ -74,6 +74,7 @@ export default defineComponent({
                 gallery: [],
                 catalogFunction: [],
                 users: [],
+                analyticalDrivers: [],
                 menu: []
             } as ISelectedItems,
             functionalities: Array<any>(),
@@ -131,6 +132,7 @@ export default defineComponent({
                             gallery: [],
                             catalogFunction: [],
                             users: [],
+                            analyticalDrivers: [],
                             menu: []
                         }
                         this.currentFunctionality = type
@@ -163,6 +165,8 @@ export default defineComponent({
         async startExport(fileName: string) {
             if (this.selectedItems.users && this.selectedItems.users.length > 0) {
                 await this.exportUsers(fileName)
+            } else if (this.selectedItems.analyticalDrivers && this.selectedItems.analyticalDrivers.length > 0) {
+                await this.exportAnalyticalDrivers(fileName)
             } else {
                 await this.exportOtherFunctionalities(fileName)
             }
@@ -172,6 +176,41 @@ export default defineComponent({
         },
         async startExportMenu(fileName: string) {
             await this.exportMenu(fileName)
+        },
+        async exportAnalyticalDrivers(fileName: string): Promise<void> {
+            const exportData = {
+                DRIVERS_LIST: this.selectedItems.analyticalDrivers.map((driver) => ({ ...driver, catalogType: 'AnalyticalDrivers' })),
+                EXPORT_FILE_NAME: fileName
+            }
+
+            await this.$http
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/serverManager/importExport/analyticaldrivers/export`, exportData, {
+                    responseType: 'arraybuffer',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/zip; charset=utf-8'
+                    }
+                })
+                .then(
+                    (response: AxiosResponse<any>) => {
+                        if (response.data.errors) {
+                            this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
+                        } else {
+                            downloadDirectFromResponseWithCustomName(response, fileName)
+                            this.store.setInfo({ title: this.$t('common.downloading'), msg: this.$t('importExport.export.successfullyCompleted') })
+                        }
+
+                        this.selectedItems = {
+                            gallery: [],
+                            catalogFunction: [],
+                            users: [],
+                            analyticalDrivers: [],
+                            menu: []
+                        }
+                        this.openExportDialog()
+                    },
+                    () => this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
+                )
         },
         async exportUsers(fileName: string, exportPersonalFolder = true): Promise<void> {
             const exportData = {
@@ -201,6 +240,7 @@ export default defineComponent({
                             gallery: [],
                             catalogFunction: [],
                             users: [],
+                            analyticalDrivers: [],
                             menu: []
                         }
                         this.openExportUsersDialog()
@@ -235,6 +275,7 @@ export default defineComponent({
                             gallery: [],
                             catalogFunction: [],
                             users: [],
+                            analyticalDrivers: [],
                             menu: []
                         }
                         this.openExportMenuDialog()
@@ -264,6 +305,7 @@ export default defineComponent({
                             gallery: [],
                             catalogFunction: [],
                             users: [],
+                            analyticalDrivers: [],
                             menu: []
                         }
                         /* closing dialog */

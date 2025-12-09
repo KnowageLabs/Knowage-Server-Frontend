@@ -21,6 +21,10 @@ const routes = [
                 component: () => import('@/modules/importExport/users/ImportExportUsers.vue')
             },
             {
+                path: 'drivers',
+                component: () => import('@/modules/importExport/drivers/ImportExportDrivers.vue')
+            },
+            {
                 path: 'menu',
                 component: () => import('@/modules/importExport/menu/ImportExportMenu.vue')
             }
