@@ -1981,7 +1981,10 @@
         "welcomeText": "<b>Knowage</b> is the full open source suite for analytics and business intelligence combining traditional and big data sources to provide valuable and meaningful information.<br>Start your analysis now!"
     },
     "importExport": {
-        "clearSelectedItems": "This will clear all the selected items. Are you sure you want to proceed?",
+        "analyticalDrivers": {
+            "description": "export analytical drivers",
+            "label": "analytical drivers"
+        },
         "catalogFunction": {
             "column": {
                 "label": "Label",
@@ -1992,6 +1995,7 @@
             "description": "export functions from catalog",
             "label": "functions"
         },
+        "clearSelectedItems": "This will clear all the selected items. Are you sure you want to proceed?",
         "export": {
             "completedWithErrors": "Export completed with errors. Please read logs for further information.",
             "successfullyCompleted": "Export successfully completed"
@@ -2008,16 +2012,16 @@
             "description": "export gallery templates",
             "label": "gallery"
         },
-        "menu": {
-            "description": "export menu items",
-            "label": "menu"
-        },
         "import": {
             "completedWithErrors": "Import completed with errors. Please read logs for further information.",
             "itemWithEmptyId": "This item has an empty ID. If checked, it will be imported as new.",
             "itemWithoutIdConfirm": "This item has an empty ID. It will be imported as new. Do you want to procede?",
             "itemsWithEmptyIdWarning": "Items with empty IDs were found. They will be imported as new.",
             "successfullyCompleted": "Import successfully completed"
+        },
+        "menu": {
+            "description": "export menu items",
+            "label": "menu"
         },
         "title": "Import/Export",
         "users": {

@@ -1,5 +1,30 @@
 {
     "export": {
+        "analyticalDrivers": {
+            "column": [
+                {
+                    "align": "left",
+                    "field": "label",
+                    "label": "common.label",
+                    "name": "label",
+                    "sortable": true
+                },
+                {
+                    "align": "left",
+                    "field": "name",
+                    "label": "common.name",
+                    "name": "name",
+                    "sortable": true
+                },
+                {
+                    "align": "left",
+                    "field": "description",
+                    "label": "common.description",
+                    "name": "description",
+                    "sortable": false
+                }
+            ]
+        },
         "catalogFunction": {
             "column": [
                 {
@@ -117,6 +142,14 @@
             "requiredFunctionality": "ImpExpUsers",
             "route": "/import-export/users",
             "type": "users"
+        },
+        {
+            "description": "importExport.analyticalDrivers.description",
+            "icon": "fas fa-sliders-h",
+            "label": "importExport.analyticalDrivers.label",
+            "requiredFunctionality": "ImpExpAnalyticalDrivers",
+            "route": "/import-export/drivers",
+            "type": "analyticalDrivers"
         },
         {
             "description": "importExport.menu.description",
