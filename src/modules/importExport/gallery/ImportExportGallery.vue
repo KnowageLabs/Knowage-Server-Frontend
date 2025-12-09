@@ -1,157 +1,174 @@
 <template>
-    <span>
-        <OverlayPanel ref="op" class="imageOverlayPanel">
-            <img :src="currentImage" />
-        </OverlayPanel>
-    </span>
-    <DataTable
-        ref="dt"
-        v-model:selection="selectedGalleryItems"
-        v-model:filters="filters"
-        :value="templates"
-        class="p-datatable-sm kn-table"
-        data-key="id"
-        :paginator="true"
-        :rows="10"
-        paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-        :rows-per-page-options="[10, 15, 20]"
-        responsive-layout="stack"
-        breakpoint="960px"
-        :current-page-report-template="$t('common.table.footer.paginated', { first: '{first}', last: '{last}', totalRecords: '{totalRecords}' })"
-        :global-filter-fields="['name', 'type', 'tags']"
-    >
-        <template #header>
-            <div class="table-header">
-                <span class="p-input-icon-left">
-                    <i class="pi pi-search" />
-                    <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" data-test="search-input" badge="0" />
-                </span>
-            </div>
-        </template>
-        <template #empty>
-            {{ $t('common.info.noDataFound') }}
-        </template>
-        <template #loading>
-            {{ $t('common.info.dataLoading') }}
-        </template>
+    <div class="import-export-gallery">
+        <q-card class="p-my-2 p-d-flex">
+            <q-input class="p-col-4" v-model="searchFilter" dense :placeholder="$t('common.search')" type="text">
+                <template #prepend>
+                    <q-icon name="search" />
+                </template>
+            </q-input>
+        </q-card>
 
-        <Column selection-mode="multiple" :exportable="false" :style="importExportDescriptor.export.gallery.column.selectionMode.style"></Column>
-        <Column field="name" :header="$t(importExportDescriptor.export.gallery.column.name.header)" :sortable="true" :style="importExportDescriptor.export.gallery.column.name.style"></Column>
-        <Column field="type" :header="$t(importExportDescriptor.export.gallery.column.type.header)" :sortable="true" :style="importExportDescriptor.export.gallery.column.type.style">
-            <template #body="{ data }">
-                <Tag :style="importExportDescriptor.iconTypesMap[data.type].style"> {{ data.type.toUpperCase() }} </Tag>
-            </template>
-        </Column>
+        <q-card class="p-d-flex p-flex-column kn-flex kn-overflow">
+            <q-table class="sticky-header-table" ref="galleryTable" v-model:selected="selectedGalleryItems" :rows="filteredTemplates" :columns="columns" row-key="id" selection="multiple" :visible-columns="visibleColumns" virtual-scroll :pagination.sync="pagination" :rows-per-page-options="[0]" flat dense>
+                <template #body-cell-type="props">
+                    <q-td :props="props">
+                        <q-chip dense square class="type-chip" :style="iconStyle(props.row.type)" size="sm">{{ props.row.type?.toUpperCase() }}</q-chip>
+                    </q-td>
+                </template>
+                <template #body-cell-tags="props">
+                    <q-td :props="props">
+                        <q-chip v-for="(tag, index) in props.row.tags" :key="index" dense size="sm" class="importExportTags q-mr-xs">{{ tag }}</q-chip>
+                    </q-td>
+                </template>
+                <template #body-cell-image="props">
+                    <q-td :props="props">
+                        <q-btn v-if="props.row.image && props.row.image.length > 0" flat dense round icon="image" @click="togglePreview(props.row.id)" />
+                    </q-td>
+                </template>
+            </q-table>
+        </q-card>
 
-        <Column field="tags" :header="$t(importExportDescriptor.export.gallery.column.tags.header)" :sortable="true" :style="importExportDescriptor.export.gallery.column.tags.style">
-            <template #body="{ data }">
-                <span class="p-float-label kn-material-input">
-                    <Tag v-for="(tag, index) in data.tags" :key="index" class="importExportTags p-mr-1" rounded :value="tag"> </Tag>
-                </span>
-            </template>
-        </Column>
-        <Column field="image" :header="$t(importExportDescriptor.export.gallery.column.image.header)" :style="importExportDescriptor.export.gallery.column.image.style">
-            <template #body="{ data }">
-                <span @click="togglePreview($event, data.id)">
-                    <i v-if="data.image && data.image.length > 0" class="fas fa-image" />
-                </span>
-            </template>
-        </Column>
-    </DataTable>
+        <q-dialog v-model="previewVisible">
+            <q-card>
+                <q-card-section>
+                    <q-img :src="currentImage" contain style="min-width: 320px; min-height: 240px" />
+                </q-card-section>
+                <q-card-actions>
+                    <q-btn flat color="primary" :label="$t('common.close')" v-close-popup />
+                </q-card-actions>
+            </q-card>
+        </q-dialog>
+    </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { AxiosResponse } from 'axios'
-import Column from 'primevue/column'
-import DataTable from 'primevue/datatable'
-import { FilterMatchMode, FilterOperator } from 'primevue/api'
-import InputText from 'primevue/inputtext'
-import OverlayPanel from 'primevue/overlaypanel'
-
-import Tag from 'primevue/tag'
 import importExportDescriptor from '../ImportExportDescriptor.json'
 import { IGalleryTemplate } from '@/modules/managers/galleryManagement/GalleryManagement'
+import type { ISelectedItems } from '../ImportExportTypes'
 
 export default defineComponent({
     name: 'import-export-gallery',
-    components: { Column, DataTable, InputText, OverlayPanel, Tag },
-    props: { selectedItems: Object },
+    props: { selectedItems: { type: Object as () => ISelectedItems, required: true } },
     emits: ['onItemSelected', 'update:loading'],
     data() {
         return {
             currentImage: '',
-            filters: {},
+            previewVisible: false,
+            searchFilter: '',
             importExportDescriptor: importExportDescriptor,
-            product: {},
             selectedGalleryItems: [],
             templates: [] as Array<IGalleryTemplate>,
-            FUNCTIONALITY: 'gallery'
-        }
-    },
-    watch: {
-        selectedGalleryItems(newSelectedGalleryItems, oldSelectedGalleryItems) {
-            if (oldSelectedGalleryItems != newSelectedGalleryItems) {
-                this.$emit('onItemSelected', { items: this.selectedGalleryItems, functionality: this.FUNCTIONALITY })
+            FUNCTIONALITY: 'gallery',
+            visibleColumns: ['name', 'type', 'tags', 'image'],
+            pagination: {
+                rowsPerPage: 0
             }
         }
     },
-    created() {
-        this.filters = {
-            global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-            name: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            type: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            tags: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }] }
+    computed: {
+        columns(): any[] {
+            const columnConfig = this.importExportDescriptor.export.gallery.column
+            const order = ['name', 'type', 'tags', 'image']
+
+            return order.map((key) => {
+                const conf = columnConfig[key]
+                const align = conf?.style?.['text-align'] ? conf.style['text-align'].replace('center', 'center').replace('left', 'left') : 'left'
+                return { name: key, field: conf?.field || key, label: this.$t(conf.header), align, sortable: key !== 'image' }
+            })
+        },
+        filteredTemplates(): IGalleryTemplate[] {
+            if (!this.searchFilter) return this.templates
+
+            const searchLower = this.searchFilter.toLowerCase()
+            return this.templates.filter((template) => {
+                const nameMatch = template.name?.toLowerCase().includes(searchLower)
+                const typeMatch = template.type?.toLowerCase().includes(searchLower)
+                const tagsMatch = Array.isArray(template.tags) ? template.tags.some((tag) => tag.toLowerCase().includes(searchLower)) : false
+                return nameMatch || typeMatch || tagsMatch
+            })
         }
+    },
+    watch: {
+        selectedGalleryItems(newVal, oldVal) {
+            if (oldVal !== newVal) {
+                this.$emit('onItemSelected', { items: this.selectedGalleryItems, functionality: this.FUNCTIONALITY })
+            }
+        },
+        selectedItems: {
+            handler(newVal) {
+                const selected = newVal?.[this.FUNCTIONALITY] || []
+                this.selectedGalleryItems = selected
+            },
+            deep: true
+        }
+    },
+    created() {
         this.loadAllTemplates()
     },
     methods: {
         loadAllTemplates(): void {
             this.$emit('update:loading', true)
-            this.axios
+            this.$http
                 .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + '/api/1.0/widgetgallery')
                 .then((response: AxiosResponse<any>) => {
                     this.templates = response.data
-                    if (this.selectedItems) {
+                    if (this.selectedItems && this.selectedItems[this.FUNCTIONALITY]) {
                         this.selectedGalleryItems = this.selectedItems[this.FUNCTIONALITY].filter((element) => {
-                            return this.templates.filter((el) => el.id === element.id).length == 1
+                            return this.templates.some((el) => el.id === element.id)
                         })
                     }
                 })
-                .catch((error) => console.error(error))
+                .catch((error) => console.error('[ImportExportGallery] loadAllTemplates error', error))
                 .finally(() => {
                     this.$emit('update:loading', false)
                 })
         },
-        togglePreview(event, id) {
+        togglePreview(id: string): void {
             this.currentImage = ''
+            this.previewVisible = true
 
             this.$http.get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + '/api/1.0/widgetgallery/image/' + id).then(
                 (response: AxiosResponse<any>) => {
                     this.currentImage = response.data
                 },
-                (error) => console.error(error)
+                (error) => console.error('[ImportExportGallery] togglePreview error', error)
             )
-            // eslint-disable-next-line
-            // @ts-ignore
-            this.$refs.op.toggle(event)
+        },
+        iconStyle(type: string) {
+            return this.importExportDescriptor.iconTypesMap[type] ? this.importExportDescriptor.iconTypesMap[type].style : {}
         }
     }
 })
 </script>
 
 <style lang="scss" scoped>
-.imageOverlayPanel {
-    position: absolute !important;
-    top: 0px !important;
-    left: 0px !important;
+.import-export-gallery {
+    display: flex;
+    flex-direction: column;
+    height: 95vh;
+}
+
+.sticky-header-table {
+    height: 100%;
+    :deep(thead tr th) {
+        position: sticky;
+        z-index: 1;
+        background-color: #ffffff;
+        top: 0;
+    }
+
+    :deep(tbody) {
+        scroll-margin-top: 48px;
+    }
 }
 
 .importExportTags {
     background-color: var(--kn-color-default);
 }
 
-.p-paginator p-component p-paginator-bottom {
-    height: 50px;
+.type-chip {
+    color: #ffffff;
 }
 </style>
