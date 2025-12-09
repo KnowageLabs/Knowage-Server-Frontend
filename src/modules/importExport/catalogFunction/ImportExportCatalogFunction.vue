@@ -1,90 +1,79 @@
 <template>
-    <DataTable
-        ref="dt"
-        v-model:selection="selectedCatalogFunctionItems"
-        v-model:filters="filters"
-        :value="functions"
-        class="p-datatable-sm kn-table"
-        data-key="id"
-        :paginator="true"
-        :rows="10"
-        paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-        :rows-per-page-options="[10, 15, 20]"
-        responsive-layout="stack"
-        breakpoint="960px"
-        :current-page-report-template="$t('common.table.footer.paginated', { first: '{first}', last: '{last}', totalRecords: '{totalRecords}' })"
-        :global-filter-fields="['name', 'type', 'tags']"
-    >
-        <template #header>
-            <div class="table-header">
-                <span class="p-input-icon-left">
-                    <i class="pi pi-search" />
-                    <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" data-test="search-input" badge="0" />
-                </span>
-            </div>
-        </template>
-        <template #empty>
-            {{ $t('common.info.noDataFound') }}
-        </template>
-        <template #loading>
-            {{ $t('common.info.dataLoading') }}
-        </template>
+    <div class="import-export-catalog-function">
+        <q-card class="p-my-2">
+            <q-input class="p-col-4" v-model="searchFilter" dense :placeholder="$t('common.search')" type="text">
+                <template #prepend>
+                    <q-icon name="search" />
+                </template>
+            </q-input>
+        </q-card>
 
-        <Column selection-mode="multiple" :exportable="false" :style="importExportDescriptor.export.catalogFunction.column.selectionMode.style"></Column>
-        <Column field="name" :header="$t(importExportDescriptor.export.catalogFunction.column.name.header)" :sortable="true" :style="importExportDescriptor.export.catalogFunction.column.name.style"></Column>
-        <Column field="type" :header="$t(importExportDescriptor.export.catalogFunction.column.type.header)" :sortable="true" :style="importExportDescriptor.export.catalogFunction.column.type.style"> </Column>
-
-        <Column field="tags" :header="$t(importExportDescriptor.export.catalogFunction.column.tags.header)" :sortable="true" :style="importExportDescriptor.export.catalogFunction.column.tags.style">
-            <template #body="{ data }">
-                <span class="p-float-label kn-material-input">
-                    <Tag v-for="(tag, index) in data.tags" :key="index" class="importExportTags p-mr-1" rounded :value="tag"> </Tag>
-                </span>
-            </template>
-        </Column>
-    </DataTable>
+        <q-card class="p-d-flex p-flex-column kn-flex kn-overflow">
+            <q-table class="sticky-header-table" ref="functionsTable" v-model:selected="selectedItems[FUNCTIONALITY]" :rows="filteredFunctions" :columns="columns" row-key="id" selection="multiple" :visible-columns="visibleColumns" virtual-scroll :pagination.sync="pagination" :rows-per-page-options="[0]" flat dense>
+                <template #body-cell-tags="props">
+                    <q-td :props="props">
+                        <q-chip v-for="(tag, index) in props.row.tags" :key="index" size="sm" dense color="primary" text-color="white">
+                            {{ tag }}
+                        </q-chip>
+                    </q-td>
+                </template>
+            </q-table>
+        </q-card>
+    </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { AxiosResponse } from 'axios'
-import Column from 'primevue/column'
-import DataTable from 'primevue/datatable'
-import { FilterMatchMode, FilterOperator } from 'primevue/api'
-import InputText from 'primevue/inputtext'
-
-import Tag from 'primevue/tag'
 import importExportDescriptor from '../ImportExportDescriptor.json'
+import { AxiosResponse } from 'axios'
 import { ICatalogFunctionTemplate } from '@/modules/importExport/catalogFunction/ICatalogFunctionTemplate'
+import type { ISelectedItems } from '../ImportExportTypes'
 
 export default defineComponent({
     name: 'import-export-catalog-function',
-    components: { Column, DataTable, InputText, Tag },
-    props: { selectedItems: Object },
+    props: { selectedItems: { type: Object as () => ISelectedItems, required: true } },
     emits: ['onItemSelected', 'update:loading'],
     data() {
         return {
-            filters: {},
             importExportDescriptor: importExportDescriptor,
-            product: {},
-            selectedCatalogFunctionItems: [],
+            selectedFunctionItems: [],
             functions: [] as Array<ICatalogFunctionTemplate>,
-            FUNCTIONALITY: 'catalogFunction'
-        }
-    },
-    watch: {
-        selectedCatalogFunctionItems(newSelectedCatalogFunctionItems, oldSelectedCatalogFunctionItems) {
-            if (oldSelectedCatalogFunctionItems != newSelectedCatalogFunctionItems) {
-                this.$emit('onItemSelected', { items: this.selectedCatalogFunctionItems, functionality: this.FUNCTIONALITY })
+            searchFilter: '',
+            FUNCTIONALITY: 'catalogFunction',
+            visibleColumns: ['name', 'type', 'tags'],
+            pagination: {
+                rowsPerPage: 0
             }
         }
     },
-    created() {
-        this.filters = {
-            global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-            name: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            type: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            tags: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }] }
+    computed: {
+        columns(): any[] {
+            return [
+                { name: 'name', label: this.$t('importExport.catalogFunction.column.name'), field: 'name', align: 'left' },
+                { name: 'type', label: this.$t('importExport.catalogFunction.column.type'), field: 'type', align: 'left' },
+                { name: 'tags', label: this.$t('importExport.catalogFunction.column.tags'), field: 'tags', align: 'left' }
+            ]
+        },
+        filteredFunctions(): ICatalogFunctionTemplate[] {
+            if (!this.searchFilter) return this.functions
+
+            const searchLower = this.searchFilter.toLowerCase()
+            return this.functions.filter((func) => func.name.toLowerCase().includes(searchLower) || func.type.toLowerCase().includes(searchLower) || (func.tags && func.tags.some((tag) => tag.toLowerCase().includes(searchLower))))
         }
+    },
+    watch: {
+        selectedItems: {
+            handler(newVal) {
+                const selectedFuncs = newVal?.[this.FUNCTIONALITY] || []
+                this.selectedFunctionItems = selectedFuncs
+            },
+            deep: true
+        },
+        selectedFunctionItems(newVal) {
+            this.$emit('onItemSelected', { items: newVal, functionality: this.FUNCTIONALITY })
+        }
+    },
+    created() {
         this.loadAllFunctions()
     },
     methods: {
@@ -95,9 +84,9 @@ export default defineComponent({
                 .then((response: AxiosResponse<any>) => {
                     this.functions = response.data
 
-                    if (this.selectedItems) {
-                        this.selectedCatalogFunctionItems = this.selectedItems[this.FUNCTIONALITY].filter((element) => {
-                            return this.functions.filter((el) => el.id === element.id).length == 1
+                    if (this.selectedItems && this.selectedItems[this.FUNCTIONALITY]) {
+                        this.selectedFunctionItems = this.selectedItems[this.FUNCTIONALITY].filter((element) => {
+                            return this.functions.some((el) => el.id === element.id)
                         })
                     }
                 })
@@ -111,17 +100,24 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.imageOverlayPanel {
-    position: absolute !important;
-    top: 0px !important;
-    left: 0px !important;
+.import-export-catalog-function {
+    display: flex;
+    flex-direction: column;
+    height: 95vh;
 }
 
-.importExportTags {
-    background-color: var(--kn-color-default);
-}
+.sticky-header-table {
+    height: 100%;
+    :deep(thead tr th) {
+        position: sticky;
+        z-index: 1;
+        background-color: #ffffff;
+        top: 0;
+    }
 
-.p-paginator p-component p-paginator-bottom {
-    height: 50px;
+    /* prevent scrolling behind sticky top row on focus */
+    :deep(tbody) {
+        scroll-margin-top: 48px;
+    }
 }
 </style>
