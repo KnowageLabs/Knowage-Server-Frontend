@@ -78,6 +78,7 @@ export default defineComponent({
                 catalogFunction: [],
                 users: [],
                 kpis: [],
+                glossary: [],
                 analyticalDrivers: [],
                 menu: []
             } as ISelectedItems,
@@ -137,6 +138,7 @@ export default defineComponent({
                             catalogFunction: [],
                             users: [],
                             kpis: [],
+                            glossary: [],
                             analyticalDrivers: [],
                             menu: []
                         }
@@ -223,6 +225,7 @@ export default defineComponent({
                             catalogFunction: [],
                             users: [],
                             kpis: [],
+                            glossary: [],
                             analyticalDrivers: [],
                             menu: []
                         }
@@ -259,6 +262,7 @@ export default defineComponent({
                             catalogFunction: [],
                             users: [],
                             kpis: [],
+                            glossary: [],
                             analyticalDrivers: [],
                             menu: []
                         }
@@ -296,6 +300,7 @@ export default defineComponent({
                             catalogFunction: [],
                             users: [],
                             kpis: [],
+                            glossary: [],
                             analyticalDrivers: [],
                             menu: []
                         }
@@ -332,6 +337,7 @@ export default defineComponent({
                             catalogFunction: [],
                             users: [],
                             kpis: [],
+                            glossary: [],
                             analyticalDrivers: [],
                             menu: []
                         }

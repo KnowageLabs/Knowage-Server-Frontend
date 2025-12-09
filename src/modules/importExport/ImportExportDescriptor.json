@@ -25,24 +25,6 @@
                 }
             ]
         },
-        "kpis": {
-            "column": [
-                {
-                    "align": "left",
-                    "field": "name",
-                    "label": "importExport.kpis.column.name",
-                    "name": "name",
-                    "sortable": true
-                },
-                {
-                    "align": "left",
-                    "field": "author",
-                    "label": "importExport.kpis.column.author",
-                    "name": "author",
-                    "sortable": true
-                }
-            ]
-        },
         "catalogFunction": {
             "column": [
                 {
@@ -109,6 +91,35 @@
                 }
             }
         },
+        "glossary": {
+            "column": [
+                {
+                    "align": "left",
+                    "field": "name",
+                    "label": "common.name",
+                    "name": "name",
+                    "sortable": true
+                }
+            ]
+        },
+        "kpis": {
+            "column": [
+                {
+                    "align": "left",
+                    "field": "author",
+                    "label": "importExport.kpis.column.author",
+                    "name": "author",
+                    "sortable": true
+                },
+                {
+                    "align": "left",
+                    "field": "name",
+                    "label": "common.name",
+                    "name": "name",
+                    "sortable": true
+                }
+            ]
+        },
         "menu": {},
         "users": {
             "column": [
@@ -160,6 +171,14 @@
             "requiredFunctionality": "ImpExpUsers",
             "route": "/import-export/users",
             "type": "users"
+        },
+        {
+            "description": "importExport.glossary.description",
+            "icon": "fas fa-book",
+            "label": "importExport.glossary.label",
+            "requiredFunctionality": "ImpExpGlossary",
+            "route": "/import-export/glossary",
+            "type": "glossary"
         },
         {
             "description": "importExport.kpis.description",

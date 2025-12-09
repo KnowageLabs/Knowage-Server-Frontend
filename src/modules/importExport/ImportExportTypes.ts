@@ -18,11 +18,17 @@ export interface IKpiItem {
     author: string
 }
 
+export interface IGlossaryItem {
+    id: number
+    name: string
+}
+
 export interface ISelectedItems {
     gallery: IGalleryTemplate[]
     catalogFunction: ICatalogFunctionTemplate[]
     users: iUser[]
     analyticalDrivers: IAnalyticalDriverItem[]
     kpis: IKpiItem[]
+    glossary: IGlossaryItem[]
     menu: iMenuNode[]
 }

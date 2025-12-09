@@ -2022,6 +2022,10 @@
             "description": "export gallery templates",
             "label": "gallery"
         },
+        "glossary": {
+            "description": "export glossaries",
+            "label": "glossary"
+        },
         "import": {
             "completedWithErrors": "Import completed with errors. Please read logs for further information.",
             "itemWithEmptyId": "This item has an empty ID. If checked, it will be imported as new.",

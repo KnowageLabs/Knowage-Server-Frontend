@@ -25,6 +25,10 @@ const routes = [
                 component: () => import('@/modules/importExport/kpi/ImportExportKpi.vue')
             },
             {
+                path: 'glossary',
+                component: () => import('@/modules/importExport/glossary/ImportExportGlossary.vue')
+            },
+            {
                 path: 'drivers',
                 component: () => import('@/modules/importExport/drivers/ImportExportDrivers.vue')
             },
