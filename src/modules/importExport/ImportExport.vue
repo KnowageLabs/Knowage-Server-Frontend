@@ -3,6 +3,7 @@
         <ImportDialog v-model:visibility="displayImportDialog"></ImportDialog>
         <ExportDialog v-model:visibility="displayExportDialog" @export="startExport"></ExportDialog>
         <ExportUsersDialog v-model:visibility="displayExportUsersDialog" @export="startExportUsers"></ExportUsersDialog>
+        <ExportKpiDialog v-model:visibility="displayExportKpiDialog" @export="startExportKpi"></ExportKpiDialog>
         <ExportMenuDialog v-model:visibility="displayExportMenuDialog" @export="startExportMenu"></ExportMenuDialog>
 
         <Toolbar class="kn-toolbar kn-toolbar--primary">
@@ -36,6 +37,7 @@ import importExportDescriptor from './ImportExportDescriptor.json'
 import ExportDialog from './ExportDialog.vue'
 import ExportUsersDialog from './users/ExportUsersDialog.vue'
 import ExportMenuDialog from './menu/ExportMenuDialog.vue'
+import ExportKpiDialog from './kpi/ExportKpiDialog.vue'
 import ImportDialog from './ImportDialog.vue'
 import ProgressBar from 'primevue/progressbar'
 import KnTabCard from '@/components/UI/KnTabCard.vue'
@@ -46,7 +48,7 @@ import type { ISelectedItems } from './ImportExportTypes'
 
 export default defineComponent({
     name: 'import-export',
-    components: { ExportDialog, ExportUsersDialog, ExportMenuDialog, KnTabCard, ImportDialog, ProgressBar },
+    components: { ExportDialog, ExportUsersDialog, ExportMenuDialog, ExportKpiDialog, KnTabCard, ImportDialog, ProgressBar },
     emits: ['onItemSelected'],
     computed: {
         ...mapState(mainStore, {
@@ -67,6 +69,7 @@ export default defineComponent({
             displayImportDialog: false,
             displayExportDialog: false,
             displayExportUsersDialog: false,
+            displayExportKpiDialog: false,
             displayExportMenuDialog: false,
             fileName: '',
             loading: false,
@@ -74,6 +77,7 @@ export default defineComponent({
                 gallery: [],
                 catalogFunction: [],
                 users: [],
+                kpis: [],
                 analyticalDrivers: [],
                 menu: []
             } as ISelectedItems,
@@ -132,6 +136,7 @@ export default defineComponent({
                             gallery: [],
                             catalogFunction: [],
                             users: [],
+                            kpis: [],
                             analyticalDrivers: [],
                             menu: []
                         }
@@ -150,6 +155,8 @@ export default defineComponent({
         openExportDialog(): void {
             if (this.selectedItems.users && this.selectedItems.users.length > 0) {
                 this.displayExportUsersDialog = !this.displayExportUsersDialog
+            } else if (this.selectedItems.kpis && this.selectedItems.kpis.length > 0) {
+                this.displayExportKpiDialog = !this.displayExportKpiDialog
             } else if (this.selectedItems.menu && this.selectedItems.menu.length > 0) {
                 this.displayExportMenuDialog = !this.displayExportMenuDialog
             } else {
@@ -159,12 +166,17 @@ export default defineComponent({
         openExportUsersDialog(): void {
             this.displayExportUsersDialog = !this.displayExportUsersDialog
         },
+        openExportKpiDialog(): void {
+            this.displayExportKpiDialog = !this.displayExportKpiDialog
+        },
         openExportMenuDialog(): void {
             this.displayExportMenuDialog = !this.displayExportMenuDialog
         },
         async startExport(fileName: string) {
             if (this.selectedItems.users && this.selectedItems.users.length > 0) {
                 await this.exportUsers(fileName)
+            } else if (this.selectedItems.kpis && this.selectedItems.kpis.length > 0) {
+                await this.exportKpis(fileName)
             } else if (this.selectedItems.analyticalDrivers && this.selectedItems.analyticalDrivers.length > 0) {
                 await this.exportAnalyticalDrivers(fileName)
             } else {
@@ -174,8 +186,50 @@ export default defineComponent({
         async startExportUsers(fileName: string, exportPersonalFolder: boolean) {
             await this.exportUsers(fileName, exportPersonalFolder)
         },
+        async startExportKpi(fileName: string, targetsAndRelated: boolean, scorecardsAndRelated: boolean, schedulersAndRelated: boolean) {
+            await this.exportKpis(fileName, targetsAndRelated, scorecardsAndRelated, schedulersAndRelated)
+        },
         async startExportMenu(fileName: string) {
             await this.exportMenu(fileName)
+        },
+        async exportKpis(fileName: string, targetsAndRelated = true, scorecardsAndRelated = true, schedulersAndRelated = true): Promise<void> {
+            const exportData = {
+                KPIS_LIST: this.selectedItems.kpis.map((kpi) => ({ id: kpi.id, version: kpi.version })),
+                EXPORT_FILE_NAME: fileName,
+                TARGETS_AND_RELATED_KPIS: targetsAndRelated,
+                SCORECARDS_AND_RELATED_KPIS: scorecardsAndRelated,
+                SCHEDULERS_AND_RELATED_KPIS: schedulersAndRelated
+            }
+
+            await this.$http
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/serverManager/importExport/kpi/export`, exportData, {
+                    responseType: 'arraybuffer',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/zip; charset=utf-8'
+                    }
+                })
+                .then(
+                    (response: AxiosResponse<any>) => {
+                        if (response.data.errors) {
+                            this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
+                        } else {
+                            downloadDirectFromResponseWithCustomName(response, fileName)
+                            this.store.setInfo({ title: this.$t('common.downloading'), msg: this.$t('importExport.export.successfullyCompleted') })
+                        }
+
+                        this.selectedItems = {
+                            gallery: [],
+                            catalogFunction: [],
+                            users: [],
+                            kpis: [],
+                            analyticalDrivers: [],
+                            menu: []
+                        }
+                        this.openExportKpiDialog()
+                    },
+                    () => this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
+                )
         },
         async exportAnalyticalDrivers(fileName: string): Promise<void> {
             const exportData = {
@@ -204,6 +258,7 @@ export default defineComponent({
                             gallery: [],
                             catalogFunction: [],
                             users: [],
+                            kpis: [],
                             analyticalDrivers: [],
                             menu: []
                         }
@@ -240,6 +295,7 @@ export default defineComponent({
                             gallery: [],
                             catalogFunction: [],
                             users: [],
+                            kpis: [],
                             analyticalDrivers: [],
                             menu: []
                         }
@@ -275,6 +331,7 @@ export default defineComponent({
                             gallery: [],
                             catalogFunction: [],
                             users: [],
+                            kpis: [],
                             analyticalDrivers: [],
                             menu: []
                         }
@@ -305,6 +362,7 @@ export default defineComponent({
                             gallery: [],
                             catalogFunction: [],
                             users: [],
+                            kpis: [],
                             analyticalDrivers: [],
                             menu: []
                         }

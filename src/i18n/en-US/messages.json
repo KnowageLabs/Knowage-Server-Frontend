@@ -2029,6 +2029,17 @@
             "itemsWithEmptyIdWarning": "Items with empty IDs were found. They will be imported as new.",
             "successfullyCompleted": "Import successfully completed"
         },
+        "kpis": {
+            "column": {
+                "author": "Author",
+                "name": "Name"
+            },
+            "description": "export KPIs",
+            "label": "kpi",
+            "schedulersAndRelated": "Include schedulers and related KPIs",
+            "scorecardsAndRelated": "Include scorecards and related KPIs",
+            "targetsAndRelated": "Include targets and related KPIs"
+        },
         "menu": {
             "description": "export menu items",
             "label": "menu"

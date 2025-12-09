@@ -25,6 +25,24 @@
                 }
             ]
         },
+        "kpis": {
+            "column": [
+                {
+                    "align": "left",
+                    "field": "name",
+                    "label": "importExport.kpis.column.name",
+                    "name": "name",
+                    "sortable": true
+                },
+                {
+                    "align": "left",
+                    "field": "author",
+                    "label": "importExport.kpis.column.author",
+                    "name": "author",
+                    "sortable": true
+                }
+            ]
+        },
         "catalogFunction": {
             "column": [
                 {
@@ -142,6 +160,14 @@
             "requiredFunctionality": "ImpExpUsers",
             "route": "/import-export/users",
             "type": "users"
+        },
+        {
+            "description": "importExport.kpis.description",
+            "icon": "fas fa-bullseye",
+            "label": "importExport.kpis.label",
+            "requiredFunctionality": "ImpExpKpis",
+            "route": "/import-export/kpi",
+            "type": "kpis"
         },
         {
             "description": "importExport.analyticalDrivers.description",
