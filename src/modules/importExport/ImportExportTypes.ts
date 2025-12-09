@@ -11,10 +11,18 @@ export interface IAnalyticalDriverItem {
     catalogType?: string
 }
 
+export interface IKpiItem {
+    id: number
+    version: number
+    name: string
+    author: string
+}
+
 export interface ISelectedItems {
     gallery: IGalleryTemplate[]
     catalogFunction: ICatalogFunctionTemplate[]
     users: iUser[]
     analyticalDrivers: IAnalyticalDriverItem[]
+    kpis: IKpiItem[]
     menu: iMenuNode[]
 }
