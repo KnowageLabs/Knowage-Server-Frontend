@@ -1,10 +1,8 @@
 <template>
     <div class="kn-importExport kn-page">
-        <ImportDialog v-model:visibility="displayImportDialog"></ImportDialog>
-        <ExportDialog v-model:visibility="displayExportDialog" @export="startExport"></ExportDialog>
-        <ExportUsersDialog v-model:visibility="displayExportUsersDialog" @export="startExportUsers"></ExportUsersDialog>
-        <ExportKpiDialog v-model:visibility="displayExportKpiDialog" @export="startExportKpi"></ExportKpiDialog>
-        <ExportMenuDialog v-model:visibility="displayExportMenuDialog" @export="startExportMenu"></ExportMenuDialog>
+        <ImportDialog v-model:visibility="displayImportDialog" />
+
+        <ExportDialog v-model:visibility="exportDialog.visible" :checkbox-options="exportDialog.checkboxOptions" @export="handleExport" />
 
         <Toolbar class="kn-toolbar kn-toolbar--primary">
             <template #start>
@@ -12,7 +10,7 @@
             </template>
             <template #end>
                 <Button class="kn-button p-button-text" @click="openImportDialog">{{ $t('common.import') }}</Button>
-                <Button class="kn-button p-button-text" :disabled="isExportDisabled()" @click="openExportDialog">{{ $t('common.export') }}</Button>
+                <Button class="kn-button p-button-text" :disabled="isExportDisabled" @click="openExportDialog">{{ $t('common.export') }}</Button>
             </template>
         </Toolbar>
 
@@ -20,7 +18,7 @@
 
         <div class="p-d-flex kn-flex" style="flex-shrink: 0">
             <div class="p-col-2">
-                <KnTabCard v-for="(functionality, index) in functionalities" :key="index" :element="functionality" :selected="functionality.route === route.path" @click="selectType(functionality)"> </KnTabCard>
+                <KnTabCard v-for="(functionality, index) in functionalities" :key="index" :element="functionality" :selected="functionality.route === route.path" @click="selectType(functionality)" />
             </div>
             <div class="kn-flex p-d-flex p-flex-column p-mr-2">
                 <router-view v-model:loading="loading" :selected-items="selectedItems" @onItemSelected="getSelectedItems($event)" />
@@ -35,27 +33,29 @@ import { useRouter, useRoute } from 'vue-router'
 import { AxiosResponse } from 'axios'
 import importExportDescriptor from './ImportExportDescriptor.json'
 import ExportDialog from './ExportDialog.vue'
-import ExportUsersDialog from './users/ExportUsersDialog.vue'
-import ExportMenuDialog from './menu/ExportMenuDialog.vue'
-import ExportKpiDialog from './kpi/ExportKpiDialog.vue'
 import ImportDialog from './ImportDialog.vue'
 import ProgressBar from 'primevue/progressbar'
 import KnTabCard from '@/components/UI/KnTabCard.vue'
 import { downloadDirectFromResponse, downloadDirectFromResponseWithCustomName } from '@/helpers/commons/fileHelper'
 import { mapState } from 'pinia'
 import mainStore from '../../App.store'
-import type { ISelectedItems } from './ImportExportTypes'
+import { EXPORT_CONFIG, CATALOG_CONFIG, createEmptySelectedItems } from './ImportExportHelpers'
+import type { CheckboxOption } from './ExportDialog.vue'
 
 export default defineComponent({
     name: 'import-export',
-    components: { ExportDialog, ExportUsersDialog, ExportMenuDialog, ExportKpiDialog, KnTabCard, ImportDialog, ProgressBar },
+    components: { ExportDialog, KnTabCard, ImportDialog, ProgressBar },
     emits: ['onItemSelected'],
     computed: {
         ...mapState(mainStore, {
             user: 'user',
             isEnterprise: 'isEnterprise',
             licenses: 'licenses'
-        })
+        }),
+
+        isExportDisabled(): boolean {
+            return !Object.values(this.selectedItems).some((items) => items.length > 0)
+        }
     },
     setup() {
         const store = mainStore()
@@ -65,28 +65,16 @@ export default defineComponent({
     },
     data() {
         return {
-            importExportDescriptor: importExportDescriptor,
+            importExportDescriptor,
             displayImportDialog: false,
-            displayExportDialog: false,
-            displayExportUsersDialog: false,
-            displayExportKpiDialog: false,
-            displayExportMenuDialog: false,
-            fileName: '',
+            exportDialog: {
+                visible: false,
+                type: null as string | null,
+                checkboxOptions: [] as CheckboxOption[]
+            },
             loading: false,
-            selectedItems: {
-                gallery: [],
-                catalogFunction: [],
-                users: [],
-                kpis: [],
-                glossary: [],
-                datasets: [],
-                businessModels: [],
-                mondrianSchemas: [],
-                layers: [],
-                analyticalDrivers: [],
-                menu: []
-            } as ISelectedItems,
-            functionalities: Array<any>(),
+            selectedItems: createEmptySelectedItems(),
+            functionalities: [] as any[],
             currentFunctionality: null as any
         }
     },
@@ -104,476 +92,160 @@ export default defineComponent({
             this.functionalities = []
 
             const licenses = this.licenses.licenses
-            const currentHostName = this.licenses.hosts[0] ? this.licenses.hosts[0].hostName : undefined
+            const currentHostName = this.licenses.hosts[0]?.hostName
 
             this.functionalities = importExportDescriptor.functionalities
+                .filter((x) => !x.requiredFunctionality || this.user.functionalities.includes(x.requiredFunctionality))
                 .filter((x) => {
-                    return x.requiredFunctionality ? this.user.functionalities.includes(x.requiredFunctionality) : true
-                })
-                .filter((x) => {
-                    return x.requiredLicense && currentHostName && licenses[currentHostName] ? licenses[currentHostName].filter((lic) => lic.product === x.requiredLicense).length == 1 : true
+                    if (!x.requiredLicense || !currentHostName || !licenses[currentHostName]) return true
+                    return licenses[currentHostName].some((lic) => lic.product === x.requiredLicense)
                 })
 
             this.loading = false
         },
-        getSelectedItems(e) {
-            if (e.items) this.selectedItems[e.functionality] = e.items
-        },
-        isExportDisabled() {
-            for (const index in this.selectedItems) {
-                if (this.selectedItems[index].length > 0) return false
-            }
-            return true
-        },
-        selectType(type): void {
-            // Check if there are selected items in other categories
-            const hasSelectedItems = Object.entries(this.selectedItems).some(([key, items]: [string, any[]]) => {
-                return items.length > 0 && key !== type.type
-            })
 
-            if (hasSelectedItems) {
+        getSelectedItems(e: { functionality: string; items: any[] }) {
+            if (e.items) {
+                this.selectedItems[e.functionality] = e.items
+            }
+        },
+
+        selectType(type): void {
+            const hasOtherSelectedItems = Object.entries(this.selectedItems).some(([key, items]: [string, any[]]) => items.length > 0 && key !== type.type)
+
+            if (hasOtherSelectedItems) {
                 this.$confirm.require({
                     message: this.$t('importExport.clearSelectedItems'),
                     header: this.$t('common.warning'),
                     icon: 'pi pi-exclamation-triangle',
                     accept: () => {
-                        this.selectedItems = {
-                            gallery: [],
-                            catalogFunction: [],
-                            users: [],
-                            kpis: [],
-                            glossary: [],
-                            datasets: [],
-                            businessModels: [],
-                            mondrianSchemas: [],
-                            layers: [],
-                            analyticalDrivers: [],
-                            menu: []
-                        }
-                        this.currentFunctionality = type
-                        this.router.push(type.route)
+                        this.resetSelectedItems()
+                        this.navigateToType(type)
                     }
                 })
             } else {
-                this.currentFunctionality = type
-                this.router.push(type.route)
+                this.navigateToType(type)
             }
         },
+        navigateToType(type): void {
+            this.currentFunctionality = type
+            this.router.push(type.route)
+        },
+
         openImportDialog(): void {
-            this.displayImportDialog = !this.displayImportDialog
+            this.displayImportDialog = true
         },
+
         openExportDialog(): void {
-            if (this.selectedItems.users && this.selectedItems.users.length > 0) {
-                this.displayExportUsersDialog = !this.displayExportUsersDialog
-            } else if (this.selectedItems.kpis && this.selectedItems.kpis.length > 0) {
-                this.displayExportKpiDialog = !this.displayExportKpiDialog
-            } else if (this.selectedItems.menu && this.selectedItems.menu.length > 0) {
-                this.displayExportMenuDialog = !this.displayExportMenuDialog
-            } else {
-                this.displayExportDialog = !this.displayExportDialog
-            }
+            const selectedEntry = Object.entries(this.selectedItems).find(([_, items]) => items.length > 0)
+            if (!selectedEntry) return
+
+            const [selectedType] = selectedEntry
+            const config = EXPORT_CONFIG[selectedType]
+            const checkboxOptions = config?.checkboxOptions || []
+
+            this.exportDialog = { visible: true, type: selectedType, checkboxOptions }
         },
-        openExportUsersDialog(): void {
-            this.displayExportUsersDialog = !this.displayExportUsersDialog
+        closeExportDialog(): void {
+            this.exportDialog.visible = false
+            this.exportDialog.type = null
+            this.exportDialog.checkboxOptions = []
         },
-        openExportKpiDialog(): void {
-            this.displayExportKpiDialog = !this.displayExportKpiDialog
-        },
-        openExportMenuDialog(): void {
-            this.displayExportMenuDialog = !this.displayExportMenuDialog
-        },
-        async startExport(fileName: string) {
-            if (this.selectedItems.users && this.selectedItems.users.length > 0) {
-                await this.exportUsers(fileName)
-            } else if (this.selectedItems.kpis && this.selectedItems.kpis.length > 0) {
-                await this.exportKpis(fileName)
-            } else if (this.selectedItems.analyticalDrivers && this.selectedItems.analyticalDrivers.length > 0) {
-                await this.exportAnalyticalDrivers(fileName)
-            } else if (this.selectedItems.datasets && this.selectedItems.datasets.length > 0) {
-                await this.exportDatasets(fileName)
-            } else if (this.selectedItems.businessModels && this.selectedItems.businessModels.length > 0) {
-                await this.exportBusinessModels(fileName)
-            } else if (this.selectedItems.mondrianSchemas && this.selectedItems.mondrianSchemas.length > 0) {
-                await this.exportMondrianSchemas(fileName)
-            } else if (this.selectedItems.layers && this.selectedItems.layers.length > 0) {
-                await this.exportLayers(fileName)
+
+        async handleExport(fileName: string, ...checkboxValues: any[]): Promise<void> {
+            if (!this.exportDialog.type) return
+
+            // Build options from checkbox values
+            const options = this.buildExportOptions(this.exportDialog.type, checkboxValues)
+
+            // Determine which export method to use
+            const exportType = this.exportDialog.type
+            const selectedItems = this.selectedItems[exportType]
+
+            if (!selectedItems || selectedItems.length === 0) return
+
+            // Route to appropriate export method
+            if (EXPORT_CONFIG[exportType]) {
+                await this.exportWithConfig(exportType, fileName, options)
+            } else if (CATALOG_CONFIG[exportType]) {
+                await this.exportCatalogItem(exportType, fileName)
             } else {
                 await this.exportOtherFunctionalities(fileName)
             }
         },
-        async startExportUsers(fileName: string, exportPersonalFolder: boolean) {
-            await this.exportUsers(fileName, exportPersonalFolder)
-        },
-        async startExportKpi(fileName: string, targetsAndRelated: boolean, scorecardsAndRelated: boolean, schedulersAndRelated: boolean) {
-            await this.exportKpis(fileName, targetsAndRelated, scorecardsAndRelated, schedulersAndRelated)
-        },
-        async startExportMenu(fileName: string) {
-            await this.exportMenu(fileName)
-        },
-        async exportKpis(fileName: string, targetsAndRelated = true, scorecardsAndRelated = true, schedulersAndRelated = true): Promise<void> {
-            const exportData = {
-                KPIS_LIST: this.selectedItems.kpis.map((kpi) => ({ id: kpi.id, version: kpi.version })),
-                EXPORT_FILE_NAME: fileName,
-                TARGETS_AND_RELATED_KPIS: targetsAndRelated,
-                SCORECARDS_AND_RELATED_KPIS: scorecardsAndRelated,
-                SCHEDULERS_AND_RELATED_KPIS: schedulersAndRelated
-            }
+        buildExportOptions(type: string, checkboxValues: any[]): any {
+            const config = EXPORT_CONFIG[type]
+            if (!config?.checkboxOptions) return {}
 
-            await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/serverManager/importExport/kpi/export`, exportData, {
-                    responseType: 'arraybuffer',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/zip; charset=utf-8'
-                    }
-                })
-                .then(
-                    (response: AxiosResponse<any>) => {
-                        if (response.data.errors) {
-                            this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
-                        } else {
-                            downloadDirectFromResponseWithCustomName(response, fileName)
-                            this.store.setInfo({ title: this.$t('common.downloading'), msg: this.$t('importExport.export.successfullyCompleted') })
-                        }
-
-                        this.selectedItems = {
-                            gallery: [],
-                            catalogFunction: [],
-                            users: [],
-                            kpis: [],
-                            glossary: [],
-                            datasets: [],
-                            businessModels: [],
-                            mondrianSchemas: [],
-                            layers: [],
-                            analyticalDrivers: [],
-                            menu: []
-                        }
-                        this.openExportKpiDialog()
-                    },
-                    () => this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
-                )
+            const options = {}
+            config.checkboxOptions.forEach((option, index) => {
+                options[option.key] = checkboxValues[index] ?? option.defaultValue
+            })
+            return options
         },
-        async exportAnalyticalDrivers(fileName: string): Promise<void> {
-            const exportData = {
-                DRIVERS_LIST: this.selectedItems.analyticalDrivers.map((driver) => ({ ...driver, catalogType: 'AnalyticalDrivers' })),
-                EXPORT_FILE_NAME: fileName
-            }
+        async exportWithConfig(type: string, fileName: string, options: any): Promise<void> {
+            const config = EXPORT_CONFIG[type]
+            if (!config) return
 
-            await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/serverManager/importExport/analyticaldrivers/export`, exportData, {
-                    responseType: 'arraybuffer',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/zip; charset=utf-8'
-                    }
-                })
-                .then(
-                    (response: AxiosResponse<any>) => {
-                        if (response.data.errors) {
-                            this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
-                        } else {
-                            downloadDirectFromResponseWithCustomName(response, fileName)
-                            this.store.setInfo({ title: this.$t('common.downloading'), msg: this.$t('importExport.export.successfullyCompleted') })
-                        }
+            const exportData = config.buildData(this.selectedItems[type], fileName, options)
+            const url = `${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/1.0/serverManager/importExport${config.endpoint}`
 
-                        this.selectedItems = {
-                            gallery: [],
-                            catalogFunction: [],
-                            users: [],
-                            kpis: [],
-                            glossary: [],
-                            datasets: [],
-                            businessModels: [],
-                            mondrianSchemas: [],
-                            layers: [],
-                            analyticalDrivers: [],
-                            menu: []
-                        }
-                        this.openExportDialog()
-                    },
-                    () => this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
-                )
+            await this.performExport(url, exportData, fileName)
         },
-        async exportDatasets(fileName: string): Promise<void> {
-            const exportData = {
-                DATASET_LIST: this.selectedItems.datasets.map((dataset) => ({ ...dataset, catalogType: 'Dataset' })),
-                BM_LIST: [],
-                SCHEMA_LIST: [],
-                LAYER_LIST: [],
-                SVG_LIST: [],
+        async exportCatalogItem(type: string, fileName: string): Promise<void> {
+            const config = CATALOG_CONFIG[type]
+            if (!config) return
+
+            const exportData = this.buildCatalogExportData(config.listKey, this.selectedItems[type], config.catalogType, fileName)
+
+            const url = `${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/1.0/serverManager/importExport/catalog/export`
+            await this.performExport(url, exportData, fileName)
+        },
+
+        buildCatalogExportData(listKey: string, items: any[], catalogType: string, fileName: string): any {
+            return {
+                DATASET_LIST: listKey === 'DATASET_LIST' ? items.map((item) => ({ ...item, catalogType })) : [],
+                BM_LIST: listKey === 'BM_LIST' ? items.map((item) => ({ ...item, catalogType })) : [],
+                SCHEMA_LIST: listKey === 'SCHEMA_LIST' ? items.map((item) => ({ ...item, catalogType })) : [],
+                LAYER_LIST: listKey === 'LAYER_LIST' ? items.map((item) => ({ ...item, catalogType })) : [],
+                SVG_LIST: [], // Required by BE
                 EXPORT_FILE_NAME: fileName,
                 EXPORT_SUB_OBJ: false,
                 EXPORT_SNAPSHOT: false
             }
-
-            await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/serverManager/importExport/catalog/export`, exportData, {
-                    responseType: 'arraybuffer',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/zip; charset=utf-8'
-                    }
-                })
-                .then(
-                    (response: AxiosResponse<any>) => {
-                        if (response.data.errors) {
-                            this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
-                        } else {
-                            downloadDirectFromResponseWithCustomName(response, fileName)
-                            this.store.setInfo({ title: this.$t('common.downloading'), msg: this.$t('importExport.export.successfullyCompleted') })
-                        }
-
-                        this.selectedItems = {
-                            gallery: [],
-                            catalogFunction: [],
-                            users: [],
-                            kpis: [],
-                            glossary: [],
-                            datasets: [],
-                            businessModels: [],
-                            mondrianSchemas: [],
-                            layers: [],
-                            analyticalDrivers: [],
-                            menu: []
-                        }
-                        this.openExportDialog()
-                    },
-                    () => this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
-                )
         },
-        async exportBusinessModels(fileName: string): Promise<void> {
-            const exportData = {
-                DATASET_LIST: [],
-                BM_LIST: this.selectedItems.businessModels.map((bm) => ({ ...bm, catalogType: 'BusinessModel' })),
-                SCHEMA_LIST: [],
-                LAYER_LIST: [],
-                SVG_LIST: [],
-                EXPORT_FILE_NAME: fileName,
-                EXPORT_SUB_OBJ: false,
-                EXPORT_SNAPSHOT: false
+        async performExport(url: string, exportData: any, fileName: string): Promise<void> {
+            try {
+                const response = await this.$http.post(url, exportData, {
+                    responseType: 'arraybuffer',
+                    headers: { 'Content-Type': 'application/json', Accept: 'application/zip; charset=utf-8' }
+                })
+
+                await this.handleExportResponse(response, fileName)
+            } catch (error) {
+                this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
+            }
+        },
+        async handleExportResponse(response: AxiosResponse<any>, fileName: string): Promise<void> {
+            if (response.data.errors) {
+                this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
+            } else {
+                downloadDirectFromResponseWithCustomName(response, fileName)
+                this.store.setInfo({ title: this.$t('common.downloading'), msg: this.$t('importExport.export.successfullyCompleted') })
             }
 
-            await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/serverManager/importExport/catalog/export`, exportData, {
-                    responseType: 'arraybuffer',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/zip; charset=utf-8'
-                    }
-                })
-                .then(
-                    (response: AxiosResponse<any>) => {
-                        if (response.data.errors) {
-                            this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
-                        } else {
-                            downloadDirectFromResponseWithCustomName(response, fileName)
-                            this.store.setInfo({ title: this.$t('common.downloading'), msg: this.$t('importExport.export.successfullyCompleted') })
-                        }
-
-                        this.selectedItems = {
-                            gallery: [],
-                            catalogFunction: [],
-                            users: [],
-                            kpis: [],
-                            glossary: [],
-                            datasets: [],
-                            businessModels: [],
-                            mondrianSchemas: [],
-                            layers: [],
-                            analyticalDrivers: [],
-                            menu: []
-                        }
-                        this.openExportDialog()
-                    },
-                    () => this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
-                )
+            this.resetSelectedItems()
+            this.closeExportDialog()
         },
-        async exportMondrianSchemas(fileName: string): Promise<void> {
-            const exportData = {
-                DATASET_LIST: [],
-                BM_LIST: [],
-                SCHEMA_LIST: this.selectedItems.mondrianSchemas.map((schema) => ({ ...schema, catalogType: 'MondrianSchema' })),
-                LAYER_LIST: [],
-                SVG_LIST: [],
-                EXPORT_FILE_NAME: fileName,
-                EXPORT_SUB_OBJ: false,
-                EXPORT_SNAPSHOT: false
-            }
 
-            await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/serverManager/importExport/catalog/export`, exportData, {
-                    responseType: 'arraybuffer',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/zip; charset=utf-8'
-                    }
-                })
-                .then(
-                    (response: AxiosResponse<any>) => {
-                        if (response.data.errors) {
-                            this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
-                        } else {
-                            downloadDirectFromResponseWithCustomName(response, fileName)
-                            this.store.setInfo({ title: this.$t('common.downloading'), msg: this.$t('importExport.export.successfullyCompleted') })
-                        }
-
-                        this.selectedItems = {
-                            gallery: [],
-                            catalogFunction: [],
-                            users: [],
-                            kpis: [],
-                            glossary: [],
-                            datasets: [],
-                            businessModels: [],
-                            mondrianSchemas: [],
-                            layers: [],
-                            analyticalDrivers: [],
-                            menu: []
-                        }
-                        this.openExportDialog()
-                    },
-                    () => this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
-                )
-        },
-        async exportLayers(fileName: string): Promise<void> {
-            const exportData = {
-                DATASET_LIST: [],
-                BM_LIST: [],
-                SCHEMA_LIST: [],
-                LAYER_LIST: this.selectedItems.layers.map((layer) => ({ ...layer, catalogType: 'Layer' })),
-                SVG_LIST: [],
-                EXPORT_FILE_NAME: fileName,
-                EXPORT_SUB_OBJ: false,
-                EXPORT_SNAPSHOT: false
-            }
-
-            await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/serverManager/importExport/catalog/export`, exportData, {
-                    responseType: 'arraybuffer',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/zip; charset=utf-8'
-                    }
-                })
-                .then(
-                    (response: AxiosResponse<any>) => {
-                        if (response.data.errors) {
-                            this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
-                        } else {
-                            downloadDirectFromResponseWithCustomName(response, fileName)
-                            this.store.setInfo({ title: this.$t('common.downloading'), msg: this.$t('importExport.export.successfullyCompleted') })
-                        }
-
-                        this.selectedItems = {
-                            gallery: [],
-                            catalogFunction: [],
-                            users: [],
-                            kpis: [],
-                            glossary: [],
-                            datasets: [],
-                            businessModels: [],
-                            mondrianSchemas: [],
-                            layers: [],
-                            analyticalDrivers: [],
-                            menu: []
-                        }
-                        this.openExportDialog()
-                    },
-                    () => this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
-                )
-        },
-        async exportUsers(fileName: string, exportPersonalFolder = true): Promise<void> {
-            const exportData = {
-                USERS_LIST: this.selectedItems.users,
-                EXPORT_FILE_NAME: fileName,
-                EXPORT_PERSONAL_FOLDER: exportPersonalFolder
-            }
-
-            await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/serverManager/importExport/users/export`, exportData, {
-                    responseType: 'arraybuffer',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/zip; charset=utf-8'
-                    }
-                })
-                .then(
-                    (response: AxiosResponse<any>) => {
-                        if (response.data.errors) {
-                            this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
-                        } else {
-                            downloadDirectFromResponseWithCustomName(response, fileName)
-                            this.store.setInfo({ title: this.$t('common.downloading'), msg: this.$t('importExport.export.successfullyCompleted') })
-                        }
-
-                        this.selectedItems = {
-                            gallery: [],
-                            catalogFunction: [],
-                            users: [],
-                            kpis: [],
-                            glossary: [],
-                            datasets: [],
-                            businessModels: [],
-                            mondrianSchemas: [],
-                            layers: [],
-                            analyticalDrivers: [],
-                            menu: []
-                        }
-                        this.openExportUsersDialog()
-                    },
-                    () => this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
-                )
-        },
-        async exportMenu(fileName: string): Promise<void> {
-            const exportData = {
-                EXPORT_SELECTED_MENU: this.selectedItems.menu,
-                EXPORT_FILE_NAME: fileName
-            }
-
-            await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/serverManager/importExport/menu/export`, exportData, {
-                    responseType: 'arraybuffer',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/zip; charset=utf-8'
-                    }
-                })
-                .then(
-                    (response: AxiosResponse<any>) => {
-                        if (response.data.errors) {
-                            this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
-                        } else {
-                            downloadDirectFromResponseWithCustomName(response, fileName)
-                            this.store.setInfo({ title: this.$t('common.downloading'), msg: this.$t('importExport.export.successfullyCompleted') })
-                        }
-
-                        this.selectedItems = {
-                            gallery: [],
-                            catalogFunction: [],
-                            users: [],
-                            kpis: [],
-                            glossary: [],
-                            datasets: [],
-                            businessModels: [],
-                            mondrianSchemas: [],
-                            layers: [],
-                            analyticalDrivers: [],
-                            menu: []
-                        }
-                        this.openExportMenuDialog()
-                    },
-                    () => this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
-                )
-        },
+        //technically, everything will be exported with this bulk service in the future
         async exportOtherFunctionalities(fileName: string): Promise<void> {
+            const exportData = this.streamlineSelectedItemsArray(fileName)
+
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_API_CONTEXT + '/api/1.0/export/bulk', this.streamlineSelectedItemsArray(fileName), {
+                .post(import.meta.env.VITE_KNOWAGE_API_CONTEXT + '/api/1.0/export/bulk', exportData, {
                     responseType: 'arraybuffer',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/zip; charset=utf-8'
-                    }
+                    headers: { 'Content-Type': 'application/json', Accept: 'application/zip; charset=utf-8' }
                 })
                 .then(
                     (response: AxiosResponse<any>) => {
@@ -583,40 +255,29 @@ export default defineComponent({
                             downloadDirectFromResponse(response)
                             this.store.setInfo({ title: this.$t('common.downloading'), msg: this.$t('importExport.export.successfullyCompleted') })
                         }
-
-                        this.selectedItems = {
-                            gallery: [],
-                            catalogFunction: [],
-                            users: [],
-                            kpis: [],
-                            glossary: [],
-                            datasets: [],
-                            businessModels: [],
-                            mondrianSchemas: [],
-                            layers: [],
-                            analyticalDrivers: [],
-                            menu: []
-                        }
-                        /* closing dialog */
-                        this.openExportDialog()
+                        this.resetSelectedItems()
+                        this.closeExportDialog()
                     },
                     () => this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
                 )
         },
 
-        streamlineSelectedItemsArray(fileName): JSON {
-            const selectedItemsToBE = {} as JSON
-            selectedItemsToBE['selectedItems'] = {}
-            for (const category in this.selectedItems) {
-                for (const k in this.selectedItems[category]) {
-                    if (!selectedItemsToBE['selectedItems'][category]) {
-                        selectedItemsToBE['selectedItems'][category] = []
-                    }
+        resetSelectedItems(): void {
+            this.selectedItems = createEmptySelectedItems()
+        },
 
-                    selectedItemsToBE['selectedItems'][category].push(this.selectedItems[category][k].id)
-                }
+        streamlineSelectedItemsArray(fileName: string): any {
+            const selectedItemsToBE = {
+                selectedItems: {},
+                filename: fileName
             }
-            selectedItemsToBE['filename'] = fileName
+
+            Object.entries(this.selectedItems).forEach(([category, items]) => {
+                if (items.length > 0) {
+                    selectedItemsToBE.selectedItems[category] = items.map((item) => item.id)
+                }
+            })
+
             return selectedItemsToBE
         }
     }
