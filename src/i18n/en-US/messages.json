@@ -2034,6 +2034,10 @@
             "description": "export Mondrian schemas",
             "label": "Mondrian schemas"
         },
+        "layers": {
+            "description": "export layers",
+            "label": "layers"
+        },
         "glossary": {
             "description": "export glossaries",
             "label": "glossary"

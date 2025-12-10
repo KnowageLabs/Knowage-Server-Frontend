@@ -82,6 +82,7 @@ export default defineComponent({
                 datasets: [],
                 businessModels: [],
                 mondrianSchemas: [],
+                layers: [],
                 analyticalDrivers: [],
                 menu: []
             } as ISelectedItems,
@@ -145,6 +146,7 @@ export default defineComponent({
                             datasets: [],
                             businessModels: [],
                             mondrianSchemas: [],
+                            layers: [],
                             analyticalDrivers: [],
                             menu: []
                         }
@@ -193,6 +195,8 @@ export default defineComponent({
                 await this.exportBusinessModels(fileName)
             } else if (this.selectedItems.mondrianSchemas && this.selectedItems.mondrianSchemas.length > 0) {
                 await this.exportMondrianSchemas(fileName)
+            } else if (this.selectedItems.layers && this.selectedItems.layers.length > 0) {
+                await this.exportLayers(fileName)
             } else {
                 await this.exportOtherFunctionalities(fileName)
             }
@@ -241,6 +245,7 @@ export default defineComponent({
                             datasets: [],
                             businessModels: [],
                             mondrianSchemas: [],
+                            layers: [],
                             analyticalDrivers: [],
                             menu: []
                         }
@@ -281,6 +286,7 @@ export default defineComponent({
                             datasets: [],
                             businessModels: [],
                             mondrianSchemas: [],
+                            layers: [],
                             analyticalDrivers: [],
                             menu: []
                         }
@@ -327,6 +333,7 @@ export default defineComponent({
                             datasets: [],
                             businessModels: [],
                             mondrianSchemas: [],
+                            layers: [],
                             analyticalDrivers: [],
                             menu: []
                         }
@@ -372,6 +379,8 @@ export default defineComponent({
                             glossary: [],
                             datasets: [],
                             businessModels: [],
+                            mondrianSchemas: [],
+                            layers: [],
                             analyticalDrivers: [],
                             menu: []
                         }
@@ -418,6 +427,54 @@ export default defineComponent({
                             datasets: [],
                             businessModels: [],
                             mondrianSchemas: [],
+                            layers: [],
+                            analyticalDrivers: [],
+                            menu: []
+                        }
+                        this.openExportDialog()
+                    },
+                    () => this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
+                )
+        },
+        async exportLayers(fileName: string): Promise<void> {
+            const exportData = {
+                DATASET_LIST: [],
+                BM_LIST: [],
+                SCHEMA_LIST: [],
+                LAYER_LIST: this.selectedItems.layers.map((layer) => ({ ...layer, catalogType: 'Layer' })),
+                SVG_LIST: [],
+                EXPORT_FILE_NAME: fileName,
+                EXPORT_SUB_OBJ: false,
+                EXPORT_SNAPSHOT: false
+            }
+
+            await this.$http
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/serverManager/importExport/catalog/export`, exportData, {
+                    responseType: 'arraybuffer',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/zip; charset=utf-8'
+                    }
+                })
+                .then(
+                    (response: AxiosResponse<any>) => {
+                        if (response.data.errors) {
+                            this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
+                        } else {
+                            downloadDirectFromResponseWithCustomName(response, fileName)
+                            this.store.setInfo({ title: this.$t('common.downloading'), msg: this.$t('importExport.export.successfullyCompleted') })
+                        }
+
+                        this.selectedItems = {
+                            gallery: [],
+                            catalogFunction: [],
+                            users: [],
+                            kpis: [],
+                            glossary: [],
+                            datasets: [],
+                            businessModels: [],
+                            mondrianSchemas: [],
+                            layers: [],
                             analyticalDrivers: [],
                             menu: []
                         }
@@ -459,6 +516,7 @@ export default defineComponent({
                             datasets: [],
                             businessModels: [],
                             mondrianSchemas: [],
+                            layers: [],
                             analyticalDrivers: [],
                             menu: []
                         }
@@ -499,6 +557,7 @@ export default defineComponent({
                             datasets: [],
                             businessModels: [],
                             mondrianSchemas: [],
+                            layers: [],
                             analyticalDrivers: [],
                             menu: []
                         }
@@ -534,6 +593,7 @@ export default defineComponent({
                             datasets: [],
                             businessModels: [],
                             mondrianSchemas: [],
+                            layers: [],
                             analyticalDrivers: [],
                             menu: []
                         }
