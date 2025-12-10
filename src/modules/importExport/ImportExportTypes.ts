@@ -31,6 +31,14 @@ export interface IDatasetItem {
     catalogType?: string
 }
 
+export interface IBusinessModelItem {
+    id: number
+    name: string
+    label: string
+    description: string | null
+    catalogType?: string
+}
+
 export interface ISelectedItems {
     gallery: IGalleryTemplate[]
     catalogFunction: ICatalogFunctionTemplate[]
@@ -39,5 +47,6 @@ export interface ISelectedItems {
     kpis: IKpiItem[]
     glossary: IGlossaryItem[]
     datasets: IDatasetItem[]
+    businessModels: IBusinessModelItem[]
     menu: iMenuNode[]
 }
