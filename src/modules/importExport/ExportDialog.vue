@@ -1,60 +1,74 @@
 <template>
-	<Dialog class="kn-dialog--toolbar--primary exportDialog" :visible="visibility" :header="$t('common.export')" :closable="false" modal>
-		<div class="exportDialogContent">
-			<span class="p-float-label">
-				<InputText v-model="fileName" class="kn-material-input fileNameInputText" type="text" maxlength="50" />
-				<label class="kn-material-input-label" for="label">{{ $t('importExport.filenamePlaceholder') }}</label>
-			</span>
-		</div>
-		<template #footer>
-			<Button class="p-button-text kn-button" :label="$t('common.cancel')" @click="closeDialog" />
-			<Button class="kn-button kn-button--primary" :label="$t('common.export')" autofocus :disabled="fileName && fileName.length == 0" @click="emitExport" />
-		</template>
-	</Dialog>
+    <q-dialog :model-value="visibility" persistent @hide="closeDialog">
+        <q-card class="exportDialog">
+            <q-card-section class="row items-center q-pb-none kn-toolbar">
+                <div class="text-h6">{{ $t('common.export') }}</div>
+            </q-card-section>
+            <q-card-section>
+                <q-input v-model="fileName" filled type="text" :label="$t('importExport.filenamePlaceholder')" maxlength="50" />
+                <q-checkbox v-for="option in checkboxOptions" :key="option.key" v-model="checkboxValues[option.key]" class="q-mt-sm" :label="$t(option.labelKey)" style="margin-left: -10px" />
+            </q-card-section>
+            <q-card-actions align="right">
+                <q-btn flat :label="$t('common.cancel')" @click="closeDialog" />
+                <q-btn color="primary" unelevated :label="$t('common.export')" :disable="!fileName" @click="emitExport" />
+            </q-card-actions>
+        </q-card>
+    </q-dialog>
 </template>
 
 <script lang="ts">
-	import { defineComponent } from 'vue'
-	import Dialog from 'primevue/dialog'
+import { defineComponent, PropType } from 'vue'
 
-	export default defineComponent({
-		name: 'export-dialog',
-		components: { Dialog },
-		props: {
-			visibility: Boolean
-		},
-		emits: ['update:visibility', 'export'],
-		data() {
-			return { fileName: '' }
-		},
-		created() {},
-		methods: {
-			closeDialog(): void {
-				this.$emit('update:visibility', false)
-			},
-			emitExport(): void {
-				this.$emit('export', this.fileName)
-			}
-		}
-	})
+export interface CheckboxOption {
+    key: string
+    labelKey: string
+    defaultValue?: boolean
+}
+
+export default defineComponent({
+    name: 'generic-export-dialog',
+    props: {
+        visibility: Boolean,
+        checkboxOptions: {
+            type: Array as PropType<CheckboxOption[]>,
+            default: () => []
+        }
+    },
+    emits: ['update:visibility', 'export'],
+    data() {
+        return { fileName: '', checkboxValues: {} as Record<string, boolean> }
+    },
+    watch: {
+        checkboxOptions: {
+            handler() {
+                this.initializeCheckboxes()
+            },
+            immediate: true
+        }
+    },
+    methods: {
+        initializeCheckboxes(): void {
+            this.checkboxValues = {}
+            this.checkboxOptions.forEach((option: CheckboxOption) => {
+                this.checkboxValues[option.key] = option.defaultValue ?? true
+            })
+        },
+        closeDialog(): void {
+            this.$emit('update:visibility', false)
+            this.fileName = ''
+        },
+        emitExport(): void {
+            const values = Object.values(this.checkboxValues)
+            this.$emit('export', this.fileName, ...values)
+        }
+    }
+})
 </script>
-<style lang="scss">
-	.importExportDialog {
-		min-width: 600px;
-		width: 60%;
-		max-width: 1200px;
 
-		.p-fileupload-buttonbar {
-			border: none;
-			.p-button:not(.p-fileupload-choose) {
-				display: none;
-			}
-		}
-	}
-	.fileNameInputText {
-		width: 100%;
-	}
-	.exportDialogContent {
-		padding: 16px;
-	}
+<style lang="scss">
+.exportDialog {
+    min-width: 320px;
+    width: 90vw;
+    max-width: 640px;
+}
 </style>
