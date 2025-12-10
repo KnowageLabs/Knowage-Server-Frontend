@@ -33,6 +33,10 @@ const routes = [
                 component: () => import('@/modules/importExport/dataset/ImportExportDataset.vue')
             },
             {
+                path: 'businessmodels',
+                component: () => import('@/modules/importExport/businessModel/ImportExportBusinessModel.vue')
+            },
+            {
                 path: 'drivers',
                 component: () => import('@/modules/importExport/drivers/ImportExportDrivers.vue')
             },

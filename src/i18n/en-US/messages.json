@@ -2026,6 +2026,10 @@
             "description": "export datasets",
             "label": "datasets"
         },
+        "businessModels": {
+            "description": "export business models",
+            "label": "business models"
+        },
         "glossary": {
             "description": "export glossaries",
             "label": "glossary"

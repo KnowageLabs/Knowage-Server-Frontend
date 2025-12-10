@@ -120,6 +120,42 @@
                 }
             ]
         },
+        "datasets": {
+            "column": [
+                {
+                    "align": "left",
+                    "field": "label",
+                    "label": "common.label",
+                    "name": "label",
+                    "sortable": true
+                },
+                {
+                    "align": "left",
+                    "field": "name",
+                    "label": "common.name",
+                    "name": "name",
+                    "sortable": true
+                }
+            ]
+        },
+        "businessModels": {
+            "column": [
+                {
+                    "align": "left",
+                    "field": "label",
+                    "label": "common.label",
+                    "name": "label",
+                    "sortable": true
+                },
+                {
+                    "align": "left",
+                    "field": "name",
+                    "label": "common.name",
+                    "name": "name",
+                    "sortable": true
+                }
+            ]
+        },
         "kpis": {
             "column": [
                 {
@@ -205,6 +241,14 @@
             "requiredFunctionality": "ImpExpCatalog",
             "route": "/import-export/datasets",
             "type": "datasets"
+        },
+        {
+            "description": "importExport.businessModels.description",
+            "icon": "fas fa-project-diagram",
+            "label": "importExport.businessModels.label",
+            "requiredFunctionality": "ImpExpCatalog",
+            "route": "/import-export/businessmodels",
+            "type": "businessModels"
         },
         {
             "description": "importExport.kpis.description",
