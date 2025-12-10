@@ -67,4 +67,5 @@ export interface ISelectedItems {
     mondrianSchemas: IMondrianSchemaItem[]
     layers: ILayerItem[]
     menu: iMenuNode[]
+    documents: any[]
 }

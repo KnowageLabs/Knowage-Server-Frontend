@@ -21,7 +21,7 @@
                 <KnTabCard v-for="(functionality, index) in functionalities" :key="index" :element="functionality" :selected="functionality.route === route.path" @click="selectType(functionality)" />
             </div>
             <div class="kn-flex p-d-flex p-flex-column p-mr-2">
-                <router-view v-model:loading="loading" :selected-items="selectedItems" @onItemSelected="getSelectedItems($event)" />
+                <router-view ref="routerViewRef" v-model:loading="loading" :selected-items="selectedItems" :trigger-import="documentsImportTrigger" :trigger-export="documentsExportTrigger" @onItemSelected="getSelectedItems($event)" @documentsReady="onDocumentsReady" />
             </div>
         </div>
     </div>
@@ -54,7 +54,15 @@ export default defineComponent({
         }),
 
         isExportDisabled(): boolean {
+            // Check if we're on documents route
+            if (this.isDocumentsRoute) {
+                return !this.documentsHasSelection
+            }
             return !Object.values(this.selectedItems).some((items) => items.length > 0)
+        },
+
+        isDocumentsRoute(): boolean {
+            return this.route.path.includes('documents')
         }
     },
     setup() {
@@ -75,7 +83,12 @@ export default defineComponent({
             loading: false,
             selectedItems: createEmptySelectedItems(),
             functionalities: [] as any[],
-            currentFunctionality: null as any
+            currentFunctionality: null as any,
+            // For documents integration
+            documentsComponent: null as any,
+            documentsImportTrigger: 0,
+            documentsExportTrigger: 0,
+            documentsHasSelection: false
         }
     },
     mounted() {
@@ -103,11 +116,13 @@ export default defineComponent({
 
             this.loading = false
         },
-
         getSelectedItems(e: { functionality: string; items: any[] }) {
             if (e.items) {
                 this.selectedItems[e.functionality] = e.items
             }
+        },
+        onDocumentsReady(hasSelection: boolean) {
+            this.documentsHasSelection = hasSelection
         },
 
         selectType(type): void {
@@ -133,18 +148,24 @@ export default defineComponent({
         },
 
         openImportDialog(): void {
-            this.displayImportDialog = true
+            if (this.isDocumentsRoute) this.documentsImportTrigger++
+            else this.displayImportDialog = true
         },
 
         openExportDialog(): void {
-            const selectedEntry = Object.entries(this.selectedItems).find(([_, items]) => items.length > 0)
-            if (!selectedEntry) return
+            // If we're on documents route, trigger the child's export dialog
+            if (this.isDocumentsRoute) {
+                this.documentsExportTrigger++
+            } else {
+                const selectedEntry = Object.entries(this.selectedItems).find(([_, items]) => items.length > 0)
+                if (!selectedEntry) return
 
-            const [selectedType] = selectedEntry
-            const config = EXPORT_CONFIG[selectedType]
-            const checkboxOptions = config?.checkboxOptions || []
+                const [selectedType] = selectedEntry
+                const config = EXPORT_CONFIG[selectedType]
+                const checkboxOptions = config?.checkboxOptions || []
 
-            this.exportDialog = { visible: true, type: selectedType, checkboxOptions }
+                this.exportDialog = { visible: true, type: selectedType, checkboxOptions }
+            }
         },
         closeExportDialog(): void {
             this.exportDialog.visible = false
@@ -248,7 +269,6 @@ export default defineComponent({
                     headers: { 'Content-Type': 'application/json', Accept: 'application/zip; charset=utf-8' }
                 })
                 .then((response: AxiosResponse<any>) => {
-                    this.store.setLoading(false)
                     if (response.data.errors) {
                         this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
                     } else {

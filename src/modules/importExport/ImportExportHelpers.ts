@@ -74,5 +74,6 @@ export const createEmptySelectedItems = (): ISelectedItems => ({
     mondrianSchemas: [],
     layers: [],
     analyticalDrivers: [],
-    menu: []
+    menu: [],
+    documents: []
 })
