@@ -4,15 +4,15 @@
 
         <ExportDialog v-model:visibility="exportDialog.visible" :checkbox-options="exportDialog.checkboxOptions" @export="handleExport" />
 
-        <Toolbar class="kn-toolbar kn-toolbar--primary">
-            <template #start>
-                {{ $t('importExport.title') }}
-            </template>
-            <template #end>
-                <Button class="kn-button p-button-text" @click="openImportDialog">{{ $t('common.import') }}</Button>
-                <Button class="kn-button p-button-text" :disabled="isExportDisabled" @click="openExportDialog">{{ $t('common.export') }}</Button>
-            </template>
-        </Toolbar>
+        <q-toolbar class="kn-toolbar kn-toolbar--primary">
+            <q-toolbar-title>{{ $t('importExport.title') }}</q-toolbar-title>
+            <q-btn flat round dense icon="upload" @click="openImportDialog">
+                <q-tooltip :delay="500">{{ $t('common.import') }}</q-tooltip>
+            </q-btn>
+            <q-btn flat round dense icon="download" :disable="isExportDisabled" @click="openExportDialog">
+                <q-tooltip :delay="500">{{ $t('common.export') }}</q-tooltip>
+            </q-btn>
+        </q-toolbar>
 
         <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
 
@@ -215,31 +215,31 @@ export default defineComponent({
             }
         },
         async performExport(url: string, exportData: any, fileName: string): Promise<void> {
-            try {
-                const response = await this.$http.post(url, exportData, {
+            this.store.setLoading(true)
+
+            await this.$http
+                .post(url, exportData, {
                     responseType: 'arraybuffer',
                     headers: { 'Content-Type': 'application/json', Accept: 'application/zip; charset=utf-8' }
                 })
+                .then((response: AxiosResponse<any>) => {
+                    if (response.data.errors) {
+                        this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
+                    } else {
+                        downloadDirectFromResponseWithCustomName(response, fileName)
+                        this.store.setInfo({ title: this.$t('common.downloading'), msg: this.$t('importExport.export.successfullyCompleted') })
+                    }
 
-                await this.handleExportResponse(response, fileName)
-            } catch (error) {
-                this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
-            }
-        },
-        async handleExportResponse(response: AxiosResponse<any>, fileName: string): Promise<void> {
-            if (response.data.errors) {
-                this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
-            } else {
-                downloadDirectFromResponseWithCustomName(response, fileName)
-                this.store.setInfo({ title: this.$t('common.downloading'), msg: this.$t('importExport.export.successfullyCompleted') })
-            }
-
-            this.resetSelectedItems()
-            this.closeExportDialog()
+                    this.resetSelectedItems()
+                    this.closeExportDialog()
+                })
+                .catch(() => this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') }))
+                .finally(() => this.store.setLoading(false))
         },
 
-        //technically, everything will be exported with this bulk service in the future
+        // Technically, everything will be exported with this bulk service in the future
         async exportOtherFunctionalities(fileName: string): Promise<void> {
+            this.store.setLoading(true)
             const exportData = this.streamlineSelectedItemsArray(fileName)
 
             await this.$http
@@ -247,19 +247,20 @@ export default defineComponent({
                     responseType: 'arraybuffer',
                     headers: { 'Content-Type': 'application/json', Accept: 'application/zip; charset=utf-8' }
                 })
-                .then(
-                    (response: AxiosResponse<any>) => {
-                        if (response.data.errors) {
-                            this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
-                        } else {
-                            downloadDirectFromResponse(response)
-                            this.store.setInfo({ title: this.$t('common.downloading'), msg: this.$t('importExport.export.successfullyCompleted') })
-                        }
-                        this.resetSelectedItems()
-                        this.closeExportDialog()
-                    },
-                    () => this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
-                )
+                .then((response: AxiosResponse<any>) => {
+                    this.store.setLoading(false)
+                    if (response.data.errors) {
+                        this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') })
+                    } else {
+                        downloadDirectFromResponse(response)
+                        this.store.setInfo({ title: this.$t('common.downloading'), msg: this.$t('importExport.export.successfullyCompleted') })
+                    }
+
+                    this.resetSelectedItems()
+                    this.closeExportDialog()
+                })
+                .catch(() => this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') }))
+                .finally(() => this.store.setLoading(false))
         },
 
         resetSelectedItems(): void {
