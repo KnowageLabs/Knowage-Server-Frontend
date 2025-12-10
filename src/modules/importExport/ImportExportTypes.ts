@@ -23,6 +23,14 @@ export interface IGlossaryItem {
     name: string
 }
 
+export interface IDatasetItem {
+    id: number
+    name: string
+    label: string
+    description: string | null
+    catalogType?: string
+}
+
 export interface ISelectedItems {
     gallery: IGalleryTemplate[]
     catalogFunction: ICatalogFunctionTemplate[]
@@ -30,5 +38,6 @@ export interface ISelectedItems {
     analyticalDrivers: IAnalyticalDriverItem[]
     kpis: IKpiItem[]
     glossary: IGlossaryItem[]
+    datasets: IDatasetItem[]
     menu: iMenuNode[]
 }

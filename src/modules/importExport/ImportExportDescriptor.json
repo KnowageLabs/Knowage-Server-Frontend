@@ -50,6 +50,24 @@
                 }
             ]
         },
+        "datasets": {
+            "column": [
+                {
+                    "align": "left",
+                    "field": "label",
+                    "label": "common.label",
+                    "name": "label",
+                    "sortable": true
+                },
+                {
+                    "align": "left",
+                    "field": "name",
+                    "label": "common.name",
+                    "name": "name",
+                    "sortable": true
+                }
+            ]
+        },
         "gallery": {
             "column": {
                 "image": {
@@ -179,6 +197,14 @@
             "requiredFunctionality": "ImpExpGlossary",
             "route": "/import-export/glossary",
             "type": "glossary"
+        },
+        {
+            "description": "importExport.datasets.description",
+            "icon": "fas fa-database",
+            "label": "importExport.datasets.label",
+            "requiredFunctionality": "ImpExpCatalog",
+            "route": "/import-export/datasets",
+            "type": "datasets"
         },
         {
             "description": "importExport.kpis.description",
