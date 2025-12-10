@@ -340,14 +340,15 @@ export default defineComponent({
         },
         loadParameters() {
             this.parameters.isReadyForExecution = this.filtersData?.isReadyForExecution
-            this.parameters.filterStatus = []
             this.filtersData?.filterStatus?.forEach((el: iParameter) => {
                 if (el.selectionType == 'LIST' && el.showOnPanel == 'true' && el.multivalue) {
                     this.selectedParameterCheckbox[el.id] = el.parameterValue?.map((parameterValue: any) => parameterValue.value)
                 } else if (el.type === 'STRING' && el.valueSelection == 'man_in' && el.showOnPanel == 'true') {
                     el.initialValue = el.parameterValue && el.parameterValue[0] ? el.parameterValue[0].value : ''
                 }
-                this.parameters.filterStatus.push(el)
+                if (!this.parameters.filterStatus.find((p: iParameter) => p.urlName === el.urlName)) {
+                    this.parameters.filterStatus.push(el)
+                }
             })
             this.parameters?.filterStatus.forEach((el: any) => setVisualDependency(this.parameters, el))
             this.parameters?.filterStatus.forEach((el: any) => setDataDependency(this.parameters, el))

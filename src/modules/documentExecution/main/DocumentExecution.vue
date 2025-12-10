@@ -81,7 +81,7 @@
             <DocumentExecutionCNContainerDialog v-if="angularData && crossNavigationContainerData" :visible="crossNavigationContainerVisible" :data="crossNavigationContainerData" @close="onCrossNavigationContainerClose"></DocumentExecutionCNContainerDialog>
             <WorkspaceFolderPickerDialog v-if="workspaceFolderPickerDialogVisible" :visible="workspaceFolderPickerDialogVisible" :document="document" @close="workspaceFolderPickerDialogVisible = false"></WorkspaceFolderPickerDialog>
             <Dialog class="p-fluid kn-dialog--toolbar--primary" :content-style="descriptor.popupDialog.style" :visible="crossNavigationDialogVisible" :modal="true" :show-header="false" :closable="false">
-                <DocumentExecution v-if="crossNavigationPopupDialogDocument" :id="crossNavigationPopupDialogDocument?.label" :prop-mode="'document-execution-cross-navigation-popup'" :parameter-values-map="parameterValuesMap" :tab-key="tabKey" :prop-cross-navigation-popup-dialog-document="crossNavigationPopupDialogDocument" @parametersChanged="$emit('parametersChanged', $event)" @close="onCrossNavigationPopupClose()"></DocumentExecution>
+                <DocumentExecution v-if="crossNavigationPopupDialogDocument" :id="crossNavigationPopupDialogDocument?.label" :prop-mode="'document-execution-cross-navigation-popup'" :tab-key="tabKey" :prop-cross-navigation-popup-dialog-document="crossNavigationPopupDialogDocument" @parametersChanged="$emit('parametersChanged', $event)" @close="onCrossNavigationPopupClose()"></DocumentExecution>
             </Dialog>
 
             <DashboardSaveViewDialog v-if="saveViewDialogVisible" :visible="saveViewDialogVisible" :prop-view="selectedCockpitView" :document="document" @close="onSaveViewDialogClose"></DashboardSaveViewDialog>
@@ -193,7 +193,6 @@ export default defineComponent({
     },
     props: {
         id: { type: String },
-        parameterValuesMap: { type: Object },
         tabKey: { type: String },
         propMode: { type: String },
         selectedMenuItem: { type: Object },
@@ -284,7 +283,8 @@ export default defineComponent({
             user: 'user',
             configurations: 'configurations',
             theme: 'theme',
-            defaultTheme: 'defaultTheme'
+            defaultTheme: 'defaultTheme',
+            documentExecution: 'documentExecution'
         }),
         ...mapState(dashboardStore, {
             dashboards: 'dashboards'
@@ -381,6 +381,7 @@ export default defineComponent({
         this.removeEventListeners()
     },
     methods: {
+        ...mapActions(mainStore, ['setDocumentExecutionParametersMap']),
         async initialize() {
             this.setEventListeners()
             window.addEventListener('message', this.iframeEventsListener)
@@ -802,7 +803,7 @@ export default defineComponent({
                 this.parameterSidebarVisible = true
                 return
             }
-            this.filtersData = await loadFilters(initialLoading, this.filtersData, this.document, this.breadcrumbs, this.userRole, this.parameterValuesMap, this.tabKey as string, this.sessionEnabled, this.$http, this.dateFormat, this.$route, this)
+            this.filtersData = await loadFilters(initialLoading, this.filtersData, this.document, this.breadcrumbs, this.userRole, this.tabKey as string, this.sessionEnabled, this.$http, this.dateFormat, this.$route, this)
             this.filtersLoaded = true
             if (this.dashboardView) formatDriversUsingDashboardView(this.filtersData, this.dashboardView)
             else if (this.cockpitViewForExecution) formatDriversUsingDashboardView(this.filtersData, this.cockpitViewForExecution)
@@ -1019,6 +1020,9 @@ export default defineComponent({
         async onExecute() {
             this.loading = true
             this.filtersData.isReadyForExecution = true
+            if (this.documentExecution?.parameterValuesMap[this.document.label + '-' + this.tabKey]) {
+                this.documentExecution.parameterValuesMap[this.document.label + '-' + this.tabKey].isReadyForExecution = true
+            }
             await this.loadURL(null)
             this.parameterSidebarVisible = false
             this.reloadTrigger = !this.reloadTrigger
