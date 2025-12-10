@@ -41,6 +41,10 @@ const routes = [
                 component: () => import('@/modules/importExport/mondrianSchema/ImportExportMondrianSchema.vue')
             },
             {
+                path: 'layers',
+                component: () => import('@/modules/importExport/layer/ImportExportLayer.vue')
+            },
+            {
                 path: 'drivers',
                 component: () => import('@/modules/importExport/drivers/ImportExportDrivers.vue')
             },

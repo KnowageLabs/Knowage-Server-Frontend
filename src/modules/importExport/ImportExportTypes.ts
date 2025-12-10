@@ -47,6 +47,14 @@ export interface IMondrianSchemaItem {
     catalogType?: string
 }
 
+export interface ILayerItem {
+    id: number
+    name: string
+    label: string
+    description: string | null
+    catalogType?: string
+}
+
 export interface ISelectedItems {
     gallery: IGalleryTemplate[]
     catalogFunction: ICatalogFunctionTemplate[]
@@ -57,5 +65,6 @@ export interface ISelectedItems {
     datasets: IDatasetItem[]
     businessModels: IBusinessModelItem[]
     mondrianSchemas: IMondrianSchemaItem[]
+    layers: ILayerItem[]
     menu: iMenuNode[]
 }
