@@ -2,23 +2,34 @@
     <div class="import-export-documents-container">
         <ImportDocumentsDialog v-if="displayImportDialog" @close="displayImportDialog = false" />
         <ExportDocumentsDialog v-if="displayExportDialog" @export="exportDocuments" @close="displayExportDialog = false" />
-        <div class="kn-page-content p-d-flex p-flex-column p-px-1 p-pb-3">
-            <q-card class="p-my-2 p-d-flex p-ai-center">
-                <q-select class="p-col-4" v-model="selectedFilters" dense multiple emit-value map-options :options="availableFilters" option-label="label" option-value="value" :label="$t('managers.importExportDocs.status')" />
-                <q-input class="p-col-2" v-model="dateFilter" dense type="date" :label="$t('managers.importExportDocs.date')">
-                    <template #prepend>
-                        <q-icon name="event" />
-                    </template>
-                </q-input>
-                <q-btn class="p-ml-3" icon="fas fa-magnifying-glass" size="sm" round flat :disable="loading" @click="loadDocuments">
-                    <q-tooltip>{{ $t('common.search') }}</q-tooltip>
-                </q-btn>
-            </q-card>
 
-            <q-card class="import-export-document-tree-card">
-                <Tree v-model:selectionKeys="selectedDocumentsKeys" class="import-export-document-tree kn-tree" :value="nodes" :loading="loading" selection-mode="checkbox" :meta-key-selection="false" :filter="true" filter-mode="lenient" @node-expand="setOpenFolderIcon($event)" @node-collapse="setClosedFolderIcon($event)"> </Tree>
-            </q-card>
-        </div>
+        <q-card class="p-my-2 p-d-flex p-ai-center">
+            <q-input class="p-col-3" v-model="searchFilter" dense :placeholder="$t('common.search')" type="text">
+                <template #prepend>
+                    <q-icon name="search" />
+                </template>
+            </q-input>
+            <q-select class="p-col-3" v-model="selectedFilters" dense multiple emit-value map-options :options="availableFilters" option-label="label" option-value="value" :label="$t('managers.importExportDocs.status')" />
+            <q-input class="p-col-2" v-model="dateFilter" dense type="date" :label="$t('managers.importExportDocs.date')">
+                <template #prepend>
+                    <q-icon name="event" />
+                </template>
+            </q-input>
+            <q-btn class="p-ml-3" icon="fas fa-magnifying-glass" size="sm" round flat :disable="loading" @click="loadDocuments">
+                <q-tooltip>{{ $t('common.search') }}</q-tooltip>
+            </q-btn>
+        </q-card>
+
+        <q-card class="p-d-flex p-flex-column kn-flex kn-overflow">
+            <q-tree ref="documentTree" :nodes="nodes" :filter="searchFilter" node-key="key" tick-strategy="leaf" v-model:ticked="selectedDocumentKeys">
+                <template #default-header="{ node }">
+                    <div class="row items-center full-width">
+                        <q-icon :name="node.icon" class="q-mr-sm" />
+                        <span>{{ node.label }}</span>
+                    </div>
+                </template>
+            </q-tree>
+        </q-card>
     </div>
 </template>
 
@@ -32,13 +43,12 @@ import { downloadDirectFromResponse } from '@/helpers/commons/fileHelper'
 import { primeVueDate } from '@/helpers/commons/localeHelper'
 import deepcopy from 'deepcopy'
 import mainStore from '../../../App.store'
-import Tree from 'primevue/tree'
 import ExportDocumentsDialog from './exportDialog/ExportDocumentsDialog.vue'
 import ImportDocumentsDialog from './importDialog/ImportDocumentsDialog.vue'
 
 export default defineComponent({
     name: 'import-export-documents',
-    components: { Tree, ExportDocumentsDialog, ImportDocumentsDialog },
+    components: { ExportDocumentsDialog, ImportDocumentsDialog },
     props: {
         triggerImport: { type: Number, default: 0 },
         triggerExport: { type: Number, default: 0 }
@@ -56,9 +66,11 @@ export default defineComponent({
             loading: false,
             folders: [] as any[],
             nodes: [] as iNode[],
+            selectedDocumentKeys: [] as string[],
             selectedDocumentsKeys: {} as any,
             selectedDocument: null as any,
             dateFilter: null as any,
+            searchFilter: '',
             availableFilters: [
                 { label: this.$t('managers.importExportDocs.dev'), value: 'DEV' },
                 { label: this.$t('managers.importExportDocs.test'), value: 'TEST' },
@@ -77,7 +89,7 @@ export default defineComponent({
             return primeVueDate()
         },
         hasSelection(): boolean {
-            return Object.values(this.selectedDocumentsKeys).length > 0
+            return this.selectedDocumentKeys.length > 0
         }
     },
     watch: {
@@ -86,6 +98,13 @@ export default defineComponent({
         },
         triggerExport(newVal, oldVal) {
             if (newVal !== oldVal && newVal > 0) this.toggleExportDialog()
+        },
+        selectedDocumentKeys: {
+            deep: true,
+            handler() {
+                this.updateSelectedDocumentsKeys()
+                this.$emit('documentsReady', this.hasSelection)
+            }
         },
         selectedDocumentsKeys: {
             deep: true,
@@ -139,7 +158,7 @@ export default defineComponent({
                         label: file.name,
                         children: this.formatFolderChildren(file.biObjects, file.path),
                         data: file,
-                        icon: 'pi pi-folder',
+                        icon: 'folder',
                         selectable: true,
                         path: file.path,
                         isFolder: true
@@ -154,10 +173,17 @@ export default defineComponent({
         formatFolderChildren(folderChildren: any[], filePath: string) {
             const formattedChildren = [] as iNode[]
             folderChildren.forEach((document: any) => {
-                formattedChildren.push({ key: crypto.randomUUID(), icon: 'pi pi-file', id: document.id, label: document.name, data: document, selectable: true, path: filePath })
+                formattedChildren.push({ key: crypto.randomUUID(), icon: 'description', id: document.id, label: document.name, data: document, selectable: true, path: filePath, isFolder: false })
             })
 
             return formattedChildren
+        },
+        updateSelectedDocumentsKeys() {
+            // Update the old structure for compatibility with export logic
+            this.selectedDocumentsKeys = {}
+            this.selectedDocumentKeys.forEach((key) => {
+                this.selectedDocumentsKeys[key] = { checked: true, partialChecked: false }
+            })
         },
         attachFolderToTree(folder: iNode, foldersWithMissingParent: iNode[]) {
             if (folder.parentId) {
@@ -198,12 +224,6 @@ export default defineComponent({
                 }
                 return tempFolder
             }
-        },
-        setOpenFolderIcon(node: iNode) {
-            node.icon = 'pi pi-folder-open'
-        },
-        setClosedFolderIcon(node: iNode) {
-            node.icon = 'pi pi-folder'
         },
         toggleExportDialog() {
             if (this.hasSelection) {
@@ -286,21 +306,6 @@ export default defineComponent({
 .import-export-documents-container {
     display: flex;
     flex-direction: column;
-    height: 100%;
-}
-
-.import-export-document-tree-card {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    overflow: hidden;
-}
-
-.import-export-document-tree {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    border: none;
-    overflow: auto;
+    height: 95vh;
 }
 </style>
