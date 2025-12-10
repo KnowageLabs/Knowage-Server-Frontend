@@ -2,26 +2,22 @@
     <div class="import-export-documents-container">
         <ImportDocumentsDialog v-if="displayImportDialog" @close="displayImportDialog = false" />
         <ExportDocumentsDialog v-if="displayExportDialog" @export="exportDocuments" @close="displayExportDialog = false" />
+        <div class="kn-page-content p-d-flex p-flex-column p-px-1 p-pb-3">
+            <q-card class="p-my-2 p-d-flex p-ai-center">
+                <q-select class="p-col-4" v-model="selectedFilters" dense multiple emit-value map-options :options="availableFilters" option-label="label" option-value="value" :label="$t('managers.importExportDocs.status')" />
+                <q-input class="p-col-2" v-model="dateFilter" dense type="date" :label="$t('managers.importExportDocs.date')">
+                    <template #prepend>
+                        <q-icon name="event" />
+                    </template>
+                </q-input>
+                <q-btn class="p-ml-3" icon="fas fa-magnifying-glass" size="sm" round flat :disable="loading" @click="loadDocuments">
+                    <q-tooltip>{{ $t('common.search') }}</q-tooltip>
+                </q-btn>
+            </q-card>
 
-        <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
-        <div class="kn-page-content p-d-flex p-flex-column p-m-0">
-            <form class="p-fluid p-formgrid p-grid p-m-2 p-pt-2 p-ai-center">
-                <div class="p-field p-col-5">
-                    <span class="p-float-label">
-                        <Calendar id="startDate" v-model="dateFilter" class="kn-material-input" :show-icon="true" :manual-input="true" :show-button-bar="true" />
-                        <label for="attributes" class="kn-material-input-label"> {{ $t('managers.importExportDocs.date') }} </label>
-                    </span>
-                </div>
-                <div class="p-field p-col-6">
-                    <span class="p-float-label kn-height-full">
-                        <Multiselect v-model="selectedFilters" class="kn-material-input kn-height-full" :options="availableFilters" option-label="label" option-value="value"> </Multiselect>
-                        <label for="attributes" class="kn-material-input-label"> {{ $t('managers.importExportDocs.status') }} </label>
-                    </span>
-                </div>
-                <Button icon="fas fa-magnifying-glass p-field p-col-1" class="p-button-rounded p-button-text p-button-plain expand-button" :disabled="loading" @click="loadDocuments" />
-            </form>
-
-            <Tree v-model:selectionKeys="selectedDocumentsKeys" class="import-export-document-tree kn-tree" :value="nodes" :loading="loading" selection-mode="checkbox" :meta-key-selection="false" :filter="true" filter-mode="lenient" @node-expand="setOpenFolderIcon($event)" @node-collapse="setClosedFolderIcon($event)"> </Tree>
+            <q-card class="import-export-document-tree-card">
+                <Tree v-model:selectionKeys="selectedDocumentsKeys" class="import-export-document-tree kn-tree" :value="nodes" :loading="loading" selection-mode="checkbox" :meta-key-selection="false" :filter="true" filter-mode="lenient" @node-expand="setOpenFolderIcon($event)" @node-collapse="setClosedFolderIcon($event)"> </Tree>
+            </q-card>
         </div>
     </div>
 </template>
@@ -36,16 +32,13 @@ import { downloadDirectFromResponse } from '@/helpers/commons/fileHelper'
 import { primeVueDate } from '@/helpers/commons/localeHelper'
 import deepcopy from 'deepcopy'
 import mainStore from '../../../App.store'
-import ProgressBar from 'primevue/progressbar'
 import Tree from 'primevue/tree'
 import ExportDocumentsDialog from './exportDialog/ExportDocumentsDialog.vue'
 import ImportDocumentsDialog from './importDialog/ImportDocumentsDialog.vue'
-import Calendar from 'primevue/calendar'
-import Multiselect from 'primevue/multiselect'
 
 export default defineComponent({
     name: 'import-export-documents',
-    components: { ProgressBar, Tree, ExportDocumentsDialog, ImportDocumentsDialog, Calendar, Multiselect },
+    components: { Tree, ExportDocumentsDialog, ImportDocumentsDialog },
     props: {
         triggerImport: { type: Number, default: 0 },
         triggerExport: { type: Number, default: 0 }
@@ -109,7 +102,7 @@ export default defineComponent({
     },
     methods: {
         loadDocuments() {
-            const dateFilter = this.dateFilter ? this.dateFilter.toString() : undefined
+            const dateFilter = this.dateFilter ? new Date(this.dateFilter).toString() : undefined
             const statusFilter = this.selectedFilters.toString()
 
             this.loading = true
@@ -296,12 +289,18 @@ export default defineComponent({
     height: 100%;
 }
 
+.import-export-document-tree-card {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+}
+
 .import-export-document-tree {
     display: flex;
     flex-direction: column;
     flex: 1;
     border: none;
-    padding-top: 0;
     overflow: auto;
 }
 </style>
