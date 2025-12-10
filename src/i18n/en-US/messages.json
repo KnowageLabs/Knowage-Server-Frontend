@@ -2022,6 +2022,10 @@
             "description": "export gallery templates",
             "label": "gallery"
         },
+        "datasets": {
+            "description": "export datasets",
+            "label": "datasets"
+        },
         "glossary": {
             "description": "export glossaries",
             "label": "glossary"

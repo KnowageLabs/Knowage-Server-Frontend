@@ -29,6 +29,10 @@ const routes = [
                 component: () => import('@/modules/importExport/glossary/ImportExportGlossary.vue')
             },
             {
+                path: 'datasets',
+                component: () => import('@/modules/importExport/dataset/ImportExportDataset.vue')
+            },
+            {
                 path: 'drivers',
                 component: () => import('@/modules/importExport/drivers/ImportExportDrivers.vue')
             },
