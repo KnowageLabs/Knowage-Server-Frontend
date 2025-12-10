@@ -2020,6 +2020,10 @@
             "description": "export business models",
             "label": "business models"
         },
+        "mondrianSchemas": {
+            "description": "export Mondrian schemas",
+            "label": "Mondrian schemas"
+        },
         "glossary": {
             "description": "export glossaries",
             "label": "glossary"

@@ -156,6 +156,24 @@
                 }
             ]
         },
+        "mondrianSchemas": {
+            "column": [
+                {
+                    "align": "left",
+                    "field": "label",
+                    "label": "common.label",
+                    "name": "label",
+                    "sortable": true
+                },
+                {
+                    "align": "left",
+                    "field": "name",
+                    "label": "common.name",
+                    "name": "name",
+                    "sortable": true
+                }
+            ]
+        },
         "kpis": {
             "column": [
                 {
@@ -249,6 +267,14 @@
             "requiredFunctionality": "ImpExpCatalog",
             "route": "/import-export/businessmodels",
             "type": "businessModels"
+        },
+        {
+            "description": "importExport.mondrianSchemas.description",
+            "icon": "fas fa-cube",
+            "label": "importExport.mondrianSchemas.label",
+            "requiredFunctionality": "ImpExpCatalog",
+            "route": "/import-export/mondrianschemas",
+            "type": "mondrianSchemas"
         },
         {
             "description": "importExport.kpis.description",

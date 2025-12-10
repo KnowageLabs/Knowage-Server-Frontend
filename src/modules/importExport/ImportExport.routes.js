@@ -37,6 +37,10 @@ const routes = [
                 component: () => import('@/modules/importExport/businessModel/ImportExportBusinessModel.vue')
             },
             {
+                path: 'mondrianschemas',
+                component: () => import('@/modules/importExport/mondrianSchema/ImportExportMondrianSchema.vue')
+            },
+            {
                 path: 'drivers',
                 component: () => import('@/modules/importExport/drivers/ImportExportDrivers.vue')
             },
