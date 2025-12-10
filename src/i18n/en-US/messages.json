@@ -2032,6 +2032,10 @@
             "description": "export glossaries",
             "label": "glossary"
         },
+        "documents": {
+            "description": "export documents",
+            "label": "documents"
+        },
         "import": {
             "completedWithErrors": "Import completed with errors. Please read logs for further information.",
             "itemWithEmptyId": "This item has an empty ID. If checked, it will be imported as new.",

@@ -325,6 +325,14 @@
             "requiredFunctionality": "ImpExpMenu",
             "route": "/import-export/menu",
             "type": "menu"
+        },
+        {
+            "description": "importExport.documents.description",
+            "icon": "fas fa-file-alt",
+            "label": "importExport.documents.label",
+            "requiredFunctionality": "DocumentAdminManagement",
+            "route": "/import-export/documents",
+            "type": "documents"
         }
     ],
     "iconTypesMap": {

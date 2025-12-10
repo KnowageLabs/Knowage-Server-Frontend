@@ -51,6 +51,10 @@ const routes = [
             {
                 path: 'menu',
                 component: () => import('@/modules/importExport/menu/ImportExportMenu.vue')
+            },
+            {
+                path: 'documents',
+                component: () => import('@/modules/importExport/documents/ImportExportDocuments.vue')
             }
         ]
     }
