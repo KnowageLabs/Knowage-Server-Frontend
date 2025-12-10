@@ -1,26 +1,7 @@
 <template>
     <div id="cockpit-container" class="kn-height-full">
-        <DocumentExecution
-            v-show="mode === 'document-execution'"
-            :id="name"
-            :prop-mode="mode"
-            :style="[mode === 'document-execution' ? '' : 'display: none !important; ']"
-            :parameter-values-map="parameterValuesMap"
-            :tab-key="tabKey"
-            @parametersChanged="$emit('parametersChanged', $event)"
-            @close="$emit('close')"
-        ></DocumentExecution>
-        <DocumentDetails
-            v-show="mode === 'document-detail'"
-            :style="[mode === 'document-detail' ? '' : 'display: none !important;']"
-            :prop-mode="'execution'"
-            :view-mode="mode"
-            :prop-doc-id="item?.id"
-            :whole-item="item"
-            :prop-folder-id="functionalityId"
-            @closeDetails="$emit('closeDetails', item)"
-            @documentSaved="onDocumentsSaved"
-        ></DocumentDetails>
+        <DocumentExecution v-show="mode === 'document-execution'" :id="name" :prop-mode="mode" :style="[mode === 'document-execution' ? '' : 'display: none !important; ']" :tab-key="tabKey" @parametersChanged="$emit('parametersChanged', $event)" @close="$emit('close')"></DocumentExecution>
+        <DocumentDetails v-show="mode === 'document-detail'" :style="[mode === 'document-detail' ? '' : 'display: none !important;']" :prop-mode="'execution'" :view-mode="mode" :prop-doc-id="item?.id" :whole-item="item" :prop-folder-id="functionalityId" @closeDetails="$emit('closeDetails', item)" @documentSaved="onDocumentsSaved"></DocumentDetails>
     </div>
 </template>
 
@@ -36,7 +17,7 @@ export default defineComponent({
         DocumentExecution,
         DocumentDetails
     },
-    props: { id: { type: String }, functionalityId: { type: String }, item: { type: Object }, parameterValuesMap: { type: Object }, tabKey: { type: String } },
+    props: { id: { type: String }, functionalityId: { type: String }, item: { type: Object }, tabKey: { type: String } },
     emits: ['iframeCreated', 'closeIframe', 'parametersChanged', 'closeDetails', 'documentSaved', 'close'],
     setup() {
         const store = mainStore()
