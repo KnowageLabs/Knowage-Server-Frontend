@@ -3229,6 +3229,7 @@
                 "enableDataPreparation": "Enable Data Preparation",
                 "enableDossier": "Enable Dossier",
                 "enableEngGptIntegration": "Enable EngGpt Integration",
+                "functionsCatalogManagement": "Functions Catalog Management",
                 "functionsCatalogUsage": "Functions Catalog Usage",
                 "hierarchiesManagement": "Manage Hierarchies",
                 "items": "Items for user menu",

@@ -2857,6 +2857,7 @@
                 "enableDossier": "Abilita Dossier",
                 "enableEngGptIntegration": "Abilita Integrazione con EngGpt",
                 "federatedDataset": "Federated Dataset",
+                "functionsCatalogManagement": "Functions Catalog Management",
                 "functionsCatalogUsage": "Functions Catalog Usage",
                 "hierarchiesManagement": "Manage Hierarchies",
                 "items": "Items for user menu",
