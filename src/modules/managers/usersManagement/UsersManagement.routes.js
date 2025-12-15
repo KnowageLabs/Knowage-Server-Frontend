@@ -2,7 +2,7 @@ const routes = [
     {
         path: '/users-management',
         name: 'users-management',
-        meta: { functionality: 'ProfileManagement' },
+        meta: { functionality: 'FinalUsersManagement' },
         component: () => import('@/modules/managers/usersManagement/UsersManagement.vue')
     }
 ]
