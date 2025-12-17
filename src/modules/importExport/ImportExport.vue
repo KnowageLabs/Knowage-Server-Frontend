@@ -1,6 +1,7 @@
 <template>
     <div class="kn-importExport kn-page">
         <ImportDialog v-model:visibility="displayImportDialog" />
+        <ImportMenuDialog v-if="displayImportMenu" @close="displayImportMenu = false" />
 
         <ExportDialog v-model:visibility="exportDialog.visible" :checkbox-options="exportDialog.checkboxOptions" @export="handleExport" />
 
@@ -41,10 +42,11 @@ import { mapState } from 'pinia'
 import mainStore from '../../App.store'
 import { EXPORT_CONFIG, CATALOG_CONFIG, createEmptySelectedItems } from './ImportExportHelpers'
 import type { CheckboxOption } from './ExportDialog.vue'
+import ImportMenuDialog from './menu/ImportMenuDialog.vue'
 
 export default defineComponent({
     name: 'import-export',
-    components: { ExportDialog, KnTabCard, ImportDialog, ProgressBar },
+    components: { ExportDialog, KnTabCard, ImportDialog, ProgressBar, ImportMenuDialog },
     emits: ['onItemSelected'],
     computed: {
         ...mapState(mainStore, {
@@ -55,14 +57,10 @@ export default defineComponent({
 
         isExportDisabled(): boolean {
             // Check if we're on documents route
-            if (this.isDocumentsRoute) {
+            if (this.route.path.includes('documents')) {
                 return !this.documentsHasSelection
             }
             return !Object.values(this.selectedItems).some((items) => items.length > 0)
-        },
-
-        isDocumentsRoute(): boolean {
-            return this.route.path.includes('documents')
         }
     },
     setup() {
@@ -88,7 +86,8 @@ export default defineComponent({
             documentsComponent: null as any,
             documentsImportTrigger: 0,
             documentsExportTrigger: 0,
-            documentsHasSelection: false
+            documentsHasSelection: false,
+            displayImportMenu: false
         }
     },
     mounted() {
@@ -148,13 +147,17 @@ export default defineComponent({
         },
 
         openImportDialog(): void {
-            if (this.isDocumentsRoute) this.documentsImportTrigger++
-            else this.displayImportDialog = true
+            if (this.route.path.includes('documents')) {
+                this.documentsImportTrigger++
+            } else if (this.route.path.includes('menu')) {
+                this.displayImportMenu = true
+            } else {
+                this.displayImportDialog = true
+            }
         },
 
         openExportDialog(): void {
-            // If we're on documents route, trigger the child's export dialog
-            if (this.isDocumentsRoute) {
+            if (this.route.path.includes('documents')) {
                 this.documentsExportTrigger++
             } else {
                 const selectedEntry = Object.entries(this.selectedItems).find(([_, items]) => items.length > 0)
