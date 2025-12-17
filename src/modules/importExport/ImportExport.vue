@@ -2,6 +2,7 @@
     <div class="kn-importExport kn-page">
         <ImportDialog v-model:visibility="displayImportDialog" />
         <ImportMenuDialog v-if="displayImportMenu" @close="displayImportMenu = false" />
+        <ImportKpiDialog v-if="displayImportKpiDialog" @close="displayImportKpiDialog = false" />
 
         <ExportDialog v-model:visibility="exportDialog.visible" :checkbox-options="exportDialog.checkboxOptions" @export="handleExport" />
 
@@ -43,10 +44,11 @@ import mainStore from '../../App.store'
 import { EXPORT_CONFIG, CATALOG_CONFIG, createEmptySelectedItems } from './ImportExportHelpers'
 import type { CheckboxOption } from './ExportDialog.vue'
 import ImportMenuDialog from './menu/ImportMenuDialog.vue'
+import ImportKpiDialog from './kpi/ImportKpiDialog.vue'
 
 export default defineComponent({
     name: 'import-export',
-    components: { ExportDialog, KnTabCard, ImportDialog, ProgressBar, ImportMenuDialog },
+    components: { ExportDialog, KnTabCard, ImportDialog, ProgressBar, ImportMenuDialog, ImportKpiDialog },
     emits: ['onItemSelected'],
     computed: {
         ...mapState(mainStore, {
@@ -56,10 +58,7 @@ export default defineComponent({
         }),
 
         isExportDisabled(): boolean {
-            // Check if we're on documents route
-            if (this.route.path.includes('documents')) {
-                return !this.documentsHasSelection
-            }
+            if (this.route.path.includes('documents')) return !this.documentsHasSelection
             return !Object.values(this.selectedItems).some((items) => items.length > 0)
         }
     },
@@ -87,7 +86,8 @@ export default defineComponent({
             documentsImportTrigger: 0,
             documentsExportTrigger: 0,
             documentsHasSelection: false,
-            displayImportMenu: false
+            displayImportMenu: false,
+            displayImportKpiDialog: false
         }
     },
     mounted() {
@@ -151,6 +151,10 @@ export default defineComponent({
                 this.documentsImportTrigger++
             } else if (this.route.path.includes('menu')) {
                 this.displayImportMenu = true
+            } else if (this.route.path.includes('kpi')) {
+                this.displayImportKpiDialog = true
+            } else if (this.route.path.includes('gallery') || this.route.path.includes('catalogfunction')) {
+                this.displayImportDialog = true
             } else {
                 this.displayImportDialog = true
             }

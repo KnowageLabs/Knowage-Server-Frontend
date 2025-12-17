@@ -26,6 +26,7 @@ import { AxiosResponse } from 'axios'
 import mainStore from '@/App.store'
 import type { ISelectedItems } from '../ImportExportTypes'
 import { iMenuNode } from '@/modules/managers/menuManagement/MenuManagement'
+import { importExportEmitter } from '../ImportExportEmitter'
 
 export default defineComponent({
     name: 'import-export-menu',
@@ -59,6 +60,10 @@ export default defineComponent({
     },
     created() {
         this.loadAllMenuItems()
+        importExportEmitter.on('menuImported', this.loadAllMenuItems)
+    },
+    beforeUnmount() {
+        importExportEmitter.off('menuImported', this.loadAllMenuItems)
     },
     methods: {
         loadAllMenuItems(): void {

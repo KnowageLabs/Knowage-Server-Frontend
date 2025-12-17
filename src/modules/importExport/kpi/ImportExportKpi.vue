@@ -19,10 +19,14 @@ import { defineComponent } from 'vue'
 import { AxiosResponse } from 'axios'
 import importExportDescriptor from '../ImportExportDescriptor.json'
 import type { IKpiItem, ISelectedItems } from '../ImportExportTypes'
+import { importExportEmitter } from '../ImportExportEmitter'
 
 export default defineComponent({
     name: 'import-export-kpi',
-    props: { selectedItems: { type: Object as () => ISelectedItems, required: true } },
+    components: {},
+    props: {
+        selectedItems: { type: Object as () => ISelectedItems, required: true }
+    },
     emits: ['onItemSelected', 'update:loading'],
     data() {
         return {
@@ -56,6 +60,10 @@ export default defineComponent({
     },
     created() {
         this.loadAllKpis()
+        importExportEmitter.on('kpisImported', this.loadAllKpis)
+    },
+    beforeUnmount() {
+        importExportEmitter.off('kpisImported', this.loadAllKpis)
     },
     methods: {
         loadAllKpis(): void {

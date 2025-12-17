@@ -6,7 +6,7 @@
             </q-toolbar>
             <q-stepper ref="stepper" v-model="step" color="primary" animated class="kn-width-full">
                 <q-step :name="1" title="Upload File" icon="settings" :done="step > 1">
-                    <q-file v-model="uploadedFiles" accept=".zip" max-file-size="10000000" :label="uploadedFiles && uploadedFiles.length > 0 ? '' : $t('common.dragAndDropFileHere')" outlined @update:model-value="onUpload">
+                    <q-file v-model="uploadedFiles" accept=".zip" max-file-size="10000000" :label="uploadedFiles && uploadedFiles.length > 0 ? '' : $t('common.dragAndDropFileHere')" outlined square @update:model-value="onUpload">
                         <template #prepend>
                             <q-icon name="attach_file" />
                         </template>
@@ -88,6 +88,7 @@
 import { defineComponent } from 'vue'
 import mainStore from '../../../App.store'
 import { AxiosResponse } from 'axios'
+import { importExportEmitter } from '../ImportExportEmitter'
 
 export default defineComponent({
     name: 'import-dialog',
@@ -194,6 +195,7 @@ export default defineComponent({
                                     this.store.setError({ title: this.$t('common.error.uploading'), msg: menuResponse.data?.ERROR })
                                 } else {
                                     this.store.setInfo({ title: this.$t('common.toast.success'), msg: this.$t('common.toast.importSuccess') })
+                                    importExportEmitter.emit('menuImported')
                                     this.closeDialog()
                                 }
                             })
