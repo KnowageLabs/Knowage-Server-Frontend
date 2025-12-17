@@ -108,7 +108,7 @@ export default defineComponent({
             const currentHostName = this.licenses.hosts[0]?.hostName
 
             this.functionalities = importExportDescriptor.functionalities
-                .filter((x) => !x.requiredFunctionality || this.user.functionalities.includes(x.requiredFunctionality))
+                .filter((x) => !x.requiredFunctionality || this.user?.functionalities?.includes(x.requiredFunctionality))
                 .filter((x) => {
                     if (!x.requiredLicense || !currentHostName || !licenses[currentHostName]) return true
                     return licenses[currentHostName].some((lic) => lic.product === x.requiredLicense)

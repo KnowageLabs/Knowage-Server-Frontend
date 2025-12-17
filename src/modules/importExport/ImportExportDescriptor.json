@@ -120,24 +120,6 @@
                 }
             ]
         },
-        "datasets": {
-            "column": [
-                {
-                    "align": "left",
-                    "field": "label",
-                    "label": "common.label",
-                    "name": "label",
-                    "sortable": true
-                },
-                {
-                    "align": "left",
-                    "field": "name",
-                    "label": "common.name",
-                    "name": "name",
-                    "sortable": true
-                }
-            ]
-        },
         "businessModels": {
             "column": [
                 {
@@ -367,6 +349,24 @@
             }
         }
     },
+    "oldImportFunctionalities": [
+        {
+            "description": "importExport.gallery.description",
+            "icon": "fas fa-paint-brush",
+            "label": "importExport.gallery.label",
+            "route": "/import-export/gallery",
+            "type": "gallery"
+        },
+        {
+            "description": "importExport.catalogFunction.description",
+            "icon": "fa fa-cubes",
+            "label": "importExport.catalogFunction.label",
+            "requiredFunctionality": "FunctionsCatalogManagement",
+            "requiredLicense": "KnowageSI",
+            "route": "/import-export/catalogfunction",
+            "type": "catalogFunction"
+        }
+    ],
     "import": {
         "catalogFunction": {
             "column": [

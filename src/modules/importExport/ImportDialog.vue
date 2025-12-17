@@ -10,7 +10,7 @@
         <div v-if="step == 1" class="importExportImport">
             <Message v-if="step == 1 && getMessageWarningCondition()" severity="warn">{{ $t('importExport.itemsWithEmptyIdWarning') }}</Message>
             <TabView @change="resetSearchFilter">
-                <TabPanel v-for="functionality in importExportDescriptor.functionalities" :key="functionality.label">
+                <TabPanel v-for="functionality in importExportDescriptor.oldImportFunctionalities" :key="functionality.label">
                     <template #header>
                         {{ $t(functionality.label).toUpperCase() }}
 
