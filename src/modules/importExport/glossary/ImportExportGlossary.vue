@@ -24,6 +24,7 @@ import { defineComponent } from 'vue'
 import { AxiosResponse } from 'axios'
 import importExportDescriptor from '../ImportExportDescriptor.json'
 import type { IGlossaryItem, ISelectedItems } from '../ImportExportTypes'
+import { importExportEmitter } from '../ImportExportEmitter'
 
 export default defineComponent({
     name: 'import-export-glossary',
@@ -62,6 +63,10 @@ export default defineComponent({
     },
     created() {
         this.loadAllGlossary()
+        importExportEmitter.on('glossaryImported', this.loadAllGlossary)
+    },
+    beforeUnmount() {
+        importExportEmitter.off('glossaryImported', this.loadAllGlossary)
     },
     methods: {
         loadAllGlossary(): void {
