@@ -274,6 +274,8 @@ export default defineComponent({
             if (dataset && dataset.drivers) {
                 body.datasetDrivers = dataset.drivers
             }
+            body.variables = this.dashboards[this.dashboardId]?.configuration?.variables
+            body.creationUser = this.document?.creationUser
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/dashboardExport/${type}`, body, {
                     responseType: 'blob',
