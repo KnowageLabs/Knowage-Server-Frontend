@@ -178,7 +178,6 @@
         "label": "label",
         "labels": "Labels",
         "language": "Language",
-        "targets": "Targets",
         "large": "Large",
         "lastChangeDate": "Last change date",
         "layer": "Layer",
@@ -296,6 +295,7 @@
         },
         "tags": "tags",
         "target": "Target",
+        "targets": "Targets",
         "temporal": "Temporal",
         "tenant": "tenant",
         "test": "test",
@@ -1986,6 +1986,10 @@
             "description": "export analytical drivers",
             "label": "analytical drivers"
         },
+        "businessModels": {
+            "description": "export business models",
+            "label": "business models"
+        },
         "catalogFunction": {
             "column": {
                 "label": "Label",
@@ -1997,6 +2001,14 @@
             "label": "functions"
         },
         "clearSelectedItems": "This will clear all the selected items. Are you sure you want to proceed?",
+        "datasets": {
+            "description": "export datasets",
+            "label": "datasets"
+        },
+        "documents": {
+            "description": "export documents",
+            "label": "documents"
+        },
         "export": {
             "completedWithErrors": "Export completed with errors. Please read logs for further information.",
             "successfullyCompleted": "Export successfully completed"
@@ -2013,29 +2025,11 @@
             "description": "export gallery templates",
             "label": "gallery"
         },
-        "datasets": {
-            "description": "export datasets",
-            "label": "datasets"
-        },
-        "businessModels": {
-            "description": "export business models",
-            "label": "business models"
-        },
-        "mondrianSchemas": {
-            "description": "export Mondrian schemas",
-            "label": "Mondrian schemas"
-        },
-        "layers": {
-            "description": "export layers",
-            "label": "layers"
-        },
         "glossary": {
+            "addMissing": "Add missing terms during import",
             "description": "export glossaries",
-            "label": "glossary"
-        },
-        "documents": {
-            "description": "export documents",
-            "label": "documents"
+            "label": "glossary",
+            "override": "Override existing terms during import"
         },
         "import": {
             "completedWithErrors": "Import completed with errors. Please read logs for further information.",
@@ -2050,18 +2044,26 @@
                 "name": "Name"
             },
             "description": "export KPIs",
+            "importScheduler": "Import KPI schedulers and related KPIs",
+            "importScorecard": "Import scorecards and related KPIs",
+            "importTarget": "Import targets and related KPIs",
+            "importkpi": "Overwrite existing KPIs and rules",
             "label": "kpi",
             "schedulersAndRelated": "Include schedulers and related KPIs",
             "scorecardsAndRelated": "Include scorecards and related KPIs",
-            "targetsAndRelated": "Include targets and related KPIs",
-            "importkpi": "Overwrite existing KPIs and rules",
-            "importTarget": "Import targets and related KPIs",
-            "importScorecard": "Import scorecards and related KPIs",
-            "importScheduler": "Import KPI schedulers and related KPIs"
+            "targetsAndRelated": "Include targets and related KPIs"
+        },
+        "layers": {
+            "description": "export layers",
+            "label": "layers"
         },
         "menu": {
             "description": "export menu items",
             "label": "menu"
+        },
+        "mondrianSchemas": {
+            "description": "export Mondrian schemas",
+            "label": "Mondrian schemas"
         },
         "title": "Import/Export",
         "users": {

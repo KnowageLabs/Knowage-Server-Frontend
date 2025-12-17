@@ -3,6 +3,7 @@
         <ImportDialog v-model:visibility="displayImportDialog" />
         <ImportMenuDialog v-if="displayImportMenu" @close="displayImportMenu = false" />
         <ImportKpiDialog v-if="displayImportKpiDialog" @close="displayImportKpiDialog = false" />
+        <ImportGlossaryDialog v-if="displayImportGlossaryDialog" @close="displayImportGlossaryDialog = false" />
 
         <ExportDialog v-model:visibility="exportDialog.visible" :checkbox-options="exportDialog.checkboxOptions" @export="handleExport" />
 
@@ -45,10 +46,11 @@ import { EXPORT_CONFIG, CATALOG_CONFIG, createEmptySelectedItems } from './Impor
 import type { CheckboxOption } from './ExportDialog.vue'
 import ImportMenuDialog from './menu/ImportMenuDialog.vue'
 import ImportKpiDialog from './kpi/ImportKpiDialog.vue'
+import ImportGlossaryDialog from './glossary/ImportGlossaryDialog.vue'
 
 export default defineComponent({
     name: 'import-export',
-    components: { ExportDialog, KnTabCard, ImportDialog, ProgressBar, ImportMenuDialog, ImportKpiDialog },
+    components: { ExportDialog, KnTabCard, ImportDialog, ProgressBar, ImportMenuDialog, ImportKpiDialog, ImportGlossaryDialog },
     emits: ['onItemSelected'],
     computed: {
         ...mapState(mainStore, {
@@ -87,7 +89,8 @@ export default defineComponent({
             documentsExportTrigger: 0,
             documentsHasSelection: false,
             displayImportMenu: false,
-            displayImportKpiDialog: false
+            displayImportKpiDialog: false,
+            displayImportGlossaryDialog: false
         }
     },
     mounted() {
@@ -153,6 +156,8 @@ export default defineComponent({
                 this.displayImportMenu = true
             } else if (this.route.path.includes('kpi')) {
                 this.displayImportKpiDialog = true
+            } else if (this.route.path.includes('glossary')) {
+                this.displayImportGlossaryDialog = true
             } else if (this.route.path.includes('gallery') || this.route.path.includes('catalogfunction')) {
                 this.displayImportDialog = true
             } else {
