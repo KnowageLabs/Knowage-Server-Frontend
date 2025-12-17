@@ -178,6 +178,7 @@
         "label": "label",
         "labels": "Labels",
         "language": "Language",
+        "targets": "Targets",
         "large": "Large",
         "lastChangeDate": "Last change date",
         "layer": "Layer",
@@ -2052,7 +2053,11 @@
             "label": "kpi",
             "schedulersAndRelated": "Include schedulers and related KPIs",
             "scorecardsAndRelated": "Include scorecards and related KPIs",
-            "targetsAndRelated": "Include targets and related KPIs"
+            "targetsAndRelated": "Include targets and related KPIs",
+            "importkpi": "Overwrite existing KPIs and rules",
+            "importTarget": "Import targets and related KPIs",
+            "importScorecard": "Import scorecards and related KPIs",
+            "importScheduler": "Import KPI schedulers and related KPIs"
         },
         "menu": {
             "description": "export menu items",
