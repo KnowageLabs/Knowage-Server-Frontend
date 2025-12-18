@@ -5,6 +5,7 @@
         <ImportKpiDialog v-if="displayImportKpiDialog" @close="displayImportKpiDialog = false" />
         <ImportGlossaryDialog v-if="displayImportGlossaryDialog" @close="displayImportGlossaryDialog = false" />
         <ImportCatalogDialog v-if="catalogImportDialog.visible" :catalog-type="catalogImportDialog.type" @close="catalogImportDialog.visible = false" />
+        <ImportDriversDialog v-if="displayImportDriversDialog" @close="displayImportDriversDialog = false" />
 
         <ExportDialog v-model:visibility="exportDialog.visible" :checkbox-options="exportDialog.checkboxOptions" @export="handleExport" />
 
@@ -48,11 +49,12 @@ import type { CheckboxOption } from './ExportDialog.vue'
 import ImportMenuDialog from './menu/ImportMenuDialog.vue'
 import ImportKpiDialog from './kpi/ImportKpiDialog.vue'
 import ImportGlossaryDialog from './glossary/ImportGlossaryDialog.vue'
-import ImportCatalogDialog from './catalog/ImportCatalogDialog.vue'
+import ImportCatalogDialog from './catalogFunction/ImportCatalogDialog.vue'
+import ImportDriversDialog from './drivers/ImportDriversDialog.vue'
 
 export default defineComponent({
     name: 'import-export',
-    components: { ExportDialog, KnTabCard, ImportDialog, ProgressBar, ImportMenuDialog, ImportKpiDialog, ImportGlossaryDialog, ImportCatalogDialog },
+    components: { ExportDialog, KnTabCard, ImportDialog, ProgressBar, ImportMenuDialog, ImportKpiDialog, ImportGlossaryDialog, ImportCatalogDialog, ImportDriversDialog },
     emits: ['onItemSelected'],
     computed: {
         ...mapState(mainStore, {
@@ -93,6 +95,7 @@ export default defineComponent({
             displayImportMenu: false,
             displayImportKpiDialog: false,
             displayImportGlossaryDialog: false,
+            displayImportDriversDialog: false,
             catalogImportDialog: {
                 visible: false,
                 type: '' as 'DATASET' | 'BUSINESS MODEL' | 'SCHEMA' | 'LAYER' | ''
@@ -164,6 +167,8 @@ export default defineComponent({
                 this.displayImportKpiDialog = true
             } else if (this.route.path.includes('glossary')) {
                 this.displayImportGlossaryDialog = true
+            } else if (this.route.path.includes('drivers')) {
+                this.displayImportDriversDialog = true
             } else if (this.route.path.includes('datasets')) {
                 this.catalogImportDialog = { visible: true, type: 'DATASET' }
             } else if (this.route.path.includes('businessmodels')) {

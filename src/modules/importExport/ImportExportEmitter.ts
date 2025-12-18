@@ -8,6 +8,7 @@ type Events = {
     businessModelImported: void
     schemaImported: void
     layerImported: void
+    driversImported: void
 }
 
 export const importExportEmitter = mitt<Events>()

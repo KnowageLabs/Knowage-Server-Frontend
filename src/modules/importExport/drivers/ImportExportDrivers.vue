@@ -24,6 +24,7 @@ import { defineComponent } from 'vue'
 import importExportDescriptor from '../ImportExportDescriptor.json'
 import { AxiosResponse } from 'axios'
 import type { IAnalyticalDriverItem, ISelectedItems } from '../ImportExportTypes'
+import { importExportEmitter } from '../ImportExportEmitter'
 
 export default defineComponent({
     name: 'import-export-drivers',
@@ -64,6 +65,10 @@ export default defineComponent({
 
     created() {
         this.loadAllDrivers()
+        importExportEmitter.on('driversImported', this.loadAllDrivers)
+    },
+    beforeUnmount() {
+        importExportEmitter.off('driversImported', this.loadAllDrivers)
     },
     methods: {
         loadAllDrivers(): void {
