@@ -4,6 +4,7 @@
         <ImportMenuDialog v-if="displayImportMenu" @close="displayImportMenu = false" />
         <ImportKpiDialog v-if="displayImportKpiDialog" @close="displayImportKpiDialog = false" />
         <ImportGlossaryDialog v-if="displayImportGlossaryDialog" @close="displayImportGlossaryDialog = false" />
+        <ImportCatalogDialog v-if="catalogImportDialog.visible" :catalog-type="catalogImportDialog.type" @close="catalogImportDialog.visible = false" />
 
         <ExportDialog v-model:visibility="exportDialog.visible" :checkbox-options="exportDialog.checkboxOptions" @export="handleExport" />
 
@@ -47,10 +48,11 @@ import type { CheckboxOption } from './ExportDialog.vue'
 import ImportMenuDialog from './menu/ImportMenuDialog.vue'
 import ImportKpiDialog from './kpi/ImportKpiDialog.vue'
 import ImportGlossaryDialog from './glossary/ImportGlossaryDialog.vue'
+import ImportCatalogDialog from './catalog/ImportCatalogDialog.vue'
 
 export default defineComponent({
     name: 'import-export',
-    components: { ExportDialog, KnTabCard, ImportDialog, ProgressBar, ImportMenuDialog, ImportKpiDialog, ImportGlossaryDialog },
+    components: { ExportDialog, KnTabCard, ImportDialog, ProgressBar, ImportMenuDialog, ImportKpiDialog, ImportGlossaryDialog, ImportCatalogDialog },
     emits: ['onItemSelected'],
     computed: {
         ...mapState(mainStore, {
@@ -90,7 +92,11 @@ export default defineComponent({
             documentsHasSelection: false,
             displayImportMenu: false,
             displayImportKpiDialog: false,
-            displayImportGlossaryDialog: false
+            displayImportGlossaryDialog: false,
+            catalogImportDialog: {
+                visible: false,
+                type: '' as 'DATASET' | 'BUSINESS MODEL' | 'SCHEMA' | 'LAYER' | ''
+            }
         }
     },
     mounted() {
@@ -158,6 +164,14 @@ export default defineComponent({
                 this.displayImportKpiDialog = true
             } else if (this.route.path.includes('glossary')) {
                 this.displayImportGlossaryDialog = true
+            } else if (this.route.path.includes('datasets')) {
+                this.catalogImportDialog = { visible: true, type: 'DATASET' }
+            } else if (this.route.path.includes('businessmodels')) {
+                this.catalogImportDialog = { visible: true, type: 'BUSINESS MODEL' }
+            } else if (this.route.path.includes('mondrianschemas')) {
+                this.catalogImportDialog = { visible: true, type: 'SCHEMA' }
+            } else if (this.route.path.includes('layers')) {
+                this.catalogImportDialog = { visible: true, type: 'LAYER' }
             } else if (this.route.path.includes('gallery') || this.route.path.includes('catalogfunction')) {
                 this.displayImportDialog = true
             } else {
