@@ -314,6 +314,7 @@
             "deleteSuccess": "Item was deleted successfully",
             "deleteTitle": "Deleted",
             "errorTitle": "Error",
+            "importSuccess": "Item was imported successfully",
             "success": "Operation succeeded",
             "unsavedChangesHeader": "Unsaved changes",
             "unsavedChangesMessage": "You have not saved your recent changes. Continue without saving ?",
