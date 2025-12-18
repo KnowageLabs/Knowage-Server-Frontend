@@ -119,6 +119,7 @@
             "downloading": "Error downloading ",
             "exceededSize": "Uploaded file exceedes max size {size}",
             "generic": "Generic Error",
+            "importing": "Error importing",
             "incompatibleType": "Incompatible file type",
             "refresh": "Something went wrong. Try refreshing the page",
             "sameFileName": "It is not possible to upload a file with the same name",
@@ -2026,10 +2027,10 @@
             "label": "gallery"
         },
         "glossary": {
-            "addMissing": "Add missing terms during import",
+            "addMissing": "Add missing",
             "description": "export glossaries",
             "label": "glossary",
-            "override": "Override existing terms during import"
+            "override": "Override existing"
         },
         "import": {
             "completedWithErrors": "Import completed with errors. Please read logs for further information.",
