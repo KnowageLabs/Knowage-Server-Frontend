@@ -14,7 +14,10 @@
         </q-card>
 
         <q-card class="p-d-flex p-flex-column kn-flex kn-overflow">
-            <q-table class="sticky-header-table" ref="glossaryTable" v-model:selected="selectedItems[FUNCTIONALITY]" :rows="filteredGlossary" :columns="columns" row-key="id" selection="multiple" :visible-columns="visibleColumns" virtual-scroll :pagination.sync="pagination" :rows-per-page-options="[0]" flat dense />
+            <div v-if="loading" class="p-d-flex p-jc-center p-ai-center" style="height: 100%">
+                <q-spinner size="50px" color="primary" />
+            </div>
+            <q-table v-else class="sticky-header-table" ref="glossaryTable" v-model:selected="selectedItems[FUNCTIONALITY]" :rows="filteredGlossary" :columns="columns" row-key="id" selection="multiple" :visible-columns="visibleColumns" virtual-scroll :pagination.sync="pagination" :rows-per-page-options="[0]" flat dense />
         </q-card>
     </div>
 </template>
@@ -40,7 +43,8 @@ export default defineComponent({
             visibleColumns: ['name'],
             pagination: {
                 rowsPerPage: 0
-            }
+            },
+            loading: false
         }
     },
     computed: {
@@ -70,6 +74,7 @@ export default defineComponent({
     },
     methods: {
         loadAllGlossary(): void {
+            this.loading = true
             this.$emit('update:loading', true)
             const params: any = {}
             if (this.dateFilter) {
@@ -88,6 +93,7 @@ export default defineComponent({
                 })
                 .catch((error) => console.error('[ImportExportGlossary] loadAllGlossary error', error))
                 .finally(() => {
+                    this.loading = false
                     this.$emit('update:loading', false)
                 })
         },

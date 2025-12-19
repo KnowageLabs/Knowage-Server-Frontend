@@ -9,7 +9,10 @@
         </q-card>
 
         <q-card class="p-d-flex p-flex-column kn-flex kn-overflow">
-            <q-tree ref="menuTree" :nodes="menuTreeNodes" :filter="searchFilter" node-key="menuId" tick-strategy="leaf" v-model:ticked="selectedMenuIds">
+            <div v-if="loading" class="p-d-flex p-jc-center p-ai-center" style="height: 100%">
+                <q-spinner size="50px" color="primary" />
+            </div>
+            <q-tree v-else ref="menuTree" :nodes="menuTreeNodes" :filter="searchFilter" node-key="menuId" tick-strategy="leaf" v-model:ticked="selectedMenuIds">
                 <template #default-header="{ node }">
                     <div class="row items-center full-width">
                         <span>{{ node.name }}</span>
@@ -43,7 +46,8 @@ export default defineComponent({
             searchFilter: '',
             selectedMenuIds: [] as number[],
             lastEmittedKey: '',
-            FUNCTIONALITY: 'menu' as const
+            FUNCTIONALITY: 'menu' as const,
+            loading: false
         }
     },
     watch: {
@@ -67,6 +71,7 @@ export default defineComponent({
     },
     methods: {
         loadAllMenuItems(): void {
+            this.loading = true
             this.$emit('update:loading', true)
             this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/serverManager/importExport/menu/getAllMenu')
@@ -91,6 +96,7 @@ export default defineComponent({
                 })
                 .catch((error) => console.error('[ImportExportMenu] loadAllMenuItems error', error))
                 .finally(() => {
+                    this.loading = false
                     this.$emit('update:loading', false)
                 })
         },

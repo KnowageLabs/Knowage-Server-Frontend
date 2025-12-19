@@ -14,7 +14,10 @@
         </q-card>
 
         <q-card class="p-d-flex p-flex-column kn-flex kn-overflow">
-            <q-table class="sticky-header-table" ref="usersTable" v-model:selected="selectedItems[FUNCTIONALITY]" :rows="filteredUsers" :columns="columns" row-key="id" selection="multiple" :visible-columns="visibleColumns" virtual-scroll :pagination.sync="pagination" :rows-per-page-options="[0]" flat dense>
+            <div v-if="loading" class="p-d-flex p-jc-center p-ai-center" style="height: 100%">
+                <q-spinner size="50px" color="primary" />
+            </div>
+            <q-table v-else class="sticky-header-table" ref="usersTable" v-model:selected="selectedItems[FUNCTIONALITY]" :rows="filteredUsers" :columns="columns" row-key="id" selection="multiple" :visible-columns="visibleColumns" virtual-scroll :pagination.sync="pagination" :rows-per-page-options="[0]" flat dense>
                 <template #body-cell-isSuperadmin="props">
                     <q-td :props="props">
                         <q-icon v-if="props.row.isSuperadmin" name="check_circle" color="black" size="xs" />
@@ -53,7 +56,8 @@ export default defineComponent({
             pagination: {
                 rowsPerPage: 0
             },
-            selectAllCheckbox: false
+            selectAllCheckbox: false,
+            loading: false
         }
     },
     computed: {
@@ -76,6 +80,7 @@ export default defineComponent({
     },
     methods: {
         loadAllUsers(): void {
+            this.loading = true
             this.$emit('update:loading', true)
             const params: any = {}
             if (this.dateFilter) {
@@ -94,6 +99,7 @@ export default defineComponent({
                 })
                 .catch((error) => console.error(error))
                 .finally(() => {
+                    this.loading = false
                     this.$emit('update:loading', false)
                 })
         },
