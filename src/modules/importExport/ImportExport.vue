@@ -13,8 +13,8 @@
         <q-toolbar class="kn-toolbar kn-toolbar--primary">
             <q-toolbar-title>{{ $t('importExport.title') }}</q-toolbar-title>
             <q-btn v-if="route.path !== '/import-export'" flat round dense icon="upload" @click="openImportDialog">
-                <q-tooltip :delay="500">{{ $t('common.import') }}</q-tooltip> </q-btn
-            >2
+                <q-tooltip :delay="500">{{ $t('common.import') }}</q-tooltip>
+            </q-btn>
             <q-btn v-if="route.path !== '/import-export'" flat round dense icon="download" :disable="isExportDisabled" @click="openExportDialog">
                 <q-tooltip :delay="500">{{ $t('common.export') }}</q-tooltip>
             </q-btn>
