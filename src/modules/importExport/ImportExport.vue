@@ -12,18 +12,18 @@
 
         <q-toolbar class="kn-toolbar kn-toolbar--primary">
             <q-toolbar-title>{{ $t('importExport.title') }}</q-toolbar-title>
-            <q-btn flat round dense icon="upload" @click="openImportDialog">
-                <q-tooltip :delay="500">{{ $t('common.import') }}</q-tooltip>
-            </q-btn>
-            <q-btn flat round dense icon="download" :disable="isExportDisabled" @click="openExportDialog">
+            <q-btn v-if="route.path !== '/import-export'" flat round dense icon="upload" @click="openImportDialog">
+                <q-tooltip :delay="500">{{ $t('common.import') }}</q-tooltip> </q-btn
+            >2
+            <q-btn v-if="route.path !== '/import-export'" flat round dense icon="download" :disable="isExportDisabled" @click="openExportDialog">
                 <q-tooltip :delay="500">{{ $t('common.export') }}</q-tooltip>
             </q-btn>
         </q-toolbar>
 
         <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
 
-        <div class="p-d-flex kn-flex" style="flex-shrink: 0">
-            <div class="p-col-2">
+        <div class="p-d-flex kn-flex" style="flex-shrink: 0; height: 100%">
+            <div class="p-col-2 tab-card-container">
                 <KnTabCard v-for="(functionality, index) in functionalities" :key="index" :element="functionality" :selected="functionality.route === route.path" @click="selectType(functionality)" />
             </div>
             <div class="kn-flex p-d-flex p-flex-column p-mr-2">
@@ -341,4 +341,15 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.tab-card-container {
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+
+    &::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera */
+    }
+}
+</style>
