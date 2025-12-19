@@ -6,6 +6,7 @@
         <ImportGlossaryDialog v-if="displayImportGlossaryDialog" @close="displayImportGlossaryDialog = false" />
         <ImportCatalogDialog v-if="catalogImportDialog.visible" :catalog-type="catalogImportDialog.type" @close="catalogImportDialog.visible = false" />
         <ImportDriversDialog v-if="displayImportDriversDialog" @close="displayImportDriversDialog = false" />
+        <ImportUsersDialog v-if="displayImportUsersDialog" @close="displayImportUsersDialog = false" />
 
         <ExportDialog v-model:visibility="exportDialog.visible" :checkbox-options="exportDialog.checkboxOptions" @export="handleExport" />
 
@@ -51,10 +52,11 @@ import ImportKpiDialog from './kpi/ImportKpiDialog.vue'
 import ImportGlossaryDialog from './glossary/ImportGlossaryDialog.vue'
 import ImportCatalogDialog from './catalogFunction/ImportCatalogDialog.vue'
 import ImportDriversDialog from './drivers/ImportDriversDialog.vue'
+import ImportUsersDialog from './users/ImportUsersDialog.vue'
 
 export default defineComponent({
     name: 'import-export',
-    components: { ExportDialog, KnTabCard, ImportDialog, ProgressBar, ImportMenuDialog, ImportKpiDialog, ImportGlossaryDialog, ImportCatalogDialog, ImportDriversDialog },
+    components: { ExportDialog, KnTabCard, ImportDialog, ProgressBar, ImportMenuDialog, ImportKpiDialog, ImportGlossaryDialog, ImportCatalogDialog, ImportDriversDialog, ImportUsersDialog },
     emits: ['onItemSelected'],
     computed: {
         ...mapState(mainStore, {
@@ -96,6 +98,7 @@ export default defineComponent({
             displayImportKpiDialog: false,
             displayImportGlossaryDialog: false,
             displayImportDriversDialog: false,
+            displayImportUsersDialog: false,
             catalogImportDialog: {
                 visible: false,
                 type: '' as 'DATASET' | 'BUSINESS MODEL' | 'SCHEMA' | 'LAYER' | ''
@@ -169,6 +172,8 @@ export default defineComponent({
                 this.displayImportGlossaryDialog = true
             } else if (this.route.path.includes('drivers')) {
                 this.displayImportDriversDialog = true
+            } else if (this.route.path.includes('users')) {
+                this.displayImportUsersDialog = true
             } else if (this.route.path.includes('datasets')) {
                 this.catalogImportDialog = { visible: true, type: 'DATASET' }
             } else if (this.route.path.includes('businessmodels')) {
