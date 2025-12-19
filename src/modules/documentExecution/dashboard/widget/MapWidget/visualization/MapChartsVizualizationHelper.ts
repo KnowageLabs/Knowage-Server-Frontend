@@ -4,7 +4,7 @@ import { getColumnName, getCoordinates, LEGEND_DATA_TYPE } from '../LeafletHelpe
 import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData } from './MapDialogHelper'
 import { getChartConditionalStyle, getCoordinatesFromWktPointFeature, isConditionMet, transformDataUsingForeignKeyReturningAllColumns } from './MapVisualizationHelper'
 import L from 'leaflet'
-import vegaEmbed from 'vega-embed'
+import ChartJS from 'chart.js/auto'
 
 interface IChartValuesRecord {
     value: number | string
@@ -42,7 +42,7 @@ const addMapChartsUsingData = (data: any, model: IWidget, target: IMapWidgetLaye
         })
         const marker = L.marker(getCoordinates(spatialAttribute, row[geoColumn]), { icon: customIcon }).addTo(layerGroup)
 
-        const chart = createVegaChart(chartValuesRecord, layerVisualizationSettings, marker._icon, variables, model)
+        const chart = createChart(chartValuesRecord, layerVisualizationSettings, marker._icon, variables, model)
         charts.push(chart)
 
         addDialogToMarker(data, model, target, layerVisualizationSettings, row, marker, activeSelections, dashboardId, variables)
@@ -119,7 +119,7 @@ const addChartsUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSet
     })
     const marker = L.marker(coordinates.reverse(), { icon: customIcon }).addTo(layerGroup)
 
-    const chart = createVegaChart(chartValuesRecord, layerVisualizationSettings, marker._icon, variables, widgetModel)
+    const chart = createChart(chartValuesRecord, layerVisualizationSettings, marker._icon, variables, widgetModel)
     charts.push(chart)
 
     addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, chartValuesRecord, marker, activeSelections, dashboardId, variables, foreignKeyValue)
@@ -128,54 +128,76 @@ const addChartsUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSet
     markerBounds.push(marker.getLatLng())
 }
 
-const createVegaChart = (chartValuesRecord: ChartValuesRecord, layerVisualizationSettings: IMapWidgetVisualizationType, element: HTMLElement, variables: IVariable[], widgetModel: IWidget) => {
-    const data = transformChartValuesDataToVegaData(chartValuesRecord) as { category: string; value: number | string }[]
-    const { chart, chartDomains, chartColors } = layerVisualizationSettings.pieConf?.type === 'pie' ? createVegaPieChart(data, layerVisualizationSettings, variables, widgetModel) : createVegaBarChart(data, layerVisualizationSettings, variables, widgetModel)
+const createChart = (chartValuesRecord: ChartValuesRecord, layerVisualizationSettings: IMapWidgetVisualizationType, element: HTMLElement, variables: IVariable[], widgetModel: IWidget) => {
+    const data = transformChartValuesData(chartValuesRecord) as { category: string; value: number | string }[]
+    if (!data || !data.length) return { chartDomains: [], chartColors: [] }
 
-    vegaEmbed(element, chart as any, { renderer: 'svg', actions: false })
-
-    return { chartDomains, chartColors }
-}
-
-const createVegaPieChart = (data: { category: string; value: number | string }[], layerVisualizationSettings: IMapWidgetVisualizationType, variables: IVariable[], widgetModel: IWidget) => {
-    const { chartData, chartColors, chartDomains } = formatChartColorsAndData(data, layerVisualizationSettings, variables, widgetModel)
+    const numericData = data.map((item) => ({ category: item.category, value: Number(item.value) }))
+    const { chartData, chartColors, chartDomains } = formatChartColorsAndData(numericData, layerVisualizationSettings, variables, widgetModel)
     const { filteredChartData, filteredChartColors, filteredChartDomains } = getFilteredChartColorsAndData(chartData, layerVisualizationSettings, chartColors, chartDomains)
 
-    const vegaPieChart = {
-        $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
-        width: 30,
-        height: 30,
-        data: { values: filteredChartData ?? chartData },
-        mark: 'arc',
-        encoding: {
-            theta: { field: 'value', type: 'quantitative' },
-            color: { field: 'category', type: 'nominal', scale: { domain: filteredChartDomains ?? chartDomains, range: filteredChartColors ?? chartColors }, legend: null }
-        },
-        config: getVegaChartConfig()
+    const finalData = (filteredChartData ?? chartData).map((item) => item.value)
+    const finalLabels = (filteredChartData ?? chartData).map((item) => item.category)
+    const finalColors = filteredChartColors ?? chartColors
+    const finalDomains = filteredChartDomains ?? chartDomains
+
+    let canvas = element.querySelector('canvas') as HTMLCanvasElement | null
+    if (!canvas) {
+        canvas = document.createElement('canvas')
+        canvas.width = 30
+        canvas.height = 30
+        element.innerHTML = ''
+        element.appendChild(canvas)
     }
 
-    return { chart: vegaPieChart, chartColors, chartDomains }
-}
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return { chartDomains: finalDomains, chartColors: finalColors }
 
-const createVegaBarChart = (data: { category: string; value: number | string }[], layerVisualizationSettings: IMapWidgetVisualizationType, variables: IVariable[], widgetModel: IWidget) => {
-    const { chartData, chartColors, chartDomains } = formatChartColorsAndData(data, layerVisualizationSettings, variables, widgetModel)
-    const { filteredChartData, filteredChartColors, filteredChartDomains } = getFilteredChartColorsAndData(chartData, layerVisualizationSettings, chartColors, chartDomains)
+    const type = layerVisualizationSettings.pieConf?.type === 'pie' ? 'pie' : 'bar'
 
-    const vegaBarChart = {
-        $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
-        width: 30,
-        height: 30,
-        data: { values: filteredChartData ?? chartData },
-        mark: 'bar',
-        encoding: {
-            x: { field: 'category', type: 'nominal', axis: null },
-            y: { field: 'value', type: 'quantitative', axis: null },
-            color: { field: 'category', type: 'nominal', scale: { domain: filteredChartDomains ?? chartDomains, range: filteredChartColors ?? chartColors }, legend: null }
-        },
-        config: getVegaChartConfig()
+    const existingChart = (canvas as any)._chartInstance as ChartJS | undefined
+    if (existingChart) {
+        existingChart.destroy()
     }
 
-    return { chart: vegaBarChart, chartColors, chartDomains }
+    const chart = new ChartJS(ctx, {
+        type: type as any,
+        data: {
+            labels: finalLabels,
+            datasets: [
+                {
+                    data: finalData,
+                    backgroundColor: finalColors,
+                    borderWidth: 0
+                }
+            ]
+        },
+        options: {
+            responsive: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    enabled: false
+                }
+            },
+            scales:
+                type === 'bar'
+                    ? {
+                          x: {
+                              display: false
+                          },
+                          y: {
+                              display: false
+                          }
+                      }
+                    : {}
+        }
+    })
+    ;(canvas as any)._chartInstance = chart
+
+    return { chartDomains: finalDomains, chartColors: finalColors }
 }
 
 const formatChartColorsAndData = (data: { category: string; value: number | string }[], layerVisualizationSettings: IMapWidgetVisualizationType, variables: IVariable[], widgetModel: IWidget) => {
@@ -215,21 +237,7 @@ const getFilteredChartColorsAndData = (chartData: { category: string; value: num
     return { filteredChartData, filteredChartColors, filteredChartDomains }
 }
 
-const getVegaChartConfig = () => {
-    return {
-        background: null,
-        view: {
-            stroke: null,
-            continuousWidth: false,
-            padding: 0
-        },
-        mark: {
-            tooltip: false
-        }
-    }
-}
-
-const transformChartValuesDataToVegaData = (chartValuesRecord: ChartValuesRecord) => {
+const transformChartValuesData = (chartValuesRecord: ChartValuesRecord) => {
     const result = [] as { category: string; value: number | string }[]
 
     for (const key in chartValuesRecord) {

@@ -3,7 +3,7 @@
         <q-toolbar class="kn-toolbar kn-toolbar--secondary">
             <q-toolbar-title> {{ file?.name }}</q-toolbar-title>
 
-            <q-btn flat round dense icon="refresh" data-test="refresh-button" @click="$emit('refresh')">
+            <q-btn flat round dense icon="refresh" data-test="refresh-button" @click="loadFileContent(file)">
                 <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.refresh') }}</q-tooltip>
             </q-btn>
             <q-btn flat round dense icon="close" data-test="close-button" @click="$emit('close')">
@@ -25,7 +25,6 @@ import { defineComponent } from 'vue'
 import knMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
 import ProgressBar from 'primevue/progressbar'
 import Button from 'primevue/button'
-import { registerLogLanguageForMonaco } from '@/components/UI/KnMonaco/logLang'
 
 const API_BASE = `${import.meta.env.VITE_KNOWAGE_API_CONTEXT}/api/2.0/resources/logs`
 
@@ -35,7 +34,7 @@ export default defineComponent({
     props: {
         file: { type: Object as any, default: null }
     },
-    emits: ['close', 'refresh'],
+    emits: ['close'],
     data() {
         return {
             content: '' as string,
@@ -58,12 +57,9 @@ export default defineComponent({
             try {
                 const url = file.folderName ? `${API_BASE}/folders/${encodeURIComponent(file.folderName)}/files/${encodeURIComponent(file.name)}` : `${API_BASE}/root/${encodeURIComponent(file.name)}`
                 const resp = await (this as any).$http.get(url, { responseType: 'text' })
-                // axios response -> resp.data ; normalize null->''
                 const data = resp && resp.data !== undefined ? resp.data : resp
                 this.content = data == null ? '' : data
             } catch (e: any) {
-                // optionally notify parent via setError emit/prop; keep it simple here
-                console.error('LogDetail loadFileContent failed', e)
                 this.content = ''
             } finally {
                 this.loading = false

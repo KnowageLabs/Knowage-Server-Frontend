@@ -18,7 +18,7 @@ interface IOldModelCategory {
 const columnNameIdMap = {}
 const store = useStore()
 
-export const getFormattedWidgetColumns = (widget: any, chartLibrary: 'chartJS' | 'highcharts' | 'vega') => {
+export const getFormattedWidgetColumns = (widget: any, chartLibrary: 'chartJS' | 'highcharts') => {
     if (!widget.content || (!widget.content.columnSelectedOfDatasetAggregations && !widget.content.columnSelectedOfDataset) || !widget.content.chartTemplate || !widget.content.chartTemplate.CHART || !widget.content.chartTemplate.CHART.VALUES) return []
 
     const chartType = widget.content.chartTemplate.CHART.type
@@ -32,7 +32,7 @@ export const getFormattedWidgetColumns = (widget: any, chartLibrary: 'chartJS' |
     const formattedColumns = [] as IWidgetColumn[]
     const category = widget.content.chartTemplate.CHART.VALUES.CATEGORY
     if (category) {
-        Array.isArray(category) ? addCategoryColumnsFromArray(category, formattedColumns, widgetColumNameMap, widget, 'vega') : addCategoryColumns(category, formattedColumns, widgetColumNameMap, widget, chartLibrary)
+        addCategoryColumns(category, formattedColumns, widgetColumNameMap, widget, chartLibrary)
     }
 
     const index = getMaximumNumberOfSeries(chartLibrary, chartType, widget)
@@ -44,8 +44,8 @@ export const getFormattedWidgetColumns = (widget: any, chartLibrary: 'chartJS' |
     return formattedColumns
 }
 
-export const getMaximumNumberOfSeries = (chartLibrary: 'chartJS' | 'highcharts' | 'vega', chartType: string, widget: any) => {
-    if (['chartJS', 'vega'].includes(chartLibrary)) return 1
+export const getMaximumNumberOfSeries = (chartLibrary: 'chartJS' | 'highcharts', chartType: string, widget: any) => {
+    if (['chartJS'].includes(chartLibrary)) return 1
     if (chartLibrary === 'highcharts' && store.user.enterprise && ['PIE', 'SUNBURST', 'TREEMAP'].includes(chartType)) return 1
     if (chartType === 'GAUGE') {
         const chartSubtype = widget.content.chartTemplate.CHART.subtype
@@ -61,18 +61,14 @@ export const getMaximumNumberOfSeries = (chartLibrary: 'chartJS' | 'highcharts' 
     return null
 }
 
-const addCategoryColumnsFromArray = (category: IOldModelCategory[], formattedColumns: IWidgetColumn[], widgetColumNameMap: any, widget: IWidget, chartLibrary: 'vega') => {
-    category.forEach((category: IOldModelCategory) => addCategoryColumn(category, widgetColumNameMap, formattedColumns, widget, chartLibrary))
-}
-
-export const addCategoryColumns = (category: IOldModelCategory, formattedColumns: IWidgetColumn[], widgetColumNameMap: any, widget: IWidget, chartLibrary: 'chartJS' | 'highcharts' | 'vega') => {
+export const addCategoryColumns = (category: IOldModelCategory, formattedColumns: IWidgetColumn[], widgetColumNameMap: any, widget: IWidget, chartLibrary: 'chartJS' | 'highcharts') => {
     addCategoryColumn(category, widgetColumNameMap, formattedColumns, widget, chartLibrary)
     if (!chartCanHaveOnlyOneAttribute(widget, chartLibrary) && category.groupbyNames) {
         addDrillColumnsFromCategory(category, widgetColumNameMap, formattedColumns)
     }
 }
 
-const addCategoryColumn = (category: IOldModelCategory, widgetColumNameMap: any, formattedColumns: IWidgetColumn[], widget: IWidget, chartLibrary: 'chartJS' | 'highcharts' | 'vega') => {
+const addCategoryColumn = (category: IOldModelCategory, widgetColumNameMap: any, formattedColumns: IWidgetColumn[], widget: IWidget, chartLibrary: 'chartJS' | 'highcharts') => {
     if (widgetColumNameMap[category.column]) {
         const tempColumn = { ...widgetColumNameMap[category.column] }
         if (category.orderType) tempColumn.orderType = category.orderType === 'desc' ? 'DESC' : 'ASC'
@@ -86,11 +82,11 @@ const addCategoryColumn = (category: IOldModelCategory, widgetColumNameMap: any,
     }
 }
 
-const chartCanHaveOnlyOneAttribute = (widget: any, chartLibrary: 'chartJS' | 'highcharts' | 'vega') => {
+const chartCanHaveOnlyOneAttribute = (widget: any, chartLibrary: 'chartJS' | 'highcharts') => {
     return chartLibrary === 'chartJS' && widget.content.chartTemplate.CHART.type === 'PIE'
 }
 
-const chartHasDrilldown = (widget: any, chartLibrary: 'chartJS' | 'highcharts' | 'vega') => {
+const chartHasDrilldown = (widget: any, chartLibrary: 'chartJS' | 'highcharts') => {
     // return chartLibrary === 'highcharts' && store.user.enterprise && widget.content.chartTemplate.CHART.type === 'PIE' - old condition
     return chartLibrary === 'highcharts' && store.user.enterprise
 }

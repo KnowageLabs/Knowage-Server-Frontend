@@ -23,7 +23,9 @@ const store = defineStore('store', {
                 cpuNumber: -1
             },
             mainMenuVisibility: false,
-            documentExecution: {},
+            documentExecution: {
+                parameterValuesMap: {}
+            },
             theme: {},
             defaultTheme: {},
             menuOpened: false
@@ -107,6 +109,9 @@ const store = defineStore('store', {
         },
         setDocumentExecutionEmbed() {
             this.documentExecution.embed = true
+        },
+        setDocumentExecutionParametersMap(paramKey, paramValue) {
+            this.documentExecution.parameterValuesMap[paramKey] = paramValue
         },
         setTheme(theme) {
             this.theme = theme

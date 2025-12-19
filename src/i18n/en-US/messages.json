@@ -979,6 +979,9 @@
                 },
                 "piechart": {
                     "dimensionsTableHint": "Attributes only. Each different value in the selected column will create a different slice. If more than one dimension is present, the list will be the drill-down sequence.",
+                    "donutEnabled": "Donut Enabled",
+                    "donutSettings": "Donut Settings",
+                    "innerSizeLabel": "Inner Size",
                     "valuesTableHint": "Measures only. The selected column will be used as values for every slice."
                 },
                 "pivot": {
@@ -1428,19 +1431,6 @@
                 "title": "Values Management",
                 "wrapText": "Wrap Text",
                 "wrapTextHint": "Wrap text hint placeholder"
-            },
-            "vega": {
-                "fontOptions": {
-                    "calibri": "Calibri",
-                    "cambria": "Cambria",
-                    "georgia": "Georiga",
-                    "gungsuh": "Gungsuh",
-                    "impact": "Impact"
-                },
-                "wordcloud": {
-                    "dimensionsTableHint": "Attributes only.",
-                    "valuesTableHint": "Measures only."
-                }
             },
             "visibilityConditions": {
                 "always": "Always",
@@ -2316,6 +2306,7 @@
         "languageSelection": "Language Selection",
         "pt_BR": "Portuguese",
         "ru_RU": "Russian",
+        "sk_SK": "Slovak",
         "tr_TR": "Turkish",
         "zh_CN_#Hans": "Chinese (simplified)"
     },
@@ -3298,6 +3289,7 @@
                 "enableDataPreparation": "Enable Data Preparation",
                 "enableDossier": "Enable Dossier",
                 "enableEngGptIntegration": "Enable EngGpt Integration",
+                "functionsCatalogManagement": "Functions Catalog Management",
                 "functionsCatalogUsage": "Functions Catalog Usage",
                 "hierarchiesManagement": "Manage Hierarchies",
                 "items": "Items for user menu",

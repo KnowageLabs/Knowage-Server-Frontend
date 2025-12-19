@@ -11,21 +11,8 @@ import i18n from '@/App.i18n'
 const { t } = i18n.global
 const mainStore = store()
 
-export const loadFilters = async (
-    initialLoading: boolean,
-    filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean },
-    document: any,
-    breadcrumbs: any[],
-    userRole: string | null,
-    parameterValuesMap: any,
-    tabKey: string,
-    sessionEnabled: boolean,
-    $http: any,
-    dateFormat: string,
-    route: any,
-    vueComponenet: any
-) => {
-    if (parameterValuesMap && parameterValuesMap[document.label + '-' + tabKey] && initialLoading) return loadFiltersFromParametersMap(parameterValuesMap, document, tabKey, filtersData, breadcrumbs)
+export const loadFilters = async (initialLoading: boolean, filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }, document: any, breadcrumbs: any[], userRole: string | null, tabKey: string, sessionEnabled: boolean, $http: any, dateFormat: string, route: any, vueComponenet: any) => {
+    if (mainStore.documentExecution.parameterValuesMap && mainStore.documentExecution.parameterValuesMap[document.label + '-' + tabKey] && mainStore.documentExecution.parameterValuesMap[document.label + '-' + tabKey].filterStatus?.length > 0 && initialLoading) return loadFiltersFromParametersMap(document, tabKey, filtersData, breadcrumbs)
     if (sessionEnabled && !document.navigationParams) {
         const filtersFromSession = loadFiltersFromSession(document, filtersData, breadcrumbs)
         if (filtersFromSession.filterStatus) return filtersFromSession
@@ -79,8 +66,8 @@ const updateFiltersDataIsReadyForExecution = (filtersData: { filterStatus: iPara
     }
 }
 
-const loadFiltersFromParametersMap = (parameterValuesMap: any, document: any, tabKey: string, filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }, breadcrumbs: any) => {
-    filtersData = parameterValuesMap[document.label + '-' + tabKey]
+const loadFiltersFromParametersMap = (document: any, tabKey: string, filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }, breadcrumbs: any) => {
+    filtersData = mainStore.documentExecution.parameterValuesMap[document.label + '-' + tabKey]
     setFiltersForBreadcrumbItem(breadcrumbs, filtersData, document)
     return filtersData
 }

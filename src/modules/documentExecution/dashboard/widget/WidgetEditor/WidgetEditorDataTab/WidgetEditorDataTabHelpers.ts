@@ -1,7 +1,6 @@
 import { IWidget } from '../../../Dashboard'
 import { createChartJSModel, createNewChartJSSettings } from '../helpers/chartWidget/chartJS/ChartJSHelpers'
 import { createNewHighchartsModel, createNewHighchartsSettings } from '../helpers/chartWidget/highcharts/HighchartsHelpers'
-import { createNewVegaSettings, createVegaModel } from '../helpers/chartWidget/vega/VegaHelpers'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { applyStylesToWidget } from '../../../generalSettings/themes/ThemesHelper'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
@@ -17,12 +16,7 @@ export const changeChartType = (chartType: string, widget: IWidget, isEnterprise
     const tempWidgetColors = widget.settings.chartModel?.model?.colors && widget.settings.chartModel.model.colors.length > 0 ? [...widget.settings.chartModel.model.colors] : [...descriptor.defaultColors]
     const originalChartStyle = widget.settings.style
 
-    if (chartType === 'wordcloud') {
-        widget.type = 'vega'
-        widget.settings = createNewVegaSettings()
-        widget.settings.chart.colors = tempWidgetColors
-        widget.settings.chartModel = createVegaModel(widget, chartType)
-    } else if (isEnterprise) {
+    if (isEnterprise) {
         const oldChartModel = widget.settings.chartModel?.model
         const type = chartType.replace('Stacked', '')
         widget.type = 'highcharts'
@@ -157,5 +151,12 @@ const applyAxis = (chartModel: any) => {
     }
     if (typeof chartModel.setWaterfallYAxis === 'function') {
         chartModel.setWaterfallYAxis()
+    }
+    //wordcloud
+    if (typeof chartModel.setWordcloudXAxis === 'function') {
+        chartModel.setWordcloudXAxis()
+    }
+    if (typeof chartModel.setWordcloudYAxis === 'function') {
+        chartModel.setWordcloudYAxis()
     }
 }

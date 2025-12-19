@@ -107,6 +107,13 @@
         },
         {
             "category": "menuConfiguration",
+            "dbname": "FUNCTIONS_CATALOG_MANAGEMENT",
+            "fieldName": "ableToManageFunctionsCatalog",
+            "label": "managers.rolesManagement.authorizations.functionsCatalogManagement",
+            "visible": false
+        },
+        {
+            "category": "menuConfiguration",
             "dbname": "MANAGE_USERS",
             "fieldName": "ableToManageUsers",
             "label": "managers.rolesManagement.authorizations.manageUsers",

@@ -36,6 +36,7 @@ import HighchartsPictorial from 'highcharts/modules/pictorial'
 import HighchartsFunnel from 'highcharts/modules/funnel'
 import HighchartsDumbbell from 'highcharts/modules/dumbbell'
 import HighchartsStreamgraph from 'highcharts/modules/streamgraph'
+import HighchartsWordcloud from 'highcharts/modules/wordcloud'
 import HighchartsAnnotations from 'highcharts/modules/annotations'
 import { getWidgetData } from '../../../DashboardDataProxy'
 
@@ -58,6 +59,7 @@ HighchartsFunnel(Highcharts)
 HighchartsDumbbell(Highcharts)
 HighchartsStreamgraph(Highcharts)
 HighchartsAnnotations(Highcharts)
+HighchartsWordcloud(Highcharts)
 
 export default defineComponent({
     name: 'highcharts-container',
@@ -133,7 +135,6 @@ export default defineComponent({
         onRefreshChart(widget: any | null = null) {
             if (widget && widget.id !== this.widgetModel.id) return
             this.chartModel = this.widgetModel.settings.chartModel ? this.widgetModel.settings.chartModel.model : null
-            if (this.chartModel?.chart.type === 'wordcloud') return
             this.loadVariables()
             this.updateChartModel()
         },
@@ -324,7 +325,7 @@ export default defineComponent({
             } else if (this.widgetModel.settings.interactions.link.enabled) {
                 const formattedChartValues = getFormattedChartValues(event, this.dataToShow, this.chartModel.chart.type)
                 openNewLinkChartWidget(formattedChartValues, this.widgetModel.settings.interactions.link, this.dashboardId, this.variables)
-            } else if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap', 'dependencywheel', 'spline', 'pictorial', 'sankey', 'funnel', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall'].includes(this.chartModel.chart.type)) {
+            } else if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap', 'dependencywheel', 'spline', 'pictorial', 'sankey', 'funnel', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall', 'wordcloud'].includes(this.chartModel.chart.type)) {
                 this.setSelection(event)
             }
         },
@@ -334,7 +335,7 @@ export default defineComponent({
         },
         setSelection(event: any) {
             if (this.editorMode || !this.widgetModel.settings.interactions.selection || !this.widgetModel.settings.interactions.selection.enabled) return
-            if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap', 'funnel', 'dumbbell', 'streamgraph', 'waterfall'].includes(this.chartModel.chart.type)) {
+            if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap', 'funnel', 'dumbbell', 'streamgraph', 'waterfall', 'wordcloud'].includes(this.chartModel.chart.type)) {
                 const serieClicked = event.point?.options
                 if (!serieClicked || !serieClicked.name) return
                 updateStoreSelections(this.createNewSelection([serieClicked.name]), this.propActiveSelections, this.dashboardId, this.setSelections, this.$http)

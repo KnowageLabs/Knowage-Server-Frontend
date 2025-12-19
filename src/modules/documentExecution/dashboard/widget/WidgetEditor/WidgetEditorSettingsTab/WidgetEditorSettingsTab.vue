@@ -2,88 +2,14 @@
     <WidgetEditorSettingsList v-if="descriptor" :widget-model="propWidget" :options="descriptor.settingsListOptions" :propSelectedItem="selectedSetting" @itemClicked="onItemClicked"></WidgetEditorSettingsList>
     <div v-if="propWidget" class="p-d-flex kn-flex kn-overflow">
         <KnHint v-if="!selectedSetting" class="p-as-center" :title="'common.settings'" :hint="'dashboard.widgetEditor.settings.hint'"></KnHint>
-        <TableWidgetSettingsContainer
-            v-if="selectedSetting && propWidget.type === 'table'"
-            class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
-            :widget-model="propWidget"
-            :selected-setting="selectedSetting"
-            :datasets="datasets"
-            :selected-datasets="selectedDatasets"
-            :variables="variables"
-            :dashboard-id="dashboardId"
-        ></TableWidgetSettingsContainer>
-        <SelectorWidgetSettingsContainer
-            v-else-if="selectedSetting && propWidget.type === 'selector'"
-            class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
-            :widget-model="propWidget"
-            :selected-setting="selectedSetting"
-            :datasets="datasets"
-            :selected-datasets="selectedDatasets"
-            :variables="variables"
-        ></SelectorWidgetSettingsContainer>
-        <SelectionsWidgetSettingsContainer
-            v-else-if="selectedSetting && propWidget.type === 'selection'"
-            class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
-            :widget-model="propWidget"
-            :selected-setting="selectedSetting"
-            :datasets="datasets"
-            :selected-datasets="selectedDatasets"
-            :variables="variables"
-        ></SelectionsWidgetSettingsContainer>
-        <HTMLWidgetSettingsContainer
-            v-else-if="selectedSetting && propWidget.type === 'html'"
-            class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
-            :widget-model="propWidget"
-            :selected-setting="selectedSetting"
-            :datasets="datasets"
-            :selected-datasets="selectedDatasets"
-            :variables="variables"
-            :dashboard-id="dashboardId"
-            :prop-gallery-items="galleryItems"
-            @galleryItemSelected="onGalleryItemSelected"
-        ></HTMLWidgetSettingsContainer>
-        <TextWidgetSettingsContainer
-            v-else-if="selectedSetting && propWidget.type === 'text'"
-            class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
-            :widget-model="propWidget"
-            :selected-setting="selectedSetting"
-            :datasets="datasets"
-            :selected-datasets="selectedDatasets"
-            :variables="variables"
-            :dashboard-id="dashboardId"
-        ></TextWidgetSettingsContainer>
-        <HighchartsWidgetSettingsContainer
-            v-else-if="selectedSetting && propWidget.type === 'highcharts' && user.enterprise"
-            class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
-            :widget-model="propWidget"
-            :selected-setting="selectedSetting"
-            :datasets="datasets"
-            :selected-datasets="selectedDatasets"
-            :variables="variables"
-            :dashboard-id="dashboardId"
-            :descriptor="descriptor"
-        ></HighchartsWidgetSettingsContainer>
-        <ChartJSWidgetSettingsContainer
-            v-else-if="selectedSetting && propWidget.type === 'chartJS'"
-            class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
-            :widget-model="propWidget"
-            :selected-setting="selectedSetting"
-            :datasets="datasets"
-            :selected-datasets="selectedDatasets"
-            :variables="variables"
-            :dashboard-id="dashboardId"
-        ></ChartJSWidgetSettingsContainer>
-        <ImageWidgetSettingsContainer
-            v-else-if="selectedSetting && propWidget.type === 'image'"
-            class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
-            :widget-model="propWidget"
-            :selected-setting="selectedSetting"
-            :datasets="datasets"
-            :selected-datasets="selectedDatasets"
-            :variables="variables"
-            :dashboard-id="dashboardId"
-            @settingSelected="$emit('settingChanged', $event)"
-        ></ImageWidgetSettingsContainer>
+        <TableWidgetSettingsContainer v-if="selectedSetting && propWidget.type === 'table'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId"></TableWidgetSettingsContainer>
+        <SelectorWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'selector'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables"></SelectorWidgetSettingsContainer>
+        <SelectionsWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'selection'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables"></SelectionsWidgetSettingsContainer>
+        <HTMLWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'html'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId" :prop-gallery-items="galleryItems" @galleryItemSelected="onGalleryItemSelected"></HTMLWidgetSettingsContainer>
+        <TextWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'text'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId"></TextWidgetSettingsContainer>
+        <HighchartsWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'highcharts' && user.enterprise" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId" :descriptor="descriptor"></HighchartsWidgetSettingsContainer>
+        <ChartJSWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'chartJS'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId"></ChartJSWidgetSettingsContainer>
+        <ImageWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'image'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId" @settingSelected="$emit('settingChanged', $event)"></ImageWidgetSettingsContainer>
         <CustomChartWidgetSettingsContainer
             v-else-if="selectedSetting && propWidget.type === 'customchart'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
@@ -96,68 +22,11 @@
             :custom-chart-gallery-prop="customChartGallery"
             @galleryItemSelected="onGalleryItemSelected"
         ></CustomChartWidgetSettingsContainer>
-        <PivotTableWidgetSettingsContainer
-            v-else-if="selectedSetting && propWidget.type === 'static-pivot-table'"
-            class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
-            :widget-model="propWidget"
-            :selected-setting="selectedSetting"
-            :datasets="datasets"
-            :selected-datasets="selectedDatasets"
-            :variables="variables"
-            :dashboard-id="dashboardId"
-        ></PivotTableWidgetSettingsContainer>
-        <DiscoveryWidgetSettingsContainer
-            v-else-if="selectedSetting && propWidget.type === 'discovery'"
-            class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
-            :widgetModel="propWidget"
-            :selectedSetting="selectedSetting"
-            :datasets="datasets"
-            :selectedDatasets="selectedDatasets"
-            :variables="variables"
-            :dashboardId="dashboardId"
-        ></DiscoveryWidgetSettingsContainer>
-        <MapWidgetSettingsContainer
-            v-else-if="selectedSetting && propWidget.type === 'map'"
-            class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
-            :widget-model="propWidget"
-            :selected-setting="selectedSetting"
-            :datasets="datasets"
-            :selected-datasets="selectedDatasets"
-            :variables="variables"
-            :dashboard-id="dashboardId"
-            :layers="layers"
-        ></MapWidgetSettingsContainer>
-        <VegaChartsSettingsContainer
-            v-else-if="selectedSetting && propWidget.type === 'vega'"
-            class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
-            :widget-model="propWidget"
-            :selected-setting="selectedSetting"
-            :datasets="datasets"
-            :selected-datasets="selectedDatasets"
-            :variables="variables"
-            :dashboard-id="dashboardId"
-        ></VegaChartsSettingsContainer>
-        <cePivotTableWidgetSettingsContainer
-            v-else-if="selectedSetting && propWidget.type === 'ce-pivot-table'"
-            class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
-            :widget-model="propWidget"
-            :selected-setting="selectedSetting"
-            :datasets="datasets"
-            :selected-datasets="selectedDatasets"
-            :variables="variables"
-            :dashboard-id="dashboardId"
-        ></cePivotTableWidgetSettingsContainer>
-        <PythonWidgetSettingsContainer
-            v-else-if="selectedSetting && propWidget.type === 'python'"
-            class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
-            :widget-model="propWidget"
-            :selected-setting="selectedSetting"
-            :datasets="datasets"
-            :selected-datasets="selectedDatasets"
-            :dashboard-id="dashboardId"
-            :prop-gallery-items="galleryItems"
-            @galleryItemSelected="onGalleryItemSelected"
-        ></PythonWidgetSettingsContainer>
+        <PivotTableWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'static-pivot-table'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId"></PivotTableWidgetSettingsContainer>
+        <DiscoveryWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'discovery'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widgetModel="propWidget" :selectedSetting="selectedSetting" :datasets="datasets" :selectedDatasets="selectedDatasets" :variables="variables" :dashboardId="dashboardId"></DiscoveryWidgetSettingsContainer>
+        <MapWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'map'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId" :layers="layers"></MapWidgetSettingsContainer>
+        <cePivotTableWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'ce-pivot-table'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId"></cePivotTableWidgetSettingsContainer>
+        <PythonWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'python'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId" :prop-gallery-items="galleryItems" @galleryItemSelected="onGalleryItemSelected"></PythonWidgetSettingsContainer>
     </div>
 </template>
 
@@ -179,7 +48,6 @@ import PivotTableWidgetSettingsContainer from './PivotTableWidget/PivotTableWidg
 import cePivotTableWidgetSettingsContainer from './cePivotTableWidget/cePivotTableWidgetSettingsContainer.vue'
 import DiscoveryWidgetSettingsContainer from './DiscoveryWidget/DiscoveryWidgetSettingsContainer.vue'
 import MapWidgetSettingsContainer from './MapWidget/MapWidgetSettingsContainer.vue'
-import VegaChartsSettingsContainer from './ChartWidget/vega/VegaChartsSettingsContainer.vue'
 import PythonWidgetSettingsContainer from './PythonWidget/PythonWidgetSettingsContainer.vue'
 import selectorDescriptor from './SelectorWidget/SelectorWidgetSettingsDescriptor.json'
 import selectionsDescriptor from './SelectionsWidget/SelectionsWidgetSettingsDescriptor.json'
@@ -215,7 +83,6 @@ import pivotTableDescriptor from './PivotTableWidget/PivotTableSettingsDescripto
 import cePivotTableDescriptor from './cePivotTableWidget/cePivotTableSettingsDescriptor.json'
 import discoveryDescriptor from './DiscoveryWidget/DiscoveryWidgetSettingsDescriptor.json'
 import mapWidgetDescriptor from './MapWidget/MapSettingsDescriptor.json'
-import vegaChartsDescriptor from './ChartWidget/vega/VegaChartsSettingsDescriptor.json'
 import pythonWidgetDescriptor from './PythonWidget/PythonWidgetSettingsDescriptor.json'
 import { mapState, mapActions } from 'pinia'
 import mainStore from '@/App.store'
@@ -240,7 +107,6 @@ export default defineComponent({
         PivotTableWidgetSettingsContainer,
         DiscoveryWidgetSettingsContainer,
         MapWidgetSettingsContainer,
-        VegaChartsSettingsContainer,
         cePivotTableWidgetSettingsContainer,
         PythonWidgetSettingsContainer
     },
@@ -323,9 +189,6 @@ export default defineComponent({
                     break
                 case 'map':
                     this.descriptor = mapWidgetDescriptor
-                    break
-                case 'vega':
-                    this.descriptor = vegaChartsDescriptor
                     break
                 case 'python':
                     this.descriptor = pythonWidgetDescriptor

@@ -1169,19 +1169,6 @@
                 "wrapText": "Zalomiť text",
                 "wrapTextHint": "Zástupný symbol zalamovania textu"
             },
-            "vega": {
-                "fontOptions": {
-                    "calibri": "Calibri",
-                    "cambria": "Cambria",
-                    "georgia": "Georiga",
-                    "gungsuh": "Gungsuh",
-                    "impact": "Impact"
-                },
-                "wordcloud": {
-                    "dimensionsTableHint": "Len atribúty.",
-                    "valuesTableHint": "Len miery."
-                }
-            },
             "visibilityConditions": {
                 "always": "Vždy",
                 "hideColumn": "Skryť stĺpec",

@@ -1204,19 +1204,6 @@
                 "wrapText": "Wrap Text",
                 "wrapTextHint": "Wrap text hint placeholder"
             },
-            "vega": {
-                "fontOptions": {
-                    "calibri": "Calibri",
-                    "cambria": "Cambria",
-                    "georgia": "Georiga",
-                    "gungsuh": "Gungsuh",
-                    "impact": "Impact"
-                },
-                "wordcloud": {
-                    "dimensionsTableHint": "Attributes only.",
-                    "valuesTableHint": "Measures only."
-                }
-            },
             "visibilityConditions": {
                 "always": "Always",
                 "hideColumn": "Hide Column",
@@ -1982,6 +1969,7 @@
         "languageSelection": "Selezione della lingua",
         "pt_BR": "Portoghese",
         "ru_RU": "Russo",
+        "sk_SK": "Slovacco",
         "tr_TR": "Turco",
         "zh_CN_#Hans": "Cinese (semplificato)"
     },
@@ -2870,6 +2858,7 @@
                 "enableDossier": "Abilita Dossier",
                 "enableEngGptIntegration": "Abilita Integrazione con EngGpt",
                 "federatedDataset": "Federated Dataset",
+                "functionsCatalogManagement": "Functions Catalog Management",
                 "functionsCatalogUsage": "Functions Catalog Usage",
                 "hierarchiesManagement": "Manage Hierarchies",
                 "items": "Items for user menu",

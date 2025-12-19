@@ -2,7 +2,7 @@
     <div v-if="widgetModel" class="p-d-flex p-flex-column p-mx-3">
         <div class="col-tables-container">
             <WidgetEditorColumnTable
-                v-if="['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'bubble', 'scatter', 'line', 'treemap', 'sunburst', 'spline', 'pictorial', 'funnel', 'waterfall'].includes(chartType)"
+                v-if="['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'bubble', 'scatter', 'line', 'treemap', 'sunburst', 'spline', 'pictorial', 'funnel', 'waterfall', 'wordcloud'].includes(chartType)"
                 class="attribute-table p-order-1"
                 :widget-model="widgetModel"
                 :items="columnTableItems['ATTRIBUTES'] ?? []"
@@ -85,6 +85,8 @@ export default defineComponent({
                     return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.pictorialChartColumnTableSettings[0] }
                 case 'waterfall':
                     return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.waterfallChartColumnTableSettings[0] }
+                case 'wordcloud':
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.wordcloudChartColumnTableSettings[0] }
                 default:
                     return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.pieChartColumnTableSettings[0] }
             }
@@ -125,6 +127,8 @@ export default defineComponent({
                     return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.pictorialChartColumnTableSettings[1] }
                 case 'waterfall':
                     return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.waterfallChartColumnTableSettings[1] }
+                case 'wordcloud':
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.wordcloudChartColumnTableSettings[1] }
                 default:
                     return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.gaugeChartColumnTableSettings[1] }
             }
@@ -224,6 +228,7 @@ export default defineComponent({
                     case 'pictorial':
                     case 'funnel':
                     case 'waterfall':
+                    case 'wordcloud':
                         invalid = this.columnTableItems['ATTRIBUTES'].length !== 1
                         break
                     case 'sunburst':
@@ -263,6 +268,7 @@ export default defineComponent({
                     case 'funnel':
                     case 'waterfall':
                     case 'scatter':
+                    case 'wordcloud':
                         invalid = this.columnTableItems['MEASURES'].length !== 1
                         break
                     case 'pie':

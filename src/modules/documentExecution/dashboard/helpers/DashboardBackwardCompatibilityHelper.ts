@@ -1,4 +1,3 @@
-import { formatVegaChartsWidget } from './chartWidget/vega/VegaChartsCompatibilityHelper'
 import { formatMapWidget } from './mapWidget/MapCompatibilityHelper'
 import { formatTableWidget } from './tableWidget/TableWidgetCompatibilityHelper'
 import { formatSelectorWidget } from '@/modules/documentExecution/dashboard/helpers/selectorWidget/SelectorWidgetCompatibilityHelper'
@@ -276,8 +275,7 @@ export const formatWidget = (widget: any, formattedModel: IDashboard, user: any,
 }
 
 const getFormattedChartWidget = (widget: any, user: any) => {
-    if (widget.content?.chartTemplate?.CHART?.type === 'WORDCLOUD') return formatVegaChartsWidget(widget)
-    else if (user?.enterprise) return formatHighchartsWidget(widget)
+    if (user?.enterprise) return formatHighchartsWidget(widget)
     else return formatChartJSWidget(widget)
 }
 

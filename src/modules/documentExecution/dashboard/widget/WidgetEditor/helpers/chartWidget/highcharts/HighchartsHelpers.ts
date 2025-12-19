@@ -24,6 +24,7 @@ import { KnowageHighchartsDumbbellChart } from '../../../../ChartWidget/classes/
 import { KnowageHighchartsStreamgraphChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsStreamgraphChart'
 import { KnowageHighchartsPackedBubbleChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsPackedBubbleChart'
 import { KnowageHighchartsWaterfallChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsWaterfallChart'
+import { KnowageHighchartsWordcloudChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsWordcloudChart'
 
 export const createNewHighchartsSettings = () => {
     const settings = {
@@ -141,6 +142,9 @@ export const formatHighchartsWidget = (widget: IWidget) => {
         case 'waterfall':
             widget.settings.chartModel = new KnowageHighchartsWaterfallChart(chartModel)
             break
+        case 'wordcloud':
+            widget.settings.chartModel = new KnowageHighchartsWordcloudChart(chartModel)
+            break
     }
 }
 
@@ -196,6 +200,8 @@ export const createNewHighchartsModel = (widget: IWidget, chartType: string, mod
             return new KnowageHighchartsPackedBubbleChart(model)
         case 'waterfall':
             return new KnowageHighchartsWaterfallChart(model)
+        case 'wordcloud':
+            return new KnowageHighchartsWordcloudChart(model)
         default:
             return null
     }

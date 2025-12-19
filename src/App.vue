@@ -104,29 +104,21 @@ export default defineComponent({
                 this.initializeUser(currentUser)
 
                 const responseLocale = response.data.locale
-                let storedLocale = responseLocale
+                let storedLocale = responseLocale.replace('_', '-')
                 if (localStorage.getItem('locale')) {
                     storedLocale = localStorage.getItem('locale')
                 }
-                localStorage.setItem('locale', storedLocale.replace('_', '-'))
+                localStorage.setItem('locale', storedLocale)
                 localStorage.setItem('token', response.data.userUniqueIdentifier)
 
                 this.setLocale(storedLocale)
                 this.$i18n.locale = storedLocale
 
-                await loadLanguageAsync(localStorage.getItem('locale'))
+                await loadLanguageAsync(storedLocale)
 
                 this.$primevue.config.locale.dateFormat = primeVueDate(getLocale(true))
 
-                const language = this.$i18n
-
-                if (responseLocale !== storedLocale) {
-                    this.setLocale(language.locale)
-                    localStorage.setItem('locale', language.locale)
-                    this.$i18n.locale = language.locale
-                } else {
-                    this.showMenu = true
-                }
+                this.showMenu = true
             })
             .catch((error) => {
                 if (error.response.status === 400) {
@@ -163,7 +155,7 @@ export default defineComponent({
 
     mounted() {
         if (/Android|iPhone/i.test(navigator.userAgent)) {
-            this.isMobileDevice = true
+            this.isMobileDevice = false
         }
     },
 
