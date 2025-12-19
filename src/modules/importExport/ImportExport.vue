@@ -247,8 +247,12 @@ export default defineComponent({
             const exportData = config.buildData(this.selectedItems[type], fileName, options)
             const url = `${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/1.0/serverManager/importExport${config.endpoint}`
 
-            if (type === 'users') {
+            if (type === 'users' || type === 'glossary') {
                 await this.exportUsers(url, exportData, fileName)
+            } else if (type === 'kpis') {
+                await this.exportKpis(url, exportData, fileName)
+            } else if (type === 'analyticalDrivers') {
+                await this.exportWithWizardDownload(url, exportData, fileName)
             } else {
                 await this.performExport(url, exportData, fileName)
             }
@@ -272,6 +276,44 @@ export default defineComponent({
                 .catch(() => this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') }))
                 .finally(() => this.store.setLoading(false))
         },
+        async exportKpis(url: string, exportData: any, fileName: string): Promise<void> {
+            this.store.setLoading(true)
+
+            await this.$http
+                .post(url, exportData)
+                .then(async (response: AxiosResponse<any>) => {
+                    if (response.data.hasOwnProperty('STATUS') && response.data.STATUS == 'OK') {
+                        const downloadUrl = `${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/1.0/serverManager/importExport/kpis/downloadArchive`
+                        await this.$http.post(downloadUrl, { FILE_NAME: fileName }, { responseType: 'arraybuffer', headers: { 'Content-Type': 'application/json', Accept: 'application/zip; charset=utf-8' } }).then((downloadResponse: AxiosResponse<any>) => {
+                            downloadDirectFromResponseWithCustomName(downloadResponse, fileName)
+                            this.store.setInfo({ title: this.$t('common.downloading'), msg: this.$t('importExport.export.successfullyCompleted') })
+                            this.resetSelectedItems()
+                            this.closeExportDialog()
+                        })
+                    }
+                })
+                .catch(() => this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') }))
+                .finally(() => this.store.setLoading(false))
+        },
+        async exportWithWizardDownload(url: string, exportData: any, fileName: string): Promise<void> {
+            this.store.setLoading(true)
+
+            await this.$http
+                .post(url, exportData)
+                .then(async (response: AxiosResponse<any>) => {
+                    if (response.data.hasOwnProperty('STATUS') && response.data.STATUS == 'OK') {
+                        const downloadUrl = `${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/1.0/serverManager/importExport/wizard/downloadExportFile`
+                        await this.$http.post(downloadUrl, { FILE_NAME: fileName }, { responseType: 'arraybuffer', headers: { 'Content-Type': 'application/json', Accept: 'application/zip; charset=utf-8' } }).then((downloadResponse: AxiosResponse<any>) => {
+                            downloadDirectFromResponseWithCustomName(downloadResponse, fileName)
+                            this.store.setInfo({ title: this.$t('common.downloading'), msg: this.$t('importExport.export.successfullyCompleted') })
+                            this.resetSelectedItems()
+                            this.closeExportDialog()
+                        })
+                    }
+                })
+                .catch(() => this.store.setError({ title: this.$t('common.error.downloading'), msg: this.$t('importExport.export.completedWithErrors') }))
+                .finally(() => this.store.setLoading(false))
+        },
         async exportCatalogItem(type: string, fileName: string): Promise<void> {
             const config = CATALOG_CONFIG[type]
             if (!config) return
@@ -279,7 +321,7 @@ export default defineComponent({
             const exportData = this.buildCatalogExportData(config.listKey, this.selectedItems[type], config.catalogType, fileName)
 
             const url = `${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/1.0/serverManager/importExport/catalog/export`
-            await this.performExport(url, exportData, fileName)
+            await this.exportWithWizardDownload(url, exportData, fileName)
         },
 
         buildCatalogExportData(listKey: string, items: any[], catalogType: string, fileName: string): any {

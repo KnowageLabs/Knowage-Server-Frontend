@@ -12,7 +12,7 @@ export const EXPORT_CONFIG = {
         })
     },
     kpis: {
-        endpoint: '/kpi/export',
+        endpoint: '/kpis/export',
         checkboxOptions: [
             { key: 'targetsAndRelated', labelKey: 'importExport.kpis.targetsAndRelated', defaultValue: true },
             { key: 'scorecardsAndRelated', labelKey: 'importExport.kpis.scorecardsAndRelated', defaultValue: true },
