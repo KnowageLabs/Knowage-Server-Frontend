@@ -1,54 +1,41 @@
 <template>
-  <q-toolbar class="kn-toolbar kn-toolbar--secondary">
-    <q-toolbar-title>{{ selectedLov.label }}</q-toolbar-title>
-    <q-space />
-    <q-btn
-        flat
-        round
-        icon="save"
-        :disable="saveButtonDisabled"
-        data-test="submit-button"
-        @click="saveLov"
-    >
-      <q-tooltip>{{ $t('common.save') }}</q-tooltip>
-    </q-btn>
-    <q-btn
-        flat
-        round
-        icon="close"
-        data-test="close-button"
-        @click="closeTemplate"
-    >
-      <q-tooltip>{{ $t('common.close') }}</q-tooltip>
-    </q-btn>
-  </q-toolbar>
-  <q-linear-progress v-if="loading" indeterminate class="q-mt-none" />
-  <div v-else class="kn-page-content">
-    <!-- Rest of the component remains unchanged -->
-    <div class="card">
-      <LovsManagementDetailCard :selected-lov="selectedLov" :lovs="lovs" :list-of-input-types="listOfInputTypes" @touched="setTouched" @typeChanged="cleanSelections"></LovsManagementDetailCard>
+    <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+        <q-toolbar-title>{{ selectedLov.label }}</q-toolbar-title>
+        <q-space />
+        <q-btn flat round icon="save" :disable="saveButtonDisabled" data-test="submit-button" @click="saveLov">
+            <q-tooltip>{{ $t('common.save') }}</q-tooltip>
+        </q-btn>
+        <q-btn flat round icon="close" data-test="close-button" @click="closeTemplate">
+            <q-tooltip>{{ $t('common.close') }}</q-tooltip>
+        </q-btn>
+    </q-toolbar>
+    <q-linear-progress v-if="loading" indeterminate class="q-mt-none" />
+    <div v-else class="kn-page-content">
+        <!-- Rest of the component remains unchanged -->
+        <div class="card">
+            <LovsManagementDetailCard :selected-lov="selectedLov" :lovs="lovs" :list-of-input-types="listOfInputTypes" @touched="setTouched" @typeChanged="cleanSelections"></LovsManagementDetailCard>
+        </div>
+        <div class="card">
+            <LovsManagementWizardCard
+                v-if="selectedLov.itypeCd"
+                :selected-lov="selectedLov"
+                :selected-query="selectedQuery"
+                :selected-script="selectedScript"
+                :datasources="datasources"
+                :profile-attributes="profileAttributes"
+                :list-of-script-types="listOfScriptTypes"
+                :list-for-fix-lov="listForFixLov"
+                :selected-java-class="selectedJavaClass"
+                :selected-dataset="selectedDataset"
+                :save="save"
+                :preview-disabled="saveButtonDisabled"
+                @touched="setTouched"
+                @created="onCreated()"
+                @selectedDataset="setSelectedDataset($event)"
+                @sorted="onSort($event)"
+            ></LovsManagementWizardCard>
+        </div>
     </div>
-    <div class="card">
-      <LovsManagementWizardCard
-          v-if="selectedLov.itypeCd"
-          :selected-lov="selectedLov"
-          :selected-query="selectedQuery"
-          :selected-script="selectedScript"
-          :datasources="datasources"
-          :profile-attributes="profileAttributes"
-          :list-of-script-types="listOfScriptTypes"
-          :list-for-fix-lov="listForFixLov"
-          :selected-java-class="selectedJavaClass"
-          :selected-dataset="selectedDataset"
-          :save="save"
-          :preview-disabled="saveButtonDisabled"
-          @touched="setTouched"
-          @created="onCreated()"
-          @selectedDataset="setSelectedDataset($event)"
-          @sorted="onSort($event)"
-      ></LovsManagementWizardCard>
-    </div>
-  </div>
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue'
@@ -81,7 +68,8 @@ export default defineComponent({
     components: { LovsManagementDetailCard, LovsManagementWizardCard },
     props: {
         id: { type: String },
-        lovs: { type: Array }
+        lovs: { type: Array },
+        lovToCloneId: { type: Number as any }
     },
     emits: ['touched', 'created', 'closed'],
     data() {
@@ -111,6 +99,9 @@ export default defineComponent({
     watch: {
         async id() {
             await this.loadPage()
+        },
+        lovToCloneId() {
+            this.cloneLovConfirm(this.lovToCloneId)
         }
     },
     async mounted() {
@@ -237,6 +228,28 @@ export default defineComponent({
                 }
             }
             return true
+        },
+        cloneLovConfirm(lovId) {
+            this.$confirm.require({
+                message: this.$t('kpi.kpiDefinition.confirmClone'),
+                header: this.$t('common.clone'),
+                icon: 'pi pi-exclamation-triangle',
+                accept: () => this.cloneLov(lovId)
+            })
+        },
+        async cloneLov(lovId) {
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/lovs/${lovId}`).then(async (response: AxiosResponse<any>) => {
+                const lovToClone = response.data
+                this.selectedLov = {
+                    ...lovToClone,
+                    id: undefined,
+                    label: '',
+                    name: ''
+                }
+                this.selectedLov.lovProviderJSON = JSON.parse(this.selectedLov.lovProviderJSON)
+                this.decode()
+                this.formatLov()
+            })
         },
         cleanSelections() {
             this.selectedQuery = { datasource: '', query: '' }

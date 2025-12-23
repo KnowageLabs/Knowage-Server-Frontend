@@ -42,6 +42,11 @@
         },
         "buttons": [
             {
+                "emits": "clone",
+                "icon": "far fa-copy",
+                "label": "common.clone"
+            },
+            {
                 "emits": "delete",
                 "icon": "fas fa-trash-alt",
                 "label": "common.delete"
@@ -53,7 +58,7 @@
             "parameterLabel": "id",
             "parameterValue": "id",
             "path": "edit-lov",
-            "type": "router"
+            "type": "event"
         },
         "sortFields": ["label", "name", "itypeCd"]
     }
