@@ -18,6 +18,7 @@ import { formatDashboardDiscoveryWidgetAfterLoading } from './widget/WidgetEdito
 import * as widgetCommonDefaultValues from './widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
 import { formatMapWidgetAfterDashboardLoading } from './widget/MapWidget/MapWidgetFormattingHelper'
 import i18n from '@/App.i18n'
+import { addMissingFilterProperties } from './widget/WidgetEditor/helpers/selectionsWidget/SelectionsWidgetFunctions'
 
 const { t } = i18n.global
 const store = mainStore()
@@ -301,6 +302,9 @@ const formatWidget = (widget: IWidget, datasets: IDataset[]) => {
             break
         case 'map':
             formatMapWidgetAfterDashboardLoading(widget, datasets)
+        case 'selection':
+            addMissingFilterProperties(widget.settings as any)
+            break
     }
 
     if (widget.settings?.style?.themeName) delete widget.settings.style.themeName

@@ -11,7 +11,8 @@ export const createNewSelectionsWidgetSettings = () => {
             type: 'list',
             valuesManagement: selectionsWidgetDefaultValues.getDefaultValuesManagement(),
             noSelections: selectionsWidgetDefaultValues.getDefaultNoSelectionsConfiguration(),
-            exports: { showExcelExport: true }
+            exports: { showExcelExport: true },
+            filter: selectionsWidgetDefaultValues.getDefaultFilterConfiguration()
         },
         style: {
             themeId: null,
@@ -26,4 +27,8 @@ export const createNewSelectionsWidgetSettings = () => {
         responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
         help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as ISelectionsWidgetSettings
+}
+
+export const addMissingFilterProperties = (settings: ISelectionsWidgetSettings) => {
+    if (!settings.configuration?.filter) settings.configuration.filter = selectionsWidgetDefaultValues.getDefaultFilterConfiguration()
 }

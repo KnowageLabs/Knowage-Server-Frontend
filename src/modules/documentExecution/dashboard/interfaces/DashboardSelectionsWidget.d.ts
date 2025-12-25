@@ -13,6 +13,10 @@ export interface ISelectionWidgetConfiguration {
     valuesManagement: ISelectionsWidgetValuesManagement
     noSelections: ISelectionsWidgetNoSelections
     exports: IWidgetExports
+    filter: {
+        enabled: boolean
+        filteredDatasets: string[]
+    }
 }
 
 export interface ISelectionsWidgetValuesManagement {

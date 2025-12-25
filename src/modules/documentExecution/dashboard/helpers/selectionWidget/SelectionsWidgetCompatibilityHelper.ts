@@ -34,7 +34,8 @@ const getFormattedConfiguration = (widget: any) => {
         type: widget.style?.chips?.enabled ? 'chips' : 'list',
         valuesManagement: getFormattedValuesManagement(widget),
         noSelections: getFormattedNoSelections(widget),
-        exports: { showExcelExport: widget.style?.showExcelExport ?? false } as IWidgetExports
+        exports: { showExcelExport: widget.style?.showExcelExport ?? false } as IWidgetExports,
+        filter: selectionsWidgetDefaultValues.getDefaultFilterConfiguration()
     } as ISelectionWidgetConfiguration
 }
 
