@@ -65,16 +65,9 @@ export default defineComponent({
             this.loading = true
             this.functionalities = []
 
-            const licenses = this.licenses.licenses
-            const currentHostName = this.licenses.hosts[0] ? this.licenses.hosts[0].hostName : undefined
-
-            this.functionalities = importExportDescriptor.functionalities
-                .filter((x) => {
-                    return x.requiredFunctionality ? this.user.functionalities.includes(x.requiredFunctionality) : true
-                })
-                .filter((x) => {
-                    return x.requiredLicense && currentHostName && licenses[currentHostName] ? licenses[currentHostName].filter((lic) => lic.product === x.requiredLicense).length == 1 : true
-                })
+            this.functionalities = importExportDescriptor.functionalities.filter((x) => {
+                return x.requiredFunctionality ? this.user.functionalities.includes(x.requiredFunctionality) : true
+            })
 
             this.loading = false
         },
