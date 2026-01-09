@@ -65,7 +65,7 @@
                             <Button v-tooltip.top="$t('documentExecution.olap.sidebar.mdxQuery')" icon="far fa-eye" class="p-button-plain kn-button--secondary" @click="$emit('openMdxQueryDialog')" />
                         </div>
                         <div class="p-col-4">
-                            <Button v-if="olap.modelConfig.crossNavigation" v-tooltip.top="$t('documentExecution.olap.sidebar.enableCrossNavigation')" icon="fas fa-arrow-right" class="p-button-plain kn-button--secondary" @click="onEnableCrossNavigationClick" />
+                            <Button v-if="olap.modelConfig.crossNavigation" v-tooltip.top="$t('documentExecution.olap.sidebar.defineCrossNavigation')" icon="fas fa-arrow-right" class="p-button-plain kn-button--secondary" @click="$emit('openCrossNavigationDefinitionDialog')" />
                         </div>
                         <div class="p-col-4">
                             <Button v-tooltip.top="$t('documentExecution.olap.sidebar.configureButtonsVisiblity')" icon="fas fa-sync-alt" class="p-button-plain kn-button--secondary" @click="$emit('openButtonWizardDialog')" />
