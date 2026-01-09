@@ -43,7 +43,7 @@
                     <img v-if="tenant.TENANT_IMAGE_WIDE" :src="tenant.TENANT_IMAGE_WIDE" class="kn-no-select" />
                 </div>
             </div>
-            <q-toggle v-model="tenant.TENANT_MFA" color="primary" icon="lock" :label="$t('managers.tenantManagement.multifactor')">
+            <q-toggle v-model="tenant.TENANT_MFA" color="primary" icon="lock" :label="$t('managers.tenantManagement.multifactor')" @update:model-value="(value) => onFieldChange('TENANT_MFA', value)">
                 <q-tooltip :delay="500">{{ $t('managers.tenantManagement.multifactorHint') }}</q-tooltip>
             </q-toggle>
         </q-card-section>
