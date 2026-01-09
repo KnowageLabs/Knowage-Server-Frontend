@@ -252,6 +252,7 @@ export default defineComponent({
             return luxonFormatDate(date, inputFormat, outputFormat)
         },
         getFormattedDateTime(date: any, format?: any, keepNull?: boolean) {
+            if (!date || date.trim() === '') return
             return formatDateWithLocale(date, format, keepNull)
         }
     }
