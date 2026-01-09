@@ -1,7 +1,7 @@
 <template>
     <div class="editable-field-container" v-if="column">
-        <InputNumber v-if="typeof row[column.field].data === 'number'" v-model="row[column.field].data" :style="knPivotTableDescriptor.pivotStyles.inputFields" class="kn-material-input" :use-grouping="useGrouping" :min-fraction-digits="minFractionDigits" :max-fraction-digits="maxFractionDigits" :disabled="!column.isEditable" :locale="locale" @input="$emit('rowChanged', row)" />
-        <InputText v-else-if="column.editorType !== 'COMBO' && column.columnInfo.type !== 'date' && column.columnInfo.type !== 'timestamp'" v-model="row[column.field].data" :style="knPivotTableDescriptor.pivotStyles.inputFields" class="kn-material-input" :type="setDataType(column.columnInfo.type)" @input="$emit('rowChanged', row)" />
+        <InputNumber v-if="typeof row[column.field].data === 'number'" v-model="row[column.field].data" :style="knPivotTableDescriptor.pivotStyles.inputFields" class="kn-material-input" :use-grouping="useGrouping" :min-fraction-digits="minFractionDigits" :max-fraction-digits="maxFractionDigits" :disabled="!column.isEditable" :locale="locale" @input="$emit('rowChanged', row)" @keydown.enter="blurInput" />
+        <InputText v-else-if="column.editorType !== 'COMBO' && column.columnInfo.type !== 'date' && column.columnInfo.type !== 'timestamp'" v-model="row[column.field].data" :style="knPivotTableDescriptor.pivotStyles.inputFields" class="kn-material-input" :type="setDataType(column.columnInfo.type)" @input="$emit('rowChanged', row)" @keydown.enter="blurInput" />
         <Calendar
             v-else-if="column.columnInfo.type === 'date' || column.columnInfo.type === 'timestamp'"
             v-model="row[column.field].data"
@@ -130,6 +130,9 @@ export default defineComponent({
         setDefaultLocale() {
             const locale = getLocale()
             this.locale = locale ? locale.replace('_', '-') : ''
+        },
+        blurInput(event: Event) {
+            ;(event.target as HTMLElement)?.blur()
         }
     }
 })
