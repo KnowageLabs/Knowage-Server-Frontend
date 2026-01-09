@@ -169,6 +169,7 @@ export default defineComponent({
             this.tenant.TENANT_THEME ? (tenantToSave.TENANT_THEME = this.tenant.TENANT_THEME) : ''
             tenantToSave.TENANT_IMAGE = this.tenant.TENANT_IMAGE
             tenantToSave.TENANT_IMAGE_WIDE = this.tenant.TENANT_IMAGE_WIDE
+            tenantToSave.TENANT_MFA = this.tenant.TENANT_MFA
             tenantToSave.DS_LIST = this.listOfSelectedDataSources.map((dataSource) => {
                 delete dataSource.CHECKED
                 return dataSource
