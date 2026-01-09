@@ -328,7 +328,7 @@ export default defineComponent({
         async saveSchedulation(dsToSave, id) {
             if (dsToSave.isScheduled) {
                 await this.$http
-                    .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `scheduleree/persistence/dataset/id/${id}`, dsToSave, {
+                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/scheduleree/persistence/dataset/id/${id}`, dsToSave, {
                         headers: {
                             Accept: 'application/json, text/plain, */*',
                             'Content-Type': 'application/json;charset=UTF-8'
@@ -336,7 +336,7 @@ export default defineComponent({
                     })
                     .catch()
             } else {
-                await this.$http.delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `scheduleree/persistence/dataset/label/${dsToSave.label}`).catch()
+                await this.$http.delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/scheduleree/persistence/dataset/label/${dsToSave.label}`).catch()
             }
         },
         async saveLinks(id) {
