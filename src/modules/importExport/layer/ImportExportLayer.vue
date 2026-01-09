@@ -17,7 +17,14 @@
             <div v-if="loading" class="p-d-flex p-jc-center p-ai-center" style="height: 100%">
                 <q-spinner size="50px" color="primary" />
             </div>
-            <q-table v-else class="sticky-header-table" ref="layersTable" v-model:selected="selectedItems[FUNCTIONALITY]" :rows="filteredLayers" :columns="columns" row-key="id" selection="multiple" :visible-columns="visibleColumns" virtual-scroll :pagination.sync="pagination" :rows-per-page-options="[0]" flat dense />
+            <q-table v-else class="sticky-header-table" ref="layersTable" v-model:selected="selectedItems[FUNCTIONALITY]" :rows="filteredLayers" :columns="columns" row-key="id" selection="multiple" :visible-columns="visibleColumns" virtual-scroll :pagination.sync="pagination" :rows-per-page-options="[0]" flat dense>
+                <template #no-data>
+                    <div class="full-width row flex-center text-accent q-gutter-sm p-py-4" style="height: 85vh">
+                        <q-icon size="2em" name="warning" />
+                        <span>{{ $t('common.info.noDataFound') }}</span>
+                    </div>
+                </template>
+            </q-table>
         </q-card>
     </div>
 </template>

@@ -10,6 +10,12 @@
 
         <q-card class="p-d-flex p-flex-column kn-flex kn-overflow">
             <q-table class="sticky-header-table" ref="functionsTable" v-model:selected="selectedFunctionItems" :rows="filteredFunctions" :columns="columns" row-key="id" selection="multiple" :visible-columns="visibleColumns" virtual-scroll :pagination.sync="pagination" :rows-per-page-options="[0]" flat dense>
+                <template #no-data>
+                    <div class="full-width row flex-center text-accent q-gutter-sm p-py-4" style="height: 85vh">
+                        <q-icon size="2em" name="warning" />
+                        <span>{{ $t('common.info.noDataFound') }}</span>
+                    </div>
+                </template>
                 <template #body-cell-tags="props">
                     <q-td :props="props">
                         <q-chip v-for="(tag, index) in props.row.tags" :key="index" size="sm" dense color="primary" text-color="white">

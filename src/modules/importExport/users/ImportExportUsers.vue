@@ -18,6 +18,12 @@
                 <q-spinner size="50px" color="primary" />
             </div>
             <q-table v-else class="sticky-header-table" ref="usersTable" v-model:selected="selectedItems[FUNCTIONALITY]" :rows="filteredUsers" :columns="columns" row-key="id" selection="multiple" :visible-columns="visibleColumns" virtual-scroll :pagination.sync="pagination" :rows-per-page-options="[0]" flat dense>
+                <template #no-data>
+                    <div class="full-width row flex-center text-accent q-gutter-sm p-py-4" style="height: 85vh">
+                        <q-icon size="2em" name="warning" />
+                        <span>{{ $t('common.info.noDataFound') }}</span>
+                    </div>
+                </template>
                 <template #body-cell-isSuperadmin="props">
                     <q-td :props="props">
                         <q-icon v-if="props.row.isSuperadmin" name="check_circle" color="black" size="xs" />
