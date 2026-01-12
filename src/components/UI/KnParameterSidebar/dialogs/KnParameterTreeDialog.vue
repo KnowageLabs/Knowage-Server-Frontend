@@ -190,7 +190,7 @@ export default defineComponent({
             }
         },
         isNodeSelectable(el) {
-            if (!this.multivalue || !this.parameter) return true
+             if (!this.parameter) return true
 
             return this.parameter.allowInternalNodeSelection || el.leaf
         },
