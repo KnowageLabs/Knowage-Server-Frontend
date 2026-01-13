@@ -163,12 +163,12 @@ function scrollToBottom() {
 }
 
 async function sendToAI() {
-    if (store.licenses?.['eng-gpt-integration']) {
+    if (store.licenses?.engGptIntegration) {
         let count = Number(localStorage.getItem('chatMessageCount')) || 0
-        if (count >= store.licenses['eng-gpt-integration']) {
+        if (count >= store.licenses.engGptIntegration) {
             chat.value.push({
                 role: 'assistant',
-                content: t('ai.message.limitReached', { limit: store.licenses['eng-gpt-integration'] }),
+                content: t('ai.message.limitReached', { limit: store.licenses.engGptIntegration }),
                 turnId: chat.value[chat.value.length - 1].turnId
             })
             return
