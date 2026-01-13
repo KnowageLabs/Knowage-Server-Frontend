@@ -37,7 +37,8 @@
                     <AdvancedMenuItem :item="item" :badge="getBadgeValue(item)" @click="itemClick" @mouseover="setMenu(item)"></AdvancedMenuItem>
                 </template>
                 <template v-for="(item, i) of dynamicUserFunctionalities" :key="i">
-                    <AdvancedMenuItem :item="item" :badge="getBadgeValue(item)" @mouseover="setMenu(item)"></AdvancedMenuItem>
+                    <AdvancedMenuItem :item="item" :badge="getBadgeValue(item)" @click="itemClick" @mouseover="setMenu(item)"></AdvancedMenuItem>
+                    <!--MainMenuItem :item="item" :internationalize="true" @click="itemClick" @mouseover="toggleMenu($event, item)"></MainMenuItem-->
                 </template>
             </ul>
         </div>
@@ -210,10 +211,8 @@ export default defineComponent({
             if (item.command) {
                 this[item.command]()
             } else if (item.to) {
-                if (event.navigate) {
-                    event.navigate(event.originalEvent)
-                    this.$emit('menuItemSelected', item)
-                } else location.replace(this.getHref(item))
+                if (event.navigate) event.navigate(event.originalEvent)
+                this.$emit('menuItemSelected', item)
             } else if (item.url && (!item.target || item.target === 'insideKnowage')) this.$router.push({ name: 'externalUrl', params: { url: item.url } })
             if (this.adminMenuOpened) this.adminMenuOpened = false
             this.hideItemMenu()

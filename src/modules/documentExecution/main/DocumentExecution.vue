@@ -348,7 +348,7 @@ export default defineComponent({
     watch: {
         async menuItemClickedTrigger() {
             if (!this.selectedMenuItem) return
-            const routes = ['registry', 'document-composite', 'report', 'office-doc', 'olap', 'map', 'report', 'kpi', 'dossier', 'etl']
+            const routes = ['registry', 'document-composite', 'report', 'office-doc', 'olap', 'map', 'report', 'kpi', 'dossier', 'etl', 'dashboard']
             const test = routes.some((el) => this.selectedMenuItem?.to.includes(el))
             if (!test) return
             const label = this.selectedMenuItem.to.substring(this.selectedMenuItem.to.lastIndexOf('/') + 1)
@@ -375,6 +375,17 @@ export default defineComponent({
                 this.initialize()
             }
         }, 200)
+    },
+    async updated() {
+        if (this.id && this.document && this.id !== this.document.label) {
+            this.$q.loading.show()
+            this.initializePolling = setInterval(() => {
+                if (this.configurations && Object.keys(this.configurations).length > 0) {
+                    clearInterval(this.initializePolling)
+                    this.initialize()
+                }
+            }, 200)
+        }
     },
     unmounted() {
         if (this.initializePolling) clearInterval(this.initializePolling)
@@ -834,6 +845,7 @@ export default defineComponent({
         async loadDocument() {
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documents/${this.document?.label}`).then((response: AxiosResponse<any>) => (this.document = response.data))
             const index = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name)
+            debugger
             index !== -1
                 ? (this.breadcrumbs[index].document = this.document)
                 : this.breadcrumbs.push({
