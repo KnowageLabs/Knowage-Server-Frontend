@@ -24,6 +24,7 @@
         "dashboardLink": "Dashboard Link",
         "disclaimer": "The virtual assistant generates real-time responses using AI. Please consult other sources if necessary.",
         "message": {
+            "limitReached": "You have reached the maximum number of messages allowed by your license.",
             "placeholder": "Type your message"
         },
         "newConversationConfirm": "Are you sure you want to start a new conversation? All the current conversation will be lost.",
@@ -97,6 +98,7 @@
         "dialog": "Dialog",
         "disable": "Disable",
         "disableAll": "Disable All",
+        "dismiss": "Dismiss",
         "document": "Document",
         "documentDetails": "Document Details",
         "documents": "Documents",
@@ -121,6 +123,7 @@
             "generic": "Generic Error",
             "importing": "Error importing",
             "incompatibleType": "Incompatible file type",
+            "licenseInvalid": "License is not valid or expired. Some of the features may not work properly.",
             "refresh": "Something went wrong. Try refreshing the page",
             "sameFileName": "It is not possible to upload a file with the same name",
             "saving": "Error saving",

@@ -163,6 +163,20 @@ function scrollToBottom() {
 }
 
 async function sendToAI() {
+    if (store.licenses?.['eng-gpt-integration']) {
+        let count = Number(localStorage.getItem('chatMessageCount')) || 0
+        if (count >= store.licenses['eng-gpt-integration']) {
+            chat.value.push({
+                role: 'assistant',
+                content: t('ai.message.limitReached', { limit: store.licenses['eng-gpt-integration'] }),
+                turnId: chat.value[chat.value.length - 1].turnId
+            })
+            return
+        }
+        count++
+        localStorage.setItem('chatMessageCount', count)
+    }
+
     scrollToBottom()
     axios
         .post(store.configurations['KNOWAGE.AI.URL'] + '/bot-response', body)
