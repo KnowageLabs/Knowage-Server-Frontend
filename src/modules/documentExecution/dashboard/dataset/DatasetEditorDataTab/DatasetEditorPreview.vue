@@ -205,3 +205,10 @@ export default defineComponent({
     }
 })
 </script>
+<style lang="scss">
+.workspace-scrollable-table {
+    .p-datatable-wrapper {
+        overflow-x: auto;
+    }
+}
+</style>
