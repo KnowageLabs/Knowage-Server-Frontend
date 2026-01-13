@@ -37,12 +37,7 @@ function link(item) {
 }
 
 function onClick(event, item): void {
-    if (item.command) {
-        emit('click', {
-            originalEvent: event,
-            item: item
-        })
-    }
+    if (item.command || item.to) emit('click', event, item)
 }
 </script>
 <style lang="scss" scoped>

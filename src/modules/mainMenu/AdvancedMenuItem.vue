@@ -40,7 +40,7 @@ function isActive(item): boolean {
 }
 
 function onClick(event, item): void {
-    if (item.command) {
+    if (item.command || item.to) {
         emit('click', {
             originalEvent: event,
             item: item
