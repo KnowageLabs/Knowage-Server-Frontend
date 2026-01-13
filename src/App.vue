@@ -160,7 +160,7 @@ export default defineComponent({
 
                 await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/license').then((response) => {
                     this.setLicenses(response.data)
-                    if (true) {
+                    if (!this.isEnterpriseValid) {
                         this.$q.notify({
                             position: 'top',
                             type: 'warning',
