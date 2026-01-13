@@ -23,6 +23,7 @@
     "ai": {
         "disclaimer": "L'assistente virtuale genera risposte in tempo reale con l'IA. Consulta altre fonti, se necessario.",
         "message": {
+            "limitReached": "Hai raggiunto il numero massimo di messaggi consentiti dalla tua licenza.",
             "placeholder": "Scrivi qui il tuo messaggio"
         },
         "newConversationConfirm": "Sei sicuro di voler iniziare una nuova conversazione? Tutti i messaggi precedenti andranno persi.",
@@ -78,6 +79,7 @@
         "development": "sviluppo",
         "disable": "Disabilita",
         "disableAll": "Disabilita Tutti",
+        "dismiss": "Ignora",
         "document": "Documento",
         "documentDetails": "dettagli documento",
         "documents": "documenti",

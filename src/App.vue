@@ -160,6 +160,15 @@ export default defineComponent({
 
                 await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/license').then((response) => {
                     this.setLicenses(response.data)
+                    if (true) {
+                        this.$q.notify({
+                            position: 'top',
+                            type: 'warning',
+                            timeout: 0,
+                            closeBtn: this.$t('common.dismiss'),
+                            message: this.$t('common.error.licenseInvalid')
+                        })
+                    }
                 })
                 if (Object.keys(this.theme).length === 0) {
                     this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/thememanagement/current`).then((themes: any) => {
