@@ -376,17 +376,6 @@ export default defineComponent({
             }
         }, 200)
     },
-    async updated() {
-        if (this.id && this.document && this.id !== this.document.label) {
-            this.$q.loading.show()
-            this.initializePolling = setInterval(() => {
-                if (this.configurations && Object.keys(this.configurations).length > 0) {
-                    clearInterval(this.initializePolling)
-                    this.initialize()
-                }
-            }, 200)
-        }
-    },
     unmounted() {
         if (this.initializePolling) clearInterval(this.initializePolling)
         this.removeEventListeners()
