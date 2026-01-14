@@ -98,6 +98,11 @@ export function createToolbarMenuItems(document: any, functions: any, exporters:
     if (mode === 'dashboard' && user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT)) toolbarMenuItems.push({ icon: 'fa-solid fa-users-viewfinder', label: document.seeAsFinalUser ? $t('documentExecution.main.seeAsEditor') : $t('documentExecution.main.seeAsFinalUser'), command: () => functions.toggleFinalUser() })
     toolbarMenuItems.push({ icon: 'fa-solid fa-expand', label: 'See in fullscreen', command: () => functions.fullScreen() })
 
+    if (mode === 'dashboard') {
+        toolbarMenuItems.push({ icon: 'fa-solid fa-lock', label: $t('dashboard.lockAllWidgets'), command: () => emitter.emit('lockAllWidgets', true) })
+        toolbarMenuItems.push({ icon: 'fa-solid fa-lock-open', label: $t('dashboard.unlockAllWidgets'), command: () => emitter.emit('unlockAllWidgets', false) })
+    }
+
     removeEmptyToolbarItems(toolbarMenuItems)
 
     return toolbarMenuItems

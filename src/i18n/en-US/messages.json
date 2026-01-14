@@ -453,6 +453,8 @@
         "yearly": "Yearly"
     },
     "dashboard": {
+        "lockAllWidgets": "Lock all widgets",
+        "unlockAllWidgets": "Unlock all widgets",
         "activeSelections": {
             "noActiveSelections": "No Active Selections"
         },

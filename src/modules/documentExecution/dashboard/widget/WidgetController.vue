@@ -181,6 +181,8 @@ export default defineComponent({
             emitter.on('chartTypeChanged', this.onWidgetUpdated)
             emitter.on('refreshAfterGeneralSettingsChange', this.loadInitialData)
             emitter.on('mapDatasetInteractionPreview', this.onMapDatasetInteractionPreview)
+            emitter.on('lockAllWidgets', this.onLockAllWidgets)
+            emitter.on('unlockAllWidgets', this.onUnlockAllWidgets)
         },
         removeEventListeners() {
             emitter.off('selectionsChanged', this.loadActiveSelections)
@@ -192,6 +194,8 @@ export default defineComponent({
             emitter.off('chartTypeChanged', this.onWidgetUpdated)
             emitter.off('refreshAfterGeneralSettingsChange', this.loadInitialData)
             emitter.off('mapDatasetInteractionPreview', this.onMapDatasetInteractionPreview)
+            emitter.off('lockAllWidgets', this.onLockAllWidgets)
+            emitter.off('unlockAllWidgets', this.onUnlockAllWidgets)
         },
         //#endregion ================================================================================================
 
@@ -607,6 +611,12 @@ export default defineComponent({
                 .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/export/dataset/${datasetId}/csv`, tempParams, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
                 .then(() => this.setInfo({ title: this.$t('common.toast.updateTitle'), msg: this.$t('workspace.myData.exportSuccess') }))
                 .catch(() => {})
+        },
+        onLockAllWidgets() {
+            this.widgetModel.settings.locked = true
+        },
+        onUnlockAllWidgets() {
+            this.widgetModel.settings.locked = false
         }
 
         //#endregion ================================================================================================
