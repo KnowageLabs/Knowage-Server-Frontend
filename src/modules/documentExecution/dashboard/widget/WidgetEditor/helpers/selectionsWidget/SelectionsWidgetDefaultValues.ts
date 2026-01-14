@@ -18,3 +18,7 @@ export const getDefaultChipsStyle = () => {
 export const getDefaultRowsStyle = () => {
     return deepcopy(descriptor.defaultRowsStyle) as IWidgetRowsStyle
 }
+
+export const getDefaultFilterConfiguration = () => {
+    return deepcopy(descriptor.defaultFilterConfiguration)
+}

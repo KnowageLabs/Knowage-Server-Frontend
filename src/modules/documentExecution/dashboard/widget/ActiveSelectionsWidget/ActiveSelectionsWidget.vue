@@ -55,6 +55,12 @@ export default defineComponent({
     watch: {
         propActiveSelections() {
             this.loadActiveSelections()
+        },
+        propWidget: {
+            handler() {
+                this.loadActiveSelections()
+            },
+            deep: true
         }
     },
     created() {
@@ -65,8 +71,17 @@ export default defineComponent({
     methods: {
         ...mapActions(store, ['removeSelection', 'removeSelections']),
         loadActiveSelections() {
-            if (this.editorMode) this.activeSelections = [...descriptor.activeSelectionsEditorMock] as ISelection[]
-            else this.activeSelections = this.propActiveSelections
+            let selections: ISelection[] = []
+
+            if (this.editorMode) selections = [...descriptor.activeSelectionsEditorMock] as ISelection[]
+            else selections = this.propActiveSelections
+
+            if (this.propWidget.settings?.configuration?.filter?.enabled) {
+                const filteredDatasets = this.propWidget.settings.configuration.filter.filteredDatasets || []
+                if (filteredDatasets.length > 0) selections = selections.filter((selection) => filteredDatasets.includes(selection.datasetLabel))
+            }
+
+            this.activeSelections = selections
         },
         getChipsStyle() {
             const height = this.propWidget.settings.style.chips.height

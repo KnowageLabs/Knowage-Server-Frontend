@@ -13,6 +13,7 @@
                 <WidgetSelectionConfiguration v-else-if="accordion.type === 'SelectionConfiguration'" :widget-model="widgetModel"></WidgetSelectionConfiguration>
                 <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
                 <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
+                <SelectorWidgetFilter v-else-if="accordion.type === 'Filter'" :widget-model="widgetModel" :selectedDatasets="selectedDatasets"></SelectorWidgetFilter>
                 <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" @styleChanged="onStyleChanged"></WidgetTitleStyle>
                 <SelectionsWidgetChipsStyle v-else-if="accordion.type === 'ChipsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectionsWidgetChipsStyle>
                 <WidgetRowsStyle v-else-if="accordion.type === 'RowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetRowsStyle>
@@ -54,6 +55,7 @@ import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue
 import Message from 'primevue/message'
 import WidgetSelectionConfiguration from '../common/configuration/WidgetSelectionConfiguration.vue'
 import WidgetHelpSettings from '../common/help/WidgetHelpSettings.vue'
+import SelectorWidgetFilter from './configuration/SelectionsWidgetFilter.vue'
 
 export default defineComponent({
     name: 'selections-widget-settings-container',
@@ -77,7 +79,8 @@ export default defineComponent({
         Message,
         WidgetMenuConfiguration,
         WidgetSelectionConfiguration,
-        WidgetHelpSettings
+        WidgetHelpSettings,
+        SelectorWidgetFilter
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

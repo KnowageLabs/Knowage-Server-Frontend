@@ -44,6 +44,10 @@
             {
                 "title": "dashboard.widgetEditor.export.title",
                 "type": "Export"
+            },
+            {
+                "title": "common.filter",
+                "type": "Filter"
             }
         ],
         "Help": [

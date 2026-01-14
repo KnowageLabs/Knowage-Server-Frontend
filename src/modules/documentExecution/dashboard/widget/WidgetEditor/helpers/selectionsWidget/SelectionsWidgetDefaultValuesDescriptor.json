@@ -11,6 +11,10 @@
             "justify-content": ""
         }
     },
+    "defaultFilterConfiguration": {
+        "enabled": false,
+        "filteredDatasets": []
+    },
     "defaultNoSelectionsConfiguration": {
         "customText": "",
         "enabled": false
