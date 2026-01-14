@@ -679,6 +679,28 @@ export default defineComponent({
                 url = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/dashboardExport/${format}`
             }
 
+            if (['pdf'].includes(format)) {
+                url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/dashboardExport/callPuppeteer'
+                //it's a get, set the body properties as params
+                await this.$http
+                    .get(url, {
+                        params: {
+                            DOCUMENT_LABEL: this.document.label,
+                            SBI_EXECUTION_ROLE: this.userRole || '',
+                            user_id: this.user.userUniqueIdentifier || '',
+                            document: this.document.id || '',
+                            outputType: format,
+                            parameters: this.filtersData && this.filtersData.filterStatus ? JSON.stringify(this.getStructuredParametersForExport()) : ''
+                        },
+                        responseType: 'blob'
+                    })
+                    .then((response) => {
+                        downloadDirectFromResponse(response)
+                    })
+                    .finally(() => this.setLoading(false))
+              return
+            }
+
             if (this.filtersData && this.filtersData.filterStatus && body instanceof URLSearchParams) {
                 const structuredParameters = this.getStructuredParametersForExport()
                 body.set('parameters', JSON.stringify(structuredParameters))
