@@ -45,6 +45,11 @@
                 "emits": "delete",
                 "icon": "fas fa-trash-alt",
                 "label": "common.delete"
+            },
+            {
+                "emits": "clone",
+                "icon": "far fa-copy",
+                "label": "common.clone"
             }
         ],
         "defaultSortField": "label",
@@ -53,7 +58,7 @@
             "parameterLabel": "id",
             "parameterValue": "id",
             "path": "edit-lov",
-            "type": "router"
+            "type": "event"
         },
         "sortFields": ["label", "name", "itypeCd"]
     }

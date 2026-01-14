@@ -11,11 +11,11 @@
                     </template>
                 </Toolbar>
                 <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
-                <KnListBox :options="lovsList" :settings="lovsManagementDescriptor.knListSettings" data-test="lovs-list" @delete="deleteLovConfirm($event)"></KnListBox>
+                <KnListBox :options="lovsList" :settings="lovsManagementDescriptor.knListSettings" data-test="lovs-list" @click="showForm" @clone.stop="emitCloneLov" @delete="deleteLovConfirm($event)"></KnListBox>
             </div>
 
             <div class="p-col-8 p-sm-8 p-md-9 p-p-0 p-m-0 kn-page">
-                <router-view :lovs="lovsList" @touched="touched = true" @closed="touched = false" @created="loadLovs" />
+                <router-view :lovs="lovsList" :lov-to-clone-id="lovToCloneId" @touched="touched = true" @closed="touched = false" @created="loadLovs" />
             </div>
         </div>
     </div>
@@ -42,7 +42,8 @@ export default defineComponent({
             lovsManagementDescriptor,
             lovsList: [] as iLov[],
             loading: false,
-            touched: false
+            touched: false,
+            lovToCloneId: null
         }
     },
     async created() {
@@ -61,7 +62,7 @@ export default defineComponent({
                 .finally(() => (this.loading = false))
         },
         showForm(event: any) {
-            const path = event.id ? `/lovs-management/${event.id}` : '/lovs-management/new-lov'
+            const path = event.item.id ? `/lovs-management/${event.item.id}` : '/lovs-management/new-lov'
             if (!this.touched) {
                 this.$router.push(path)
             } else {
@@ -75,6 +76,15 @@ export default defineComponent({
                     }
                 })
             }
+        },
+        emitCloneLov(event) {
+            this.$router.push('/lovs-management')
+            this.lovToCloneId = null
+
+            this.$router.push('/lovs-management/new-lov')
+            setTimeout(() => {
+                this.lovToCloneId = event.item.id
+            }, 200)
         },
         deleteLovConfirm(event) {
             this.$confirm.require({
