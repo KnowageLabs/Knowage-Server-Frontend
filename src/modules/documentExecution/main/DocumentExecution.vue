@@ -358,6 +358,12 @@ export default defineComponent({
             this.filtersData = {} as any
             await this.loadDocument()
             this.userRole ? await this.loadPage(true) : (this.parameterSidebarVisible = true)
+        },
+        id(newId, oldId) {
+            if (newId !== oldId && newId && this.configurations && Object.keys(this.configurations).length > 0) {
+                this.breadcrumbs = []
+                this.initialize()
+            }
         }
     },
     async activated() {
@@ -367,6 +373,7 @@ export default defineComponent({
         this.parameterSidebarVisible = false
         window.removeEventListener('message', this.iframeEventsListener)
     },
+
     async mounted() {
         this.$q.loading.show()
         this.initializePolling = setInterval(() => {
@@ -698,7 +705,7 @@ export default defineComponent({
                         downloadDirectFromResponse(response)
                     })
                     .finally(() => this.setLoading(false))
-              return
+                return
             }
 
             if (this.filtersData && this.filtersData.filterStatus && body instanceof URLSearchParams) {
@@ -856,7 +863,6 @@ export default defineComponent({
         async loadDocument() {
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documents/${this.document?.label}`).then((response: AxiosResponse<any>) => (this.document = response.data))
             const index = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name)
-            debugger
             index !== -1
                 ? (this.breadcrumbs[index].document = this.document)
                 : this.breadcrumbs.push({
