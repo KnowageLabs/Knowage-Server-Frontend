@@ -196,7 +196,6 @@ export default defineComponent({
         tabKey: { type: String },
         propMode: { type: String },
         selectedMenuItem: { type: Object },
-        menuItemClickedTrigger: { type: Boolean },
         propCrossNavigationPopupDialogDocument: { type: Object }
     },
     emits: ['close', 'updateDocumentName', 'parametersChanged'],
@@ -346,19 +345,6 @@ export default defineComponent({
         }
     },
     watch: {
-        async menuItemClickedTrigger() {
-            if (!this.selectedMenuItem) return
-            const routes = ['registry', 'document-composite', 'report', 'office-doc', 'olap', 'map', 'report', 'kpi', 'dossier', 'etl', 'dashboard']
-            const test = routes.some((el) => this.selectedMenuItem?.to.includes(el))
-            if (!test) return
-            const label = this.selectedMenuItem.to.substring(this.selectedMenuItem.to.lastIndexOf('/') + 1)
-            this.document = { label: label }
-            if (!this.document.label) return
-            this.breadcrumbs = []
-            this.filtersData = {} as any
-            await this.loadDocument()
-            this.userRole ? await this.loadPage(true) : (this.parameterSidebarVisible = true)
-        },
         id(newId, oldId) {
             if (newId !== oldId && newId && this.configurations && Object.keys(this.configurations).length > 0) {
                 this.breadcrumbs = []
