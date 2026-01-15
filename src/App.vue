@@ -3,10 +3,10 @@
     <ConfirmDialog></ConfirmDialog>
     <KnOverlaySpinnerPanel />
     <div class="layout-wrapper-content" :class="{ 'layout-wrapper-content-embed': documentExecution.embed, isMobileDevice: isMobileDevice }">
-        <MainMenu v-if="showMenu && mainMenuVisibility" @menuItemSelected="setSelectedMenuItem" :closeMenu="closedMenu" @openMenu="openMenu"></MainMenu>
+        <MainMenu v-if="showMenu && mainMenuVisibility" :closeMenu="closedMenu" @openMenu="openMenu"></MainMenu>
 
         <div class="layout-main" :class="{ hiddenMenu: !mainMenuVisibility }" @click="closeMenu" @blur="closeMenu">
-            <router-view :selected-menu-item="selectedMenuItem" :menu-item-clicked-trigger="menuItemClickedTrigger" @click="closeMenu" />
+            <router-view :selected-menu-item="selectedMenuItem" @click="closeMenu" />
         </div>
     </div>
     <KnRotate v-show="isMobileDevice"></KnRotate>
@@ -35,7 +35,6 @@ export default defineComponent({
             themeHelper: new themeHelper(),
             selectedMenuItem: null,
             isMobileDevice: false,
-            menuItemClickedTrigger: false,
             showMenu: false,
             closedMenu: false,
             pollingInterval: null as any,
@@ -325,10 +324,6 @@ export default defineComponent({
                     }
                 }
             }
-        },
-        setSelectedMenuItem(menuItem) {
-            this.selectedMenuItem = menuItem
-            this.menuItemClickedTrigger = !this.menuItemClickedTrigger
         }
     }
 })

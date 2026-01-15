@@ -86,7 +86,7 @@ export default defineComponent({
         MainMenuTieredMenu,
         ScrollPanel
     },
-    emits: ['update:visibility', 'menuItemSelected', 'openMenu'],
+    emits: ['update:visibility', 'openMenu'],
     props: ['closeMenu'],
     data() {
         return {
@@ -215,7 +215,6 @@ export default defineComponent({
                 this[item.command]()
             } else if (item.to) {
                 if (event.navigate) event.navigate(event.originalEvent)
-                this.$emit('menuItemSelected', item)
             } else if (item.url && (!item.target || item.target === 'insideKnowage')) this.$router.push({ name: 'externalUrl', params: { url: item.url } })
             if (this.adminMenuOpened) this.adminMenuOpened = false
             this.hideItemMenu()
