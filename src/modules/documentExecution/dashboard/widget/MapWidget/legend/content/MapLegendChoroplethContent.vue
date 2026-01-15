@@ -1,7 +1,7 @@
 <template>
     <div v-if="legendVizualizationSettings?.visualizationType && legendVizualizationSettings.visualizationType.type === 'choropleth' && legendVizualizationSettings.visualizationType.analysisConf && layerLegendData">
         <div v-if="layerLegendData.type === LEGEND_DATA_TYPE.CHOROPLETH_INTERVALS" class="choropleth-legend-table">
-            <div class="choropleth-legend-header">{{ $t('dashboard.widgetEditor.map.legend.numberOfClasses') }}: {{ layerLegendData.intervals?.length ?? 0 }}</div>
+            <div class="choropleth-legend-header">{{ $t('common.measure') }}: {{ legendVizualizationSettings.visualizationType.targetProperty ?? legendVizualizationSettings.visualizationType.targetMeasure }}</div>
             <div class="choropleth-legend-row choropleth-legend-title-row">
                 <span>{{ $t('dashboard.widgetEditor.map.legend.minValue') }}</span>
                 <span>{{ $t('dashboard.widgetEditor.map.legend.maxValue') }}</span>
@@ -12,7 +12,7 @@
             </div>
         </div>
         <div v-else-if="layerLegendData.type === LEGEND_DATA_TYPE.CHOROPLETH_QUANTILES" class="choropleth-legend-table">
-            <div class="choropleth-legend-header">{{ $t('dashboard.widgetEditor.map.legend.numberOfClasses') }}: {{ layerLegendData.qunatileMappings?.length }}</div>
+            <div class="choropleth-legend-header">{{ $t('common.measure') }}: {{ legendVizualizationSettings.visualizationType.targetProperty ?? legendVizualizationSettings.visualizationType.targetMeasure }}</div>
             <div class="choropleth-legend-row choropleth-legend-title-row">
                 <span>{{ $t('dashboard.widgetEditor.map.legend.minValue') }}</span>
                 <span>{{ $t('dashboard.widgetEditor.map.legend.maxValue') }}</span>
@@ -23,11 +23,10 @@
             </div>
         </div>
         <div v-else-if="layerLegendData.type === LEGEND_DATA_TYPE.CHOROPLETH_RANGES" class="choropleth-legend-table">
-            <div class="choropleth-legend-header">{{ $t('dashboard.widgetEditor.map.legend.numberOfRanges') }}: {{ layerLegendData.ranges?.length }}</div>
+            <div class="choropleth-legend-header">{{ $t('common.measure') }}: {{ legendVizualizationSettings.visualizationType.targetProperty ?? legendVizualizationSettings.visualizationType.targetMeasure }}</div>
             <div class="choropleth-legend-row choropleth-legend-title-row">
                 <span>{{ $t('dashboard.widgetEditor.map.legend.minValue') }}</span>
                 <span>{{ $t('dashboard.widgetEditor.map.legend.maxValue') }}</span>
-                <span>{{ $t('common.size') }}</span>
                 <span>{{ $t('common.color') }}</span>
             </div>
             <div v-for="(rangeInfo, index) in layerLegendData.ranges" :key="index" class="choropleth-legend-row">

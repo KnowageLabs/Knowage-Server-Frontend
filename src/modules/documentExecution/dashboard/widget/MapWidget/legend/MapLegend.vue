@@ -6,7 +6,8 @@
             {
                 position: 'absolute',
                 zIndex: 99,
-                background: 'white'
+                background: 'white',
+                width: legendWidth + 'px'
             },
             isDetached
                 ? {
@@ -21,7 +22,7 @@
     >
         <h2 v-if="legend.title">{{ legend.title }}</h2>
         <div :class="['p-formgrid p-grid', { 'horizontal-layout': isHorizontalLayout }]">
-            <q-expansion-item :class="isHorizontalLayout ? 'kn-flex' : 'p-col-12'" v-for="(legendVizualizationSettings, index) in legend.visualizationTypes.filter((legendVisType: IMapWidgetVisualizationTypeLegendSettings) => legendVisType.visualizationType?.type !== 'geography')" :key="index" :label="legendVizualizationSettings.visualizationType?.layerName ?? ''" default-opened>
+            <q-expansion-item :class="isHorizontalLayout ? 'kn-flex' : 'p-col-12'" v-for="(legendVizualizationSettings, index) in legend.visualizationTypes.filter((legendVisType: IMapWidgetVisualizationTypeLegendSettings) => legendVisType.visualizationType?.type !== 'geography')" :key="index" :label="legendVizualizationSettings.visualizationType?.label ?? ''" default-opened>
                 <MapLegendVisualization :prop-map-widget-legend-visualization="legendVizualizationSettings" :legend-data="legendData" />
             </q-expansion-item>
         </div>
@@ -55,7 +56,8 @@ export default defineComponent({
             isDragging: false,
             offsetX: 0,
             offsetY: 0,
-            isDetached: false
+            isDetached: false,
+            legendWidth: 200
         }
     },
     computed: {
@@ -96,6 +98,7 @@ export default defineComponent({
     methods: {
         loadLegend() {
             this.legend = this.propMapWidgetLegend
+            this.legendWidth = this.legend?.width ?? 200
             this.loadPosition()
         },
 
@@ -192,7 +195,6 @@ export default defineComponent({
 <style scoped>
 .map-legend {
     position: absolute;
-    width: 300px;
     z-index: 99 !important;
     background: white;
     padding: 8px;
@@ -204,12 +206,10 @@ export default defineComponent({
 
 .legend-vertical {
     max-height: 300px;
-    width: 100%;
 }
 
 .legend-horizontal {
     height: 100%;
-    max-width: 300px;
 }
 
 .legend-top {

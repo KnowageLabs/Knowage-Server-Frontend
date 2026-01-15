@@ -6,8 +6,6 @@
 
         <div class="p-formgrid p-grid p-p-2" v-if="legendVizualizationSettings.visualizationType">
             <div class="p-col-12 p-d-flex p-flex-row p-ai-center">
-                <p class="target-property p-mr-3">{{ legendVizualizationSettings.visualizationType.targetProperty ?? legendVizualizationSettings.visualizationType.targetMeasure }}</p>
-
                 <MapLegendMarkerContent v-if="['markers', 'clusters'].includes(legendVizualizationSettings.visualizationType.type)" :prop-map-widget-legend-visualization="legendVizualizationSettings"></MapLegendMarkerContent>
             </div>
         </div>

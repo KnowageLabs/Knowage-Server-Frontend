@@ -1219,8 +1219,8 @@
                 },
                 "legend": {
                     "intervalSize": "Interval Size",
-                    "maxValue": "Max Value",
-                    "minValue": "Min Value",
+                    "maxValue": "Max",
+                    "minValue": "Min",
                     "numberOfClasses": "Number of classes",
                     "numberOfRanges": "Number Of Ranges",
                     "quantileSize": "Quantile Size"
