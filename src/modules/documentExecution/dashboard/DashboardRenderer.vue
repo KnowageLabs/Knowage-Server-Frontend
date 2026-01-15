@@ -15,6 +15,7 @@
                     </div>
                 </div>
             </GridLayout>
+            <img v-if="configurations?.['KNOWAGE.WATERMARK']" :src="poweredBy" class="powered" />
         </div>
     </KnDashboardTabsPanel>
     <div v-if="canEditDashboard(document)" class="responsive-device">
@@ -34,6 +35,8 @@ import { emitter } from './DashboardHelpers'
 import WidgetController from './widget/WidgetController.vue'
 import KnDashboardTabsPanel from '@/components/UI/KnDashboardTabs/KnDashboardTabsPanel.vue'
 import dashboardStore from './Dashboard.store'
+import mainStore from '@/App.store'
+import poweredBy from '/images/commons/knowage_poweredby.svg'
 
 export default defineComponent({
     name: 'dashboard-manager',
@@ -53,6 +56,7 @@ export default defineComponent({
             startingBreakpoint: '' as string,
             activeDashboardSheet: null as IDashboardSheet | null,
             currentScreenSize: 'lg',
+            poweredBy: poweredBy as string,
             canEditDashboard
         }
     },
@@ -61,6 +65,7 @@ export default defineComponent({
             dashboard: 'dashboards',
             selectedSheetIndex: 'selectedSheetIndex'
         }),
+        ...mapState(mainStore, ['configurations']),
         newDashboard(): boolean {
             return this.$router.currentRoute.value.name === 'new-dashboard'
         },
@@ -178,6 +183,13 @@ export default defineComponent({
     min-width: 100%;
     overflow-y: auto;
     overflow-x: clip;
+    .powered {
+        position: absolute;
+        bottom: 5px;
+        right: 10px;
+        opacity: 0.5;
+        width: 120px;
+    }
 }
 
 .vgl-layout {
