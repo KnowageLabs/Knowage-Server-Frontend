@@ -57,7 +57,6 @@
         "primeflex": "^2.0.0",
         "primeicons": "^5.0.0",
         "primevue": "3.17.0",
-        "qs": "^6.10.2",
         "quasar": "2.18.1",
         "reflect-metadata": "^0.1.13",
         "sanitize-html": "^2.7.3",
