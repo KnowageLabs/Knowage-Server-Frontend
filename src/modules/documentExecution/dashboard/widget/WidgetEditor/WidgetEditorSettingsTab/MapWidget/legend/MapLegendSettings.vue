@@ -3,7 +3,7 @@
         <div class="p-formgrid p-grid p-p-3">
             <q-input dense class="p-lg-4" v-model="legendSettings.title" :label="$t('common.title')" />
 
-            <span class="p-field p-float-label p-col-12 p-lg-6 p-fluid">
+            <span class="p-field p-float-label p-col-12 p-lg-4 p-fluid">
                 <Dropdown v-model="legendSettings.position" class="kn-material-input" :options="descriptor.positionOptions" option-value="value" :disabled="legendSettingsDisabled" @change="onLegendPositionChange()">
                     <template #value="slotProps">
                         <div>
@@ -17,6 +17,11 @@
                     </template>
                 </Dropdown>
                 <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.position') }} </label>
+            </span>
+
+            <span class="p-field p-float-label p-col-12 p-lg-4 p-fluid">
+                <InputNumber v-model="legendSettings.width" class="kn-material-input" :disabled="legendSettingsDisabled" :min="50" :max="1000" />
+                <label class="kn-material-input-label"> {{ $t('common.width') }} (px) </label>
             </span>
         </div>
 
@@ -37,13 +42,14 @@ import { IMapWidgetLegend } from '@/modules/documentExecution/dashboard/interfac
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import Dropdown from 'primevue/dropdown'
+import InputNumber from 'primevue/inputnumber'
 import descriptor from './MapLegendSettingsDescriptor.json'
 import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 import MapLegendVisualizationTypeSettings from './MapLegendVisualizationTypeSettings.vue'
 
 export default defineComponent({
     name: 'map-legend-settings',
-    components: { Dropdown, WidgetEditorStyleToolbar, MapLegendVisualizationTypeSettings },
+    components: { Dropdown, InputNumber, WidgetEditorStyleToolbar, MapLegendVisualizationTypeSettings },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {

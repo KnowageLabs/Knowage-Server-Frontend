@@ -42,7 +42,8 @@
         "enabled": false,
         "position": "east",
         "title": "",
-        "visualizationTypes": []
+        "visualizationTypes": [],
+        "width": 200
     },
     "defaultMapCrossNavigationConfiguration": {
         "crossNavigationVizualizationTypes": [],

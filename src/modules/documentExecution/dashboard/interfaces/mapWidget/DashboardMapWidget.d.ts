@@ -227,6 +227,7 @@ export interface IMapWidgetLegend {
     visualizationTypes: IMapWidgetVisualizationTypeLegendSettings[]
     positionX?: number
     positionY?: number
+    width?: number
 }
 
 export interface IMapWidgetVisualizationTypeLegendSettings {

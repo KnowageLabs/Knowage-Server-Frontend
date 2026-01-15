@@ -1,6 +1,6 @@
 <template>
     <div v-if="vizualizationTypeLegendSettings && vizualizationTypeLegendSettings.visualizationType" class="p-formgrid p-grid p-col-12">
-        <q-input dense class="p-lg-6" filled v-model="vizualizationTypeLegendSettings.visualizationType.layerName" :label="$t('common.name')" disable />
+        <q-input dense class="p-lg-6" filled v-model="vizualizationTypeLegendSettings.visualizationType.label" :label="$t('common.name')" disable />
         <q-input dense class="p-lg-6" filled v-model="vizualizationTypeLegendSettings.visualizationType.type" :label="$t('common.type')" disable />
 
         <q-input filled class="p-lg-12" v-model="vizualizationTypeLegendSettings.text" type="textarea" :label="$t('common.text')" :rows="4" maxlength="500" counter />
