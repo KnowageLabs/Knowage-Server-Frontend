@@ -347,7 +347,7 @@ export default defineComponent({
     },
     watch: {
         id(newId, oldId) {
-            if (newId !== oldId && newId && this.configurations && Object.keys(this.configurations).length > 0) {
+            if (!this.$route.name?.startsWith('document-browser') && newId !== oldId && newId && this.configurations && Object.keys(this.configurations).length > 0) {
                 this.breadcrumbs = []
                 this.initialize()
             }
