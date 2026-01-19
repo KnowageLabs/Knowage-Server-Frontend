@@ -40,7 +40,6 @@
                             :mode="mode"
                             :prop-view="dashboardView"
                             :filtersLoaded="filtersLoaded"
-                            :isActive="isActive"
                             @executeView="executeView"
                             @dashboardIdSet="onSetDashboardId($event, item)"
                             @newDashboardSaved="onNewDashboardSaved"
@@ -197,8 +196,7 @@ export default defineComponent({
         tabKey: { type: String },
         propMode: { type: String },
         selectedMenuItem: { type: Object },
-        propCrossNavigationPopupDialogDocument: { type: Object },
-        isActive: { type: Boolean, default: true }
+        propCrossNavigationPopupDialogDocument: { type: Object }
     },
     emits: ['close', 'updateDocumentName', 'parametersChanged'],
     data() {
