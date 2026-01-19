@@ -3,7 +3,7 @@
         <div id="dashboard-css" v-html="dashboardCss" />
         <div v-if="activeDashboardSheet" class="sheet-container">
             <GridLayout v-model:layout="activeDashboardSheet.widgets[currentScreenSize]" :responsive-layouts="activeDashboardSheet.widgets" :responsive="true" :cols="colSizes" :row-height="30" :is-draggable="canEditDashboard(document)" :is-resizable="canEditDashboard(document)" :vertical-compact="false" :use-css-transforms="false" :margin="[0, 0]" :style="getGridStyle" @breakpoint-changed="breakpointChangedEvent">
-                <WidgetController v-for="item in activeDashboardSheet.widgets[currentScreenSize]" :key="item.i" :active-sheet="activeDashboardSheet" :document="document" :widget="currentWidget(item.id)" :item="item" :datasets="datasets" :dashboard-id="dashboardId" :variables="variables" :model="model" :isActive="isActive"></WidgetController>
+                <WidgetController v-for="item in activeDashboardSheet.widgets[currentScreenSize]" :key="item.i" :active-sheet="activeDashboardSheet" :document="document" :widget="currentWidget(item.id)" :item="item" :datasets="datasets" :dashboard-id="dashboardId" :variables="variables" :model="model"></WidgetController>
                 <div v-if="canEditDashboard(document) && newDashboard" class="emptyDashboardWizard">
                     <div v-if="dashboardModel?.configuration?.datasets.length === 0" class="dashboardWizardContainer" data-test="new-button" @click="addDataset">
                         <img :src="getImageSource('images/dashboard/common/databaseWizardDashboard.svg')" />
@@ -46,8 +46,7 @@ export default defineComponent({
         document: { type: Object },
         datasets: { type: Array as PropType<IDataset[]>, required: true },
         dashboardId: { type: String, required: true },
-        variables: { type: Array as PropType<IVariable[]>, required: true },
-        isActive: { type: Boolean, default: true }
+        variables: { type: Array as PropType<IVariable[]>, required: true }
     },
     emits: [],
     data() {

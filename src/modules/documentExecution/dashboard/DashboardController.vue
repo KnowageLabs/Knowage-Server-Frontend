@@ -6,7 +6,7 @@
             <DashboardHeaderWidget v-if="!loading && showDashboard && model?.configuration?.customHeader && customHeaderVisible && model.configuration.menuWidgets.enableCustomHeader" :dashboard-id="dashboardId" :prop-widget="model?.configuration?.customHeader" :datasets="model.configuration.datasets" :document-drivers="drivers" :variables="model ? model.configuration.variables : []" :custom-chart-gallery-prop="customChartGallery"></DashboardHeaderWidget>
 
             <div class="dashboard-renderer-core">
-                <DashboardRenderer v-if="!loading && visible && showDashboard" :document="document" :model="model" :datasets="datasets" :dashboard-id="dashboardId" :document-drivers="drivers" :variables="model ? model.configuration.variables : []" :isActive="isActive"></DashboardRenderer>
+                <DashboardRenderer v-if="!loading && visible && showDashboard" :document="document" :model="model" :datasets="datasets" :dashboard-id="dashboardId" :document-drivers="drivers" :variables="model ? model.configuration.variables : []"></DashboardRenderer>
             </div>
         </div>
 
@@ -92,8 +92,7 @@ export default defineComponent({
         newDashboardMode: { type: Boolean },
         mode: { type: Object as PropType<string | null>, required: true },
         propView: { type: Object as PropType<IDashboardView | null> },
-        filtersLoaded: { type: Boolean },
-        isActive: { type: Boolean, default: true }
+        filtersLoaded: { type: Boolean }
     },
     emits: ['newDashboardSaved', 'executeCrossNavigation', 'dashboardIdSet', 'executeView'],
     provide() {
@@ -229,7 +228,6 @@ export default defineComponent({
             emitter.off('selectionsDeleted', this.onSelectionsChanged)
         },
         async getData() {
-            if (!this.isActive) return
             this.loading = true
             if (!this.dashboardId) this.dashboardId = crypto.randomUUID()
             this.$emit('dashboardIdSet', this.dashboardId)

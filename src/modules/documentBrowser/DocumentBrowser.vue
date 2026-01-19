@@ -14,10 +14,10 @@
                     <template #header>
                         <span>{{ getTabName(tab) }}</span>
                     </template>
-                    <DocumentBrowserTab :item="tab.item" :functionality-id="tab.functionalityId" :isActive="activeIndex === index + 1" @close="closeDocument('current')" @iframeCreated="onIFrameCreated" @closeIframe="closeIframe" @documentSaved="onDocumentSaved"></DocumentBrowserTab>
                 </TabPanel>
             </TabView>
 
+            <DocumentBrowserTab v-show="selectedItem && selectedItem.mode" :item="selectedItem?.item" :functionality-id="selectedItem?.functionalityId" @close="closeDocument('current')" @iframeCreated="onIFrameCreated" @closeIframe="closeIframe" @documentSaved="onDocumentSaved"></DocumentBrowserTab>
             <div v-for="(iframe, index) in iFrameContainers" :key="index">
                 <iframe v-show="iframe.item?.routerId === selectedItem?.item.routerId" ref="iframe" class="document-browser-cockpit-iframe" :src="iframe.iframe"></iframe>
             </div>
