@@ -97,7 +97,8 @@ export default defineComponent({
     emits: ['newDashboardSaved', 'executeCrossNavigation', 'dashboardIdSet', 'executeView'],
     provide() {
         return {
-            selectorWidgetsInitialData: this.selectorWidgetsData as SelectorDataMap
+            selectorWidgetsInitialData: this.selectorWidgetsData as SelectorDataMap,
+            dashboardId: this.dashboardId
         }
     },
     setup() {
