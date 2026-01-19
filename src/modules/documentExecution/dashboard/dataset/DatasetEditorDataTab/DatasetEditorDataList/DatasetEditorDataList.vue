@@ -27,16 +27,14 @@ import Listbox from 'primevue/listbox'
 import DataDialog from '../DatasetEditorDataDialog/DatasetEditorDataDialog.vue'
 import dashStore from '../../../Dashboard.store'
 import dataListDescriptor from './DatasetEditorDataListDescriptor.json'
+import { mapState } from 'pinia'
 
 export default defineComponent({
     name: 'dataset-editor-data-list',
     components: { Listbox, DataDialog },
     props: { dashboardDatasetsProp: { required: true, type: Array as any }, availableDatasetsProp: { required: true, type: Array as PropType<IDataset[]> }, selectedDatasetsProp: { required: true, type: Array as any } },
     emits: ['datasetSelected', 'addSelectedDatasets', 'deleteDataset'],
-    setup() {
-        const dashboardStore = dashStore()
-        return { dashboardStore }
-    },
+    inject: ['dashboardId'],
     data() {
         return {
             dataListDescriptor,
@@ -48,6 +46,11 @@ export default defineComponent({
         selectedDatasetsProp() {
             this.loadSelectedDatasets()
         }
+    },
+    computed: {
+        ...mapState(dashStore, {
+            dashboards: 'dashboards'
+        })
     },
     created() {
         this.loadSelectedDatasets()
@@ -70,15 +73,12 @@ export default defineComponent({
             this.$emit('datasetSelected', event.value.id.dsId)
         },
         isDatasetUsed(datasetId) {
-            const dashboardList = this.dashboardStore.getDashboardsList() as IDashboard
-            if (!dashboardList || !datasetId) return false
+            if (!this.dashboards || !datasetId) return false
 
-            for (const dashboard of Object.values(dashboardList)) {
-                if (dashboard.widgets && Array.isArray(dashboard.widgets)) {
-                    for (const widget of dashboard.widgets) {
-                        if (widget.dataset === datasetId) return true
-                    }
-                }
+            if (!this.dashboards[this.dashboardId as string]) return false
+
+            for (const widget of this.dashboards[this.dashboardId as string].widgets) {
+                if (widget.dataset === datasetId) return true
             }
 
             return false
