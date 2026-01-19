@@ -73,7 +73,8 @@ export default defineComponent({
         widget: { type: Object as PropType<IWidget>, required: true },
         datasets: { type: Array as PropType<IDataset[]>, required: true },
         dashboardId: { type: String, required: true },
-        variables: { type: Array as PropType<IVariable[]>, required: true }
+        variables: { type: Array as PropType<IVariable[]>, required: true },
+        isActive: { type: Boolean, default: true }
     },
 
     setup() {
@@ -113,6 +114,9 @@ export default defineComponent({
         }
     },
     computed: {
+        isTabActive() {
+            return this.isActive
+        },
         ...mapState(store, ['dashboards']),
         ...mapState(mainStore, ['user', 'setInfo', 'setLoading']),
         playSelectionButtonVisible(): boolean {
@@ -415,6 +419,11 @@ export default defineComponent({
             return widgetUsesSelection
         },
         async reloadWidgetData(associativeResponseSelections: any, resetPagination?: boolean) {
+            if (!this.isTabActive) return
+            if (this.initialized) {
+                this.widgetData = deepcopy(this.backupData)
+                return
+            }
             this.widgetLoading = true
             let associativeSelectionsFromStore = null
             if (!associativeResponseSelections) {
