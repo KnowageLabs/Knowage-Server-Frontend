@@ -1,7 +1,7 @@
 <template>
     <router-view v-show="item" v-slot="{ Component }" :functionality-id="functionalityId" :item="loadedItem" :tab-key="key" @close="$emit('close', item)" @parametersChanged="onParametersChange" @iframeCreated="onIframeCreated" @closeIframe="$emit('closeIframe')" @closeDetails="$emit('close', item)" @documentSaved="$emit('documentSaved', $event)">
         <keep-alive>
-            <component :is="Component" :key="key" :functionality-id="functionalityId" :item="loadedItem" :tab-key="key" :isActive="isActive"></component>
+            <component :is="Component" :key="key" :functionality-id="functionalityId" :item="loadedItem" :tab-key="key"></component>
         </keep-alive>
     </router-view>
 </template>
@@ -14,7 +14,7 @@ import mainStore from '@/App.store.js'
 export default defineComponent({
     name: 'document-browser-tab',
     components: {},
-    props: { item: { type: Object }, functionalityId: { type: String }, isActive: { type: Boolean, default: true } },
+    props: { item: { type: Object }, functionalityId: { type: String } },
     emits: ['close', 'iframeCreated', 'closeIframe', 'documentSaved'],
     data() {
         return {

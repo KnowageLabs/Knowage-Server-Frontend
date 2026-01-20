@@ -40,7 +40,6 @@
                             :mode="mode"
                             :prop-view="dashboardView"
                             :filtersLoaded="filtersLoaded"
-                            :isActive="isActive"
                             @executeView="executeView"
                             @dashboardIdSet="onSetDashboardId($event, item)"
                             @newDashboardSaved="onNewDashboardSaved"
@@ -197,8 +196,7 @@ export default defineComponent({
         tabKey: { type: String },
         propMode: { type: String },
         selectedMenuItem: { type: Object },
-        propCrossNavigationPopupDialogDocument: { type: Object },
-        isActive: { type: Boolean, default: true }
+        propCrossNavigationPopupDialogDocument: { type: Object }
     },
     emits: ['close', 'updateDocumentName', 'parametersChanged'],
     data() {
@@ -559,7 +557,18 @@ export default defineComponent({
                     payload[ds.dsLabel] = {}
                     if (ds.parameters && ds.parameters.length > 0) {
                         ds.parameters.forEach((par) => {
-                            payload[ds.dsLabel][par.name] = par.value
+                            if (par.type === 'dynamic') {
+                                const dynamicParamMatch = par.value?.match(/\$P\{([^}]+)\}/)
+                                if (dynamicParamMatch) {
+                                    const paramUrlName = dynamicParamMatch[1]
+                                    const userParameter = this.filtersData?.filterStatus?.find((f) => f.urlName === paramUrlName)
+                                    payload[ds.dsLabel][par.name] = userParameter?.parameterValue?.[0]?.value ?? par.value
+                                } else {
+                                    payload[ds.dsLabel][par.name] = par.value
+                                }
+                            } else {
+                                payload[ds.dsLabel][par.name] = par.value
+                            }
                         })
                     }
                 })
@@ -807,10 +816,7 @@ export default defineComponent({
         setMode() {
             this.embed = this.$route.path.includes('embed')
             if (this.embed) this.setDocumentExecutionEmbed()
-            if (this.$route.path.includes('registry')) this.mode = 'registry'
-            else if (this.$route.path.includes('dossier')) this.mode = 'dossier'
-            else if (this.$route.path.includes('olap')) this.mode = 'olap'
-            else if (this.$route.path.includes('dashboard')) this.mode = 'dashboard'
+            if (this.$route.params?.mode && ['registry', 'dossier', 'olap', 'dashboard'].includes(this.$route.params.mode)) this.mode = this.$route.params.mode
             else this.mode = 'iframe'
             this.$q.loading.hide()
         },
@@ -843,7 +849,7 @@ export default defineComponent({
             if (this.document.typeCode === 'DATAMART') this.mode = 'registry'
             else if (this.document.typeCode === 'DOSSIER') this.mode = 'dossier'
             else if (this.document.typeCode === 'OLAP') this.mode = 'olap'
-            else if ((this.document.typeCode === 'DOCUMENT_COMPOSITE' && this.$route.path.includes('dashboard')) || this.document.typeCode === 'DASHBOARD') {
+            else if ((this.document.typeCode === 'DOCUMENT_COMPOSITE' && this.$route.params?.mode === 'dashboard') || this.document.typeCode === 'DASHBOARD') {
                 this.mode = 'dashboard'
                 if (refresh) this.reloadTrigger = !this.reloadTrigger
             } else this.mode = 'iframe'

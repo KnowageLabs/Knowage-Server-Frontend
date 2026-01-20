@@ -73,8 +73,7 @@ export default defineComponent({
         widget: { type: Object as PropType<IWidget>, required: true },
         datasets: { type: Array as PropType<IDataset[]>, required: true },
         dashboardId: { type: String, required: true },
-        variables: { type: Array as PropType<IVariable[]>, required: true },
-        isActive: { type: Boolean, default: true }
+        variables: { type: Array as PropType<IVariable[]>, required: true }
     },
 
     setup() {
@@ -114,9 +113,6 @@ export default defineComponent({
         }
     },
     computed: {
-        isTabActive() {
-            return this.isActive
-        },
         ...mapState(store, ['dashboards']),
         ...mapState(mainStore, ['user', 'setInfo', 'setLoading']),
         playSelectionButtonVisible(): boolean {
@@ -208,7 +204,7 @@ export default defineComponent({
             this.items = [
                 { label: this.$t('dashboard.qMenu.edit'), icon: 'fa-solid fa-pen-to-square', command: () => this.toggleEditMode(), visible: canEditDashboard(this.document) },
                 { label: this.$t('dashboard.qMenu.expand'), icon: 'fa-solid fa-expand', command: () => this.expandWidget(this.widget), visible: this.document.seeAsFinalUser || !['html', 'image', 'text', 'selector'].includes(this.widget?.type) },
-                { label: this.$t('dashboard.qMenu.screenshot'), icon: 'fa-solid fa-camera-retro', command: () => this.captureScreenshot(this.widget), visible: this.document.seeAsFinalUser || !['html', 'image', 'text', 'selector'].includes(this.widget?.type) },
+                { label: this.$t('dashboard.qMenu.screenshot'), icon: 'fa-solid fa-camera-retro', command: () => this.captureScreenshot(this.widget), visible: !['html', 'image', 'text', 'selector'].includes(this.widget?.type) },
                 { label: this.$t('dashboard.qMenu.changeType'), icon: 'fa-solid fa-chart-column', command: () => this.toggleChangeDialog(), visible: ['highcharts'].includes(this.widget?.type) },
                 { label: this.$t('dashboard.qMenu.xor'), icon: 'fa-solid fa-arrow-right', command: () => this.searchOnWidget(), visible: this.widget?.type === 'map' },
                 { label: this.$t('dashboard.qMenu.search'), icon: 'fas fa-magnifying-glass', command: () => this.searchOnWidget(), visible: this.widget?.type === 'table' },
@@ -226,12 +222,79 @@ export default defineComponent({
                 { label: this.$t('dashboard.qMenu.delete'), icon: 'fa-solid fa-trash', command: () => this.deleteWidgetConfirm(), visible: canEditDashboard(this.document) }
             ]
         },
-        captureScreenshot(widget) {
+        async captureScreenshot(widget) {
             let targetElement = document.getElementById(`widget${widget.id}`)
             const escapedSelector = `#widget${widget.id} iframe`.replace('+', '\\+')
+
             if (document.querySelector(escapedSelector)) {
-                targetElement = (document.querySelector(escapedSelector) as any)?.contentWindow.document.getElementsByTagName('html')[0]
+                if (widget.type === 'customchart') {
+                    const container = document.getElementById(`widget${widget.id}`) as HTMLElement
+                    const iframe = document.querySelector(escapedSelector) as any
+                    const iframeDoc = iframe?.contentWindow?.document
+
+                    if (!iframeDoc) {
+                        this.setError({
+                            title: this.$t('common.toast.errorTitle'),
+                            msg: this.$t('dashboard.errors.screenshotError')
+                        })
+                        return
+                    }
+
+                    try {
+                        const titleDiv = container.querySelector('.widget-container > div:first-child') as HTMLElement
+                        let titleCanvas = null
+                        let titleHeight = 0
+
+                        if (titleDiv && titleDiv.textContent) {
+                            titleCanvas = await domtoimage.toPng(titleDiv)
+                            titleHeight = titleDiv.offsetHeight
+                        }
+
+                        const iframeHtml = iframeDoc.getElementsByTagName('html')[0]
+                        const contentDataUrl = await domtoimage.toPng(iframeHtml)
+
+                        const canvas = document.createElement('canvas')
+                        const ctx = canvas.getContext('2d')
+                        canvas.width = container.offsetWidth
+                        canvas.height = container.offsetHeight
+
+                        const contentImg = new Image()
+                        contentImg.src = contentDataUrl
+
+                        await new Promise((resolve) => {
+                            contentImg.onload = () => {
+                                if (titleCanvas) {
+                                    const titleImg = new Image()
+                                    titleImg.src = titleCanvas
+                                    titleImg.onload = () => {
+                                        ctx.drawImage(titleImg, 0, 0)
+                                        ctx.drawImage(contentImg, 0, titleHeight)
+                                        resolve(null)
+                                    }
+                                } else {
+                                    ctx.drawImage(contentImg, 0, 0)
+                                    resolve(null)
+                                }
+                            }
+                        })
+
+                        const link = document.createElement('a')
+                        link.download = `${widget.type}-widget.png`
+                        link.href = canvas.toDataURL()
+                        link.click()
+                        return
+                    } catch (error) {
+                        this.setError({
+                            title: this.$t('common.toast.errorTitle'),
+                            msg: `${this.$t('dashboard.errors.screenshotError')}: ${error}`
+                        })
+                        return
+                    }
+                } else {
+                    targetElement = (document.querySelector(escapedSelector) as any)?.contentWindow.document.getElementsByTagName('html')[0]
+                }
             }
+
             domtoimage
                 .toPng(targetElement)
                 .then((dataUrl) => {
@@ -419,11 +482,6 @@ export default defineComponent({
             return widgetUsesSelection
         },
         async reloadWidgetData(associativeResponseSelections: any, resetPagination?: boolean) {
-            if (!this.isTabActive) return
-            if (this.initialized) {
-                this.widgetData = deepcopy(this.backupData)
-                return
-            }
             this.widgetLoading = true
             let associativeSelectionsFromStore = null
             if (!associativeResponseSelections) {

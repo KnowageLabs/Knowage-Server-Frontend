@@ -62,10 +62,6 @@
             {
                 "title": "dashboard.widgetEditor.valuesManagement.title",
                 "type": "ValuesManagement"
-            },
-            {
-                "title": "dashboard.widgetEditor.export.title",
-                "type": "Export"
             }
         ],
         "Help": [

@@ -113,7 +113,12 @@ export default defineComponent({
         getWidgetTitleStyle() {
             const widgetTitle = this.widget.settings.style.title
             const styleString = getWidgetStyleByType(this.widget, 'title')
-            return styleString + `height: ${widgetTitle.height ?? 25}px;`
+            let heightValue = '25px'
+            if (widgetTitle.height !== undefined && widgetTitle.height !== null) {
+                const height = String(widgetTitle.height)
+                heightValue = /^\d+$/.test(height) ? `${height}px` : height
+            }
+            return styleString + `height: ${heightValue};`
         },
         getWidgetContainerStyle() {
             const styleString = getWidgetStyleByType(this.widget, 'borders') + getWidgetStyleByType(this.widget, 'shadows') + getWidgetStyleByType(this.widget, 'background')
@@ -135,7 +140,6 @@ export default defineComponent({
     flex-direction: column;
     overflow: hidden;
     background-color: #fff;
-    flex: 1;
 
     &.overflow-visible {
         overflow: visible !important;
@@ -146,6 +150,7 @@ export default defineComponent({
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        min-height: 0;
 
         .widget-container.overflow-visible & {
             overflow: visible !important;
