@@ -73,8 +73,12 @@ export function formatDateWithLocale(dateString?: string | number, format?: any,
 }
 
 export function formatNumberWithLocale(number: number, precision?: number, format?: any) {
-    // return Intl.NumberFormat(getLocale(true), { ...format, minimumFractionDigits: precision || 2, maximumFractionDigits: precision || 2 }).format(number)
-    return Intl.NumberFormat(getLocale(true), { ...format, minimumFractionDigits: precision != null ? precision : 2, maximumFractionDigits: precision != null ? precision : 2 }).format(number)
+    const options: any = { useGrouping: true, ...format }
+    if (precision != null) {
+        options.minimumFractionDigits = precision
+        options.maximumFractionDigits = precision
+    }
+    return Intl.NumberFormat(getLocale(true), options).format(number)
 }
 
 export function luxonFormatDate(dateString: any | Date, inputFormat?: string, outputFormat?: string) {
