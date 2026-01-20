@@ -557,7 +557,18 @@ export default defineComponent({
                     payload[ds.dsLabel] = {}
                     if (ds.parameters && ds.parameters.length > 0) {
                         ds.parameters.forEach((par) => {
-                            payload[ds.dsLabel][par.name] = par.value
+                            if (par.type === 'dynamic') {
+                                const dynamicParamMatch = par.value?.match(/\$P\{([^}]+)\}/)
+                                if (dynamicParamMatch) {
+                                    const paramUrlName = dynamicParamMatch[1]
+                                    const userParameter = this.filtersData?.filterStatus?.find((f) => f.urlName === paramUrlName)
+                                    payload[ds.dsLabel][par.name] = userParameter?.parameterValue?.[0]?.value ?? par.value
+                                } else {
+                                    payload[ds.dsLabel][par.name] = par.value
+                                }
+                            } else {
+                                payload[ds.dsLabel][par.name] = par.value
+                            }
                         })
                     }
                 })
