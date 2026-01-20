@@ -1,45 +1,18 @@
 <template>
     <div class="kn-page">
         <div class="kn-page-content p-grid p-m-0">
-            <div class="kn-list--column p-col-4 p-sm-4 p-md-3 p-p-0">
-                <Toolbar class="kn-toolbar kn-toolbar--primary">
-                    <template #start>
-                        {{ $t('kpi.kpiDefinition.title') }}
-                    </template>
-                    <template #end>
-                        <FabButton icon="fas fa-plus" data-test="open-form-button" @click="showForm" />
-                    </template>
-                </Toolbar>
+            <div class="kn-list--column p-col-4 p-md-3 p-p-0">
+                <q-toolbar class="kn-toolbar kn-toolbar--primary">
+                    <q-toolbar-title> {{ $t('kpi.kpiDefinition.title') }}</q-toolbar-title>
+                    <FabButton icon="fas fa-plus" data-test="open-form-button" @click="showForm" />
+                </q-toolbar>
+
                 <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
-                <Listbox
-                    v-if="!loading"
-                    class="kn-list--column"
-                    :options="kpiList"
-                    :filter="true"
-                    :filter-placeholder="$t('common.search')"
-                    option-label="name"
-                    filter-match-mode="contains"
-                    :filter-fields="name"
-                    :empty-filter-message="$t('common.info.noDataFound')"
-                    data-test="kpi-list"
-                    @change="showForm"
-                >
-                    <template #empty>{{ $t('common.info.noDataFound') }}</template>
-                    <template #option="slotProps">
-                        <div class="kn-list-item" data-test="list-item">
-                            <div class="kn-list-item-text">
-                                <span>{{ slotProps.option.name }}</span>
-                                <span v-if="slotProps.option.category" class="kn-list-item-text-secondary">{{ slotProps.option.category.valueDescription }}</span>
-                            </div>
-                            <Button icon="far fa-copy" class="p-button-text p-button-rounded p-button-plain" data-test="clone-button" @click.stop="emitCopyKpi(slotProps.option.id, slotProps.option.version)" />
-                            <Button icon="far fa-trash-alt" class="p-button-text p-button-rounded p-button-plain" data-test="delete-button" @click.stop="deleteKpiConfirm(slotProps.option.id, slotProps.option.version)" />
-                        </div>
-                    </template>
-                </Listbox>
+                <KnListBox v-if="!loading" class="kn-height-full" :options="kpiList" :settings="kpiDefinitionDescriptor.knListSettings" @click="showForm" @clone.stop="emitCopyKpi" @delete.stop="deleteKpiConfirm" />
             </div>
 
-            <div class="kn-list--column p-col-8 p-sm-8 p-md-9 p-p-0 p-m-0">
-                <router-view :clone-kpi-id="cloneKpiId" :clone-kpi-version="cloneKpiVersion" @touched="touched = true" @closed="onFormClose" @kpiUpdated="reloadAndReroute" @kpiCreated="reloadAndReroute" @showDialog="displayInfoDialog" @onGuideClose="showGuide = false" />
+            <div class="p-d-flex p-flex-column p-col-8 p-md-9 p-p-0 p-m-0 kn-flex">
+                <router-view :clone-kpi-id="cloneKpiId" :clone-kpi-version="cloneKpiVersion" @touched="touched = true" @closed="onFormClose" @kpiUpdated="reloadAndReroute" @kpiCreated="reloadAndReroute" />
             </div>
         </div>
     </div>
@@ -48,20 +21,20 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { AxiosResponse } from 'axios'
+import { useRouter } from 'vue-router'
 import FabButton from '@/components/UI/KnFabButton.vue'
-import Listbox from 'primevue/listbox'
+import KnListBox from '@/components/UI/KnListBox/KnListBox.vue'
+import kpiDefinitionDescriptor from './KpiDefinitionDescriptor.json'
 import { formatDateWithLocale } from '@/helpers/commons/localeHelper'
 import mainStore from '../../../App.store'
 
 export default defineComponent({
-    name: 'tenant-management',
-    components: {
-        FabButton,
-        Listbox
-    },
+    name: 'kpi-definition',
+    components: { FabButton, KnListBox },
     setup() {
         const store = mainStore()
-        return { store }
+        const router = useRouter()
+        return { store, router }
     },
     data() {
         return {
@@ -73,7 +46,8 @@ export default defineComponent({
             kpiList: [] as any,
             kpiToClone: {} as any,
             cloneKpiId: Number,
-            cloneKpiVersion: Number
+            cloneKpiVersion: Number,
+            kpiDefinitionDescriptor: kpiDefinitionDescriptor
         }
     },
     async created() {
@@ -90,12 +64,13 @@ export default defineComponent({
                 .finally(() => (this.loading = false))
         },
 
-        deleteKpiConfirm(kpiId: number, kpiVersion: number) {
+        deleteKpiConfirm(event: any) {
+            if (!event.item) return
             this.$confirm.require({
                 message: this.$t('common.toast.deleteMessage'),
                 header: this.$t('common.toast.deleteTitle'),
                 icon: 'pi pi-exclamation-triangle',
-                accept: () => this.deleteKpi(kpiId, kpiVersion)
+                accept: () => this.deleteKpi(event.item.id, event.item.version)
             })
         },
         async deleteKpi(kpiId: number, kpiVersion: number) {
@@ -104,15 +79,16 @@ export default defineComponent({
                     title: this.$t('common.toast.deleteTitle'),
                     msg: this.$t('common.toast.deleteSuccess')
                 })
-                this.$router.push('/kpi-definition')
+                this.router.push('/kpi-definition')
                 this.getKpiList()
             })
         },
+
         showForm(event: any) {
-            const path = event.value ? `/kpi-definition/${event.value.id}/${event.value.version}` : '/kpi-definition/new-kpi'
+            const path = event.item ? `/kpi-definition/${event.item.id}/${event.item.version}` : '/kpi-definition/new-kpi'
             this.hintVisible = false
             if (!this.touched) {
-                this.$router.push(path)
+                this.router.push(path)
             } else {
                 this.$confirm.require({
                     message: this.$t('common.toast.unsavedChangesMessage'),
@@ -120,7 +96,7 @@ export default defineComponent({
                     icon: 'pi pi-exclamation-triangle',
                     accept: () => {
                         this.touched = false
-                        this.$router.push(path)
+                        this.router.push(path)
                     }
                 })
             }
@@ -143,20 +119,20 @@ export default defineComponent({
                 if (kpi.name === event) return true
             })
             let path = ''
-            if (kpiToLoad) {
-                path = `/kpi-definition/${kpiToLoad.id}/${kpiToLoad.version}`
-            }
-            this.$router.push(path)
+            if (kpiToLoad) path = `/kpi-definition/${kpiToLoad.id}/${kpiToLoad.version}`
+
+            this.router.push(path)
 
             this.touched = false
             this.hintVisible = false
         },
-        emitCopyKpi(kpiId, kpiVersion) {
-            this.$router.push('/kpi-definition/new-kpi')
+        emitCopyKpi(event: any) {
+            if (!event.item) return
+            this.router.push('/kpi-definition/new-kpi')
             this.hintVisible = false
             setTimeout(() => {
-                this.cloneKpiId = kpiId
-                this.cloneKpiVersion = kpiVersion
+                this.cloneKpiId = event.item.id
+                this.cloneKpiVersion = event.item.version
             }, 200)
         }
     }

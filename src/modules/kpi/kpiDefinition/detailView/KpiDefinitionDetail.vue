@@ -18,20 +18,7 @@
                         <span>{{ $t('kpi.kpiDefinition.formulaTitle') }}</span>
                     </template>
 
-                    <KpiDefinitionFormulaTab
-                        :prop-kpi="selectedKpi"
-                        :measures="measureList"
-                        :loading="loading"
-                        :alias-to-input="aliasToInput"
-                        :check-formula="checkFormula"
-                        :active-tab="activeTab"
-                        :reload-kpi="reloadKpi"
-                        :show-guide="showGuide"
-                        @updateFormulaToSave="onUpdateFormulaToSave"
-                        @errorInFormula="ifErrorInFormula"
-                        @touched="setTouched"
-                        @onGuideClose="$emit('onGuideClose')"
-                    />
+                    <KpiDefinitionFormulaTab :prop-kpi="selectedKpi" :measures="measureList" :loading="loading" :alias-to-input="aliasToInput" :check-formula="checkFormula" :active-tab="activeTab" :reload-kpi="reloadKpi" :show-guide="showGuide" @updateFormulaToSave="onUpdateFormulaToSave" @errorInFormula="ifErrorInFormula" @touched="setTouched" @onGuideClose="$emit('onGuideClose')" />
                 </TabPanel>
 
                 <TabPanel>
@@ -56,18 +43,7 @@
             <Toolbar class="kn-toolbar kn-toolbar--secondary" :style="tabViewDescriptor.style.aliasList">
                 <template #start>{{ $t('kpi.kpiDefinition.aliasToolbarTitle') }}</template>
             </Toolbar>
-            <Listbox
-                class="kn-list--column"
-                :options="measureList"
-                :filter="true"
-                :filter-placeholder="$t('common.search')"
-                option-label="alias"
-                filter-match-mode="contains"
-                :filter-fields="tabViewDescriptor.filterFields"
-                :empty-filter-message="$t('common.info.noDataFound')"
-                data-test="kpi-list"
-                @change="insertAlias($event.value.alias)"
-            >
+            <Listbox class="kn-list--column" :options="measureList" :filter="true" :filter-placeholder="$t('common.search')" option-label="alias" filter-match-mode="contains" :filter-fields="tabViewDescriptor.filterFields" :empty-filter-message="$t('common.info.noDataFound')" data-test="kpi-list" @change="insertAlias($event.value.alias)">
                 <template #empty>{{ $t('common.info.noDataFound') }}</template>
                 <template #option="slotProps">
                     <div class="kn-list-item" data-test="list-item">
@@ -196,7 +172,7 @@ export default defineComponent({
         }
     },
     async created() {
-        this.loadPersistentData()
+        await this.loadPersistentData()
     },
     methods: {
         async loadPersistentData() {
@@ -235,6 +211,11 @@ export default defineComponent({
                     this.selectedKpi = { ...response.data }
                     const definitionFormula = JSON.parse(this.selectedKpi.definition)
                     this.formulaToSave = definitionFormula.formula
+
+                    console.group('KPI Definition Loaded')
+                    console.log('Selected KPI:', this.selectedKpi)
+                    console.log('Formula to save:', this.formulaToSave)
+                    console.groupEnd()
                 })
             } else {
                 this.selectedKpi = { ...tabViewDescriptor.emptyKpi }
@@ -255,7 +236,6 @@ export default defineComponent({
             }
         },
         ifErrorInFormula(event) {
-            debugger
             if (event) {
                 this.activeTab = 0
                 this.formulaHasErrors = true
