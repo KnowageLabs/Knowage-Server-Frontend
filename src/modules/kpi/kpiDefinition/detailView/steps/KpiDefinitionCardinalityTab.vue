@@ -1,49 +1,39 @@
 <template>
-    <Card :style="tabViewDescriptor.style.cardinalityCard">
-        <template #content>
-            <div class="CodeMirrorMathematica">
-                <knMonaco v-if="kpi?.definition" ref="editor" v-model="kpi.definition.formulaDecoded" language="kpiLang" style="height: 100px" :options="{ readOnly: true }"></knMonaco>
-            </div>
-        </template>
-    </Card>
+    <q-card>
+        <q-card-section class="q-pa-md">
+            <knMonaco v-if="kpi?.definition" ref="editor" v-model="kpi.definition.formulaDecoded" language="kpiLang" style="height: 100px" :options="{ readOnly: true, fontSize: 18 }" text-to-insert=""></knMonaco>
+        </q-card-section>
+    </q-card>
 
-    <Card v-if="!loading" :style="tabViewDescriptor.style.card">
-        <template #content>
-            <DataTable :value="attributesList" responsive-layout="scroll" class="cardinalityTable">
-                <Column>
-                    <template #body="slotProps">
-                        {{ slotProps.data }}
-                    </template>
-                </Column>
-                <Column v-for="measure of kpi.cardinality.measureList" :key="measure">
-                    <template #header>
-                        <div :style="tabViewDescriptor.style.cardinalityColumn">{{ measure.measureName }}</div>
-                    </template>
-                    <template #body="slotProps">
-                        <div v-if="measureHaveAttribute(slotProps.data, slotProps.column.key)" class="measureCell" @click="toggleCell(slotProps.data, slotProps.column.key)">
-                            <i v-if="!isEnabled(slotProps.data, slotProps.column.key)" class="fa fa-ban invalidCell"></i>
-                            <i v-if="measure.attributes[slotProps.data]" class="fa fa-check selectedCell"></i>
-                            <i v-if="measure.attributes[slotProps.data] && !canDisable(slotProps.data, slotProps.column.key)" class="fa fa-lock selectedCell"></i>
-                            <i v-if="!measure.attributes[slotProps.data] && isEnabled(slotProps.data, slotProps.column.key)" class="fa fa-check selectableCell"></i>
+    <q-card v-if="!loading && kpi.cardinality" class="q-mt-md">
+        <q-table :rows="attributesList" :columns="tableColumns" row-key="name" flat class="cardinalityTable" :rows-per-page-options="[0]" hide-pagination>
+            <template v-slot:body="props">
+                <q-tr :props="props">
+                    <q-td key="attribute" :props="props">
+                        {{ props.row }}
+                    </q-td>
+                    <q-td v-for="measure in kpi.cardinality.measureList || []" :key="measure.measureName" :props="props">
+                        <div v-if="measureHaveAttribute(props.row, measure)" class="measureCell" @click="toggleCell(props.row, measure)">
+                            <q-icon v-if="!isEnabled(props.row, measure)" name="fa fa-ban" class="invalidCell" />
+                            <q-icon v-if="measure.attributes[props.row]" name="fa fa-check" class="selectedCell" />
+                            <q-icon v-if="measure.attributes[props.row] && !canDisable(props.row, measure)" name="fa fa-lock" class="selectedCell" />
+                            <q-icon v-if="!measure.attributes[props.row] && isEnabled(props.row, measure)" name="fa fa-check" class="selectableCell" />
                         </div>
-                    </template>
-                </Column>
-            </DataTable>
-        </template>
-    </Card>
+                    </q-td>
+                </q-tr>
+            </template>
+        </q-table>
+    </q-card>
 </template>
 
 <script lang="ts">
-import { defineComponent, readonly } from 'vue'
+import { defineComponent } from 'vue'
 import tabViewDescriptor from '../KpiDefinitionDetailDescriptor.json'
 import { AxiosResponse } from 'axios'
-import Card from 'primevue/card'
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
 import knMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
 
 export default defineComponent({
-    components: { Card, DataTable, knMonaco, Column },
+    components: { knMonaco },
     props: {
         selectedKpi: {
             type: Object as any
@@ -55,7 +45,7 @@ export default defineComponent({
     data() {
         return {
             tabViewDescriptor,
-            kpi: {} as any,
+            kpi: this.selectedKpi || ({} as any),
             attributesList: [] as any,
             currentCell: {} as any,
             formulaChanged: false,
@@ -63,7 +53,36 @@ export default defineComponent({
             oldFormula: ''
         }
     },
-    computed: {},
+    computed: {
+        tableColumns() {
+            const columns: Array<{
+                name: string
+                label: string
+                field: string
+                align: 'left' | 'center' | 'right'
+                style?: string
+            }> = [{ name: 'attribute', label: '', field: 'attribute', align: 'left' as const }]
+
+            if (this.kpi?.cardinality?.measureList) {
+                this.kpi.cardinality.measureList.forEach((measure: any) => {
+                    columns.push({ name: measure.measureName, label: measure.measureName, field: measure.measureName, align: 'center' as const })
+                })
+            }
+
+            return columns
+        }
+    },
+    created() {
+        if (this.selectedKpi) {
+            this.kpi = this.selectedKpi
+            if (this.kpi?.definition?.formulaSimple) this.oldFormula = this.kpi.definition.formulaSimple
+        }
+
+        if (this.updateMeasureList === true) {
+            this.createFormulaToShow()
+            this.getAllMeasure()
+        }
+    },
     watch: {
         selectedKpi() {
             this.kpi = this.selectedKpi as any
@@ -112,18 +131,22 @@ export default defineComponent({
                     this.kpi.cardinality = JSON.parse(this.kpi.cardinality)
                 }
 
-                for (let i = 0; i < this.kpi.cardinality.measureList.length; i++) {
-                    for (const tmpAttr in this.kpi.cardinality.measureList[i].attributes) {
-                        if (this.attributesList.indexOf(tmpAttr) == -1) {
-                            this.attributesList.push(tmpAttr)
+                if (this.kpi.cardinality.measureList && Array.isArray(this.kpi.cardinality.measureList)) {
+                    for (let i = 0; i < this.kpi.cardinality.measureList.length; i++) {
+                        for (const tmpAttr in this.kpi.cardinality.measureList[i].attributes) {
+                            if (this.attributesList.indexOf(tmpAttr) == -1) {
+                                this.attributesList.push(tmpAttr)
+                            }
                         }
                     }
+                    this.retryNewAttributes()
                 }
-                this.retryNewAttributes()
             }
         },
 
         async retryNewAttributes() {
+            if (!this.kpi?.definition?.measures) return
+
             const definition = {}
             for (let i = 0; i < this.kpi.definition.measures.length; i++) {
                 const meas = this.kpi.definition.measures[i]
@@ -307,34 +330,26 @@ export default defineComponent({
 })
 </script>
 <style lang="scss" scoped>
+.cardinalityTable {
+    width: 100%;
+}
+
 .cardinalityTable .measureCell {
     text-align: center;
     height: 30px;
+    cursor: pointer;
 }
 
-.cardinalityTable .invalidCell {
+.invalidCell {
     color: lightgray;
-    line-height: 30px;
 }
 
-.cardinalityTable .selectedCell {
+.selectedCell {
     color: green;
-    line-height: 30px;
 }
 
-.cardinalityTable .selectableCell {
+.selectableCell {
     color: lightgray;
-    line-height: 30px;
-}
-
-.cardinalityTable {
-    width: 100%;
-    table-layout: fixed;
-    border-collapse: collapse;
-}
-
-.cardinalityTable .attributeRow {
-    border-bottom: 1px solid #eceff1;
 }
 
 .disabledCell {

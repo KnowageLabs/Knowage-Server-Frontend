@@ -1,99 +1,89 @@
 <template>
-    <Toolbar class="kn-toolbar kn-toolbar--primary p-m-0">
-        <template #start>{{ selectedKpi.name }}</template>
-        <template #end>
-            <Button :label="$t('kpi.kpiDefinition.aliasToolbarTitle')" :style="tabViewDescriptor.style.aliasButton" class="p-button-text p-button-rounded p-button-plain" @click="toggleAlias" />
-            <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="buttonDisabled" data-test="save-button" @click="showSaveDialog = true" />
-            <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="closeTemplateConfirm" />
-        </template>
-    </Toolbar>
+    <q-layout view="hHh lpR fFf" container style="height: 100%">
+        <q-header>
+            <q-toolbar class="kn-toolbar kn-toolbar--primary">
+                <q-toolbar-title>{{ selectedKpi.name }}</q-toolbar-title>
+                <q-space />
+                <q-btn flat round dense icon="alternate_email" data-test="alias-button" @click="toggleAlias">
+                    <q-tooltip>{{ $t('kpi.kpiDefinition.aliasToolbarTitle') }}</q-tooltip>
+                </q-btn>
+                <q-btn flat round dense icon="close" data-test="close-button" @click="closeTemplateConfirm" />
+            </q-toolbar>
+        </q-header>
 
-    <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
+        <q-page-container>
+            <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
 
-    <div class="p-d-flex p-flex-row">
-        <div class="card kn-flex">
-            <TabView v-model:activeIndex="activeTab" class="tabview-custom" data-test="tab-view">
-                <TabPanel>
-                    <template #header>
-                        <span>{{ $t('kpi.kpiDefinition.formulaTitle') }}</span>
-                    </template>
-
-                    <KpiDefinitionFormulaTab :prop-kpi="selectedKpi" :measures="measureList" :loading="loading" :alias-to-input="aliasToInput" :check-formula="checkFormula" :active-tab="activeTab" :reload-kpi="reloadKpi" :show-guide="showGuide" @updateFormulaToSave="onUpdateFormulaToSave" @errorInFormula="ifErrorInFormula" @touched="setTouched" @onGuideClose="$emit('onGuideClose')" />
-                </TabPanel>
-
-                <TabPanel>
-                    <template #header>
-                        <span>{{ $t('kpi.kpiDefinition.cardinalityTtitle') }}</span>
-                    </template>
-
-                    <KpiDefinitionCardinalityTab :selected-kpi="selectedKpi" :loading="loading" :update-measure-list="updateMeasureList" @measureListUpdated="updateMeasureList = false" />
-                </TabPanel>
-
-                <TabPanel>
-                    <template #header>
-                        <span>{{ $t('kpi.kpiDefinition.tresholdTitle') }}</span>
-                    </template>
-
-                    <KpiDefinitionThresholdTab :selected-kpi="selectedKpi" :thresholds-list="tresholdList" :severity-options="severityOptions" :threshold-type-list="thresholdTypeList" :loading="loading" @touched="setTouched" />
-                </TabPanel>
-            </TabView>
-        </div>
-
-        <div v-if="isAliasVisible">
-            <Toolbar class="kn-toolbar kn-toolbar--secondary" :style="tabViewDescriptor.style.aliasList">
-                <template #start>{{ $t('kpi.kpiDefinition.aliasToolbarTitle') }}</template>
-            </Toolbar>
-            <Listbox class="kn-list--column" :options="measureList" :filter="true" :filter-placeholder="$t('common.search')" option-label="alias" filter-match-mode="contains" :filter-fields="tabViewDescriptor.filterFields" :empty-filter-message="$t('common.info.noDataFound')" data-test="kpi-list" @change="insertAlias($event.value.alias)">
-                <template #empty>{{ $t('common.info.noDataFound') }}</template>
-                <template #option="slotProps">
-                    <div class="kn-list-item" data-test="list-item">
-                        <div class="kn-list-item-text">
-                            <span>{{ slotProps.option.alias }}</span>
+            <q-page class="column no-wrap">
+                <q-stepper ref="stepper" v-model="currentStep" class="col kpi-stepper q-pa-none" header-class="prio" color="primary" bordered animated flat keep-alive header-nav vertical>
+                    <q-step :name="0" :title="$t('kpi.kpiDefinition.formulaTitle')" :caption="$t('kpi.kpiDefinition.formulaCaption')" icon="functions" :done="formulaValidated" :header-nav="formulaValidated" class="column no-wrap">
+                        <div class="col q-pt-md">
+                            <KpiDefinitionFormulaTab ref="formulaTab" :prop-kpi="selectedKpi" :measures="measureList" :loading="loading" :alias-to-input="aliasToInput" :reload-kpi="reloadKpi" @updateFormulaToSave="onUpdateFormulaToSave" @formulaChanged="onFormulaChanged" @touched="setTouched" />
                         </div>
-                    </div>
-                </template>
-            </Listbox>
-        </div>
 
-        <Dialog id="saveDialog" class="kn-dialog--toolbar--primary importExportDialog" :style="tabViewDescriptor.style.saveDialog" :visible="showSaveDialog" footer="footer" :closable="false" modal>
-            <template #header>
-                <h4>{{ $t('kpi.kpiDefinition.addKpiAssociations') }}</h4>
-            </template>
-            <form class="p-fluid p-formgrid p-grid">
-                <div class="p-field p-col-12 p-mt-4">
-                    <span class="p-float-label p-mb-2">
-                        <AutoComplete
-                            v-model="v$.selectedKpi.category.$model"
-                            :class="{
-                                'p-invalid': v$.selectedKpi.category.$invalid && v$.selectedKpi.category.$dirty
-                            }"
-                            :suggestions="filteredCategories"
-                            field="valueName"
-                            @complete="setAutocompleteCategory($event)"
-                        />
-                        <label for="name" class="kn-material-input-label"> {{ $t('managers.configurationManagement.headers.category') }} *</label>
-                    </span>
-                    <KnValidationMessages
-                        :v-comp="v$.selectedKpi.category"
-                        :additional-translate-params="{
-                            fieldName: $t('managers.configurationManagement.headers.category')
-                        }"
-                    >
-                    </KnValidationMessages>
+                        <q-stepper-navigation class="row">
+                            <q-btn v-if="!formulaValidated" unelevated color="primary" :label="$t('kpi.kpiDefinition.validateFormula')" :loading="isValidating" :disable="!canValidateFormula" @click="validateFormula" />
+                            <q-btn v-else unelevated color="primary" :label="$t('common.next')" @click="currentStep = 1" />
+                        </q-stepper-navigation>
+                    </q-step>
+
+                    <q-step :name="1" :title="$t('kpi.kpiDefinition.cardinalityTtitle')" icon="grid_on" :done="currentStep > 1" :header-nav="currentStep > 1" class="column no-wrap">
+                        <div class="col q-pt-md">
+                            <KpiDefinitionCardinalityTab :selected-kpi="selectedKpi" :loading="loading" :update-measure-list="updateMeasureList" @measureListUpdated="updateMeasureList = false" />
+                        </div>
+
+                        <q-stepper-navigation class="row">
+                            <q-btn unelevated color="primary" :label="$t('common.next')" @click="currentStep = 2" />
+                            <q-btn flat color="secondary" :label="$t('common.back')" @click="currentStep = 0" />
+                        </q-stepper-navigation>
+                    </q-step>
+
+                    <q-step :name="2" :title="$t('kpi.kpiDefinition.tresholdTitle')" icon="warning" :done="currentStep > 2" :header-nav="currentStep > 2" class="column no-wrap">
+                        <div class="col q-pt-md">
+                            <KpiDefinitionThresholdTab :selected-kpi="selectedKpi" :thresholds-list="tresholdList" :severity-options="severityOptions" :threshold-type-list="thresholdTypeList" :loading="loading" @touched="setTouched" />
+                        </div>
+
+                        <q-stepper-navigation class="row">
+                            <q-btn unelevated color="primary" :label="$t('common.next')" @click="currentStep = 3" />
+                            <q-btn flat color="secondary" :label="$t('common.back')" @click="currentStep = 1" />
+                        </q-stepper-navigation>
+                    </q-step>
+
+                    <q-step :name="3" :title="$t('kpi.kpiDefinition.detailsTitle')" icon="info" :header-nav="currentStep >= 3" class="column no-wrap">
+                        <div class="col q-pt-md">
+                            <KpiDefinitionDetailsTab :prop-kpi="selectedKpi" :kpi-category-list="kpiCategoryList" :loading="loading" @touched="setTouched" />
+                        </div>
+
+                        <q-stepper-navigation class="row">
+                            <q-btn unelevated color="primary" :label="$t('common.save')" :disable="buttonDisabled" data-test="save-button" @click="saveKpi" />
+                            <q-btn flat color="secondary" :label="$t('common.back')" @click="currentStep = 2" />
+                        </q-stepper-navigation>
+                    </q-step>
+                </q-stepper>
+            </q-page>
+        </q-page-container>
+
+        <q-drawer v-model="isAliasVisible" side="right" bordered :width="300" :breakpoint="500" class="column no-wrap">
+            <q-input v-model="aliasSearchFilter" :placeholder="$t('common.search')" dense outlined clearable square class="q-ma-sm">
+                <template v-slot:prepend>
+                    <q-icon name="search" />
+                </template>
+            </q-input>
+
+            <q-scroll-area class="col">
+                <q-list v-if="filteredMeasureList.length > 0" dense>
+                    <q-item v-for="measure in filteredMeasureList" :key="measure.alias" clickable data-test="list-item" @click="insertAlias(measure.alias)">
+                        <q-item-section>
+                            <q-item-label class="kn-list-item-text">{{ measure.alias }}</q-item-label>
+                        </q-item-section>
+                    </q-item>
+                </q-list>
+                <div v-else class="q-pa-md text-center text-grey">
+                    {{ $t('common.info.noDataFound') }}
                 </div>
-                <div class="p-field-checkbox p-ml-2">
-                    <Checkbox id="versioning" v-model="selectedKpi.enableVersioning" :binary="true" />
-                    <label for="versioning">{{ $t('kpi.kpiDefinition.enableVersioning') }}</label>
-                </div>
-            </form>
-            <template #footer>
-                <div>
-                    <Button class="kn-button kn-button--secondary" :label="$t('common.cancel')" data-test="close-button" @click="showSaveDialog = false" />
-                    <Button class="kn-button kn-button--primary" :label="$t('common.save')" :disabled="v$.$invalid" data-test="submit-button" @click="saveKpi" />
-                </div>
-            </template>
-        </Dialog>
-    </div>
+            </q-scroll-area>
+        </q-drawer>
+    </q-layout>
 </template>
 
 <script lang="ts">
@@ -102,25 +92,24 @@ import { defineComponent } from 'vue'
 import { createValidations } from '@/helpers/commons/validationHelper'
 import useValidate from '@vuelidate/core'
 import tabViewDescriptor from './KpiDefinitionDetailDescriptor.json'
-import KpiDefinitionFormulaTab from './KpiDefinitionFormulaTab/KpiDefinitionFormulaTab.vue'
-import KpiDefinitionCardinalityTab from './KpiDefinitionCardinalityTab/KpiDefinitionCardinalityTab.vue'
+import KpiDefinitionFormulaTab from './steps/KpiDefinitionFormulaTab.vue'
+import KpiDefinitionCardinalityTab from './steps/KpiDefinitionCardinalityTab.vue'
 import KnValidationMessages from '@/components/UI/KnValidatonMessages.vue'
-import KpiDefinitionThresholdTab from './KpiDefinitionThresholdTab/KpiDefinitionThresholdTab.vue'
-import TabView from 'primevue/tabview'
-import TabPanel from 'primevue/tabpanel'
-import Listbox from 'primevue/listbox'
-import Dialog from 'primevue/dialog'
-import AutoComplete from 'primevue/autocomplete'
-import Checkbox from 'primevue/checkbox'
+import KpiDefinitionThresholdTab from './steps/KpiDefinitionThresholdTab.vue'
+import KpiDefinitionDetailsTab from './steps/KpiDefinitionDetailsTab.vue'
+import ProgressBar from 'primevue/progressbar'
 import mainStore from '../../../../App.store'
+import { useRouter } from 'vue-router'
 
 export default defineComponent({
-    components: { TabView, TabPanel, KnValidationMessages, Listbox, KpiDefinitionThresholdTab, KpiDefinitionFormulaTab, Dialog, AutoComplete, Checkbox, KpiDefinitionCardinalityTab },
+    components: { KnValidationMessages, KpiDefinitionThresholdTab, KpiDefinitionFormulaTab, KpiDefinitionCardinalityTab, KpiDefinitionDetailsTab, ProgressBar },
     props: { id: { type: String, required: false }, version: { type: String, required: false }, cloneKpiVersion: { type: Number }, cloneKpiId: { type: Number } },
     emits: ['touched', 'closed', 'kpiCreated', 'kpiUpdated'],
     setup() {
         const store = mainStore()
-        return { store }
+        const router = useRouter()
+
+        return { store, router }
     },
     data() {
         return {
@@ -131,10 +120,12 @@ export default defineComponent({
             isAliasVisible: false,
             reloadKpi: false,
             updateMeasureList: false,
-            showSaveDialog: false,
-            aliasToInput: null as string | null,
-            activeTab: 0,
-            previousActiveTab: -1,
+            aliasToInput: '' as string | undefined,
+            currentStep: 0,
+            formulaValidated: false,
+            canValidateFormula: true,
+            isValidating: false,
+            aliasSearchFilter: '',
             selectedKpi: {} as any,
             kpiToSave: {} as any,
             measureList: [] as any,
@@ -142,19 +133,28 @@ export default defineComponent({
             severityOptions: [] as any,
             thresholdTypeList: [] as any,
             kpiCategoryList: [] as any,
-            filteredCategories: [] as any,
             formulaToSave: '',
             formulaHasErrors: false
         }
     },
     computed: {
         buttonDisabled(): any {
+            if (this.v$.$invalid) {
+                return true
+            }
             if (this.selectedKpi.threshold) {
                 if (this.formulaHasErrors === true || !this.selectedKpi.threshold.name) {
                     return true
                 }
             }
             return false
+        },
+        filteredMeasureList(): any[] {
+            if (!this.aliasSearchFilter) {
+                return this.measureList
+            }
+            const searchLower = this.aliasSearchFilter.toLowerCase()
+            return this.measureList.filter((measure: any) => measure.alias?.toLowerCase().includes(searchLower))
         }
     },
     validations() {
@@ -165,7 +165,9 @@ export default defineComponent({
     watch: {
         id() {
             this.loadSelectedKpi()
-            this.activeTab = 0
+            this.currentStep = 0
+            this.formulaValidated = false
+            this.canValidateFormula = true
         },
         cloneKpiId() {
             this.cloneKpiConfirm(this.cloneKpiId, this.cloneKpiVersion)
@@ -211,11 +213,6 @@ export default defineComponent({
                     this.selectedKpi = { ...response.data }
                     const definitionFormula = JSON.parse(this.selectedKpi.definition)
                     this.formulaToSave = definitionFormula.formula
-
-                    console.group('KPI Definition Loaded')
-                    console.log('Selected KPI:', this.selectedKpi)
-                    console.log('Formula to save:', this.formulaToSave)
-                    console.groupEnd()
                 })
             } else {
                 this.selectedKpi = { ...tabViewDescriptor.emptyKpi }
@@ -231,18 +228,33 @@ export default defineComponent({
             this.isAliasVisible = this.isAliasVisible ? false : true
         },
         insertAlias(selectedAlias: string) {
-            if (this.activeTab === 0) {
+            if (this.currentStep === 0) {
                 this.aliasToInput = selectedAlias
             }
         },
-        ifErrorInFormula(event) {
-            if (event) {
-                this.activeTab = 0
-                this.formulaHasErrors = true
-            } else {
-                this.updateMeasureList = true
-                this.formulaHasErrors = false
+        async validateFormula() {
+            this.isValidating = true
+            try {
+                const formulaTab = this.$refs.formulaTab as any
+                if (formulaTab && formulaTab.checkFormulaForErrors) {
+                    const result = await formulaTab.checkFormulaForErrors()
+                    if (result && Object.keys(result).length > 0) {
+                        this.formulaValidated = true
+                        this.formulaHasErrors = false
+                        this.updateMeasureList = true
+                    } else {
+                        this.formulaValidated = false
+                        this.formulaHasErrors = true
+                    }
+                }
+            } finally {
+                this.isValidating = false
             }
+        },
+        onFormulaChanged() {
+            this.formulaValidated = false
+            this.canValidateFormula = true
+            this.setTouched()
         },
 
         closeTemplateConfirm() {
@@ -261,7 +273,7 @@ export default defineComponent({
             }
         },
         closeTemplate() {
-            this.$router.push('/kpi-definition')
+            this.router.push('/kpi-definition')
             this.$emit('closed')
         },
 
@@ -281,20 +293,14 @@ export default defineComponent({
                 this.selectedKpi = { ...response.data }
             })
         },
-        setAutocompleteCategory(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.filteredCategories = [...this.kpiCategoryList] as any[]
-                } else {
-                    this.filteredCategories = this.kpiCategoryList.filter((category: any) => {
-                        return category.valueCd.toLowerCase().startsWith(event.query.toLowerCase())
-                    })
-                }
-            }, 250)
-        },
 
         async saveKpi() {
-            this.showSaveDialog = false
+            // Check if validations pass
+            const isFormCorrect = await this.v$.$validate()
+            if (!isFormCorrect) {
+                return
+            }
+
             this.touched = false
             this.kpiToSave = { ...this.selectedKpi }
 
@@ -337,3 +343,39 @@ export default defineComponent({
     }
 })
 </script>
+
+<style scoped>
+/* .kpi-stepper,
+.kpi-stepper :deep(.q-stepper__content),
+.kpi-stepper :deep(.q-panel-parent),
+.kpi-stepper :deep(.q-panel),
+.kpi-stepper :deep(.q-stepper__step),
+.kpi-stepper :deep(.q-stepper__step-content),
+.kpi-stepper :deep(.q-stepper__step-inner) {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 !important;
+}
+
+.kpi-stepper :deep(.q-stepper__content),
+.kpi-stepper :deep(.q-panel-parent),
+.kpi-stepper :deep(.q-panel),
+.kpi-stepper :deep(.q-stepper__step) {
+    height: 100% !important;
+}
+
+.kpi-stepper :deep(.q-stepper__step-content) {
+    overflow: hidden !important;
+}
+
+.kpi-stepper :deep(.q-stepper__step-inner) {
+    overflow: auto !important;
+    padding: 0px !important;
+}
+
+.kpi-stepper :deep(.q-stepper__nav) {
+    flex-shrink: 0 !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+    background: white;
+} */
+</style>

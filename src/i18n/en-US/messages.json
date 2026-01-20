@@ -240,6 +240,7 @@
         "paused": "Paused",
         "popup": "Pop-up",
         "preview": "Preview",
+        "previous": "Previous",
         "print": "Print",
         "private": "Private",
         "properties": "properties",
@@ -457,8 +458,6 @@
         "yearly": "Yearly"
     },
     "dashboard": {
-        "lockAllWidgets": "Lock all widgets",
-        "unlockAllWidgets": "Unlock all widgets",
         "activeSelections": {
             "noActiveSelections": "No Active Selections"
         },
@@ -554,6 +553,7 @@
             "variablesHint": "Variables can be used everywhere in the dashboard widgets. They can be static values or dynamic values set in different ways. Check the documentation or the single widgets to learn how to use them."
         },
         "getDataError": "Unable to load data from dataset {datasetLabel}. Please check dataset & widget configuration.",
+        "lockAllWidgets": "Lock all widgets",
         "qMenu": {
             "changeType": "Change Chart Type",
             "clone": "Clone Widget",
@@ -590,6 +590,7 @@
             "launchSelection": "LAUNCH SELECTION"
         },
         "truncateDialog": "Cell Content",
+        "unlockAllWidgets": "Unlock all widgets",
         "warning": {
             "downloading": "The document has been requested in a specific output type and will be available soon"
         },
@@ -2133,12 +2134,15 @@
             "aliasToolbarTitle": "Alias",
             "cardinalityTtitle": "Cardinality",
             "clone": "Clone",
+            "detailsTitle": "Details",
+            "detailsCaption": "Enter the basic information for the KPI",
             "color": "Color",
             "confirmClone": "Confirm item clone?",
             "confirmOverride": "Are you sure to override it?",
             "copyOf": "Copy of ",
             "enableVersioning": "Enable Versioning ",
             "errorformula": {
+                "formulaOk": "Formula is valid, proceed to Cardinality.",
                 "generic": "Error Formula. Measures Missing..",
                 "malformed": "Error Formula. Malformed Formula at line: ",
                 "missingbracket": "Error Formula. Missing Bracket",
@@ -2146,6 +2150,7 @@
                 "missingmeasure": "Insert at least one measure",
                 "missingoperator": "Error Formula. Operator missing at line: "
             },
+            "formulaCaption": "Use CTR+SPACE to auto-complete measures. \n Right click on a measure to set aggregation function.",
             "formulaDialogHeader": "Select type Function for",
             "formulaTabInstructions": "Please change the message to your liking in the translation files!",
             "formulaTitle": "Formula",
@@ -2161,7 +2166,8 @@
             "thresholdsListTitle": "Thresholds List",
             "title": "KPI Definition",
             "tresholdTitle": "Threshold",
-            "useIt": "Use It"
+            "useIt": "Use It",
+            "validateFormula": "Validate Formula"
         },
         "kpiDocumentDesigner": {
             "addScorecardAssociation": "Add Scorecard Association",

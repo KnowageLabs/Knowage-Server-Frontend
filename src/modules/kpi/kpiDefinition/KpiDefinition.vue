@@ -1,21 +1,23 @@
 <template>
-    <div class="kn-page">
-        <div class="kn-page-content p-grid p-m-0">
-            <div class="kn-list--column p-col-4 p-md-3 p-p-0">
-                <q-toolbar class="kn-toolbar kn-toolbar--primary">
-                    <q-toolbar-title> {{ $t('kpi.kpiDefinition.title') }}</q-toolbar-title>
-                    <FabButton icon="fas fa-plus" data-test="open-form-button" @click="showForm" />
-                </q-toolbar>
+    <q-layout view="hHh lpR fFf" container style="height: 100%; overflow: hidden">
+        <q-page-container>
+            <q-page class="row">
+                <div class="kn-list--column col-3">
+                    <q-toolbar class="kn-toolbar kn-toolbar--primary">
+                        <q-toolbar-title> {{ $t('kpi.kpiDefinition.title') }}</q-toolbar-title>
+                        <FabButton icon="fas fa-plus" data-test="open-form-button" @click="showForm" />
+                    </q-toolbar>
 
-                <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
-                <KnListBox v-if="!loading" class="kn-height-full" :options="kpiList" :settings="kpiDefinitionDescriptor.knListSettings" @click="showForm" @clone.stop="emitCopyKpi" @delete.stop="deleteKpiConfirm" />
-            </div>
+                    <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
+                    <KnListBox v-if="!loading" class="kn-height-full" :options="kpiList" :settings="kpiDefinitionDescriptor.knListSettings" @click="showForm" @clone.stop="emitCopyKpi" @delete.stop="deleteKpiConfirm" />
+                </div>
 
-            <div class="p-d-flex p-flex-column p-col-8 p-md-9 p-p-0 p-m-0 kn-flex">
-                <router-view :clone-kpi-id="cloneKpiId" :clone-kpi-version="cloneKpiVersion" @touched="touched = true" @closed="onFormClose" @kpiUpdated="reloadAndReroute" @kpiCreated="reloadAndReroute" />
-            </div>
-        </div>
-    </div>
+                <div class="col-9">
+                    <router-view :clone-kpi-id="cloneKpiId" :clone-kpi-version="cloneKpiVersion" @touched="touched = true" @closed="onFormClose" @kpiUpdated="reloadAndReroute" @kpiCreated="reloadAndReroute" />
+                </div>
+            </q-page>
+        </q-page-container>
+    </q-layout>
 </template>
 
 <script lang="ts">

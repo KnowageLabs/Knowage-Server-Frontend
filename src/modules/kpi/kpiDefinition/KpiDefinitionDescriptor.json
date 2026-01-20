@@ -18,7 +18,8 @@
             "type": "event"
         },
         "sortFields": ["name"],
-        "textField": "category.valueDescription",
-        "titleField": "name"
+        "textField": "author",
+        "titleField": "name",
+        "tooltipField": "category.valueDescription"
     }
 }

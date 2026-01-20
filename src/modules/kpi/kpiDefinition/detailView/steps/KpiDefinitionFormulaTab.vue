@@ -1,69 +1,30 @@
 <template>
-    <form class="p-fluid p-formgrid p-grid p-mt-3">
-        <div class="p-field p-col-6">
-            <span class="p-float-label p-mb-2">
-                <InputText
-                    id="name"
-                    v-model.trim="v$.selectedKpi.name.$model"
-                    class="kn-material-input"
-                    type="text"
-                    max-length="25"
-                    :class="{
-                        'p-invalid': v$.selectedKpi.name.$invalid && v$.selectedKpi.name.$dirty
-                    }"
-                    @blur="v$.selectedKpi.name.$touch()"
-                />
-                <label for="label" class="kn-material-input-label">{{ $t('common.name') }} * </label>
-            </span>
-            <KnValidationMessages
-                :v-comp="v$.selectedKpi.name"
-                :additional-translate-params="{
-                    fieldName: $t('common.name')
-                }"
-            >
-            </KnValidationMessages>
-        </div>
-        <div class="p-field p-col-6">
-            <span class="p-float-label p-mb-2">
-                <InputText id="name" v-model.trim="selectedKpi.author" class="kn-material-input" type="text" :disabled="true" />
-                <label for="name" class="kn-material-input-label"> {{ $t('common.author') }}</label>
-            </span>
-        </div>
-    </form>
+    <q-card>
+        <q-card-section class="q-pa-md">
+            <knMonaco ref="editor" v-if="!loading && selectedKpi.definition" language="kpiLang" v-model="selectedKpi.definition.formulaDecoded" :options="editorOptions" textToInsert="" style="height: 250px" @change="onKeyUp" @editor-setup="editorSetup" @contextmenu="onRightClick"></knMonaco>
+        </q-card-section>
+    </q-card>
 
-    <!-- <knMonaco ref="editor" v-if="!loading && selectedKpi.definition" language="kpiLang" v-model="selectedKpi.definition.formulaDecoded" :options="{}" textToInsert="" style="height: 200px" @change="onKeyUp" @editor-setup="editorSetup" @click="onMouseClick"></knMonaco> -->
-    <knMonaco ref="editor" v-if="!loading && selectedKpi.definition" language="kpiLang" v-model="selectedKpi.definition.formulaDecoded" :options="{}" textToInsert="" style="height: 200px" @change="onKeyUp" @editor-setup="editorSetup" @dblclick="onMouseClick"></knMonaco>
+    <q-menu v-model="functionDialogVisible" touch-position context-menu>
+        <q-card style="min-width: 200px">
+            <q-card-section class="q-pa-sm">
+                <div class="text-subtitle2 q-mb-sm">{{ $t('kpi.kpiDefinition.formulaDialogHeader') }} {{ dialogHeaderInfo.functionName }}</div>
+            </q-card-section>
 
-    <Dialog class="kn-dialog--toolbar--primary importExportDialog" footer="footer" :visible="functionDialogVisible" :closable="false" modal>
-        <template #header>
-            <h4>{{ $t('kpi.kpiDefinition.formulaDialogHeader') }} {{ dialogHeaderInfo.functionName }}</h4>
-        </template>
+            <q-separator />
 
-        <div class="p-mt-4 p-ml-4">
-            <div class="p-field-radiobutton">
-                <RadioButton id="SUM" v-model="selectedFunctionalities" name="city" value="SUM" />
-                <label for="SUM">SUM</label>
-            </div>
-            <div class="p-field-radiobutton">
-                <RadioButton id="MAX" v-model="selectedFunctionalities" name="city" value="MAX" />
-                <label for="MAX">MAX</label>
-            </div>
-            <div class="p-field-radiobutton">
-                <RadioButton id="MIN" v-model="selectedFunctionalities" name="city" value="MIN" />
-                <label for="MIN">MIN</label>
-            </div>
-            <div class="p-field-radiobutton">
-                <RadioButton id="COUNT" v-model="selectedFunctionalities" name="city" value="COUNT" />
-                <label for="COUNT">COUNT</label>
-            </div>
-        </div>
-        <template #footer>
-            <div>
-                <Button class="kn-button kn-button--secondary" :label="$t('common.cancel')" data-test="close-button" @click="cancel" />
-                <Button class="kn-button" :label="$t('common.apply')" @click="openFunctionPicker" />
-            </div>
-        </template>
-    </Dialog>
+            <q-list dense>
+                <q-item v-for="func in ['SUM', 'MAX', 'MIN', 'COUNT']" :key="func" clickable v-close-popup @click="applyFunction(func)">
+                    <q-item-section>
+                        <q-item-label>{{ func }}</q-item-label>
+                    </q-item-section>
+                    <q-item-section side v-if="selectedFunctionalities === func">
+                        <q-icon name="check" color="primary" />
+                    </q-item-section>
+                </q-item>
+            </q-list>
+        </q-card>
+    </q-menu>
 </template>
 
 <script lang="ts">
@@ -72,17 +33,16 @@ import { createValidations } from '@/helpers/commons/validationHelper'
 import KnValidationMessages from '@/components/UI/KnValidatonMessages.vue'
 import useValidate from '@vuelidate/core'
 import tabViewDescriptor from '../KpiDefinitionDetailDescriptor.json'
-import Dialog from 'primevue/dialog'
-import RadioButton from 'primevue/radiobutton'
 import mainStore from '../../../../../App.store'
 import knMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
 
 let editor = null as any
+let completionProvider = null as any
 
 export default defineComponent({
-    components: { knMonaco, Dialog, RadioButton, KnValidationMessages },
-    props: { propKpi: Object as any, measures: { type: Array as any }, aliasToInput: { type: String }, checkFormula: { type: Boolean }, activeTab: { type: Number }, loading: Boolean, reloadKpi: Boolean },
-    emits: ['touched', 'errorInFormula', 'updateFormulaToSave', 'onGuideClose'],
+    components: { knMonaco, KnValidationMessages },
+    props: { propKpi: Object as any, measures: { type: Array as any }, aliasToInput: { type: String }, loading: Boolean, reloadKpi: Boolean },
+    emits: ['touched', 'formulaChanged', 'updateFormulaToSave', 'onGuideClose'],
     setup() {
         const store = mainStore()
         return { store }
@@ -93,7 +53,6 @@ export default defineComponent({
             tabViewDescriptor,
             selectedKpi: {} as any,
             monaco: {} as any,
-            previousTabIndex: 0 as any,
             dialogHeaderInfo: {} as any,
             measuresToJSON: [] as any,
             functionsTOJSON: [] as any,
@@ -103,7 +62,12 @@ export default defineComponent({
             token: '' as any,
             selectedFunctionalities: 'SUM',
             functionDialogVisible: false,
-            cursorPosition: null
+            cursorPosition: null,
+            menuPosition: null as any,
+            editorOptions: {
+                fontSize: 20,
+                contextmenu: false
+            }
         }
     },
     validations() {
@@ -127,12 +91,6 @@ export default defineComponent({
                 editor.executeEdits('insert-alias', [op])
                 this.$emit('touched')
             }
-        },
-        activeTab() {
-            if (this.previousTabIndex === 0 && this.activeTab != 0) {
-                this.checkFormulaForErrors()
-            }
-            this.previousTabIndex = this.activeTab
         },
         'selectedKpi.definition.formulaDecoded'(newValue) {
             // formula is now the same as formulaDecoded (no more M0, M1 replacement)
@@ -158,6 +116,14 @@ export default defineComponent({
         }
     },
 
+    beforeUnmount() {
+        // Dispose the completion provider to prevent duplicates
+        if (completionProvider) {
+            completionProvider.dispose()
+            completionProvider = null
+        }
+    },
+
     methods: {
         cancel() {
             this.functionDialogVisible = false
@@ -166,8 +132,13 @@ export default defineComponent({
             this.monaco = monacoInstance.monaco
             editor = monacoInstance.editor
 
+            // Dispose previous completion provider if it exists
+            if (completionProvider) {
+                completionProvider.dispose()
+            }
+
             // Register autocomplete provider for measures (Ctrl+Space only)
-            this.monaco.languages.registerCompletionItemProvider('kpiLang', {
+            completionProvider = this.monaco.languages.registerCompletionItemProvider('kpiLang', {
                 provideCompletionItems: (model, position) => {
                     const word = model.getWordUntilPosition(position)
                     const range = {
@@ -209,8 +180,12 @@ export default defineComponent({
         },
         onKeyUp(event) {
             this.$emit('touched')
+            this.$emit('formulaChanged')
         },
-        onMouseClick(event) {
+        onRightClick(event) {
+            // Prevent default context menu
+            event.preventDefault()
+
             const position = editor.getPosition()
             const word = editor.getModel().getWordAtPosition(position)
 
@@ -270,7 +245,13 @@ export default defineComponent({
             }
 
             this.dialogHeaderInfo.functionName = word.word
+            this.selectedFunctionalities = this.token.isWrapped ? this.token.currentFunction : 'SUM'
             this.functionDialogVisible = true
+        },
+
+        applyFunction(funcName: string) {
+            this.selectedFunctionalities = funcName
+            this.openFunctionPicker()
         },
 
         reset() {
@@ -294,8 +275,7 @@ export default defineComponent({
         checkFormulaForErrors() {
             if (!editor) {
                 this.store.setError({ msg: this.$t('kpi.kpiDefinition.errorformula.generic') })
-                this.$emit('errorInFormula', true)
-                return {}
+                return null
             }
 
             this.reset()
@@ -305,8 +285,7 @@ export default defineComponent({
 
             if (!formulaText) {
                 this.store.setError({ msg: this.$t('kpi.kpiDefinition.errorformula.missingmeasure') })
-                this.$emit('errorInFormula', true)
-                return {}
+                return null
             }
 
             // Validate bracket matching
@@ -319,9 +298,8 @@ export default defineComponent({
 
             if (countOpenBracket !== countCloseBracket) {
                 this.store.setError({ msg: this.$t('kpi.kpiDefinition.errorformula.missingbracket') })
-                this.$emit('errorInFormula', true)
                 this.reset()
-                return {}
+                return null
             }
 
             // Tokenize the formula
@@ -352,7 +330,7 @@ export default defineComponent({
             // Validate token sequence and build formula components
             let numMeasures = 0
             let expectingMeasure = false
-            let previousToken = null
+            let previousToken = null as any
 
             for (let i = 0; i < tokens.length; i++) {
                 const token = tokens[i]
@@ -361,17 +339,15 @@ export default defineComponent({
                 // First token cannot be an operator or closing bracket
                 if (i === 0 && (token.type === 'operator' || (token.type === 'bracket' && token.value === ')'))) {
                     this.store.setError({ msg: this.$t('kpi.kpiDefinition.errorformula.malformed') })
-                    this.$emit('errorInFormula', true)
                     this.reset()
-                    return {}
+                    return null
                 }
 
                 // Last token cannot be an operator or opening bracket
                 if (i === tokens.length - 1 && (token.type === 'operator' || (token.type === 'bracket' && token.value === '('))) {
                     this.store.setError({ msg: this.$t('kpi.kpiDefinition.errorformula.malformed') })
-                    this.$emit('errorInFormula', true)
                     this.reset()
-                    return {}
+                    return null
                 }
 
                 if (token.type === 'function') {
@@ -387,9 +363,8 @@ export default defineComponent({
                     // Check if this variable is a valid measure
                     if (this.measureInList(token.value, this.measures) === -1) {
                         this.store.setError({ msg: this.$t('kpi.kpiDefinition.errorformula.generic') })
-                        this.$emit('errorInFormula', true)
                         this.reset()
-                        return {}
+                        return null
                     }
 
                     if (expectingMeasure) {
@@ -404,33 +379,29 @@ export default defineComponent({
                     } else {
                         // Variable without function
                         this.store.setError({ msg: this.$t('kpi.kpiDefinition.errorformula.missingfunctions') })
-                        this.$emit('errorInFormula', true)
                         this.reset()
-                        return {}
+                        return null
                     }
 
                     // Check for missing operator between variables/numbers
                     if (previousToken?.type === 'variable' || previousToken?.type === 'number') {
                         this.store.setError({ msg: this.$t('kpi.kpiDefinition.errorformula.missingoperator') })
-                        this.$emit('errorInFormula', true)
                         this.reset()
-                        return {}
+                        return null
                     }
                 } else if (token.type === 'operator') {
                     // Operator cannot follow another operator
                     if (previousToken?.type === 'operator') {
                         this.store.setError({ msg: this.$t('kpi.kpiDefinition.errorformula.malformed') })
-                        this.$emit('errorInFormula', true)
                         this.reset()
-                        return {}
+                        return null
                     }
 
                     // Operator after opening bracket is invalid
                     if (previousToken?.type === 'bracket' && previousToken?.value === '(') {
                         this.store.setError({ msg: this.$t('kpi.kpiDefinition.errorformula.malformed') })
-                        this.$emit('errorInFormula', true)
                         this.reset()
-                        return {}
+                        return null
                     }
 
                     this.formula += token.value
@@ -440,9 +411,8 @@ export default defineComponent({
                     // Check for missing operator before number
                     if (previousToken?.type === 'variable' || previousToken?.type === 'number' || (previousToken?.type === 'bracket' && previousToken?.value === ')')) {
                         this.store.setError({ msg: this.$t('kpi.kpiDefinition.errorformula.missingoperator') })
-                        this.$emit('errorInFormula', true)
                         this.reset()
-                        return {}
+                        return null
                     }
 
                     this.formula += token.value
@@ -452,18 +422,16 @@ export default defineComponent({
                     // Empty brackets
                     if (token.value === ')' && previousToken?.value === '(') {
                         this.store.setError({ msg: this.$t('kpi.kpiDefinition.errorformula.malformed') })
-                        this.$emit('errorInFormula', true)
                         this.reset()
-                        return {}
+                        return null
                     }
 
                     // Check for missing operator after closing bracket
                     if (token.value === ')' && nextToken) {
                         if (nextToken.type === 'variable' || nextToken.type === 'number' || nextToken.type === 'function' || (nextToken.type === 'bracket' && nextToken.value === '(')) {
                             this.store.setError({ msg: this.$t('kpi.kpiDefinition.errorformula.missingoperator') })
-                            this.$emit('errorInFormula', true)
                             this.reset()
-                            return {}
+                            return null
                         }
                     }
 
@@ -488,21 +456,18 @@ export default defineComponent({
             // Must have at least one measure
             if (numMeasures === 0) {
                 this.store.setError({ msg: this.$t('kpi.kpiDefinition.errorformula.missingmeasure') })
-                this.$emit('errorInFormula', true)
                 this.reset()
-                return {}
+                return null
             }
 
-            // All validations passed
-            this.$emit('errorInFormula', false)
-
-            // Update the KPI definition
+            // All validations passed - Update the KPI definition
             this.selectedKpi.definition.formula = this.formula
             this.selectedKpi.definition.measures = this.measuresToJSON
             this.selectedKpi.definition.functions = this.functionsTOJSON
             this.selectedKpi.definition.formulaDecoded = this.formulaDecoded
             this.selectedKpi.definition.formulaSimple = this.formulaSimple.trim()
 
+            // this.store.setInfo({ msg: this.$t('kpi.kpiDefinition.errorformula.formulaOk') })
             this.$emit('updateFormulaToSave', this.formula)
 
             return this.selectedKpi.definition
