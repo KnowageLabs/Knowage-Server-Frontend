@@ -115,9 +115,7 @@ export default defineComponent({
             this.selectedKpi = this.propKpi as any
         }
     },
-
     beforeUnmount() {
-        // Dispose the completion provider to prevent duplicates
         if (completionProvider) {
             completionProvider.dispose()
             completionProvider = null
@@ -132,12 +130,8 @@ export default defineComponent({
             this.monaco = monacoInstance.monaco
             editor = monacoInstance.editor
 
-            // Dispose previous completion provider if it exists
-            if (completionProvider) {
-                completionProvider.dispose()
-            }
+            if (completionProvider) completionProvider.dispose()
 
-            // Register autocomplete provider for measures (Ctrl+Space only)
             completionProvider = this.monaco.languages.registerCompletionItemProvider('kpiLang', {
                 provideCompletionItems: (model, position) => {
                     const word = model.getWordUntilPosition(position)
@@ -183,69 +177,39 @@ export default defineComponent({
             this.$emit('formulaChanged')
         },
         onRightClick(event) {
-            // Prevent default context menu
             event.preventDefault()
 
             const position = editor.getPosition()
             const word = editor.getModel().getWordAtPosition(position)
 
-            console.log('Clicked word:', word, 'at position:', position)
+            // Validate: must be a word, cursor within bounds, not a function name
+            if (!word || word.word.length <= 1 || position.column < word.startColumn || position.column > word.endColumn || ['SUM', 'MAX', 'MIN', 'COUNT'].includes(word.word)) return
 
-            // Only trigger if we actually clicked ON a word, not just near it
-            if (!word || word.word.length <= 1) return
-
-            // Check if cursor is actually within the word boundaries
-            // getWordAtPosition returns word even if cursor is just after/before it
-            if (position.column < word.startColumn || position.column > word.endColumn) return
-
-            // Exclude function names themselves from being clicked
-            if (['SUM', 'MAX', 'MIN', 'COUNT'].includes(word.word)) return
-
-            // Check if this word is already wrapped in a function
+            // Check if word is wrapped in a function: FUNCTION(word)
             const lineContent = editor.getModel().getLineContent(position.lineNumber)
-            const wordStart = word.startColumn - 1
-            const wordEnd = word.endColumn - 1
+            const beforeWord = lineContent.substring(0, word.startColumn - 1)
+            const afterWord = lineContent.substring(word.endColumn - 1)
+            const funcMatch = beforeWord.match(/(SUM|MAX|MIN|COUNT)\($/)
 
-            // Look backward for a function name followed by '('
-            const beforeWord = lineContent.substring(0, wordStart)
-            const afterWord = lineContent.substring(wordEnd)
-
-            // Check if pattern is FUNCTION(word)
-            const functionPattern = /(SUM|MAX|MIN|COUNT)\($/
-            const closingParenPattern = /^\)/
-
-            if (functionPattern.test(beforeWord) && closingParenPattern.test(afterWord)) {
-                // Extract the function name
-                const match = beforeWord.match(/(SUM|MAX|MIN|COUNT)\($/)
-                const functionStartCol = beforeWord.lastIndexOf(match[1]) + 1
-                const functionEndCol = wordEnd + 2 // word end + ')'
-
-                this.token = {
-                    word: word.word,
-                    startLineNumber: position.lineNumber,
-                    startColumn: word.startColumn,
-                    endLineNumber: position.lineNumber,
-                    endColumn: word.endColumn,
-                    isWrapped: true,
-                    currentFunction: match[1],
-                    functionStartLine: position.lineNumber,
-                    functionStartColumn: functionStartCol,
-                    functionEndLine: position.lineNumber,
-                    functionEndColumn: functionEndCol
-                }
-            } else {
-                this.token = {
-                    word: word.word,
-                    startLineNumber: position.lineNumber,
-                    startColumn: word.startColumn,
-                    endLineNumber: position.lineNumber,
-                    endColumn: word.endColumn,
-                    isWrapped: false
-                }
+            this.token = {
+                word: word.word,
+                startLineNumber: position.lineNumber,
+                startColumn: word.startColumn,
+                endLineNumber: position.lineNumber,
+                endColumn: word.endColumn,
+                isWrapped: !!(funcMatch && afterWord.startsWith(')')),
+                ...(funcMatch &&
+                    afterWord.startsWith(')') && {
+                        currentFunction: funcMatch[1],
+                        functionStartLine: position.lineNumber,
+                        functionStartColumn: beforeWord.lastIndexOf(funcMatch[1]) + 1,
+                        functionEndLine: position.lineNumber,
+                        functionEndColumn: word.endColumn + 1
+                    })
             }
 
             this.dialogHeaderInfo.functionName = word.word
-            this.selectedFunctionalities = this.token.isWrapped ? this.token.currentFunction : 'SUM'
+            this.selectedFunctionalities = this.token.currentFunction || 'SUM'
             this.functionDialogVisible = true
         },
 

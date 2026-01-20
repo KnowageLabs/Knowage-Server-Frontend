@@ -129,6 +129,7 @@
 <script lang="ts">
 import { AxiosResponse } from 'axios'
 import { defineComponent } from 'vue'
+import { useQuasar } from 'quasar'
 import { createValidations } from '@/helpers/commons/validationHelper'
 import useValidate from '@vuelidate/core'
 import tabViewDescriptor from '../KpiDefinitionDetailDescriptor.json'
@@ -142,6 +143,10 @@ export default defineComponent({
     components: { KnValidationMessages, Sidebar, Listbox, Dialog },
     props: { selectedKpi: { type: Object as any }, thresholdsList: Array, severityOptions: { type: Array as any, required: false }, thresholdTypeList: { type: Array as any, required: false }, loading: Boolean },
     emits: ['touched'],
+    setup() {
+        const $q = useQuasar()
+        return { $q }
+    },
 
     data() {
         return {
@@ -263,12 +268,14 @@ export default defineComponent({
         },
 
         deleteThresholdItemConfirm(index) {
-            this.$confirm.require({
-                message: this.$t('common.toast.deleteMessage'),
-                header: this.$t('common.toast.deleteTitle'),
-                icon: 'pi pi-exclamation-triangle',
-                accept: () => this.deleteThresholdItem(index)
-            })
+            this.$q
+                .dialog({
+                    title: this.$t('common.toast.deleteTitle'),
+                    message: this.$t('common.toast.deleteMessage'),
+                    cancel: true,
+                    persistent: true
+                })
+                .onOk(() => this.deleteThresholdItem(index))
         },
         deleteThresholdItem(index) {
             this.kpi.threshold.thresholdValues.splice(index, 1)
@@ -278,12 +285,14 @@ export default defineComponent({
             if (this.kpi.threshold.thresholdValues.length == 0 || this.kpi.threshold === tresholdTabDescriptor.newThreshold) {
                 this.loadSelectedThreshold(event)
             } else {
-                this.$confirm.require({
-                    message: this.$t('kpi.kpiDefinition.confirmOverride'),
-                    header: this.$t('kpi.kpiDefinition.thresholdAlreadyPresent'),
-                    icon: 'pi pi-exclamation-triangle',
-                    accept: () => this.loadSelectedThreshold(event)
-                })
+                this.$q
+                    .dialog({
+                        title: this.$t('kpi.kpiDefinition.thresholdAlreadyPresent'),
+                        message: this.$t('kpi.kpiDefinition.confirmOverride'),
+                        cancel: true,
+                        persistent: true
+                    })
+                    .onOk(() => this.loadSelectedThreshold(event))
             }
         },
         loadSelectedThreshold(event) {

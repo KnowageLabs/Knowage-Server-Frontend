@@ -1,18 +1,28 @@
 <template>
     <q-layout view="hHh lpR fFf" container style="height: 100%; overflow: hidden">
         <q-page-container>
-            <q-page class="row">
-                <div class="kn-list--column col-3">
+            <q-page class="row" style="position: unset">
+                <q-drawer v-model="drawerVisible" side="left" bordered :width="400" :breakpoint="0" show-if-above class="column no-wrap">
                     <q-toolbar class="kn-toolbar kn-toolbar--primary">
                         <q-toolbar-title> {{ $t('kpi.kpiDefinition.title') }}</q-toolbar-title>
                         <FabButton icon="fas fa-plus" data-test="open-form-button" @click="showForm" />
                     </q-toolbar>
 
                     <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
-                    <KnListBox v-if="!loading" class="kn-height-full" :options="kpiList" :settings="kpiDefinitionDescriptor.knListSettings" @click="showForm" @clone.stop="emitCopyKpi" @delete.stop="deleteKpiConfirm" />
-                </div>
+                    <KnListBox v-if="!loading" class="col kn-height-full" :options="kpiList" :settings="kpiDefinitionDescriptor.knListSettings" @click="showForm" @clone.stop="emitCopyKpi" @delete.stop="deleteKpiConfirm" />
 
-                <div class="col-9">
+                    <q-toolbar class="q-pa-sm">
+                        <q-space />
+                        <q-btn flat round dense icon="chevron_left" @click="drawerVisible = false">
+                            <q-tooltip>{{ $t('common.close') }}</q-tooltip>
+                        </q-btn>
+                    </q-toolbar>
+                </q-drawer>
+
+                <div class="col">
+                    <q-btn v-if="!drawerVisible" flat round dense icon="chevron_right" class="drawer-toggle-btn" @click="drawerVisible = true">
+                        <q-tooltip>{{ $t('common.open') }}</q-tooltip>
+                    </q-btn>
                     <router-view :clone-kpi-id="cloneKpiId" :clone-kpi-version="cloneKpiVersion" @touched="touched = true" @closed="onFormClose" @kpiUpdated="reloadAndReroute" @kpiCreated="reloadAndReroute" />
                 </div>
             </q-page>
@@ -24,10 +34,10 @@
 import { defineComponent } from 'vue'
 import { AxiosResponse } from 'axios'
 import { useRouter } from 'vue-router'
+import { useQuasar } from 'quasar'
 import FabButton from '@/components/UI/KnFabButton.vue'
 import KnListBox from '@/components/UI/KnListBox/KnListBox.vue'
 import kpiDefinitionDescriptor from './KpiDefinitionDescriptor.json'
-import { formatDateWithLocale } from '@/helpers/commons/localeHelper'
 import mainStore from '../../../App.store'
 
 export default defineComponent({
@@ -36,7 +46,8 @@ export default defineComponent({
     setup() {
         const store = mainStore()
         const router = useRouter()
-        return { store, router }
+        const $q = useQuasar()
+        return { store, router, $q }
     },
     data() {
         return {
@@ -45,6 +56,7 @@ export default defineComponent({
             displayModal: false,
             hintVisible: true,
             cloneKpi: false,
+            drawerVisible: true,
             kpiList: [] as any,
             kpiToClone: {} as any,
             cloneKpiId: Number,
@@ -66,14 +78,47 @@ export default defineComponent({
                 .finally(() => (this.loading = false))
         },
 
+        showForm(event: any) {
+            const path = event.item ? `/kpi-definition/${event.item.id}/${event.item.version}` : '/kpi-definition/new-kpi'
+            this.hintVisible = false
+
+            if (!this.touched) {
+                this.router.push(path)
+            } else {
+                this.$q
+                    .dialog({
+                        title: this.$t('common.toast.unsavedChangesHeader'),
+                        message: this.$t('common.toast.unsavedChangesMessage'),
+                        cancel: true,
+                        persistent: true
+                    })
+                    .onOk(() => {
+                        this.touched = false
+                        this.router.push(path)
+                    })
+            }
+        },
+
+        emitCopyKpi(event: any) {
+            if (!event.item) return
+            this.router.push('/kpi-definition/new-kpi')
+            this.hintVisible = false
+            setTimeout(() => {
+                this.cloneKpiId = event.item.id
+                this.cloneKpiVersion = event.item.version
+            }, 200)
+        },
+
         deleteKpiConfirm(event: any) {
             if (!event.item) return
-            this.$confirm.require({
-                message: this.$t('common.toast.deleteMessage'),
-                header: this.$t('common.toast.deleteTitle'),
-                icon: 'pi pi-exclamation-triangle',
-                accept: () => this.deleteKpi(event.item.id, event.item.version)
-            })
+            this.$q
+                .dialog({
+                    title: this.$t('common.warning'),
+                    message: this.$t('common.toast.deleteMessage'),
+                    cancel: true,
+                    persistent: true
+                })
+                .onOk(() => this.deleteKpi(event.item.id, event.item.version))
         },
         async deleteKpi(kpiId: number, kpiVersion: number) {
             await this.$http.delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/kpi/${kpiId}/${kpiVersion}/deleteKpi`).then(() => {
@@ -86,34 +131,6 @@ export default defineComponent({
             })
         },
 
-        showForm(event: any) {
-            const path = event.item ? `/kpi-definition/${event.item.id}/${event.item.version}` : '/kpi-definition/new-kpi'
-            this.hintVisible = false
-            if (!this.touched) {
-                this.router.push(path)
-            } else {
-                this.$confirm.require({
-                    message: this.$t('common.toast.unsavedChangesMessage'),
-                    header: this.$t('common.toast.unsavedChangesHeader'),
-                    icon: 'pi pi-exclamation-triangle',
-                    accept: () => {
-                        this.touched = false
-                        this.router.push(path)
-                    }
-                })
-            }
-        },
-        pageReload() {
-            this.touched = false
-            this.hintVisible = true
-        },
-        onFormClose() {
-            this.touched = false
-            this.hintVisible = true
-        },
-        formatDate(date) {
-            return formatDateWithLocale(date, { dateStyle: 'short', timeStyle: 'short' })
-        },
         async reloadAndReroute(event) {
             await this.getKpiList()
 
@@ -128,15 +145,20 @@ export default defineComponent({
             this.touched = false
             this.hintVisible = false
         },
-        emitCopyKpi(event: any) {
-            if (!event.item) return
-            this.router.push('/kpi-definition/new-kpi')
-            this.hintVisible = false
-            setTimeout(() => {
-                this.cloneKpiId = event.item.id
-                this.cloneKpiVersion = event.item.version
-            }, 200)
+
+        onFormClose() {
+            this.touched = false
+            this.hintVisible = true
         }
     }
 })
 </script>
+
+<style scoped>
+.drawer-toggle-btn {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    z-index: 100;
+}
+</style>

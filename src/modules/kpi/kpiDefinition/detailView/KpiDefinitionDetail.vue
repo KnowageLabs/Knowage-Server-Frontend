@@ -1,5 +1,5 @@
 <template>
-    <q-layout view="hHh lpR fFf" container style="height: 100%">
+    <q-layout view="hHh lpR fFf" container>
         <q-header>
             <q-toolbar class="kn-toolbar kn-toolbar--primary">
                 <q-toolbar-title>{{ selectedKpi.name }}</q-toolbar-title>
@@ -16,7 +16,7 @@
 
             <q-page class="column no-wrap">
                 <q-stepper ref="stepper" v-model="currentStep" class="col kpi-stepper q-pa-none" header-class="prio" color="primary" bordered animated flat keep-alive header-nav vertical>
-                    <q-step :name="0" :title="$t('kpi.kpiDefinition.formulaTitle')" :caption="$t('kpi.kpiDefinition.formulaCaption')" icon="functions" :done="formulaValidated" :header-nav="formulaValidated" class="column no-wrap">
+                    <q-step :name="0" class="column no-wrap" :title="$t('kpi.kpiDefinition.formulaTitle')" :caption="$t('kpi.kpiDefinition.formulaCaption')" icon="functions" :done="formulaValidated" :header-nav="formulaValidated">
                         <div class="col q-pt-md">
                             <KpiDefinitionFormulaTab ref="formulaTab" :prop-kpi="selectedKpi" :measures="measureList" :loading="loading" :alias-to-input="aliasToInput" :reload-kpi="reloadKpi" @updateFormulaToSave="onUpdateFormulaToSave" @formulaChanged="onFormulaChanged" @touched="setTouched" />
                         </div>
@@ -27,7 +27,7 @@
                         </q-stepper-navigation>
                     </q-step>
 
-                    <q-step :name="1" :title="$t('kpi.kpiDefinition.cardinalityTtitle')" icon="grid_on" :done="currentStep > 1" :header-nav="currentStep > 1" class="column no-wrap">
+                    <q-step :name="1" class="column no-wrap" :title="$t('kpi.kpiDefinition.cardinalityTtitle')" icon="grid_on" :done="currentStep > 1" :header-nav="currentStep > 1">
                         <div class="col q-pt-md">
                             <KpiDefinitionCardinalityTab :selected-kpi="selectedKpi" :loading="loading" :update-measure-list="updateMeasureList" @measureListUpdated="updateMeasureList = false" />
                         </div>
@@ -38,7 +38,7 @@
                         </q-stepper-navigation>
                     </q-step>
 
-                    <q-step :name="2" :title="$t('kpi.kpiDefinition.tresholdTitle')" icon="warning" :done="currentStep > 2" :header-nav="currentStep > 2" class="column no-wrap">
+                    <q-step :name="2" class="column no-wrap" :title="$t('kpi.kpiDefinition.tresholdTitle')" icon="warning" :done="currentStep > 2" :header-nav="currentStep > 2">
                         <div class="col q-pt-md">
                             <KpiDefinitionThresholdTab :selected-kpi="selectedKpi" :thresholds-list="tresholdList" :severity-options="severityOptions" :threshold-type-list="thresholdTypeList" :loading="loading" @touched="setTouched" />
                         </div>
@@ -49,7 +49,7 @@
                         </q-stepper-navigation>
                     </q-step>
 
-                    <q-step :name="3" :title="$t('kpi.kpiDefinition.detailsTitle')" icon="info" :header-nav="currentStep >= 3" class="column no-wrap">
+                    <q-step :name="3" class="column no-wrap" :title="$t('kpi.kpiDefinition.detailsTitle')" icon="info" :header-nav="currentStep >= 3">
                         <div class="col q-pt-md">
                             <KpiDefinitionDetailsTab :prop-kpi="selectedKpi" :kpi-category-list="kpiCategoryList" :loading="loading" @touched="setTouched" />
                         </div>
@@ -63,8 +63,8 @@
             </q-page>
         </q-page-container>
 
-        <q-drawer v-model="isAliasVisible" side="right" bordered :width="300" :breakpoint="500" class="column no-wrap">
-            <q-input v-model="aliasSearchFilter" :placeholder="$t('common.search')" dense outlined clearable square class="q-ma-sm">
+        <q-drawer id="aliasList" v-model="isAliasVisible" class="column no-wrap" side="right" bordered :width="300" :breakpoint="500">
+            <q-input v-model="aliasSearchFilter" class="q-ma-sm" :placeholder="$t('common.search')" dense outlined clearable square>
                 <template v-slot:prepend>
                     <q-icon name="search" />
                 </template>
@@ -90,7 +90,9 @@
 import { AxiosResponse } from 'axios'
 import { defineComponent } from 'vue'
 import { createValidations } from '@/helpers/commons/validationHelper'
+import { useQuasar } from 'quasar'
 import useValidate from '@vuelidate/core'
+import { useRouter } from 'vue-router'
 import tabViewDescriptor from './KpiDefinitionDetailDescriptor.json'
 import KpiDefinitionFormulaTab from './steps/KpiDefinitionFormulaTab.vue'
 import KpiDefinitionCardinalityTab from './steps/KpiDefinitionCardinalityTab.vue'
@@ -99,7 +101,6 @@ import KpiDefinitionThresholdTab from './steps/KpiDefinitionThresholdTab.vue'
 import KpiDefinitionDetailsTab from './steps/KpiDefinitionDetailsTab.vue'
 import ProgressBar from 'primevue/progressbar'
 import mainStore from '../../../../App.store'
-import { useRouter } from 'vue-router'
 
 export default defineComponent({
     components: { KnValidationMessages, KpiDefinitionThresholdTab, KpiDefinitionFormulaTab, KpiDefinitionCardinalityTab, KpiDefinitionDetailsTab, ProgressBar },
@@ -108,8 +109,9 @@ export default defineComponent({
     setup() {
         const store = mainStore()
         const router = useRouter()
+        const $q = useQuasar()
 
-        return { store, router }
+        return { store, router, $q }
     },
     data() {
         return {
@@ -139,20 +141,14 @@ export default defineComponent({
     },
     computed: {
         buttonDisabled(): any {
-            if (this.v$.$invalid) {
-                return true
-            }
-            if (this.selectedKpi.threshold) {
-                if (this.formulaHasErrors === true || !this.selectedKpi.threshold.name) {
-                    return true
-                }
-            }
+            if (this.v$.$invalid) return true
+            if ((this.selectedKpi.threshold && this.formulaHasErrors === true) || !this.selectedKpi.threshold.name) return true
+
             return false
         },
         filteredMeasureList(): any[] {
-            if (!this.aliasSearchFilter) {
-                return this.measureList
-            }
+            if (!this.aliasSearchFilter) return this.measureList
+
             const searchLower = this.aliasSearchFilter.toLowerCase()
             return this.measureList.filter((measure: any) => measure.alias?.toLowerCase().includes(searchLower))
         }
@@ -228,9 +224,7 @@ export default defineComponent({
             this.isAliasVisible = this.isAliasVisible ? false : true
         },
         insertAlias(selectedAlias: string) {
-            if (this.currentStep === 0) {
-                this.aliasToInput = selectedAlias
-            }
+            if (this.currentStep === 0) this.aliasToInput = selectedAlias
         },
         async validateFormula() {
             this.isValidating = true
@@ -261,15 +255,17 @@ export default defineComponent({
             if (!this.touched) {
                 this.closeTemplate()
             } else {
-                this.$confirm.require({
-                    message: this.$t('common.toast.unsavedChangesMessage'),
-                    header: this.$t('common.toast.unsavedChangesHeader'),
-                    icon: 'pi pi-exclamation-triangle',
-                    accept: () => {
+                this.$q
+                    .dialog({
+                        title: this.$t('common.toast.unsavedChangesHeader'),
+                        message: this.$t('common.toast.unsavedChangesMessage'),
+                        cancel: true,
+                        persistent: true
+                    })
+                    .onOk(() => {
                         this.touched = false
                         this.closeTemplate()
-                    }
-                })
+                    })
             }
         },
         closeTemplate() {
@@ -278,12 +274,14 @@ export default defineComponent({
         },
 
         cloneKpiConfirm(kpiId, kpiVersion) {
-            this.$confirm.require({
-                icon: 'pi pi-exclamation-triangle',
-                message: this.$t('kpi.kpiDefinition.confirmClone'),
-                header: this.$t(' '),
-                accept: () => this.cloneKpi(kpiId, kpiVersion)
-            })
+            this.$q
+                .dialog({
+                    title: this.$t('common.clone'),
+                    message: this.$t('kpi.kpiDefinition.confirmClone'),
+                    cancel: true,
+                    persistent: true
+                })
+                .onOk(() => this.cloneKpi(kpiId, kpiVersion))
         },
         async cloneKpi(kpiId, kpiVersion) {
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/kpi/${kpiId}/${kpiVersion}/loadKpi`).then((response: AxiosResponse<any>) => {
@@ -295,11 +293,8 @@ export default defineComponent({
         },
 
         async saveKpi() {
-            // Check if validations pass
             const isFormCorrect = await this.v$.$validate()
-            if (!isFormCorrect) {
-                return
-            }
+            if (!isFormCorrect) return
 
             this.touched = false
             this.kpiToSave = { ...this.selectedKpi }
@@ -331,7 +326,6 @@ export default defineComponent({
                     })
                 })
         },
-
         correctColors(thresholdValues) {
             thresholdValues.forEach((value: any) => {
                 if (!value.color.includes('#')) {
