@@ -225,7 +225,7 @@ export default defineComponent({
         captureScreenshot(widget) {
             let targetElement = document.getElementById(`widget${widget.id}`)
             const escapedSelector = `#widget${widget.id} iframe`.replace('+', '\\+')
-            if (document.querySelector(escapedSelector)) {
+            if (document.querySelector(escapedSelector) && widget.type !== 'customchart') {
                 targetElement = (document.querySelector(escapedSelector) as any)?.contentWindow.document.getElementsByTagName('html')[0]
             }
             domtoimage
