@@ -112,7 +112,19 @@ const resizeMap = () => {
     }
 }
 
-const onSelectionsDeleted = () => {
+const onSelectionsDeleted = (selections: any) => {
+    if (selections && selections.length > 0) {
+        const datasetIds = new Set<number>()
+        props.widgetModel?.layers?.forEach((layer: any) => {
+            if (layer.type === 'dataset') {
+                datasetIds.add(layer.id)
+            }
+        })
+
+        const isForMap = selections.some((selection) => datasetIds.has(selection.datasetId))
+
+        if (!isForMap) return
+    }
     initializeLayers(map, props.widgetModel, props.data, props.dashboardId, variables, props.propActiveSelections)
 }
 
