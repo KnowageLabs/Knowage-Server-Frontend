@@ -10,7 +10,6 @@
                 <ImageWidgetImageSettings v-if="accordion.type === 'ImageSettings'" :widget-model="widgetModel"></ImageWidgetImageSettings>
                 <WidgetSelectionConfiguration v-else-if="accordion.type === 'SelectionConfiguration'" :widget-model="widgetModel"></WidgetSelectionConfiguration>
                 <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
-                <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
                 <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" @styleChanged="onStyleChanged"></WidgetTitleStyle>
                 <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
                 <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>
@@ -35,7 +34,6 @@ import AccordionTab from 'primevue/accordiontab'
 import descriptor from './ImageWidgetSettingsDescriptor.json'
 import settingsTabDescriptor from '../WidgetEditorSettingsTabDescriptor.json'
 import ImageWidgetImageSettings from './configuration/ImageWidgetImageSettings.vue'
-import WidgetExport from '../common/configuration/WidgetExport.vue'
 import WidgetBordersStyle from '../common/style/WidgetBordersStyle.vue'
 import WidgetShadowsStyle from '../common/style/WidgetShadowsStyle.vue'
 import WidgetResponsive from '../common/responsive/WidgetResponsive.vue'
@@ -57,7 +55,6 @@ export default defineComponent({
         Accordion,
         AccordionTab,
         ImageWidgetImageSettings,
-        WidgetExport,
         WidgetTitleStyle,
         WidgetBordersStyle,
         WidgetShadowsStyle,

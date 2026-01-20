@@ -13,7 +13,6 @@
                 <SelectorWidgetValuesManagement v-else-if="accordion.type === 'ValuesManagement'" :widget-model="widgetModel"></SelectorWidgetValuesManagement>
                 <WidgetSelectionConfiguration v-else-if="accordion.type === 'SelectionConfiguration'" :widget-model="widgetModel"></WidgetSelectionConfiguration>
                 <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
-                <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
                 <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" @styleChanged="onStyleChanged"></WidgetTitleStyle>
                 <SelectorWidgetLabelStyle v-else-if="accordion.type === 'LabelStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetLabelStyle>
                 <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
@@ -39,7 +38,6 @@ import settingsTabDescriptor from '../WidgetEditorSettingsTabDescriptor.json'
 import SelectorWidgetType from './configuration/SelectorWidgetType.vue'
 import SelectorWidgetDefaultValues from './configuration/SelectorWidgetDefaultValues.vue'
 import SelectorWidgetValuesManagement from './configuration/SelectorWidgetValuesManagement.vue'
-import WidgetExport from '../common/configuration/WidgetExport.vue'
 import WidgetMenuConfiguration from '../common/configuration/WidgetMenuConfiguration.vue'
 import WidgetTitleStyle from '../common/style/WidgetTitleStyle.vue'
 import SelectorWidgetLabelStyle from './style/SelectorWidgetLabelStyle.vue'
@@ -63,7 +61,6 @@ export default defineComponent({
         SelectorWidgetType,
         SelectorWidgetDefaultValues,
         SelectorWidgetValuesManagement,
-        WidgetExport,
         WidgetTitleStyle,
         SelectorWidgetLabelStyle,
         WidgetBackgroundColorStyle,
