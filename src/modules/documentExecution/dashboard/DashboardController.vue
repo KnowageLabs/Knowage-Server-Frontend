@@ -35,7 +35,7 @@
 /**
  * ! this component will be in charge of creating the dashboard instance and to get initializing informations needed like the theme or the datasets.
  */
-import { defineComponent, PropType } from 'vue'
+import { defineComponent, PropType, toRef } from 'vue'
 import { AxiosResponse } from 'axios'
 import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
 import { IDashboardDataset, ISelection, IGalleryItem, IDataset, IDashboardView, IVariable, SelectorDataMap, WidgetData } from './Dashboard'
@@ -98,7 +98,7 @@ export default defineComponent({
     provide() {
         return {
             selectorWidgetsInitialData: this.selectorWidgetsData as SelectorDataMap,
-            dashboardId: this.dashboardId
+            dashboardId: toRef(this, 'dashboardId')
         }
     },
     setup() {
