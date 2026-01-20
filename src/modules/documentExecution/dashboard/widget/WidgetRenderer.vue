@@ -112,8 +112,10 @@ export default defineComponent({
         },
         getWidgetTitleStyle() {
             const widgetTitle = this.widget.settings.style.title
-            const styleString = getWidgetStyleByType(this.widget, 'title')
-            return styleString + `height: ${widgetTitle.height ?? 25}px;`
+            const baseStyle = getWidgetStyleByType(this.widget, 'title')
+            const styleWithoutHeight = baseStyle.replace(/height:[^;]*;?/gi, '')
+            const heightValue = widgetTitle.height !== undefined && widgetTitle.height !== null ? (typeof widgetTitle.height === 'number' ? `${widgetTitle.height}px` : `${widgetTitle.height}`) : '25px'
+            return `${styleWithoutHeight}height: ${heightValue};`
         },
         getWidgetContainerStyle() {
             const styleString = getWidgetStyleByType(this.widget, 'borders') + getWidgetStyleByType(this.widget, 'shadows') + getWidgetStyleByType(this.widget, 'background')
