@@ -26,10 +26,6 @@
             {
                 "title": "common.image",
                 "type": "ImageSettings"
-            },
-            {
-                "title": "dashboard.widgetEditor.export.title",
-                "type": "Export"
             }
         ],
         "Gallery": [],
