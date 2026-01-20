@@ -222,12 +222,79 @@ export default defineComponent({
                 { label: this.$t('dashboard.qMenu.delete'), icon: 'fa-solid fa-trash', command: () => this.deleteWidgetConfirm(), visible: canEditDashboard(this.document) }
             ]
         },
-        captureScreenshot(widget) {
+        async captureScreenshot(widget) {
             let targetElement = document.getElementById(`widget${widget.id}`)
             const escapedSelector = `#widget${widget.id} iframe`.replace('+', '\\+')
-            if (document.querySelector(escapedSelector) && widget.type !== 'customchart') {
-                targetElement = (document.querySelector(escapedSelector) as any)?.contentWindow.document.getElementsByTagName('html')[0]
+
+            if (document.querySelector(escapedSelector)) {
+                if (widget.type === 'customchart') {
+                    const container = document.getElementById(`widget${widget.id}`) as HTMLElement
+                    const iframe = document.querySelector(escapedSelector) as any
+                    const iframeDoc = iframe?.contentWindow?.document
+
+                    if (!iframeDoc) {
+                        this.setError({
+                            title: this.$t('common.toast.errorTitle'),
+                            msg: this.$t('dashboard.errors.screenshotError')
+                        })
+                        return
+                    }
+
+                    try {
+                        const titleDiv = container.querySelector('.widget-container > div:first-child') as HTMLElement
+                        let titleCanvas = null
+                        let titleHeight = 0
+
+                        if (titleDiv && titleDiv.textContent) {
+                            titleCanvas = await domtoimage.toPng(titleDiv)
+                            titleHeight = titleDiv.offsetHeight
+                        }
+
+                        const iframeHtml = iframeDoc.getElementsByTagName('html')[0]
+                        const contentDataUrl = await domtoimage.toPng(iframeHtml)
+
+                        const canvas = document.createElement('canvas')
+                        const ctx = canvas.getContext('2d')
+                        canvas.width = container.offsetWidth
+                        canvas.height = container.offsetHeight
+
+                        const contentImg = new Image()
+                        contentImg.src = contentDataUrl
+
+                        await new Promise((resolve) => {
+                            contentImg.onload = () => {
+                                if (titleCanvas) {
+                                    const titleImg = new Image()
+                                    titleImg.src = titleCanvas
+                                    titleImg.onload = () => {
+                                        ctx.drawImage(titleImg, 0, 0)
+                                        ctx.drawImage(contentImg, 0, titleHeight)
+                                        resolve(null)
+                                    }
+                                } else {
+                                    ctx.drawImage(contentImg, 0, 0)
+                                    resolve(null)
+                                }
+                            }
+                        })
+
+                        const link = document.createElement('a')
+                        link.download = `${widget.type}-widget.png`
+                        link.href = canvas.toDataURL()
+                        link.click()
+                        return
+                    } catch (error) {
+                        this.setError({
+                            title: this.$t('common.toast.errorTitle'),
+                            msg: `${this.$t('dashboard.errors.screenshotError')}: ${error}`
+                        })
+                        return
+                    }
+                } else {
+                    targetElement = (document.querySelector(escapedSelector) as any)?.contentWindow.document.getElementsByTagName('html')[0]
+                }
             }
+
             domtoimage
                 .toPng(targetElement)
                 .then((dataUrl) => {
