@@ -3,17 +3,18 @@
     <q-btn round flat icon="link" @click="copyLink" class="copyButton">
         <q-tooltip :delay="500">{{ $t('documentExecution.main.copyLink') }}</q-tooltip>
     </q-btn>
-    <vue-markdown-it v-if="markdown" :source="markdown" :options="{html:true}" class="markdownContent"> </vue-markdown-it>
+    <vue-markdown-it v-if="markdown" :source="markdown" :options="{ html: true }" class="markdownContent"> </vue-markdown-it>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, nextTick } from 'vue'
 import { VueMarkdownIt } from '@f3ve/vue-markdown-it'
 import { findNodesByLabelPath } from './DocumentationHelper'
 import axios from 'axios'
 import mainStore from '@/App.store'
 import { useQuasar } from 'quasar'
 import i18n from '@/App.i18n'
+import mermaid from 'mermaid'
 
 const { t } = i18n.global
 const $q = useQuasar()
@@ -28,6 +29,12 @@ const emit = defineEmits<{
     (e: 'toggle-drawer'): void
 }>()
 
+mermaid.initialize({
+    startOnLoad: false,
+    theme: 'default',
+    securityLevel: 'loose'
+})
+
 onMounted(async () => {
     await loadMarkdown()
 })
@@ -38,6 +45,29 @@ watch(
         if (newPath !== oldPath) await loadMarkdown()
     }
 )
+
+async function renderMermaidDiagrams() {
+    await nextTick()
+    const mermaidElements = document.querySelectorAll('.markdownContent pre code.language-mermaid')
+
+    mermaidElements.forEach(async (element, index) => {
+        const code = element.textContent || ''
+        const id = `mermaid-${Date.now()}-${index}`
+
+        try {
+            const { svg } = await mermaid.render(id, code)
+            const pre = element.closest('pre')
+            if (pre) {
+                const container = document.createElement('div')
+                container.className = 'mermaid-container'
+                container.innerHTML = svg
+                pre.replaceWith(container)
+            }
+        } catch (error) {
+            console.error('Errore nel rendering del diagramma Mermaid:', error)
+        }
+    })
+}
 
 async function loadMarkdown() {
     store.setLoading(true)
@@ -69,7 +99,10 @@ async function loadMarkdown() {
         .then((response: any) => {
             markdown.value = response.data
         })
-        .finally(() => store.setLoading(false))
+        .finally(async () => {
+            store.setLoading(false)
+            await renderMermaidDiagrams()
+        })
 }
 
 function copyLink() {
@@ -139,6 +172,18 @@ function toggleDrawer() {
     &:deep(h1:first-of-type) {
         padding-top: 10px;
         margin-top: 0;
+    }
+    &:deep(.mermaid-container) {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 20px 0;
+        padding: 10px;
+        background-color: var(--kn-documentation-content-background);
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
     }
 }
 
