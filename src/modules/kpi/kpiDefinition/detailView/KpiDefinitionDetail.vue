@@ -2,12 +2,17 @@
     <q-layout view="hHh lpR fFf" container>
         <q-header>
             <q-toolbar class="kn-toolbar kn-toolbar--primary">
+                <q-btn flat round dense icon="menu_open" @click="$emit('toggleDrawer')">
+                    <q-tooltip>{{ $t('common.close') }}</q-tooltip>
+                </q-btn>
                 <q-toolbar-title>{{ selectedKpi.name }}</q-toolbar-title>
                 <q-space />
                 <q-btn flat round dense icon="alternate_email" data-test="alias-button" @click="toggleAlias">
                     <q-tooltip>{{ $t('kpi.kpiDefinition.aliasToolbarTitle') }}</q-tooltip>
                 </q-btn>
-                <q-btn flat round dense icon="close" data-test="close-button" @click="closeTemplateConfirm" />
+                <q-btn flat round dense icon="close" data-test="close-button" @click="closeTemplateConfirm">
+                    <q-tooltip>{{ $t('common.close') }}</q-tooltip>
+                </q-btn>
             </q-toolbar>
         </q-header>
 
@@ -15,7 +20,7 @@
             <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
 
             <q-page class="column no-wrap">
-                <q-stepper ref="stepper" v-model="currentStep" class="col kpi-stepper q-pa-none" header-class="prio" color="primary" bordered animated flat keep-alive header-nav vertical>
+                <q-stepper ref="stepper" v-model="currentStep" class="col kpi-stepper q-pa-none" header-class="prio" color="primary" animated flat keep-alive header-nav vertical>
                     <q-step :name="0" class="column no-wrap" :title="$t('kpi.kpiDefinition.formulaTitle')" :caption="$t('kpi.kpiDefinition.formulaCaption')" icon="functions" :done="formulaValidated" :header-nav="formulaValidated">
                         <div class="col q-pt-md">
                             <KpiDefinitionFormulaTab ref="formulaTab" :prop-kpi="selectedKpi" :measures="measureList" :loading="loading" :alias-to-input="aliasToInput" :reload-kpi="reloadKpi" @updateFormulaToSave="onUpdateFormulaToSave" @formulaChanged="onFormulaChanged" @touched="setTouched" />
@@ -104,8 +109,8 @@ import mainStore from '../../../../App.store'
 
 export default defineComponent({
     components: { KnValidationMessages, KpiDefinitionThresholdTab, KpiDefinitionFormulaTab, KpiDefinitionCardinalityTab, KpiDefinitionDetailsTab, ProgressBar },
-    props: { id: { type: String, required: false }, version: { type: String, required: false }, cloneKpiVersion: { type: Number }, cloneKpiId: { type: Number } },
-    emits: ['touched', 'closed', 'kpiCreated', 'kpiUpdated'],
+    props: { id: { type: String, required: false }, version: { type: String, required: false }, cloneKpiVersion: { type: Number }, cloneKpiId: { type: Number }, drawerVisible: { type: Boolean, required: true } },
+    emits: ['touched', 'closed', 'kpiCreated', 'kpiUpdated', 'toggleDrawer'],
     setup() {
         const store = mainStore()
         const router = useRouter()

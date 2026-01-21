@@ -2,7 +2,7 @@
     <q-layout view="hHh lpR fFf" container style="height: 100%; overflow: hidden">
         <q-page-container>
             <q-page class="row" style="position: unset">
-                <q-drawer v-model="drawerVisible" side="left" bordered :width="400" :breakpoint="0" show-if-above class="column no-wrap">
+                <q-drawer v-model="drawerVisible" side="left" :width="400" :breakpoint="0" show-if-above class="column no-wrap">
                     <q-toolbar class="kn-toolbar kn-toolbar--primary">
                         <q-toolbar-title> {{ $t('kpi.kpiDefinition.title') }}</q-toolbar-title>
                         <FabButton icon="fas fa-plus" data-test="open-form-button" @click="showForm" />
@@ -10,20 +10,10 @@
 
                     <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
                     <KnListBox v-if="!loading" class="col kn-height-full" :options="kpiList" :settings="kpiDefinitionDescriptor.knListSettings" @click="showForm" @clone.stop="emitCopyKpi" @delete.stop="deleteKpiConfirm" />
-
-                    <q-toolbar class="q-pa-sm">
-                        <q-space />
-                        <q-btn flat round dense icon="chevron_left" @click="drawerVisible = false">
-                            <q-tooltip>{{ $t('common.close') }}</q-tooltip>
-                        </q-btn>
-                    </q-toolbar>
                 </q-drawer>
 
                 <div class="col">
-                    <q-btn v-if="!drawerVisible" flat round dense icon="chevron_right" class="drawer-toggle-btn" @click="drawerVisible = true">
-                        <q-tooltip>{{ $t('common.open') }}</q-tooltip>
-                    </q-btn>
-                    <router-view :clone-kpi-id="cloneKpiId" :clone-kpi-version="cloneKpiVersion" @touched="touched = true" @closed="onFormClose" @kpiUpdated="reloadAndReroute" @kpiCreated="reloadAndReroute" />
+                    <router-view :clone-kpi-id="cloneKpiId" :clone-kpi-version="cloneKpiVersion" :drawerVisible="drawerVisible" @touched="touched = true" @closed="onFormClose" @kpiUpdated="reloadAndReroute" @kpiCreated="reloadAndReroute" @toggle-drawer="drawerVisible = !drawerVisible" />
                 </div>
             </q-page>
         </q-page-container>
@@ -157,7 +147,7 @@ export default defineComponent({
 <style scoped>
 .drawer-toggle-btn {
     position: absolute;
-    bottom: 10px;
+    top: 10px;
     left: 10px;
     z-index: 100;
 }
