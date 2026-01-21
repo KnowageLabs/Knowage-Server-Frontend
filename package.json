@@ -50,6 +50,7 @@
         "leaflet.heat": "^0.2.0",
         "leaflet.markercluster": "^1.5.3",
         "luxon": "^2.5.2",
+        "mermaid": "^11.12.2",
         "mitt": "^3.0.0",
         "moment": "2.29.4",
         "monaco-editor": "0.52.0",

@@ -14,7 +14,7 @@ import ChartColorSettingsDescriptor from '@/modules/documentExecution/dashboard/
 
 export const getDefaultDashboardThemeConfig = () => {
     const defaultDashboardThemeConfig = {} as IDashboardThemeConfig
-    const widgets = ['text', 'image', 'chart', 'html', 'map', 'customChart', 'python', 'r', 'table', 'pivot', 'discovery', 'activeSelections', 'selector']
+    const widgets = ['text', 'image', 'chart', 'html', 'map', 'customChart', 'python', 'r', 'table', 'pivot', 'discovery', 'activeSelections', 'selector', 'spacer']
 
     widgets.forEach((widget) => (defaultDashboardThemeConfig[widget] = createGenericWidgetStyle()))
 

@@ -203,8 +203,8 @@ export default defineComponent({
         loadMenuItems() {
             this.items = [
                 { label: this.$t('dashboard.qMenu.edit'), icon: 'fa-solid fa-pen-to-square', command: () => this.toggleEditMode(), visible: canEditDashboard(this.document) },
-                { label: this.$t('dashboard.qMenu.expand'), icon: 'fa-solid fa-expand', command: () => this.expandWidget(this.widget), visible: this.document.seeAsFinalUser || !['html', 'image', 'text', 'selector'].includes(this.widget?.type) },
-                { label: this.$t('dashboard.qMenu.screenshot'), icon: 'fa-solid fa-camera-retro', command: () => this.captureScreenshot(this.widget), visible: !['html', 'image', 'text', 'selector'].includes(this.widget?.type) },
+                { label: this.$t('dashboard.qMenu.expand'), icon: 'fa-solid fa-expand', command: () => this.expandWidget(this.widget), visible: this.document.seeAsFinalUser || !['html', 'image', 'text', 'selector', 'spacer'].includes(this.widget?.type) },
+                { label: this.$t('dashboard.qMenu.screenshot'), icon: 'fa-solid fa-camera-retro', command: () => this.captureScreenshot(this.widget), visible: !['html', 'image', 'text', 'selector', 'spacer'].includes(this.widget?.type) },
                 { label: this.$t('dashboard.qMenu.changeType'), icon: 'fa-solid fa-chart-column', command: () => this.toggleChangeDialog(), visible: ['highcharts'].includes(this.widget?.type) },
                 { label: this.$t('dashboard.qMenu.xor'), icon: 'fa-solid fa-arrow-right', command: () => this.searchOnWidget(), visible: this.widget?.type === 'map' },
                 { label: this.$t('dashboard.qMenu.search'), icon: 'fas fa-magnifying-glass', command: () => this.searchOnWidget(), visible: this.widget?.type === 'table' },
@@ -217,8 +217,8 @@ export default defineComponent({
                 { label: this.$t('dashboard.qMenu.clone'), icon: 'fa-solid fa-clone', command: () => this.onCloneWidgetClicked(), visible: canEditDashboard(this.document) },
                 { label: this.$t('dashboard.qMenu.moveWidget'), icon: 'fa fa-arrows-h', command: () => this.moveWidgetToAnotherSheet(), visible: canEditDashboard(this.document) && this.dashboards ? this.dashboards[this.dashboardId]?.sheets?.length > 1 : false },
                 { label: this.$t('dashboard.qMenu.quickWidget'), icon: 'fas fa-magic', command: () => this.toggleQuickDialog(), visible: this.quickWidgetChangeEnabled() },
-                { label: this.$t('dashboard.qMenu.xlsExport'), icon: 'fa-solid fa-file-excel', command: () => this.widgetExport('spreadsheet'), visible: this.widget?.settings?.configuration?.exports?.showExcelExport },
-                { label: this.$t('dashboard.qMenu.pdfExport'), icon: 'fa-solid fa-file-pdf', command: () => this.widgetExport('pdf'), visible: this.widget?.settings?.configuration?.exports?.pdf?.enabled },
+                { label: this.$t('dashboard.qMenu.xlsExport'), icon: 'fa-solid fa-file-excel', command: () => this.widgetExport('spreadsheet'), visible: this.widget?.settings?.configuration?.exports?.showExcelExport && !['spacer'].includes(this.widget?.type) },
+                { label: this.$t('dashboard.qMenu.pdfExport'), icon: 'fa-solid fa-file-pdf', command: () => this.widgetExport('pdf'), visible: this.widget?.settings?.configuration?.exports?.pdf?.enabled && !['spacer'].includes(this.widget?.type) },
                 { label: this.$t('dashboard.qMenu.delete'), icon: 'fa-solid fa-trash', command: () => this.deleteWidgetConfirm(), visible: canEditDashboard(this.document) }
             ]
         },

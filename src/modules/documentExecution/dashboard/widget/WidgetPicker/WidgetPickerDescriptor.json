@@ -73,6 +73,11 @@
             "functionality": "PythonWidget",
             "name": "dashboard.widgets.python.title",
             "type": "python"
+        },
+        {
+            "description": "dashboard.widgets.spacer.description",
+            "name": "dashboard.widgets.spacer.title",
+            "type": "spacer"
         }
     ]
 }

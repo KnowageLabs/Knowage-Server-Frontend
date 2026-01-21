@@ -27,6 +27,7 @@
         <MapWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'map'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId" :layers="layers"></MapWidgetSettingsContainer>
         <cePivotTableWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'ce-pivot-table'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId"></cePivotTableWidgetSettingsContainer>
         <PythonWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'python'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId" :prop-gallery-items="galleryItems" @galleryItemSelected="onGalleryItemSelected"></PythonWidgetSettingsContainer>
+        <SpacerWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'spacer'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId"></SpacerWidgetSettingsContainer>
     </div>
 </template>
 
@@ -49,6 +50,7 @@ import cePivotTableWidgetSettingsContainer from './cePivotTableWidget/cePivotTab
 import DiscoveryWidgetSettingsContainer from './DiscoveryWidget/DiscoveryWidgetSettingsContainer.vue'
 import MapWidgetSettingsContainer from './MapWidget/MapWidgetSettingsContainer.vue'
 import PythonWidgetSettingsContainer from './PythonWidget/PythonWidgetSettingsContainer.vue'
+import SpacerWidgetSettingsContainer from './SpacerWidget/SpacerWidgetSettingsContainer.vue'
 import selectorDescriptor from './SelectorWidget/SelectorWidgetSettingsDescriptor.json'
 import selectionsDescriptor from './SelectionsWidget/SelectionsWidgetSettingsDescriptor.json'
 import WidgetEditorSettingsList from './WidgetEditorSettingsList.vue'
@@ -84,6 +86,7 @@ import cePivotTableDescriptor from './cePivotTableWidget/cePivotTableSettingsDes
 import discoveryDescriptor from './DiscoveryWidget/DiscoveryWidgetSettingsDescriptor.json'
 import mapWidgetDescriptor from './MapWidget/MapSettingsDescriptor.json'
 import pythonWidgetDescriptor from './PythonWidget/PythonWidgetSettingsDescriptor.json'
+import spacerDescriptor from './SpacerWidget/SpacerWidgetSettingsDescriptor.json'
 import { mapState, mapActions } from 'pinia'
 import mainStore from '@/App.store'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
@@ -108,7 +111,8 @@ export default defineComponent({
         DiscoveryWidgetSettingsContainer,
         MapWidgetSettingsContainer,
         cePivotTableWidgetSettingsContainer,
-        PythonWidgetSettingsContainer
+        PythonWidgetSettingsContainer,
+        SpacerWidgetSettingsContainer
     },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
@@ -192,6 +196,9 @@ export default defineComponent({
                     break
                 case 'python':
                     this.descriptor = pythonWidgetDescriptor
+                    break
+                case 'spacer':
+                    this.descriptor = spacerDescriptor
                     break
             }
         },

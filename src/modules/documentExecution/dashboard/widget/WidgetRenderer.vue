@@ -33,6 +33,7 @@
                 @dataset-interaction-preview="$emit('datasetInteractionPreview', $event)"
             />
             <PythonWidgetContainer v-if="widget.type === 'python'" :widget-model="widget" :data-to-show="dataToShow" :dashboard-id="dashboardId" :editor-mode="false" />
+            <SpacerWidget v-if="widget.type === 'spacer'" />
         </div>
     </div>
 </template>
@@ -57,12 +58,13 @@ import CustomChartWidget from '../widget/CustomChartWidget/CustomChartWidget.vue
 import DiscoveryWidget from '../widget/DiscoveryWidget/DiscoveryWidget.vue'
 import MapWidget from '../widget/MapWidget/MapWidget.vue'
 import PythonWidgetContainer from '../widget/PythonWidget/PythonWidgetContainer.vue'
+import SpacerWidget from '../widget/SpacerWidget/SpacerWidget.vue'
 import { mapState } from 'pinia'
 import mainStore from '@/App.store'
 
 export default defineComponent({
     name: 'widget-renderer',
-    components: { TableWidget, SelectorWidget, ActiveSelectionsWidget, WebComponentContainer, HighchartsContainer, ChartJSContainer, ImageWidget, CustomChartWidget, PivotWidget, DiscoveryWidget, CEPivotWidget, PythonWidgetContainer, MapWidget },
+    components: { TableWidget, SelectorWidget, ActiveSelectionsWidget, WebComponentContainer, HighchartsContainer, ChartJSContainer, ImageWidget, CustomChartWidget, PivotWidget, DiscoveryWidget, CEPivotWidget, PythonWidgetContainer, MapWidget, SpacerWidget },
     props: {
         widget: { required: true, type: Object as any },
         widgetLoading: { required: true, type: Boolean as any },
