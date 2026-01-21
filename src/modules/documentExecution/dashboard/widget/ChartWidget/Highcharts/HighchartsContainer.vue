@@ -86,7 +86,7 @@ export default defineComponent({
             highchartsInstance: {} as any,
             drillLevel: 0,
             currentDrillNavigationItem: '',
-            likeSelections: [] as any[],
+            drilldown: [] as any[],
             variables: [] as IVariable[],
             originalReflow: null,
             handleMouseUp: null as (() => void) | null
@@ -270,7 +270,7 @@ export default defineComponent({
         },
         onDrillUp(event: any) {
             this.drillLevel = event.seriesOptions._levelNumber
-            this.likeSelections = this.likeSelections.slice(0, this.drillLevel)
+            this.drilldown = this.drilldown.slice(0, this.drillLevel)
             this.setSeriesEvents()
         },
         async executeInteractions(event: any) {
@@ -286,12 +286,12 @@ export default defineComponent({
                 }
                 const category = this.widgetModel.columns[this.drillLevel - 1]
 
-                this.likeSelections.push({ [category.columnName]: event.point.name })
-                const formattedLikeSelections = this.formatLikeSelections(this.likeSelections)
+                this.drilldown.push({ [category.columnName]: event.point.name })
+                const formattedDrilldown = this.formatDrilldown(this.drilldown)
 
                 this.highchartsInstance.showLoading(this.$t('common.info.dataLoading'))
 
-                const tempData = await getWidgetData(this.dashboardId, this.widgetModel, dashboardDatasets, this.$http, false, this.propActiveSelections, { searchText: '', searchColumns: [] }, this.dashboards[this.dashboardId].configuration, null, false, formattedLikeSelections, this.drillLevel)
+                const tempData = await getWidgetData(this.dashboardId, this.widgetModel, dashboardDatasets, this.$http, false, this.propActiveSelections, { searchText: '', searchColumns: [] }, this.dashboards[this.dashboardId].configuration, null, false, null, this.drillLevel, formattedDrilldown)
                 tempData.initialCall = false
                 const newSeries = this.widgetModel.settings.chartModel.setData(tempData, this.widgetModel)
 
@@ -457,7 +457,7 @@ export default defineComponent({
         cancelSonify() {
             this.highchartsInstance.sonification.cancel()
         },
-        formatLikeSelections(likeSelections) {
+        formatDrilldown(likeSelections) {
             const datasets = this.getDashboardDatasets(this.dashboardId)
             const datasetIndex = datasets.findIndex((dataset: IDashboardDataset) => this.widgetModel.dataset === dataset.id)
             const selectedDataset = datasets[datasetIndex]

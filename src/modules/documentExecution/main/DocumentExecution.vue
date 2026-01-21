@@ -817,6 +817,7 @@ export default defineComponent({
             this.embed = this.$route.path.includes('embed')
             if (this.embed) this.setDocumentExecutionEmbed()
             if (this.$route.params?.mode && ['registry', 'dossier', 'olap', 'dashboard'].includes(this.$route.params.mode)) this.mode = this.$route.params.mode
+            else if (this.$route.name === 'new-dashboard' || this.$route.name === 'dashboard-new') this.mode = 'dashboard'
             else this.mode = 'iframe'
             this.$q.loading.hide()
         },
