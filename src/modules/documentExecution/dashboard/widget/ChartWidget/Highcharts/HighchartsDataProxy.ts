@@ -38,7 +38,7 @@ const CHART_CONFIGURATIONS: Record<string, ChartDataConfig> = {
 // Charts that support complex grouping configurations
 const GROUPING_SUPPORTED_CHARTS = ['area', 'bar', 'column', 'line', 'radar', 'dumbbell', 'waterfall']
 
-export const getHighchartsWidgetData = async (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any, likeSelections?: any, drillLevel?: number) => {
+export const getHighchartsWidgetData = async (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any, drilldown?: any, drillLevel?: number) => {
     const dashStore = dashboardStore()
     const chartType = widget.settings.chartModel?.model?.chart.type
 
@@ -55,7 +55,7 @@ export const getHighchartsWidgetData = async (dashboardId: any, dashboardConfig:
     const postData = formatChartWidgetForGet(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections, drillLevel, chartType)
     let tempResponse = null as any
 
-    if (likeSelections) postData.likeSelections = likeSelections
+    if (drilldown) postData.drilldown = drilldown
 
     const postDataForHash = deepcopy(postData)
     if (itemsLimit && itemsLimit?.enabled) postDataForHash.itemsLimit = itemsLimit
