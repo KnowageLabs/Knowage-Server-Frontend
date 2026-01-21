@@ -18,6 +18,7 @@ import useStore from '@/App.store'
 import { createNewMapWidgetSettings } from './mapWidget/MapWidgetFunctions'
 import { createCeNewPivotTableWidgetSettings } from './cePivotTableWidget/cePivotTableFunctions'
 import { createNewPythonWidgetSettings } from './pythonWidget/PythonWidgetFunctions'
+import { createNewSpacerWidgetSettings } from './spacerWidget/SpacerWidgetFunctions'
 import { addWidgetMenuConfig } from '../../../DashboardHelpers'
 
 const store = useStore()
@@ -100,6 +101,9 @@ export const createNewWidgetSettings = (widget: IWidget, dashboardModel: any) =>
             break
         case 'python':
             widget.settings = createNewPythonWidgetSettings()
+            break
+        case 'spacer':
+            widget.settings = createNewSpacerWidgetSettings()
             break
     }
 }

@@ -1529,6 +1529,10 @@
             "text": {
                 "description": "Static or dynamic widget text. Uses a WYSIWYG editor and shortcodes to embed dynamic content.",
                 "title": "text"
+            },
+            "spacer": {
+                "description": "Empty spacer widget to add spacing and layout in dashboards.",
+                "title": "spacer"
             }
         },
         "wizard": {

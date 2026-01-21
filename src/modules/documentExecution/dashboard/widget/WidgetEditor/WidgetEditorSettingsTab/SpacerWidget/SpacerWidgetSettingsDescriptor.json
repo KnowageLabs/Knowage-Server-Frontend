@@ -1,0 +1,37 @@
+{
+    "settingsListOptions": [
+        {
+            "icon": "fa fa-paint-brush",
+            "label": "common.style",
+            "value": "Style"
+        }
+    ],
+    "settings": {
+        "Style": [
+            {
+                "type": "Title",
+                "title": "dashboard.widgetEditor.titles.title"
+            },
+            {
+                "type": "PaddingStyle",
+                "title": "dashboard.widgetEditor.padding.title"
+            },
+            {
+                "type": "BordersStyle",
+                "title": "dashboard.widgetEditor.borders.title"
+            },
+            {
+                "type": "ShadowsStyle",
+                "title": "dashboard.widgetEditor.shadows.title"
+            },
+            {
+                "type": "BackgroundColorStyle",
+                "title": "dashboard.widgetEditor.background"
+            },
+            {
+                "type": "Responsive",
+                "title": "dashboard.widgetEditor.responsive.title"
+            }
+        ]
+    }
+}

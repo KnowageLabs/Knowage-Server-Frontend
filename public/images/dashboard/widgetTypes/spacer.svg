@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+
+<svg
+   width="800px"
+   height="800px"
+   viewBox="0 0 24 24"
+   fill="none"
+   version="1.1"
+   id="svg4"
+   sodipodi:docname="spacer.svg"
+   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs8" />
+  <sodipodi:namedview
+     id="namedview6"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     showguides="true"
+     inkscape:zoom="0.5"
+     inkscape:cx="336"
+     inkscape:cy="280"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg4">
+    <sodipodi:guide
+       position="9.7647267,15.832021"
+       orientation="1,0"
+       id="guide1051"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="6.6609459,8.981052"
+       orientation="0,-1"
+       id="guide1105"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="7.2761287,14.623764"
+       orientation="0,-1"
+       id="guide1107"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="13.894648,14.560125"
+       orientation="1,0"
+       id="guide1109"
+       inkscape:locked="false" />
+  </sodipodi:namedview>
+  <path
+     style="fill:none;stroke:#000000;stroke-width:1.8;stroke-linecap:round;stroke-dasharray:none;stroke-opacity:1"
+     d="M 4.0942249,4.2417631 V 19.881703"
+     id="path441" />
+  <path
+     style="fill:none;stroke:#000000;stroke-width:1.8;stroke-linecap:round;stroke-dasharray:none;stroke-opacity:1"
+     d="M 19.979818,4.2989361 V 19.938877"
+     id="path441-0" />
+  <path
+     id="path1020-2"
+     style="fill:none;stroke:#000000;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+     d="m 14.032442,15.014173 3.079459,-2.943359 -5.152994,-0.02821 5.158646,0.02824 -3.119159,-2.6432181 M 9.8204865,9.4167177 6.8401824,12.037022 H 11.993253 6.834529 l 3.0297264,3.029726" />
+</svg>
