@@ -1,9 +1,9 @@
 export const widgetIdRegex = /#\[kn-widget-id\]/g
 export const activeSelectionsRegex = /(?:\[kn-active-selection(?:=\'([a-zA-Z0-9\_\-]+)\')?\s?\])/g
 export const columnRegex = /(?:\[kn-column=\'([a-zA-Z0-9\_\-\s]+)\'(?:\s+row=\'(\d*)\')?(?:\s+aggregation=\'(AVG|MIN|MAX|SUM|COUNT_DISTINCT|COUNT|DISTINCT COUNT)\')?(?:\s+precision=\'(\d)\')?(\s+format)?(?:\s+prefix=\'([a-zA-Z0-9\_\-\s]+)\')?(?:\s+suffix=\'([a-zA-Z0-9\_\-\s]+)\')?\s?\])/g
-export const columnDateFormatRegex = /(?:\[kn-column=\'([a-zA-Z0-9\_\-\s]+)\'(?:\s+row=\'(\d*)\')?(?:\s+aggregation=\'(AVG|MIN|MAX|SUM|COUNT_DISTINCT|COUNT|DISTINCT COUNT)\')?(\s+date-format)?(?:\s+prefix=\'([a-zA-Z0-9\_\-\s]+)\')?(?:\s+suffix=\'([a-zA-Z0-9\_\-\s]+)\')?\s?\])/g
+export const columnDateFormatRegex = /(?:\[kn-column=\'([a-zA-Z0-9\_\-\s]+)\'(?:\s+row=\'(\d*)\')?(?:\s+aggregation=\'(AVG|MIN|MAX|SUM|COUNT_DISTINCT|COUNT|DISTINCT COUNT)\')?(\s+date-format)(?:\s+prefix=\'([a-zA-Z0-9\_\-\s]+)\')?(?:\s+suffix=\'([a-zA-Z0-9\_\-\s]+)\')?\s?\])/g
 export const paramsRegex = /(?:\[kn-parameter=[\'\"]{1}([a-zA-Z0-9\_\-\s]+)[\'\"]{1}(\s+description)?\])/g
-export const paramsDateFormatRegex = /(?:\[kn-parameter=[\'\"]{1}([a-zA-Z0-9\_\-\s]+)[\'\"]{1}(\s+date-format)?\])/g
+export const paramsDateFormatRegex = /(?:\[kn-parameter=[\'\"]{1}([a-zA-Z0-9\_\-\s]+)[\'\"]{1}(\s+date-format)\])/g
 export const calcRegex = /(?:\[kn-calc=\(([\[\]\w\s\-\=\>\<\"\'\!\+\*\/\%\&\,\.\|]*)\)(?:\s+min=\'(\d*)\')?(?:\s+max=\'(\d*)\')?(?:\s+precision=\'(\d)\')?(\s+format)?\])/g
 export const advancedCalcRegex = /(?:\[kn-calc=\{([\(\)\[\]\w\s\-\=\>\<\"\'\!\+\*\/\%\&\,\.\|]*)\}(?:\s+min=\'(\d*)\')?(?:\s+max=\'(\d*)\')?(?:\s+precision=\'(\d)\')?(\s+format)?\])/g
 export const repeatIndexRegex = /\[kn-repeat-index\]/g
