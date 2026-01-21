@@ -127,10 +127,19 @@ export const addParametersToData = (dataset, dashboardId, dataToSend, associativ
                 //associative selections should overwrite anything else, even drivers
                 const paramKey = `$P{${param.name}}`
                 if (associativeResponseSelections[dataset.dsLabel][paramKey]) {
-                    const rawValue = associativeResponseSelections[dataset.dsLabel][paramKey][0]
-                    const cleanValue = rawValue.replace(/[()']/g, '')
+                    if (Array.isArray(associativeResponseSelections[dataset.dsLabel][paramKey]) && associativeResponseSelections[dataset.dsLabel][paramKey].length > 1) {
+                        let cleanValues = [] as any[]
+                        associativeResponseSelections[dataset.dsLabel][paramKey].forEach((value => {
+                            const cleanValue = value.replace(/[()']/g, '')
+                            cleanValues.push(cleanValue)
+                        }))
+                        dataToSend.parameters[param.name] = cleanValues
+                    } else {
+                        const rawValue = associativeResponseSelections[dataset.dsLabel][paramKey][0]
+                        const cleanValue = rawValue.replace(/[()']/g, '')
 
-                    dataToSend.parameters[param.name] = cleanValue
+                        dataToSend.parameters[param.name] = cleanValue
+                    }
                 }
             }
         })
