@@ -365,6 +365,7 @@ export default defineComponent({
                 } else {
                     parameter.parameterValue[0] = { value: '', description: '' }
                 }
+                this.updateVisualDependency(parameter)
                 this.updateParameterDependencyAfterParameterResetDefaultValue(parameter)
                 return
             }
@@ -411,6 +412,7 @@ export default defineComponent({
                 }
                 parameter.parameterValue[0].value = parameter.driverDefaultValue[0].value ?? parameter.driverDefaultValue[0][valueIndex]
             }
+            this.updateVisualDependency(parameter)
             this.updateParameterDependencyAfterParameterResetDefaultValue(parameter)
         },
         updateParameterDependencyAfterParameterResetDefaultValue(parameter: any) {
