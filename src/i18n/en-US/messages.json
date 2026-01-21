@@ -196,6 +196,17 @@
         "locked": "Locked",
         "loggedUser": "logged user",
         "login": "Login",
+        "loginPage": {
+            "username": "Username",
+            "password": "Password",
+            "rememberMe": "Remember me",
+            "signIn": "Sign in",
+            "forgotPassword": "Forgot password?",
+            "usernameRequired": "Username is required",
+            "passwordRequired": "Password is required",
+            "loginError": "Invalid credentials. Please try again.",
+            "invalidToken": "Invalid JWT token"
+        },
         "low": "Low",
         "max": "Max",
         "measure": "measure",

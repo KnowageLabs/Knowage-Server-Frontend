@@ -53,7 +53,8 @@ const baseRoutes = [
     {
         path: '/login',
         name: 'login',
-        redirect: `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=LOGOUT_ACTION&LIGHT_NAVIGATOR_DISABLED=TRUE&NEW_SESSION=TRUE`
+        component: () => import('@/views/Login.vue'),
+        meta: { hideMenu: true, public: true }
     },
     {
         path: '/unauthorized',
@@ -95,15 +96,27 @@ router.beforeEach(async (to, from, next) => {
         store.hideMainMenu()
     } else store.showMainMenu()
 
+    // Se l'utente non è autenticato e sta cercando di accedere a una pagina protetta
     if (checkRequired && !to.meta.public && !loggedIn && !to.query.public) {
-        authHelper.handleUnauthorized()
-    } else {
-        if (to.meta?.functionality) {
-            if (from.path === '/' && !store.user?.functionalities?.includes(to.meta?.functionality)) await sleep(1000)
-        }
-        if (to.meta?.functionality && !store.user?.functionalities?.includes(to.meta?.functionality)) next({ replace: true, name: '404' })
-        else next()
+        // Redirect alla pagina di login locale invece del servlet esterno
+        next({
+            name: 'login',
+            query: { redirect: to.fullPath }
+        })
+        return
     }
+
+    // Se l'utente è già autenticato e sta cercando di accedere al login
+    if (loggedIn && to.name === 'login') {
+        next({ name: 'home' })
+        return
+    }
+
+    if (to.meta?.functionality) {
+        if (from.path === '/' && !store.user?.functionalities?.includes(to.meta?.functionality)) await sleep(1000)
+    }
+    if (to.meta?.functionality && !store.user?.functionalities?.includes(to.meta?.functionality)) next({ replace: true, name: '404' })
+    else next()
 })
 
 export default router

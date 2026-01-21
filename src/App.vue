@@ -26,6 +26,7 @@ import themeHelper from '@/helpers/themeHelper/themeHelper'
 import { primeVueDate, getLocale } from '@/helpers/commons/localeHelper'
 import { loadLanguageAsync } from '@/App.i18n.js'
 import auth from '@/helpers/commons/authHelper'
+import { decodeJWT, isTokenExpired } from '@/helpers/commons/jwtHelper'
 
 export default defineComponent({
     components: { ConfirmDialog, KnOverlaySpinnerPanel, KnRotate, MainMenu, Toast },
@@ -35,7 +36,6 @@ export default defineComponent({
             themeHelper: new themeHelper(),
             selectedMenuItem: null,
             isMobileDevice: false,
-            showMenu: false,
             closedMenu: false,
             pollingInterval: null as any,
             stopExecution: false
@@ -56,7 +56,11 @@ export default defineComponent({
             theme: 'theme',
             defaultTheme: 'defaultTheme',
             mainMenuVisibility: 'mainMenuVisibility'
-        })
+        }),
+        showMenu() {
+            // Il menu viene mostrato se c'è un utente nello store
+            return this.user && Object.keys(this.user).length > 0
+        }
     },
     watch: {
         error(newError) {
@@ -89,52 +93,102 @@ export default defineComponent({
     },
     async created() {
         const locationParams = new URL(location).searchParams
+        const token = localStorage.getItem('token')
 
-        let userEndpoint = !localStorage.getItem('token') && locationParams.get('public') ? `/restful-services/3.0/public-user` : '/restful-services/2.0/currentuser'
-        if (locationParams.get('organization')) userEndpoint += `?organization=${locationParams.get('organization')}`
-        await this.$http
-            .get(import.meta.env.VITE_KNOWAGE_CONTEXT + userEndpoint)
-            .then(async (response) => {
-                const currentUser = response.data
-                if (localStorage.getItem('sessionRole')) {
-                    currentUser.sessionRole = localStorage.getItem('sessionRole')
-                } else if (currentUser.defaultRole) currentUser.sessionRole = currentUser.defaultRole
+        // Gestione pagina pubblica
+        if (!token && locationParams.get('public')) {
+            let userEndpoint = '/restful-services/3.0/public-user'
+            if (locationParams.get('organization')) userEndpoint += `?organization=${locationParams.get('organization')}`
 
-                this.initializeUser(currentUser)
+            await this.$http
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + userEndpoint)
+                .then(async (response) => {
+                    const currentUser = response.data
+                    localStorage.setItem('token', response.data.userUniqueIdentifier)
+                    this.initializeUser(currentUser)
 
-                const responseLocale = response.data.locale
-                let storedLocale = responseLocale.replace('_', '-')
-                if (localStorage.getItem('locale')) {
-                    storedLocale = localStorage.getItem('locale')
-                }
-                localStorage.setItem('locale', storedLocale)
-                localStorage.setItem('token', response.data.userUniqueIdentifier)
+                    const responseLocale = response.data.locale
+                    let storedLocale = responseLocale.replace('_', '-')
+                    localStorage.setItem('locale', storedLocale)
+                    this.setLocale(storedLocale)
+                    this.$i18n.locale = storedLocale
+                    await loadLanguageAsync(storedLocale)
+                    this.$primevue.config.locale.dateFormat = primeVueDate(getLocale(true))
+                })
+                .catch((error) => {
+                    console.error('Errore caricamento utente pubblico:', error)
+                    auth.logout()
+                })
+                .finally(() => this.setLoading(false))
+            return
+        }
 
-                this.setLocale(storedLocale)
-                this.$i18n.locale = storedLocale
+        // Se non c'è token e non è una pagina pubblica, carica almeno il tema di default
+        if (!token) {
+            // Carica il tema di default per la pagina di login
+            if (Object.keys(this.defaultTheme).length === 0) {
+                this.setDefaultTheme(this.themeHelper.getDefaultKnowageTheme())
+            }
+            this.setLoading(false)
+            return
+        }
 
-                await loadLanguageAsync(storedLocale)
+        // Verifica se il token è scaduto
+        if (isTokenExpired(token)) {
+            console.warn('Token scaduto')
+            localStorage.removeItem('token')
+            this.setLoading(false)
+            this.$router.push({ name: 'login' })
+            return
+        }
 
-                this.$primevue.config.locale.dateFormat = primeVueDate(getLocale(true))
+        // Decodifica il JWT per ottenere i dati dell'utente
+        const currentUser = decodeJWT(token)
 
-                this.showMenu = true
-            })
-            .catch((error) => {
-                if (error.response.status === 400) {
-                    this.$router.replace({ name: 'unauthorized', params: { message: 'unauthorized.invalidRequest' } })
-                    this.stopExecution = true
-                } else auth.logout()
-            })
-            .finally(() => this.setLoading(false))
-        if (this.stopExecution) return
+        if (!currentUser) {
+            console.error('Token non valido')
+            localStorage.removeItem('token')
+            this.setLoading(false)
+            this.$router.push({ name: 'login' })
+            return
+        }
+
+        // Gestisci sessionRole
+        if (localStorage.getItem('sessionRole')) {
+            currentUser.sessionRole = localStorage.getItem('sessionRole')
+        } else if (currentUser.defaultRole) {
+            currentUser.sessionRole = currentUser.defaultRole
+        }
+
+        // Inizializza utente
+        this.initializeUser(currentUser)
+
+        // Gestisci locale
+        const responseLocale = currentUser.locale || 'en_US'
+        let storedLocale = responseLocale.replace('_', '-')
+        if (localStorage.getItem('locale')) {
+            storedLocale = localStorage.getItem('locale')
+        }
+        localStorage.setItem('locale', storedLocale)
+
+        this.setLocale(storedLocale)
+        this.$i18n.locale = storedLocale
+
+        await loadLanguageAsync(storedLocale)
+
+        this.$primevue.config.locale.dateFormat = primeVueDate(getLocale(true))
 
         await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/user-configs').then(async (response: any) => {
             this.checkTopLevelIframe(response.data)
             this.setConfigurations(response.data)
             this.checkOIDCSession(response.data)
-            if (this.isEnterprise) {
-                if (Object.keys(this.defaultTheme.length === 0)) this.setDefaultTheme(this.themeHelper.getDefaultKnowageTheme())
 
+            // Carica il tema di default sempre, non solo per enterprise
+            if (Object.keys(this.defaultTheme).length === 0) {
+                this.setDefaultTheme(this.themeHelper.getDefaultKnowageTheme())
+            }
+
+            if (this.isEnterprise) {
                 await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/license').then((response) => {
                     this.setLicenses(response.data)
                     if (!this.isEnterpriseValid) {
@@ -147,8 +201,10 @@ export default defineComponent({
                         })
                     }
                 })
+
+                // Carica tema personalizzato se enterprise
                 if (Object.keys(this.theme).length === 0) {
-                    this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/thememanagement/current`).then((themes: any) => {
+                    await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/thememanagement/current`).then((themes: any) => {
                         this.setTheme(themes.data.config)
                         this.themeHelper.setTheme(themes.data.config)
                     })
@@ -219,7 +275,6 @@ export default defineComponent({
             }
         },
         async onLoad() {
-            this.showMenu = true
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/export/dataset').then((response) => {
                 const totalDownloads = response.data.length
                 const alreadyDownloaded = response.data.filter((x) => x.alreadyDownloaded).length

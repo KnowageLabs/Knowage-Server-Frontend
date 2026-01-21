@@ -154,6 +154,17 @@
         "locked": "bloccato",
         "loggedUser": "utente loggato",
         "login": "login",
+        "loginPage": {
+            "username": "Nome utente",
+            "password": "Password",
+            "rememberMe": "Ricordami",
+            "signIn": "Accedi",
+            "forgotPassword": "Password dimenticata?",
+            "usernameRequired": "Nome utente è obbligatorio",
+            "passwordRequired": "Password è obbligatoria",
+            "loginError": "Credenziali non valide. Riprova.",
+            "invalidToken": "Token JWT non valido"
+        },
         "measure": "misura",
         "menu": "menu",
         "message": "messaggio",

@@ -1,5 +1,6 @@
 import mainStore from '../../App.store'
 import axios from '@/axios.js'
+import router from '@/app.routes'
 
 async function invalidateSession(jsps: string[] = [], redirectURI: string): Promise<void> {
     const jspPromises = jsps.map((p) => {
@@ -24,6 +25,7 @@ export default {
                 sessionStorage.clear()
                 store.storeClearIndexedDBCache()
                 store.setUser({})
+                router.replace({ path: '/login', query: {}, hash: '' })
             })
     },
     handleUnauthorized(): void {
