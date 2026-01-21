@@ -1,9 +1,14 @@
 import { ISpacerWidgetSettings } from '@/modules/documentExecution/dashboard/interfaces/DashboardSpacerWidget'
+import { IWidgetHelpSettings } from '@/modules/documentExecution/dashboard/Dashboard'
 import * as widgetCommonDefaultValues from '../common/WidgetCommonDefaultValues'
 
 export const createNewSpacerWidgetSettings = () => {
     return {
-        configuration: {},
+        updatable: false,
+        clickable: false,
+        configuration: {
+            exports: { showExcelExport: false, showScreenshot: false }
+        },
         style: {
             themeId: null,
             title: widgetCommonDefaultValues.getDefaultTitleStyle(),
@@ -12,6 +17,7 @@ export const createNewSpacerWidgetSettings = () => {
             shadows: widgetCommonDefaultValues.getDefaultShadowsStyle(),
             background: widgetCommonDefaultValues.getDefaultBackgroundStyle()
         },
-        responsive: widgetCommonDefaultValues.getDefaultResponsivnes()
+        responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as ISpacerWidgetSettings
 }
