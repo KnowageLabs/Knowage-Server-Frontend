@@ -1,7 +1,7 @@
 <template>
     <div v-if="widgetModel" class="dashboard-editor-list-card-container p-my-3 p-ml-3">
         <span class="p-float-label p-mx-2 p-mt-4 p-mb-1">
-            <Dropdown id="dataset" v-model="selectedDataset" class="kn-material-input kn-width-full" :options="datasetOptions" option-label="label" @change="onDatasetSelected"></Dropdown>
+            <Dropdown id="dataset" v-model="selectedDataset" class="kn-material-input kn-width-full" :options="datasetOptions" option-label="label" :show-clear="isTextOrHTMLWidget" @change="onDatasetSelected" @clear="onDatasetCleared"></Dropdown>
             <label for="dataset" class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.selectDataset') }} </label>
         </span>
         <div v-if="widgetModel.type !== 'selector'" class="p-col-12 p-d-flex">
@@ -178,7 +178,7 @@ export default defineComponent({
         },
         loadModel() {
             this.model = this.widgetModel
-            if (this.datasetOptions.length === 1) {
+            if (this.datasetOptions.length === 1 && this.widgetModel.type !== 'html') {
                 this.selectedDataset = this.datasetOptions[0]
                 this.onDatasetSelected()
             }
@@ -205,6 +205,17 @@ export default defineComponent({
             }
             this.loadSelectedDatasetForFunctions()
             this.$emit('datasetSelected', this.selectedDataset)
+            emitter.emit('clearWidgetData', this.widgetModel.id)
+            emitter.emit('reloadChartColumns', this.widgetModel.id)
+        },
+        onDatasetCleared() {
+            this.selectedDataset = null
+            this.selectedDatasetColumns = []
+            this.removeSelectedColumnsFromModel()
+            if (this.model) {
+                this.model.dataset = null
+            }
+            this.$emit('datasetSelected', null)
             emitter.emit('clearWidgetData', this.widgetModel.id)
             emitter.emit('reloadChartColumns', this.widgetModel.id)
         },
