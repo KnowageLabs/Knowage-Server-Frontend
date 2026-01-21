@@ -4,7 +4,7 @@ import deepcopy from 'deepcopy'
 import { formatNumberWithLocale } from '@/helpers/commons/localeHelper'
 import i18n from '@/App.i18n'
 import sanitizeHtml from 'sanitize-html'
-import { activeSelectionsRegex, advancedCalcRegex, calcRegex, columnRegex, gt, i18nRegex, lt, paramsRegex, repeatIndexRegex, variablesRegex, widgetIdRegex } from '@/modules/documentExecution/dashboard/helpers/common/DashboardRegexHelper'
+import { activeSelectionsRegex, advancedCalcRegex, calcRegex, columnRegex, columnDateFormatRegex, gt, i18nRegex, lt, paramsRegex, paramsDateFormatRegex, repeatIndexRegex, variablesRegex, widgetIdRegex } from '@/modules/documentExecution/dashboard/helpers/common/DashboardRegexHelper'
 
 const { t } = i18n.global
 
@@ -16,6 +16,24 @@ let translatedValues = {} as any
 let widgetData = {} as any
 
 let aggregationDataset = null as any
+
+const isValidDate = (value: any): boolean => {
+    if (!value) return false
+    const date = new Date(value)
+    return !isNaN(date.getTime())
+}
+
+const formatDateWithLocale = (value: any): string => {
+    if (!isValidDate(value)) return value
+
+    const date = new Date(value)
+    try {
+        return new Intl.DateTimeFormat(navigator.language).format(date)
+    } catch (error) {
+        console.error('Error formatting date:', error)
+        return value
+    }
+}
 
 export const parseText = (tempWidgetModel: IWidget, tempDrivers: any[], tempVariables: IVariable[], tempSelections: ISelection[], internationalization: any, tempWidgetData: any, toast: any) => {
     drivers = tempDrivers
@@ -42,7 +60,9 @@ export const parseText = (tempWidgetModel: IWidget, tempDrivers: any[], tempVari
 }
 
 const checkTextWidgetPlaceholders = (unparsedText: string) => {
+    unparsedText = unparsedText.replace(columnDateFormatRegex, columnsDateFormatReplacer)
     unparsedText = unparsedText.replace(columnRegex, columnsReplacer)
+    unparsedText = unparsedText.replace(paramsDateFormatRegex, paramsDateFormatReplacer)
     unparsedText = unparsedText.replace(paramsRegex, paramsReplacer)
     unparsedText = unparsedText.replace(variablesRegex, variablesReplacer)
     unparsedText = unparsedText.replace(i18nRegex, i18nReplacer)
@@ -185,6 +205,15 @@ const formatRepeatedElement = (limit: number, repeatedElement: any) => {
     for (let j = 0; j < limit; j++) {
         const tempRow = deepcopy(repeatedElement)
         tempRow.innerHTML = repeatedElementInnerHtml
+        tempRow.innerHTML = tempRow.innerHTML.replace(columnDateFormatRegex, function (match: string, columnName: string, row: string, aggr: string, dateFormat: string, prefix: string, suffix: string) {
+            let dateFormatPlaceholder = ''
+            let prefixPlaceholder = ''
+            let suffixPlaceholder = ''
+            if (dateFormat) dateFormatPlaceholder = ' date-format'
+            if (prefix) prefixPlaceholder = " prefix='" + prefix + "'"
+            if (suffix) suffixPlaceholder = " suffix='" + suffix + "'"
+            return "[kn-column='" + columnName + "' row='" + j + "'" + dateFormatPlaceholder + prefixPlaceholder + suffixPlaceholder + ']'
+        })
         tempRow.innerHTML = tempRow.innerHTML.replace(columnRegex, function (match: string, columnName: string, row: string, c3: string, precision: string, format: string) {
             let precisionPlaceholder = ''
             let formatPlaceholder = ''
@@ -251,9 +280,11 @@ const parseCalc = (rawHtml: string) => {
 const checkPlaceholders = (document: string) => {
     let resultHtml = document ?? ''
 
+    resultHtml = resultHtml.replace(columnDateFormatRegex, columnsDateFormatReplacer)
     resultHtml = resultHtml.replace(columnRegex, columnsReplacer)
     resultHtml = resultHtml.replace(activeSelectionsRegex, activeSelectionsReplacer)
     resultHtml = resultHtml.replace(widgetIdRegex, '')
+    resultHtml = resultHtml.replace(paramsDateFormatRegex, paramsDateFormatReplacer)
     resultHtml = resultHtml.replace(paramsRegex, paramsReplacer)
     resultHtml = resultHtml.replace(variablesRegex, variablesReplacer)
     resultHtml = resultHtml.replace(i18nRegex, i18nReplacer)
@@ -328,10 +359,44 @@ const columnsReplacer = (match, column, row, aggr, precision, format, prefix, su
     return column
 }
 
+const columnsDateFormatReplacer = (match, column, row, aggr, dateFormat, prefix, suffix) => {
+    const columnInfo = getColumnFromName(column, aggr ? aggregationDataset : widgetData, aggr)
+
+    if (!columnInfo) return (column = (prefix || '') + null + (suffix || ''))
+
+    if (aggr) {
+        column = aggregationDataset && aggregationDataset.rows[0] && aggregationDataset.rows[0][columnInfo.name] !== '' && typeof aggregationDataset.rows[0][columnInfo.name] != 'undefined' ? aggregationDataset.rows[0][columnInfo.name] : null
+    } else if (widgetData && widgetData.rows[row || 0] && typeof widgetData.rows[row || 0][columnInfo.name] != 'undefined' && widgetData.rows[row || 0][columnInfo.name] !== '') {
+        column = widgetData.rows[row || 0][columnInfo.name]
+    } else {
+        column = null
+    }
+
+    if (column != null) {
+        column = formatDateWithLocale(column)
+    }
+
+    column = (prefix || '') + column + (suffix || '')
+
+    return column
+}
+
 export const paramsReplacer = (match: string, p1: string, p2: string) => {
     const index = drivers.findIndex((driver: any) => driver.urlName === p1)
     if (index === -1) return addSlashes(null)
     const result = p2 ? drivers[index].description : drivers[index].value
+    return addSlashes(result)
+}
+
+export const paramsDateFormatReplacer = (match: string, p1: string, dateFormat: string) => {
+    const index = drivers.findIndex((driver: any) => driver.urlName === p1)
+    if (index === -1) return addSlashes(null)
+    let result = drivers[index].value
+
+    if (result != null) {
+        result = formatDateWithLocale(result)
+    }
+
     return addSlashes(result)
 }
 
