@@ -83,5 +83,12 @@
         "weekday": "Returns the day of the week for date/timestamp (0 = Monday, 1 = Tuesday, ..., 6 = Sunday).",
         "weekofyear": "Returns the week of the year of the given date. A week is considered to start on a Monday and week 1 is the first week with >3 days.",
         "year": "Returns the year component of the date/timestamp."
+    },
+    "tour": {
+        "languageTitle": "Language Selection",
+        "languageDescription": "Select here the language you prefer for the user interface.",
+        "mainMenuTitle": "Options",
+        "mainMenuDescription": "Click here to access certain actions like changing role and language, accessing your account settings or logging out.",
+        "progress": "Step {current} of {total}"
     }
 }

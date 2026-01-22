@@ -3,9 +3,9 @@
     <ConfirmDialog></ConfirmDialog>
     <KnOverlaySpinnerPanel />
     <div class="layout-wrapper-content" :class="{ 'layout-wrapper-content-embed': documentExecution.embed, isMobileDevice: isMobileDevice }">
-        <MainMenu v-if="showMenu && mainMenuVisibility" :closeMenu="closedMenu" @openMenu="openMenu"></MainMenu>
+        <MainMenu v-if="showMenu && mainMenuVisibility" :closeMenu="closedMenu" @openMenu="openMenu" data-tour-id="main-menu"></MainMenu>
 
-        <div class="layout-main" :class="{ hiddenMenu: !mainMenuVisibility }" @click="closeMenu" @blur="closeMenu">
+        <div class="layout-main" data-tour-id="content-area" :class="{ hiddenMenu: !mainMenuVisibility }" @click="closeMenu" @blur="closeMenu">
             <router-view :selected-menu-item="selectedMenuItem" @click="closeMenu" />
         </div>
     </div>
@@ -26,6 +26,8 @@ import themeHelper from '@/helpers/themeHelper/themeHelper'
 import { primeVueDate, getLocale } from '@/helpers/commons/localeHelper'
 import { loadLanguageAsync } from '@/App.i18n.js'
 import auth from '@/helpers/commons/authHelper'
+import { driver } from 'driver.js'
+import 'driver.js/dist/driver.css'
 
 export default defineComponent({
     components: { ConfirmDialog, KnOverlaySpinnerPanel, KnRotate, MainMenu, Toast },
@@ -165,6 +167,7 @@ export default defineComponent({
         if (/Android|iPhone/i.test(navigator.userAgent)) {
             this.isMobileDevice = false
         }
+        ;(window as any).startKnowageTour = () => this.startTour()
     },
 
     beforeUnmounted() {
@@ -247,11 +250,95 @@ export default defineComponent({
                     .finally(() => {
                         this.loadInternationalization()
                         this.setLoading(false)
+                        this.maybeStartTour()
                     })
             } else {
                 this.loadInternationalization()
                 this.setLoading(false)
+                this.maybeStartTour()
             }
+        },
+        maybeStartTour() {
+            if (this.isMobileDevice) return
+            if (localStorage.getItem('knowageTourDone')) return
+            // Ensure layout is rendered before starting
+            setTimeout(() => this.startTour(), 400)
+        },
+        async startTour() {
+            if (this.isMobileDevice) return
+
+            const byTourId = (id: string) => document.querySelector(`[data-tour-id='${id}']`) as Element | null
+
+            const waitForElement = async (getEl: () => Element | null, opts?: { timeoutMs?: number; intervalMs?: number }) => {
+                const timeoutMs = opts?.timeoutMs ?? 4000
+                const intervalMs = opts?.intervalMs ?? 100
+
+                const start = Date.now()
+                while (Date.now() - start < timeoutMs) {
+                    const el = getEl()
+                    if (el) return el
+                    await new Promise((r) => setTimeout(r, intervalMs))
+                }
+                return null
+            }
+
+            // Language (flag) is mandatory: wait for it to appear.
+            const languageEl = await waitForElement(() => byTourId('menu-action-languageSelection'))
+            if (!languageEl) return
+
+            // Optional: wait briefly for main menu container as an intro step.
+            const mainMenuEl = await waitForElement(() => byTourId('main-menu'), { timeoutMs: 1000, intervalMs: 100 })
+
+            const steps: any[] = []
+
+            if (mainMenuEl) {
+                steps.push({
+                    element: mainMenuEl,
+                    popover: {
+                        title: this.$t('tour.mainMenuTitle') || 'Menu',
+                        description: this.$t('tour.mainMenuDescription') || 'Usa il menu per navigare tra le funzionalità.',
+                        side: 'right',
+                        onNextClick: async (_el, _step, opts) => {
+                            // Try to open the profile/menu section so the language flag becomes visible.
+                            const profileBtn = document.querySelector("[data-tour-id='menu-profile'] button") as HTMLElement | null
+                            if (profileBtn) profileBtn.click()
+
+                            // Wait a bit for the language button to appear after expanding.
+                            await waitForElement(() => byTourId('menu-action-languageSelection'), { timeoutMs: 1500, intervalMs: 100 })
+
+                            // Move to the language step.
+                            opts.driver.moveNext()
+                        }
+                    }
+                })
+            }
+
+            steps.push({
+                element: languageEl,
+                popover: {
+                    title: this.$t('tour.languageTitle') || 'Lingua',
+                    description: this.$t('tour.languageDescription') || 'Clicca qui (bandiera) per cambiare lingua.',
+                    side: 'right'
+                }
+            })
+
+            const tour = driver({
+                allowClose: true,
+                overlayOpacity: 0.6,
+                animate: true,
+                smoothScroll: true,
+                stagePadding: 8,
+                stageRadius: 10,
+                showProgress: true,
+                nextBtnText: this.$t('common.next') || 'Avanti',
+                prevBtnText: this.$t('common.previous') || 'Indietro',
+                doneBtnText: this.$t('common.close') || 'Chiudi',
+                popoverClass: 'kn-tour-popover'
+            })
+
+            tour.setSteps(steps)
+            tour.drive()
+            localStorage.setItem('knowageTourDone', 'true')
         },
         async loadInternationalization() {
             let currentLocale = localStorage.getItem('locale') ? localStorage.getItem('locale') : this.locale
@@ -343,5 +430,36 @@ body {
         margin-left: 0;
         min-width: 100%;
     }
+}
+
+/* Guided tour (driver.js) look & feel */
+.kn-tour-popover {
+    max-width: 360px;
+}
+
+.kn-tour-popover .driver-popover-title {
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.2px;
+}
+
+.kn-tour-popover .driver-popover-description {
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+.kn-tour-popover .driver-popover-footer {
+    gap: 8px;
+}
+
+.kn-tour-popover .driver-popover-progress-text {
+    font-size: 12px;
+    opacity: 0.75;
+}
+
+.kn-tour-popover .driver-popover-btn {
+    border-radius: 10px;
+    padding: 6px 10px;
+    font-size: 12px;
 }
 </style>

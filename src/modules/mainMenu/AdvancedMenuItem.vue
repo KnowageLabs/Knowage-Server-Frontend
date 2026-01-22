@@ -1,5 +1,5 @@
 <template>
-    <q-btn flat square size="sm" class="menu-btn" :to="link" :class="{ 'router-link-active': isActive(props.item) }" @click="onClick($event, item)">
+    <q-btn flat square size="sm" class="menu-btn" :to="link" :class="{ 'router-link-active': isActive(props.item) }" :data-tour-id="tourId" @click="onClick($event, item)">
         <q-badge v-if="props.item.badge" color="accent" class="menuBadge">{{ props.item.badge }}</q-badge>
         <q-avatar square v-if="props.item.custIcon" size="20px"><img :src="props.item.custIcon" /></q-avatar>
         <q-avatar v-else-if="props.item.iconCls && props.item.command === 'languageSelection'" size="24px"><img :src="publicPath + '/images/flags/' + store.locale.toLowerCase().substring(3, 5) + '.svg'" /></q-avatar>
@@ -47,6 +47,12 @@ function onClick(event, item): void {
         })
     }
 }
+
+const tourId = computed(() => {
+    if (props.item?.command) return `menu-action-${props.item.command}`
+    if (props.item?.conditionedView) return `menu-conditioned-${props.item.conditionedView}`
+    return undefined
+})
 </script>
 <style lang="scss">
 .menu-btn.q-btn {
