@@ -406,9 +406,34 @@ export interface ITableWidgetSummaryStyle {
 }
 
 export interface ITableWidgetPaginatorStyle {
-    color: string
     'background-color': string
     'justify-content': string
+    maxPages?: number
+    buttonColor?: string
+    buttonTextColor?: string
+    activeButtonColor?: string
+    activeButtonTextColor?: string
+    containerPadding?: string
+    paginationText?: string
+    showPaginationText?: boolean
+    input?: boolean
+    outline?: boolean
+    unelevated?: boolean
+    variant?: 'flat' | 'outline' | 'unelevated'
+    round?: boolean
+    ripple?: boolean
+    boundaryLinks?: boolean
+    boundaryNumbers?: boolean
+    directionLinks?: boolean
+    ellipses?: boolean
+    iconFirst?: string
+    iconPrev?: string
+    iconNext?: string
+    iconLast?: string
+    gutter?: string
+    padding?: string
+    size?: string
+    [key: string]: any // Add index signature to support dynamic icon key access
 }
 
 export interface ITableWidgetTooltipStyle {

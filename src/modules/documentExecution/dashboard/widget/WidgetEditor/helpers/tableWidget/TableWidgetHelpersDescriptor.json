@@ -117,9 +117,29 @@
         }
     },
     "defaultPaginatorStyle": {
+        "activeColor": "",
         "background-color": "",
-        "color": "",
-        "justify-content": ""
+        "boundaryLinks": false,
+        "boundaryNumbers": false,
+        "color": "primary",
+        "containerPadding": "",
+        "directionLinks": true,
+        "ellipses": false,
+        "gutter": "",
+        "iconFirst": "first_page",
+        "iconLast": "last_page",
+        "iconNext": "chevron_right",
+        "iconPrev": "chevron_left",
+        "input": true,
+        "justify-content": "center",
+        "maxPages": 7,
+        "padding": "",
+        "paginationText": "",
+        "ripple": false,
+        "round": false,
+        "showPaginationText": true,
+        "size": "md",
+        "variant": "flat"
     },
     "defaultPreview": {
         "dataset": -1,

@@ -1,4 +1,28 @@
 {
+    "justifyContentOptions": [
+        {
+            "label": "Start",
+            "value": "flex-start"
+        },
+        {
+            "label": "Center",
+            "value": "center"
+        },
+        {
+            "label": "End",
+            "value": "flex-end"
+        }
+    ],
+    "paginatorModeOptions": [
+        {
+            "label": "Buttons",
+            "value": false
+        },
+        {
+            "label": "Input",
+            "value": true
+        }
+    ],
     "paginatorStyleSettings": [
         {
             "type": "justify-content"
@@ -8,6 +32,20 @@
         },
         {
             "type": "background-color"
+        }
+    ],
+    "variantOptions": [
+        {
+            "label": "Flat",
+            "value": "flat"
+        },
+        {
+            "label": "Outline",
+            "value": "outline"
+        },
+        {
+            "label": "Unelevated",
+            "value": "unelevated"
         }
     ]
 }

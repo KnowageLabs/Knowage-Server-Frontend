@@ -587,7 +587,34 @@
             "rename": "Rename Sheet"
         },
         "tableWidget": {
-            "launchSelection": "LAUNCH SELECTION"
+            "activeBackground": "Active Background",
+            "activeText": "Active Text",
+            "boundaryLinks": "Boundary Links",
+            "boundaryNumbers": "Boundary Numbers",
+            "buttonBackground": "Button Background",
+            "buttonColors": "Button Colors",
+            "buttonText": "Button Text",
+            "containerPadding": "Container Padding",
+            "containerStyle": "Container Style",
+            "customIcons": "Custom Icons",
+            "designVariants": "Design Variants",
+            "directionLinks": "Direction Links",
+            "ellipses": "Ellipses",
+            "firstPageIcon": "First Page Icon",
+            "generalConfig": "General Config",
+            "gutter": "Gutter",
+            "lastPageIcon": "Last Page Icon",
+            "launchSelection": "LAUNCH SELECTION",
+            "maxPages": "Max Pages",
+            "nextIcon": "Next Icon",
+            "paginationMode": "Pagination Mode",
+            "paginationText": "Pagination Text",
+            "paginationTextHint": "Use placeholders: ",
+            "previousIcon": "Previous Icon",
+            "rippleEffect": "Ripple Effect",
+            "round": "Round",
+            "size": "Size",
+            "spacingAndSize": "Spacing & Size"
         },
         "truncateDialog": "Cell Content",
         "unlockAllWidgets": "Unlock all widgets",
@@ -1518,6 +1545,10 @@
                 "description": "Selector widget to easily filter categories.",
                 "title": "selector"
             },
+            "spacer": {
+                "description": "Empty spacer widget to add spacing and layout in dashboards.",
+                "title": "spacer"
+            },
             "static-pivot-table": {
                 "description": "Pivot or cross table with datasource binding.",
                 "title": "pivot"
@@ -1529,10 +1560,6 @@
             "text": {
                 "description": "Static or dynamic widget text. Uses a WYSIWYG editor and shortcodes to embed dynamic content.",
                 "title": "text"
-            },
-            "spacer": {
-                "description": "Empty spacer widget to add spacing and layout in dashboards.",
-                "title": "spacer"
             }
         },
         "wizard": {
