@@ -32,7 +32,7 @@
             "root": "rows",
             "totalProperty": "results"
         },
-        "results": 43,
+        "results": 143,
         "rows": [
             {
                 "column_1": "Store Sales",
@@ -273,7 +273,7 @@
                 "properties": {
                     "itemsNumber": 10,
                     "offset": 0,
-                    "totalItems": 43
+                    "totalItems": 143
                 }
             },
             "responsive": {

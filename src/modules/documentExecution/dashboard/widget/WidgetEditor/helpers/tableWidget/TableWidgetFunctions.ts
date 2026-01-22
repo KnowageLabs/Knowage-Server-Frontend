@@ -138,6 +138,23 @@ const formatTableSettings = (widgetSettings: ITableWidgetSettings) => {
     formatTableWidgetConditionalStyle(widgetSettings.conditionalStyles)
     formatTableWidgetTooltips(widgetSettings.tooltips)
     formatTableInteractions(widgetSettings.interactions)
+    formatTableWidgetPaginator(widgetSettings.style)
+}
+
+const formatTableWidgetPaginator = (widgetStyle: any) => {
+    if (!widgetStyle.paginator) {
+        widgetStyle.paginator = tableWidgetDefaultValues.getDefaultPaginatorStyle()
+        return
+    }
+
+    const defaults = tableWidgetDefaultValues.getDefaultPaginatorStyle()
+    const paginator = widgetStyle.paginator
+
+    for (const key in defaults) {
+        if (paginator[key] === undefined) {
+            paginator[key] = defaults[key]
+        }
+    }
 }
 
 const formatTableWidgetConfiguration = (widgetConfiguration: ITableWidgetConfiguration) => {
