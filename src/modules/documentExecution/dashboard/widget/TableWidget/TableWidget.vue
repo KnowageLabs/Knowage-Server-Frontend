@@ -232,7 +232,13 @@ export default defineComponent({
             }
         },
         toggleHeaders(headersConfiguration) {
-            this.gridApi?.setGridOption('rowHeight', headersConfiguration.enabled ? this.widgetModel.settings.style.headers.height : 0)
+            const headerHeight = headersConfiguration.enabled ? this.parseHeight(this.widgetModel.settings.style.headers.height, 25) : 0
+            this.gridApi?.setGridOption('headerHeight', headerHeight)
+        },
+        parseHeight(value: any, defaultValue: number): number {
+            if (value === undefined || value === null || value === '') return defaultValue
+            const numValue = typeof value === 'number' ? value : parseInt(String(value), 10)
+            return isNaN(numValue) ? defaultValue : numValue
         },
         getRowHeight() {
             const rowsConfiguration = this.widgetModel.settings.style.rows
