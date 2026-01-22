@@ -83,5 +83,12 @@
     "weekday": "Restituisce il giorno della settimana per data/ora (0 = lunedì, 1 = martedì, ..., 6 = domenica).",
     "weekofyear": "Restituisce la settimana dell'anno della data specificata. Si considera che una settimana inizi il lunedì e la settimana 1 sia la prima settimana con >3 giorni.",
     "year": "Restituisce il componente anno della data/timestamp."
+  },
+  "tour": {
+    "languageTitle": "Selezione della lingua",
+    "languageDescription": "Seleziona qui la lingua che preferisci per l'interfaccia utente.",
+    "mainMenuTitle": "Opzioni",
+    "mainMenuDescription": "Fare clic qui per accedere a determinate azioni come la modifica del ruolo e della lingua, l'accesso alle impostazioni del proprio account o il logout.",
+    "progress": "Step {current} di {total}"
   }
 }

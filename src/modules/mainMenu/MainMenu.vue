@@ -11,7 +11,7 @@
         <q-menu ref="menu" :target="menuTargetElem" :anchor="anchorPosition" self="top left" data-test="menu">
             <MainMenuTieredMenu :items="selectedCustomMenu" @link="itemClick"></MainMenuTieredMenu>
         </q-menu>
-        <div ref="menuProfile" class="profile">
+        <div ref="menuProfile" class="profile" data-tour-id="menu-profile">
             <button v-tooltip="user && user.fullName" class="p-link" @click="toggleProfile">
                 <img alt="Profile" class="profile-image" :src="getProfileImage(user)" />
                 <span v-if="user" class="profile-name">{{ user.fullName }}</span>
@@ -29,7 +29,7 @@
                     </template>
                 </ul>
             </transition>
-            <ul class="layout-menu">
+            <ul class="layout-menu" data-tour-id="menu-items">
                 <li v-if="technicalUserFunctionalities && technicalUserFunctionalities.length > 0" role="menu" @click="toggleAdminMenu">
                     <span :class="['p-menuitem-icon', 'fas fa-cog']"></span>
                 </li>
