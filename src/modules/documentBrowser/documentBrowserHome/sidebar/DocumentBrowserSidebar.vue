@@ -80,16 +80,6 @@ export default defineComponent({
         isSuperAdmin(): boolean {
             return this.user?.isSuperadmin
         },
-        getImageUrl(): any {
-            this.$http
-                .get(`${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/preview-file/download?fileName=${this.selectedDocument?.previewFile}`)
-                .then((response) => {
-                    return URL.createObjectURL(response.data)
-                })
-                .catch((error) => {
-                    return ''
-                })
-        },
         canEditDocument(): boolean {
             if (!this.user) return false
             switch (this.document.stateCode) {
@@ -108,6 +98,19 @@ export default defineComponent({
     watch: {
         selectedDocument() {
             this.loadDocument()
+        },
+        'selectedDocument.previewFile': {
+            immediate: true,
+            async handler() {
+                if (this.selectedDocument?.previewFile) {
+                    const imageData = await this.getImageUrl()
+                    if (imageData) {
+                        this.previewImage = URL.createObjectURL(imageData)
+                    }
+                } else {
+                    this.previewImage = null
+                }
+            }
         }
     },
     created() {
@@ -115,11 +118,22 @@ export default defineComponent({
         this.user = (this.store.$state as any).user
     },
     methods: {
+        async getImageUrl(): Promise<Blob | null> {
+            if (!this.selectedDocument?.previewFile) {
+                return null
+            }
+            try {
+                const response = await this.$http.get(
+                    `${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/preview-file/download?fileName=${this.selectedDocument.previewFile}`,
+                    { responseType: 'blob' }
+                )
+                return response.data
+            } catch (error) {
+                return null
+            }
+        },
         loadDocument() {
             this.document = this.selectedDocument
-            if (this.selectedDocument?.previewFile) {
-                this.previewImage = this.getImageUrl
-            }
         },
         getFormatedDate(date: any) {
             return formatDate(date, 'MMM DD, YYYY h:mm:ss A')

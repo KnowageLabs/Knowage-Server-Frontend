@@ -343,16 +343,6 @@ export default defineComponent({
                     return false
             }
         },
-        getImageUrl(): any {
-            this.$http
-                .get(`${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/preview-file/download?fileName=${this.selectedDocument?.previewFile}`)
-                .then((response) => {
-                    return URL.createObjectURL(response.data)
-                })
-                .catch((error) => {
-                    return ''
-                })
-        },
         designerButtonVisible(): boolean {
             return this.document.typeCode == 'OLAP' || this.document.typeCode == 'KPI' || this.document.engine == 'knowagegisengine' || (this.document.engine == 'knowagedossierengine' && this.document.id !== undefined)
         },
@@ -389,16 +379,25 @@ export default defineComponent({
         }
     },
     watch: {
-        async selectedDocument() {
+        selectedDocument() {
             this.setData()
-            await this.setImagePreview(this.getImageUrl)
-            await this.getAllTemplates()
+            this.getAllTemplates()
+        },
+        'selectedDocument.previewFile': {
+            immediate: true,
+            async handler() {
+                if (this.selectedDocument?.previewFile) {
+                    const imageData = await this.getImageUrl()
+                    this.setImagePreview(imageData)
+                } else {
+                    this.resetImagePreview()
+                }
+            }
         }
     },
     async created() {
         this.setData()
         await this.getAllTemplates()
-        await this.setImagePreview(this.getImageUrl)
         await this.touchValidatedFields()
     },
     validations() {
@@ -406,6 +405,19 @@ export default defineComponent({
         return validationObject
     },
     methods: {
+        async getImageUrl(): Promise<Blob | string> {
+            if (!this.selectedDocument?.previewFile) {
+                return ''
+            }
+            try {
+                const response = await this.$http.get(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/preview-file/download?fileName=${this.selectedDocument.previewFile}`,
+                    { responseType: 'blob' }
+                )
+                return response.data
+            } catch (error) {
+                return ''
+            }
+        },
         setData() {
             this.templates = this.availableTemplates as iTemplate[]
             this.document = this.selectedDocument as iDocument
@@ -461,10 +473,9 @@ export default defineComponent({
             setTimeout(() => (this.uploading = false), 200)
         },
         setImagePreview(imageFile?: any) {
-            if (imageFile) {
+            if (imageFile instanceof Blob) {
                 this.imagePreviewUrl = URL.createObjectURL(imageFile)
                 this.imagePreview = true
-                this.store.setInfo({ title: this.$t('common.uploadFileSuccess'), msg: this.$t('documentExecution.documentDetails.info.imageInfo') })
             } else {
                 this.resetImagePreview()
             }
