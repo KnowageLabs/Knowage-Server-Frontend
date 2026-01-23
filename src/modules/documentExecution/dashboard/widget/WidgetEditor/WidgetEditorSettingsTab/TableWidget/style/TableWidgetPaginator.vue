@@ -110,8 +110,11 @@
 
             <!-- Pagination Text -->
             <label class="kn-material-input-label section-label col-12">{{ $t('dashboard.tableWidget.paginationText') }}</label>
-            <div class="col-12">
-                <q-checkbox v-model="paginatorStyleModel.showPaginationText" :label="$t('common.enable')" @update:model-value="onPaginatorChange" />
+            <div class="col-auto">
+                <q-btn-toggle v-model="paginatorStyleModel.paginationTextPosition" :options="descriptor.paginationTextPositionOptions" color="secondary" toggle-color="primary" unelevated @update:model-value="onPaginatorChange" />
+            </div>
+            <div class="col-auto">
+                <q-checkbox v-model="paginatorStyleModel.paginationTextSpaced" :label="$t('dashboard.tableWidget.paginationTextSpaced')" @update:model-value="onPaginatorChange" />
             </div>
             <div class="col-12">
                 <q-input v-model="paginatorStyleModel.paginationText" :label="$t('dashboard.tableWidget.paginationText')" :hint="`${$t('dashboard.tableWidget.paginationTextHint')}#{currentPage}, #{totalPages}, #{startItem}, #{endItem}, #{totalItems}, #{itemsPerPage}`" placeholder="#{startItem}-#{endItem}/#{totalItems}" dense outlined @update:model-value="onPaginatorChange" />

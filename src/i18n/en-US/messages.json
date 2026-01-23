@@ -606,6 +606,7 @@
             "paginationMode": "Pagination Mode",
             "paginationText": "Pagination Text",
             "paginationTextHint": "Use placeholders: ",
+            "paginationTextSpaced": "Spaced",
             "previousIcon": "Previous Icon",
             "rippleEffect": "Ripple Effect",
             "round": "Round",

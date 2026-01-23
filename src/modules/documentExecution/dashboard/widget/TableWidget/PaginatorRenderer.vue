@@ -1,5 +1,6 @@
 <template>
     <div :style="containerStyle">
+        <span v-if="paginationText && textPosition === 'left'" :class="textClasses">{{ paginationText }}</span>
         <q-pagination
             v-model="currentPage"
             class="custom-pagination"
@@ -23,7 +24,7 @@
             :ripple="paginationConfig.ripple"
             @update:model-value="onPageChange"
         />
-        <span v-if="paginationText" class="q-mx-sm p-ac-center pagination-text">{{ paginationText }}</span>
+        <span v-if="paginationText && textPosition === 'right'" :class="textClasses">{{ paginationText }}</span>
     </div>
 </template>
 
@@ -121,9 +122,6 @@ export default defineComponent({
             }
         },
         paginationText() {
-            const showText = this.propWidget?.settings?.style?.paginator?.showPaginationText
-            if (!showText) return ''
-
             const template = this.propWidget?.settings?.style?.paginator?.paginationText
             if (!template || template.trim() === '') return ''
 
@@ -141,6 +139,19 @@ export default defineComponent({
                 .replace(/#{endItem}/g, endItem.toString())
                 .replace(/#{totalItems}/g, totalItems.toString())
                 .replace(/#{itemsPerPage}/g, itemsPerPage.toString())
+        },
+        textPosition() {
+            return this.propWidget?.settings?.style?.paginator?.paginationTextPosition || 'right'
+        },
+        textClasses() {
+            const isSpaced = this.propWidget?.settings?.style?.paginator?.paginationTextSpaced ?? false
+            return {
+                'pagination-text': true,
+                'q-mx-sm': !isSpaced,
+                'q-ml-auto q-mr-sm': isSpaced && this.textPosition === 'right',
+                'q-mr-auto q-ml-sm': isSpaced && this.textPosition === 'left',
+                'p-ac-center': true
+            }
         }
     },
     watch: {
