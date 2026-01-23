@@ -563,7 +563,15 @@ export default defineComponent({
                                 if (dynamicParamMatch) {
                                     const paramUrlName = dynamicParamMatch[1]
                                     const userParameter = this.filtersData?.filterStatus?.find((f) => f.urlName === paramUrlName)
-                                    payload[ds.dsLabel][par.name] = userParameter?.parameterValue?.[0]?.value ?? par.value
+                                    if (userParameter?.parameterValue && userParameter.parameterValue.length > 0) {
+                                        if (userParameter.multivalue) {
+                                            payload[ds.dsLabel][par.name] = userParameter.parameterValue.map((pv) => pv.value)
+                                        } else {
+                                            payload[ds.dsLabel][par.name] = userParameter.parameterValue[0].value
+                                        }
+                                    } else {
+                                        payload[ds.dsLabel][par.name] = userParameter?.multivalue ? [] : ''
+                                    }
                                 } else {
                                     payload[ds.dsLabel][par.name] = par.value
                                 }
