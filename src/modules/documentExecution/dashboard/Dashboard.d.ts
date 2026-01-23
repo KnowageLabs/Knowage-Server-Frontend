@@ -415,7 +415,8 @@ export interface ITableWidgetPaginatorStyle {
     activeButtonTextColor?: string
     containerPadding?: string
     paginationText?: string
-    showPaginationText?: boolean
+    paginationTextPosition?: 'left' | 'right'
+    paginationTextSpaced?: boolean
     input?: boolean
     outline?: boolean
     unelevated?: boolean

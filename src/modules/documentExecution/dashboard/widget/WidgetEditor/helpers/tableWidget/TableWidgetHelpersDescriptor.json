@@ -135,9 +135,10 @@
         "maxPages": 7,
         "padding": "",
         "paginationText": "",
+        "paginationTextPosition": "right",
+        "paginationTextSpaced": false,
         "ripple": false,
         "round": false,
-        "showPaginationText": true,
         "size": "md",
         "variant": "flat"
     },

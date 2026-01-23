@@ -47,5 +47,15 @@
             "label": "Unelevated",
             "value": "unelevated"
         }
+    ],
+    "paginationTextPositionOptions": [
+        {
+            "label": "Left",
+            "value": "left"
+        },
+        {
+            "label": "Right",
+            "value": "right"
+        }
     ]
 }
