@@ -326,7 +326,7 @@ export default defineComponent({
             let fieldAlias = ''
             let text = ''
             if (data.item.fieldAlias) {
-                fieldAlias = this.source !== 'dashboard' ? this.wrap(data.item.fieldLabel ?? data.item.fieldAlias) : `"${data.item.fieldLabel} ?? ${data.item.fieldAlias}"`
+                fieldAlias = this.source !== 'dashboard' ? this.wrap(data.item.fieldLabel ?? data.item.fieldAlias) : `"${data.item.fieldLabel ?? data.item.fieldAlias}"`
             }
             text = data.elementType === 'function' ? data.item : fieldAlias
             const word = editor.getModel().getWordAtPosition(position)
