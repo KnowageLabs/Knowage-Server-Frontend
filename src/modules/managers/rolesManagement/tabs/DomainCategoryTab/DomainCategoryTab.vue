@@ -4,7 +4,7 @@
             <q-toolbar-title>{{ title }}</q-toolbar-title>
         </q-toolbar>
         <q-card-section>
-            <q-table flat dense hide-pagination :rows="availableCategories" :columns="[{ name: 'categoryName', label: $t('common.name'), field: 'categoryName', align: 'left' }]" row-key="categoryId" selection="multiple" v-model:selected="selectedCategories" @update:selected="setDirty" />
+            <q-table flat dense hide-pagination :rows="availableCategories" :columns="[{ name: 'categoryName', label: $t('common.name'), field: 'categoryName', align: 'left' }]" row-key="categoryId" selection="multiple" v-model:selected="selectedCategories" :pagination="{ rowsPerPage: 0 }" @update:selected="setDirty" />
         </q-card-section>
     </q-card>
 </template>
