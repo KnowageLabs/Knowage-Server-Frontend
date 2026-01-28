@@ -56,6 +56,11 @@ export const getFormattedDateTimeUsingToLocaleString = (format: string, dt: Date
             return dt.toLocaleString(DateTime.DATETIME_FULL)
         default:
             return dt.toLocaleString(DateTime.DATE_SHORT)
+            try {
+                return dt.toFormat(format)
+            } catch {
+                return dt.toLocaleString(DateTime.DATE_SHORT)
+            }
     }
 }
 
