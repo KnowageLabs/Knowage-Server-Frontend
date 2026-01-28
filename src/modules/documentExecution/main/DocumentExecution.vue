@@ -552,38 +552,46 @@ export default defineComponent({
         async clearCache() {
             clearIndexedDBCache()
             if (this.document.dashboardId) {
-                const payload = {}
-                const datasets = this.dashboards[this.document.dashboardId].configuration.datasets
-                datasets.forEach((ds) => {
-                    payload[ds.dsLabel] = {}
-                    if (ds.parameters && ds.parameters.length > 0) {
-                        ds.parameters.forEach((par) => {
-                            if (par.type === 'dynamic') {
-                                const dynamicParamMatch = par.value?.match(/\$P\{([^}]+)\}/)
-                                if (dynamicParamMatch) {
-                                    const paramUrlName = dynamicParamMatch[1]
-                                    const userParameter = this.filtersData?.filterStatus?.find((f) => f.urlName === paramUrlName)
-                                    if (userParameter?.parameterValue && userParameter.parameterValue.length > 0) {
-                                        if (userParameter.multivalue) {
-                                            payload[ds.dsLabel][par.name] = userParameter.parameterValue.map((pv) => pv.value)
-                                        } else {
-                                            payload[ds.dsLabel][par.name] = userParameter.parameterValue[0].value
-                                        }
-                                    } else {
-                                        payload[ds.dsLabel][par.name] = userParameter?.multivalue ? [] : ''
-                                    }
-                                } else {
-                                    payload[ds.dsLabel][par.name] = par.value
-                                }
-                            } else {
-                                payload[ds.dsLabel][par.name] = par.value
-                            }
-                        })
-                    }
-                })
-                await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/cache/clean-datasets`, payload).then(() => this.setInfo({ title: this.$t('documentExecution.main.clearCache'), msg: this.$t('documentExecution.main.cacheCleared') }))
+                const payload = this.buildCacheCleanPayload()
+                await this.$http
+                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/cache/clean-datasets`, payload)
+                    .then(() => this.setInfo({ title: this.$t('documentExecution.main.clearCache'), msg: this.$t('documentExecution.main.cacheCleared') }))
+                    .catch(() => {})
             }
-            this.document
+        },
+        buildCacheCleanPayload() {
+            const payload = {} as any
+            const datasets = this.dashboards[this.document.dashboardId].configuration.datasets
+
+            datasets.forEach((ds) => {
+                payload[ds.dsLabel] = {}
+                if (ds.parameters && ds.parameters.length > 0) {
+                    ds.parameters.forEach((par) => {
+                        payload[ds.dsLabel][par.name] = this.getParameterValueForCacheClean(par)
+                    })
+                }
+            })
+
+            return payload
+        },
+        getParameterValueForCacheClean(parameter: any) {
+            if (parameter.type !== 'dynamic') {
+                return parameter.value
+            }
+
+            const dynamicParamMatch = parameter.value?.match(/\$P\{([^}]+)\}/)
+            if (!dynamicParamMatch) {
+                return parameter.value
+            }
+
+            const paramUrlName = dynamicParamMatch[1]
+            const userParameter = this.filtersData?.filterStatus?.find((f) => f.urlName === paramUrlName)
+
+            if (!userParameter?.parameterValue || userParameter.parameterValue.length === 0) {
+                return userParameter?.multivalue ? [] : ''
+            }
+
+            return userParameter.multivalue ? userParameter.parameterValue.map((pv) => pv.value) : userParameter.parameterValue[0].value
         },
         async refresh() {
             this.parameterSidebarVisible = false
