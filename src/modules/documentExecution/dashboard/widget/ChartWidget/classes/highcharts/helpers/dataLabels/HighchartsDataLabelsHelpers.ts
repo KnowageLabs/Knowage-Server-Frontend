@@ -62,7 +62,7 @@ const updateSeriesDataWithSerieSettings = (model: any, serie: any, seriesSetting
                     fontFamily: seriesSettings.label.style.fontFamily,
                     fontSize: seriesSettings.label.style.fontSize,
                     fontWeight: seriesSettings.label.style.fontWeight,
-                    color: seriesSettings.label.style.color ?? '',
+                    color: seriesSettings?.label?.style?.color ? seriesSettings.label.style.color : 'contrast',
                     textOutline: 'none'
                 },
                 formatter: function () {
@@ -90,7 +90,7 @@ export const updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable = (model: a
                     fontFamily: seriesLabelSetting.label.style.fontFamily,
                     fontSize: seriesLabelSetting.label.style.fontSize,
                     fontWeight: seriesLabelSetting.label.style.fontWeight,
-                    color: seriesLabelSetting.label.style.color ?? '',
+                    color: seriesLabelSetting?.label?.style?.color ? seriesLabelSetting.label.style.color : 'contrast',
                     textOutline: 'none'
                 },
                 formatter: function () {
