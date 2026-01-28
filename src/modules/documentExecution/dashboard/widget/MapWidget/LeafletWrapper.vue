@@ -14,7 +14,8 @@ import useAppStore from '@/App.store'
 import i18n from '@/App.i18n'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { clearLayersCache, switchLayerVisibility } from './visibility/MapVisibilityHelper'
-import { ISelection, IVariable, IWidget } from '../../Dashboard'
+import { IAssociation, ISelection, IVariable, IWidget } from '../../Dashboard'
+import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 
 //#region inlined leaflet-layervisibility
 function validateFilter(filterFunc) {
@@ -75,6 +76,7 @@ L.Marker.include({
 //#endregion
 
 const appStore = useAppStore()
+const store = dashboardStore()
 const { t } = i18n.global
 
 const props = defineProps<{
@@ -112,6 +114,28 @@ const resizeMap = () => {
     }
 }
 
+/**
+ * Given a set of dataset IDs (from map layers), returns all dataset IDs that are associated
+ * with them through the dashboard associations configuration
+ */
+const getAssociatedDatasetIds = (mapDatasetIds: Set<number>): Set<number> => {
+    const associations: IAssociation[] = store.getDashboard(props.dashboardId)?.configuration?.associations || []
+    const associatedIds = new Set<number>()
+
+    // For each association, if any field's dataset is in our mapDatasetIds,
+    // add all other datasets from that association as associated
+    associations.forEach((association: IAssociation) => {
+        const fieldsDatasets = association.fields?.map((field) => field.dataset) ?? []
+        const hasMapDataset = fieldsDatasets.some((datasetId) => mapDatasetIds.has(datasetId))
+
+        if (hasMapDataset) {
+            fieldsDatasets.forEach((datasetId) => associatedIds.add(datasetId))
+        }
+    })
+
+    return associatedIds
+}
+
 const onSelectionsDeleted = (selections: any) => {
     if (selections && selections.length > 0) {
         const datasetIds = new Set<number>()
@@ -121,7 +145,14 @@ const onSelectionsDeleted = (selections: any) => {
             }
         })
 
-        const isForMap = selections.some((selection) => datasetIds.has(selection.datasetId))
+        // Get all datasets that are associated with the map's datasets
+        const associatedDatasetIds = getAssociatedDatasetIds(datasetIds)
+
+        // Check if the selection is for a dataset that is either directly in the map
+        // or associated with a map dataset
+        const isForMap = selections.some((selection) =>
+            datasetIds.has(selection.datasetId) || associatedDatasetIds.has(selection.datasetId)
+        )
 
         if (!isForMap) return
     }
