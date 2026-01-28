@@ -254,6 +254,8 @@ const formatVariablesForSave = (dashboardConfiguration: IDashboardConfiguration)
 export const formatNewModel = async (dashboard: IDashboard, datasets: IDataset[], $http: any, themes: IDashboardTheme[]) => {
     if (!dashboard.configuration.theme || !dashboard.configuration.theme.id) addDefaultThemeToTheDashboardModel(dashboard, themes)
 
+    updateDatasetLabelsInDashboardConfiguration(dashboard.configuration, datasets)
+
     for (let i = 0; i < dashboard.configuration.variables.length; i++) {
         if (dashboard.configuration.variables[i].type === 'dataset') await setVariableValueFromDataset(dashboard.configuration.variables[i], datasets, $http)
     }
@@ -267,6 +269,14 @@ export const formatNewModel = async (dashboard: IDashboard, datasets: IDataset[]
     if (store.isEnterprise && (!dashboard.configuration.theme || !dashboard.configuration.theme.id)) dashboard.configuration.theme = { id: null, config: getDefaultDashboardThemeConfig() }
     addMissingMenuWidgetsConfiguration(dashboard)
     return dashboard
+}
+
+const updateDatasetLabelsInDashboardConfiguration = (dashboardConfiguration: IDashboardConfiguration, datasets: IDataset[]) => {
+    if (!dashboardConfiguration.datasets) return
+    dashboardConfiguration.datasets.forEach((datasetInConfig: any) => {
+        const matchingDataset = datasets.find((dataset: IDataset) => dataset.id === datasetInConfig.id || dataset.id.dsId === datasetInConfig.id)
+        if (matchingDataset) datasetInConfig.dsLabel = matchingDataset.label
+    })
 }
 
 const addDefaultThemeToTheDashboardModel = (dashboard: IDashboard, themes: IDashboardTheme[]) => {
