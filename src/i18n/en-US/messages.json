@@ -205,7 +205,11 @@
             "usernameRequired": "Username is required",
             "passwordRequired": "Password is required",
             "loginError": "Invalid credentials. Please try again.",
-            "invalidToken": "Invalid JWT token"
+            "invalidToken": "Invalid JWT token",
+            "mfaTitle": "Two-Factor Authentication",
+            "mfaSubtitle": "Enter the 6-digit code from your authenticator app",
+            "verify": "Verify",
+            "mfaError": "Invalid code. Please try again."
         },
         "low": "Low",
         "max": "Max",

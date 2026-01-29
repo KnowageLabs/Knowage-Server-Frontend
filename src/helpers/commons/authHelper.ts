@@ -8,11 +8,15 @@ async function invalidateSession(jsps: string[] = [], redirectURI: string): Prom
     })
 
     await Promise.allSettled([...jspPromises])
-    window.location.href = redirectURI
+    const store = mainStore()
+    if (store?.configurations?.['SPAGOBI_SSO.ACTIVE']) window.location.href = redirectURI
+    else router.replace({ path: '/login' })
 }
 
 export default {
-    async logout(): Promise<void> {
+    async logout(query): Promise<void> {
+        const store = mainStore()
+        store.setLoading(true)
         const url = window.location.origin
         await axios
             .post(`${url}${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/logout`)
@@ -20,21 +24,17 @@ export default {
                 invalidateSession(response.data.urlEnginesInvalidate, response.data.redirectUrl.replace('${id_token}', sessionStorage.getItem('token') || ''))
             })
             .finally(() => {
-                const store = mainStore()
                 localStorage.clear()
                 sessionStorage.clear()
                 store.storeClearIndexedDBCache()
                 store.setUser({})
-                router.replace({ path: '/login', query: {}, hash: '' })
+                store.setLoading(false)
+                router.replace({ path: '/login', query: { query }, hash: '' })
             })
     },
     handleUnauthorized(): void {
-        const store = mainStore()
-        localStorage.clear()
-        store.setUser({})
-        const url = window.location.origin
         let search = window.location.search ?? ''
         if (search && search.charAt(0) === '?') search = '&' + search.substring(1)
-        window.location.href = `${url}${import.meta.env.VITE_KNOWAGE_CONTEXT}/servlet/AdapterHTTP?PAGE=LoginPage&NEW_SESSION=TRUE${search}`
+        this.logout(search)
     }
 }

@@ -1,5 +1,5 @@
 import axios from 'axios'
-//import router from './App.routes.js'
+import router from './App.routes.js'
 import mainStore from './App.store.js'
 import authHelper from '@/helpers/commons/authHelper'
 import { useCookies } from 'vue3-cookies'
@@ -80,7 +80,7 @@ axios.interceptors.response.use(
         const store = mainStore()
         if (error.response && error.response.status) {
             if (error.response.status === 401) {
-                authHelper.handleUnauthorized()
+                if (router.currentRoute.value.name !== 'login') authHelper.handleUnauthorized()
             }
             if ([400, 500].includes(error.response.status)) {
                 let obj = error.response.data

@@ -163,7 +163,11 @@
             "usernameRequired": "Nome utente è obbligatorio",
             "passwordRequired": "Password è obbligatoria",
             "loginError": "Credenziali non valide. Riprova.",
-            "invalidToken": "Token JWT non valido"
+            "invalidToken": "Token JWT non valido",
+            "mfaTitle": "Autenticazione a due fattori",
+            "mfaSubtitle": "Inserisci il codice a 6 cifre dalla tua app di autenticazione",
+            "verify": "Verifica",
+            "mfaError": "Codice non valido. Riprova."
         },
         "measure": "misura",
         "menu": "menu",
