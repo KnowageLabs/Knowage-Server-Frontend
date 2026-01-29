@@ -8,6 +8,7 @@ import PrimeVue from 'primevue/config'
 import ProgressBar from 'primevue/progressbar'
 import Toolbar from 'primevue/toolbar'
 import mainStore from '../../../App.store'
+import pinia from '../../../pinia'
 
 const mockedTimespans = [
     {
@@ -115,7 +116,7 @@ afterEach(() => {
 describe('Timespan Detail', () => {
     it('saves timespan', async () => {
         const wrapper = factory('81')
-        const store = mainStore()
+        const store = mainStore(pinia)
 
         await flushPromises()
 

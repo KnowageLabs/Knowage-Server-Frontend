@@ -1,4 +1,5 @@
 import mainStore from '../../App.store'
+import pinia from '@/pinia'
 import axios from '@/axios.js'
 import router from '@/app.routes'
 
@@ -8,14 +9,14 @@ async function invalidateSession(jsps: string[] = [], redirectURI: string): Prom
     })
 
     await Promise.allSettled([...jspPromises])
-    const store = mainStore()
+    const store = mainStore(pinia)
     if (store?.configurations?.['SPAGOBI_SSO.ACTIVE']) window.location.href = redirectURI
     else router.replace({ path: '/login' })
 }
 
 export default {
     async logout(query): Promise<void> {
-        const store = mainStore()
+        const store = mainStore(pinia)
         store.setLoading(true)
         const url = window.location.origin
         await axios

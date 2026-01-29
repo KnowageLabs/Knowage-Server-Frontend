@@ -12,9 +12,37 @@ import dataPreparationRoutes from '@/modules/workspace/dataPreparation/DataPrepa
 import documentationRoutes from '@/components/documentation/Documentation.routes.js'
 import { loadLanguageAsync } from '@/App.i18n.js'
 import mainStore from '@/App.store'
+import pinia from '@/pinia'
+import axios from '@/axios.js'
 
 function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+let userLoadPromise = null
+
+async function ensureUserLoaded(store) {
+    if (store.userLoaded || (store.user && Object.keys(store.user).length > 0)) return true
+
+    const token = localStorage.getItem('token')
+    if (!token) return false
+
+    if (!userLoadPromise) {
+        userLoadPromise = axios
+            .get(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/2.0/currentuser`)
+            .then((response) => {
+                store.initializeUser(response.data)
+                return true
+            })
+            .catch(() => {
+                return false
+            })
+            .finally(() => {
+                userLoadPromise = null
+            })
+    }
+
+    return userLoadPromise
 }
 
 const baseRoutes = [
@@ -87,10 +115,14 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-    const store = mainStore()
+    const store = mainStore(pinia)
 
     const checkRequired = !('/' == to.fullPath && '/' == from.fullPath)
-    const loggedIn = localStorage.getItem('token')
+    let loggedIn = localStorage.getItem('token')
+
+    if (loggedIn) {
+        await ensureUserLoaded(store)
+    }
 
     if (to.meta.hideMenu || (to.query.menu != 'undefined' && to.query.menu === 'false')) {
         store.hideMainMenu()
@@ -113,10 +145,15 @@ router.beforeEach(async (to, from, next) => {
     }
 
     if (to.meta?.functionality) {
-        if (from.path === '/' && !store.user?.functionalities?.includes(to.meta?.functionality)) await sleep(1000)
+        const hasFunctionality = store.user?.functionalities?.includes(to.meta?.functionality)
+
+        if (store.user && Object.keys(store.user).length > 0 && !hasFunctionality) {
+            next({ replace: true, name: '404' })
+            return
+        }
     }
-    if (to.meta?.functionality && !store.user?.functionalities?.includes(to.meta?.functionality)) next({ replace: true, name: '404' })
-    else next()
+
+    next()
 })
 
 export default router

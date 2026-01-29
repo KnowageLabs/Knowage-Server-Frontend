@@ -1,6 +1,7 @@
 import axios from 'axios'
 import router from './App.routes.js'
 import mainStore from './App.store.js'
+import pinia from './pinia'
 import authHelper from '@/helpers/commons/authHelper'
 import { useCookies } from 'vue3-cookies'
 import { v4 as uuidv4 } from 'uuid'
@@ -10,7 +11,7 @@ let uuid = uuidv4()
 
 async function refreshPublicInstance() {
     localStorage.setItem('sessionRefreshPending', true)
-    const store = mainStore()
+    const store = mainStore(pinia)
     const response = await fetch(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/3.0/public-user?organization=${localStorage.getItem('organization')}`)
     if (response.status === 200) {
         const responseJson = await response.json()
@@ -68,7 +69,7 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
     (res) => {
         localStorage.setItem('lastResponseTimestamp', new Date().getTime())
-        const store = mainStore()
+        const store = mainStore(pinia)
         if (res.config.headers['X-Disable-Interceptor']) return res
         if (res.data && res.data.errors) {
             if (!res.config.headers['X-Disable-Errors']) store.setError({ title: 'Server error', msg: res.data.errors[0].message })
@@ -77,7 +78,7 @@ axios.interceptors.response.use(
         return res
     },
     function (error) {
-        const store = mainStore()
+        const store = mainStore(pinia)
         if (error.response && error.response.status) {
             if (error.response.status === 401) {
                 if (router.currentRoute.value.name !== 'login') authHelper.handleUnauthorized()

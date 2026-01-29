@@ -18,10 +18,11 @@ import { formatDashboardDiscoveryWidgetAfterLoading } from './widget/WidgetEdito
 import * as widgetCommonDefaultValues from './widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
 import { formatMapWidgetAfterDashboardLoading } from './widget/MapWidget/MapWidgetFormattingHelper'
 import i18n from '@/App.i18n'
+import pinia from '@/pinia'
 import { addMissingFilterProperties } from './widget/WidgetEditor/helpers/selectionsWidget/SelectionsWidgetFunctions'
 
 const { t } = i18n.global
-const store = mainStore()
+const store = mainStore(pinia)
 
 export const SHEET_WIDGET_SIZES = ['xxs', 'xs', 'sm', 'md', 'lg'] as string[]
 

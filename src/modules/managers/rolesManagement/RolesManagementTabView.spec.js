@@ -16,6 +16,7 @@ import TabPanel from 'primevue/tabpanel'
 import TabView from 'primevue/tabview'
 import Toolbar from 'primevue/toolbar'
 import mainStore from '../../../App.store'
+import pinia from '../../../pinia'
 
 const mockedBuissnesModelList = [
     {
@@ -232,7 +233,7 @@ describe('Roles Management Tab View', () => {
 
     it('loads correct role and shows succes info if it is saved', async () => {
         const wrapper = factory()
-        const store = mainStore()
+        const store = mainStore(pinia)
         wrapper.setProps({ id: '1' })
 
         await flushPromises()
@@ -256,7 +257,7 @@ describe('Roles Management Tab View', () => {
 
     it('shows success info if new data is saved', async () => {
         const wrapper = factory()
-        const store = mainStore()
+        const store = mainStore(pinia)
         wrapper.vm.selectedRole = mockedRole
         wrapper.vm.selectedBusinessModels = [{ categoryId: 172 }]
         wrapper.vm.selectedDataSets = [{ categoryId: 152 }]

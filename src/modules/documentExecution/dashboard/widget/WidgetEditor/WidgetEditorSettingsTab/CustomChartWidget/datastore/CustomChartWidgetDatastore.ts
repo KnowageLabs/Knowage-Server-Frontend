@@ -2,6 +2,7 @@ import { IVariable } from '@/modules/documentExecution/dashboard/Dashboard'
 import deepcopy from 'deepcopy'
 import { filter } from './CustomChartWidgetFilter'
 import mainStore from '@/App.store'
+import pinia from '@/pinia'
 
 export class CustomChartDatastore {
     data: any = {}
@@ -122,7 +123,7 @@ export class CustomChartDatastore {
     }
 
     getInternationalization(label) {
-        const store = mainStore()
+        const store = mainStore(pinia)
         const translation = store.internationalization?.filter((i) => i.label === label)[0]
         return translation?.message ? translation.message : label
     }

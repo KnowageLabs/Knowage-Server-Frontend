@@ -13,6 +13,7 @@ import TargetDefinition from './TargetDefinition.vue'
 import Toolbar from 'primevue/toolbar'
 import KnHint from '@/components/UI/KnHint.vue'
 import mainStore from '../../../App.store'
+import pinia from '../../../pinia'
 
 const mockedTarget = [
     {
@@ -178,7 +179,7 @@ describe('Target Definition List', () => {
     })
     it('deletes target when clicking on delete icon', async () => {
         const wrapper = factory()
-        const store = mainStore()
+        const store = mainStore(pinia)
 
         await flushPromises()
 

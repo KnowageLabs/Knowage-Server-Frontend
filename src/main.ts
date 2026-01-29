@@ -2,7 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import PrimeVue from 'primevue/config'
 import store from './App.store.js'
-import { createPinia } from 'pinia'
+import pinia from './pinia'
 import { Quasar, Notify, Loading, Dialog, TouchPan } from 'quasar'
 import router from './App.routes.js'
 
@@ -48,12 +48,15 @@ ModuleRegistry.registerModules([AllCommunityModule])
 
 import ResizeObserver from '@vue-toys/resize-observer'
 
-const pinia = createPinia()
+const app = createApp(App)
 
-const app = createApp(App).use(pinia)
+// Register pinia in the app FIRST
+app.use(pinia)
 
-const mainStore = store()
+// Now we can safely initialize the store
+const mainStore = store(pinia)
 
+// Register everything else
 app.use(VueAxios, interceptor)
     .use(mainStore)
     .use(router)
@@ -87,6 +90,7 @@ app.use(VueAxios, interceptor)
     .component('GridItem', GridItem)
     .component('AgGridVue', AgGridVue)
 
+// Wait for router to be ready before mounting to ensure initial navigation is resolved
 router.isReady().then(() => {
     app.mount('#app')
 })

@@ -48,6 +48,7 @@ export default defineComponent({
             info: 'info',
             warning: 'warning',
             user: 'user',
+            userLoaded: 'userLoaded',
             loading: 'loading',
             locale: 'locale',
             isEnterprise: 'isEnterprise',
@@ -146,42 +147,44 @@ export default defineComponent({
             return
         }
 
-        // Chiama l'endpoint /currentuser per ottenere le informazioni complete dell'utente
-        await this.$http
-            .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/currentuser')
-            .then(async (response) => {
-                const currentUser = response.data
+        // Chiama l'endpoint /currentuser solo se non è già stato caricato dal router
+        if (!this.userLoaded) {
+            await this.$http
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/currentuser')
+                .then(async (response) => {
+                    const currentUser = response.data
 
-                // Gestisci sessionRole
-                if (localStorage.getItem('sessionRole')) {
-                    currentUser.sessionRole = localStorage.getItem('sessionRole')
-                } else if (currentUser.defaultRole) {
-                    currentUser.sessionRole = currentUser.defaultRole
-                }
+                    // Gestisci sessionRole
+                    if (localStorage.getItem('sessionRole')) {
+                        currentUser.sessionRole = localStorage.getItem('sessionRole')
+                    } else if (currentUser.defaultRole) {
+                        currentUser.sessionRole = currentUser.defaultRole
+                    }
 
-                // Inizializza utente
-                this.initializeUser(currentUser)
+                    // Inizializza utente
+                    this.initializeUser(currentUser)
 
-                // Gestisci locale
-                const responseLocale = currentUser.locale || 'en_US'
-                let storedLocale = responseLocale.replace('_', '-')
-                if (localStorage.getItem('locale')) {
-                    storedLocale = localStorage.getItem('locale')
-                }
-                localStorage.setItem('locale', storedLocale)
+                    // Gestisci locale
+                    const responseLocale = currentUser.locale || 'en_US'
+                    let storedLocale = responseLocale.replace('_', '-')
+                    if (localStorage.getItem('locale')) {
+                        storedLocale = localStorage.getItem('locale')
+                    }
+                    localStorage.setItem('locale', storedLocale)
 
-                this.setLocale(storedLocale)
-                this.$i18n.locale = storedLocale
+                    this.setLocale(storedLocale)
+                    this.$i18n.locale = storedLocale
 
-                await loadLanguageAsync(storedLocale)
+                    await loadLanguageAsync(storedLocale)
 
-                this.$primevue.config.locale.dateFormat = primeVueDate(getLocale(true))
-            })
-            .catch((error) => {
-                console.error('Errore caricamento currentUser:', error)
-                localStorage.removeItem('token')
-                this.$router.push({ name: 'login' })
-            })
+                    this.$primevue.config.locale.dateFormat = primeVueDate(getLocale(true))
+                })
+                .catch((error) => {
+                    console.error('Errore caricamento currentUser:', error)
+                    localStorage.removeItem('token')
+                    this.$router.push({ name: 'login' })
+                })
+        }
 
         await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/user-configs').then(async (response: any) => {
             this.checkTopLevelIframe(response.data)

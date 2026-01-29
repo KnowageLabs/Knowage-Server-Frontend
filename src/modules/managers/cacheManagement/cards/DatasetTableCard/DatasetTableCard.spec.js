@@ -9,6 +9,7 @@ import DatasetTableCard from './DatasetTableCard.vue'
 import flushPromises from 'flush-promises'
 import Toolbar from 'primevue/toolbar'
 import mainStore from '../../../../../App.store'
+import pinia from '../../../../../pinia'
 
 const mockedDatasetMetadata = [
     {
@@ -74,7 +75,7 @@ describe('Cache Management Dataset Table', () => {
     })
     it('removes all present metadata and emits event when clean all button is pressed', async () => {
         const wrapper = factory(mockedDatasetMetadata)
-        const store = mainStore()
+        const store = mainStore(pinia)
 
         expect(wrapper.vm.datasets.length).toBe(2)
 
@@ -90,7 +91,7 @@ describe('Cache Management Dataset Table', () => {
     })
     it('removes metadata and emits event when delete button is pressed', async () => {
         const wrapper = factory(mockedDatasetMetadata)
-        const store = mainStore()
+        const store = mainStore(pinia)
         expect(wrapper.vm.datasets.length).toBe(2)
 
         await wrapper.find('[data-test="delete-button"]').trigger('click')

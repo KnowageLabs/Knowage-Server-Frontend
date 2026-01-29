@@ -8,6 +8,7 @@ import flushPromises from 'flush-promises'
 import InputText from 'primevue/inputtext'
 import PrimeVue from 'primevue/config'
 import mainStore from '../../../App.store'
+import pinia from '../../../pinia'
 
 vi.mock('axios')
 
@@ -38,7 +39,7 @@ describe('Domains Management Dialog', () => {
     it('close button returns to list without saving data', () => {})
     it('when save button is clicked data is passed', async () => {
         const formWrapper = factory()
-        const store = mainStore()
+        const store = mainStore(pinia)
 
         const mockedConfiguration = {
             label: 'changepwdmodule.number',

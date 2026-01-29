@@ -9,6 +9,7 @@ import InputText from 'primevue/inputtext'
 import MetadataManagementDetail from './MetadataManagementDetail.vue'
 import Toolbar from 'primevue/toolbar'
 import mainStore from '../../../App.store'
+import pinia from '../../../pinia'
 
 const mockedMetadata = {
     label: 'metadata1',
@@ -54,7 +55,7 @@ describe('Metadata Management Detail', () => {
     })
     it('shows success info if data is saved', async () => {
         const wrapper = factory()
-        const store = mainStore()
+        const store = mainStore(pinia)
         wrapper.vm.metadata = mockedMetadata
         wrapper.vm.v$.$invalid = false
         wrapper.vm.handleSubmit()
