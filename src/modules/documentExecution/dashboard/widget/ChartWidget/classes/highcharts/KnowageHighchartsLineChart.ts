@@ -35,7 +35,7 @@ export class KnowageHighchartsLineChart extends KnowageHighcharts {
 
     setPlotOptions() {
         this.model.plotOptions.line = { marker: { symbol: 'circle', lineWidth: 2 } }
-        this.model.plotOptions.series.showCheckbox = this.model.plotOptions.series.showCheckbox ?? true
+        this.model.plotOptions.series.showCheckbox = true
         this.model.plotOptions.series.turboThreshold = 200000
     }
 
