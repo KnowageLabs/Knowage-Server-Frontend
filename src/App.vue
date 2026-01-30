@@ -40,7 +40,9 @@ export default defineComponent({
             showMenu: false,
             closedMenu: false,
             pollingInterval: null as any,
-            stopExecution: false
+            stopExecution: false,
+            tourRunning: false,
+            activeTour: null as any
         }
     },
     computed: {
@@ -167,6 +169,7 @@ export default defineComponent({
         if (/Android|iPhone/i.test(navigator.userAgent)) {
             this.isMobileDevice = false
         }
+        ;(window as any).__knowageTourRunning = false
         ;(window as any).startKnowageTour = () => this.startTour()
     },
 
@@ -250,12 +253,12 @@ export default defineComponent({
                     .finally(() => {
                         this.loadInternationalization()
                         this.setLoading(false)
-                        this.maybeStartTour()
+                        // Tour is started manually from the menu (no auto-start)
                     })
             } else {
                 this.loadInternationalization()
                 this.setLoading(false)
-                this.maybeStartTour()
+                // Tour is started manually from the menu (no auto-start)
             }
         },
         maybeStartTour() {
@@ -266,6 +269,10 @@ export default defineComponent({
         },
         async startTour() {
             if (this.isMobileDevice) return
+            if (this.tourRunning) return
+
+            this.tourRunning = true
+            ;(window as any).__knowageTourRunning = true
 
             const byTourId = (id: string) => document.querySelector(`[data-tour-id='${id}']`) as Element | null
 
@@ -282,63 +289,78 @@ export default defineComponent({
                 return null
             }
 
-            // Language (flag) is mandatory: wait for it to appear.
-            const languageEl = await waitForElement(() => byTourId('menu-action-languageSelection'))
-            if (!languageEl) return
+            try {
+                // Language (flag) is mandatory: wait for it to appear.
+                const languageEl = await waitForElement(() => byTourId('menu-action-languageSelection'))
+                if (!languageEl) return
 
-            // Optional: wait briefly for main menu container as an intro step.
-            const mainMenuEl = await waitForElement(() => byTourId('main-menu'), { timeoutMs: 1000, intervalMs: 100 })
+                // Optional: wait briefly for main menu container as an intro step.
+                const mainMenuEl = await waitForElement(() => byTourId('main-menu'), { timeoutMs: 1000, intervalMs: 100 })
 
-            const steps: any[] = []
+                const steps: any[] = []
 
-            if (mainMenuEl) {
-                steps.push({
-                    element: mainMenuEl,
-                    popover: {
-                        title: this.$t('tour.mainMenuTitle') || 'Menu',
-                        description: this.$t('tour.mainMenuDescription') || 'Usa il menu per navigare tra le funzionalità.',
-                        side: 'right',
-                        onNextClick: async (_el, _step, opts) => {
-                            // Try to open the profile/menu section so the language flag becomes visible.
-                            const profileBtn = document.querySelector("[data-tour-id='menu-profile'] button") as HTMLElement | null
-                            if (profileBtn) profileBtn.click()
+                if (mainMenuEl) {
+                    steps.push({
+                        element: mainMenuEl,
+                        popover: {
+                            title: this.$t('tour.mainMenuTitle') || 'Menu',
+                            description: this.$t('tour.mainMenuDescription') || 'Usa il menu per navigare tra le funzionalità.',
+                            side: 'right',
+                            onNextClick: async (_el, _step, opts) => {
+                                // Try to open the profile/menu section so the language flag becomes visible.
+                                const profileBtn = document.querySelector("[data-tour-id='menu-profile'] button") as HTMLElement | null
+                                if (profileBtn) profileBtn.click()
 
-                            // Wait a bit for the language button to appear after expanding.
-                            await waitForElement(() => byTourId('menu-action-languageSelection'), { timeoutMs: 1500, intervalMs: 100 })
+                                // Wait a bit for the language button to appear after expanding.
+                                await waitForElement(() => byTourId('menu-action-languageSelection'), { timeoutMs: 1500, intervalMs: 100 })
 
-                            // Move to the language step.
-                            opts.driver.moveNext()
+                                // Move to the language step.
+                                opts.driver.moveNext()
+                            }
                         }
+                    })
+                }
+
+                steps.push({
+                    element: languageEl,
+                    popover: {
+                        title: this.$t('tour.languageTitle') || 'Lingua',
+                        description: this.$t('tour.languageDescription') || 'Clicca qui (bandiera) per cambiare lingua.',
+                        side: 'right'
                     }
                 })
-            }
 
-            steps.push({
-                element: languageEl,
-                popover: {
-                    title: this.$t('tour.languageTitle') || 'Lingua',
-                    description: this.$t('tour.languageDescription') || 'Clicca qui (bandiera) per cambiare lingua.',
-                    side: 'right'
+                const tour = driver({
+                    allowClose: true,
+                    overlayOpacity: 0.6,
+                    animate: true,
+                    smoothScroll: true,
+                    stagePadding: 8,
+                    stageRadius: 10,
+                    showProgress: true,
+                    nextBtnText: this.$t('common.next') || 'Avanti',
+                    prevBtnText: this.$t('common.previous') || 'Indietro',
+                    doneBtnText: this.$t('common.close') || 'Chiudi',
+                    popoverClass: 'kn-tour-popover',
+                    onDestroyed: () => {
+                        this.tourRunning = false
+                        this.activeTour = null
+                        ;(window as any).__knowageTourRunning = false
+                    }
+                } as any)
+
+                this.activeTour = tour
+
+                tour.setSteps(steps)
+                tour.drive()
+                localStorage.setItem('knowageTourDone', 'true')
+            } finally {
+                // If we bailed out early before creating the tour, unlock.
+                if (!this.activeTour) {
+                    this.tourRunning = false
+                    ;(window as any).__knowageTourRunning = false
                 }
-            })
-
-            const tour = driver({
-                allowClose: true,
-                overlayOpacity: 0.6,
-                animate: true,
-                smoothScroll: true,
-                stagePadding: 8,
-                stageRadius: 10,
-                showProgress: true,
-                nextBtnText: this.$t('common.next') || 'Avanti',
-                prevBtnText: this.$t('common.previous') || 'Indietro',
-                doneBtnText: this.$t('common.close') || 'Chiudi',
-                popoverClass: 'kn-tour-popover'
-            })
-
-            tour.setSteps(steps)
-            tour.drive()
-            localStorage.setItem('knowageTourDone', 'true')
+            }
         },
         async loadInternationalization() {
             let currentLocale = localStorage.getItem('locale') ? localStorage.getItem('locale') : this.locale

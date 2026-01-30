@@ -3301,7 +3301,8 @@
         },
         "importExport": "Artifacts",
         "modelCatalogResourceManagement": "Models manager",
-        "resourceManagement": "Resource manager"
+        "resourceManagement": "Resource manager",
+        "guidedTour": "Tour guidato"
     },
     "metaweb": {
         "businessModel": {

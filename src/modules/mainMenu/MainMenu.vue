@@ -42,7 +42,16 @@
                 </template>
             </ul>
         </div>
-        <KnChatbot v-if="isEnterpriseValid && configurations['KNOWAGE.AI.URL'] && user?.functionalities.includes('EngGPTIntegration')" />
+
+        <!-- Menu footer actions (same place as AI button) -->
+        <div>
+            <AdvancedMenuItem
+                :item="{ label: $t('menu.guidedTour'), iconCls: 'fas fa-route', command: 'guidedTour', visible: true }"
+                :badge="0"
+                @click="itemClick"
+            />
+            <KnChatbot v-if="isEnterpriseValid && configurations['KNOWAGE.AI.URL'] && user?.functionalities.includes('EngGPTIntegration')" />
+        </div>
     </div>
 </template>
 
@@ -318,6 +327,10 @@ export default defineComponent({
                         if (parseInt(index) == 0 && this.stateHomePage?.to) item.to = this.stateHomePage.to.replaceAll('\\/', '/')
                         this.commonUserFunctionalities.push(item)
                     }
+
+                    // NOTE: guided tour entry comes from backend "static menu" (commonUserFunctionalities).
+                    // We don't inject extra client-side buttons here.
+
                     this.updateNewsAndDownload()
                 })
                 .catch(() => {
@@ -351,6 +364,24 @@ export default defineComponent({
         },
         async reloadLanguage() {
             await this.loadMenu(true)
+        },
+        reloadGuidedTour() {
+            // no-op placeholder if needed
+        },
+        guidedTour() {
+            // Backend sends command="guidedTour". We map it to the existing tour starter.
+            this.startGuidedTour()
+        },
+        startGuidedTour() {
+            // Close profile dropdown first to avoid overlay issues
+            this.showProfileMenu = false
+
+            const w = window as any
+            if (w.__knowageTourRunning) return
+
+            if (typeof w.startKnowageTour === 'function') {
+                w.startKnowageTour()
+            }
         }
     }
 })

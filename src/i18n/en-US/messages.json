@@ -3795,6 +3795,7 @@
         "Categories": "Categories",
         "DashboardThemeManagement": "Dashboard Themes",
         "ThemeManagement": "Themes",
+        "guidedTour": "Guided tour",
         "group": {
             "ImportExport": "Import/Export",
             "ServerManager": "Server manager"
