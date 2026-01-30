@@ -8,11 +8,33 @@
                 </div>
             </q-card-section>
 
+            <!-- Success/Error banner unificato -->
+            <q-card-section v-if="success" class="q-pt-none q-pb-none">
+                <q-banner class="bg-positive text-white" rounded dense>
+                    <template v-slot:avatar>
+                        <q-icon name="check_circle" color="white" />
+                    </template>
+                    {{ success }}
+                </q-banner>
+            </q-card-section>
+
+            <q-card-section v-if="error" class="q-pt-none q-pb-none">
+                <q-banner class="bg-negative text-white" rounded dense>
+                    <template v-slot:avatar>
+                        <q-icon name="error" color="white" />
+                    </template>
+                    {{ error }}
+                </q-banner>
+            </q-card-section>
+
             <!-- MFA Verification -->
             <MfaVerification v-if="showMfa" :tokenMfa="mfaData.tokenMfa" :secret="mfaData.secret" :qrCodeUrl="mfaData.qrCodeUrl" @success="onMfaSuccess" @error="onMfaError" />
 
             <!-- Forgot Password -->
-            <ForgotPassword v-else-if="showForgotPassword" @back="showForgotPassword = false" />
+            <ForgotPassword v-else-if="showForgotPassword" @back="onForgotPasswordBack" @success="onForgotPasswordSuccess" @error="onForgotPasswordError" />
+
+            <!-- Reset Password -->
+            <ResetPassword v-else-if="showResetPassword" :token="resetToken" @success="onResetPasswordSuccess" @error="onResetPasswordError" />
 
             <!-- Login Form -->
             <template v-else>
@@ -41,33 +63,28 @@
 
                 <q-card-section class="text-center q-pt-none">
                     <div class="text-caption text-grey-7">
-                        <a href="#" class="text-primary" @click.prevent="showForgotPassword = true">{{ $t('common.loginPage.forgotPassword') }}</a>
+                        <a href="#" class="text-primary" @click.prevent="openForgotPassword">{{ $t('common.loginPage.forgotPassword') }}</a>
                     </div>
                 </q-card-section>
             </template>
         </q-card>
-
-        <q-banner v-if="error" class="bg-negative text-white error-banner" rounded>
-            <template v-slot:avatar>
-                <q-icon name="error" color="white" />
-            </template>
-            {{ error }}
-        </q-banner>
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import axios from 'axios'
 import mainStore from '@/App.store'
 import { loadLanguageAsync } from '@/App.i18n.js'
 import MfaVerification from './MfaVerification.vue'
 import ForgotPassword from './ForgotPassword.vue'
+import ResetPassword from './ResetPassword.vue'
 
 const router = useRouter()
-const { t } = useI18n()
+const route = useRoute()
+const { t, locale } = useI18n()
 const store = mainStore()
 
 const username = ref('')
@@ -75,10 +92,13 @@ const password = ref('')
 const isPwd = ref(true)
 const loading = ref(false)
 const error = ref('')
+const success = ref('')
 const publicPath = import.meta.env.VITE_PUBLIC_PATH
 const loginConfig = ref<any>(null)
 const showMfa = ref(false)
 const showForgotPassword = ref(false)
+const showResetPassword = ref(false)
+const resetToken = ref('')
 const mfaData = ref<{ tokenMfa: string; secret?: string; qrCodeUrl?: string }>({
     tokenMfa: '',
     secret: undefined,
@@ -89,9 +109,39 @@ const mfaData = ref<{ tokenMfa: string; secret?: string; qrCodeUrl?: string }>({
 const loadLoginConfig = async () => {
     const response = await axios.get(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/loginconfig`)
     loginConfig.value = response.data
+
+    // Imposta la lingua di default se presente
+    if (loginConfig.value?.items?.[0]?.defaultLanguage) {
+        const defaultLocale = loginConfig.value.items[0].defaultLanguage.replace('_', '-')
+        localStorage.setItem('locale', defaultLocale)
+        store.setLocale(defaultLocale)
+        locale.value = defaultLocale
+        await loadLanguageAsync(defaultLocale)
+    }
 }
-onMounted(() => {
-    loadLoginConfig()
+
+const verifyResetToken = async (token: string) => {
+    try {
+        await axios.post(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/resetPassword/verifyToken`, {
+            token: token
+        })
+        // Token valido
+        resetToken.value = token
+        showResetPassword.value = true
+    } catch (err: any) {
+        console.error('Errore durante la verifica del token di reset:', err)
+        error.value = err.response?.data?.message || t('common.loginPage.invalidResetToken')
+    }
+}
+
+onMounted(async () => {
+    await loadLoginConfig()
+
+    // Verifica se c'è un resetToken nell'URL
+    const urlResetToken = route.query.resetToken as string
+    if (urlResetToken) {
+        await verifyResetToken(urlResetToken)
+    }
 })
 
 const completeLogin = async (token: string) => {
@@ -138,12 +188,49 @@ const onMfaSuccess = async (token: string) => {
 
 const onMfaError = (message: string) => {
     error.value = message
+    success.value = ''
     showMfa.value = false
+}
+
+const onForgotPasswordBack = () => {
+    showForgotPassword.value = false
+    error.value = ''
+    success.value = ''
+}
+
+const onForgotPasswordSuccess = (message: string) => {
+    success.value = message
+    error.value = ''
+}
+
+const onForgotPasswordError = (message: string) => {
+    error.value = message
+    success.value = ''
+}
+
+const onResetPasswordSuccess = (message: string) => {
+    success.value = message
+    error.value = ''
+    showResetPassword.value = false
+    // Rimuovi il resetToken dall'URL
+    router.replace({ query: {} })
+}
+
+const onResetPasswordError = (message: string) => {
+    error.value = message
+    success.value = ''
+}
+
+const openForgotPassword = () => {
+    showForgotPassword.value = true
+    error.value = ''
+    success.value = ''
 }
 
 const onSubmit = async () => {
     loading.value = true
     error.value = ''
+    success.value = ''
 
     try {
         // Chiamata API per login che restituisce il token JWT
@@ -223,14 +310,6 @@ const onSubmit = async () => {
 .logo {
     max-width: 250px;
     height: auto;
-}
-
-.error-banner {
-    margin-top: 20px;
-    max-width: 450px;
-    width: 100%;
-    position: relative;
-    z-index: 1;
 }
 
 :deep(.q-btn) {

@@ -16,16 +16,6 @@
         <!-- Submit button -->
         <q-btn :label="$t('common.loginPage.verify')" color="primary" class="full-width" :loading="loading" :disable="!isCodeComplete" @click="onVerify" />
     </q-card-section>
-
-    <!-- Error banner -->
-    <q-card-section v-if="error" class="q-pt-none">
-        <q-banner class="bg-negative text-white" rounded dense>
-            <template v-slot:avatar>
-                <q-icon name="error" color="white" />
-            </template>
-            {{ error }}
-        </q-banner>
-    </q-card-section>
 </template>
 
 <script setup lang="ts">
@@ -52,7 +42,6 @@ const { t } = useI18n()
 const code = ref<string[]>(['', '', '', '', '', ''])
 const inputRefs = ref<any[]>([])
 const loading = ref(false)
-const error = ref('')
 
 const isCodeComplete = computed(() => {
     return code.value.every((digit) => digit.length === 1)
@@ -127,7 +116,6 @@ const handlePaste = (event: ClipboardEvent, index: number) => {
 
 const onVerify = async () => {
     loading.value = true
-    error.value = ''
 
     try {
         const payload: any = {
@@ -144,13 +132,13 @@ const onVerify = async () => {
         if (response.data && response.data.token) {
             emit('success', response.data.token)
         } else {
-            error.value = t('common.loginPage.mfaError')
-            emit('error', error.value)
+            const errorMessage = t('common.loginPage.mfaError')
+            emit('error', errorMessage)
         }
     } catch (err: any) {
         console.error('Errore durante la verifica MFA:', err)
-        error.value = err.response?.data?.message || t('common.loginPage.mfaError')
-        emit('error', error.value)
+        const errorMessage = err.response?.data?.message || t('common.loginPage.mfaError')
+        emit('error', errorMessage)
     } finally {
         loading.value = false
     }

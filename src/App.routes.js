@@ -81,7 +81,7 @@ const baseRoutes = [
     {
         path: '/login',
         name: 'login',
-        component: () => import('@/views/Login.vue'),
+        component: () => import('@/views/login/Login.vue'),
         meta: { hideMenu: true, public: true }
     },
     {
