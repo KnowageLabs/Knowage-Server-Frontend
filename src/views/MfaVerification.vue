@@ -1,35 +1,31 @@
 <template>
-    <div class="mfa-container">
-        <q-card class="mfa-card">
-            <q-card-section class="text-center">
-                <div class="text-h6 q-mb-md">{{ $t('common.loginPage.mfaTitle') }}</div>
-                <div class="text-body2 text-grey-7 q-mb-md">{{ $t('common.loginPage.mfaSubtitle') }}</div>
+    <q-card-section class="text-center">
+        <div class="text-h6 q-mb-md">{{ $t('common.loginPage.mfaTitle') }}</div>
+        <div class="text-body2 text-grey-7 q-mb-md">{{ $t('common.loginPage.mfaSubtitle') }}</div>
 
-                <!-- QR Code Image -->
-                <div v-if="qrCodeUrl" class="qr-code-container q-mb-lg">
-                    <img :src="qrCodeUrl" alt="QR Code" class="qr-code" />
-                </div>
+        <!-- QR Code Image -->
+        <div v-if="qrCodeUrl" class="qr-code-container q-mb-lg">
+            <img :src="qrCodeUrl" alt="QR Code" class="qr-code" />
+        </div>
 
-                <!-- 6 digit input fields -->
-                <div class="code-inputs-container q-mb-md">
-                    <q-input v-for="(digit, index) in code" :key="index" :ref="(el) => (inputRefs[index] = el as any)" v-model="code[index]" outlined square maxlength="1" class="code-input" input-class="text-center" @update:model-value="(val) => handleInput(index, val as string)" @keydown="handleKeydown($event, index)" @paste="handlePaste($event, index)" />
-                </div>
+        <!-- 6 digit input fields -->
+        <div class="code-inputs-container q-mb-md">
+            <q-input v-for="(digit, index) in code" :key="index" :ref="(el) => (inputRefs[index] = el as any)" v-model="code[index]" outlined square maxlength="1" class="code-input" input-class="text-center" @update:model-value="(val) => handleInput(index, val as string)" @keydown="handleKeydown($event, index)" @paste="handlePaste($event, index)" />
+        </div>
 
-                <!-- Submit button -->
-                <q-btn :label="$t('common.loginPage.verify')" color="primary" class="full-width" :loading="loading" :disable="!isCodeComplete" @click="onVerify" />
-            </q-card-section>
+        <!-- Submit button -->
+        <q-btn :label="$t('common.loginPage.verify')" color="primary" class="full-width" :loading="loading" :disable="!isCodeComplete" @click="onVerify" />
+    </q-card-section>
 
-            <!-- Error banner -->
-            <q-card-section v-if="error" class="q-pt-none">
-                <q-banner class="bg-negative text-white" rounded dense>
-                    <template v-slot:avatar>
-                        <q-icon name="error" color="white" />
-                    </template>
-                    {{ error }}
-                </q-banner>
-            </q-card-section>
-        </q-card>
-    </div>
+    <!-- Error banner -->
+    <q-card-section v-if="error" class="q-pt-none">
+        <q-banner class="bg-negative text-white" rounded dense>
+            <template v-slot:avatar>
+                <q-icon name="error" color="white" />
+            </template>
+            {{ error }}
+        </q-banner>
+    </q-card-section>
 </template>
 
 <script setup lang="ts">
@@ -178,22 +174,6 @@ watch(isCodeComplete, (complete) => {
 </script>
 
 <style scoped lang="scss">
-.mfa-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    padding: 20px;
-}
-
-.mfa-card {
-    width: 100%;
-    max-width: 500px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-    border-radius: 12px;
-}
-
 .qr-code-container {
     display: flex;
     justify-content: center;

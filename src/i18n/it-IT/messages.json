@@ -167,7 +167,16 @@
             "mfaTitle": "Autenticazione a due fattori",
             "mfaSubtitle": "Inserisci il codice a 6 cifre dalla tua app di autenticazione",
             "verify": "Verifica",
-            "mfaError": "Codice non valido. Riprova."
+            "mfaError": "Codice non valido. Riprova.",
+            "forgotPasswordTitle": "Recupero Password",
+            "forgotPasswordSubtitle": "Inserisci il tuo indirizzo email e ti invieremo le istruzioni per reimpostare la password",
+            "email": "Email",
+            "emailRequired": "Email è obbligatoria",
+            "emailInvalid": "Inserisci un indirizzo email valido",
+            "sendResetEmail": "Invia Email di Reset",
+            "backToLogin": "Torna al Login",
+            "resetEmailSent": "Email di reset inviata con successo. Controlla la tua casella di posta.",
+            "resetEmailError": "Impossibile inviare l'email di reset. Riprova."
         },
         "measure": "misura",
         "menu": "menu",

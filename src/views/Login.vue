@@ -1,44 +1,50 @@
 <template>
     <div class="login-container">
-        <!-- MFA Verification -->
-        <MfaVerification v-if="showMfa" :tokenMfa="mfaData.tokenMfa" :secret="mfaData.secret" :qrCodeUrl="mfaData.qrCodeUrl" @success="onMfaSuccess" @error="onMfaError" />
-
-        <!-- Login Form -->
-        <q-card v-else class="login-card">
+        <q-card class="login-card">
+            <!-- Logo sempre visibile -->
             <q-card-section class="text-center q-pb-none">
                 <div class="logo-container">
                     <img :src="`${publicPath}/images/commons/knowage-black.svg`" alt="Knowage" class="logo" />
                 </div>
             </q-card-section>
 
-            <q-card-section>
-                <q-form @submit="onSubmit" class="q-gutter-md">
-                    <q-input v-model="username" :label="$t('common.loginPage.username')" square outlined :rules="[(val) => !!val || $t('common.loginPage.usernameRequired')]" autocomplete="username">
-                        <template v-slot:prepend>
-                            <q-icon name="person" />
-                        </template>
-                    </q-input>
+            <!-- MFA Verification -->
+            <MfaVerification v-if="showMfa" :tokenMfa="mfaData.tokenMfa" :secret="mfaData.secret" :qrCodeUrl="mfaData.qrCodeUrl" @success="onMfaSuccess" @error="onMfaError" />
 
-                    <q-input v-model="password" :type="isPwd ? 'password' : 'text'" :label="$t('common.loginPage.password')" square outlined :rules="[(val) => !!val || $t('common.loginPage.passwordRequired')]" autocomplete="current-password">
-                        <template v-slot:prepend>
-                            <q-icon name="lock" />
-                        </template>
-                        <template v-slot:append>
-                            <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPwd = !isPwd" />
-                        </template>
-                    </q-input>
+            <!-- Forgot Password -->
+            <ForgotPassword v-else-if="showForgotPassword" @back="showForgotPassword = false" />
 
-                    <div>
-                        <q-btn :label="$t('common.loginPage.signIn')" type="submit" color="primary" class="full-width" :loading="loading" />
+            <!-- Login Form -->
+            <template v-else>
+                <q-card-section>
+                    <q-form @submit="onSubmit" class="q-gutter-md">
+                        <q-input v-model="username" :label="$t('common.loginPage.username')" square outlined :rules="[(val) => !!val || $t('common.loginPage.usernameRequired')]" autocomplete="username">
+                            <template v-slot:prepend>
+                                <q-icon name="person" />
+                            </template>
+                        </q-input>
+
+                        <q-input v-model="password" :type="isPwd ? 'password' : 'text'" :label="$t('common.loginPage.password')" square outlined :rules="[(val) => !!val || $t('common.loginPage.passwordRequired')]" autocomplete="current-password">
+                            <template v-slot:prepend>
+                                <q-icon name="lock" />
+                            </template>
+                            <template v-slot:append>
+                                <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPwd = !isPwd" />
+                            </template>
+                        </q-input>
+
+                        <div>
+                            <q-btn :label="$t('common.loginPage.signIn')" type="submit" color="primary" class="full-width" :loading="loading" />
+                        </div>
+                    </q-form>
+                </q-card-section>
+
+                <q-card-section class="text-center q-pt-none">
+                    <div class="text-caption text-grey-7">
+                        <a href="#" class="text-primary" @click.prevent="showForgotPassword = true">{{ $t('common.loginPage.forgotPassword') }}</a>
                     </div>
-                </q-form>
-            </q-card-section>
-
-            <q-card-section class="text-center q-pt-none">
-                <div class="text-caption text-grey-7">
-                    <a href="#" class="text-primary">{{ $t('common.loginPage.forgotPassword') }}</a>
-                </div>
-            </q-card-section>
+                </q-card-section>
+            </template>
         </q-card>
 
         <q-banner v-if="error" class="bg-negative text-white error-banner" rounded>
@@ -58,6 +64,7 @@ import axios from 'axios'
 import mainStore from '@/App.store'
 import { loadLanguageAsync } from '@/App.i18n.js'
 import MfaVerification from './MfaVerification.vue'
+import ForgotPassword from './ForgotPassword.vue'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -71,6 +78,7 @@ const error = ref('')
 const publicPath = import.meta.env.VITE_PUBLIC_PATH
 const loginConfig = ref<any>(null)
 const showMfa = ref(false)
+const showForgotPassword = ref(false)
 const mfaData = ref<{ tokenMfa: string; secret?: string; qrCodeUrl?: string }>({
     tokenMfa: '',
     secret: undefined,
@@ -180,8 +188,21 @@ const onSubmit = async () => {
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: url('/images/home/home-background.jpg') no-repeat;
+    background-size: cover;
     padding: 20px;
+    position: relative;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(255, 255, 255, 0.1);
+        z-index: 0;
+    }
 }
 
 .login-card {
@@ -189,6 +210,8 @@ const onSubmit = async () => {
     max-width: 450px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
     border-radius: 12px;
+    position: relative;
+    z-index: 1;
 }
 
 .logo-container {
@@ -206,6 +229,8 @@ const onSubmit = async () => {
     margin-top: 20px;
     max-width: 450px;
     width: 100%;
+    position: relative;
+    z-index: 1;
 }
 
 :deep(.q-btn) {

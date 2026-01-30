@@ -209,7 +209,16 @@
             "mfaTitle": "Two-Factor Authentication",
             "mfaSubtitle": "Enter the 6-digit code from your authenticator app",
             "verify": "Verify",
-            "mfaError": "Invalid code. Please try again."
+            "mfaError": "Invalid code. Please try again.",
+            "forgotPasswordTitle": "Reset Password",
+            "forgotPasswordSubtitle": "Enter your email address and we'll send you instructions to reset your password",
+            "email": "Email",
+            "emailRequired": "Email is required",
+            "emailInvalid": "Please enter a valid email address",
+            "sendResetEmail": "Send Reset Email",
+            "backToLogin": "Back to Login",
+            "resetEmailSent": "Reset email sent successfully. Please check your inbox.",
+            "resetEmailError": "Failed to send reset email. Please try again."
         },
         "low": "Low",
         "max": "Max",
