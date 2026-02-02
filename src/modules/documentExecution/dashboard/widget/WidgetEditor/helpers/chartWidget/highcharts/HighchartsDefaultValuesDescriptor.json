@@ -535,7 +535,7 @@
         "prefix": "",
         "scale": "empty",
         "style": {
-            "color": "#000000",
+            "color": "contrast",
             "fontFamily": "",
             "fontSize": "",
             "fontWeight": "",
