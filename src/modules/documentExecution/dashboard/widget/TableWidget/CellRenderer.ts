@@ -246,12 +246,12 @@ export default class CellRenderer {
             } else return null
         }
         function dateFormatter(cellValue) {
-            if (cellValue === null || cellValue === undefined) return ''
+            if (!cellValue) return ''
             const visType = getColumnVisualizationType(params.colId)
             return luxonFormatDate(cellValue, 'dd/MM/yyyy', visType?.dateFormat || 'D')
         }
         function dateTimeFormatter(cellValue) {
-            if (cellValue === null || cellValue === undefined) return ''
+            if (!cellValue) return ''
             const visType = getColumnVisualizationType(params.colId)
             return luxonFormatDate(cellValue, 'dd/MM/yyyy HH:mm:ss.SSS', visType?.dateFormat || 'f')
         }
