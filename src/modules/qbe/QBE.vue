@@ -1053,9 +1053,11 @@ export default defineComponent({
             this.pagination = { start: 0, limit: 25 }
         },
         onFieldAliasChange(field) {
-            this.qbeMetadata.findIndex((metadata) => {
-                if (metadata.uniqueID === field.uniqueID) metadata.fieldAlias = field.alias
-            })
+            const metadata = this.qbeMetadata.find((metadata) => metadata.uniqueID === field.uniqueID)
+            if (metadata) {
+                metadata.fieldAlias = field.alias
+                metadata.column = field.alias
+            }
             this.updateSmartView()
         },
         onParametersSave() {
