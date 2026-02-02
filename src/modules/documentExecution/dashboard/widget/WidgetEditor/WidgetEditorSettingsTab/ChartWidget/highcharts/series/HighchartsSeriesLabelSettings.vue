@@ -313,12 +313,12 @@ export default defineComponent({
                 'font-family': model['font-family'] ?? '',
                 'font-size': model['font-size'] ?? '14px',
                 'font-weight': model['font-weight'] ?? '',
-                color: model.color ?? '#000000',
+                color: model.color ?? '',
                 'background-color': model['background-color'] ?? ''
             }
             ;(this.seriesSettings[index].label.backgroundColor = this.toolbarModels[index]['background-color'] ?? ''),
                 (this.seriesSettings[index].label.style = {
-                    color: this.toolbarModels[index].color ?? '#000000',
+                    color: this.toolbarModels[index].color ?? '',
                     fontSize: this.toolbarModels[index]['font-size'] ?? '14px',
                     fontFamily: this.toolbarModels[index]['font-family'] ?? '',
                     fontWeight: this.toolbarModels[index]['font-weight'] ?? ''
