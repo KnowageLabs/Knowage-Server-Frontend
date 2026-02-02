@@ -119,6 +119,7 @@ export default defineComponent({
     watch: {
         previewData() {
             this.loadPagination()
+            this.setDateFormatsForPreviewData()
         }
     },
     created() {
@@ -216,6 +217,24 @@ export default defineComponent({
         getFormattedDate(date: any, output: any, input: any) {
             if (!date) return null
             return formatDate(date, output, input)
+        },
+        setDateFormatsForPreviewData() {
+            if (!this.previewData?.metaData?.fields) return
+
+            for (let i = 1; i < this.previewData.metaData.fields.length; i++) {
+                const field = this.previewData.metaData.fields[i]
+                if (['timestamp', 'date'].includes(field.type)) {
+                    if (!field.metawebDateFormat) {
+                        const fieldIndex = i - 1
+                        if (this.query && this.query.fields && this.query.fields[fieldIndex]) {
+                            const queryField = this.query.fields[fieldIndex]
+                            if (queryField.format) {
+                                field.metawebDateFormat = queryField.format
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 })
