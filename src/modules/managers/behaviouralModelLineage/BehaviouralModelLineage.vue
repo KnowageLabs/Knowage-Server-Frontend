@@ -1,19 +1,19 @@
 <template>
-    <div class="kn-page">
-        <ProgressSpinner v-if="loading" class="kn-progress-spinner" />
-        <Toolbar class="kn-toolbar kn-toolbar--primary">
-            <template #start>
-                {{ $t('managers.bml.title') }}
-            </template>
-            <template #end>
-                <Button icon="fa-solid fa-arrows-rotate" class="p-button-text p-button-rounded p-button-plain" @click="loadAllData" />
-            </template>
-        </Toolbar>
+    <div class="kn-page bml-page">
+        <q-toolbar class="kn-toolbar kn-toolbar--primary">
+            <q-icon name="account_tree" size="20px" class="q-mr-sm" />
+            <div class="text-subtitle1 text-weight-medium">{{ $t('managers.bml.title') }}</div>
+            <q-space />
+            <q-btn round flat dense icon="refresh" :disable="loading" @click="loadAllData">
+                <q-tooltip>{{ $t('common.refresh') }}</q-tooltip>
+            </q-btn>
+        </q-toolbar>
 
-        <div id="table-container" class="p-d-flex p-flex-row bml-table-container">
-            <BMLTable :table-data="allLovs" :header-title="$t('managers.bml.lovsTitle')" :loading="loading" data-type="lovs" @rowSelected="onRowSelect" @rowUnselected="onRowUnselect" />
-            <BMLTable :table-data="allDrivers" :header-title="$t('managers.bml.drivers')" :loading="loading" data-type="analyticalDrivers" @rowSelected="onRowSelect" @rowUnselected="onRowUnselect" />
+        <div id="table-container" class="bml-table-container">
             <BMLTable :table-data="allDocuments" :header-title="$t('managers.datasetManagement.documents')" :loading="loading" data-type="documents" @rowSelected="onRowSelect" @rowUnselected="onRowUnselect" />
+            <BMLTable :table-data="allDatasets" :header-title="$t('common.datasets')" :loading="loading" data-type="datasets" @rowSelected="onRowSelect" @rowUnselected="onRowUnselect" />
+            <BMLTable :table-data="allDrivers" :header-title="$t('managers.bml.drivers')" :loading="loading" data-type="analyticalDrivers" @rowSelected="onRowSelect" @rowUnselected="onRowUnselect" />
+            <BMLTable :table-data="allLovs" :header-title="$t('managers.bml.lovsTitle')" :loading="loading" data-type="lovs" @rowSelected="onRowSelect" @rowUnselected="onRowUnselect" />
         </div>
     </div>
 </template>
@@ -21,15 +21,19 @@
 import { defineComponent } from 'vue'
 import { AxiosResponse } from 'axios'
 import { filterDefault } from '@/helpers/commons/filterHelper'
-import { iLov, iAnalyticalDriver, iDocument } from './BehaviouralModelLineage'
+import { iLov, iAnalyticalDriver, iDocument, iDataset } from './BehaviouralModelLineage'
 import descriptor from './BehaviouralModelLineageDescriptor.json'
-import ProgressSpinner from 'primevue/progressspinner'
+import { QBtn, QIcon, QSpace, QToolbar, QTooltip } from 'quasar'
 import BMLTable from './BehaviouralModelLineageTable.vue'
 
 export default defineComponent({
     name: 'behavioural-model-lineage',
     components: {
-        ProgressSpinner,
+        QToolbar,
+        QBtn,
+        QIcon,
+        QSpace,
+        QTooltip,
         BMLTable
     },
     data() {
@@ -41,7 +45,8 @@ export default defineComponent({
             allLovs: [] as iLov[],
             selectedLov: {} as iLov,
             allDrivers: [] as iAnalyticalDriver[],
-            allDocuments: [] as iDocument[]
+            allDocuments: [] as iDocument[],
+            allDatasets: [] as iDataset[]
         }
     },
     created() {
@@ -50,7 +55,7 @@ export default defineComponent({
     methods: {
         async loadAllData() {
             this.loading = true
-            await Promise.all([this.loadAllLovs(), this.loadAllDrivers(), this.loadAllDocuments()]).then(() => (this.loading = false))
+            await Promise.all([this.loadAllLovs(), this.loadAllDrivers(), this.loadAllDocuments(), this.loadAllDatasets()]).then(() => (this.loading = false))
         },
         async loadAllLovs() {
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/lovs/get/all/').then((response: AxiosResponse<any>) => {
@@ -67,6 +72,11 @@ export default defineComponent({
                 this.allDocuments = response.data
             })
         },
+        async loadAllDatasets() {
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/datasets').then((response: AxiosResponse<any>) => {
+                this.allDatasets = response.data
+            })
+        },
         onRowSelect(event, dataType) {
             switch (dataType) {
                 case 'lovs':
@@ -78,6 +88,9 @@ export default defineComponent({
                 case 'documents':
                     this.filterByDocuments(event.data)
                     break
+                case 'datasets':
+                    this.filterByDatasets(event.data)
+                    break
             }
         },
         onRowUnselect() {
@@ -87,28 +100,72 @@ export default defineComponent({
             this.loading = true
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/lovs/${lov.id}/analyticalDrivers/`).then((response: AxiosResponse<any>) => (this.allDrivers = response.data))
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/lovs/${lov.id}/documents/`).then((response: AxiosResponse<any>) => (this.allDocuments = response.data))
+            // Also fetch datasets related to the returned documents
+            const documentDatasetsPromises = this.allDocuments.map(async (doc: iDocument) => {
+                return this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documents/${doc.id}/dataset/`).then((response: AxiosResponse<any>) => response.data)
+            })
+            const documentDatasetsArrays = await Promise.all(documentDatasetsPromises)
+            const allDatasets = documentDatasetsArrays.flat()
+            this.allDatasets = allDatasets
             this.loading = false
         },
         async filterByDrivers(driver) {
             this.loading = true
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/analyticalDrivers/${driver.id}/lovs/`).then((response: AxiosResponse<any>) => (this.allLovs = response.data))
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/analyticalDrivers/${driver.id}/documents/`).then((response: AxiosResponse<any>) => (this.allDocuments = response.data))
+
+            const documentDatasetsPromises = this.allDocuments.map(async (doc: iDocument) => {
+                return this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documents/${doc.id}/dataset/`).then((response: AxiosResponse<any>) => response.data)
+            })
+            const documentDatasetsArrays = await Promise.all(documentDatasetsPromises)
+            const allDatasets = documentDatasetsArrays.flat()
+            this.allDatasets = allDatasets
             this.loading = false
         },
         async filterByDocuments(doc) {
             this.loading = true
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documents/${doc.label}/lovs/`).then((response: AxiosResponse<any>) => (this.allLovs = response.data))
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documents/${doc.label}/analyticalDrivers/`).then((response: AxiosResponse<any>) => (this.allDrivers = response.data))
+
+            const documentDatasets = await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documents/${doc.id}/dataset/`).then((response: AxiosResponse<any>) => response.data)
+            this.allDatasets = documentDatasets
+            this.loading = false
+        },
+        async filterByDatasets(dataset) {
+            this.loading = true
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/datasets/${dataset.id.dsId}/documents/`).then((response: AxiosResponse<any>) => (this.allDocuments = response.data))
+            // Also fetch LOVs and Drivers related to the returned documents
+            const documentLovsPromises = this.allDocuments.map(async (doc: iDocument) => {
+                return this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documents/${doc.label}/lovs/`).then((response: AxiosResponse<any>) => response.data)
+            })
+            const documentLovsArrays = await Promise.all(documentLovsPromises)
+            const allLovs = documentLovsArrays.flat()
+            this.allLovs = allLovs
+
+            const documentDriversPromises = this.allDocuments.map(async (doc: iDocument) => {
+                return this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documents/${doc.label}/analyticalDrivers/`).then((response: AxiosResponse<any>) => response.data)
+            })
+            const documentDriversArrays = await Promise.all(documentDriversPromises)
+            const allDrivers = documentDriversArrays.flat()
+            this.allDrivers = allDrivers
             this.loading = false
         }
     }
 })
 </script>
 <style lang="scss">
-.bml-table .p-datatable-header {
-    padding: 0 !important;
+.bml-page {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
+
 .bml-table-container {
     height: calc(100% - var(--kn-toolbar-height));
+    display: grid;
+    grid-template-columns: repeat(4, minmax(280px, 1fr));
+    gap: 12px;
+    padding: 12px;
+    align-items: stretch;
 }
 </style>

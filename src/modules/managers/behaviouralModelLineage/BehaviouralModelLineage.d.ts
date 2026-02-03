@@ -61,3 +61,10 @@ export interface iDocument {
     typeCode: string
     visible: boolean
 }
+
+export interface iDataset {
+    id: number
+    name: string
+    label: string
+    description?: string
+}
