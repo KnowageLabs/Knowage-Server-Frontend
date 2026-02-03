@@ -36,6 +36,9 @@
             <!-- Reset Password -->
             <ResetPassword v-else-if="showResetPassword" :token="resetToken" @success="onResetPasswordSuccess" @error="onResetPasswordError" />
 
+            <!-- Registration -->
+            <Registration v-else-if="showRegistration" @back="onRegistrationBack" @success="onRegistrationSuccess" @error="onRegistrationError" />
+
             <!-- Login Form -->
             <template v-else>
                 <q-card-section>
@@ -62,8 +65,12 @@
                 </q-card-section>
 
                 <q-card-section class="text-center q-pt-none">
-                    <div class="text-caption text-grey-7">
+                    <div class="text-caption text-grey-7 q-mb-sm">
                         <a href="#" class="text-primary" @click.prevent="openForgotPassword">{{ $t('common.loginPage.forgotPassword') }}</a>
+                    </div>
+                    <div class="text-caption text-grey-7">
+                        {{ $t('common.loginPage.noAccount') }}
+                        <a href="#" class="text-primary" @click.prevent="openRegistration">{{ $t('common.loginPage.registerNow') }}</a>
                     </div>
                 </q-card-section>
             </template>
@@ -81,6 +88,7 @@ import { loadLanguageAsync } from '@/App.i18n.js'
 import MfaVerification from './MfaVerification.vue'
 import ForgotPassword from './ForgotPassword.vue'
 import ResetPassword from './ResetPassword.vue'
+import Registration from './Registration.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -98,6 +106,7 @@ const loginConfig = ref<any>(null)
 const showMfa = ref(false)
 const showForgotPassword = ref(false)
 const showResetPassword = ref(false)
+const showRegistration = ref(false)
 const resetToken = ref('')
 const mfaData = ref<{ tokenMfa: string; secret?: string; qrCodeUrl?: string }>({
     tokenMfa: '',
@@ -221,8 +230,31 @@ const onResetPasswordError = (message: string) => {
     success.value = ''
 }
 
+const onRegistrationBack = () => {
+    showRegistration.value = false
+    error.value = ''
+    success.value = ''
+}
+
+const onRegistrationSuccess = (message: string) => {
+    success.value = message
+    error.value = ''
+    showRegistration.value = false
+}
+
+const onRegistrationError = (message: string) => {
+    error.value = message
+    success.value = ''
+}
+
 const openForgotPassword = () => {
     showForgotPassword.value = true
+    error.value = ''
+    success.value = ''
+}
+
+const openRegistration = () => {
+    showRegistration.value = true
     error.value = ''
     success.value = ''
 }
