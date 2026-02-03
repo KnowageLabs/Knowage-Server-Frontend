@@ -56,7 +56,7 @@ export const getFormattedDateTimeUsingToLocaleString = (format: string, dt: Date
             return dt.toLocaleString(DateTime.DATETIME_FULL)
         default:
             try {
-                return dt.toFormat(format)
+                return formatWithIntl(format, getLocale(true), dt.toJSDate())
             } catch {
                 return dt.toLocaleString(DateTime.DATE_SHORT)
             }
@@ -139,6 +139,7 @@ export function formatWithIntl(momentFormat, locale, date = new Date()) {
         h: () => date.getHours() % 12 || 12,
         mm: () => String(date.getMinutes()).padStart(2, '0'),
         ss: () => String(date.getSeconds()).padStart(2, '0'),
+        SS: () => String(date.getMilliseconds()).padStart(3, '0'),
         A: () => (date.getHours() >= 12 ? 'PM' : 'AM'),
         a: () => (date.getHours() >= 12 ? 'pm' : 'am')
     }
