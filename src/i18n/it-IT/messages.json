@@ -1279,6 +1279,10 @@
                 "description": "Widget selettore per filtrare con semplicità i dati.",
                 "title": "Selettore"
             },
+            "spacer": {
+                "description": "Widget spaziatore vuoto per aggiungere spazi nel layout della dashboard.",
+                "title": "Spaziatore"
+            },
             "static-pivot-table": {
                 "description": "Tabella Pivot o cross.",
                 "title": "Pivot"
@@ -1290,10 +1294,6 @@
             "text": {
                 "description": "Testo statico o dinamico. Usa un editor WYSIWYG e shortcodes per integrare contenuti dinamici.",
                 "title": "Testo"
-            },
-            "spacer": {
-                "description": "Widget spaziatore vuoto per aggiungere spazi nel layout della dashboard.",
-                "title": "Spaziatore"
             }
         },
         "wizard": {
@@ -3299,10 +3299,10 @@
             "ImportExport": "Import/Export",
             "ServerManager": "Server manager"
         },
+        "guidedTour": "Tour guidato",
         "importExport": "Artifacts",
         "modelCatalogResourceManagement": "Models manager",
-        "resourceManagement": "Resource manager",
-        "guidedTour": "Tour guidato"
+        "resourceManagement": "Resource manager"
     },
     "metaweb": {
         "businessModel": {
