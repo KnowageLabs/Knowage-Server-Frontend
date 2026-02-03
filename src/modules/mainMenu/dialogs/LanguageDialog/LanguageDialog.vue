@@ -86,9 +86,10 @@ export default defineComponent({
             this.$emit('update:loading', true)
             this.$http.get(url).then(
                 () => {
-                    this.setLocale(language.locale)
-                    localStorage.setItem('locale', language.locale)
-                    this.$i18n.locale = language.locale
+                    const escapedLocale = language.locale.replace('_', '-')
+                    this.setLocale(escapedLocale)
+                    localStorage.setItem('locale', escapedLocale)
+                    this.$i18n.locale = escapedLocale
 
                     this.closeDialog()
                     this.$router.go(0)
