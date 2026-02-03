@@ -1,7 +1,7 @@
 import { ISelection, IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { formatSelectionForDisplay } from '../../../ActiveSelectionsWidget/ActiveSelectionsWidgetHelpers'
 import deepcopy from 'deepcopy'
-import { formatNumberWithLocale } from '@/helpers/commons/localeHelper'
+import { formatNumberWithLocale, formatDateWithLocale } from '@/helpers/commons/localeHelper'
 import i18n from '@/App.i18n'
 import sanitizeHtml from 'sanitize-html'
 import { activeSelectionsRegex, advancedCalcRegex, calcRegex, columnRegex, columnDateFormatRegex, gt, i18nRegex, lt, paramsRegex, paramsDateFormatRegex, repeatIndexRegex, variablesRegex, widgetIdRegex } from '@/modules/documentExecution/dashboard/helpers/common/DashboardRegexHelper'
@@ -16,24 +16,6 @@ let translatedValues = {} as any
 let widgetData = {} as any
 
 let aggregationDataset = null as any
-
-const isValidDate = (value: any): boolean => {
-    if (!value) return false
-    const date = new Date(value)
-    return !isNaN(date.getTime())
-}
-
-const formatDateWithLocale = (value: any): string => {
-    if (!isValidDate(value)) return value
-
-    const date = new Date(value)
-    try {
-        return new Intl.DateTimeFormat(navigator.language).format(date)
-    } catch (error) {
-        console.error('Error formatting date:', error)
-        return value
-    }
-}
 
 export const parseText = (tempWidgetModel: IWidget, tempDrivers: any[], tempVariables: IVariable[], tempSelections: ISelection[], internationalization: any, tempWidgetData: any, toast: any) => {
     drivers = tempDrivers
