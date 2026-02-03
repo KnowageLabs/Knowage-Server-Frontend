@@ -91,7 +91,7 @@ import Column from 'primevue/column'
 import Menu from 'primevue/contextmenu'
 import Dialog from 'primevue/dialog'
 import qbeSimpleTableDescriptor from './QBESmartTableDescriptor.json'
-import { formatDate, getLocale } from '@/helpers/commons/localeHelper'
+import { formatDateLuxon, getLocale } from '@/helpers/commons/localeHelper'
 import { formatNumber } from '@/helpers/commons/qbeHelpers'
 
 export default defineComponent({
@@ -216,7 +216,7 @@ export default defineComponent({
         },
         getFormattedDate(date: any, output: any, input: any) {
             if (!date) return null
-            return formatDate(date, output, input)
+            return formatDateLuxon(date, output, input)
         },
         setDateFormatsForPreviewData() {
             if (!this.previewData?.metaData?.fields) return
