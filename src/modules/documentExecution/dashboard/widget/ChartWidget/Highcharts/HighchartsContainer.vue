@@ -397,27 +397,28 @@ export default defineComponent({
             return formattedChartModel
         },
         onCheckboxClicked(event: any) {
-          debugger
-          if (['area', 'bar', 'column', 'line'].includes(this.chartModel.chart.type)) {
-            this.highchartsInstance.series[event.target.index].data.forEach((point: any) => {
-              const dataLabelOptions = point.options.dataLabels
-              dataLabelOptions.enabled = event.checked
-              point.update(dataLabelOptions)
-            }, false)
-          } else if (this.chartModel.chart.type === 'pie') {
-            if (!event.item) return
-            this.highchartsInstance.series[0].data.forEach((point: any, index: number) => {
-              const checkboxValue = event.item.name
-              if (point.name === checkboxValue) this.highchartsInstance.series[0].data[index].setVisible(event.checked)
-            }, false)
-          } else {
-            this.highchartsInstance.series[event.item.columnIndex].data.forEach((point: any) => {
-              const dataLabelOptions = point.options.dataLabels
-              dataLabelOptions.enabled = event.checked
-              point.update(dataLabelOptions)
-            }, false)
-          }
-          this.highchartsInstance.redraw()
+            if (['area', 'bar', 'column', 'line'].includes(this.chartModel.chart.type)) {
+                this.highchartsInstance.series[event.target.index].data.forEach((point: any) => {
+                    const dataLabelOptions = point.options.dataLabels
+                    dataLabelOptions.enabled = event.checked
+                    point.update(dataLabelOptions)
+                }, false)
+            } else if (this.chartModel.chart.type === 'pie') {
+                this.highchartsInstance.series[0].data.forEach((point: any) => {
+                    const dataLabelOptions = point.options.dataLabels
+                    if (point.name === event.item.name) {
+                        dataLabelOptions.enabled = event.checked
+                        point.update(dataLabelOptions)
+                    }
+                }, false)
+            } else {
+                this.highchartsInstance.series[event.item.columnIndex].data.forEach((point: any) => {
+                    const dataLabelOptions = point.options.dataLabels
+                    dataLabelOptions.enabled = event.checked
+                    point.update(dataLabelOptions)
+                }, false)
+            }
+            this.highchartsInstance.redraw()
         },
         onSunburstLegendItemClick(event: any) {
             const pointName = event.target.name
