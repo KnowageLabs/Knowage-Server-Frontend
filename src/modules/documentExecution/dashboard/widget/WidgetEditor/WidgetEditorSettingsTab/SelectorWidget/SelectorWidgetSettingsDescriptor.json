@@ -104,6 +104,10 @@
             {
                 "title": "dashboard.widgetEditor.selectorWidget.radio.title",
                 "type": "RadioStyle"
+            },
+            {
+                "title": "dashboard.widgetEditor.selectorWidget.checkbox.title",
+                "type": "CheckboxStyle"
             }
         ]
     },

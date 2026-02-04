@@ -1,5 +1,5 @@
 import { IWidgetBordersStyle, IWidgetPaddingStyle, IWidgetShadowsStyle } from '../../Dashboard'
-import { ISelectorWidgetLabelStyle, ISelectorWidgetRadioStyle, ISelectorWidgetStyle } from '../../interfaces/DashboardSelectorWidget'
+import { ISelectorWidgetLabelStyle, ISelectorWidgetRadioStyle, ISelectorWidgetCheckboxStyle, ISelectorWidgetStyle } from '../../interfaces/DashboardSelectorWidget'
 import { getFormattedBackgroundStyle, getFormattedTitleStyle } from '../common/WidgetStyleHelper'
 import { hexToRgba } from '../FormattingHelpers'
 import * as widgetCommonDefaultValues from '../../widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
@@ -11,6 +11,7 @@ export const getFormattedStyle = (widget: any) => {
         title: getFormattedTitleStyle(widget),
         label: getFormattedLabelStyle(widget),
         radio: getFormattedRadioStyle(widget),
+        checkbox: getFormattedCheckboxStyle(widget),
         padding: getFormattedPaddingStyle(widget),
         borders: getFormattedBorderStyle(widget),
         shadows: getFormattedShadowsStyle(widget),
@@ -74,6 +75,44 @@ const getFormattedRadioStyle = (widget) => {
     }
 
     return formattedRadioStyle
+}
+
+const getFormattedCheckboxStyle = (widget) => {
+    if (!widget.style) return selectorWidgetDefaultValues.getDefaultCheckboxStyle()
+    const formattedCheckboxStyle = {
+        size: widget.style.size ?? 'md',
+        layout: widget.style.layout ?? 'column',
+        gridColumns: widget.style.gridColumns ?? '2',
+        padding: widget.style.padding ?? '4px',
+        margin: widget.style.margin ?? '0px',
+        color: widget.style.color ?? '',
+        keepColor: widget.style.keepColor ?? false,
+        icon: widget.style.icon ?? ''
+    } as ISelectorWidgetCheckboxStyle
+
+    // Handle backward compatibility - if old properties structure exists
+    if (widget.style.properties) {
+        formattedCheckboxStyle.size = widget.style.properties.size ?? formattedCheckboxStyle.size
+        formattedCheckboxStyle.layout = widget.style.properties.layout ?? formattedCheckboxStyle.layout
+        formattedCheckboxStyle.gridColumns = widget.style.properties.gridColumns ?? formattedCheckboxStyle.gridColumns
+        formattedCheckboxStyle.padding = widget.style.properties.padding ?? formattedCheckboxStyle.padding
+        formattedCheckboxStyle.margin = widget.style.properties.margin ?? formattedCheckboxStyle.margin
+        formattedCheckboxStyle.color = widget.style.properties.color ?? formattedCheckboxStyle.color
+    }
+
+    // Migrate old label values to new checkbox.label styling
+    if (widget.label && widget.label.properties) {
+        formattedCheckboxStyle.label = {
+            'font-weight': widget.label.properties['font-weight'] ?? '',
+            'font-style': widget.label.properties['font-style'] ?? '',
+            'font-size': widget.label.properties['font-size'] ?? '',
+            'font-family': widget.label.properties['font-family'] ?? '',
+            color: widget.label.properties.color ?? '',
+            'background-color': widget.label.properties['background-color'] ?? ''
+        }
+    }
+
+    return formattedCheckboxStyle
 }
 
 const getFormattedPaddingStyle = (widget: any) => {

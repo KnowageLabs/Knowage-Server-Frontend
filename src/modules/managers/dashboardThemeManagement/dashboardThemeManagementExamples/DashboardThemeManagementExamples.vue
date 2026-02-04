@@ -13,32 +13,14 @@
         </div>
         <WidgetPictureExamples ref="pivot" :selected-theme-prop="selectedThemeProp" widget-type="pivot" />
         <div ref="discovery" class="p-p-2 p-d-flex" style="min-height: 415px">
-            <WidgetRenderer
-                :widget="discoveryModel"
-                :widget-data="discoveryWidgetMock.discoveryDataMock"
-                :widget-initial-data="discoveryWidgetMock.discoveryDataMock"
-                :datasets="[]"
-                :dashboard-id="'discovery'"
-                :selection-is-locked="true"
-                :prop-active-selections="[]"
-                :variables="[]"
-                :widget-loading="false"
-            />
+            <WidgetRenderer :widget="discoveryModel" :widget-data="discoveryWidgetMock.discoveryDataMock" :widget-initial-data="discoveryWidgetMock.discoveryDataMock" :datasets="[]" :dashboard-id="'discovery'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
         </div>
         <ActiveSelectionsExample ref="activeSelections" :selected-theme-prop="selectedThemeProp" widget-type="activeSelections" />
         <div class="p-p-2 p-d-flex" style="height: 200px">
-            <WidgetRenderer
-                ref="selector"
-                :widget="selectorModel"
-                :widget-data="selectorWidgetMock.selectorDataMock"
-                :widget-initial-data="selectorWidgetMock.selectorDataMock"
-                :datasets="[]"
-                :dashboard-id="'selector'"
-                :selection-is-locked="true"
-                :prop-active-selections="[]"
-                :variables="[]"
-                :widget-loading="false"
-            />
+            <WidgetRenderer ref="selector" :widget="radioModel" :widget-data="selectorWidgetMock.selectorDataMock" :widget-initial-data="selectorWidgetMock.selectorDataMock" :datasets="[]" :dashboard-id="'selector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
+        </div>
+        <div class="p-p-2 p-d-flex" style="height: 200px">
+            <WidgetRenderer ref="checkboxSelector" :widget="checkboxModel" :widget-data="selectorWidgetMock.selectorDataMock" :widget-initial-data="selectorWidgetMock.selectorDataMock" :datasets="[]" :dashboard-id="'checkboxSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
         </div>
     </div>
 </template>
@@ -73,7 +55,9 @@ export default defineComponent({
             selectedTheme: {} as IDashboardTheme,
             chartID: crypto.randomUUID(),
             chartJSData: { labels: [], datasets: [] } as IChartJSData,
-            chartJSOptions: {} as IChartJSOptions
+            chartJSOptions: {} as IChartJSOptions,
+            radioModel: {} as any,
+            checkboxModel: {} as any
         }
     },
     computed: {
@@ -106,8 +90,13 @@ export default defineComponent({
             this.discoveryModel = deepcopy(this.discoveryWidgetMock.discoveryModelMock)
             this.discoveryModel.settings.style = this.selectedTheme.config.discovery.style
 
-            this.selectorModel = deepcopy(this.selectorWidgetMock.selectorModelMock)
-            this.selectorModel.settings.style = this.selectedTheme.config.selector.style
+            this.radioModel = deepcopy(this.selectorWidgetMock.selectorModelMock)
+            this.radioModel.settings.style = this.selectedTheme.config.selector.style
+            this.radioModel.settings.configuration.selectorType.modality = 'singleValue'
+
+            this.checkboxModel = deepcopy(this.selectorWidgetMock.selectorModelMock)
+            this.checkboxModel.settings.style = this.selectedTheme.config.selector.style
+            this.checkboxModel.settings.configuration.selectorType.modality = 'multiValue'
         },
         setEventListeners() {
             emitter.on('scrollToExample', this.scrollToExample)

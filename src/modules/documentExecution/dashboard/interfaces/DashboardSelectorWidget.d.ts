@@ -41,6 +41,7 @@ export interface ISelectorWidgetStyle {
     title: IWidgetTitle
     label: ISelectorWidgetLabelStyle
     radio: ISelectorWidgetRadioStyle
+    checkbox: ISelectorWidgetCheckboxStyle
     padding: IWidgetPaddingStyle
     borders: IWidgetBordersStyle
     shadows: IWidgetShadowsStyle
@@ -75,6 +76,28 @@ export interface ISelectorWidgetRadioStyle {
 }
 
 export interface ISelectorWidgetRadioLabelStyle {
+    'font-weight': string
+    'font-style': string
+    'font-size': string
+    'font-family': string
+    color: string
+    'background-color': string
+}
+
+export interface ISelectorWidgetCheckboxStyle {
+    size: string
+    layout: 'column' | 'row' | 'grid'
+    gridColumns?: string
+    padding: string
+    margin: string
+    color: string
+    keepColor?: boolean
+    icon?: string
+    checkedIcon?: string
+    label?: ISelectorWidgetCheckboxLabelStyle
+}
+
+export interface ISelectorWidgetCheckboxLabelStyle {
     'font-weight': string
     'font-style': string
     'font-size': string

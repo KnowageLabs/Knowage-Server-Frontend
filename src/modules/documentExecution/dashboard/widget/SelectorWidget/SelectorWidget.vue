@@ -2,15 +2,9 @@
     <!-- {{ widgetType }} -->
     <!-- {{ selectedValue }} - {{ selectedValues }} - {{ selectedDate }} - {{ startDate }} - {{ endDate }} -->
     <div v-if="options" class="selector-widget dashboard-scrollbar">
-        val: {{ selectedValue }}
         <RadioSelector v-if="widgetType === 'singleValue'" :model-value="selectedValue" :options="singleValueOptions" :radio-style="propWidget.settings.style.radio" @update:model-value="radioSelectorChanged" />
 
-        <span v-if="widgetType === 'multiValue'" class="p-d-flex p-flex-column p-gap-2">
-            <div v-for="option in multiValueOptions" :key="option.value" class="p-d-flex p-ai-center p-gap-2">
-                <q-checkbox v-model="selectedValues" :val="option.value" :disable="option.disable" size="md" @update:model-value="multiValueSelectionChanged" />
-                <label>{{ option.label }}</label>
-            </div>
-        </span>
+        <CheckboxSelector v-if="widgetType === 'multiValue'" :model-value="selectedValues" :options="multiValueOptions" :checkbox-style="propWidget.settings.style.checkbox" @update:model-value="checkboxSelectorChanged" />
 
         <span v-if="widgetType === 'dropdown'" class="p-float-label p-m-2">
             <Dropdown v-model="selectedValue" filter class="kn-width-full" panel-class="selectorCustomDropdownPanel" :options="filteredDropdownOptions" option-label="column_1" option-value="column_1" :style="getLabelStyle()" :input-style="getLabelStyle()" :panel-style="getLabelStyle()" :option-disabled="showMode === 'showDisabled' ? 'disabled' : ''" @change="singleValueSelectionChanged" @filter="filterDropdownOptions" />
@@ -46,6 +40,7 @@ import { getWidgetStyleByType } from '../TableWidget/TableWidgetHelper'
 import { updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
 import { emitter } from '../../DashboardHelpers'
 import RadioSelector from './selectorTypes/RadioSelector.vue'
+import CheckboxSelector from './selectorTypes/CheckboxSelector.vue'
 import { QRadio, QCheckbox } from 'quasar'
 import Dropdown from 'primevue/dropdown'
 import MultiSelect from 'primevue/multiselect'
@@ -57,7 +52,7 @@ import dashboardDescriptor from '../../DashboardDescriptor.json'
 
 export default defineComponent({
     name: 'datasets-catalog-datatable',
-    components: { RadioSelector, QRadio, QCheckbox, Dropdown, MultiSelect, Calendar },
+    components: { RadioSelector, CheckboxSelector, QRadio, QCheckbox, Dropdown, MultiSelect, Calendar },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         dataToShow: { type: Object as any, required: true },
@@ -420,6 +415,12 @@ export default defineComponent({
             this.selectedValue = event
             if (this.editorMode) return
             updateStoreSelections(this.createNewSelection([this.selectedValue]), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
+        },
+        checkboxSelectorChanged(event: any) {
+            this.selectedValues = event
+            if (this.editorMode) return
+            const tempSelection = this.createNewSelection(this.selectedValues) as ISelection
+            this.updateActiveSelectionsWithMultivalueSelection(tempSelection)
         }
     }
 })

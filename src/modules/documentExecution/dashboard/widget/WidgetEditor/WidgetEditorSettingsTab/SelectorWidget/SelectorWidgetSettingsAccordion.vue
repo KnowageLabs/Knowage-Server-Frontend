@@ -22,6 +22,7 @@
                 <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
                 <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
                 <SelectorWidgetRadioStyle v-else-if="accordion.type === 'RadioStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetRadioStyle>
+                <SelectorWidgetCheckboxStyle v-else-if="accordion.type === 'CheckboxStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetCheckboxStyle>
             </AccordionTab>
         </Accordion>
     </div>
@@ -29,7 +30,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget, IDataset, IVariable } from '@/modules/documentExecution/Dashboard/Dashboard'
+import { IWidget, IDataset, IVariable } from '@/modules/documentExecution/dashboard/Dashboard'
 import { mapState } from 'pinia'
 import mainStore from '@/App.store'
 import Accordion from 'primevue/accordion'
@@ -43,6 +44,7 @@ import WidgetMenuConfiguration from '../common/configuration/WidgetMenuConfigura
 import WidgetTitleStyle from '../common/style/WidgetTitleStyle.vue'
 import SelectorWidgetLabelStyle from './style/SelectorWidgetLabelStyle.vue'
 import SelectorWidgetRadioStyle from './style/SelectorWidgetRadioStyle.vue'
+import SelectorWidgetCheckboxStyle from './style/SelectorWidgetCheckboxStyle.vue'
 import WidgetBackgroundColorStyle from '../common/style/WidgetBackgroundColorStyle.vue'
 import WidgetPaddingStyle from '../common/style/WidgetPaddingStyle.vue'
 import WidgetBordersStyle from '../common/style/WidgetBordersStyle.vue'
@@ -66,6 +68,7 @@ export default defineComponent({
         WidgetTitleStyle,
         SelectorWidgetLabelStyle,
         SelectorWidgetRadioStyle,
+        SelectorWidgetCheckboxStyle,
         WidgetBackgroundColorStyle,
         WidgetPaddingStyle,
         WidgetBordersStyle,

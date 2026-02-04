@@ -1398,6 +1398,9 @@
                 "title": "Selector Type"
             },
             "selectorWidget": {
+                "checkbox": {
+                    "title": "Checkbox Style"
+                },
                 "radio": {
                     "checkedIcon": "Checked Icon",
                     "icons": "Icons",
@@ -2601,6 +2604,7 @@
             "styleTypes": {
                 "background": "Background",
                 "borders": "Borders",
+                "checkbox": "Checkbox",
                 "chips": "Chips",
                 "colors": "Colors",
                 "columnGroups": "Column Groups",

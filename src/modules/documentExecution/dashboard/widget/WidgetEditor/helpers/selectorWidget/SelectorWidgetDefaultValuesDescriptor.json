@@ -31,6 +31,25 @@
         "padding": "4px",
         "size": "md"
     },
+    "defaultCheckboxStyle": {
+        "checkedIcon": "",
+        "color": "",
+        "gridColumns": "2",
+        "icon": "",
+        "keepColor": false,
+        "label": {
+            "background-color": "",
+            "color": "",
+            "font-family": "",
+            "font-size": "",
+            "font-style": "",
+            "font-weight": ""
+        },
+        "layout": "column",
+        "margin": "",
+        "padding": "4px",
+        "size": "md"
+    },
     "defaultSelectorType": {
         "alignment": "vertical",
         "columnSize": "",
