@@ -1,7 +1,7 @@
 import { ISelection, IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { formatSelectionForDisplay } from '../../../ActiveSelectionsWidget/ActiveSelectionsWidgetHelpers'
 import deepcopy from 'deepcopy'
-import { formatNumberWithLocale, formatDateWithLocale } from '@/helpers/commons/localeHelper'
+import { formatNumberWithLocale, formatDateWithLocale as formatDateLocaleHelper, getJSDateFromDateString } from '@/helpers/commons/localeHelper'
 import i18n from '@/App.i18n'
 import sanitizeHtml from 'sanitize-html'
 import { activeSelectionsRegex, advancedCalcRegex, calcRegex, columnRegex, columnDateFormatRegex, gt, i18nRegex, lt, paramsRegex, paramsDateFormatRegex, repeatIndexRegex, variablesRegex, widgetIdRegex } from '@/modules/documentExecution/dashboard/helpers/common/DashboardRegexHelper'
@@ -16,6 +16,62 @@ let translatedValues = {} as any
 let widgetData = {} as any
 
 let aggregationDataset = null as any
+
+const isValidDate = (value: any): boolean => {
+    if (!value) return false
+    try {
+        const date = new Date(value)
+        return !isNaN(date.getTime())
+    } catch {
+        return false
+    }
+}
+
+const parseDateString = (dateString: string): Date | null => {
+    const commonFormats = ['dd/MM/yyyy', 'dd-MM-yyyy', 'dd.MM.yyyy', 'yyyy/MM/dd', 'yyyy-MM-dd']
+
+    for (const format of commonFormats) {
+        try {
+            const dt = getJSDateFromDateString(dateString, format)
+            if (dt && !isNaN(dt.getTime())) {
+                return dt
+            }
+        } catch {
+            continue
+        }
+    }
+
+    return null
+}
+
+const formatDateWithLocale = (value: any): string => {
+    if (!value) return value
+
+    let dateValue = value
+    let dateObj: Date | null = null
+
+    if (typeof dateValue === 'string') {
+        const match = dateValue.match(/^([A-Za-z]{3}\s+[A-Za-z]{3}\s+\d{1,2}\s+\d{4}\s+\d{2}:\d{2}:\d{2})/)
+        if (match) {
+            dateValue = match[1]
+        }
+
+        dateObj = parseDateString(dateValue)
+    }
+
+    if (!dateObj && isValidDate(dateValue)) {
+        dateObj = new Date(dateValue)
+    }
+
+    if (!dateObj) return value
+
+    try {
+        return formatDateLocaleHelper(dateObj)
+    } catch (error) {
+        console.error('Error formatting date:', error)
+        return value
+    }
+}
 
 export const parseText = (tempWidgetModel: IWidget, tempDrivers: any[], tempVariables: IVariable[], tempSelections: ISelection[], internationalization: any, tempWidgetData: any, toast: any) => {
     drivers = tempDrivers
