@@ -6,9 +6,7 @@
 
         <CheckboxSelector v-if="widgetType === 'multiValue'" :model-value="selectedValues" :options="multiValueOptions" :checkbox-style="propWidget.settings.style.checkbox" @update:model-value="checkboxSelectorChanged" />
 
-        <span v-if="widgetType === 'dropdown'" class="p-float-label p-m-2">
-            <Dropdown v-model="selectedValue" filter class="kn-width-full" panel-class="selectorCustomDropdownPanel" :options="filteredDropdownOptions" option-label="column_1" option-value="column_1" :style="getLabelStyle()" :input-style="getLabelStyle()" :panel-style="getLabelStyle()" :option-disabled="showMode === 'showDisabled' ? 'disabled' : ''" @change="singleValueSelectionChanged" @filter="filterDropdownOptions" />
-        </span>
+        <DropdownSelector v-if="widgetType === 'dropdown'" :model-value="selectedValue" :base-options="getBaseDropdownOptions()" :show-mode="showMode" :dropdown-style="propWidget.settings.style.dropdown" @update:model-value="dropdownSelectorChanged" />
 
         <span v-if="widgetType === 'multiDropdown'" class="p-float-label p-m-2">
             <MultiSelect v-model="selectedValues" class="kn-width-full" panel-class="selectorCustomDropdownPanel" :options="filteredMultiSelectOptions" option-label="column_1" option-value="column_1" :style="getLabelStyle()" :input-style="getLabelStyle()" :panel-style="getLabelStyle()" :filter="true" :option-disabled="showMode === 'showDisabled' ? 'disabled' : ''" @change="multiValueSelectionChanged" @filter="filterMultiSelectOptions" />
@@ -41,6 +39,7 @@ import { updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
 import { emitter } from '../../DashboardHelpers'
 import RadioSelector from './selectorTypes/RadioSelector.vue'
 import CheckboxSelector from './selectorTypes/CheckboxSelector.vue'
+import DropdownSelector from './selectorTypes/DropdownSelector.vue'
 import { QRadio, QCheckbox } from 'quasar'
 import Dropdown from 'primevue/dropdown'
 import MultiSelect from 'primevue/multiselect'
@@ -52,7 +51,7 @@ import dashboardDescriptor from '../../DashboardDescriptor.json'
 
 export default defineComponent({
     name: 'datasets-catalog-datatable',
-    components: { RadioSelector, CheckboxSelector, QRadio, QCheckbox, Dropdown, MultiSelect, Calendar },
+    components: { RadioSelector, CheckboxSelector, DropdownSelector, QRadio, QCheckbox, Dropdown, MultiSelect, Calendar },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         dataToShow: { type: Object as any, required: true },
@@ -124,7 +123,6 @@ export default defineComponent({
         this.loadActiveSelections()
         this.loadInitialValues()
         this.loadActiveSelectionValue()
-        this.updateFilteredOptionsWithSelectedValue()
     },
     unmounted() {
         this.removeEventListeners()
@@ -164,21 +162,7 @@ export default defineComponent({
             this.options.rows = newRows
 
             const baseOptions = this.showMode === 'hideDisabled' ? newRows.filter((row: any) => !row.disabled) : newRows
-            this.filteredDropdownOptions = this.getInitialDropdownOptions(baseOptions)
             this.filteredMultiSelectOptions = this.getInitialMultiSelectOptions(baseOptions)
-        },
-        getInitialDropdownOptions(baseOptions: any[]) {
-            const limited = baseOptions.slice(0, 500)
-
-            // for large sets, if selected value is not in the limited set, include it
-            if (this.selectedValue && !limited.find((opt: any) => opt.column_1 === this.selectedValue)) {
-                const selectedOption = baseOptions.find((opt: any) => opt.column_1 === this.selectedValue)
-                if (selectedOption) {
-                    return [selectedOption, ...limited.slice(0, 499)]
-                }
-            }
-
-            return limited
         },
         getInitialMultiSelectOptions(baseOptions: any[]) {
             const limited = baseOptions.slice(0, 500)
@@ -203,30 +187,13 @@ export default defineComponent({
 
             return limited
         },
-        updateFilteredOptionsWithSelectedValue() {
-            const baseOptions = this.showMode === 'hideDisabled' ? this.options.rows.filter((row: any) => !row.disabled) : this.options.rows
-
-            if (this.widgetType === 'dropdown' && this.selectedValue) {
-                this.filteredDropdownOptions = this.getInitialDropdownOptions(baseOptions)
-            }
-
-            if (this.widgetType === 'multiDropdown' && this.selectedValues?.length > 0) {
-                this.filteredMultiSelectOptions = this.getInitialMultiSelectOptions(baseOptions)
-            }
+        getBaseDropdownOptions(): any[] {
+            return this.showMode === 'hideDisabled' ? this.options.rows.filter((row: any) => !row.disabled) : this.options.rows
         },
-        filterDropdownOptions(event: any) {
-            if (this.filterTimeout) clearTimeout(this.filterTimeout)
-
-            const input = event.value.toLowerCase()
-            const baseOptions = this.showMode === 'hideDisabled' ? this.options.rows.filter((row: any) => !row.disabled) : this.options.rows
-
-            this.filterTimeout = setTimeout(() => {
-                if (input.length >= 2) {
-                    this.filteredDropdownOptions = baseOptions.filter((row: any) => row.column_1.toString().toLowerCase().indexOf(input) > -1)
-                } else {
-                    this.filteredDropdownOptions = this.getInitialDropdownOptions(baseOptions)
-                }
-            }, 300)
+        dropdownSelectorChanged(value: any) {
+            this.selectedValue = value
+            if (this.editorMode) return
+            updateStoreSelections(this.createNewSelection([this.selectedValue]), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
         },
         filterMultiSelectOptions(event: any) {
             if (this.filterTimeout) clearTimeout(this.filterTimeout)

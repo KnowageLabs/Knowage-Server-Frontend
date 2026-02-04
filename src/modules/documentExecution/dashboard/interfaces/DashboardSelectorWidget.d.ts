@@ -42,6 +42,7 @@ export interface ISelectorWidgetStyle {
     label: ISelectorWidgetLabelStyle
     radio: ISelectorWidgetRadioStyle
     checkbox: ISelectorWidgetCheckboxStyle
+    dropdown: ISelectorWidgetDropdownStyle
     padding: IWidgetPaddingStyle
     borders: IWidgetBordersStyle
     shadows: IWidgetShadowsStyle
@@ -104,4 +105,15 @@ export interface ISelectorWidgetCheckboxLabelStyle {
     'font-family': string
     color: string
     'background-color': string
+}
+
+export interface ISelectorWidgetDropdownStyle {
+    dense?: boolean
+    denseOptions?: boolean
+    icon?: string
+    shape?: 'standard' | 'rounded' | 'rounded-left' | 'rounded-right' | 'rounded-top' | 'rounded-bottom' | 'squared' | 'borderless'
+    type?: 'filled' | 'outlined'
+    color?: string
+    bgColor?: string
+    darkMode?: boolean
 }

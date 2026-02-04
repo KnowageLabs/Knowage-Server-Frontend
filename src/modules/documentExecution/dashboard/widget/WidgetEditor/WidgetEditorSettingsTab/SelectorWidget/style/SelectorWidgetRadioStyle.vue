@@ -22,7 +22,7 @@
                 <q-input v-model="radioStyleModel.margin" :label="$t('common.margin')" placeholder="4px, 6rem" dense outlined @change="radioStyleChanged" />
             </div>
 
-            <!-- #region -- Custom Icons Section -->
+            <!--  Custom Icons Section -->
             <label class="kn-material-input-label section-label col-12">{{ $t('common.buttons') }}</label>
 
             <div class="col-6">
@@ -47,7 +47,7 @@
             </div>
 
             <div class="col-12">
-                <q-input v-model="radioStyleModel.color" :label="$t('common.color')" dense outlined @update:model-value="radioStyleChanged">
+                <q-input v-model="radioStyleModel.color" :label="$t('common.color')" placeholder="red, #ff0000ff, #ff000080" dense outlined @update:model-value="radioStyleChanged">
                     <template #append>
                         <q-icon name="colorize" class="cursor-pointer">
                             <q-popup-proxy cover transition-show="scale" transition-hide="scale">
@@ -60,7 +60,6 @@
             <div class="col-12">
                 <q-checkbox v-model="radioStyleModel.keepColor" :label="$t('dashboard.widgetEditor.selectorWidget.radio.keepColor')" @update:model-value="radioStyleChanged" />
             </div>
-            <!-- #endregion -->
 
             <!-- Label Style Section -->
             <label v-if="radioStyleModel.label" class="kn-material-input-label section-label col-12">{{ $t('common.label') }}</label>

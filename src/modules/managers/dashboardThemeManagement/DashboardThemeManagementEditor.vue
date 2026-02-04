@@ -31,6 +31,7 @@
                         <SelectorWidgetLabelStyle v-else-if="prop.node.key.includes('label-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.label" class="no-padding" />
                         <SelectorWidgetRadioStyle v-else-if="prop.node.key.includes('radio-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.radio" class="no-padding" />
                         <SelectorWidgetCheckboxStyle v-else-if="prop.node.key.includes('checkbox-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.checkbox" class="no-padding" />
+                        <SelectorWidgetDropdownStyle v-else-if="prop.node.key.includes('dropdown-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.dropdown" class="no-padding" />
                         <SelectionsWidgetChipsStyle v-else-if="prop.node.key.includes('chips-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.chips" class="no-padding" />
                         <PivotTableTotalsStyle v-else-if="prop.node.key.includes('totals-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.totals" :toolbar-style-settings="pivotDescriptor.columnHeadersToolbarStyleOptions" :total-type="'totals'" class="no-padding" />
                         <PivotTableTotalsStyle v-else-if="prop.node.key.includes('subTotals-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.subTotals" :toolbar-style-settings="pivotDescriptor.columnHeadersToolbarStyleOptions" :total-type="'subTotals'" class="no-padding" />
@@ -70,6 +71,7 @@ import PivotTableFieldsStyle from '@/modules/documentExecution/dashboard/widget/
 import ChartColorSettings from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/ChartWidget/common/ChartColorSettings.vue'
 import SelectorWidgetRadioStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/SelectorWidget/style/SelectorWidgetRadioStyle.vue'
 import SelectorWidgetCheckboxStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/SelectorWidget/style/SelectorWidgetCheckboxStyle.vue'
+import SelectorWidgetDropdownStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/SelectorWidget/style/SelectorWidgetDropdownStyle.vue'
 
 export default defineComponent({
     name: 'dashboard-theme-management-editor',
@@ -87,6 +89,7 @@ export default defineComponent({
         TableWidgetPaginator,
         SelectorWidgetLabelStyle,
         SelectorWidgetRadioStyle,
+        SelectorWidgetDropdownStyle,
         SelectorWidgetCheckboxStyle,
         SelectionsWidgetChipsStyle,
         PivotTableTotalsStyle,

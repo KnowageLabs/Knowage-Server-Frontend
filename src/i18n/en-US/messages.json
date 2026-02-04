@@ -756,6 +756,7 @@
                 "title": "Default Values"
             },
             "descending": "Descending",
+            "design": "Design",
             "dimensions": "Dimensions",
             "discoveryWidget": {
                 "facets": {
@@ -1400,6 +1401,15 @@
             "selectorWidget": {
                 "checkbox": {
                     "title": "Checkbox Style"
+                },
+                "dropdown": {
+                    "bgColor": "Background Color",
+                    "darkMode": "Dark Mode",
+                    "dense": "Dense",
+                    "denseOptions": "Dense Options",
+                    "shape": "Shape",
+                    "title": "Dropdown Style",
+                    "type": "Type"
                 },
                 "radio": {
                     "checkedIcon": "Checked Icon",
@@ -2609,6 +2619,7 @@
                 "colors": "Colors",
                 "columnGroups": "Column Groups",
                 "columns": "Columns",
+                "dropdown": "Dropdown",
                 "fieldHeaders": "Field Headers",
                 "fields": "Fields",
                 "headers": "Headers",
@@ -2635,6 +2646,7 @@
                 "python": "Python",
                 "r": "R",
                 "selector": "Selector",
+                "spacer": "Spacer",
                 "table": "Table",
                 "text": "Text"
             }

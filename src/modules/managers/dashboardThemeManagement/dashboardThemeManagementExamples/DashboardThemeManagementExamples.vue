@@ -22,6 +22,9 @@
         <div class="p-p-2 p-d-flex" style="height: 200px">
             <WidgetRenderer ref="checkboxSelector" :widget="checkboxModel" :widget-data="selectorWidgetMock.selectorDataMock" :widget-initial-data="selectorWidgetMock.selectorDataMock" :datasets="[]" :dashboard-id="'checkboxSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
         </div>
+        <div class="p-p-2 p-d-flex" style="height: 100px">
+            <WidgetRenderer ref="dropdownSelector" :widget="selectModel" :widget-data="selectorWidgetMock.selectorDataMock" :widget-initial-data="selectorWidgetMock.selectorDataMock" :datasets="[]" :dashboard-id="'dropdownSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
+        </div>
     </div>
 </template>
 
@@ -57,7 +60,8 @@ export default defineComponent({
             chartJSData: { labels: [], datasets: [] } as IChartJSData,
             chartJSOptions: {} as IChartJSOptions,
             radioModel: {} as any,
-            checkboxModel: {} as any
+            checkboxModel: {} as any,
+            selectModel: {} as any
         }
     },
     computed: {
@@ -97,6 +101,10 @@ export default defineComponent({
             this.checkboxModel = deepcopy(this.selectorWidgetMock.selectorModelMock)
             this.checkboxModel.settings.style = this.selectedTheme.config.selector.style
             this.checkboxModel.settings.configuration.selectorType.modality = 'multiValue'
+
+            this.selectModel = deepcopy(this.selectorWidgetMock.selectorModelMock)
+            this.selectModel.settings.style = this.selectedTheme.config.selector.style
+            this.selectModel.settings.configuration.selectorType.modality = 'dropdown'
         },
         setEventListeners() {
             emitter.on('scrollToExample', this.scrollToExample)

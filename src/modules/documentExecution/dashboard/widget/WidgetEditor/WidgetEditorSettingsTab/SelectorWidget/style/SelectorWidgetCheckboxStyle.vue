@@ -1,36 +1,25 @@
 <template>
     <div v-if="checkboxStyleModel" class="q-px-md q-pb-md kn-width-full">
         <div class="row q-col-gutter-sm">
-            <!-- Size Section -->
-            <label class="kn-material-input-label section-label col-12">{{ $t('common.size') }}</label>
-            <div class="col-12">
-                <q-input v-model="checkboxStyleModel.size" :label="$t('common.size')" placeholder="sm, md, lg, 4px, 6rem" dense outlined @change="checkboxStyleChanged" />
-            </div>
-
             <!-- Layout Section -->
             <label class="kn-material-input-label section-label col-12">{{ $t('common.layout') }}</label>
-
             <div class="col-12">
                 <q-btn-toggle v-model="checkboxStyleModel.layout" :options="translatedLayoutOptions" color="secondary" toggle-color="primary" unelevated @update:model-value="checkboxStyleChanged" />
             </div>
-
-            <!-- Grid Columns (visible only for grid layout) -->
             <div v-if="checkboxStyleModel.layout === 'grid'" class="col-12">
                 <q-input v-model.number="checkboxStyleModel.gridColumns" :label="$t('common.columns')" type="number" placeholder="2" dense outlined @update:model-value="checkboxStyleChanged" />
             </div>
-
-            <!-- Spacing Section -->
-            <label class="kn-material-input-label section-label col-12">{{ $t('common.spacing') }}</label>
-
+            <div class="col-12">
+                <q-input v-model="checkboxStyleModel.size" :label="$t('common.size')" placeholder="sm, md, lg, 4px, 6rem" dense outlined @change="checkboxStyleChanged" />
+            </div>
             <div class="col-6">
                 <q-input v-model="checkboxStyleModel.padding" :label="$t('common.padding')" placeholder="4px, 6rem" dense outlined @change="checkboxStyleChanged" />
             </div>
-
             <div class="col-6">
                 <q-input v-model="checkboxStyleModel.margin" :label="$t('common.margin')" placeholder="4px, 6rem" dense outlined @change="checkboxStyleChanged" />
             </div>
 
-            <!-- #region -- Custom Icons Section -->
+            <!-- Custom Icons Section -->
             <label class="kn-material-input-label section-label col-12">{{ $t('common.buttons') }}</label>
 
             <div class="col-6">
@@ -56,7 +45,7 @@
             </div>
 
             <div class="col-12">
-                <q-input v-model="checkboxStyleModel.color" :label="$t('common.color')" dense outlined @update:model-value="checkboxStyleChanged">
+                <q-input v-model="checkboxStyleModel.color" :label="$t('common.color')" placeholder="red, #ff0000ff, #ff000080" dense outlined @update:model-value="checkboxStyleChanged">
                     <template #append>
                         <q-icon name="colorize" class="cursor-pointer">
                             <q-popup-proxy cover transition-show="scale" transition-hide="scale">
@@ -69,7 +58,6 @@
             <div class="col-12">
                 <q-checkbox v-model="checkboxStyleModel.keepColor" :label="$t('dashboard.widgetEditor.selectorWidget.radio.keepColor')" @update:model-value="checkboxStyleChanged" />
             </div>
-            <!-- #endregion -->
 
             <!-- Label Style Section -->
             <label v-if="checkboxStyleModel.label" class="kn-material-input-label section-label col-12">{{ $t('common.label') }}</label>

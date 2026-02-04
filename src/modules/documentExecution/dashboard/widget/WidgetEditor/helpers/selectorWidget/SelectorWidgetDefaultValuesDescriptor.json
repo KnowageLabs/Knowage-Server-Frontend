@@ -1,18 +1,5 @@
 {
-    "defaultLabelStyle": {
-        "enabled": true,
-        "properties": {
-            "background-color": "",
-            "color": "",
-            "font-family": "",
-            "font-size": "",
-            "font-style": "",
-            "font-weight": "",
-            "justify-content": ""
-        },
-        "wrapText": false
-    },
-    "defaultRadioStyle": {
+    "defaultCheckboxStyle": {
         "checkedIcon": "",
         "color": "",
         "gridColumns": "2",
@@ -31,7 +18,29 @@
         "padding": "4px",
         "size": "md"
     },
-    "defaultCheckboxStyle": {
+    "defaultDropdownStyle": {
+        "bgColor": "",
+        "color": "",
+        "darkMode": false,
+        "dense": false,
+        "denseOptions": false,
+        "shape": "standard",
+        "type": "outlined"
+    },
+    "defaultLabelStyle": {
+        "enabled": true,
+        "properties": {
+            "background-color": "",
+            "color": "",
+            "font-family": "",
+            "font-size": "",
+            "font-style": "",
+            "font-weight": "",
+            "justify-content": ""
+        },
+        "wrapText": false
+    },
+    "defaultRadioStyle": {
         "checkedIcon": "",
         "color": "",
         "gridColumns": "2",

@@ -108,6 +108,10 @@
             {
                 "title": "dashboard.widgetEditor.selectorWidget.checkbox.title",
                 "type": "CheckboxStyle"
+            },
+            {
+                "title": "dashboard.widgetEditor.selectorWidget.dropdown.title",
+                "type": "DropdownStyle"
             }
         ]
     },

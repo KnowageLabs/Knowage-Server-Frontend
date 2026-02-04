@@ -1,5 +1,5 @@
 import { IWidgetBordersStyle, IWidgetPaddingStyle, IWidgetShadowsStyle } from '../../Dashboard'
-import { ISelectorWidgetLabelStyle, ISelectorWidgetRadioStyle, ISelectorWidgetCheckboxStyle, ISelectorWidgetStyle } from '../../interfaces/DashboardSelectorWidget'
+import { ISelectorWidgetLabelStyle, ISelectorWidgetRadioStyle, ISelectorWidgetCheckboxStyle, ISelectorWidgetDropdownStyle, ISelectorWidgetStyle } from '../../interfaces/DashboardSelectorWidget'
 import { getFormattedBackgroundStyle, getFormattedTitleStyle } from '../common/WidgetStyleHelper'
 import { hexToRgba } from '../FormattingHelpers'
 import * as widgetCommonDefaultValues from '../../widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
@@ -12,6 +12,7 @@ export const getFormattedStyle = (widget: any) => {
         label: getFormattedLabelStyle(widget),
         radio: getFormattedRadioStyle(widget),
         checkbox: getFormattedCheckboxStyle(widget),
+        dropdown: getFormattedDropdownStyle(widget),
         padding: getFormattedPaddingStyle(widget),
         borders: getFormattedBorderStyle(widget),
         shadows: getFormattedShadowsStyle(widget),
@@ -113,6 +114,17 @@ const getFormattedCheckboxStyle = (widget) => {
     }
 
     return formattedCheckboxStyle
+}
+
+const getFormattedDropdownStyle = (widget: any) => {
+    if (!widget.style) return selectorWidgetDefaultValues.getDefaultDropdownStyle()
+    const formattedDropdownStyle = {
+        dense: widget.style.dense ?? false,
+        denseOptions: widget.style.denseOptions ?? false,
+        icon: widget.style.icon ?? ''
+    } as ISelectorWidgetDropdownStyle
+
+    return formattedDropdownStyle
 }
 
 const getFormattedPaddingStyle = (widget: any) => {

@@ -23,6 +23,7 @@
                 <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
                 <SelectorWidgetRadioStyle v-else-if="accordion.type === 'RadioStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetRadioStyle>
                 <SelectorWidgetCheckboxStyle v-else-if="accordion.type === 'CheckboxStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetCheckboxStyle>
+                <SelectorWidgetDropdownStyle v-else-if="accordion.type === 'DropdownStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetDropdownStyle>
             </AccordionTab>
         </Accordion>
     </div>
@@ -45,6 +46,7 @@ import WidgetTitleStyle from '../common/style/WidgetTitleStyle.vue'
 import SelectorWidgetLabelStyle from './style/SelectorWidgetLabelStyle.vue'
 import SelectorWidgetRadioStyle from './style/SelectorWidgetRadioStyle.vue'
 import SelectorWidgetCheckboxStyle from './style/SelectorWidgetCheckboxStyle.vue'
+import SelectorWidgetDropdownStyle from './style/SelectorWidgetDropdownStyle.vue'
 import WidgetBackgroundColorStyle from '../common/style/WidgetBackgroundColorStyle.vue'
 import WidgetPaddingStyle from '../common/style/WidgetPaddingStyle.vue'
 import WidgetBordersStyle from '../common/style/WidgetBordersStyle.vue'
@@ -69,6 +71,7 @@ export default defineComponent({
         SelectorWidgetLabelStyle,
         SelectorWidgetRadioStyle,
         SelectorWidgetCheckboxStyle,
+        SelectorWidgetDropdownStyle,
         WidgetBackgroundColorStyle,
         WidgetPaddingStyle,
         WidgetBordersStyle,
