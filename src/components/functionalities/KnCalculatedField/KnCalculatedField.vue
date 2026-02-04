@@ -323,12 +323,14 @@ export default defineComponent({
             const data = JSON.parse(ev.dataTransfer.getData('myItem'))
             const selection = editor.getSelection()
             const position = editor.getPosition()
-            let fieldAlias = ''
             let text = ''
-            if (data.item.fieldAlias) {
-                fieldAlias = this.source !== 'dashboard' ? this.wrap(data.item.fieldLabel ?? data.item.fieldAlias) : `"${data.item.fieldLabel ?? data.item.fieldAlias}"`
+            if (data.elementType === 'function') {
+                text = data.item
+            } else if (data.elementType === 'field') {
+                const fieldName = data.item.fieldLabel ?? data.item.fieldAlias ?? data.item
+                text = this.source === 'QBE' ? this.wrap(fieldName) : this.source === 'dashboard' ? `"${fieldName}"` : fieldName
             }
-            text = data.elementType === 'function' ? data.item : fieldAlias
+            text = text || data.item
             const word = editor.getModel().getWordAtPosition(position)
             let range = null
             if (selection.endColumn - selection.startColumn === 0) {
