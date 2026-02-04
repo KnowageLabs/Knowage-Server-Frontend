@@ -29,6 +29,7 @@
                         <TableWidgetSummaryStyle v-else-if="prop.node.key.includes('summary-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.summary" class="no-padding" />
                         <TableWidgetPaginator v-else-if="prop.node.key.includes('paginator-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.paginator" class="no-padding" />
                         <SelectorWidgetLabelStyle v-else-if="prop.node.key.includes('label-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.label" class="no-padding" />
+                        <SelectorWidgetRadioStyle v-else-if="prop.node.key.includes('radio-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.radio" class="no-padding" />
                         <SelectionsWidgetChipsStyle v-else-if="prop.node.key.includes('chips-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.chips" class="no-padding" />
                         <PivotTableTotalsStyle v-else-if="prop.node.key.includes('totals-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.totals" :toolbar-style-settings="pivotDescriptor.columnHeadersToolbarStyleOptions" :total-type="'totals'" class="no-padding" />
                         <PivotTableTotalsStyle v-else-if="prop.node.key.includes('subTotals-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.subTotals" :toolbar-style-settings="pivotDescriptor.columnHeadersToolbarStyleOptions" :total-type="'subTotals'" class="no-padding" />
@@ -66,6 +67,7 @@ import SelectionsWidgetChipsStyle from '@/modules/documentExecution/dashboard/wi
 import PivotTableTotalsStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/PivotTableWidget/style/PivotTableTotalsStyle.vue'
 import PivotTableFieldsStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/PivotTableWidget/style/PivotTableFieldsStyle.vue'
 import ChartColorSettings from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/ChartWidget/common/ChartColorSettings.vue'
+import SelectorWidgetRadioStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/SelectorWidget/style/SelectorWidgetRadioStyle.vue'
 
 export default defineComponent({
     name: 'dashboard-theme-management-editor',
@@ -82,6 +84,7 @@ export default defineComponent({
         TableWidgetSummaryStyle,
         TableWidgetPaginator,
         SelectorWidgetLabelStyle,
+        SelectorWidgetRadioStyle,
         SelectionsWidgetChipsStyle,
         PivotTableTotalsStyle,
         PivotTableFieldsStyle,

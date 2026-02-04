@@ -40,6 +40,7 @@ export interface ISelectorWidgetStyle {
     themeId: number | null
     title: IWidgetTitle
     label: ISelectorWidgetLabelStyle
+    radio: ISelectorWidgetRadioStyle
     padding: IWidgetPaddingStyle
     borders: IWidgetBordersStyle
     shadows: IWidgetShadowsStyle
@@ -58,4 +59,26 @@ export interface ISelectorWidgetLabelStyle {
         color: string
         'background-color': string
     }
+}
+
+export interface ISelectorWidgetRadioStyle {
+    size: string
+    layout: 'column' | 'row' | 'grid'
+    gridColumns?: string
+    padding: string
+    margin: string
+    color: string
+    keepColor?: boolean
+    icon?: string
+    checkedIcon?: string
+    label?: ISelectorWidgetRadioLabelStyle
+}
+
+export interface ISelectorWidgetRadioLabelStyle {
+    'font-weight': string
+    'font-style': string
+    'font-size': string
+    'font-family': string
+    color: string
+    'background-color': string
 }

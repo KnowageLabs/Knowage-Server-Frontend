@@ -69,6 +69,7 @@ const addUniqueActiveSelectionsWidgetStyles = (config: ISelectionWidgetStyle) =>
 
 const addUniqueSelectorWidgetStyles = (config: ISelectorWidgetStyle) => {
     config.label = selectorWidgetDefaultValues.getDefaultLabelStyle()
+    config.radio = selectorWidgetDefaultValues.getDefaultRadioStyle()
 }
 
 const addUniqueChartWidgetStyles = (config: any) => {
@@ -79,5 +80,10 @@ export const themeBackwardsCompatibility = (theme: IDashboardThemeConfig) => {
     if (theme.chart?.style) {
         const chartStyle = theme.chart.style as any
         if (!chartStyle.colors) addUniqueChartWidgetStyles(chartStyle)
+    }
+
+    if (theme.selector?.style) {
+        const selectorStyle = theme.selector.style as ISelectorWidgetStyle
+        if (!selectorStyle.radio) selectorStyle.radio = selectorWidgetDefaultValues.getDefaultRadioStyle()
     }
 }

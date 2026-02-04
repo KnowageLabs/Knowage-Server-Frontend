@@ -19,6 +19,7 @@ import * as widgetCommonDefaultValues from './widget/WidgetEditor/helpers/common
 import { formatMapWidgetAfterDashboardLoading } from './widget/MapWidget/MapWidgetFormattingHelper'
 import i18n from '@/App.i18n'
 import { addMissingFilterProperties } from './widget/WidgetEditor/helpers/selectionsWidget/SelectionsWidgetFunctions'
+import { formatSelectorSettings } from './widget/WidgetEditor/helpers/selectorWidget/SelectorWidgetFunctions'
 
 const { t } = i18n.global
 const store = mainStore()
@@ -112,7 +113,6 @@ const updateWidgetCoordinatesIfOverlaping = (widgetToAdd: IWidgetSheetItem, maxW
 }
 
 export const cloneSheet = (dashboard: IDashboard, selectedSheet: IDashboardSheet, sheetIndex: number) => {
-    console.log('oldWidgets', dashboard.widgets)
     const clonedSheet = deepcopy(selectedSheet)
     clonedSheet.id = crypto.randomUUID()
     clonedSheet.label = `${selectedSheet.label} (${t('common.clone')})`
@@ -138,7 +138,6 @@ export const cloneSheet = (dashboard: IDashboard, selectedSheet: IDashboardSheet
     })
 
     dashboard.widgets.push(...newWidgets)
-    console.log('newWidgets', dashboard.widgets)
     dashboard.sheets.splice(sheetIndex + 1, 0, clonedSheet)
 }
 
@@ -314,6 +313,9 @@ const formatWidget = (widget: IWidget, datasets: IDataset[]) => {
             formatMapWidgetAfterDashboardLoading(widget, datasets)
         case 'selection':
             addMissingFilterProperties(widget.settings as any)
+            break
+        case 'selector':
+            formatSelectorSettings(widget)
             break
     }
 

@@ -1,18 +1,17 @@
 <template>
+    <!-- {{ widgetType }} -->
+    <!-- {{ selectedValue }} - {{ selectedValues }} - {{ selectedDate }} - {{ startDate }} - {{ endDate }} -->
     <div v-if="options" class="selector-widget dashboard-scrollbar">
-        <div v-if="widgetType === 'singleValue'" :class="getLayoutStyle()">
-            <div v-for="(value, index) of showMode === 'hideDisabled' ?  options.rows.filter((row: any) => !row.disabled) : options.rows" :key="index" class="multi-select p-p-1" :style="getLabelStyle() + getGridWidth()">
-                <RadioButton v-model="selectedValue" :input-id="`radio-${index}`" class="p-mr-2" :name="value.column_1" :value="value.column_1" :disabled="showMode === 'showDisabled' && value.disabled" @change="singleValueSelectionChanged" />
-                <label :for="`radio-${index}`" class="multi-select-label">{{ value.column_1 }}</label>
-            </div>
-        </div>
+        val: {{ selectedValue }}
+        <RadioSelector v-if="widgetType === 'singleValue'" :model-value="selectedValue" :options="singleValueOptions" :radio-style="propWidget.settings.style.radio" @update:model-value="radioSelectorChanged" />
 
-        <div v-if="widgetType === 'multiValue'" :class="getLayoutStyle()">
-            <div v-for="(value, index) of showMode === 'hideDisabled' ?  options.rows.filter((row: any) => !row.disabled) : options.rows" :key="index" class="multi-select p-p-1" :style="getLabelStyle() + getGridWidth()">
-                <Checkbox v-model="selectedValues" :input-id="`multi-${index}`" class="p-mr-2" :name="value.column_1" :value="value.column_1" :disabled="showMode === 'showDisabled' && value.disabled" @change="multiValueSelectionChanged" />
-                <label :for="`multi-${index}`" class="multi-select-label">{{ value.column_1 }}</label>
+        <span v-if="widgetType === 'multiValue'" class="p-d-flex p-flex-column p-gap-2">
+            <div v-for="option in multiValueOptions" :key="option.value" class="p-d-flex p-ai-center p-gap-2">
+                <q-checkbox v-model="selectedValues" :val="option.value" :disable="option.disable" size="md" @update:model-value="multiValueSelectionChanged" />
+                <label>{{ option.label }}</label>
             </div>
-        </div>
+        </span>
+
         <span v-if="widgetType === 'dropdown'" class="p-float-label p-m-2">
             <Dropdown v-model="selectedValue" filter class="kn-width-full" panel-class="selectorCustomDropdownPanel" :options="filteredDropdownOptions" option-label="column_1" option-value="column_1" :style="getLabelStyle()" :input-style="getLabelStyle()" :panel-style="getLabelStyle()" :option-disabled="showMode === 'showDisabled' ? 'disabled' : ''" @change="singleValueSelectionChanged" @filter="filterDropdownOptions" />
         </span>
@@ -46,8 +45,8 @@ import { mapActions } from 'pinia'
 import { getWidgetStyleByType } from '../TableWidget/TableWidgetHelper'
 import { updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
 import { emitter } from '../../DashboardHelpers'
-import Checkbox from 'primevue/checkbox'
-import RadioButton from 'primevue/radiobutton'
+import RadioSelector from './selectorTypes/RadioSelector.vue'
+import { QRadio, QCheckbox } from 'quasar'
 import Dropdown from 'primevue/dropdown'
 import MultiSelect from 'primevue/multiselect'
 import Calendar from 'primevue/calendar'
@@ -58,7 +57,7 @@ import dashboardDescriptor from '../../DashboardDescriptor.json'
 
 export default defineComponent({
     name: 'datasets-catalog-datatable',
-    components: { Checkbox, RadioButton, Dropdown, MultiSelect, Calendar },
+    components: { RadioSelector, QRadio, QCheckbox, Dropdown, MultiSelect, Calendar },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         dataToShow: { type: Object as any, required: true },
@@ -95,6 +94,20 @@ export default defineComponent({
             if (this.propWidget.settings.configuration.valuesManagement.hideDisabled) return 'hideDisabled'
             else if (this.propWidget.settings.configuration.valuesManagement.enableAll) return 'enableAll'
             else return 'showDisabled'
+        },
+        singleValueOptions(): any[] {
+            return this.getFilteredOptionsForDisplay().map((row: any) => ({
+                label: row.column_1,
+                value: row.column_1,
+                disable: this.showMode === 'showDisabled' && row.disabled
+            }))
+        },
+        multiValueOptions(): any[] {
+            return this.getFilteredOptionsForDisplay().map((row: any) => ({
+                label: row.column_1,
+                value: row.column_1,
+                disable: this.showMode === 'showDisabled' && row.disabled
+            }))
         }
     },
     watch: {
@@ -102,7 +115,7 @@ export default defineComponent({
             this.loadActiveSelections()
         },
         dataToShow() {
-            this.loadOptions()
+            this.loadAvailableOptions(this.dataToShow)
         },
         widgetInitialData() {
             this.loadInitialValues()
@@ -123,6 +136,12 @@ export default defineComponent({
     },
     methods: {
         ...mapActions(store, ['setSelections']),
+        getFilteredOptionsForDisplay(): any[] {
+            if (this.showMode === 'hideDisabled') {
+                return this.options.rows.filter((row: any) => !row.disabled)
+            }
+            return this.options.rows
+        },
         setEventListeners() {
             emitter.on('widgetUnlocked', this.onSelectionsDeleted)
             emitter.on('selectionsDeleted', this.onSelectionsDeleted)
@@ -134,9 +153,6 @@ export default defineComponent({
         loadInitialValues() {
             // this.initialOptions = deepcopy(this.widgetInitialData) // potentially not needed, leaving it for reference
             this.initialOptions = this.widgetInitialData
-            this.loadOptions()
-        },
-        loadOptions() {
             this.loadAvailableOptions(this.dataToShow)
         },
         loadAvailableOptions(dataToShow: any) {
@@ -279,6 +295,9 @@ export default defineComponent({
             this.selectedDate = null
             this.startDate = null
             this.endDate = null
+            // this.$nextTick(() => {
+            //     this.$forceUpdate()
+            // })
         },
         findFirstAvailableValue() {
             if (this.showMode === 'enableAll') return this.options.rows[0]
@@ -393,8 +412,14 @@ export default defineComponent({
             return index !== -1 ? this.datasets[index].label : ''
         },
         onSelectionsDeleted(selections: any) {
+            console.log('SelectorWidget: onSelectionsDeleted', selections)
             const index = selections.findIndex((selection: ISelection) => selection.datasetId === this.propWidget.dataset && selection.columnName === this.propWidget.columns[0]?.columnName)
             if (index !== -1) this.removeDeafultValues()
+        },
+        radioSelectorChanged(event: any) {
+            this.selectedValue = event
+            if (this.editorMode) return
+            updateStoreSelections(this.createNewSelection([this.selectedValue]), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
         }
     }
 })
