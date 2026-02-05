@@ -364,7 +364,7 @@ export default defineComponent({
             this.loading = true
             let tempLeftOperand = this.filter?.leftOperandValue?.expression ? this.filter?.leftOperandValue?.expression : this.filter?.leftOperandValue
             await this.$http
-                .post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=GET_VALUES_FOR_QBE_FILTER_LOOKUP_ACTION&ENTITY_ID=${tempLeftOperand}&SBI_EXECUTION_ID=${this.id}`, {
+                .post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/restful-services/GetValuesForQbeFilterLookup?ENTITY_ID=${tempLeftOperand}&SBI_EXECUTION_ID=${this.id}`, {
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8' }
                 })
                 .then((response: AxiosResponse<any>) => (this.filterValuesData = response.data))

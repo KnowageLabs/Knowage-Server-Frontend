@@ -552,7 +552,7 @@ export default defineComponent({
                 datamartName = null
             }
 
-            let url = `${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=GET_TREE_ACTION&SBI_EXECUTION_ID=${this.uniqueID}`
+            let url = `${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/restful-services/GetTree?SBI_EXECUTION_ID=${this.uniqueID}`
 
             if (this.dataset && datamartName) url += `&datamartName=${datamartName}`
             if (this.sourceDataset) url += '&openDatasetInQbe=true'
@@ -827,7 +827,7 @@ export default defineComponent({
             }
 
             await this.$http
-                .post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=SET_CATALOGUE_ACTION&SBI_EXECUTION_ID=${this.uniqueID}`, item, conf)
+                .post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/restful-services/SetCatalogue?SBI_EXECUTION_ID=${this.uniqueID}`, item, conf)
                 .then(() => {
                     this.getSQL()
                 })
@@ -849,7 +849,7 @@ export default defineComponent({
             }
 
             await this.$http
-                .post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=GET_SQL_QUERY_ACTION&SBI_EXECUTION_ID=${this.uniqueID}`, item, conf)
+                .post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/restful-services/GetSqlQuery?SBI_EXECUTION_ID=${this.uniqueID}`, item, conf)
                 .then((response: AxiosResponse<any>) => {
                     this.sqlData = response.data
                     this.sqlDialogVisible = true
