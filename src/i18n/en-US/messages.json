@@ -1402,6 +1402,10 @@
                 "checkbox": {
                     "title": "Checkbox Style"
                 },
+                "date": {},
+                "dateRange": {
+                    "title": "Date Range"
+                },
                 "dropdown": {
                     "bgColor": "Background Color",
                     "darkMode": "Dark Background Mode",
