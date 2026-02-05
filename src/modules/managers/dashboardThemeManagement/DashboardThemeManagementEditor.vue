@@ -34,6 +34,7 @@
                         <SelectorWidgetDropdownStyle v-else-if="prop.node.key.includes('dropdown-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.dropdown" class="no-padding" />
                         <SelectorWidgetMultiDropdownStyle v-else-if="prop.node.key.includes('multiDropdown-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.multiDropdown" class="no-padding" />
                         <SelectorWidgetDateStyle v-else-if="prop.node.key.includes('date-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.date" class="no-padding" />
+                        <SelectorWidgetDateRangeStyle v-else-if="prop.node.key.includes('dateRange-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.dateRange" class="no-padding" />
                         <SelectionsWidgetChipsStyle v-else-if="prop.node.key.includes('chips-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.chips" class="no-padding" />
                         <PivotTableTotalsStyle v-else-if="prop.node.key.includes('totals-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.totals" :toolbar-style-settings="pivotDescriptor.columnHeadersToolbarStyleOptions" :total-type="'totals'" class="no-padding" />
                         <PivotTableTotalsStyle v-else-if="prop.node.key.includes('subTotals-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.subTotals" :toolbar-style-settings="pivotDescriptor.columnHeadersToolbarStyleOptions" :total-type="'subTotals'" class="no-padding" />
@@ -76,6 +77,7 @@ import SelectorWidgetCheckboxStyle from '@/modules/documentExecution/dashboard/w
 import SelectorWidgetDropdownStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/SelectorWidget/style/SelectorWidgetDropdownStyle.vue'
 import SelectorWidgetMultiDropdownStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/SelectorWidget/style/SelectorWidgetMultiDropdownStyle.vue'
 import SelectorWidgetDateStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/SelectorWidget/style/SelectorWidgetDateStyle.vue'
+import SelectorWidgetDateRangeStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/SelectorWidget/style/SelectorWidgetDateRangeStyle.vue'
 
 export default defineComponent({
     name: 'dashboard-theme-management-editor',
@@ -97,6 +99,7 @@ export default defineComponent({
         SelectorWidgetCheckboxStyle,
         SelectorWidgetMultiDropdownStyle,
         SelectorWidgetDateStyle,
+        SelectorWidgetDateRangeStyle,
         SelectionsWidgetChipsStyle,
         PivotTableTotalsStyle,
         PivotTableFieldsStyle,

@@ -31,6 +31,9 @@
         <div class="p-p-2 p-d-flex" style="height: 100px">
             <WidgetRenderer ref="multiDropdownSelector" :widget="dateDropdownModel" :widget-data="selectorWidgetMock.selectorDataMock" :widget-initial-data="selectorWidgetMock.selectorDataMock" :datasets="[]" :dashboard-id="'multiDropdownSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
         </div>
+        <div class="p-p-2 p-d-flex" style="height: 100px">
+            <WidgetRenderer ref="multiDropdownSelector" :widget="dateRangeModel" :widget-data="selectorWidgetMock.selectorDataMock" :widget-initial-data="selectorWidgetMock.selectorDataMock" :datasets="[]" :dashboard-id="'multiDropdownSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
+        </div>
     </div>
 </template>
 
@@ -69,7 +72,8 @@ export default defineComponent({
             checkboxModel: {} as any,
             selectModel: {} as any,
             multiDropdownModel: {} as any,
-            dateDropdownModel: {} as any
+            dateDropdownModel: {} as any,
+            dateRangeModel: {} as any
         }
     },
     computed: {
@@ -121,7 +125,12 @@ export default defineComponent({
             this.dateDropdownModel = deepcopy(this.selectorWidgetMock.selectorModelMock)
             this.dateDropdownModel.settings.style = this.selectedTheme.config.selector.style
             this.dateDropdownModel.settings.configuration.selectorType.modality = 'date'
+
+            this.dateRangeModel = deepcopy(this.selectorWidgetMock.selectorModelMock)
+            this.dateRangeModel.settings.style = this.selectedTheme.config.selector.style
+            this.dateRangeModel.settings.configuration.selectorType.modality = 'dateRange'
         },
+
         setEventListeners() {
             emitter.on('scrollToExample', this.scrollToExample)
         },

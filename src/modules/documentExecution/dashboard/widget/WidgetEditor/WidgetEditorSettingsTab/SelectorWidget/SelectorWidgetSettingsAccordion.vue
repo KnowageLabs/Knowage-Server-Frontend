@@ -26,6 +26,7 @@
                 <SelectorWidgetDropdownStyle v-else-if="accordion.type === 'DropdownStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetDropdownStyle>
                 <SelectorWidgetMultiDropdownStyle v-else-if="accordion.type === 'MultiDropdownStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetMultiDropdownStyle>
                 <SelectorWidgetDateStyle v-else-if="accordion.type === 'DateStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetDateStyle>
+                <SelectorWidgetDateRangeStyle v-else-if="accordion.type === 'DateRangeStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetDateRangeStyle>
             </AccordionTab>
         </Accordion>
     </div>
@@ -51,6 +52,7 @@ import SelectorWidgetCheckboxStyle from './style/SelectorWidgetCheckboxStyle.vue
 import SelectorWidgetDropdownStyle from './style/SelectorWidgetDropdownStyle.vue'
 import SelectorWidgetMultiDropdownStyle from './style/SelectorWidgetMultiDropdownStyle.vue'
 import SelectorWidgetDateStyle from './style/SelectorWidgetDateStyle.vue'
+import SelectorWidgetDateRangeStyle from './style/SelectorWidgetDateRangeStyle.vue'
 import WidgetBackgroundColorStyle from '../common/style/WidgetBackgroundColorStyle.vue'
 import WidgetPaddingStyle from '../common/style/WidgetPaddingStyle.vue'
 import WidgetBordersStyle from '../common/style/WidgetBordersStyle.vue'
@@ -78,6 +80,7 @@ export default defineComponent({
         SelectorWidgetDropdownStyle,
         SelectorWidgetMultiDropdownStyle,
         SelectorWidgetDateStyle,
+        SelectorWidgetDateRangeStyle,
         WidgetBackgroundColorStyle,
         WidgetPaddingStyle,
         WidgetBordersStyle,

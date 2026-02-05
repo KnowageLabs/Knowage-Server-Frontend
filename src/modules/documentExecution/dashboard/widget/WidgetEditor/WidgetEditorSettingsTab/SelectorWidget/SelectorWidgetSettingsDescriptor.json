@@ -120,6 +120,10 @@
             {
                 "title": "dashboard.widgetEditor.selectorWidget.date.title",
                 "type": "DateStyle"
+            },
+            {
+                "title": "dashboard.widgetEditor.selectorWidget.dateRange.title",
+                "type": "DateRangeStyle"
             }
         ]
     },

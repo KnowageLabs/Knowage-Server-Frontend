@@ -1,5 +1,5 @@
 import { IWidgetBordersStyle, IWidgetPaddingStyle, IWidgetShadowsStyle } from '../../Dashboard'
-import { ISelectorWidgetLabelStyle, ISelectorWidgetRadioStyle, ISelectorWidgetCheckboxStyle, ISelectorWidgetDropdownStyle, ISelectorWidgetMultiDropdownStyle, ISelectorWidgetDateStyle, ISelectorWidgetStyle } from '../../interfaces/DashboardSelectorWidget'
+import { ISelectorWidgetLabelStyle, ISelectorWidgetRadioStyle, ISelectorWidgetCheckboxStyle, ISelectorWidgetDropdownStyle, ISelectorWidgetMultiDropdownStyle, ISelectorWidgetDateStyle, ISelectorWidgetDateRangeStyle, ISelectorWidgetStyle } from '../../interfaces/DashboardSelectorWidget'
 import { getFormattedBackgroundStyle, getFormattedTitleStyle } from '../common/WidgetStyleHelper'
 import { hexToRgba } from '../FormattingHelpers'
 import * as widgetCommonDefaultValues from '../../widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
@@ -15,6 +15,7 @@ export const getFormattedStyle = (widget: any) => {
         dropdown: getFormattedDropdownStyle(widget),
         multiDropdown: getFormattedMultiDropdownStyle(widget),
         date: getFormattedDateStyle(widget),
+        dateRange: getFormattedDateRangeStyle(widget),
         padding: getFormattedPaddingStyle(widget),
         borders: getFormattedBorderStyle(widget),
         shadows: getFormattedShadowsStyle(widget),
@@ -159,6 +160,18 @@ const getFormattedDateStyle = (widget: any) => {
     } as ISelectorWidgetDateStyle
 
     return formattedDateStyle
+}
+
+const getFormattedDateRangeStyle = (widget: any) => {
+    if (!widget.style) return selectorWidgetDefaultValues.getDefaultDateRangeStyle()
+    const formattedDateRangeStyle = {
+        dense: widget.style.dense ?? false,
+        color: widget.style.color ?? '',
+        bgColor: widget.style.bgColor ?? '',
+        darkMode: widget.style.darkMode ?? false
+    } as ISelectorWidgetDateRangeStyle
+
+    return formattedDateRangeStyle
 }
 
 const getFormattedPaddingStyle = (widget: any) => {

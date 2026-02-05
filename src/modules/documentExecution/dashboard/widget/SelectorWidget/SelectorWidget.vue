@@ -13,6 +13,9 @@
         <!-- NEW: Quasar DateSelector -->
         <DateSelector v-if="widgetType === 'date'" :model-value="selectedDate" :date-style="propWidget.settings.style.date" :label="$t('common.date')" :available-dates="availableDateOptions" :min-date="getDateRangeFormatted('startDate')" :max-date="getDateRangeFormatted('endDate')" @update:model-value="dateSelectionChanged" />
 
+        <!-- NEW: Quasar DateRangeSelector -->
+        <DateRangeSelector v-if="widgetType === 'dateRange'" :model-value="getDateRangeValues()" :date-range-style="propWidget.settings.style.dateRange" :available-dates="availableDateOptions" :min-date="getDateRangeFormatted('startDate')" :max-date="getDateRangeFormatted('endDate')" @update:model-value="dateRangeSelectionChangedNew" />
+
         <!-- OLD: PrimeVue Calendar (for comparison) -->
         <span v-if="widgetType === 'date'" class="p-float-label p-m-2">
             <Calendar v-model="selectedDate" class="kn-material-input kn-width-full" :min-date="getDateRange('startDate')" :max-date="getDateRange('endDate')" :show-icon="true" @date-select="dateSelectionChangedOLD" />
@@ -42,6 +45,7 @@ import CheckboxSelector from './selectorTypes/CheckboxSelector.vue'
 import DropdownSelector from './selectorTypes/DropdownSelector.vue'
 import MultiDropdownSelector from './selectorTypes/MultiDropdownSelector.vue'
 import DateSelector from './selectorTypes/DateSelector.vue'
+import DateRangeSelector from './selectorTypes/DateRangeSelector.vue'
 import { QRadio, QCheckbox } from 'quasar'
 import Dropdown from 'primevue/dropdown'
 import Calendar from 'primevue/calendar'
@@ -52,7 +56,7 @@ import dashboardDescriptor from '../../DashboardDescriptor.json'
 
 export default defineComponent({
     name: 'datasets-catalog-datatable',
-    components: { RadioSelector, CheckboxSelector, DropdownSelector, MultiDropdownSelector, DateSelector, QRadio, QCheckbox, Dropdown, Calendar },
+    components: { RadioSelector, CheckboxSelector, DropdownSelector, MultiDropdownSelector, DateSelector, DateRangeSelector, QRadio, QCheckbox, Dropdown, Calendar },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         dataToShow: { type: Object as any, required: true },
@@ -309,6 +313,27 @@ export default defineComponent({
             if (this.editorMode) return
             this.selectedDate = dateValue
             updateStoreSelections(this.createNewSelection([moment(deepcopy(dateValue)).format(dashboardDescriptor.selectionsDateFormat)]), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
+        },
+        getDateRangeValues(): string[] {
+            return [this.startDate ? moment(this.startDate).format('YYYY/MM/DD') : '', this.endDate ? moment(this.endDate).format('YYYY/MM/DD') : '']
+        },
+        dateRangeSelectionChangedNew(data: any) {
+            if (this.editorMode) return
+
+            const filteredDates = data?.filteredDates || []
+            const range = data?.range || {}
+
+            // Update startDate/endDate from the selected range
+            if (range.from && range.to) {
+                const startMoment = moment(range.from, 'YYYY/MM/DD')
+                const endMoment = moment(range.to, 'YYYY/MM/DD')
+                this.startDate = startMoment.toDate()
+                this.endDate = endMoment.toDate()
+            }
+
+            // Create selection with filtered dates and update store
+            const tempSelection = this.createNewSelection(filteredDates)
+            updateStoreSelections(tempSelection, this.activeSelections, this.dashboardId, this.setSelections, this.$http)
         }
     }
 })

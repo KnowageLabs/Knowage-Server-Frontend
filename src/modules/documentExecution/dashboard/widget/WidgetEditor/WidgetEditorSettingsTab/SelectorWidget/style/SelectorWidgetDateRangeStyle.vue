@@ -1,26 +1,26 @@
 <template>
-    <div v-if="dateStyleModel" class="q-px-md q-pb-md kn-width-full">
+    <div v-if="dateRangeStyleModel" class="q-px-md q-pb-md kn-width-full">
         <div class="row q-col-gutter-sm">
             <!-- Design Section -->
             <label class="kn-material-input-label section-label col-12">{{ $t('dashboard.widgetEditor.design') }}</label>
 
             <div class="col-12">
-                <q-checkbox v-model="dateStyleModel.dense" label="Dense" @update:model-value="dateStyleChanged" />
+                <q-checkbox v-model="dateRangeStyleModel.dense" label="Dense" @update:model-value="styleChanged" />
             </div>
 
             <div class="col-12">
-                <q-checkbox v-model="dateStyleModel.darkMode" label="Dark Mode" @update:model-value="dateStyleChanged" />
+                <q-checkbox v-model="dateRangeStyleModel.darkMode" label="Dark Mode" @update:model-value="styleChanged" />
             </div>
 
             <!-- Coloring Section -->
             <label class="kn-material-input-label section-label col-12">{{ $t('common.color') }}</label>
 
             <div class="col-6">
-                <q-input v-model="dateStyleModel.color" type="text" :label="$t('common.color')" outlined dense placeholder="red, #ff0000ff, rgb(255,0,0)" @update:model-value="dateStyleChanged">
+                <q-input v-model="dateRangeStyleModel.color" type="text" :label="$t('common.color')" outlined dense placeholder="red, #ff0000ff, rgb(255,0,0)" @update:model-value="styleChanged">
                     <template #append>
                         <q-icon name="colorize" class="cursor-pointer">
                             <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                                <q-color v-model="dateStyleModel.color" format-model="hexa" @update:model-value="dateStyleChanged" />
+                                <q-color v-model="dateRangeStyleModel.color" format-model="hexa" @update:model-value="styleChanged" />
                             </q-popup-proxy>
                         </q-icon>
                     </template>
@@ -28,11 +28,11 @@
             </div>
 
             <div class="col-6">
-                <q-input v-model="dateStyleModel.bgColor" type="text" :label="$t('dashboard.widgetEditor.selectorWidget.dropdown.bgColor')" outlined dense placeholder="red, #ff0000ff, #ff000080" @update:model-value="dateStyleChanged">
+                <q-input v-model="dateRangeStyleModel.bgColor" type="text" :label="$t('dashboard.widgetEditor.selectorWidget.dropdown.bgColor')" outlined dense placeholder="red, #ff0000ff, #ff000080" @update:model-value="styleChanged">
                     <template #append>
                         <q-icon name="colorize" class="cursor-pointer">
                             <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                                <q-color v-model="dateStyleModel.bgColor" format-model="hexa" @update:model-value="dateStyleChanged" />
+                                <q-color v-model="dateRangeStyleModel.bgColor" format-model="hexa" @update:model-value="styleChanged" />
                             </q-popup-proxy>
                         </q-icon>
                     </template>
@@ -45,43 +45,43 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
-import { ISelectorWidgetDateStyle } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectorWidget'
+import { ISelectorWidgetDateRangeStyle } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectorWidget'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 
 export default defineComponent({
-    name: 'selector-widget-date-style',
+    name: 'selector-widget-date-range-style',
     props: {
         widgetModel: { type: Object as PropType<IWidget | null>, required: true },
-        themeStyle: { type: Object as PropType<ISelectorWidgetDateStyle | null>, required: true }
+        themeStyle: { type: Object as PropType<ISelectorWidgetDateRangeStyle | null>, required: true }
     },
     emits: ['styleChanged'],
     data() {
         return {
-            dateStyleModel: null as ISelectorWidgetDateStyle | null
+            dateRangeStyleModel: null as ISelectorWidgetDateRangeStyle | null
         }
     },
     mounted() {
         this.setEventListeners()
-        this.loadDateStyleModel()
+        this.loadDateRangeStyleModel()
     },
     unmounted() {
         this.removeEventListeners()
     },
     methods: {
         setEventListeners() {
-            emitter.on('themeSelected', this.loadDateStyleModel)
+            emitter.on('themeSelected', this.loadDateRangeStyleModel)
         },
         removeEventListeners() {
-            emitter.off('themeSelected', this.loadDateStyleModel)
+            emitter.off('themeSelected', this.loadDateRangeStyleModel)
         },
-        loadDateStyleModel() {
-            if (this.widgetModel?.settings?.style?.date) {
-                this.dateStyleModel = this.widgetModel.settings.style.date
+        loadDateRangeStyleModel() {
+            if (this.widgetModel?.settings?.style?.dateRange) {
+                this.dateRangeStyleModel = this.widgetModel.settings.style.dateRange
             } else if (this.themeStyle) {
-                this.dateStyleModel = this.themeStyle
+                this.dateRangeStyleModel = this.themeStyle
             }
         },
-        dateStyleChanged() {
+        styleChanged() {
             if (this.widgetModel) this.$emit('styleChanged')
         }
     }

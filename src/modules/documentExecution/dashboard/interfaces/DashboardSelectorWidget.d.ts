@@ -45,6 +45,7 @@ export interface ISelectorWidgetStyle {
     dropdown: ISelectorWidgetDropdownStyle
     multiDropdown: ISelectorWidgetMultiDropdownStyle
     date: ISelectorWidgetDateStyle
+    dateRange: ISelectorWidgetDateRangeStyle
     padding: IWidgetPaddingStyle
     borders: IWidgetBordersStyle
     shadows: IWidgetShadowsStyle
@@ -136,6 +137,13 @@ export interface ISelectorWidgetMultiDropdownStyle {
 }
 
 export interface ISelectorWidgetDateStyle {
+    dense?: boolean
+    color?: string
+    bgColor?: string
+    darkMode?: boolean
+}
+
+export interface ISelectorWidgetDateRangeStyle {
     dense?: boolean
     color?: string
     bgColor?: string

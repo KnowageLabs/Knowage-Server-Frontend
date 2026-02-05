@@ -78,6 +78,12 @@
         "bgColor": "",
         "darkMode": false
     },
+    "defaultDateRangeStyle": {
+        "dense": false,
+        "color": "",
+        "bgColor": "",
+        "darkMode": false
+    },
     "defaultSelectorType": {
         "alignment": "vertical",
         "columnSize": "",

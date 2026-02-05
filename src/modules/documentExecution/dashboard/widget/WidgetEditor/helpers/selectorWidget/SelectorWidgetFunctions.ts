@@ -26,6 +26,7 @@ export const createNewSelectorWidgetSettings = () => {
             dropdown: selectorWidgetDefaultValues.getDefaultDropdownStyle(),
             multiDropdown: selectorWidgetDefaultValues.getDefaultMultiDropdownStyle(),
             date: selectorWidgetDefaultValues.getDefaultDateStyle(),
+            dateRange: selectorWidgetDefaultValues.getDefaultDateRangeStyle(),
             padding: widgetCommonDefaultValues.getDefaultPaddingStyle(),
             borders: widgetCommonDefaultValues.getDefaultBordersStyle(),
             shadows: widgetCommonDefaultValues.getDefaultShadowsStyle(),
@@ -43,6 +44,7 @@ export const formatSelectorSettings = (widget: IWidget) => {
     formatSelectorWidgetDropdownStyle(widget.settings.style)
     formatSelectorWidgetMultiDropdownStyle(widget.settings.style)
     formatSelectorWidgetDateStyle(widget.settings.style)
+    formatSelectorWidgetDateRangeStyle(widget.settings.style)
 }
 
 //TODO - delete label when all selector widgets have been updated
@@ -104,5 +106,11 @@ const formatSelectorWidgetMultiDropdownStyle = (widgetStyle: ISelectorWidgetStyl
 const formatSelectorWidgetDateStyle = (widgetStyle: ISelectorWidgetStyle) => {
     if (!widgetStyle.date) {
         widgetStyle.date = selectorWidgetDefaultValues.getDefaultDateStyle()
+    }
+}
+
+const formatSelectorWidgetDateRangeStyle = (widgetStyle: ISelectorWidgetStyle) => {
+    if (!widgetStyle.dateRange) {
+        widgetStyle.dateRange = selectorWidgetDefaultValues.getDefaultDateRangeStyle()
     }
 }
