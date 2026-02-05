@@ -1,5 +1,5 @@
 import { IWidgetBordersStyle, IWidgetPaddingStyle, IWidgetShadowsStyle } from '../../Dashboard'
-import { ISelectorWidgetLabelStyle, ISelectorWidgetRadioStyle, ISelectorWidgetCheckboxStyle, ISelectorWidgetDropdownStyle, ISelectorWidgetStyle } from '../../interfaces/DashboardSelectorWidget'
+import { ISelectorWidgetLabelStyle, ISelectorWidgetRadioStyle, ISelectorWidgetCheckboxStyle, ISelectorWidgetDropdownStyle, ISelectorWidgetMultiDropdownStyle, ISelectorWidgetStyle } from '../../interfaces/DashboardSelectorWidget'
 import { getFormattedBackgroundStyle, getFormattedTitleStyle } from '../common/WidgetStyleHelper'
 import { hexToRgba } from '../FormattingHelpers'
 import * as widgetCommonDefaultValues from '../../widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
@@ -13,6 +13,7 @@ export const getFormattedStyle = (widget: any) => {
         radio: getFormattedRadioStyle(widget),
         checkbox: getFormattedCheckboxStyle(widget),
         dropdown: getFormattedDropdownStyle(widget),
+        multiDropdown: getFormattedMultiDropdownStyle(widget),
         padding: getFormattedPaddingStyle(widget),
         borders: getFormattedBorderStyle(widget),
         shadows: getFormattedShadowsStyle(widget),
@@ -125,6 +126,26 @@ const getFormattedDropdownStyle = (widget: any) => {
     } as ISelectorWidgetDropdownStyle
 
     return formattedDropdownStyle
+}
+
+const getFormattedMultiDropdownStyle = (widget: any) => {
+    if (!widget.style) return selectorWidgetDefaultValues.getDefaultMultiDropdownStyle()
+    const formattedMultiDropdownStyle = {
+        dense: widget.style.dense ?? false,
+        denseOptions: widget.style.denseOptions ?? false,
+        icon: widget.style.icon ?? '',
+        shape: widget.style.shape ?? 'standard',
+        type: widget.style.type ?? 'outlined',
+        color: widget.style.color ?? '',
+        bgColor: widget.style.bgColor ?? '',
+        darkMode: widget.style.darkMode ?? false,
+        maxValues: widget.style.maxValues ?? 0,
+        counter: widget.style.counter ?? false,
+        hint: widget.style.hint ?? '',
+        chips: widget.style.chips ?? false
+    } as ISelectorWidgetMultiDropdownStyle
+
+    return formattedMultiDropdownStyle
 }
 
 const getFormattedPaddingStyle = (widget: any) => {

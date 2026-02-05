@@ -27,6 +27,19 @@
         "shape": "standard",
         "type": "outlined"
     },
+    "defaultMultiDropdownStyle": {
+        "bgColor": "",
+        "color": "",
+        "darkMode": false,
+        "dense": false,
+        "denseOptions": false,
+        "shape": "standard",
+        "type": "outlined",
+        "maxValues": 0,
+        "counter": false,
+        "hint": "",
+        "chips": false
+    },
     "defaultLabelStyle": {
         "enabled": true,
         "properties": {

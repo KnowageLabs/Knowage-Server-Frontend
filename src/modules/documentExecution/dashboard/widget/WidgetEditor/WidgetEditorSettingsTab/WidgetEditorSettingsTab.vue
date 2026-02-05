@@ -1,33 +1,25 @@
 <template>
     <WidgetEditorSettingsList v-if="descriptor" :widget-model="propWidget" :options="descriptor.settingsListOptions" :propSelectedItem="selectedSetting" @itemClicked="onItemClicked"></WidgetEditorSettingsList>
     <div v-if="propWidget" class="p-d-flex kn-flex kn-overflow">
+        <!-- <div v-if="propWidget" class="accordion-container"> -->
+        <!-- <div class="accordion-wrapper"> -->
         <KnHint v-if="!selectedSetting" class="p-as-center" :title="'common.settings'" :hint="'dashboard.widgetEditor.settings.hint'"></KnHint>
-        <TableWidgetSettingsContainer v-if="selectedSetting && propWidget.type === 'table'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId"></TableWidgetSettingsContainer>
-        <SelectorWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'selector'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables"></SelectorWidgetSettingsContainer>
-        <SelectionsWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'selection'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables"></SelectionsWidgetSettingsContainer>
-        <HTMLWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'html'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId" :prop-gallery-items="galleryItems" @galleryItemSelected="onGalleryItemSelected"></HTMLWidgetSettingsContainer>
-        <TextWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'text'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId"></TextWidgetSettingsContainer>
-        <HighchartsWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'highcharts' && user.enterprise" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId" :descriptor="descriptor"></HighchartsWidgetSettingsContainer>
-        <ChartJSWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'chartJS'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId"></ChartJSWidgetSettingsContainer>
-        <ImageWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'image'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId" @settingSelected="$emit('settingChanged', $event)"></ImageWidgetSettingsContainer>
-        <CustomChartWidgetSettingsContainer
-            v-else-if="selectedSetting && propWidget.type === 'customchart'"
-            class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
-            :widget-model="propWidget"
-            :selected-setting="selectedSetting"
-            :datasets="datasets"
-            :selected-datasets="selectedDatasets"
-            :variables="variables"
-            :dashboard-id="dashboardId"
-            :custom-chart-gallery-prop="customChartGallery"
-            @galleryItemSelected="onGalleryItemSelected"
-        ></CustomChartWidgetSettingsContainer>
-        <PivotTableWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'static-pivot-table'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId"></PivotTableWidgetSettingsContainer>
-        <DiscoveryWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'discovery'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widgetModel="propWidget" :selectedSetting="selectedSetting" :datasets="datasets" :selectedDatasets="selectedDatasets" :variables="variables" :dashboardId="dashboardId"></DiscoveryWidgetSettingsContainer>
-        <MapWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'map'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId" :layers="layers"></MapWidgetSettingsContainer>
-        <cePivotTableWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'ce-pivot-table'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId"></cePivotTableWidgetSettingsContainer>
-        <PythonWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'python'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId" :prop-gallery-items="galleryItems" @galleryItemSelected="onGalleryItemSelected"></PythonWidgetSettingsContainer>
-        <SpacerWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'spacer'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId"></SpacerWidgetSettingsContainer>
+        <TableWidgetSettingsContainer v-if="selectedSetting && propWidget.type === 'table'" class="model-div kn-flex p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId"></TableWidgetSettingsContainer>
+        <SelectorWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'selector'" class="model-div kn-flex p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables"></SelectorWidgetSettingsContainer>
+        <SelectionsWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'selection'" class="model-div kn-flex p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables"></SelectionsWidgetSettingsContainer>
+        <HTMLWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'html'" class="model-div kn-flex p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId" :prop-gallery-items="galleryItems" @galleryItemSelected="onGalleryItemSelected"></HTMLWidgetSettingsContainer>
+        <TextWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'text'" class="model-div kn-flex p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId"></TextWidgetSettingsContainer>
+        <HighchartsWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'highcharts' && user.enterprise" class="model-div kn-flex p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId" :descriptor="descriptor"></HighchartsWidgetSettingsContainer>
+        <ChartJSWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'chartJS'" class="model-div kn-flex p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId"></ChartJSWidgetSettingsContainer>
+        <ImageWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'image'" class="model-div kn-flex p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId" @settingSelected="$emit('settingChanged', $event)"></ImageWidgetSettingsContainer>
+        <CustomChartWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'customchart'" class="model-div kn-flex p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId" :custom-chart-gallery-prop="customChartGallery" @galleryItemSelected="onGalleryItemSelected"></CustomChartWidgetSettingsContainer>
+        <PivotTableWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'static-pivot-table'" class="model-div kn-flex p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId"></PivotTableWidgetSettingsContainer>
+        <DiscoveryWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'discovery'" class="model-div kn-flex p-py-3 p-pr-3" :widgetModel="propWidget" :selectedSetting="selectedSetting" :datasets="datasets" :selectedDatasets="selectedDatasets" :variables="variables" :dashboardId="dashboardId"></DiscoveryWidgetSettingsContainer>
+        <MapWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'map'" class="model-div kn-flex p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId" :layers="layers"></MapWidgetSettingsContainer>
+        <cePivotTableWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'ce-pivot-table'" class="model-div kn-flex p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId"></cePivotTableWidgetSettingsContainer>
+        <PythonWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'python'" class="model-div kn-flex p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId" :prop-gallery-items="galleryItems" @galleryItemSelected="onGalleryItemSelected"></PythonWidgetSettingsContainer>
+        <SpacerWidgetSettingsContainer v-else-if="selectedSetting && propWidget.type === 'spacer'" class="model-div kn-flex p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId"></SpacerWidgetSettingsContainer>
+        <!-- </div> -->
     </div>
 </template>
 
@@ -275,3 +267,16 @@ export default defineComponent({
     }
 })
 </script>
+<style lang="scss" scoped>
+.accordion-container {
+    display: flex;
+    flex: 1;
+    overflow: auto;
+    justify-content: center;
+    .accordion-wrapper {
+        display: flex;
+        flex: 1;
+        max-width: 59rem;
+    }
+}
+</style>

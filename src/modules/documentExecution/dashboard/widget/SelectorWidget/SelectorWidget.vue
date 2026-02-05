@@ -8,9 +8,7 @@
 
         <DropdownSelector v-if="widgetType === 'dropdown'" :model-value="selectedValue" :base-options="getBaseDropdownOptions()" :show-mode="showMode" :dropdown-style="propWidget.settings.style.dropdown" @update:model-value="dropdownSelectorChanged" />
 
-        <span v-if="widgetType === 'multiDropdown'" class="p-float-label p-m-2">
-            <MultiSelect v-model="selectedValues" class="kn-width-full" panel-class="selectorCustomDropdownPanel" :options="filteredMultiSelectOptions" option-label="column_1" option-value="column_1" :style="getLabelStyle()" :input-style="getLabelStyle()" :panel-style="getLabelStyle()" :filter="true" :option-disabled="showMode === 'showDisabled' ? 'disabled' : ''" @change="multiValueSelectionChanged" @filter="filterMultiSelectOptions" />
-        </span>
+        <MultiDropdownSelector v-if="widgetType === 'multiDropdown'" :model-value="selectedValues" :base-options="getBaseDropdownOptions()" :show-mode="showMode" :multi-dropdown-style="propWidget.settings.style.multiDropdown" @update:model-value="multiDropdownSelectorChanged" />
 
         <span v-if="widgetType === 'date'" class="p-float-label p-m-2">
             <Calendar v-model="selectedDate" class="kn-material-input kn-width-full" :min-date="getDateRange('startDate')" :max-date="getDateRange('endDate')" :show-icon="true" @date-select="dateSelectionChanged" />
@@ -40,6 +38,7 @@ import { emitter } from '../../DashboardHelpers'
 import RadioSelector from './selectorTypes/RadioSelector.vue'
 import CheckboxSelector from './selectorTypes/CheckboxSelector.vue'
 import DropdownSelector from './selectorTypes/DropdownSelector.vue'
+import MultiDropdownSelector from './selectorTypes/MultiDropdownSelector.vue'
 import { QRadio, QCheckbox } from 'quasar'
 import Dropdown from 'primevue/dropdown'
 import MultiSelect from 'primevue/multiselect'
@@ -51,7 +50,7 @@ import dashboardDescriptor from '../../DashboardDescriptor.json'
 
 export default defineComponent({
     name: 'datasets-catalog-datatable',
-    components: { RadioSelector, CheckboxSelector, DropdownSelector, QRadio, QCheckbox, Dropdown, MultiSelect, Calendar },
+    components: { RadioSelector, CheckboxSelector, DropdownSelector, MultiDropdownSelector, QRadio, QCheckbox, Dropdown, Calendar },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         dataToShow: { type: Object as any, required: true },
@@ -69,7 +68,6 @@ export default defineComponent({
             initialOptions: { rows: [] } as any,
             options: { rows: [] } as any,
             filteredDropdownOptions: [] as any[],
-            filteredMultiSelectOptions: [] as any[],
             filterTimeout: null as any,
             selectedValue: null as any,
             selectedValues: [] as any,
@@ -152,62 +150,17 @@ export default defineComponent({
             this.options = { rows: [] }
             if (!dataToShow || !dataToShow.rows) return
 
-            const dataToShowSet = new Set(dataToShow.rows.map((row: any) => row.column_1))
+            const dataToShowSet = new Set(dataToShow.rows.map((row: any) => String(row.column_1)))
             const newRows =
                 this.initialOptions?.rows?.map((initialOption: any) => ({
                     ...initialOption,
-                    disabled: !dataToShowSet.has(initialOption.column_1)
+                    disabled: !dataToShowSet.has(String(initialOption.column_1))
                 })) || []
 
             this.options.rows = newRows
-
-            const baseOptions = this.showMode === 'hideDisabled' ? newRows.filter((row: any) => !row.disabled) : newRows
-            this.filteredMultiSelectOptions = this.getInitialMultiSelectOptions(baseOptions)
-        },
-        getInitialMultiSelectOptions(baseOptions: any[]) {
-            const limited = baseOptions.slice(0, 500)
-            const selectedOptions: any[] = []
-
-            // for large sets, if selected values are not in the limited set, include them
-            if (this.selectedValues && this.selectedValues.length > 0) {
-                this.selectedValues.forEach((val: any) => {
-                    if (!limited.find((opt: any) => opt.column_1 === val)) {
-                        const selectedOption = baseOptions.find((opt: any) => opt.column_1 === val)
-                        if (selectedOption) {
-                            selectedOptions.push(selectedOption)
-                        }
-                    }
-                })
-            }
-
-            // remove duplicates in case selectedOptions are already in limited
-            if (selectedOptions.length > 0) {
-                return [...selectedOptions, ...limited.slice(0, 500 - selectedOptions.length)]
-            }
-
-            return limited
         },
         getBaseDropdownOptions(): any[] {
             return this.showMode === 'hideDisabled' ? this.options.rows.filter((row: any) => !row.disabled) : this.options.rows
-        },
-        dropdownSelectorChanged(value: any) {
-            this.selectedValue = value
-            if (this.editorMode) return
-            updateStoreSelections(this.createNewSelection([this.selectedValue]), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
-        },
-        filterMultiSelectOptions(event: any) {
-            if (this.filterTimeout) clearTimeout(this.filterTimeout)
-
-            const input = event.value.toLowerCase()
-            const baseOptions = this.showMode === 'hideDisabled' ? this.options.rows.filter((row: any) => !row.disabled) : this.options.rows
-
-            this.filterTimeout = setTimeout(() => {
-                if (input.length >= 2) {
-                    this.filteredMultiSelectOptions = baseOptions.filter((row: any) => row.column_1.toString().toLowerCase().indexOf(input) > -1)
-                } else {
-                    this.filteredMultiSelectOptions = this.getInitialMultiSelectOptions(baseOptions)
-                }
-            }, 300)
         },
         loadActiveSelections() {
             this.activeSelections = this.propActiveSelections
@@ -257,50 +210,6 @@ export default defineComponent({
             this.selectedDate = null
             this.startDate = null
             this.endDate = null
-            // this.$nextTick(() => {
-            //     this.$forceUpdate()
-            // })
-        },
-        findFirstAvailableValue() {
-            if (this.showMode === 'enableAll') return this.options.rows[0]
-            const index = this.options.rows.findIndex((row: any) => !row.disabled)
-            return index !== -1 ? this.options.rows[index] : null
-        },
-        findLastAvailableValue() {
-            if (this.showMode === 'enableAll') return this.options.rows[this.options.rows.length - 1]
-            const index = this.options.rows.findLastIndex((row: any) => !row.disabled)
-            return index !== -1 ? this.options.rows[index] : null
-        },
-        setDefaultStaticValue(multivalue: boolean) {
-            const staticValue = this.propWidget.settings.configuration.defaultValues?.value ?? ''
-            if (!staticValue || !this.options.rows) {
-                this.selectedValue = null
-                this.selectedValues = []
-                return
-            }
-
-            multivalue ? this.setDefaultStaticMultivalue(staticValue) : this.setDefaultStaticSinglevalue(staticValue)
-        },
-        setDefaultStaticSinglevalue(staticValue: string) {
-            const index = this.options.rows.findIndex((option: any) => staticValue.trim() === option.column_1.trim())
-            if (index !== -1) {
-                this.selectedValue = this.options.rows[index].column_1
-            } else {
-                this.selectedValue = null
-            }
-        },
-        setDefaultStaticMultivalue(staticValue: string) {
-            const tempStaticValues = staticValue.split(',')
-            if (tempStaticValues.length > 0) {
-                tempStaticValues.forEach((tempStaticValue: string) => {
-                    const index = this.options.rows.findIndex((option: any) => tempStaticValue.trim() === option.column_1.trim())
-                    if (index !== -1) {
-                        this.selectedValues = this.selectedValues.length === 0 ? [this.options.rows[index].column_1] : [...this.selectedValues, this.options.rows[index].column_1]
-                    }
-                })
-            } else {
-                this.selectedValues = []
-            }
         },
         getLayoutStyle() {
             const selectorType = this.propWidget.settings.configuration.selectorType
@@ -330,19 +239,6 @@ export default defineComponent({
         getLabelStyle() {
             return getWidgetStyleByType(this.propWidget, 'label')
         },
-        getBackgroundColor() {
-            return getWidgetStyleByType(this.propWidget, 'background')
-        },
-        singleValueSelectionChanged() {
-            if (this.editorMode) return
-            updateStoreSelections(this.createNewSelection([this.selectedValue]), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
-        },
-        multiValueSelectionChanged() {
-            if (this.editorMode) return
-            const tempSelection = this.createNewSelection(this.selectedValues) as ISelection
-
-            this.updateActiveSelectionsWithMultivalueSelection(tempSelection)
-        },
         dateSelectionChanged() {
             if (this.editorMode) return
             updateStoreSelections(this.createNewSelection([moment(deepcopy(this.selectedDate)).format(dashboardDescriptor.selectionsDateFormat)]), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
@@ -358,14 +254,6 @@ export default defineComponent({
             const tempSelection = this.createNewSelection(tempDateValues)
             updateStoreSelections(tempSelection, this.activeSelections, this.dashboardId, this.setSelections, this.$http)
         },
-        updateActiveSelectionsWithMultivalueSelection(tempSelection: ISelection) {
-            const index = this.activeSelections.findIndex((activeSelection: ISelection) => activeSelection.datasetId === tempSelection.datasetId && activeSelection.columnName === tempSelection.columnName)
-            if (index !== -1) {
-                this.activeSelections[index] = tempSelection
-            } else {
-                this.activeSelections.push(tempSelection)
-            }
-        },
         createNewSelection(value: (string | number)[]) {
             return { datasetId: this.propWidget.dataset as number, datasetLabel: this.getDatasetLabel(this.propWidget.dataset as number), columnName: this.propWidget.columns[0]?.columnName ?? '', value: value, aggregated: false, timestamp: new Date().getTime() } as ISelection
         },
@@ -374,7 +262,6 @@ export default defineComponent({
             return index !== -1 ? this.datasets[index].label : ''
         },
         onSelectionsDeleted(selections: any) {
-            console.log('SelectorWidget: onSelectionsDeleted', selections)
             const index = selections.findIndex((selection: ISelection) => selection.datasetId === this.propWidget.dataset && selection.columnName === this.propWidget.columns[0]?.columnName)
             if (index !== -1) this.removeDeafultValues()
         },
@@ -388,6 +275,25 @@ export default defineComponent({
             if (this.editorMode) return
             const tempSelection = this.createNewSelection(this.selectedValues) as ISelection
             this.updateActiveSelectionsWithMultivalueSelection(tempSelection)
+        },
+        dropdownSelectorChanged(value: any) {
+            this.selectedValue = value
+            if (this.editorMode) return
+            updateStoreSelections(this.createNewSelection([this.selectedValue]), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
+        },
+        multiDropdownSelectorChanged(values: any) {
+            this.selectedValues = values
+            if (this.editorMode) return
+            const tempSelection = this.createNewSelection(this.selectedValues) as ISelection
+            this.updateActiveSelectionsWithMultivalueSelection(tempSelection)
+        },
+        updateActiveSelectionsWithMultivalueSelection(tempSelection: ISelection) {
+            const index = this.activeSelections.findIndex((activeSelection: ISelection) => activeSelection.datasetId === tempSelection.datasetId && activeSelection.columnName === tempSelection.columnName)
+            if (index !== -1) {
+                this.activeSelections[index] = tempSelection
+            } else {
+                this.activeSelections.push(tempSelection)
+            }
         }
     }
 })

@@ -1411,6 +1411,14 @@
                     "title": "Dropdown Style",
                     "type": "Type"
                 },
+                "multiDropdown": {
+                    "chips": "Display as Chips",
+                    "counter": "Show counter",
+                    "hint": "Hint Text",
+                    "max": "Max Values (0 = unrestricted)",
+                    "title": "Multi Dropdown Style",
+                    "variant": "Variant"
+                },
                 "radio": {
                     "checkedIcon": "Checked Icon",
                     "icons": "Icons",
@@ -2624,6 +2632,7 @@
                 "fields": "Fields",
                 "headers": "Headers",
                 "label": "Label",
+                "multiDropdown": "Multi Dropdown",
                 "padding": "Padding",
                 "paginator": "Paginator",
                 "radio": "Radio",

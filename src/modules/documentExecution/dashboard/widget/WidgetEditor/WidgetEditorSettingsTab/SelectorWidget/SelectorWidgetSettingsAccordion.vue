@@ -24,6 +24,7 @@
                 <SelectorWidgetRadioStyle v-else-if="accordion.type === 'RadioStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetRadioStyle>
                 <SelectorWidgetCheckboxStyle v-else-if="accordion.type === 'CheckboxStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetCheckboxStyle>
                 <SelectorWidgetDropdownStyle v-else-if="accordion.type === 'DropdownStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetDropdownStyle>
+                <SelectorWidgetMultiDropdownStyle v-else-if="accordion.type === 'MultiDropdownStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetMultiDropdownStyle>
             </AccordionTab>
         </Accordion>
     </div>
@@ -58,6 +59,7 @@ import Message from 'primevue/message'
 import WidgetSelectionConfiguration from '../common/configuration/WidgetSelectionConfiguration.vue'
 import WidgetHelpSettings from '../common/help/WidgetHelpSettings.vue'
 import SelectorWidgetRange from './configuration/SelectorWidgetRange.vue'
+import SelectorWidgetMultiDropdownStyle from './style/SelectorWidgetMultiDropdownStyle.vue'
 
 export default defineComponent({
     name: 'selector-widget-settings-container',
@@ -72,6 +74,7 @@ export default defineComponent({
         SelectorWidgetRadioStyle,
         SelectorWidgetCheckboxStyle,
         SelectorWidgetDropdownStyle,
+        SelectorWidgetMultiDropdownStyle,
         WidgetBackgroundColorStyle,
         WidgetPaddingStyle,
         WidgetBordersStyle,

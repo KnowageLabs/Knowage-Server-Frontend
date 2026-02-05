@@ -112,6 +112,10 @@
             {
                 "title": "dashboard.widgetEditor.selectorWidget.dropdown.title",
                 "type": "DropdownStyle"
+            },
+            {
+                "title": "dashboard.widgetEditor.selectorWidget.multiDropdown.title",
+                "type": "MultiDropdownStyle"
             }
         ]
     },

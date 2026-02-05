@@ -1,4 +1,4 @@
-import { ISelectorWidgetDefaultValues, ISelectorWidgetLabelStyle, ISelectorWidgetRadioStyle, ISelectorWidgetCheckboxStyle, ISelectorWidgetDropdownStyle, ISelectorWidgetSelectorType, ISelectorWidgetValuesManagement } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectorWidget'
+import { ISelectorWidgetDefaultValues, ISelectorWidgetLabelStyle, ISelectorWidgetRadioStyle, ISelectorWidgetCheckboxStyle, ISelectorWidgetDropdownStyle, ISelectorWidgetMultiDropdownStyle, ISelectorWidgetSelectorType, ISelectorWidgetValuesManagement } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectorWidget'
 import descriptor from './SelectorWidgetDefaultValuesDescriptor.json'
 import deepcopy from 'deepcopy'
 
@@ -28,4 +28,8 @@ export const getDefaultCheckboxStyle = () => {
 
 export const getDefaultDropdownStyle = () => {
     return deepcopy(descriptor.defaultDropdownStyle) as ISelectorWidgetDropdownStyle
+}
+
+export const getDefaultMultiDropdownStyle = () => {
+    return deepcopy(descriptor.defaultMultiDropdownStyle) as ISelectorWidgetMultiDropdownStyle
 }

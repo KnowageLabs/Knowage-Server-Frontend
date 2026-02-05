@@ -24,6 +24,7 @@ export const createNewSelectorWidgetSettings = () => {
             radio: selectorWidgetDefaultValues.getDefaultRadioStyle(),
             checkbox: selectorWidgetDefaultValues.getDefaultCheckboxStyle(),
             dropdown: selectorWidgetDefaultValues.getDefaultDropdownStyle(),
+            multiDropdown: selectorWidgetDefaultValues.getDefaultMultiDropdownStyle(),
             padding: widgetCommonDefaultValues.getDefaultPaddingStyle(),
             borders: widgetCommonDefaultValues.getDefaultBordersStyle(),
             shadows: widgetCommonDefaultValues.getDefaultShadowsStyle(),
@@ -39,6 +40,7 @@ export const formatSelectorSettings = (widget: IWidget) => {
     formatSelectorWidgetRadioStyle(widget.settings.style)
     formatSelectorWidgetCheckboxStyle(widget.settings.style)
     formatSelectorWidgetDropdownStyle(widget.settings.style)
+    formatSelectorWidgetMultiDropdownStyle(widget.settings.style)
 }
 
 //TODO - delete label when all selector widgets have been updated
@@ -88,5 +90,11 @@ const formatSelectorWidgetCheckboxStyle = (widgetStyle: ISelectorWidgetStyle) =>
 const formatSelectorWidgetDropdownStyle = (widgetStyle: ISelectorWidgetStyle) => {
     if (!widgetStyle.dropdown) {
         widgetStyle.dropdown = selectorWidgetDefaultValues.getDefaultDropdownStyle()
+    }
+}
+
+const formatSelectorWidgetMultiDropdownStyle = (widgetStyle: ISelectorWidgetStyle) => {
+    if (!widgetStyle.multiDropdown) {
+        widgetStyle.multiDropdown = selectorWidgetDefaultValues.getDefaultMultiDropdownStyle()
     }
 }
