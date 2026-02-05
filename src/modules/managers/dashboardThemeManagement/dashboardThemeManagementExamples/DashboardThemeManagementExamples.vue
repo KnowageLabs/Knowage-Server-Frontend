@@ -28,6 +28,9 @@
         <div class="p-p-2 p-d-flex" style="height: 100px">
             <WidgetRenderer ref="multiDropdownSelector" :widget="multiDropdownModel" :widget-data="selectorWidgetMock.selectorDataMock" :widget-initial-data="selectorWidgetMock.selectorDataMock" :datasets="[]" :dashboard-id="'multiDropdownSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
         </div>
+        <div class="p-p-2 p-d-flex" style="height: 100px">
+            <WidgetRenderer ref="multiDropdownSelector" :widget="dateDropdownModel" :widget-data="selectorWidgetMock.selectorDataMock" :widget-initial-data="selectorWidgetMock.selectorDataMock" :datasets="[]" :dashboard-id="'multiDropdownSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
+        </div>
     </div>
 </template>
 
@@ -65,7 +68,8 @@ export default defineComponent({
             radioModel: {} as any,
             checkboxModel: {} as any,
             selectModel: {} as any,
-            multiDropdownModel: {} as any
+            multiDropdownModel: {} as any,
+            dateDropdownModel: {} as any
         }
     },
     computed: {
@@ -113,6 +117,10 @@ export default defineComponent({
             this.multiDropdownModel = deepcopy(this.selectorWidgetMock.selectorModelMock)
             this.multiDropdownModel.settings.style = this.selectedTheme.config.selector.style
             this.multiDropdownModel.settings.configuration.selectorType.modality = 'multiDropdown'
+
+            this.dateDropdownModel = deepcopy(this.selectorWidgetMock.selectorModelMock)
+            this.dateDropdownModel.settings.style = this.selectedTheme.config.selector.style
+            this.dateDropdownModel.settings.configuration.selectorType.modality = 'date'
         },
         setEventListeners() {
             emitter.on('scrollToExample', this.scrollToExample)

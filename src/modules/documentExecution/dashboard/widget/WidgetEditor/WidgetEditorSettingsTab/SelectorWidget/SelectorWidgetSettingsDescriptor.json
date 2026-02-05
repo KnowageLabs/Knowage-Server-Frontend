@@ -116,6 +116,10 @@
             {
                 "title": "dashboard.widgetEditor.selectorWidget.multiDropdown.title",
                 "type": "MultiDropdownStyle"
+            },
+            {
+                "title": "dashboard.widgetEditor.selectorWidget.date.title",
+                "type": "DateStyle"
             }
         ]
     },

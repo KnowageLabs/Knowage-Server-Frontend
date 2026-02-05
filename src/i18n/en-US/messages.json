@@ -1404,7 +1404,7 @@
                 },
                 "dropdown": {
                     "bgColor": "Background Color",
-                    "darkMode": "Dark Mode",
+                    "darkMode": "Dark Background Mode",
                     "dense": "Dense",
                     "denseOptions": "Dense Options",
                     "shape": "Shape",
@@ -2627,6 +2627,7 @@
                 "colors": "Colors",
                 "columnGroups": "Column Groups",
                 "columns": "Columns",
+                "date": "Date",
                 "dropdown": "Dropdown",
                 "fieldHeaders": "Field Headers",
                 "fields": "Fields",

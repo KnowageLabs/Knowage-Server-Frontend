@@ -25,6 +25,7 @@
                 <SelectorWidgetCheckboxStyle v-else-if="accordion.type === 'CheckboxStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetCheckboxStyle>
                 <SelectorWidgetDropdownStyle v-else-if="accordion.type === 'DropdownStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetDropdownStyle>
                 <SelectorWidgetMultiDropdownStyle v-else-if="accordion.type === 'MultiDropdownStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetMultiDropdownStyle>
+                <SelectorWidgetDateStyle v-else-if="accordion.type === 'DateStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetDateStyle>
             </AccordionTab>
         </Accordion>
     </div>
@@ -48,6 +49,8 @@ import SelectorWidgetLabelStyle from './style/SelectorWidgetLabelStyle.vue'
 import SelectorWidgetRadioStyle from './style/SelectorWidgetRadioStyle.vue'
 import SelectorWidgetCheckboxStyle from './style/SelectorWidgetCheckboxStyle.vue'
 import SelectorWidgetDropdownStyle from './style/SelectorWidgetDropdownStyle.vue'
+import SelectorWidgetMultiDropdownStyle from './style/SelectorWidgetMultiDropdownStyle.vue'
+import SelectorWidgetDateStyle from './style/SelectorWidgetDateStyle.vue'
 import WidgetBackgroundColorStyle from '../common/style/WidgetBackgroundColorStyle.vue'
 import WidgetPaddingStyle from '../common/style/WidgetPaddingStyle.vue'
 import WidgetBordersStyle from '../common/style/WidgetBordersStyle.vue'
@@ -59,7 +62,6 @@ import Message from 'primevue/message'
 import WidgetSelectionConfiguration from '../common/configuration/WidgetSelectionConfiguration.vue'
 import WidgetHelpSettings from '../common/help/WidgetHelpSettings.vue'
 import SelectorWidgetRange from './configuration/SelectorWidgetRange.vue'
-import SelectorWidgetMultiDropdownStyle from './style/SelectorWidgetMultiDropdownStyle.vue'
 
 export default defineComponent({
     name: 'selector-widget-settings-container',
@@ -75,6 +77,7 @@ export default defineComponent({
         SelectorWidgetCheckboxStyle,
         SelectorWidgetDropdownStyle,
         SelectorWidgetMultiDropdownStyle,
+        SelectorWidgetDateStyle,
         WidgetBackgroundColorStyle,
         WidgetPaddingStyle,
         WidgetBordersStyle,

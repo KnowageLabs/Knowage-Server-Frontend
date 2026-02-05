@@ -73,6 +73,7 @@ const addUniqueSelectorWidgetStyles = (config: ISelectorWidgetStyle) => {
     config.checkbox = selectorWidgetDefaultValues.getDefaultCheckboxStyle()
     config.dropdown = selectorWidgetDefaultValues.getDefaultDropdownStyle()
     config.multiDropdown = selectorWidgetDefaultValues.getDefaultMultiDropdownStyle()
+    config.date = selectorWidgetDefaultValues.getDefaultDateStyle()
 }
 
 const addUniqueChartWidgetStyles = (config: any) => {
@@ -91,5 +92,6 @@ export const themeBackwardsCompatibility = (theme: IDashboardThemeConfig) => {
         if (!selectorStyle.checkbox) selectorStyle.checkbox = selectorWidgetDefaultValues.getDefaultCheckboxStyle()
         if (!selectorStyle.dropdown) selectorStyle.dropdown = selectorWidgetDefaultValues.getDefaultDropdownStyle()
         if (!selectorStyle.multiDropdown) selectorStyle.multiDropdown = selectorWidgetDefaultValues.getDefaultMultiDropdownStyle()
+        if (!selectorStyle.date) selectorStyle.date = selectorWidgetDefaultValues.getDefaultDateStyle()
     }
 }

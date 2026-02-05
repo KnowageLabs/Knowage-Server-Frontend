@@ -72,6 +72,12 @@
         "padding": "4px",
         "size": "md"
     },
+    "defaultDateStyle": {
+        "dense": false,
+        "color": "",
+        "bgColor": "",
+        "darkMode": false
+    },
     "defaultSelectorType": {
         "alignment": "vertical",
         "columnSize": "",

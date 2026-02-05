@@ -44,6 +44,7 @@ export interface ISelectorWidgetStyle {
     checkbox: ISelectorWidgetCheckboxStyle
     dropdown: ISelectorWidgetDropdownStyle
     multiDropdown: ISelectorWidgetMultiDropdownStyle
+    date: ISelectorWidgetDateStyle
     padding: IWidgetPaddingStyle
     borders: IWidgetBordersStyle
     shadows: IWidgetShadowsStyle
@@ -132,4 +133,11 @@ export interface ISelectorWidgetMultiDropdownStyle {
     counter?: boolean
     hint?: string
     chips?: boolean
+}
+
+export interface ISelectorWidgetDateStyle {
+    dense?: boolean
+    color?: string
+    bgColor?: string
+    darkMode?: boolean
 }

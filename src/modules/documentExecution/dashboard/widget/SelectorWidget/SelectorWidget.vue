@@ -6,15 +6,17 @@
 
         <CheckboxSelector v-if="widgetType === 'multiValue'" :model-value="selectedValues" :options="multiValueOptions" :checkbox-style="propWidget.settings.style.checkbox" @update:model-value="checkboxSelectorChanged" />
 
-        <DropdownSelector v-if="widgetType === 'dropdown'" :model-value="selectedValue" :base-options="getBaseDropdownOptions()" :show-mode="showMode" :dropdown-style="propWidget.settings.style.dropdown" @update:model-value="dropdownSelectorChanged" />
+        <DropdownSelector v-if="widgetType === 'dropdown'" :model-value="selectedValue" :base-options="getBaseDropdownOptions()" :show-mode="showMode" :dropdown-style="propWidget.settings.style.dropdown" :date-format="dashboardDescriptor.selectionsDateFormat" @update:model-value="dropdownSelectorChanged" />
 
         <MultiDropdownSelector v-if="widgetType === 'multiDropdown'" :model-value="selectedValues" :base-options="getBaseDropdownOptions()" :show-mode="showMode" :multi-dropdown-style="propWidget.settings.style.multiDropdown" @update:model-value="multiDropdownSelectorChanged" />
 
+        <!-- NEW: Quasar DateSelector -->
+        <DateSelector v-if="widgetType === 'date'" :model-value="selectedDate" :date-style="propWidget.settings.style.date" :label="$t('common.date')" :available-dates="availableDateOptions" :min-date="getDateRangeFormatted('startDate')" :max-date="getDateRangeFormatted('endDate')" @update:model-value="dateSelectionChanged" />
+
+        <!-- OLD: PrimeVue Calendar (for comparison) -->
         <span v-if="widgetType === 'date'" class="p-float-label p-m-2">
-            <Calendar v-model="selectedDate" class="kn-material-input kn-width-full" :min-date="getDateRange('startDate')" :max-date="getDateRange('endDate')" :show-icon="true" @date-select="dateSelectionChanged" />
-            <label class="kn-material-input-label">
-                {{ $t('common.date') }}
-            </label>
+            <Calendar v-model="selectedDate" class="kn-material-input kn-width-full" :min-date="getDateRange('startDate')" :max-date="getDateRange('endDate')" :show-icon="true" @date-select="dateSelectionChangedOLD" />
+            <label class="kn-material-input-label"> {{ $t('common.date') }} (Old) </label>
         </span>
 
         <div v-if="widgetType === 'dateRange'" :class="getLayoutStyle()">
@@ -39,9 +41,9 @@ import RadioSelector from './selectorTypes/RadioSelector.vue'
 import CheckboxSelector from './selectorTypes/CheckboxSelector.vue'
 import DropdownSelector from './selectorTypes/DropdownSelector.vue'
 import MultiDropdownSelector from './selectorTypes/MultiDropdownSelector.vue'
+import DateSelector from './selectorTypes/DateSelector.vue'
 import { QRadio, QCheckbox } from 'quasar'
 import Dropdown from 'primevue/dropdown'
-import MultiSelect from 'primevue/multiselect'
 import Calendar from 'primevue/calendar'
 import store from '../../Dashboard.store'
 import deepcopy from 'deepcopy'
@@ -50,7 +52,7 @@ import dashboardDescriptor from '../../DashboardDescriptor.json'
 
 export default defineComponent({
     name: 'datasets-catalog-datatable',
-    components: { RadioSelector, CheckboxSelector, DropdownSelector, MultiDropdownSelector, QRadio, QCheckbox, Dropdown, Calendar },
+    components: { RadioSelector, CheckboxSelector, DropdownSelector, MultiDropdownSelector, DateSelector, QRadio, QCheckbox, Dropdown, Calendar },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         dataToShow: { type: Object as any, required: true },
@@ -100,6 +102,10 @@ export default defineComponent({
                 value: row.column_1,
                 disable: this.showMode === 'showDisabled' && row.disabled
             }))
+        },
+        availableDateOptions(): string[] {
+            if (!this.dataToShow.rows) return []
+            return this.dataToShow.rows.map((row: any) => String(row.column_1))
         }
     },
     watch: {
@@ -236,10 +242,17 @@ export default defineComponent({
             if (dateRange[rangeValue]) return new Date(dateRange[rangeValue])
             else return undefined
         },
+        getDateRangeFormatted(rangeValue: string): string {
+            const dateRange = this.propWidget.settings.configuration.defaultValues
+            if (dateRange[rangeValue]) {
+                return moment(dateRange[rangeValue]).format('YYYY/MM/DD')
+            }
+            return ''
+        },
         getLabelStyle() {
             return getWidgetStyleByType(this.propWidget, 'label')
         },
-        dateSelectionChanged() {
+        dateSelectionChangedOLD() {
             if (this.editorMode) return
             updateStoreSelections(this.createNewSelection([moment(deepcopy(this.selectedDate)).format(dashboardDescriptor.selectionsDateFormat)]), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
         },
@@ -265,6 +278,11 @@ export default defineComponent({
             const index = selections.findIndex((selection: ISelection) => selection.datasetId === this.propWidget.dataset && selection.columnName === this.propWidget.columns[0]?.columnName)
             if (index !== -1) this.removeDeafultValues()
         },
+        updateActiveSelectionsWithMultivalueSelection(tempSelection: ISelection) {
+            const index = this.activeSelections.findIndex((activeSelection: ISelection) => activeSelection.datasetId === tempSelection.datasetId && activeSelection.columnName === tempSelection.columnName)
+            if (index !== -1) this.activeSelections[index] = tempSelection
+            else this.activeSelections.push(tempSelection)
+        },
         radioSelectorChanged(event: any) {
             this.selectedValue = event
             if (this.editorMode) return
@@ -287,13 +305,10 @@ export default defineComponent({
             const tempSelection = this.createNewSelection(this.selectedValues) as ISelection
             this.updateActiveSelectionsWithMultivalueSelection(tempSelection)
         },
-        updateActiveSelectionsWithMultivalueSelection(tempSelection: ISelection) {
-            const index = this.activeSelections.findIndex((activeSelection: ISelection) => activeSelection.datasetId === tempSelection.datasetId && activeSelection.columnName === tempSelection.columnName)
-            if (index !== -1) {
-                this.activeSelections[index] = tempSelection
-            } else {
-                this.activeSelections.push(tempSelection)
-            }
+        dateSelectionChanged(dateValue: string) {
+            if (this.editorMode) return
+            this.selectedDate = dateValue
+            updateStoreSelections(this.createNewSelection([moment(deepcopy(dateValue)).format(dashboardDescriptor.selectionsDateFormat)]), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
         }
     }
 })
