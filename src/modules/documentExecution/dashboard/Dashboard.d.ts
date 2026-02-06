@@ -517,6 +517,8 @@ export interface IWidgetColumn {
     filter: IWidgetColumnFilter
     formula?: string
     formulaEditor?: string
+    blocklyXml?: string
+    blocklyJson?: any
     drillOrder?: IDrillOrderItem
     orderColumn?: string
     orderType?: string

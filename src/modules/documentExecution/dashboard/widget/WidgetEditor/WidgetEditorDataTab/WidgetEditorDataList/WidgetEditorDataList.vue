@@ -308,13 +308,14 @@ export default defineComponent({
                 })
             }
         },
-        onCalcFieldSave(calcFieldOutput) {
+onCalcFieldSave(calcFieldOutput) {
             if (this.selectedCalcField.id) {
                 this.selectedCalcField.alias = calcFieldOutput.colName
                 this.selectedCalcField.formula = calcFieldOutput.formula
+                this.selectedCalcField.blocklyXml = calcFieldOutput.xml
                 emitter.emit('selectedColumnUpdated', this.selectedCalcField)
             } else {
-                emitter.emit('addNewCalculatedField', {
+                const newCalcField = {
                     id: crypto.randomUUID(),
                     columnName: calcFieldOutput.colName,
                     alias: calcFieldOutput.colName,
@@ -323,8 +324,10 @@ export default defineComponent({
                     filter: {},
                     formula: calcFieldOutput.formula,
                     formulaEditor: calcFieldOutput.formula,
+                    blocklyXml: calcFieldOutput.xml,
                     aggregation: 'SUM'
-                })
+                };
+                emitter.emit('addNewCalculatedField', newCalcField)
             }
 
             this.calcFieldDialogVisible = false
