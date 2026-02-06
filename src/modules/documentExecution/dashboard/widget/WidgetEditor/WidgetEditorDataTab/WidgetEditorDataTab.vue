@@ -33,14 +33,11 @@ export default defineComponent({
     components: { WidgetEditorHint, SelectorWidgetDataContainer, HighchartsDataContainer, WidgetEditorCommonDataContainer, ChartJSDataContainer, ChartGallery, PivotTableDataContainer },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
-        datasets: { type: Array as PropType<IDataset[]> },
-        selectedDatasets: { type: Array as PropType<IDataset[]> },
-        variables: { type: Array as PropType<IVariable[]>, required: true },
         selectedDataset: { type: Object as PropType<IDataset | null>, default: null },
         selectedDatasetColumns: { type: Array as PropType<IDatasetColumn[]>, default: () => [] },
         listDragActive: { type: Boolean, default: false }
     },
-    emits: ['datasetSelected', 'selectedDatasetColumnsChanged', 'toggleListDrag'],
+    emits: [],
     data() {
         return {
             widget: {} as IWidget

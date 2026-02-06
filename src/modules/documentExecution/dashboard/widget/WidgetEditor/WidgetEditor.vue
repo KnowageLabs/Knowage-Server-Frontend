@@ -1,18 +1,26 @@
 <template>
-    <q-layout container view="hHh lpr lfr" class="widget-editor-layout">
-        <q-header ref="headerRef" v-if="!isDashboardHeader" bordered>
-            <q-toolbar class="kn-toolbar--primary">
-                <q-btn v-if="activeTab === 'data' && widget && !['selection', 'image', 'spacer'].includes(widget.type)" flat round dense icon="menu" @click="dataListDrawerOpen = !dataListDrawerOpen" />
+    <q-layout container view="hHh lpr lfr" class="widget-editor-layout" :class="{ 'with-custom-header': isDashboardHeader }">
+        <q-header ref="headerRef" bordered>
+            <!--  v-if="!isDashboardHeader" -->
+            <q-toolbar class="kn-toolbar--primary" v-if="!isDashboardHeader">
                 <q-toolbar-title>{{ widgetTitle }} Widget Editor</q-toolbar-title>
                 <q-btn flat round dense icon="save" :disable="widgetIsInvalid" data-test="save-button" @click="save" />
-                <q-btn flat round dense icon="more_vert" @click="rightDrawerOpen = !rightDrawerOpen" />
                 <q-btn flat round dense icon="close" data-test="close-button" @click="close" />
             </q-toolbar>
-            <q-tabs v-model="activeTab" align="left" dense>
-                <q-tab v-if="widget && !['selection', 'image', 'spacer'].includes(widget.type)" name="data" :label="$t(widget.type === 'map' ? 'common.layers' : 'common.data')" />
-                <q-tab name="settings" :label="$t('common.settings')" />
+            <q-tabs v-model="activeTab" align="center" dense class="bg-white text-black">
+                <q-btn class="text-secondary" flat round dense icon="view_sidebar" @click="dataListDrawerOpen = !dataListDrawerOpen" />
+                <q-tab v-if="hasDataTab" class="q-ml-auto" name="data" :label="$t(widget.type === 'map' ? 'common.layers' : 'common.data')" />
+                <q-tab class="q-mr-auto" name="settings" :label="$t('common.settings')" />
+                <q-btn v-if="rightDrawerOpen" class="text-secondary" flat round dense icon="refresh" @click="refreshPreview" />
+                <q-btn class="text-secondary" flat round dense icon="preview" @click="rightDrawerOpen = !rightDrawerOpen" />
             </q-tabs>
         </q-header>
+
+        <!-- <q-btn :class="['drawer-attached-btn', 'left-drawer-btn', { open: dataListDrawerOpen, closed: !dataListDrawerOpen }]" round dense icon="view_sidebar" color="secondary" @click="dataListDrawerOpen = !dataListDrawerOpen" />
+        <q-btn :class="['drawer-attached-btn', 'right-drawer-btn', { open: rightDrawerOpen, closed: !rightDrawerOpen }]" round dense icon="preview" color="secondary" @click="rightDrawerOpen = !rightDrawerOpen" /> -->
+
+        <!-- <q-btn :class="['drawer-attached-btn', 'left-drawer-btn', { open: dataListDrawerOpen, closed: !dataListDrawerOpen }]" round dense :icon="dataListDrawerOpen ? 'chevron_left' : 'chevron_right'" color="secondary" @click="dataListDrawerOpen = !dataListDrawerOpen" />
+        <q-btn :class="['drawer-attached-btn', 'right-drawer-btn', { open: rightDrawerOpen, closed: !rightDrawerOpen }]" round dense :icon="rightDrawerOpen ? 'chevron_right' : 'chevron_left'" color="secondary" @click="rightDrawerOpen = !rightDrawerOpen" /> -->
 
         <q-drawer v-model="dataListDrawerOpen" side="left" :breakpoint="0" bordered :width="leftDrawerWidth" class="resizable-drawer">
             <q-scroll-area :style="{ height: scrollAreaHeight }">
@@ -26,7 +34,7 @@
         </q-drawer>
 
         <q-drawer v-model="rightDrawerOpen" side="right" bordered :breakpoint="0" :width="rightDrawerWidth" class="resizable-drawer">
-            <WidgetEditorPreview v-if="widget.type !== 'static-pivot-table' && !chartPickerVisible && rightDrawerOpen" class="kn-width-full kn-height-full" :prop-widget="widget" :dashboard-id="dashboardId" :datasets="selectedModelDatasets" :variables="variables" />
+            <WidgetEditorPreview v-if="widget.type !== 'static-pivot-table' && !chartPickerVisible && rightDrawerOpen && showPreview" class="kn-width-full kn-height-full" :prop-widget="widget" :dashboard-id="dashboardId" :datasets="selectedModelDatasets" :variables="variables" />
             <div class="resize-handle resize-handle-left" @mousedown="handleResizeStartRight"></div>
         </q-drawer>
 
@@ -34,13 +42,13 @@
             <!-- with some ungodly hacking, this scroll area preserves the whole layout of the editor, i have no idea how it works -->
             <q-scroll-area :style="{ height: scrollAreaHeight }">
                 <q-tab-panels v-model="activeTab" keep-alive class="kn-width-full kn-height-full column">
-                    <q-tab-panel v-if="widget && !['selection', 'image', 'spacer'].includes(widget.type)" name="data" class="column q-pa-none q-ma-none">
+                    <q-tab-panel v-if="hasDataTab" name="data" class="column" style="max-width: 850px !important; justify-self: center">
                         <MapWidgetLayersTab v-if="widget.type === 'map'" :prop-widget="widget" :datasets="datasets" :selected-datasets="selectedDatasets" :layers="layers" :variables="variables" :dashboard-id="dashboardId" :selected-layer="selectedLayer" @layerSelected="onLayerSelected" />
-                        <WidgetEditorDataTab v-else :prop-widget="widget" :datasets="datasets" :variables="variables" :selected-datasets="selectedDatasets" :selected-dataset="selectedDataset" :selected-dataset-columns="selectedDatasetColumns" :list-drag-active="listDragActive" data-test="data-tab" @datasetSelected="onDatasetSelectedFromList" @selectedDatasetColumnsChanged="onSelectedDatasetColumnsChanged" @toggleListDrag="onToggleListDrag" />
+                        <WidgetEditorDataTab v-else :prop-widget="widget" :selected-dataset="selectedDataset" :selected-dataset-columns="selectedDatasetColumns" :list-drag-active="listDragActive" data-test="data-tab" />
                     </q-tab-panel>
 
-                    <q-tab-panel name="settings" class="column q-pa-none q-ma-none">
-                        <WidgetEditorSettingsTab v-if="widget" :prop-widget="widget" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId" :layers="layers" :selected-setting="selectedSetting" @settingChanged="onSettingChanged" />
+                    <q-tab-panel name="settings" class="column" style="max-width: 700px !important; justify-self: center">
+                        <WidgetEditorSettingsTab v-if="widget" :prop-widget="widget" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId" :layers="layers" :selected-setting="selectedSetting" :descriptor="settingsDescriptor" :gallery-items="galleryItems" :custom-chart-gallery="customChartGallery" @settingChanged="onSettingChanged" />
                     </q-tab-panel>
                 </q-tab-panels>
             </q-scroll-area>
@@ -67,6 +75,9 @@ import descriptor from './WidgetEditorDescriptor.json'
 import dashStore from '../../Dashboard.store'
 import deepcopy from 'deepcopy'
 import { AxiosResponse } from 'axios'
+import ChartWidgetChartTypeDropdown from './WidgetEditorDataTab/ChartWidget/common/ChartWidgetChartTypeDropdown.vue'
+import { IGalleryItem } from '../../Dashboard'
+import { mapActions } from 'pinia'
 
 export default defineComponent({
     name: 'widget-editor',
@@ -102,11 +113,12 @@ export default defineComponent({
             scrollAreaHeight: '100vh',
             selectedSetting: '',
             settingsDescriptor: {} as any,
-            leftDrawerWidth: 300,
-            rightDrawerWidth: 350,
+            galleryItems: [] as IGalleryItem[],
+            customChartGallery: [] as IGalleryItem[],
             isResizingLeft: false,
             isResizingRight: false,
-            resizeStartX: 0
+            resizeStartX: 0,
+            showPreview: true
         }
     },
     computed: {
@@ -115,6 +127,18 @@ export default defineComponent({
         },
         widgetTitle() {
             return this.widget.settings?.isCustomDashboardHeader ? this.$t('dashboard.generalSettings.customHeader') : this.widget.type
+        },
+        hasDataTab() {
+            return this.widget && !['selection', 'image', 'spacer'].includes(this.widget.type)
+        },
+        chartType() {
+            return this.widget.settings?.chartModel?.model.chart.type
+        },
+        leftDrawerWidth() {
+            return this.dashboardStore.getDrawerWidth('left')
+        },
+        rightDrawerWidth() {
+            return this.dashboardStore.getDrawerWidth('right')
         },
         widgetIsInvalid() {
             let invalid = false
@@ -132,6 +156,9 @@ export default defineComponent({
     watch: {
         propWidget() {
             this.loadWidget()
+        },
+        chartType() {
+            this.computeDescriptor()
         }
     },
     created() {
@@ -156,43 +183,45 @@ export default defineComponent({
         document.removeEventListener('mouseup', this.handleResizeEnd)
     },
     methods: {
-        updateScrollAreaHeight() {
-            this.$nextTick(() => {
-                const headerComponent = this.$refs.headerRef as any
-                const pageContainer = this.$el?.querySelector('.widget-page-container')
-
-                if (headerComponent?.$el && pageContainer) {
-                    const headerComponentHeight = (headerComponent.$el as HTMLElement).offsetHeight
-                    const rect = pageContainer.getBoundingClientRect()
-                    const availableHeight = window.innerHeight - rect.top - headerComponentHeight
-                    this.scrollAreaHeight = `${Math.max(availableHeight, 0)}px`
-                }
-            })
-        },
-        handleKeyDown(event: KeyboardEvent) {
-            if ((event.ctrlKey || event.metaKey) && event.key === 's') {
-                event.preventDefault()
-                if (!this.widgetIsInvalid) this.save()
-            }
-        },
+        ...mapActions(dashStore, ['getHTMLGaleryItems', 'getPythonGaleryItems', 'getCustomChartGaleryItems']),
         setEventListeners() {
             emitter.on('chartPickerVisible', this.changeChartPickerVisbility)
         },
         removeEventListeners() {
             emitter.off('chartPickerVisible', this.changeChartPickerVisbility)
         },
-        loadWidget() {
+
+        // #region - Editor Setup and Control
+        async loadWidget() {
             if (!this.propWidget) return
             this.widget = this.propWidget.new ? createNewWidget(this.propWidget.type, this.dashboardStore.dashboards[this.dashboardId]) : deepcopy(this.propWidget)
             updateWidgetThemeAndApplyStyle(this.widget, this.dashboardStore.allThemes)
             if (!this.propWidget.new) recreateKnowageChartModel(this.widget)
-            // Load the settings descriptor for the widget
-            this.settingsDescriptor = getSettingsDescriptor(this.widget.type, this.widget.settings?.chartType)
-            console.group('Loaded widget details')
-            console.log('Desc:', this.settingsDescriptor)
-            console.log('Widget Type:', this.widget.type)
-            console.log("Widget's Chart Type:", this.widget.settings?.chartType)
-            console.groupEnd()
+
+            this.activeTab = this.hasDataTab ? 'data' : 'settings'
+
+            await this.loadGalleries()
+            this.computeDescriptor()
+        },
+        async loadGalleries() {
+            if (['html', 'python'].includes(this.widget?.type)) {
+                this.galleryItems = this.widget.type === 'html' ? await this.getHTMLGaleryItems(this.dashboardId, this.$http) : await this.getPythonGaleryItems(this.dashboardId, this.$http)
+            } else {
+                this.galleryItems = []
+            }
+
+            if (this.widget?.type === 'customchart') {
+                this.customChartGallery = await this.getCustomChartGaleryItems(this.dashboardId, this.$http)
+            } else {
+                this.customChartGallery = []
+            }
+        },
+        computeDescriptor() {
+            this.settingsDescriptor = getSettingsDescriptor(this.widget)
+
+            // Apply post-processing for HTML widgets
+            const index = this.settingsDescriptor.settingsListOptions.findIndex((option: any) => option.value === 'Gallery')
+            if (index !== -1) this.settingsDescriptor.settingsListOptions[index].disabled = this.galleryItems.length === 0
         },
         loadSelectedModelDatasets() {
             this.selectedModelDatasets = this.dashboardId ? this.dashboardStore.getDashboardSelectedDatasets(this.dashboardId) : {}
@@ -211,6 +240,59 @@ export default defineComponent({
                         parameters: tempDataset.parameters as any[],
                         drivers: tempDataset.drivers ?? []
                     })
+            }
+        },
+        handleResizeStartLeft(event: MouseEvent) {
+            this.isResizingLeft = true
+            this.resizeStartX = event.clientX
+            event.preventDefault()
+        },
+        handleResizeStartRight(event: MouseEvent) {
+            this.isResizingRight = true
+            this.resizeStartX = event.clientX
+            event.preventDefault()
+        },
+        handleResizeMove(event: MouseEvent) {
+            if (!this.isResizingLeft && !this.isResizingRight) return
+
+            const delta = event.clientX - this.resizeStartX
+            const minWidth = 150
+            const maxWidth = window.innerWidth * 0.7
+
+            if (this.isResizingLeft) {
+                const newWidth = Math.max(minWidth, Math.min(maxWidth, this.leftDrawerWidth + delta))
+                this.dashboardStore.setDrawerWidth('left', newWidth)
+            }
+
+            if (this.isResizingRight) {
+                const newWidth = Math.max(minWidth, Math.min(maxWidth, this.rightDrawerWidth - delta))
+                this.dashboardStore.setDrawerWidth('right', newWidth)
+            }
+
+            this.resizeStartX = event.clientX
+        },
+        handleResizeEnd() {
+            this.isResizingLeft = false
+            this.isResizingRight = false
+        },
+        updateScrollAreaHeight() {
+            this.$nextTick(() => {
+                const headerComponent = this.$refs.headerRef as any
+                const pageContainer = this.$el?.querySelector('.widget-page-container')
+
+                if (headerComponent?.$el && pageContainer) {
+                    const headerComponentHeight = (headerComponent.$el as HTMLElement).offsetHeight
+                    const rect = pageContainer.getBoundingClientRect()
+                    let availableHeight = window.innerHeight - rect.top - headerComponentHeight
+                    if (this.isDashboardHeader) availableHeight -= 20 //extra padding when widget is dashboard header
+                    this.scrollAreaHeight = `${Math.max(availableHeight, 0)}px`
+                }
+            })
+        },
+        handleKeyDown(event: KeyboardEvent) {
+            if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+                event.preventDefault()
+                if (!this.widgetIsInvalid) this.save()
             }
         },
         save() {
@@ -234,17 +316,17 @@ export default defineComponent({
         close() {
             this.$emit('close')
         },
-        onSettingChanged(setting: string) {
-            // Propagate to child components if needed
-        },
-        changeChartPickerVisbility(value: any) {
-            this.chartPickerVisible = value
-        },
+        // #endregion
+
+        // #region - Data Tab
         async loadLayers() {
             await this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/layers')
                 .then((response: AxiosResponse<any>) => (this.layers = response.data.root))
                 .catch(() => {})
+        },
+        onLayerSelected(layer: IMapWidgetLayer) {
+            this.selectedLayer = layer
         },
         onDatasetSelectedFromList(dataset: IDataset) {
             if (this.selectedDataset && dataset.id !== this.selectedDataset.id && this.widget?.settings?.sortingColumn) {
@@ -258,45 +340,25 @@ export default defineComponent({
         onToggleListDrag() {
             this.listDragActive = !this.listDragActive
         },
-        onLayerSelected(layer: IMapWidgetLayer) {
-            this.selectedLayer = layer
+        changeChartPickerVisbility(value: any) {
+            this.chartPickerVisible = value
+        },
+        refreshPreview() {
+            this.showPreview = false
+            this.$nextTick(() => {
+                this.showPreview = true
+            })
+        },
+        // #endregion
+
+        // #region - Settings Tab
+        onSettingChanged(setting: string) {
+            this.selectedSetting = setting
         },
         onSettingsItemClicked(item: any) {
             this.selectedSetting = item.value
-        },
-        handleResizeStartLeft(event: MouseEvent) {
-            this.isResizingLeft = true
-            this.resizeStartX = event.clientX
-            event.preventDefault()
-        },
-        handleResizeStartRight(event: MouseEvent) {
-            this.isResizingRight = true
-            this.resizeStartX = event.clientX
-            event.preventDefault()
-        },
-        handleResizeMove(event: MouseEvent) {
-            if (!this.isResizingLeft && !this.isResizingRight) return
-
-            const delta = event.clientX - this.resizeStartX
-            const minWidth = 150
-            const maxWidth = window.innerWidth * 0.7
-
-            if (this.isResizingLeft) {
-                const newWidth = Math.max(minWidth, Math.min(maxWidth, this.leftDrawerWidth + delta))
-                this.leftDrawerWidth = newWidth
-            }
-
-            if (this.isResizingRight) {
-                const newWidth = Math.max(minWidth, Math.min(maxWidth, this.rightDrawerWidth - delta))
-                this.rightDrawerWidth = newWidth
-            }
-
-            this.resizeStartX = event.clientX
-        },
-        handleResizeEnd() {
-            this.isResizingLeft = false
-            this.isResizingRight = false
         }
+        // #endregion
     }
 })
 </script>
@@ -319,16 +381,14 @@ export default defineComponent({
     border-radius: 4px;
 }
 
-.icon-disabled {
-    color: #c2c2c2;
-}
-
 .widget-editor-layout {
     background-color: white;
     position: absolute;
     z-index: 999;
 }
-
+.with-custom-header {
+    position: relative;
+}
 .resizable-drawer {
     position: relative;
 }
@@ -353,6 +413,38 @@ export default defineComponent({
 
     &.resize-handle-left {
         left: 0;
+    }
+}
+
+.drawer-attached-btn {
+    position: fixed;
+    bottom: 2rem; // below header and tabs
+    z-index: 999999;
+    opacity: 0.9;
+    &:hover {
+        opacity: 1;
+    }
+
+    &.left-drawer-btn {
+        &.open {
+            left: v-bind('leftDrawerWidth + "px"');
+            margin-left: -18px;
+        }
+
+        &.closed {
+            left: -10px;
+        }
+    }
+
+    &.right-drawer-btn {
+        &.open {
+            right: v-bind('rightDrawerWidth + "px"');
+            margin-right: -18px;
+        }
+
+        &.closed {
+            right: -10px;
+        }
     }
 }
 </style>

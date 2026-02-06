@@ -181,18 +181,23 @@ export const recreateKnowageChartModel = (widget: IWidget) => {
     else if (widget.type === 'highcharts' && store.user.enterprise) formatHighchartsWidget(widget)
 }
 
-export const getSettingsDescriptor = (widgetType: string, chartType?: string) => {
-    const store = useStore()
+function getScatterChartDescriptor(isJittered: boolean) {
+    const descriptor = deepcopy(HighchartsScatterSettingsDescriptor)
+    if (!isJittered) descriptor.settings.Configuration = descriptor.settings.Configuration.filter((item) => item.type !== 'JitterSettings')
+    return descriptor
+}
 
+export const getSettingsDescriptor = (widget: any) => {
+    const widgetType = widget.type
     switch (widgetType) {
         case 'table':
             return tableDescriptor
         case 'selector':
             return selectorDescriptor
-        case 'selections':
+        case 'selection':
             return selectionsDescriptor
         case 'html':
-            return htmlDescriptor
+            return widget.settings.isCustomDashboardHeader ? { ...customDashboardHeaderDescriptor } : { ...htmlDescriptor }
         case 'customDashboardHeader':
             return customDashboardHeaderDescriptor
         case 'text':
@@ -200,35 +205,38 @@ export const getSettingsDescriptor = (widgetType: string, chartType?: string) =>
         case 'chartJS':
             return chartJSDescriptor
         case 'highcharts':
-            if (!store.user.enterprise) return {}
+            const chartType = widget.settings?.chartModel?.model?.chart?.type
             switch (chartType) {
                 case 'pie':
                     return HighchartsPieSettingsDescriptor
                 case 'gauge':
                     return HighchartsGaugeSettingsDescriptor
-                case 'activityGauge':
+                case 'activitygauge':
                     return HighchartsActivityGaugeSettingsDescriptor
-                case 'solidGauge':
+                case 'solidgauge':
                     return HighchartsSolidGaugeSettingsDescriptor
                 case 'heatmap':
                     return HighchartsHeatmapSettingsDescriptor
                 case 'radar':
                     return HighchartsRadarSettingsDescriptor
+                case 'area':
                 case 'bar':
+                case 'column':
                     return HighchartsBarSettingsDescriptor
                 case 'bubble':
                     return HighchartsBubbleSettingsDescriptor
                 case 'scatter':
-                    return HighchartsScatterSettingsDescriptor
+                    const isJittered = widget.settings?.chartModel?.model?.plotOptions?.scatter?.jitter ?? false
+                    return getScatterChartDescriptor(isJittered)
                 case 'line':
                     return HighchartsLineSettingsDescriptor
-                case 'sunburst':
-                    return HighchartsSunburstSettingsDescriptor
                 case 'treemap':
                     return HighchartsTreemapSettingsDescriptor
-                case 'chord':
+                case 'sunburst':
+                    return HighchartsSunburstSettingsDescriptor
+                case 'dependencywheel':
                     return HighchartsChordSettingsDescriptor
-                case 'parallel':
+                case 'spline':
                     return HighchartsParallelSettingsDescriptor
                 case 'pictorial':
                     return HighchartsPictorialSettingsDescriptor
@@ -240,20 +248,18 @@ export const getSettingsDescriptor = (widgetType: string, chartType?: string) =>
                     return HighchartsDumbbellSettingsDescriptor
                 case 'streamgraph':
                     return HighchartsStreamgraphSettingsDescriptor
-                case 'packedBubble':
+                case 'packedbubble':
                     return HighchartsPackedBubbleSettingsDescriptor
                 case 'waterfall':
                     return HighchartsWaterfallSettingsDescriptor
-                default:
-                    return {}
             }
         case 'image':
             return imageDescriptor
-        case 'customChart':
+        case 'customchart':
             return customChartDescriptor
-        case 'pivotTable':
+        case 'static-pivot-table':
             return pivotTableDescriptor
-        case 'cePivotTable':
+        case 'ce-pivot-table':
             return cePivotTableDescriptor
         case 'discovery':
             return discoveryDescriptor
@@ -263,7 +269,5 @@ export const getSettingsDescriptor = (widgetType: string, chartType?: string) =>
             return pythonWidgetDescriptor
         case 'spacer':
             return spacerDescriptor
-        default:
-            return {}
     }
 }
