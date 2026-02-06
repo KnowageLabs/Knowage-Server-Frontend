@@ -7,20 +7,20 @@
                 <q-btn flat round dense icon="save" :disable="widgetIsInvalid" data-test="save-button" @click="save" />
                 <q-btn flat round dense icon="close" data-test="close-button" @click="close" />
             </q-toolbar>
-            <q-tabs v-model="activeTab" align="center" dense class="bg-white text-black">
-                <q-btn class="text-secondary" flat round dense icon="view_sidebar" @click="dataListDrawerOpen = !dataListDrawerOpen" />
-                <q-tab v-if="hasDataTab" class="q-ml-auto" name="data" :label="$t(widget.type === 'map' ? 'common.layers' : 'common.data')" />
+            <q-tabs v-model="activeTab" align="left" dense class="bg-white text-black">
+                <!-- <q-btn class="text-secondary" flat round dense icon="view_sidebar" @click="dataListDrawerOpen = !dataListDrawerOpen" /> -->
+                <q-tab v-if="hasDataTab" class="" name="data" :label="$t(widget.type === 'map' ? 'common.layers' : 'common.data')" />
                 <q-tab class="q-mr-auto" name="settings" :label="$t('common.settings')" />
                 <q-btn v-if="rightDrawerOpen" class="text-secondary" flat round dense icon="refresh" @click="refreshPreview" />
-                <q-btn class="text-secondary" flat round dense icon="preview" @click="rightDrawerOpen = !rightDrawerOpen" />
+                <!-- <q-btn class="text-secondary" flat round dense icon="preview" @click="rightDrawerOpen = !rightDrawerOpen" /> -->
             </q-tabs>
         </q-header>
 
         <!-- <q-btn :class="['drawer-attached-btn', 'left-drawer-btn', { open: dataListDrawerOpen, closed: !dataListDrawerOpen }]" round dense icon="view_sidebar" color="secondary" @click="dataListDrawerOpen = !dataListDrawerOpen" />
         <q-btn :class="['drawer-attached-btn', 'right-drawer-btn', { open: rightDrawerOpen, closed: !rightDrawerOpen }]" round dense icon="preview" color="secondary" @click="rightDrawerOpen = !rightDrawerOpen" /> -->
 
-        <!-- <q-btn :class="['drawer-attached-btn', 'left-drawer-btn', { open: dataListDrawerOpen, closed: !dataListDrawerOpen }]" round dense :icon="dataListDrawerOpen ? 'chevron_left' : 'chevron_right'" color="secondary" @click="dataListDrawerOpen = !dataListDrawerOpen" />
-        <q-btn :class="['drawer-attached-btn', 'right-drawer-btn', { open: rightDrawerOpen, closed: !rightDrawerOpen }]" round dense :icon="rightDrawerOpen ? 'chevron_right' : 'chevron_left'" color="secondary" @click="rightDrawerOpen = !rightDrawerOpen" /> -->
+        <q-btn :class="['drawer-attached-btn', 'left-drawer-btn', { open: dataListDrawerOpen, closed: !dataListDrawerOpen }]" round dense :icon="dataListDrawerOpen ? 'chevron_left' : 'chevron_right'" color="secondary" @click="dataListDrawerOpen = !dataListDrawerOpen" />
+        <q-btn :class="['drawer-attached-btn', 'right-drawer-btn', { open: rightDrawerOpen, closed: !rightDrawerOpen }]" round dense :icon="rightDrawerOpen ? 'chevron_right' : 'chevron_left'" color="secondary" @click="rightDrawerOpen = !rightDrawerOpen" />
 
         <q-drawer v-model="dataListDrawerOpen" side="left" :breakpoint="0" bordered :width="leftDrawerWidth" class="resizable-drawer">
             <q-scroll-area :style="{ height: scrollAreaHeight }">
@@ -47,7 +47,7 @@
                         <WidgetEditorDataTab v-else :prop-widget="widget" :selected-dataset="selectedDataset" :selected-dataset-columns="selectedDatasetColumns" :list-drag-active="listDragActive" data-test="data-tab" />
                     </q-tab-panel>
 
-                    <q-tab-panel name="settings" class="column" style="max-width: 700px !important; justify-self: center">
+                    <q-tab-panel name="settings" class="column" style="max-width: 800px !important; justify-self: center">
                         <WidgetEditorSettingsTab v-if="widget" :prop-widget="widget" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId" :layers="layers" :selected-setting="selectedSetting" :descriptor="settingsDescriptor" :gallery-items="galleryItems" :custom-chart-gallery="customChartGallery" @settingChanged="onSettingChanged" />
                     </q-tab-panel>
                 </q-tab-panels>
