@@ -1,14 +1,13 @@
 <template>
-    <WidgetEditorDataList :widget-model="widget" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" @datasetSelected="setSelectDataset" @selectedDatasetColumnsChanged="onSelectedDatasetColumnsChanged" @toggle-list-drag="toggleListDrag"></WidgetEditorDataList>
     <ChartGallery v-if="chartPickerVisible" :widget-model="widget" @selectedChartTypeChanged="onChartTypeChanged" />
-    <div v-else-if="widget" class="p-d-flex kn-flex kn-overflow">
+    <div v-else-if="widget" class="p-d-flex kn-flex">
         <WidgetEditorHint v-if="!selectedDataset"></WidgetEditorHint>
-        <WidgetEditorCommonDataContainer v-else-if="['table', 'html', 'text', 'discovery', 'customchart', 'python', 'r'].includes(widget.type)" class="kn-flex model-div kn-overflow" :prop-widget-model="widget" :selected-dataset="selectedDataset"></WidgetEditorCommonDataContainer>
-        <SelectorWidgetDataContainer v-else-if="widget.type === 'selector'" class="kn-flex model-div kn-overflow p-mx-2 p-my-3" :widget-model="propWidget" :selected-dataset="selectedDataset" :selected-dataset-columns="selectedDatasetColumns"></SelectorWidgetDataContainer>
-        <HighchartsDataContainer v-else-if="widget.type === 'highcharts' && isEnterprise" class="kn-flex model-div kn-overflow" :widget-model="propWidget" :selected-dataset="selectedDataset" :listDragActive="listDragActive" @selectedChartTypeChanged="onChartTypeChanged"></HighchartsDataContainer>
-        <ChartJSDataContainer v-else-if="widget.type === 'chartJS'" class="kn-flex model-div kn-overflow p-mx-2 p-my-3" :widget-model="propWidget" :selected-dataset="selectedDataset" @selectedChartTypeChanged="onChartTypeChanged"></ChartJSDataContainer>
-        <PivotTableDataContainer v-else-if="widget.type === 'static-pivot-table'" class="kn-flex model-div kn-overflow p-mx-2 p-my-3" :prop-widget-model="propWidget" :selected-dataset="selectedDataset"></PivotTableDataContainer>
-        <PivotTableDataContainer v-else-if="widget.type === 'ce-pivot-table'" class="kn-flex model-div kn-overflow p-mx-2 p-my-3" :prop-widget-model="propWidget" :selected-dataset="selectedDataset"></PivotTableDataContainer>
+        <WidgetEditorCommonDataContainer v-else-if="['table', 'html', 'text', 'discovery', 'customchart', 'python', 'r'].includes(widget.type)" class="kn-flex" :prop-widget-model="widget" :selected-dataset="selectedDataset"></WidgetEditorCommonDataContainer>
+        <SelectorWidgetDataContainer v-else-if="widget.type === 'selector'" class="kn-flex" :widget-model="propWidget" :selected-dataset="selectedDataset" :selected-dataset-columns="selectedDatasetColumns"></SelectorWidgetDataContainer>
+        <HighchartsDataContainer v-else-if="widget.type === 'highcharts' && isEnterprise" class="kn-flex" :widget-model="propWidget" :selected-dataset="selectedDataset" :listDragActive="listDragActive" @selectedChartTypeChanged="onChartTypeChanged"></HighchartsDataContainer>
+        <ChartJSDataContainer v-else-if="widget.type === 'chartJS'" class="kn-flex" :widget-model="propWidget" :selected-dataset="selectedDataset" @selectedChartTypeChanged="onChartTypeChanged"></ChartJSDataContainer>
+        <PivotTableDataContainer v-else-if="widget.type === 'static-pivot-table'" class="kn-flex" :prop-widget-model="propWidget" :selected-dataset="selectedDataset"></PivotTableDataContainer>
+        <PivotTableDataContainer v-else-if="widget.type === 'ce-pivot-table'" class="kn-flex" :prop-widget-model="propWidget" :selected-dataset="selectedDataset"></PivotTableDataContainer>
     </div>
 </template>
 
@@ -21,7 +20,6 @@ import { IHighchartsWidgetSettings } from '../../../interfaces/highcharts/Dashbo
 import { IChartJSWidgetSettings } from '../../../interfaces/chartJS/DashboardChartJSWidget'
 import { changeChartType } from './WidgetEditorDataTabHelpers'
 import mainStore from '@/App.store'
-import WidgetEditorDataList from './WidgetEditorDataList/WidgetEditorDataList.vue'
 import WidgetEditorHint from '../WidgetEditorHint.vue'
 import WidgetEditorCommonDataContainer from './common/WidgetEditorCommonDataContainer.vue'
 import SelectorWidgetDataContainer from './SelectorWidget/SelectorWidgetDataContainer.vue'
@@ -32,21 +30,20 @@ import ChartGallery from '../WidgetEditorDataTab/ChartWidget/common/ChartWidgetG
 
 export default defineComponent({
     name: 'widget-editor-data-tab',
-    components: { WidgetEditorDataList, WidgetEditorHint, SelectorWidgetDataContainer, HighchartsDataContainer, WidgetEditorCommonDataContainer, ChartJSDataContainer, ChartGallery, PivotTableDataContainer },
-    props: { propWidget: { type: Object as PropType<IWidget>, required: true }, datasets: { type: Array as PropType<IDataset[]> }, selectedDatasets: { type: Array as PropType<IDataset[]> }, variables: { type: Array as PropType<IVariable[]>, required: true } },
-    emits: ['datasetSelected'],
+    components: { WidgetEditorHint, SelectorWidgetDataContainer, HighchartsDataContainer, WidgetEditorCommonDataContainer, ChartJSDataContainer, ChartGallery, PivotTableDataContainer },
+    props: {
+        propWidget: { type: Object as PropType<IWidget>, required: true },
+        datasets: { type: Array as PropType<IDataset[]> },
+        selectedDatasets: { type: Array as PropType<IDataset[]> },
+        variables: { type: Array as PropType<IVariable[]>, required: true },
+        selectedDataset: { type: Object as PropType<IDataset | null>, default: null },
+        selectedDatasetColumns: { type: Array as PropType<IDatasetColumn[]>, default: () => [] },
+        listDragActive: { type: Boolean, default: false }
+    },
+    emits: ['datasetSelected', 'selectedDatasetColumnsChanged', 'toggleListDrag'],
     data() {
         return {
-            selectedDataset: null as IDataset | null,
-            widget: {} as IWidget,
-            selectedDatasetColumns: [] as IDatasetColumn[],
-            listDragActive: false as boolean
-        }
-    },
-    provide() {
-        return {
-            listDragActive: computed(() => this.listDragActive),
-            selectedDatasetColumns: computed(() => this.selectedDatasetColumns)
+            widget: {} as IWidget
         }
     },
     computed: {
@@ -69,20 +66,9 @@ export default defineComponent({
         loadWidget() {
             this.widget = this.propWidget
         },
-        setSelectDataset(dataset: IDataset) {
-            this.$emit('datasetSelected', dataset)
-            if (this.selectedDataset && dataset.id !== this.selectedDataset.id && this.widget?.settings?.sortingColumn) this.widget.settings.sortingColumn = ''
-            this.selectedDataset = dataset as IDataset
-        },
         onChartTypeChanged(chartType: string) {
             if (!this.widget) return
             changeChartType(chartType, this.widget, this.isEnterprise)
-        },
-        onSelectedDatasetColumnsChanged(datasetColumns: IDatasetColumn[]) {
-            this.selectedDatasetColumns = datasetColumns
-        },
-        toggleListDrag() {
-            this.listDragActive = !this.listDragActive
         }
     }
 })

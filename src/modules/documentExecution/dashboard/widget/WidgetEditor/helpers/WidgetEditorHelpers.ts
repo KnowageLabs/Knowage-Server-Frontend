@@ -20,6 +20,42 @@ import { createCeNewPivotTableWidgetSettings } from './cePivotTableWidget/cePivo
 import { createNewPythonWidgetSettings } from './pythonWidget/PythonWidgetFunctions'
 import { createNewSpacerWidgetSettings } from './spacerWidget/SpacerWidgetFunctions'
 import { addWidgetMenuConfig } from '../../../DashboardHelpers'
+import tableDescriptor from '../WidgetEditorSettingsTab/TableWidget/TableWidgetSettingsDescriptor.json'
+import selectorDescriptor from '../WidgetEditorSettingsTab/SelectorWidget/SelectorWidgetSettingsDescriptor.json'
+import selectionsDescriptor from '../WidgetEditorSettingsTab/SelectionsWidget/SelectionsWidgetSettingsDescriptor.json'
+import htmlDescriptor from '../WidgetEditorSettingsTab/HTMLWidget/HTMLWidgetSettingsDescriptor.json'
+import customDashboardHeaderDescriptor from '../WidgetEditorSettingsTab/HTMLWidget/CustomDashboardHeaderDescriptor.json'
+import textDescriptor from '../WidgetEditorSettingsTab/TextWidget/TextWidgetSettingsDescriptor.json'
+import chartJSDescriptor from '../WidgetEditorSettingsTab/ChartWidget/chartJS/ChartJSWidgetSettingsDescriptor.json'
+import HighchartsPieSettingsDescriptor from '../WidgetEditorSettingsTab/ChartWidget/highcharts/descriptors/HighchartsPieSettingsDescriptor.json'
+import HighchartsGaugeSettingsDescriptor from '../WidgetEditorSettingsTab/ChartWidget/highcharts/descriptors/HighchartsGaugeSettingsDescriptor.json'
+import HighchartsActivityGaugeSettingsDescriptor from '../WidgetEditorSettingsTab/ChartWidget/highcharts/descriptors/HighchartsActivityGaugeSettingsDescriptor.json'
+import HighchartsSolidGaugeSettingsDescriptor from '../WidgetEditorSettingsTab/ChartWidget/highcharts/descriptors/HighchartsSolidGaugeSettingsDescriptor.json'
+import HighchartsHeatmapSettingsDescriptor from '../WidgetEditorSettingsTab/ChartWidget/highcharts/descriptors/HighchartsHeatmapSettingsDescriptor.json'
+import HighchartsRadarSettingsDescriptor from '../WidgetEditorSettingsTab/ChartWidget/highcharts/descriptors/HighchartsRadarSettingsDescriptor.json'
+import HighchartsBarSettingsDescriptor from '../WidgetEditorSettingsTab/ChartWidget/highcharts/descriptors/HighchartsBarSettingsDescriptor.json'
+import HighchartsBubbleSettingsDescriptor from '../WidgetEditorSettingsTab/ChartWidget/highcharts/descriptors/HighchartsBubbleSettingsDescriptor.json'
+import HighchartsScatterSettingsDescriptor from '../WidgetEditorSettingsTab/ChartWidget/highcharts/descriptors/HighchartsScatterSettingsDescriptor.json'
+import HighchartsLineSettingsDescriptor from '../WidgetEditorSettingsTab/ChartWidget/highcharts/descriptors/HighchartsLineSettingsDescriptor.json'
+import HighchartsSunburstSettingsDescriptor from '../WidgetEditorSettingsTab/ChartWidget/highcharts/descriptors/HighchartsSunburstSettingsDescriptor.json'
+import HighchartsTreemapSettingsDescriptor from '../WidgetEditorSettingsTab/ChartWidget/highcharts/descriptors/HighchartsTreemapSettingsDescriptor.json'
+import HighchartsChordSettingsDescriptor from '../WidgetEditorSettingsTab/ChartWidget/highcharts/descriptors/HighchartsChordSettingsDescriptor.json'
+import HighchartsParallelSettingsDescriptor from '../WidgetEditorSettingsTab/ChartWidget/highcharts/descriptors/HighchartsParallelSettingsDescriptor.json'
+import HighchartsPictorialSettingsDescriptor from '../WidgetEditorSettingsTab/ChartWidget/highcharts/descriptors/HighchartsPictorialSettingsDescriptor.json'
+import HighchartsSankeySettingsDescriptor from '../WidgetEditorSettingsTab/ChartWidget/highcharts/descriptors/HighchartsSankeySettingsDescriptor.json'
+import HighchartsFunnelSettingsDescriptor from '../WidgetEditorSettingsTab/ChartWidget/highcharts/descriptors/HighchartsFunnelSettingsDescriptor.json'
+import HighchartsDumbbellSettingsDescriptor from '../WidgetEditorSettingsTab/ChartWidget/highcharts/descriptors/HighchartsDumbbellSettingsDescriptor.json'
+import HighchartsStreamgraphSettingsDescriptor from '../WidgetEditorSettingsTab/ChartWidget/highcharts/descriptors/HighchartsStreamgraphSettingsDescriptor.json'
+import HighchartsPackedBubbleSettingsDescriptor from '../WidgetEditorSettingsTab/ChartWidget/highcharts/descriptors/HighchartsPackedBubbleSettingsDescriptor.json'
+import HighchartsWaterfallSettingsDescriptor from '../WidgetEditorSettingsTab/ChartWidget/highcharts/descriptors/HighchartsWaterfallSettingsDescriptor.json'
+import imageDescriptor from '../WidgetEditorSettingsTab/ImageWidget/ImageWidgetSettingsDescriptor.json'
+import customChartDescriptor from '../WidgetEditorSettingsTab/CustomChartWidget/CustomChartWidgetSettingsDescriptor.json'
+import pivotTableDescriptor from '../WidgetEditorSettingsTab/PivotTableWidget/PivotTableSettingsDescriptor.json'
+import cePivotTableDescriptor from '../WidgetEditorSettingsTab/cePivotTableWidget/cePivotTableSettingsDescriptor.json'
+import discoveryDescriptor from '../WidgetEditorSettingsTab/DiscoveryWidget/DiscoveryWidgetSettingsDescriptor.json'
+import mapWidgetDescriptor from '../WidgetEditorSettingsTab/MapWidget/MapSettingsDescriptor.json'
+import pythonWidgetDescriptor from '../WidgetEditorSettingsTab/PythonWidget/PythonWidgetSettingsDescriptor.json'
+import spacerDescriptor from '../WidgetEditorSettingsTab/SpacerWidget/SpacerWidgetSettingsDescriptor.json'
 
 const store = useStore()
 
@@ -143,4 +179,91 @@ export function getRGBColorFromString(color: string) {
 export const recreateKnowageChartModel = (widget: IWidget) => {
     if (widget.type === 'chartJS') formatChartJSWidget(widget)
     else if (widget.type === 'highcharts' && store.user.enterprise) formatHighchartsWidget(widget)
+}
+
+export const getSettingsDescriptor = (widgetType: string, chartType?: string) => {
+    const store = useStore()
+
+    switch (widgetType) {
+        case 'table':
+            return tableDescriptor
+        case 'selector':
+            return selectorDescriptor
+        case 'selections':
+            return selectionsDescriptor
+        case 'html':
+            return htmlDescriptor
+        case 'customDashboardHeader':
+            return customDashboardHeaderDescriptor
+        case 'text':
+            return textDescriptor
+        case 'chartJS':
+            return chartJSDescriptor
+        case 'highcharts':
+            if (!store.user.enterprise) return {}
+            switch (chartType) {
+                case 'pie':
+                    return HighchartsPieSettingsDescriptor
+                case 'gauge':
+                    return HighchartsGaugeSettingsDescriptor
+                case 'activityGauge':
+                    return HighchartsActivityGaugeSettingsDescriptor
+                case 'solidGauge':
+                    return HighchartsSolidGaugeSettingsDescriptor
+                case 'heatmap':
+                    return HighchartsHeatmapSettingsDescriptor
+                case 'radar':
+                    return HighchartsRadarSettingsDescriptor
+                case 'bar':
+                    return HighchartsBarSettingsDescriptor
+                case 'bubble':
+                    return HighchartsBubbleSettingsDescriptor
+                case 'scatter':
+                    return HighchartsScatterSettingsDescriptor
+                case 'line':
+                    return HighchartsLineSettingsDescriptor
+                case 'sunburst':
+                    return HighchartsSunburstSettingsDescriptor
+                case 'treemap':
+                    return HighchartsTreemapSettingsDescriptor
+                case 'chord':
+                    return HighchartsChordSettingsDescriptor
+                case 'parallel':
+                    return HighchartsParallelSettingsDescriptor
+                case 'pictorial':
+                    return HighchartsPictorialSettingsDescriptor
+                case 'sankey':
+                    return HighchartsSankeySettingsDescriptor
+                case 'funnel':
+                    return HighchartsFunnelSettingsDescriptor
+                case 'dumbbell':
+                    return HighchartsDumbbellSettingsDescriptor
+                case 'streamgraph':
+                    return HighchartsStreamgraphSettingsDescriptor
+                case 'packedBubble':
+                    return HighchartsPackedBubbleSettingsDescriptor
+                case 'waterfall':
+                    return HighchartsWaterfallSettingsDescriptor
+                default:
+                    return {}
+            }
+        case 'image':
+            return imageDescriptor
+        case 'customChart':
+            return customChartDescriptor
+        case 'pivotTable':
+            return pivotTableDescriptor
+        case 'cePivotTable':
+            return cePivotTableDescriptor
+        case 'discovery':
+            return discoveryDescriptor
+        case 'map':
+            return mapWidgetDescriptor
+        case 'python':
+            return pythonWidgetDescriptor
+        case 'spacer':
+            return spacerDescriptor
+        default:
+            return {}
+    }
 }

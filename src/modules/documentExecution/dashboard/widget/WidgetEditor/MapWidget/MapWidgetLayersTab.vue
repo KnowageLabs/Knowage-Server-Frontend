@@ -1,5 +1,4 @@
 <template>
-    <LayersList :widget-model="widget" :datasets="datasets" :selected-datasets="selectedDatasets" @layerSelected="setSelectedLayer"></LayersList>
     <MapWidgetLayerDetail id="map-widget-layer-detail" class="p-d-flex kn-flex kn-overflow p-p-3" :selected-layer="selectedLayer" :layers="layers" :prop-widget="propWidget" :variables="variables" :dashboard-id="dashboardId"></MapWidgetLayerDetail>
 </template>
 
@@ -7,14 +6,13 @@
 import { PropType, defineComponent } from 'vue'
 import { IDataset, IWidget, IVariable } from '../../../Dashboard'
 import { mapState } from 'pinia'
-import { ILayer, IMapWidgetLayer } from '../../../interfaces/mapWidget/DashboardMapWidget'
+import { ILayer, IMapWidgetLayer } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import mainStore from '@/App.store'
-import LayersList from './MapWidgetLayersTabList.vue'
 import MapWidgetLayerDetail from './MapWidgetLayerDetail.vue'
 
 export default defineComponent({
     name: 'map-widget-layers-tab',
-    components: { LayersList, MapWidgetLayerDetail },
+    components: { MapWidgetLayerDetail },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         datasets: {
@@ -31,13 +29,13 @@ export default defineComponent({
         },
         layers: { type: Array as PropType<ILayer[]>, required: true },
         variables: { type: Array as PropType<IVariable[]>, required: true },
-        dashboardId: { type: String, required: true }
+        dashboardId: { type: String, required: true },
+        selectedLayer: { type: Object as PropType<IMapWidgetLayer | null>, default: null }
     },
+    emits: ['layerSelected'],
     data() {
         return {
-            selectedDataset: null as IDataset | null,
-            widget: {} as IWidget,
-            selectedLayer: null as IMapWidgetLayer | null
+            widget: {} as IWidget
         }
     },
     computed: {
@@ -51,9 +49,6 @@ export default defineComponent({
     methods: {
         loadWidget() {
             this.widget = this.propWidget
-        },
-        setSelectedLayer(layer: any) {
-            this.selectedLayer = layer
         }
     }
 })
