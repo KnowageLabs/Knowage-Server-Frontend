@@ -45,11 +45,6 @@
 
         <!-- Menu footer actions (same place as AI button) -->
         <div>
-            <AdvancedMenuItem
-                :item="{ label: $t('menu.guidedTour'), iconCls: 'fas fa-route', command: 'guidedTour', visible: true }"
-                :badge="0"
-                @click="itemClick"
-            />
             <KnChatbot v-if="isEnterpriseValid && configurations['KNOWAGE.AI.URL'] && user?.functionalities.includes('EngGPTIntegration')" />
         </div>
     </div>
@@ -329,7 +324,12 @@ export default defineComponent({
                     }
 
                     // NOTE: guided tour entry comes from backend "static menu" (commonUserFunctionalities).
-                    // We don't inject extra client-side buttons here.
+                    this.commonUserFunctionalities.push({
+                        label: this.$t('menu.guidedTour'),
+                        iconCls: 'fas fa-route',
+                        command: 'guidedTour',
+                        visible: true
+                    })
 
                     this.updateNewsAndDownload()
                 })
@@ -481,7 +481,9 @@ export default defineComponent({
                 color: var(--kn-mainmenu-icon-color);
                 display: block;
                 width: 100%;
-                transition: background-color 0.3s, border-left-color 0.3s;
+                transition:
+                    background-color 0.3s,
+                    border-left-color 0.3s;
                 overflow: hidden;
                 border-left: 4px solid transparent;
                 outline: none;
@@ -502,7 +504,9 @@ export default defineComponent({
                 color: var(--kn-mainmenu-icon-color);
                 display: block;
                 width: 100%;
-                transition: background-color 0.3s, border-left-color 0.3s;
+                transition:
+                    background-color 0.3s,
+                    border-left-color 0.3s;
                 overflow: hidden;
                 border-left: 4px solid transparent;
                 outline: none;
