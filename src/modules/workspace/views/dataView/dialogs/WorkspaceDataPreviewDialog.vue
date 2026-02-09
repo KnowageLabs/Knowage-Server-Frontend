@@ -136,7 +136,11 @@ export default defineComponent({
                     })
                     return
                 }
-                await this.loadDatasetDrivers()
+                // Skip loading dataset drivers if we're in dataset management mode
+                // because the dataset might not be saved yet with the new label
+                if (!this.loadFromDatasetManagement) {
+                    await this.loadDatasetDrivers()
+                }
             } else {
                 this.parameterSidebarVisible = true
                 return
