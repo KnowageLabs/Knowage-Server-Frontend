@@ -11,8 +11,31 @@
             </div>
         </div>
 
-        <div class="p-grid p-m-0" style="height: 500px; border: 1px solid #ccc; position: relative">
-            <div :id="blocklyDivId" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0"></div>
+        <!-- Formula salvata (read-only) -->
+        <div v-if="savedFormula" class="saved-formula-section p-mb-3">
+            <div class="section-header p-d-flex p-ai-center p-mb-2">
+                <i class="pi pi-bookmark p-mr-2"></i>
+                <span class="section-title">Formula attuale (salvata)</span>
+            </div>
+            <div class="saved-formula-display p-p-3">
+                <code>{{ savedFormula }}</code>
+            </div>
+        </div>
+
+        <!-- Nuova formula (editabile) -->
+        <div class="new-formula-section">
+            <div class="section-header p-d-flex p-ai-center p-mb-2">
+                <i class="pi pi-pencil p-mr-2"></i>
+                <span class="section-title">{{ savedFormula ? 'Nuova formula' : 'Formula' }}</span>
+            </div>
+            <div class="p-grid p-m-0" style="height: 400px; border: 1px solid #ccc; position: relative">
+                <div :id="blocklyDivId" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0"></div>
+            </div>
+            <!-- Preview della formula generata -->
+            <div v-if="cf.formula" class="formula-preview p-mt-2 p-p-2">
+                <small class="p-text-secondary">Preview: </small>
+                <code>{{ cf.formula }}</code>
+            </div>
         </div>
 
         <template #footer>
@@ -363,6 +386,106 @@ function registerKnowageBlocks() {
             this.setColour(65)
         }
     }
+
+    // NULLIF: esattamente 2 argomenti, non modificabile
+    Blockly.Blocks['kn_nullif'] = {
+        init: function () {
+            this.appendDummyInput().appendField('NULLIF(')
+            this.appendValueInput('ARG1').setCheck(null)
+            this.appendDummyInput().appendField(',')
+            this.appendValueInput('ARG2').setCheck(null)
+            this.appendDummyInput().appendField(')')
+            this.setInputsInline(true)
+            this.setOutput(true, null)
+            this.setColour(290)
+        }
+    }
+
+    // Funzioni matematiche con N argomenti: SUM, AVG, MAX, MIN
+    Blockly.Blocks['kn_math_function'] = {
+        init: function () {
+            this.argumentCount_ = 2
+            this.appendDummyInput('FUNC_HEADER')
+                .appendField(
+                    new Blockly.FieldDropdown([
+                        ['SUM', 'SUM'],
+                        ['AVG', 'AVG'],
+                        ['MAX', 'MAX'],
+                        ['MIN', 'MIN']
+                    ]),
+                    'FUNC'
+                )
+                .appendField('(')
+                .appendField(
+                    new Blockly.FieldNumber(this.argumentCount_, 1, 20, 1, function (this: any, val: any) {
+                        const block = this.getSourceBlock()
+                        if (!block) return val
+                        const nVal = Math.max(1, Math.round(Number(val)))
+                        if (nVal !== block.argumentCount_) {
+                            block.argumentCount_ = nVal
+                            block.updateShape_()
+                        }
+                        return nVal
+                    }),
+                    'ARG_COUNT'
+                )
+                .appendField('args )')
+            for (let i = 0; i < this.argumentCount_; i++) {
+                this.appendValueInput('ARG' + i).setCheck(null)
+            }
+            this.setInputsInline(false)
+            this.setOutput(true, null)
+            this.setColour(210)
+        },
+        mutationToDom: function () {
+            const container = document.createElement('mutation')
+            container.setAttribute('args', String(this.argumentCount_))
+            return container
+        },
+        domToMutation: function (xmlElement: Element) {
+            this.argumentCount_ = parseInt(xmlElement.getAttribute('args') || '2', 10)
+            this.updateShape_()
+        },
+        updateShape_: function () {
+            // Rimuovi tutti gli input argomento esistenti
+            let i = 0
+            while (this.getInput('ARG' + i)) {
+                this.removeInput('ARG' + i)
+                i++
+            }
+            // Ricrea gli input
+            for (let j = 0; j < this.argumentCount_; j++) {
+                this.appendValueInput('ARG' + j).setCheck(null)
+            }
+            // Aggiorna il FieldNumber
+            if (this.getField('ARG_COUNT')) {
+                this.setFieldValue(String(this.argumentCount_), 'ARG_COUNT')
+            }
+        },
+        customContextMenu: function (options: any[]) {
+            const self = this
+            options.push({
+                text: '+ Argomento',
+                enabled: true,
+                callback: function () {
+                    self.argumentCount_ = (self.argumentCount_ || 2) + 1
+                    self.updateShape_()
+                }
+            })
+            if ((self.argumentCount_ || 2) > 1) {
+                options.push({
+                    text: '- Argomento',
+                    enabled: true,
+                    callback: function () {
+                        if (self.argumentCount_ > 1) {
+                            self.argumentCount_--
+                            self.updateShape_()
+                        }
+                    }
+                })
+            }
+        }
+    }
 }
 
 // Registra i blocchi subito all'import del modulo
@@ -391,6 +514,7 @@ export default defineComponent({
     data() {
         return {
             cf: { colName: '', formula: '', xml: '' },
+            savedFormula: '', // Formula originale salvata (per visualizzazione read-only)
             // `any` per evitare mismatch tra tipi Blockly (WorkspaceSvg) e ciò che ritorna inject in questa build
             workspace: null as any,
             generator: null as any,
@@ -413,19 +537,19 @@ export default defineComponent({
 
             // RESET
             this.cf = { colName: '', formula: '', xml: '' }
+            this.savedFormula = ''
 
             // MAPPING: Recupero i dati dal template
-            if (!this.readOnly && this.template) {
+            if (this.template) {
                 const templateAny: any = this.template as any
                 if (templateAny?.parameters && Array.isArray(templateAny.parameters)) {
                     const getParam = (name: string) => templateAny.parameters.find((p: any) => p.name === name)?.value || ''
-                    this.cf.formula = getParam('formula')
+                    this.savedFormula = getParam('formula') // Salvo la formula originale per visualizzazione
                     this.cf.colName = getParam('colName')
-                    this.cf.xml = getParam('xml')
+                    // Non carico xml nel cf, l'utente parte da zero
                 } else {
                     this.cf.colName = templateAny.alias || templateAny.colName || ''
-                    this.cf.formula = templateAny.expression || templateAny.formula || ''
-                    this.cf.xml = templateAny.blocklyXml || ''
+                    this.savedFormula = templateAny.expression || templateAny.formula || '' // Salvo la formula originale
                 }
             }
 
@@ -459,7 +583,10 @@ export default defineComponent({
                                 kind: 'category',
                                 name: 'Functions',
                                 colour: '290',
-                                contents: [{ kind: 'block', type: 'kn_function' }]
+                                contents: [
+                                    { kind: 'block', type: 'kn_nullif' },
+                                    { kind: 'block', type: 'kn_math_function' }
+                                ]
                             },
                             { kind: 'category', name: 'Variables', colour: '65', contents: [{ kind: 'block', type: 'kn_variable' }] },
                             {
@@ -532,7 +659,8 @@ export default defineComponent({
                         saveGoodState(this.workspace)
                     })
 
-                    this.loadState()
+                    // NON carichiamo la formula salvata nel workspace - l'utente parte da zero
+                    // e può vedere la formula salvata nella sezione read-only sopra
                 }, 100)
             })
         },
@@ -619,6 +747,27 @@ export default defineComponent({
                     if (a && a.trim()) args.push(a)
                 }
                 const code = `${realFuncName}(${args.join(', ')})`
+                return [code, this.generator.ORDER_FUNCTION_CALL]
+            }
+
+            // Generator per NULLIF (2 argomenti fissi)
+            this.generator.forBlock['kn_nullif'] = (block: any) => {
+                const arg1 = this.generator.valueToCode(block, 'ARG1', this.generator.ORDER_NONE) || '0'
+                const arg2 = this.generator.valueToCode(block, 'ARG2', this.generator.ORDER_NONE) || '0'
+                const code = `NULLIF(${arg1}, ${arg2})`
+                return [code, this.generator.ORDER_FUNCTION_CALL]
+            }
+
+            // Generator per kn_math_function (SUM, AVG, MAX, MIN con N argomenti)
+            this.generator.forBlock['kn_math_function'] = (block: any) => {
+                const funcName = block.getFieldValue('FUNC')
+                const args: string[] = []
+                const argCount = block.argumentCount_ || 2
+                for (let i = 0; i < argCount; i++) {
+                    const a = this.generator.valueToCode(block, 'ARG' + i, this.generator.ORDER_NONE)
+                    if (a && a.trim()) args.push(a)
+                }
+                const code = `${funcName}(${args.join(', ')})`
                 return [code, this.generator.ORDER_FUNCTION_CALL]
             }
         },
@@ -807,6 +956,59 @@ export default defineComponent({
 #blocklyDiv {
     width: 100%;
     height: 100%;
+}
+
+/* Sezione formula salvata (read-only) */
+.saved-formula-section {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 1rem;
+}
+
+.saved-formula-section .section-header {
+    color: #6c757d;
+    font-weight: 600;
+}
+
+.saved-formula-section .section-title {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+.saved-formula-display {
+    background-color: #fff;
+    border: 1px dashed #adb5bd;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.95rem;
+    color: #495057;
+    word-break: break-all;
+}
+
+/* Sezione nuova formula */
+.new-formula-section .section-header {
+    color: #495057;
+    font-weight: 600;
+}
+
+.new-formula-section .section-title {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+/* Preview della formula generata */
+.formula-preview {
+    background-color: #e8f5e9;
+    border: 1px solid #a5d6a7;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9rem;
+}
+
+.formula-preview code {
+    color: #2e7d32;
+    word-break: break-all;
 }
 </style>
 
