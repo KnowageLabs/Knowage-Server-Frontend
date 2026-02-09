@@ -1,7 +1,9 @@
 import { createI18n } from 'vue-i18n'
 import store from './App.store'
 
-const currentLocale = localStorage.getItem('locale') ? localStorage.getItem('locale') : store.locale
+const normalizeLocale = (locale) => (locale ? locale.replaceAll('_', '-') : locale)
+
+const currentLocale = normalizeLocale(localStorage.getItem('locale') ? localStorage.getItem('locale') : store.locale)
 
 const i18n = createI18n({
     locale: currentLocale,
@@ -27,12 +29,13 @@ function getLoader(filesMap, lang, fileName) {
 }
 
 function setI18nLanguage(lang) {
-    i18n.locale = lang
+    i18n.locale = normalizeLocale(lang)
 }
 
 export async function loadLanguageAsync(lang) {
-    const messageLoader = getLoader(messageFiles, lang, 'messages.json')
-    const helperMessageLoader = getLoader(helperMessageFiles, lang, 'helper-messages.json')
+    const normalizedLang = normalizeLocale(lang)
+    const messageLoader = getLoader(messageFiles, normalizedLang, 'messages.json')
+    const helperMessageLoader = getLoader(helperMessageFiles, normalizedLang, 'helper-messages.json')
 
     if (!messageLoader || !helperMessageLoader) {
         console.warn(`Language files for ${lang} not found.`)
@@ -41,11 +44,11 @@ export async function loadLanguageAsync(lang) {
 
     const [messages, helperMessages] = await Promise.all([messageLoader(), helperMessageLoader()])
 
-    i18n.global.setLocaleMessage(lang, messages.default)
-    i18n.global.mergeLocaleMessage(lang, helperMessages.default)
+    i18n.global.setLocaleMessage(normalizedLang, messages.default)
+    i18n.global.mergeLocaleMessage(normalizedLang, helperMessages.default)
 
-    loadedLanguages.push(lang)
-    setI18nLanguage(lang)
+    loadedLanguages.push(normalizedLang)
+    setI18nLanguage(normalizedLang)
 }
 
 export default i18n

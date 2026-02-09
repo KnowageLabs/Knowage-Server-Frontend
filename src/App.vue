@@ -107,13 +107,14 @@ export default defineComponent({
                 if (localStorage.getItem('locale')) {
                     storedLocale = localStorage.getItem('locale')
                 }
-                localStorage.setItem('locale', storedLocale.replace('_', '-'))
+                const normalizedLocale = storedLocale.replaceAll('_', '-')
+                localStorage.setItem('locale', normalizedLocale)
                 localStorage.setItem('token', response.data.userUniqueIdentifier)
 
-                this.setLocale(storedLocale)
-                this.$i18n.locale = storedLocale
+                this.setLocale(normalizedLocale)
+                this.$i18n.locale = normalizedLocale
 
-                await loadLanguageAsync(localStorage.getItem('locale'))
+                await loadLanguageAsync(normalizedLocale)
 
                 this.$primevue.config.locale.dateFormat = primeVueDate(getLocale(true))
 
