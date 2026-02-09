@@ -62,7 +62,7 @@ export default defineComponent({
                 .finally(() => (this.loading = false))
         },
         showForm(event: any) {
-            const path = event.item.id ? `/lovs-management/${event.item.id}` : '/lovs-management/new-lov'
+            const path = event?.item?.id ? `/lovs-management/${event.item.id}` : '/lovs-management/new-lov'
             if (!this.touched) {
                 this.$router.push(path)
             } else {
