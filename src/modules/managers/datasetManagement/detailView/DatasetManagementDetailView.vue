@@ -475,26 +475,24 @@ export default defineComponent({
                 this.correctRolesForExecution = sessionRole ? [sessionRole] : [(this.store.$state as any).user.roles[0]]
             }
 
-            if (this.selectedDataset.dsTypeCd === 'Solr') {
-                this.previewDataset = JSON.parse(JSON.stringify(this.selectedDataset))
+            this.previewDataset = JSON.parse(JSON.stringify(this.selectedDataset))
+
+            if (this.previewDataset.dsTypeCd === 'Solr' || this.previewDataset.dsTypeCd.toLowerCase() == 'rest' || this.previewDataset.dsTypeCd.toLowerCase() == 'solr') {
                 const restRequestHeadersTemp = {}
-                if (this.previewDataset.dsTypeCd.toLowerCase() == 'rest' || this.previewDataset.dsTypeCd.toLowerCase() == 'solr') {
+                if (this.previewDataset.restRequestHeaders) {
                     for (let i = 0; i < this.previewDataset.restRequestHeaders.length; i++) {
                         restRequestHeadersTemp[this.previewDataset.restRequestHeaders[i]['name']] = this.previewDataset.restRequestHeaders[i]['value']
                     }
                 }
                 this.previewDataset['restRequestHeaders'] = JSON.stringify(restRequestHeadersTemp)
                 this.previewDataset['restJsonPathAttributes'] && this.previewDataset['restJsonPathAttributes'].length > 0 ? (this.previewDataset.restJsonPathAttributes = JSON.stringify(this.previewDataset.restJsonPathAttributes)) : (this.previewDataset.restJsonPathAttributes = [])
-                this.previewDataset.pars ? '' : (this.previewDataset.pars = [])
                 this.previewDataset.pythonEnvironment ? (this.previewDataset.pythonEnvironment = JSON.stringify(this.previewDataset.pythonEnvironment)) : ''
-                this.previewDataset.meta ? (this.previewDataset.meta = await this.manageDatasetFieldMetadata(this.previewDataset.meta)) : (this.previewDataset.meta = [])
-
-                this.showPreviewDialog = true
-            } else {
-                this.previewDataset = this.selectedDataset
-                this.showPreviewDialog = true
-                console.log('PREVIEW DS', this.previewDataset)
             }
+
+            this.previewDataset.pars ? '' : (this.previewDataset.pars = [])
+            this.previewDataset.meta ? (this.previewDataset.meta = await this.manageDatasetFieldMetadata(this.previewDataset.meta)) : (this.previewDataset.meta = [])
+
+            this.showPreviewDialog = true
         },
 
         onAddLinkedTables(event) {
