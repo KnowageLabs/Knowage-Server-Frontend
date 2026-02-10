@@ -1,5 +1,4 @@
 <template>
-    <!-- {{ widgetType }} -->
     <!-- {{ selectedValue }} - {{ selectedValues }} - {{ selectedDate }} - {{ startDate }} - {{ endDate }} -->
     <div v-if="options" class="selector-widget dashboard-scrollbar">
         <RadioSelector v-if="widgetType === 'singleValue'" :model-value="selectedValue" :options="singleValueOptions" :radio-style="propWidget.settings.style.radio" @update:model-value="radioSelectorChanged" />
@@ -15,6 +14,9 @@
 
         <!-- NEW: Quasar DateRangeSelector -->
         <DateRangeSelector v-if="widgetType === 'dateRange'" :model-value="getDateRangeValues()" :date-range-style="propWidget.settings.style.dateRange" :available-dates="availableDateOptions" :min-date="getDateRangeFormatted('startDate')" :max-date="getDateRangeFormatted('endDate')" @update:model-value="dateRangeSelectionChangedNew" />
+
+        <!-- NEW: Quasar SliderSelector -->
+        <SliderSelector v-if="widgetType === 'slider'" :model-value="selectedValue" :options="sliderOptions" :slider-style="propWidget.settings.style.slider" @update:model-value="sliderSelectorChanged" />
 
         <!-- OLD: PrimeVue Calendar (for comparison) -->
         <span v-if="widgetType === 'date'" class="p-float-label p-m-2">
@@ -46,6 +48,7 @@ import DropdownSelector from './selectorTypes/DropdownSelector.vue'
 import MultiDropdownSelector from './selectorTypes/MultiDropdownSelector.vue'
 import DateSelector from './selectorTypes/DateSelector.vue'
 import DateRangeSelector from './selectorTypes/DateRangeSelector.vue'
+import SliderSelector from './selectorTypes/SliderSelector.vue'
 import { QRadio, QCheckbox } from 'quasar'
 import Dropdown from 'primevue/dropdown'
 import Calendar from 'primevue/calendar'
@@ -56,7 +59,7 @@ import dashboardDescriptor from '../../DashboardDescriptor.json'
 
 export default defineComponent({
     name: 'datasets-catalog-datatable',
-    components: { RadioSelector, CheckboxSelector, DropdownSelector, MultiDropdownSelector, DateSelector, DateRangeSelector, QRadio, QCheckbox, Dropdown, Calendar },
+    components: { RadioSelector, CheckboxSelector, DropdownSelector, MultiDropdownSelector, DateSelector, DateRangeSelector, SliderSelector, QRadio, QCheckbox, Dropdown, Calendar },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         dataToShow: { type: Object as any, required: true },
@@ -86,7 +89,9 @@ export default defineComponent({
     },
     computed: {
         widgetType(): string {
-            return this.propWidget.settings.configuration.selectorType.modality || null
+            const type = this.propWidget.settings.configuration.selectorType.modality || null
+            console.log('[SelectorWidget] widgetType computed:', type, 'slider style:', this.propWidget.settings.style?.slider)
+            return type
         },
         showMode(): string {
             if (this.propWidget.settings.configuration.valuesManagement.hideDisabled) return 'hideDisabled'
@@ -110,6 +115,9 @@ export default defineComponent({
         availableDateOptions(): string[] {
             if (!this.dataToShow.rows) return []
             return this.dataToShow.rows.map((row: any) => String(row.column_1))
+        },
+        sliderOptions(): any[] {
+            return this.getFilteredOptionsForDisplay().map((row: any) => ({ ...row }))
         }
     },
     watch: {
@@ -194,6 +202,10 @@ export default defineComponent({
                         break
                     case 'dateRange':
                         this.loadDateRangeInitialValues(selection)
+                        break
+                    case 'slider':
+                        this.selectedValue = selection.value[0] ? parseFloat(String(selection.value[0])) : null
+                        break
                 }
                 return true
             } else return false
@@ -334,6 +346,11 @@ export default defineComponent({
             // Create selection with filtered dates and update store
             const tempSelection = this.createNewSelection(filteredDates)
             updateStoreSelections(tempSelection, this.activeSelections, this.dashboardId, this.setSelections, this.$http)
+        },
+        sliderSelectorChanged(value: number) {
+            this.selectedValue = value
+            if (this.editorMode) return
+            updateStoreSelections(this.createNewSelection([value]), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
         }
     }
 })

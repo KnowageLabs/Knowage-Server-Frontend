@@ -75,6 +75,7 @@ const addUniqueSelectorWidgetStyles = (config: ISelectorWidgetStyle) => {
     config.multiDropdown = selectorWidgetDefaultValues.getDefaultMultiDropdownStyle()
     config.date = selectorWidgetDefaultValues.getDefaultDateStyle()
     config.dateRange = selectorWidgetDefaultValues.getDefaultDateRangeStyle()
+    config.slider = selectorWidgetDefaultValues.getDefaultSliderStyle()
 }
 
 const addUniqueChartWidgetStyles = (config: any) => {
@@ -95,5 +96,6 @@ export const themeBackwardsCompatibility = (theme: IDashboardThemeConfig) => {
         if (!selectorStyle.multiDropdown) selectorStyle.multiDropdown = selectorWidgetDefaultValues.getDefaultMultiDropdownStyle()
         if (!selectorStyle.date) selectorStyle.date = selectorWidgetDefaultValues.getDefaultDateStyle()
         if (!selectorStyle.dateRange) selectorStyle.dateRange = selectorWidgetDefaultValues.getDefaultDateRangeStyle()
+        if (!selectorStyle.slider) selectorStyle.slider = selectorWidgetDefaultValues.getDefaultSliderStyle()
     }
 }

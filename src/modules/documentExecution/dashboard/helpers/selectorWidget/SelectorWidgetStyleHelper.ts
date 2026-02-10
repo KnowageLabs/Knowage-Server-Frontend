@@ -1,5 +1,5 @@
 import { IWidgetBordersStyle, IWidgetPaddingStyle, IWidgetShadowsStyle } from '../../Dashboard'
-import { ISelectorWidgetLabelStyle, ISelectorWidgetRadioStyle, ISelectorWidgetCheckboxStyle, ISelectorWidgetDropdownStyle, ISelectorWidgetMultiDropdownStyle, ISelectorWidgetDateStyle, ISelectorWidgetDateRangeStyle, ISelectorWidgetStyle } from '../../interfaces/DashboardSelectorWidget'
+import { ISelectorWidgetLabelStyle, ISelectorWidgetRadioStyle, ISelectorWidgetCheckboxStyle, ISelectorWidgetDropdownStyle, ISelectorWidgetMultiDropdownStyle, ISelectorWidgetDateStyle, ISelectorWidgetDateRangeStyle, ISelectorWidgetSliderStyle, ISelectorWidgetStyle } from '../../interfaces/DashboardSelectorWidget'
 import { getFormattedBackgroundStyle, getFormattedTitleStyle } from '../common/WidgetStyleHelper'
 import { hexToRgba } from '../FormattingHelpers'
 import * as widgetCommonDefaultValues from '../../widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
@@ -16,6 +16,7 @@ export const getFormattedStyle = (widget: any) => {
         multiDropdown: getFormattedMultiDropdownStyle(widget),
         date: getFormattedDateStyle(widget),
         dateRange: getFormattedDateRangeStyle(widget),
+        slider: getFormattedSliderStyle(widget),
         padding: getFormattedPaddingStyle(widget),
         borders: getFormattedBorderStyle(widget),
         shadows: getFormattedShadowsStyle(widget),
@@ -172,6 +173,20 @@ const getFormattedDateRangeStyle = (widget: any) => {
     } as ISelectorWidgetDateRangeStyle
 
     return formattedDateRangeStyle
+}
+
+const getFormattedSliderStyle = (widget: any) => {
+    if (!widget.style) return selectorWidgetDefaultValues.getDefaultSliderStyle()
+    const formattedSliderStyle = {
+        size: widget.style.size ?? 'md',
+        color: widget.style.color ?? 'primary',
+        label: widget.style.label !== undefined ? widget.style.label : true,
+        labelPosition: widget.style.labelPosition ?? 'top',
+        step: widget.style.step ?? 1,
+        trackSize: widget.style.trackSize ?? '4px'
+    } as ISelectorWidgetSliderStyle
+
+    return formattedSliderStyle
 }
 
 const getFormattedPaddingStyle = (widget: any) => {

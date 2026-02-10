@@ -84,6 +84,17 @@
         "bgColor": "",
         "darkMode": false
     },
+    "defaultSliderStyle": {
+        "layout": "horizontal",
+        "dense": false,
+        "darkMode": false,
+        "color": "primary",
+        "thumbColor": "primary",
+        "labelColor": "",
+        "markerFontSize": "",
+        "switchMarkerLabelsSide": false,
+        "trackSize": "4px"
+    },
     "defaultSelectorType": {
         "alignment": "vertical",
         "columnSize": "",

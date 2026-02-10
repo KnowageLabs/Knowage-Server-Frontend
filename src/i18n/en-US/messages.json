@@ -1402,7 +1402,9 @@
                 "checkbox": {
                     "title": "Checkbox Style"
                 },
-                "date": {},
+                "date": {
+                    "title": "Date Style"
+                },
                 "dateRange": {
                     "title": "Date Range"
                 },
@@ -1430,6 +1432,15 @@
                     "spacing": "Spacing",
                     "title": "Radio Style",
                     "uncheckedIcon": "Unchecked Icon"
+                },
+                "range": {
+                    "title": "Text Style"
+                },
+                "slider": {
+                    "title": "Slider Style",
+                    "sliderColor": "Slider Color",
+                    "thumbColor": "Thumb Color",
+                    "trackSize": "Track Size"
                 }
             },
             "series": {
@@ -2647,7 +2658,9 @@
                 "subTotals": "SubTotals",
                 "summary": "Summary",
                 "title": "Title",
-                "totals": "Totals"
+                "totals": "Totals",
+                "slider": "Slider",
+                "range": "Range"
             },
             "widgetNames": {
                 "activeSelections": "Active Selections",

@@ -124,6 +124,10 @@
             {
                 "title": "dashboard.widgetEditor.selectorWidget.dateRange.title",
                 "type": "DateRangeStyle"
+            },
+            {
+                "title": "dashboard.widgetEditor.selectorWidget.slider.title",
+                "type": "SliderStyle"
             }
         ]
     },
