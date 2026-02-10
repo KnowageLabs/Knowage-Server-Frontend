@@ -323,13 +323,19 @@ export default defineComponent({
                         this.commonUserFunctionalities.push(item)
                     }
 
-                    // NOTE: guided tour entry comes from backend "static menu" (commonUserFunctionalities).
-                    this.commonUserFunctionalities.push({
+                    // Add guided tour button before logout
+                    const logoutIndex = this.commonUserFunctionalities.findIndex((item: any) => item.command === 'logout')
+                    const guidedTourItem = {
                         label: this.$t('menu.guidedTour'),
-                        iconCls: 'fas fa-route',
+                        iconCls: 'fas fa-question-circle',
                         command: 'guidedTour',
                         visible: true
-                    })
+                    }
+                    if (logoutIndex !== -1) {
+                        this.commonUserFunctionalities.splice(logoutIndex, 0, guidedTourItem)
+                    } else {
+                        this.commonUserFunctionalities.push(guidedTourItem)
+                    }
 
                     this.updateNewsAndDownload()
                 })
