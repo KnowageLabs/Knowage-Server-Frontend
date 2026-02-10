@@ -43,8 +43,8 @@ if (import.meta.env.DEV) document.domain = '127.0.0.1'
 import { GridLayout, GridItem } from 'grid-layout-plus'
 
 import { AgGridVue } from 'ag-grid-vue3'
-import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community'
-ModuleRegistry.registerModules([AllCommunityModule])
+import { ClientSideRowModelModule, ModuleRegistry } from 'ag-grid-community'
+ModuleRegistry.registerModules([ClientSideRowModelModule])
 
 import ResizeObserver from '@vue-toys/resize-observer'
 
