@@ -9,32 +9,13 @@
 
         <MultiDropdownSelector v-if="widgetType === 'multiDropdown'" :model-value="selectedValues" :base-options="getBaseDropdownOptions()" :show-mode="showMode" :multi-dropdown-style="propWidget.settings.style.multiDropdown" @update:model-value="multiDropdownSelectorChanged" />
 
-        <!-- NEW: Quasar DateSelector -->
         <DateSelector v-if="widgetType === 'date'" :model-value="selectedDate" :date-style="propWidget.settings.style.date" :label="$t('common.date')" :available-dates="availableDateOptions" :min-date="getDateRangeFormatted('startDate')" :max-date="getDateRangeFormatted('endDate')" @update:model-value="dateSelectionChanged" />
 
-        <!-- NEW: Quasar DateRangeSelector -->
         <DateRangeSelector v-if="widgetType === 'dateRange'" :model-value="getDateRangeValues()" :date-range-style="propWidget.settings.style.dateRange" :available-dates="availableDateOptions" :min-date="getDateRangeFormatted('startDate')" :max-date="getDateRangeFormatted('endDate')" @update:model-value="dateRangeSelectionChangedNew" />
 
-        <!-- NEW: Quasar SliderSelector -->
         <SliderSelector v-if="widgetType === 'slider'" :model-value="selectedValue" :options="sliderOptions" :slider-style="propWidget.settings.style.slider" @update:model-value="sliderSelectorChanged" />
 
-        <!-- NEW: Quasar RangeSelector -->
         <RangeSelector v-if="widgetType === 'range'" :model-value="selectedRange" :options="sliderOptions" :range-style="propWidget.settings.style.range" @update:model-value="rangeSelectorChanged" />
-
-        <!-- OLD: PrimeVue Calendar (for comparison) -->
-        <span v-if="widgetType === 'date'" class="p-float-label p-m-2">
-            <Calendar v-model="selectedDate" class="kn-material-input kn-width-full" :min-date="getDateRange('startDate')" :max-date="getDateRange('endDate')" :show-icon="true" @date-select="dateSelectionChangedOLD" />
-            <label class="kn-material-input-label"> {{ $t('common.date') }} (Old) </label>
-        </span>
-
-        <div v-if="widgetType === 'dateRange'" :class="getLayoutStyle()">
-            <span class="p-float-label p-m-2" :style="getGridWidth()">
-                <Calendar v-model="startDate" class="kn-width-full" :min-date="getDateRange('startDate')" :max-date="getDateRange('endDate')" :style="getLabelStyle()" :input-style="getLabelStyle()" :panel-style="getLabelStyle()" :show-icon="true" @date-select="dateRangeSelectionChanged" />
-            </span>
-            <span class="p-float-label p-m-2" :style="getGridWidth()">
-                <Calendar v-model="endDate" class="kn-width-full" :min-date="getDateRange('startDate')" :max-date="getDateRange('endDate')" :style="getLabelStyle()" :input-style="getLabelStyle()" :panel-style="getLabelStyle()" :show-icon="true" @date-select="dateRangeSelectionChanged" />
-            </span>
-        </div>
     </div>
 </template>
 
@@ -42,7 +23,6 @@
 import { defineComponent, PropType } from 'vue'
 import { IDataset, ISelection, IWidget } from '../../Dashboard'
 import { mapActions } from 'pinia'
-import { getWidgetStyleByType } from '../TableWidget/TableWidgetHelper'
 import { updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
 import { emitter } from '../../DashboardHelpers'
 import RadioSelector from './selectorTypes/RadioSelector.vue'
@@ -54,8 +34,6 @@ import DateRangeSelector from './selectorTypes/DateRangeSelector.vue'
 import SliderSelector from './selectorTypes/SliderSelector.vue'
 import RangeSelector from './selectorTypes/RangeSelector.vue'
 import { QRadio, QCheckbox } from 'quasar'
-import Dropdown from 'primevue/dropdown'
-import Calendar from 'primevue/calendar'
 import store from '../../Dashboard.store'
 import deepcopy from 'deepcopy'
 import moment from 'moment'
@@ -63,7 +41,7 @@ import dashboardDescriptor from '../../DashboardDescriptor.json'
 
 export default defineComponent({
     name: 'datasets-catalog-datatable',
-    components: { RadioSelector, CheckboxSelector, DropdownSelector, MultiDropdownSelector, DateSelector, DateRangeSelector, SliderSelector, RangeSelector, QRadio, QCheckbox, Dropdown, Calendar },
+    components: { RadioSelector, CheckboxSelector, DropdownSelector, MultiDropdownSelector, DateSelector, DateRangeSelector, SliderSelector, RangeSelector, QRadio, QCheckbox },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         dataToShow: { type: Object as any, required: true },
@@ -258,55 +236,12 @@ export default defineComponent({
             this.startDate = null
             this.endDate = null
         },
-        getLayoutStyle() {
-            const selectorType = this.propWidget.settings.configuration.selectorType
-            if (selectorType.alignment) {
-                switch (selectorType.alignment) {
-                    case 'vertical':
-                        return 'vertical-layout'
-                    case 'horizontal':
-                        return 'horizontal-layout'
-                    case 'grid':
-                        return 'grid-layout'
-                    default:
-                        break
-                }
-            }
-        },
-        getGridWidth() {
-            const gridWidth = this.propWidget.settings.configuration.selectorType.columnSize
-            if (gridWidth != '') return `width: ${gridWidth}`
-            else return ''
-        },
-        getDateRange(rangeValue: string) {
-            const dateRange = this.propWidget.settings.configuration.defaultValues
-            if (dateRange[rangeValue]) return new Date(dateRange[rangeValue])
-            else return undefined
-        },
         getDateRangeFormatted(rangeValue: string): string {
             const dateRange = this.propWidget.settings.configuration.defaultValues
             if (dateRange[rangeValue]) {
                 return moment(dateRange[rangeValue]).format('YYYY/MM/DD')
             }
             return ''
-        },
-        getLabelStyle() {
-            return getWidgetStyleByType(this.propWidget, 'label')
-        },
-        dateSelectionChangedOLD() {
-            if (this.editorMode) return
-            updateStoreSelections(this.createNewSelection([moment(deepcopy(this.selectedDate)).format(dashboardDescriptor.selectionsDateFormat)]), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
-        },
-        dateRangeSelectionChanged() {
-            if (this.editorMode) return
-            const tempDateValues = [] as string[]
-            for (let i = 0; i < this.initialOptions.rows.length; i++) {
-                const iniitalOption = this.initialOptions.rows[i].column_1
-                const tempDate = moment(iniitalOption, dashboardDescriptor.selectionsDateMultiFormat).valueOf()
-                if ((!this.startDate || tempDate >= this.startDate.getTime()) && (!this.endDate || tempDate <= this.endDate.getTime())) tempDateValues.push(iniitalOption)
-            }
-            const tempSelection = this.createNewSelection(tempDateValues)
-            updateStoreSelections(tempSelection, this.activeSelections, this.dashboardId, this.setSelections, this.$http)
         },
         createNewSelection(value: (string | number)[]) {
             return { datasetId: this.propWidget.dataset as number, datasetLabel: this.getDatasetLabel(this.propWidget.dataset as number), columnName: this.propWidget.columns[0]?.columnName ?? '', value: value, aggregated: false, timestamp: new Date().getTime() } as ISelection
