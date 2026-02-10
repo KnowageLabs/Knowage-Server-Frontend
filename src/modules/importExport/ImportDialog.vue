@@ -286,7 +286,7 @@ export default defineComponent({
         }
 
         .p-fileupload-choose {
-            @extend .kn-button--primary;
+            @extend %kn-button--primary;
         }
     }
 

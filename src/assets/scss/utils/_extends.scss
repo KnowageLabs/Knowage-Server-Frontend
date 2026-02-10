@@ -1,0 +1,32 @@
+// Placeholder selectors for @extend usage in components
+// These avoid CSS duplication while allowing @extend
+
+%kn-button {
+    background-color: var(--kn-color-secondary);
+    color: white;
+    text-transform: uppercase;
+    border-radius: var(--kn-button-border-radius);
+    padding: 0.75rem 2rem;
+    justify-content: center;
+    &:hover:enabled {
+        color: var(--kn-color-secondary);
+    }
+}
+
+%kn-button--primary {
+    @extend %kn-button;
+    background-color: var(--kn-button-primary-background-color);
+    color: var(--kn-button-primary-color);
+    &:hover:enabled {
+        color: var(--kn-button-primary-color);
+        background-color: var(--kn-button-primary-hover-background-color);
+    }
+}
+
+%inputFileToggle {
+    border-radius: var(--kn-button-border-radius);
+}
+
+%simple {
+    // Add styles if needed
+}

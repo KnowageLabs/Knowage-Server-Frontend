@@ -6,18 +6,7 @@
         <span v-if="notifyExtractionWarning()">
             <Message severity="warn">{{ $t('managers.resourceManagement.uploadFile.fileAndFoldersContentWillBeOverwritten') }}</Message>
         </span>
-        <FileUpload
-            name="demo[]"
-            :choose-label="$t('common.choose')"
-            :custom-upload="true"
-            auto="true"
-            :invalidFileSizeMessage="$t('common.error.exceededSize', { size: configurations['KNOWAGE.RESOURCE.UPLOAD.MAX_SIZE'] || 50000000 })"
-            :max-file-size="configurations['KNOWAGE.RESOURCE.UPLOAD.MAX_SIZE'] || 50000000"
-            :multiple="false"
-            :file-limit="1"
-            @uploader="onUpload"
-            @remove="onDelete"
-        >
+        <FileUpload name="demo[]" :choose-label="$t('common.choose')" :custom-upload="true" auto="true" :invalidFileSizeMessage="$t('common.error.exceededSize', { size: configurations['KNOWAGE.RESOURCE.UPLOAD.MAX_SIZE'] || 50000000 })" :max-file-size="configurations['KNOWAGE.RESOURCE.UPLOAD.MAX_SIZE'] || 50000000" :multiple="false" :file-limit="1" @uploader="onUpload" @remove="onDelete">
             <template #empty>
                 <p>{{ $t('common.dragAndDropFileHere') }}</p>
             </template>
@@ -150,7 +139,7 @@ export default defineComponent({
         }
 
         .p-fileupload-choose {
-            @extend .kn-button--primary;
+            @extend %kn-button--primary;
         }
     }
 
@@ -170,7 +159,7 @@ export default defineComponent({
     top: 20px;
 }
 .inputFileToggleWithToolbar {
-    @extend .inputFileToggle;
+    @extend %inputFileToggle;
 
     top: 80px;
 }

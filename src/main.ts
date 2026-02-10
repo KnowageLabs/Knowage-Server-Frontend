@@ -20,6 +20,7 @@ import '@quasar/extras/material-icons/material-icons.css'
 import 'quasar/dist/quasar.css'
 import '@quasar/extras/roboto-font/roboto-font.css'
 
+import '@/assets/scss/main.scss'
 import 'animate.css'
 
 import ToastService from 'primevue/toastservice'

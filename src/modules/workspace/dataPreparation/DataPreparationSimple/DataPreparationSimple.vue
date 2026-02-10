@@ -30,20 +30,11 @@
             </span>
 
             <span v-if="field.type == 'multiSelect'" class="p-float-label">
-                <MultiSelect
-                    :id="field.id"
-                    v-model="field.value"
-                    :options="columns"
-                    :option-label="field.optionLabel ? field.optionLabel : 'label'"
-                    display="chip"
-                    option-disabled="disabled"
-                    :allow-empty="false"
-                    :disabled="col || readOnly"
-                    class="kn-material-input"
-                    :filter="true"
-                    :class="{ 'p-invalid': field.validationRules && field.validationRules.includes('required') && !field.value }"
-                    @change="handleMultiSelectChange($event)"
-                /><label :for="'selectedItems_index_' + index" class="kn-material-input-label">{{ $t('managers.workspaceManagement.dataPreparation.transformations.columns') }}</label></span
+                <MultiSelect :id="field.id" v-model="field.value" :options="columns" :option-label="field.optionLabel ? field.optionLabel : 'label'" display="chip" option-disabled="disabled" :allow-empty="false" :disabled="col || readOnly" class="kn-material-input" :filter="true" :class="{ 'p-invalid': field.validationRules && field.validationRules.includes('required') && !field.value }" @change="handleMultiSelectChange($event)" /><label
+                    :for="'selectedItems_index_' + index"
+                    class="kn-material-input-label"
+                    >{{ $t('managers.workspaceManagement.dataPreparation.transformations.columns') }}</label
+                ></span
             >
 
             <span v-if="field.type == 'textarea'" class="p-float-label">
@@ -182,7 +173,7 @@ export default defineComponent({
     flex-wrap: wrap;
     align-items: center;
     &:deep(.p-dialog-content) {
-        @extend .simple;
+        @extend %simple;
     }
     .elementClass {
         flex-direction: column;
