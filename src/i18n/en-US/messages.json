@@ -2121,6 +2121,57 @@
         "copyright": "© {year} Engineering Ingegneria Informatica S.p.A.",
         "sourceCode": "Source code available on "
     },
+    "knBlockly": {
+        "blocks": {
+            "aggField": {
+                "tooltip": "Field with aggregation"
+            },
+            "calcRoot": {
+                "label": "Calculated Field",
+                "tooltip": "Root: only one expression here"
+            },
+            "fnAvg": {
+                "tooltip": "Average of N expressions"
+            },
+            "fnMax": {
+                "tooltip": "Maximum of N expressions"
+            },
+            "fnMin": {
+                "tooltip": "Minimum of N expressions"
+            },
+            "fnNullif": {
+                "tooltip": "NULLIF(a,b) - If A is NULL, return B"
+            },
+            "fnSum": {
+                "tooltip": "Sum of N expressions"
+            },
+            "variable": {
+                "label": "variable:",
+                "tooltip": "Dashboard variable"
+            }
+        },
+        "cancel": "Cancel",
+        "fieldName": "Field Name",
+        "fieldNamePlaceholder": "Enter the calculated field name",
+        "fieldNameRequired": "Field name is required",
+        "formulaLabel": "Formula",
+        "formulaPlaceholder": "Write the formula manually (e.g: SUM(\"field1\") + AVG(\"field2\"))",
+        "modeText": "Text",
+        "modeVisual": "Visual",
+        "save": "Save",
+        "title": "Calculated Field",
+        "validation": {
+            "disconnectedBlocks": "There are unconnected blocks outside the root.",
+            "fieldNotInList": "Field \"{field}\" is not in the columns list.",
+            "fieldNotSelected": "An aggregation field block has no field selected.",
+            "incompleteExpression": "Incomplete expression: select the missing fields.",
+            "missingRoot": "Missing root block (Calculated field).",
+            "multipleRoots": "Multiple root blocks: there must be only one.",
+            "rootNoExpression": "Root block has no expression connected.",
+            "variableNotSelected": "A variable block has no variable selected."
+        },
+        "validationTitle": "Validation"
+    },
     "knScheduler": {
         "customCronHint": "Writing your own custom schedulation expression make sure the format is compliant to Quartz (more info <a target=\"_blank\" href=\"http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html#format\">here</a>)",
         "enableSchedulation": "Enable schedulation",
@@ -3795,11 +3846,11 @@
         "Categories": "Categories",
         "DashboardThemeManagement": "Dashboard Themes",
         "ThemeManagement": "Themes",
-        "guidedTour": "Guided tour",
         "group": {
             "ImportExport": "Import/Export",
             "ServerManager": "Server manager"
         },
+        "guidedTour": "Guided tour",
         "importExport": "Artifacts",
         "modelCatalogResourceManagement": "Models manager",
         "resourceManagement": "Resource manager"

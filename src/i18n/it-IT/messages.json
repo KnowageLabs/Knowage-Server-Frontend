@@ -1754,6 +1754,57 @@
         "copyright": "© {year} Engineering Ingegneria Informatica S.p.A.",
         "sourceCode": "codice sorgente disponibile "
     },
+    "knBlockly": {
+        "blocks": {
+            "aggField": {
+                "tooltip": "Campo con aggregazione"
+            },
+            "calcRoot": {
+                "label": "Campo calcolato",
+                "tooltip": "Root: una sola espressione qui dentro"
+            },
+            "fnAvg": {
+                "tooltip": "Media di N espressioni"
+            },
+            "fnMax": {
+                "tooltip": "Massimo di N espressioni"
+            },
+            "fnMin": {
+                "tooltip": "Minimo di N espressioni"
+            },
+            "fnNullif": {
+                "tooltip": "NULLIF(a,b) - Se A è NULL, ritorna B"
+            },
+            "fnSum": {
+                "tooltip": "Somma di N espressioni"
+            },
+            "variable": {
+                "label": "variabile:",
+                "tooltip": "Variabile della dashboard"
+            }
+        },
+        "cancel": "Annulla",
+        "fieldName": "Nome campo",
+        "fieldNamePlaceholder": "Inserisci il nome del campo calcolato",
+        "fieldNameRequired": "Il nome è obbligatorio",
+        "formulaLabel": "Formula",
+        "formulaPlaceholder": "Scrivi la formula manualmente (es: SUM(\"field1\") + AVG(\"field2\"))",
+        "modeText": "Text",
+        "modeVisual": "Visual",
+        "save": "Salva",
+        "title": "Campo calcolato",
+        "validation": {
+            "disconnectedBlocks": "Ci sono blocchi scollegati fuori dal root.",
+            "fieldNotInList": "Campo \"{field}\" non presente nella lista colonne.",
+            "fieldNotSelected": "Un blocco campo aggregato ha il campo non selezionato.",
+            "incompleteExpression": "Espressione incompleta: seleziona i campi mancanti.",
+            "missingRoot": "Manca il blocco root (Calculated field).",
+            "multipleRoots": "Ci sono più root block: deve essercene uno solo.",
+            "rootNoExpression": "Il root block non ha un'espressione collegata.",
+            "variableNotSelected": "Un blocco variabile non ha una variabile selezionata."
+        },
+        "validationTitle": "Validazione"
+    },
     "knScheduler": {
         "customCronHint": "Writing your own custom schedulation expression make sure the format is compliant to Quartz (more info <a target=\"_blank\" href=\"http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html#format\">here</a>)",
         "enableSchedulation": "Abilita pianificazione",

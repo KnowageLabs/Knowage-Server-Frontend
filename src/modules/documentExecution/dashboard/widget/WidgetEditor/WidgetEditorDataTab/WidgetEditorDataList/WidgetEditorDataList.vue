@@ -37,23 +37,7 @@
             </template>
         </Listbox>
     </div>
-    <KnBlocklyCalculatedField
-        v-if="calcFieldDialogVisible"
-        v-model:template="selectedCalcField"
-        v-model:visibility="calcFieldDialogVisible"
-        :fields="calcFieldColumns"
-        :validation="true"
-        :variables="variables"
-        :descriptor="calcFieldDescriptor"
-        :prop-calc-field-functions="availableFunctions"
-        :read-only="false"
-        :valid="true"
-        source="dashboard"
-        :prop-nullif-function="datasetFunctions.nullifFunction"
-        @save="onCalcFieldSave"
-        @cancel="calcFieldDialogVisible = false"
-    >
-    </KnBlocklyCalculatedField>
+    <KnBlockly v-if="calcFieldDialogVisible" :fields="calcFieldColumns" :variables="variables" :field-name="selectedCalcField?.alias || ''" :initial-state="selectedCalcField?.blocklyXml" v-model:visibility="calcFieldDialogVisible" @save="onCalcFieldSave" @cancel="calcFieldDialogVisible = false"></KnBlockly>
 
     <WidgetEditorFunctionsDialog v-if="functionsDialogVisible" :visible="functionsDialogVisible" :prop-function-column="selectedFunctionColumn" :selected-dataset="selectedDatasetForFunctions" :edit-mode="functionsDialogEditMode" @close="onFunctionsDialogClosed" @save="onFunctionsColumnSave"></WidgetEditorFunctionsDialog>
 </template>
@@ -68,7 +52,7 @@ import Dropdown from 'primevue/dropdown'
 import mainStore from '../../../../../../../App.store'
 import Listbox from 'primevue/listbox'
 import dataListDescriptor from '../../../../dataset/DatasetEditorDataTab/DatasetEditorDataList/DatasetEditorDataListDescriptor.json'
-import KnBlocklyCalculatedField from '@/components/functionalities/KnCalculatedField/KnBlocklyCalculatedField.vue'
+import KnBlockly from '@/components/UI/KnBlockly/KnBlockly.vue'
 import calcFieldDescriptor from './WidgetEditorCalcFieldDescriptor.json'
 import { AxiosResponse } from 'axios'
 import { createNewWidgetColumn } from '../../helpers/WidgetEditorHelpers'
@@ -79,7 +63,7 @@ import deepcopy from 'deepcopy'
 
 export default defineComponent({
     name: 'widget-editor-data-list',
-    components: { Dropdown, Listbox, KnBlocklyCalculatedField, WidgetEditorFunctionsDialog },
+    components: { Dropdown, Listbox, KnBlockly, WidgetEditorFunctionsDialog },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, datasets: { type: Array }, selectedDatasets: { type: Array as PropType<IDataset[]> }, variables: { type: Array as PropType<IVariable[]>, required: true } },
     emits: ['datasetSelected', 'selectedDatasetColumnsChanged', 'toggleListDrag'],
     setup() {
@@ -296,37 +280,39 @@ export default defineComponent({
                 const allFields = [].concat(modelFields?.columns, modelFields?.data, modelFields?.filters, modelFields?.rows) as any
 
                 allFields.forEach((field) => {
-                    if (field.fieldType === 'MEASURE' && !field.formula) this.calcFieldColumns.push({ fieldAlias: `${field.alias}`, fieldLabel: field.columnName })
+                    if (field.fieldType === 'MEASURE' && !field.formula) this.calcFieldColumns.push(field.alias)
                 })
             } else if (this.model?.type === 'highcharts') {
                 this.selectedDatasetColumns.forEach((field) => {
-                    if (field.fieldType === 'MEASURE' && field.type !== 'java.lang.String') this.calcFieldColumns.push({ fieldAlias: `${field.alias}`, fieldLabel: field.name })
+                    if (field.fieldType === 'MEASURE' && field.type !== 'java.lang.String') this.calcFieldColumns.push(field.alias)
                 })
             } else {
                 this.model?.columns.forEach((field) => {
-                    if (field.fieldType === 'MEASURE' && !field.formula) this.calcFieldColumns.push({ fieldAlias: `${field.alias}`, fieldLabel: field.columnName })
+                    if (field.fieldType === 'MEASURE' && !field.formula) this.calcFieldColumns.push(field.alias)
                 })
             }
         },
-onCalcFieldSave(calcFieldOutput) {
+        onCalcFieldSave(calcFieldOutput) {
+            // calcFieldOutput = { name: string; dsl: string; state: any; errors: string[] }
             if (this.selectedCalcField.id) {
-                this.selectedCalcField.alias = calcFieldOutput.colName
-                this.selectedCalcField.formula = calcFieldOutput.formula
-                this.selectedCalcField.blocklyXml = calcFieldOutput.xml
+                this.selectedCalcField.alias = calcFieldOutput.name
+                this.selectedCalcField.columnName = calcFieldOutput.name
+                this.selectedCalcField.formula = calcFieldOutput.dsl
+                this.selectedCalcField.blocklyXml = calcFieldOutput.state
                 emitter.emit('selectedColumnUpdated', this.selectedCalcField)
             } else {
                 const newCalcField = {
                     id: crypto.randomUUID(),
-                    columnName: calcFieldOutput.colName,
-                    alias: calcFieldOutput.colName,
+                    columnName: calcFieldOutput.name,
+                    alias: calcFieldOutput.name,
                     type: 'java.lang.Double',
                     fieldType: 'MEASURE',
                     filter: {},
-                    formula: calcFieldOutput.formula,
-                    formulaEditor: calcFieldOutput.formula,
-                    blocklyXml: calcFieldOutput.xml,
+                    formula: calcFieldOutput.dsl,
+                    formulaEditor: calcFieldOutput.dsl,
+                    blocklyXml: calcFieldOutput.state,
                     aggregation: 'SUM'
-                };
+                }
                 emitter.emit('addNewCalculatedField', newCalcField)
             }
 

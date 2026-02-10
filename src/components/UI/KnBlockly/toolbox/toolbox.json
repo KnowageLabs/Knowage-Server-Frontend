@@ -1,0 +1,65 @@
+{
+    "contents": [
+        {
+            "contents": [
+                {
+                    "kind": "block",
+                    "type": "agg_field"
+                }
+            ],
+            "kind": "category",
+            "name": "Fields"
+        },
+        {
+            "contents": [
+                {
+                    "kind": "block",
+                    "type": "variable"
+                }
+            ],
+            "kind": "category",
+            "name": "Variables"
+        },
+        {
+            "contents": [
+                {
+                    "kind": "block",
+                    "type": "fn_nullif"
+                },
+                {
+                    "kind": "block",
+                    "type": "fn_sum"
+                },
+                {
+                    "kind": "block",
+                    "type": "fn_avg"
+                },
+                {
+                    "kind": "block",
+                    "type": "fn_min"
+                },
+                {
+                    "kind": "block",
+                    "type": "fn_max"
+                }
+            ],
+            "kind": "category",
+            "name": "Functions"
+        },
+        {
+            "contents": [
+                {
+                    "kind": "block",
+                    "type": "math_number"
+                },
+                {
+                    "kind": "block",
+                    "type": "math_arithmetic"
+                }
+            ],
+            "kind": "category",
+            "name": "Math"
+        }
+    ],
+    "kind": "categoryToolbox"
+}
