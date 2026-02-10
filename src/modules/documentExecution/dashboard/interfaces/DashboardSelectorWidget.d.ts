@@ -18,7 +18,7 @@ export interface ISelectorWidgetConfiguration {
 }
 
 export interface ISelectorWidgetSelectorType {
-    modality: 'singleValue' | 'multiValue' | 'dropdown' | 'multiDropdown' | 'date' | 'dateRange' | 'slider'
+    modality: 'singleValue' | 'multiValue' | 'dropdown' | 'multiDropdown' | 'date' | 'dateRange' | 'slider' | 'range'
     alignment: 'vertical' | 'horizontal' | 'grid'
     columnSize: string
 }
@@ -47,6 +47,7 @@ export interface ISelectorWidgetStyle {
     date: ISelectorWidgetDateStyle
     dateRange: ISelectorWidgetDateRangeStyle
     slider: ISelectorWidgetSliderStyle
+    range: ISelectorWidgetRangeStyle
     padding: IWidgetPaddingStyle
     borders: IWidgetBordersStyle
     shadows: IWidgetShadowsStyle
@@ -161,4 +162,16 @@ export interface ISelectorWidgetSliderStyle {
     markerFontSize?: string
     switchMarkerLabelsSide?: boolean
     trackSize?: string
+}
+
+export interface ISelectorWidgetRangeStyle {
+    layout?: 'vertical' | 'horizontal'
+    dense?: boolean
+    darkMode?: boolean
+    color?: string
+    thumbColor?: string
+    trackSize?: string
+    labelColor?: string
+    markerFontSize?: string
+    switchMarkerLabelsSide?: boolean
 }

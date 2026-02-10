@@ -36,6 +36,7 @@
                         <SelectorWidgetDateStyle v-else-if="prop.node.key.includes('date-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.date" class="no-padding" />
                         <SelectorWidgetDateRangeStyle v-else-if="prop.node.key.includes('dateRange-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.dateRange" class="no-padding" />
                         <SelectorWidgetSliderStyle v-else-if="prop.node.key.includes('slider-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.slider" class="no-padding" />
+                        <SelectorWidgetRangeStyle v-else-if="prop.node.key.includes('range-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.range" class="no-padding" />
                         <SelectionsWidgetChipsStyle v-else-if="prop.node.key.includes('chips-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.chips" class="no-padding" />
                         <PivotTableTotalsStyle v-else-if="prop.node.key.includes('totals-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.totals" :toolbar-style-settings="pivotDescriptor.columnHeadersToolbarStyleOptions" :total-type="'totals'" class="no-padding" />
                         <PivotTableTotalsStyle v-else-if="prop.node.key.includes('subTotals-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.subTotals" :toolbar-style-settings="pivotDescriptor.columnHeadersToolbarStyleOptions" :total-type="'subTotals'" class="no-padding" />
@@ -80,6 +81,7 @@ import SelectorWidgetMultiDropdownStyle from '@/modules/documentExecution/dashbo
 import SelectorWidgetDateStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/SelectorWidget/style/SelectorWidgetDateStyle.vue'
 import SelectorWidgetDateRangeStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/SelectorWidget/style/SelectorWidgetDateRangeStyle.vue'
 import SelectorWidgetSliderStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/SelectorWidget/style/SelectorWidgetSliderStyle.vue'
+import SelectorWidgetRangeStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/SelectorWidget/style/SelectorWidgetRangeStyle.vue'
 
 export default defineComponent({
     name: 'dashboard-theme-management-editor',
@@ -103,6 +105,7 @@ export default defineComponent({
         SelectorWidgetDateStyle,
         SelectorWidgetDateRangeStyle,
         SelectorWidgetSliderStyle,
+        SelectorWidgetRangeStyle,
         SelectionsWidgetChipsStyle,
         PivotTableTotalsStyle,
         PivotTableFieldsStyle,

@@ -37,6 +37,9 @@
         <div class="p-p-2 p-d-flex" style="height: 300px">
             <WidgetRenderer ref="multiDropdownSelector" :widget="sliderModel" :widget-data="selectorWidgetMock.selectorDataMock" :widget-initial-data="selectorWidgetMock.selectorDataMock" :datasets="[]" :dashboard-id="'multiDropdownSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
         </div>
+        <div class="p-p-2 p-d-flex" style="height: 300px">
+            <WidgetRenderer ref="multiDropdownSelector" :widget="rangeModel" :widget-data="selectorWidgetMock.selectorDataMock" :widget-initial-data="selectorWidgetMock.selectorDataMock" :datasets="[]" :dashboard-id="'multiDropdownSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
+        </div>
     </div>
 </template>
 
@@ -77,7 +80,8 @@ export default defineComponent({
             multiDropdownModel: {} as any,
             dateDropdownModel: {} as any,
             dateRangeModel: {} as any,
-            sliderModel: {} as any
+            sliderModel: {} as any,
+            rangeModel: {} as any
         }
     },
     computed: {
@@ -137,6 +141,10 @@ export default defineComponent({
             this.sliderModel = deepcopy(this.selectorWidgetMock.selectorModelMock)
             this.sliderModel.settings.style = this.selectedTheme.config.selector.style
             this.sliderModel.settings.configuration.selectorType.modality = 'slider'
+
+            this.rangeModel = deepcopy(this.selectorWidgetMock.selectorModelMock)
+            this.rangeModel.settings.style = this.selectedTheme.config.selector.style
+            this.rangeModel.settings.configuration.selectorType.modality = 'range'
         },
 
         setEventListeners() {

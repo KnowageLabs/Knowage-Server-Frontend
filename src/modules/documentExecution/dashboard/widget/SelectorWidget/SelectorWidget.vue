@@ -18,6 +18,9 @@
         <!-- NEW: Quasar SliderSelector -->
         <SliderSelector v-if="widgetType === 'slider'" :model-value="selectedValue" :options="sliderOptions" :slider-style="propWidget.settings.style.slider" @update:model-value="sliderSelectorChanged" />
 
+        <!-- NEW: Quasar RangeSelector -->
+        <RangeSelector v-if="widgetType === 'range'" :model-value="selectedRange" :options="sliderOptions" :range-style="propWidget.settings.style.range" @update:model-value="rangeSelectorChanged" />
+
         <!-- OLD: PrimeVue Calendar (for comparison) -->
         <span v-if="widgetType === 'date'" class="p-float-label p-m-2">
             <Calendar v-model="selectedDate" class="kn-material-input kn-width-full" :min-date="getDateRange('startDate')" :max-date="getDateRange('endDate')" :show-icon="true" @date-select="dateSelectionChangedOLD" />
@@ -49,6 +52,7 @@ import MultiDropdownSelector from './selectorTypes/MultiDropdownSelector.vue'
 import DateSelector from './selectorTypes/DateSelector.vue'
 import DateRangeSelector from './selectorTypes/DateRangeSelector.vue'
 import SliderSelector from './selectorTypes/SliderSelector.vue'
+import RangeSelector from './selectorTypes/RangeSelector.vue'
 import { QRadio, QCheckbox } from 'quasar'
 import Dropdown from 'primevue/dropdown'
 import Calendar from 'primevue/calendar'
@@ -59,7 +63,7 @@ import dashboardDescriptor from '../../DashboardDescriptor.json'
 
 export default defineComponent({
     name: 'datasets-catalog-datatable',
-    components: { RadioSelector, CheckboxSelector, DropdownSelector, MultiDropdownSelector, DateSelector, DateRangeSelector, SliderSelector, QRadio, QCheckbox, Dropdown, Calendar },
+    components: { RadioSelector, CheckboxSelector, DropdownSelector, MultiDropdownSelector, DateSelector, DateRangeSelector, SliderSelector, RangeSelector, QRadio, QCheckbox, Dropdown, Calendar },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         dataToShow: { type: Object as any, required: true },
@@ -84,6 +88,7 @@ export default defineComponent({
             selectedDateRange: null as any,
             startDate: null as any,
             endDate: null as any,
+            selectedRange: [0, 0] as number[],
             activeSelections: [] as ISelection[]
         }
     },
@@ -206,9 +211,29 @@ export default defineComponent({
                     case 'slider':
                         this.selectedValue = selection.value[0] ? parseFloat(String(selection.value[0])) : null
                         break
+                    case 'range':
+                        this.loadRangeInitialValues(selection)
+                        break
                 }
                 return true
             } else return false
+        },
+        loadRangeInitialValues(selection: ISelection) {
+            // Find the min and max indices of the selected values in sliderOptions
+            const selectedValueSet = new Set(selection.value.map((v) => String(v)))
+            let minIdx = -1
+            let maxIdx = -1
+
+            for (let i = 0; i < this.sliderOptions.length; i++) {
+                if (selectedValueSet.has(String(this.sliderOptions[i].column_1))) {
+                    if (minIdx === -1) minIdx = i
+                    maxIdx = i
+                }
+            }
+
+            if (minIdx !== -1 && maxIdx !== -1) {
+                this.selectedRange = [minIdx, maxIdx]
+            }
         },
         loadDateRangeInitialValues(selection: ISelection) {
             let minDateAsMilliseconds = null as number | null
@@ -351,6 +376,19 @@ export default defineComponent({
             this.selectedValue = value
             if (this.editorMode) return
             updateStoreSelections(this.createNewSelection([value]), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
+        },
+        rangeSelectorChanged(data: any) {
+            if (this.editorMode) return
+
+            const filteredValues = data?.filteredValues || []
+            const ranges = data?.ranges || [0, 0]
+
+            // Update selectedRange
+            this.selectedRange = ranges
+
+            // Create selection with filtered values and update store
+            const tempSelection = this.createNewSelection(filteredValues) as ISelection
+            this.updateActiveSelectionsWithMultivalueSelection(tempSelection)
         }
     }
 })

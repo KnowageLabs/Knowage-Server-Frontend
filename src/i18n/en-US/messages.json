@@ -1434,12 +1434,12 @@
                     "uncheckedIcon": "Unchecked Icon"
                 },
                 "range": {
-                    "title": "Text Style"
+                    "title": "Range Style"
                 },
                 "slider": {
-                    "title": "Slider Style",
                     "sliderColor": "Slider Color",
                     "thumbColor": "Thumb Color",
+                    "title": "Slider Style",
                     "trackSize": "Track Size"
                 }
             },
@@ -2653,14 +2653,14 @@
                 "padding": "Padding",
                 "paginator": "Paginator",
                 "radio": "Radio",
+                "range": "Range",
                 "rows": "Rows",
                 "shadows": "Shadows",
+                "slider": "Slider",
                 "subTotals": "SubTotals",
                 "summary": "Summary",
                 "title": "Title",
-                "totals": "Totals",
-                "slider": "Slider",
-                "range": "Range"
+                "totals": "Totals"
             },
             "widgetNames": {
                 "activeSelections": "Active Selections",

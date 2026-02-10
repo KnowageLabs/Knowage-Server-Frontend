@@ -116,7 +116,7 @@ export default defineComponent({
         ...mapState(store, ['dashboards']),
         ...mapState(mainStore, ['user', 'setInfo', 'setLoading']),
         playSelectionButtonVisible(): boolean {
-            const isSelectorWidget = this.widget.type === 'selector' && ['multiValue', 'multiDropdown', 'dateRange'].includes(this.widget.settings.configuration.selectorType.modality) && !this.selectionIsLocked
+            const isSelectorWidget = this.widget.type === 'selector' && ['multiValue', 'multiDropdown', 'dateRange', 'range'].includes(this.widget.settings.configuration.selectorType.modality) && !this.selectionIsLocked
             if (this.document.seeAsFinalUser && isSelectorWidget) return true
             if (!this.widget || !this.widget.settings.configuration || !this.widget.settings.configuration.selectorType) return false
             return isSelectorWidget

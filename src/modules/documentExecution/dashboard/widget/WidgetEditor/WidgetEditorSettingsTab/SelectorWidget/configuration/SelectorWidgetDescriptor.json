@@ -63,6 +63,11 @@
             "imageUrl": "/images/dashboard/selectorTypes/slider.svg",
             "label": "Slider",
             "value": "slider"
+        },
+        {
+            "imageUrl": "/images/dashboard/selectorTypes/slider.svg",
+            "label": "Range",
+            "value": "range"
         }
     ]
 }

@@ -95,6 +95,17 @@
         "switchMarkerLabelsSide": false,
         "trackSize": "4px"
     },
+    "defaultRangeStyle": {
+        "layout": "horizontal",
+        "dense": false,
+        "darkMode": false,
+        "color": "primary",
+        "thumbColor": "primary",
+        "trackSize": "4px",
+        "labelColor": "",
+        "markerFontSize": "",
+        "switchMarkerLabelsSide": false
+    },
     "defaultSelectorType": {
         "alignment": "vertical",
         "columnSize": "",
