@@ -245,7 +245,9 @@
             "captchaInput": "Enter the code shown above",
             "captchaRequired": "Captcha code is required",
             "captchaError": "Failed to load captcha. Please try again.",
-            "refreshCaptcha": "Refresh captcha"
+            "refreshCaptcha": "Refresh captcha",
+            "registrationActivated": "Account activated successfully. You can now login with your credentials.",
+            "registrationActivationError": "Failed to activate account. The link may be invalid or expired."
         },
         "low": "Low",
         "max": "Max",

@@ -143,6 +143,21 @@ const verifyResetToken = async (token: string) => {
     }
 }
 
+const verifyRegistrationToken = async (token: string) => {
+    try {
+        await axios.post(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/2.0/signup/active`, {
+            token: token
+        })
+        // Token valido - account attivato
+        success.value = t('common.loginPage.registrationActivated')
+        // Rimuovi il registrationToken dall'URL
+        router.replace({ query: {} })
+    } catch (err: any) {
+        console.error("Errore durante l'attivazione dell'account:", err)
+        error.value = err.response?.data?.message || t('common.loginPage.registrationActivationError')
+    }
+}
+
 onMounted(async () => {
     await loadLoginConfig()
 
@@ -150,6 +165,12 @@ onMounted(async () => {
     const urlResetToken = route.query.resetToken as string
     if (urlResetToken) {
         await verifyResetToken(urlResetToken)
+    }
+
+    // Verifica se c'è un registrationToken nell'URL
+    const urlRegistrationToken = route.query.registrationToken as string
+    if (urlRegistrationToken) {
+        await verifyRegistrationToken(urlRegistrationToken)
     }
 })
 
