@@ -34,18 +34,19 @@ export default defineComponent({
             gridOptions: {
                 rowData: [],
                 columnDefs: [
-                    { headerName: 'Dataset', field: 'datasetLabel' },
-                    { headerName: 'Column Name', field: 'columnName' },
-                    { headerName: 'Values', field: 'value' },
+                    { headerName: 'Dataset', field: 'datasetLabel', flex: 1 },
+                    { headerName: 'Column Name', field: 'columnName', flex: 1 },
+                    { headerName: 'Values', field: 'value', flex: 1 },
                     {
                         headerName: '',
                         cellRenderer: buttonRenderer,
                         cellRendererParams: { isFinalUser: this.document?.seeAsFinalUser },
                         field: 'id',
                         cellStyle: {
-                            'text-align': 'right',
-                            display: 'inline-flex',
-                            'justify-content': 'flex-end',
+                            'text-align': 'center',
+                            display: 'flex',
+                            'align-items': 'center',
+                            'justify-content': 'center',
                             border: 'none'
                         },
                         width: 100,
