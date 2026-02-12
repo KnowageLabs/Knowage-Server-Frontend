@@ -15,6 +15,7 @@ import PrimeVue from 'primevue/config'
 import ProgressBar from 'primevue/progressbar'
 import Toolbar from 'primevue/toolbar'
 import mainStore from '../../../App.store'
+import pinia from '../../../pinia'
 
 const mockedSchedulers = [
     {
@@ -150,7 +151,7 @@ describe('KPI Scheduler loading', () => {
 describe('KPI Scheduler list', () => {
     it('shows a prompt when user click on a rule delete button to delete it and deletes it', async () => {
         const wrapper = factory()
-        const store = mainStore()
+        const store = mainStore(pinia)
 
         await flushPromises()
 

@@ -9,6 +9,7 @@ import PrimeVue from 'primevue/config'
 import ProgressBar from 'primevue/progressbar'
 import Toolbar from 'primevue/toolbar'
 import mainStore from '../../../../App.store'
+import pinia from '../../../../pinia'
 
 const mockedCalendar = {
     realDateGenerated: [],
@@ -71,7 +72,7 @@ describe('Calendar Management Dialog', () => {
 
     it('Should show a message if the saving is succesful', async () => {
         const wrapper = factory()
-        const store = mainStore()
+        const store = mainStore(pinia)
 
         wrapper.vm.calendar.name = 'Test'
         wrapper.vm.calendar.calStartDay = 1498867200000

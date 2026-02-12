@@ -6,6 +6,7 @@ import flushPromises from 'flush-promises'
 import ProgressBar from 'primevue/progressbar'
 import Toolbar from 'primevue/toolbar'
 import mainStore from '../../../App.store'
+import pinia from '../../../pinia'
 
 const mockedCache = { totalMemory: 1073741824, availableMemory: 1073709056, availableMemoryPercentage: 100, cachedObjectsCount: 2, cleaningEnabled: true, cleaningQuota: '90%' }
 const mockedDatasets = [
@@ -94,7 +95,7 @@ describe('Cache Management loading', () => {
     it('shows error dialog if there is no selected dataset returned', async () => {
         mockedDatasets[0].writeDefault = false
         const wrapper = factory()
-        const store = mainStore()
+        const store = mainStore(pinia)
 
         await flushPromises()
 

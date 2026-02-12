@@ -4,6 +4,7 @@ import { getActiveSelectionByDatasetAndColumn } from './InteractionHelper'
 import { replaceDriversPlaceholdersByDriverUrlName, replaceVariablesPlaceholdersByVariableName } from './InteractionsParserHelper'
 import mainStore from '@/App.store'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
+import pinia from '@/pinia'
 import i18n from '@/App.i18n'
 import { IMapWidgetLink, IMapWidgetLinkVisualizationTypeConfig } from '../../interfaces/mapWidget/DashboardMapWidget'
 
@@ -62,7 +63,7 @@ const getFormattedLink = (link: ITableWidgetLink, formattedRow: any, formattedCh
 
 const getFormattedParametersUrl = (parameters: IWidgetInteractionParameter[], formattedColumnRow: any, formattedChartValues: IChartInteractionValues | null, dashboardId: string, variables: IVariable[], useAsResource: boolean) => {
     let formattedParametersUrl = ''
-    const dashStore = dashboardStore()
+    const dashStore = dashboardStore(pinia)
     const drivers = dashStore.getDashboardDrivers(dashboardId)
     const driversValuesMap = getFormattedDriverValuesMap(drivers)
     for (let i = 0; i < parameters.length; i++) {
@@ -173,14 +174,14 @@ const getFormattedSelectionParameterUrl = (parameter: IWidgetInteractionParamete
 }
 
 const getFormattedJWTParameterUrl = (parameter: IWidgetInteractionParameter, useAsResource: boolean) => {
-    const store = mainStore()
+    const store = mainStore(pinia)
     const user = store.getUser()
     const value = user?.userUniqueIdentifier ?? ''
     return useAsResource ? `${value}` : `${parameter.name}=${value}&`
 }
 
 const getFormattedJSONParameterUrl = (parameter: IWidgetInteractionParameter, variables: IVariable[], drivers: IDashboardDriver[], useAsResource: boolean) => {
-    const store = mainStore()
+    const store = mainStore(pinia)
     if (!parameter.json) return `${parameter.name}=&`
     let json = replacePlaceholders(parameter.json, variables, drivers)
     try {

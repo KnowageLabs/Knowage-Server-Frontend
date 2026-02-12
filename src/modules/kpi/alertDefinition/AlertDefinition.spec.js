@@ -13,6 +13,7 @@ import AlertDefinition from './AlertDefinition.vue'
 import Toolbar from 'primevue/toolbar'
 import KnHint from '@/components/UI/KnHint.vue'
 import mainStore from '../../../App.store'
+import pinia from '../../../pinia'
 
 const mockedTarget = [
     {
@@ -186,7 +187,7 @@ describe('Alert Definition loading', () => {
         })
         it('deletes alert when clicking on delete icon', async () => {
             const wrapper = factory()
-            const store = mainStore()
+            const store = mainStore(pinia)
 
             await flushPromises()
 

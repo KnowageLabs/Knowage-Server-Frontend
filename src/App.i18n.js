@@ -1,7 +1,6 @@
 import { createI18n } from 'vue-i18n'
-import store from './App.store'
 
-const currentLocale = localStorage.getItem('locale') ? localStorage.getItem('locale') : store.locale
+const currentLocale = localStorage.getItem('locale') || 'en-US'
 
 const i18n = createI18n({
     locale: currentLocale,
@@ -18,11 +17,11 @@ import('@/i18n/en-US/messages.json').then((messages) => {
 
 const loadedLanguages = []
 
-const messageFiles = import.meta.glob('./i18n/*/messages.json')
-const helperMessageFiles = import.meta.glob('./i18n/*/helper-messages.json')
+const messageFiles = import.meta.glob('@/i18n/*/messages.json')
+const helperMessageFiles = import.meta.glob('@/i18n/*/helper-messages.json')
 
 function getLoader(filesMap, lang, fileName) {
-    const filePath = `./i18n/${lang}/${fileName}`
+    const filePath = `/src/i18n/${lang}/${fileName}`
     return filesMap[filePath] ? filesMap[filePath] : null
 }
 

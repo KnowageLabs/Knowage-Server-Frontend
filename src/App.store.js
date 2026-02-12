@@ -6,6 +6,7 @@ const store = defineStore('store', {
         return {
             configurations: {},
             user: {},
+            userLoaded: false,
             error: {},
             info: {},
             warning: {},
@@ -66,6 +67,7 @@ const store = defineStore('store', {
             if (user.userId === `public-${user.organization}`) localStorage.setItem('public', true)
             else localStorage.removeItem('public')
             this.user = user
+            this.userLoaded = user && Object.keys(user).length > 0
         },
         setError(error) {
             this.error = error

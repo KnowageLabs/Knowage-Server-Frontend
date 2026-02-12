@@ -12,9 +12,37 @@ import dataPreparationRoutes from '@/modules/workspace/dataPreparation/DataPrepa
 import documentationRoutes from '@/components/documentation/Documentation.routes.js'
 import { loadLanguageAsync } from '@/App.i18n.js'
 import mainStore from '@/App.store'
+import pinia from '@/pinia'
+import axios from '@/axios.js'
 
 function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+let userLoadPromise = null
+
+async function ensureUserLoaded(store) {
+    if (store.userLoaded || (store.user && Object.keys(store.user).length > 0)) return true
+
+    const token = localStorage.getItem('token')
+    if (!token) return false
+
+    if (!userLoadPromise) {
+        userLoadPromise = axios
+            .get(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/2.0/currentuser`)
+            .then((response) => {
+                store.initializeUser(response.data)
+                return true
+            })
+            .catch(() => {
+                return false
+            })
+            .finally(() => {
+                userLoadPromise = null
+            })
+    }
+
+    return userLoadPromise
 }
 
 const baseRoutes = [
@@ -53,7 +81,8 @@ const baseRoutes = [
     {
         path: '/login',
         name: 'login',
-        redirect: `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=LOGOUT_ACTION&LIGHT_NAVIGATOR_DISABLED=TRUE&NEW_SESSION=TRUE`
+        component: () => import('@/views/login/Login.vue'),
+        meta: { hideMenu: true, public: true }
     },
     {
         path: '/unauthorized',
@@ -86,24 +115,47 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-    const store = mainStore()
+    const store = mainStore(pinia)
 
     const checkRequired = !('/' == to.fullPath && '/' == from.fullPath)
-    const loggedIn = localStorage.getItem('token')
+    let loggedIn = localStorage.getItem('token')
+
+    if (loggedIn) {
+        await ensureUserLoaded(store)
+    }
 
     if (to.meta.hideMenu || (to.query.menu != 'undefined' && to.query.menu === 'false')) {
         store.hideMainMenu()
     } else store.showMainMenu()
 
+    // Se l'utente non è autenticato e sta cercando di accedere a una pagina protetta
     if (checkRequired && !to.meta.public && !loggedIn && !to.query.public) {
-        authHelper.handleUnauthorized()
-    } else {
-        if (to.meta?.functionality) {
-            if (from.path === '/' && !store.user?.functionalities?.includes(to.meta?.functionality)) await sleep(1000)
+        // Redirect alla pagina di login locale invece del servlet esterno
+        next({
+            name: 'login',
+            query: { redirect: to.fullPath }
+        })
+        return
+    }
+
+    // Se l'utente è già autenticato e sta cercando di accedere al login
+    if (loggedIn && to.name === 'login') {
+        next({ name: 'home' })
+        return
+    }
+
+    if (to.meta?.functionality) {
+        const hasFunctionality = store.user?.functionalities?.includes(to.meta?.functionality)
+
+        if (store.user && Object.keys(store.user).length > 0 && !hasFunctionality) {
+            next({ replace: true, name: '404' })
+            return
         }
         if (!store.user?.isSuperadmin && to.meta?.functionality && !store.user?.functionalities?.includes(to.meta?.functionality)) next({ replace: true, name: '404' })
         else next()
     }
+
+    next()
 })
 
 export default router

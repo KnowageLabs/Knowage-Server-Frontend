@@ -12,6 +12,7 @@ import ProgressBar from 'primevue/progressbar'
 import Scorecards from './Scorecards.vue'
 import Toolbar from 'primevue/toolbar'
 import mainStore from '../../../App.store'
+import pinia from '../../../pinia'
 
 const mockedScorecards = [
     {
@@ -93,7 +94,7 @@ afterEach(() => {
 describe('Scorecards', () => {
     it('should show a loader when opened', async () => {
         factory()
-        const store = mainStore()
+        const store = mainStore(pinia)
 
         await flushPromises()
         expect(store.setLoading).toHaveBeenCalledTimes(2)

@@ -10,6 +10,7 @@ import flushPromises from 'flush-promises'
 import GeneralSettingsCard from './GeneralSettingsCard.vue'
 import Toolbar from 'primevue/toolbar'
 import mainStore from '../../../../../App.store'
+import pinia from '../../../../../pinia'
 
 const mockedDatasets = [
     {
@@ -136,7 +137,7 @@ describe('Cache Management General Settings', () => {
     })
     it('when save is clicked the save function is called', async () => {
         const wrapper = factory(mockedSettings, mockedDatasets, mockedDatasets[0])
-        const store = mainStore()
+        const store = mainStore(pinia)
 
         expect(wrapper.vm.settings).toStrictEqual(mockedSettings)
 

@@ -1,6 +1,7 @@
 import { AxiosResponse } from 'axios'
 import i18n from '@/App.i18n'
 import mainStore from '@/App.store'
+import pinia from '@/pinia'
 import axios from 'axios'
 
 export async function getCorrectRolesForExecution(document, dataset?) {
@@ -58,7 +59,7 @@ async function callGetCorrectRolesForExecution(typeCode, id, label) {
 
     let url = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/3.0/documentexecution/correctRolesForExecution?` + params
 
-    const store = mainStore()
+    const store = mainStore(pinia)
     return new Promise((resolve, reject) => {
         axios.get(url).then((response: AxiosResponse<any>) => {
             let rolesForExecution = response.data

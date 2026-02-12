@@ -12,6 +12,7 @@ import Listbox from 'primevue/listbox'
 import LicenceTab from './LicenseTab.vue'
 import Toolbar from 'primevue/toolbar'
 import mainStore from '../../../../App.store'
+import pinia from '../../../../pinia'
 
 const mockedLicenses = [
     {
@@ -112,7 +113,7 @@ describe('License management', () => {
     })
     it('clicking on the + button a file input dialog appears', async () => {
         const wrapper = factory(mockedLicenses, mockedHost)
-        const store = mainStore()
+        const store = mainStore(pinia)
 
         const formData = new FormData()
         formData.append('file', 'KnowageSI')
@@ -128,7 +129,7 @@ describe('License management', () => {
     })
     it('clicking on the edit button a file input dialog appears', async () => {
         const wrapper = factory(mockedLicenses, mockedHost)
-        const store = mainStore()
+        const store = mainStore(pinia)
         const formData = new FormData()
         formData.append('file', 'KnowageSI')
 

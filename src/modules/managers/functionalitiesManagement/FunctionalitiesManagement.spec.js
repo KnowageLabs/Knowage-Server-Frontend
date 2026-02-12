@@ -11,6 +11,7 @@ import ProgressBar from 'primevue/progressbar'
 import Toolbar from 'primevue/toolbar'
 import Tree from 'primevue/tree'
 import mainStore from '../../../App.store'
+import pinia from '../../../pinia'
 
 const mockedFunctionalities = [
     { id: 1, parentId: null, name: 'Functionalities', prog: 1 },
@@ -124,7 +125,7 @@ describe('Functionalities', () => {
     })
     it('ask a confirm if delete button is clicked', async () => {
         const wrapper = factory()
-        const store = mainStore()
+        const store = mainStore(pinia)
 
         await flushPromises()
 

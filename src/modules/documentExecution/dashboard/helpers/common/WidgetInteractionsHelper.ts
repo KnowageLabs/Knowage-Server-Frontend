@@ -6,6 +6,7 @@ import * as tableWidgetDefaultValues from '../../widget/WidgetEditor/helpers/tab
 import * as chartJSDefaultValues from '../../widget/WidgetEditor/helpers/chartWidget/chartJS/ChartJSDefaultValues'
 import * as highchartsDefaultValues from '../../widget/WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import mainStore from '@/App.store'
+import pinia from '@/pinia'
 
 export const getFormattedInteractions = (widget: any) => {
     const interactions = {} as IWidgetInteractions
@@ -51,7 +52,7 @@ const getFormattedTableSelection = (widget: any) => {
 }
 
 const getFormattedChartSelection = (widget: any, chartType: string | null) => {
-    const store = mainStore()
+    const store = mainStore(pinia)
     const user = store.getUser()
     if (widget.content?.chartTemplate?.CHART?.type === 'WORDCLOUD') return chartJSDefaultValues.getDefaultChartJSSelections()
     else {

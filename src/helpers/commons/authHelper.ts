@@ -1,5 +1,7 @@
 import mainStore from '../../App.store'
+import pinia from '@/pinia'
 import axios from '@/axios.js'
+import router from '@/app.routes'
 
 async function invalidateSession(jsps: string[] = [], redirectURI: string): Promise<void> {
     const jspPromises = jsps.map((p) => {
@@ -7,11 +9,15 @@ async function invalidateSession(jsps: string[] = [], redirectURI: string): Prom
     })
 
     await Promise.allSettled([...jspPromises])
-    window.location.href = redirectURI
+    const store = mainStore(pinia)
+    if (store?.configurations?.['SPAGOBI_SSO.ACTIVE']) window.location.href = redirectURI
+    else router.replace({ path: '/login' })
 }
 
 export default {
-    async logout(): Promise<void> {
+    async logout(query): Promise<void> {
+        const store = mainStore(pinia)
+        store.setLoading(true)
         const url = window.location.origin
         await axios
             .post(`${url}${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/logout`)
@@ -19,20 +25,17 @@ export default {
                 invalidateSession(response.data.urlEnginesInvalidate, response.data.redirectUrl.replace('${id_token}', sessionStorage.getItem('token') || ''))
             })
             .finally(() => {
-                const store = mainStore()
                 localStorage.clear()
                 sessionStorage.clear()
                 store.storeClearIndexedDBCache()
                 store.setUser({})
+                store.setLoading(false)
+                router.replace({ path: '/login', query: { logout: query }, hash: '' })
             })
     },
     handleUnauthorized(): void {
-        const store = mainStore()
-        localStorage.clear()
-        store.setUser({})
-        const url = window.location.origin
         let search = window.location.search ?? ''
         if (search && search.charAt(0) === '?') search = '&' + search.substring(1)
-        window.location.href = `${url}${import.meta.env.VITE_KNOWAGE_CONTEXT}/servlet/AdapterHTTP?PAGE=LoginPage&NEW_SESSION=TRUE${search}`
+        this.logout(search)
     }
 }
