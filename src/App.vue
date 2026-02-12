@@ -2,6 +2,7 @@
     <Toast></Toast>
     <ConfirmDialog></ConfirmDialog>
     <KnOverlaySpinnerPanel />
+    <KnUpdatePrompt v-model:visible="showUpdatePrompt" @update="handleUpdate" @dismiss="handleDismissUpdate" />
     <div class="layout-wrapper-content" :class="{ 'layout-wrapper-content-embed': documentExecution.embed, isMobileDevice: isMobileDevice }">
         <MainMenu v-if="showMenu && mainMenuVisibility" :closeMenu="closedMenu" @openMenu="openMenu" data-tour-id="main-menu"></MainMenu>
 
@@ -16,6 +17,7 @@
 import ConfirmDialog from 'primevue/confirmdialog'
 import KnOverlaySpinnerPanel from '@/components/UI/KnOverlaySpinnerPanel.vue'
 import KnRotate from '@/components/UI/KnRotate.vue'
+import KnUpdatePrompt from '@/components/UI/KnUpdatePrompt.vue'
 import MainMenu from '@/modules/mainMenu/MainMenu'
 import Toast from 'primevue/toast'
 import { defineComponent } from 'vue'
@@ -28,9 +30,10 @@ import { loadLanguageAsync } from '@/App.i18n.js'
 import auth from '@/helpers/commons/authHelper'
 import { driver } from 'driver.js'
 import 'driver.js/dist/driver.css'
+import { useServiceWorker } from '@/composables/useServiceWorker'
 
 export default defineComponent({
-    components: { ConfirmDialog, KnOverlaySpinnerPanel, KnRotate, MainMenu, Toast },
+    components: { ConfirmDialog, KnOverlaySpinnerPanel, KnRotate, KnUpdatePrompt, MainMenu, Toast },
 
     data() {
         return {
@@ -42,7 +45,9 @@ export default defineComponent({
             pollingInterval: null as any,
             stopExecution: false,
             tourRunning: false,
-            activeTour: null as any
+            activeTour: null as any,
+            showUpdatePrompt: false,
+            swRefresh: null as any
         }
     },
     computed: {
@@ -92,6 +97,9 @@ export default defineComponent({
         }
     },
     async created() {
+        // Inizializza il service worker
+        this.swRefresh = useServiceWorker()
+
         const locationParams = new URL(location).searchParams
 
         let userEndpoint = !localStorage.getItem('token') && locationParams.get('public') ? `/restful-services/3.0/public-user` : '/restful-services/2.0/currentuser'
@@ -226,6 +234,12 @@ export default defineComponent({
         },
         async onLoad() {
             this.showMenu = true
+
+            // Controlla aggiornamenti del service worker
+            if (this.swRefresh.needRefresh.value) {
+                this.showUpdatePrompt = true
+            }
+
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/export/dataset').then((response) => {
                 const totalDownloads = response.data.length
                 const alreadyDownloaded = response.data.filter((x) => x.alreadyDownloaded).length
@@ -411,6 +425,12 @@ export default defineComponent({
                     }
                 }
             }
+        },
+        handleUpdate() {
+            this.swRefresh.reloadApp()
+        },
+        handleDismissUpdate() {
+            this.swRefresh.dismissUpdate()
         }
     }
 })

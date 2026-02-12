@@ -26,13 +26,27 @@ export default defineConfig((command, mode) => {
             }),
             forwardToTrailingSlashPlugin(Object.keys(build.rollupOptions.input)),
             VitePWA({
-                registerType: 'autoUpdate',
+                registerType: 'prompt',
                 devOptions: {
                     enabled: true
                 },
                 workbox: {
-                    globPatterns: ['**/*.html'],
+                    skipWaiting: true,
+                    clientsClaim: true,
+                    globPatterns: ['**/*.{js,css,woff2,ttf}'],
+                    navigateFallback: null,
                     runtimeCaching: [
+                        {
+                            urlPattern: ({ request }) => request.destination === 'document',
+                            handler: 'NetworkFirst',
+                            options: {
+                                cacheName: 'html-cache',
+                                expiration: {
+                                    maxAgeSeconds: 60 * 60 * 24 // 1 day
+                                },
+                                networkTimeoutSeconds: 3
+                            }
+                        },
                         {
                             urlPattern: /^.+\.(ttf|woff2)/i,
                             handler: 'CacheFirst',
@@ -49,11 +63,11 @@ export default defineConfig((command, mode) => {
                         },
                         {
                             urlPattern: /^.+\.css/i,
-                            handler: 'CacheFirst',
+                            handler: 'StaleWhileRevalidate',
                             options: {
                                 cacheName: 'styles',
                                 expiration: {
-                                    maxAgeSeconds: 60 * 60 * 24 * 365 // <== 365 days
+                                    maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
                                 },
                                 cacheableResponse: {
                                     statuses: [0, 200]
@@ -62,11 +76,11 @@ export default defineConfig((command, mode) => {
                         },
                         {
                             urlPattern: /^.+\.js/i,
-                            handler: 'CacheFirst',
+                            handler: 'StaleWhileRevalidate',
                             options: {
                                 cacheName: 'scripts',
                                 expiration: {
-                                    maxAgeSeconds: 60 * 60 * 24 * 10 // <== 365 days
+                                    maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
                                 },
                                 cacheableResponse: {
                                     statuses: [0, 200]
@@ -79,7 +93,7 @@ export default defineConfig((command, mode) => {
                             options: {
                                 cacheName: 'images',
                                 expiration: {
-                                    maxAgeSeconds: 60 * 60 * 24 * 10 // <== 365 days
+                                    maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
                                 },
                                 cacheableResponse: {
                                     statuses: [0, 200]
