@@ -131,235 +131,208 @@
                 </ul>
             </q-step>
             <q-step :name="5" title="Metadata" icon="add_comment" :done="step > 5">
-                <form class="p-fluid p-formgrid p-grid kn-toolbar--secondary p-m-0 p-p-0">
-                    <b class="p-field p-col-6 p-d-flex p-jc-center p-ai-center p-m-0">{{ $t('common.source') }}</b>
-                    <b class="p-field p-col-6 p-d-flex p-jc-center p-ai-center p-m-0">{{ $t('common.target') }}</b>
-                </form>
-
-                <div v-if="importData?.notImportable.length != 0">
-                    <span class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-p-0">NOT IMPORTABLE</span>
+                <div v-if="importData?.notImportable && importData.notImportable.length > 0" class="p-mb-4">
+                    <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #ffebee; color: #c62828; font-weight: bold">
+                        <i class="fa fa-exclamation-triangle p-mr-2"></i>
+                        NOT IMPORTABLE
+                    </div>
                     <ul class="roles-list p-mt-0">
-                        <li v-for="(doc, index) in importData?.notImportable" :key="index">
-                            <form class="p-fluid p-formgrid p-grid p-m-1">
-                                <q-expansion-item expand-separator :label="doc.label" class="p-field p-col-6 p-d-flex p-flex-column p-jc-center p-ai-center p-m-0">
-                                    <q-card>
-                                        <q-card-section>
-                                            <span class="p-d-flex p-flex-column p-m-0">
-                                                <span>
-                                                    <b>{{ $t('common.url') }}:</b>
-                                                    {{ doc.label }}
-                                                </span>
-                                                <span>
-                                                    <b>{{ $t('common.description') }}:</b>
-                                                    {{ doc.name }}
-                                                </span>
-                                                <span>
-                                                    <b>{{ $t('common.description') }}:</b>
-                                                    {{ doc.description }}
-                                                </span>
-                                            </span>
-                                        </q-card-section>
-                                    </q-card>
-                                </q-expansion-item>
-                                <q-expansion-item expand-separator :label="doc.label" class="p-field p-col-6 p-d-flex p-flex-column p-jc-center p-ai-center p-m-0">
-                                    <q-card>
-                                        <q-card-section>
-                                            <span class="p-d-flex p-flex-column p-m-0">
-                                                <span>
-                                                    <b>{{ $t('common.url') }}:</b>
-                                                    {{ doc.engine.label }}
-                                                </span>
-                                                <span>
-                                                    <b>{{ $t('common.description') }}:</b>
-                                                    {{ doc.engine.name }}
-                                                </span>
-                                                <span>
-                                                    <b>{{ $t('common.description') }}:</b>
-                                                    {{ doc.engine.description }}
-                                                </span>
-                                            </span>
-                                        </q-card-section>
-                                    </q-card>
-                                </q-expansion-item>
-                            </form>
+                        <li v-for="(doc, index) in importData.notImportable" :key="index" class="p-p-2">
+                            <div class="p-d-flex p-flex-column">
+                                <span style="font-weight: bold">{{ doc.label }}</span>
+                                <span style="font-size: 0.875rem; color: #666">{{ doc.name }}</span>
+                                <span style="font-size: 0.875rem; color: #666">Engine: {{ doc.engine.label }}</span>
+                            </div>
                         </li>
                     </ul>
                 </div>
 
-                <div v-if="importData.summary.SbiObjects.length != 0">
-                    <span class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-p-0">Documents that will be imported</span>
-                    <ul class="roles-list p-mt-0">
-                        <li v-for="(item, index) in importData.summary.SbiObjects" :key="index">
-                            <form class="p-fluid p-formgrid p-grid p-m-1">
-                                <q-expansion-item expand-separator :label="item.biobjExp.label" class="p-field p-col-6 p-d-flex p-flex-column p-jc-center p-ai-center p-m-0">
-                                    <q-card>
-                                        <q-card-section>
-                                            <span class="p-d-flex p-flex-column p-m-0">
-                                                <span>
-                                                    <b>{{ $t('common.name') }}:</b>
-                                                    {{ item.biobjExp.label }}
-                                                </span>
-                                                <span>
-                                                    <b>{{ $t('common.description') }}:</b>
-                                                    {{ item.biobjExp.label }}
-                                                </span>
-                                            </span>
-                                        </q-card-section>
-                                    </q-card>
-                                </q-expansion-item>
-                                <q-expansion-item expand-separator :label="item.biobjExist.label" class="p-field p-col-6 p-d-flex p-flex-column p-jc-center p-ai-center p-m-0">
-                                    <q-card>
-                                        <q-card-section>
-                                            <span class="p-d-flex p-flex-column p-m-0">
-                                                <span>
-                                                    <b>{{ $t('common.name') }}:</b>
-                                                    {{ item.biobjExist.name }}
-                                                </span>
-                                                <span>
-                                                    <b>{{ $t('common.description') }}:</b>
-                                                    {{ item.biobjExist.description }}
-                                                </span>
-                                            </span>
-                                        </q-card-section>
-                                    </q-card>
-                                </q-expansion-item>
-                            </form>
-                        </li>
-                    </ul>
-                </div>
+                <div class="metadata-summary-container">
+                    <!-- DOCUMENTS SECTION -->
+                    <div v-if="hasDocuments" class="p-mb-4 category-section">
+                        <div style="font-weight: bold; font-size: 1rem; margin-bottom: 1rem; border-bottom: 2px solid #333; padding-bottom: 0.5rem">
+                            <i class="fa fa-file p-mr-2"></i>Documents
+                        </div>
+                        <div class="p-d-flex p-flex-row p-gap-3">
+                            <!-- New Documents -->
+                            <div v-if="importData.summary.toCreateObjects?.documents?.length > 0" class="p-flex-1">
+                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #e8f5e9; color: #2e7d32; font-weight: bold;">
+                                    <i class="fa fa-plus-circle p-mr-2"></i>
+                                    New
+                                </div>
+                                <ul class="summary-list p-mt-0">
+                                    <li v-for="(doc, index) in importData.summary.toCreateObjects.documents" :key="'new-doc-' + index" class="p-p-2">
+                                        {{ doc }}
+                                    </li>
+                                </ul>
+                            </div>
+                            <!-- Existing Documents -->
+                            <div v-if="importData.summary.existingObjects?.documents?.length > 0" class="p-flex-1">
+                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #fff3e0; color: #e65100; font-weight: bold;">
+                                    <i class="fa fa-info-circle p-mr-2"></i>
+                                    Existing
+                                </div>
+                                <ul class="summary-list p-mt-0">
+                                    <li v-for="(doc, index) in importData.summary.existingObjects.documents" :key="'exist-doc-' + index" class="p-p-2">
+                                        {{ doc }}
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
 
-                <div v-if="importData.summary.SbiLov.length != 0">
-                    <span class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-p-0">List Of Values</span>
-                    <ul class="roles-list p-mt-0">
-                        <li v-for="(item, index) in importData.summary.SbiLov" :key="index">
-                            <form class="p-fluid p-formgrid p-grid p-m-1">
-                                <q-expansion-item expand-separator :label="item.lovExp.label" class="p-field p-col-6 p-d-flex p-flex-column p-jc-center p-ai-center p-m-0">
-                                    <q-card>
-                                        <q-card-section>
-                                            <span class="p-d-flex p-flex-column p-m-0">
-                                                <span>
-                                                    <b>{{ $t('common.name') }}:</b>
-                                                    {{ item.lovExp.name }}
-                                                </span>
-                                                <span>
-                                                    <b>{{ $t('common.description') }}:</b>
-                                                    {{ item.lovExp.description }}
-                                                </span>
-                                            </span>
-                                        </q-card-section>
-                                    </q-card>
-                                </q-expansion-item>
-                                <q-expansion-item expand-separator :label="item.lovExist.label" class="p-field p-col-6 p-d-flex p-flex-column p-jc-center p-ai-center p-m-0">
-                                    <q-card>
-                                        <q-card-section>
-                                            <span class="p-d-flex p-flex-column p-m-0">
-                                                <span>
-                                                    <b>{{ $t('common.name') }}:</b>
-                                                    {{ item.lovExist.name }}
-                                                </span>
-                                                <span>
-                                                    <b>{{ $t('common.description') }}:</b>
-                                                    {{ item.lovExist.description }}
-                                                </span>
-                                            </span>
-                                        </q-card-section>
-                                    </q-card>
-                                </q-expansion-item>
-                            </form>
-                        </li>
-                    </ul>
-                </div>
+                    <!-- DATASETS SECTION -->
+                    <div v-if="hasDatasets" class="p-mb-4 category-section">
+                        <div style="font-weight: bold; font-size: 1rem; margin-bottom: 1rem; border-bottom: 2px solid #333; padding-bottom: 0.5rem">
+                            <i class="fa fa-database p-mr-2"></i>Datasets
+                        </div>
+                        <div class="p-d-flex p-flex-row p-gap-3">
+                            <!-- New Datasets -->
+                            <div v-if="importData.summary.toCreateObjects?.datasets?.length > 0" class="p-flex-1">
+                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #e8f5e9; color: #2e7d32; font-weight: bold;">
+                                    <i class="fa fa-plus-circle p-mr-2"></i>
+                                    New
+                                </div>
+                                <ul class="summary-list p-mt-0">
+                                    <li v-for="(dataset, index) in importData.summary.toCreateObjects.datasets" :key="'new-ds-' + index" class="p-p-2">
+                                        {{ dataset }}
+                                    </li>
+                                </ul>
+                            </div>
+                            <!-- Existing Datasets -->
+                            <div v-if="importData.summary.existingObjects?.datasets?.length > 0" class="p-flex-1">
+                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #fff3e0; color: #e65100; font-weight: bold;">
+                                    <i class="fa fa-info-circle p-mr-2"></i>
+                                    Existing
+                                </div>
+                                <ul class="summary-list p-mt-0">
+                                    <li v-for="(dataset, index) in importData.summary.existingObjects.datasets" :key="'exist-ds-' + index" class="p-p-2">
+                                        {{ dataset }}
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
 
-                <div v-if="importData.summary.SbiFunctions.length != 0">
-                    <span class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-p-0">Functionalities</span>
-                    <ul class="roles-list p-mt-0">
-                        <li v-for="(item, index) in importData.summary.SbiFunctions" :key="index">
-                            <form class="p-fluid p-formgrid p-grid p-m-1">
-                                <q-expansion-item expand-separator :label="item.functExp.code" class="p-field p-col-6 p-d-flex p-flex-column p-jc-center p-ai-center p-m-0">
-                                    <q-card>
-                                        <q-card-section>
-                                            <span class="p-d-flex p-flex-column p-m-0">
-                                                <span>
-                                                    <b>{{ $t('common.name') }}:</b>
-                                                    {{ item.functExp.name }}
-                                                </span>
-                                                <span>
-                                                    <b>{{ $t('common.path') }}:</b>
-                                                    {{ item.functExp.path }}
-                                                </span>
-                                                <span>
-                                                    <b>{{ $t('common.description') }}:</b>
-                                                    {{ item.functExp.description }}
-                                                </span>
-                                            </span>
-                                        </q-card-section>
-                                    </q-card>
-                                </q-expansion-item>
-                                <q-expansion-item expand-separator :label="item.functExist.code" class="p-field p-col-6 p-d-flex p-flex-column p-jc-center p-ai-center p-m-0">
-                                    <q-card>
-                                        <q-card-section>
-                                            <span class="p-d-flex p-flex-column p-m-0">
-                                                <span>
-                                                    <b>{{ $t('common.name') }}:</b>
-                                                    {{ item.functExist.name }}
-                                                </span>
-                                                <span>
-                                                    <b>{{ $t('common.path') }}:</b>
-                                                    {{ item.functExist.path }}
-                                                </span>
-                                                <span>
-                                                    <b>{{ $t('common.description') }}:</b>
-                                                    {{ item.functExist.description }}
-                                                </span>
-                                            </span>
-                                        </q-card-section>
-                                    </q-card>
-                                </q-expansion-item>
-                            </form>
-                        </li>
-                    </ul>
-                </div>
+                    <!-- LOVS SECTION -->
+                    <div v-if="hasLovs" class="p-mb-4 category-section">
+                        <div style="font-weight: bold; font-size: 1rem; margin-bottom: 1rem; border-bottom: 2px solid #333; padding-bottom: 0.5rem">
+                            <i class="fa fa-list p-mr-2"></i>LOVs
+                        </div>
+                        <div class="p-d-flex p-flex-row p-gap-3">
+                            <!-- New LOVs -->
+                            <div v-if="importData.summary.toCreateObjects?.lovs?.length > 0" class="p-flex-1">
+                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #e8f5e9; color: #2e7d32; font-weight: bold;">
+                                    <i class="fa fa-plus-circle p-mr-2"></i>
+                                    New
+                                </div>
+                                <ul class="summary-list p-mt-0">
+                                    <li v-for="(lov, index) in importData.summary.toCreateObjects.lovs" :key="'new-lov-' + index" class="p-p-2">
+                                        {{ lov }}
+                                    </li>
+                                </ul>
+                            </div>
+                            <!-- Existing LOVs -->
+                            <div v-if="importData.summary.existingObjects?.lovs?.length > 0" class="p-flex-1">
+                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #fff3e0; color: #e65100; font-weight: bold;">
+                                    <i class="fa fa-info-circle p-mr-2"></i>
+                                    Existing
+                                </div>
+                                <ul class="summary-list p-mt-0">
+                                    <li v-for="(lov, index) in importData.summary.existingObjects.lovs" :key="'exist-lov-' + index" class="p-p-2">
+                                        {{ lov }}
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
 
-                <div v-if="importData.summary.SbiParameters.length != 0">
-                    <span class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-p-0">Parameters</span>
-                    <ul class="roles-list p-mt-0">
-                        <li v-for="(item, index) in importData.summary.SbiParameters" :key="index">
-                            <form class="p-fluid p-formgrid p-grid p-m-1">
-                                <q-expansion-item expand-separator :label="item.paramExp.label" class="p-field p-col-6 p-d-flex p-flex-column p-jc-center p-ai-center p-m-0">
-                                    <q-card>
-                                        <q-card-section>
-                                            <span class="p-d-flex p-flex-column p-m-0">
-                                                <span>
-                                                    <b>{{ $t('common.name') }}:</b>
-                                                    {{ item.paramExp.label }}
-                                                </span>
-                                                <span>
-                                                    <b>{{ $t('common.description') }}:</b>
-                                                    {{ item.paramExp.label }}
-                                                </span>
-                                            </span>
-                                        </q-card-section>
-                                    </q-card>
-                                </q-expansion-item>
-                                <q-expansion-item expand-separator :label="item.paramExist.label" class="p-field p-col-6 p-d-flex p-flex-column p-jc-center p-ai-center p-m-0">
-                                    <q-card>
-                                        <q-card-section>
-                                            <span class="p-d-flex p-flex-column p-m-0">
-                                                <span>
-                                                    <b>{{ $t('common.name') }}:</b>
-                                                    {{ item.paramExist.name }}
-                                                </span>
-                                                <span>
-                                                    <b>{{ $t('common.description') }}:</b>
-                                                    {{ item.paramExist.description }}
-                                                </span>
-                                            </span>
-                                        </q-card-section>
-                                    </q-card>
-                                </q-expansion-item>
-                            </form>
-                        </li>
-                    </ul>
+                    <!-- ENGINES SECTION -->
+                    <div v-if="hasEngines" class="p-mb-4 category-section">
+                        <div style="font-weight: bold; font-size: 1rem; margin-bottom: 1rem; border-bottom: 2px solid #333; padding-bottom: 0.5rem">
+                            <i class="fa fa-cog p-mr-2"></i>Engines
+                        </div>
+                        <div class="p-d-flex p-flex-row p-gap-3">
+                            <!-- New Engines -->
+                            <div v-if="importData.summary.toCreateObjects?.engines?.length > 0" class="p-flex-1">
+                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #e8f5e9; color: #2e7d32; font-weight: bold;">
+                                    <i class="fa fa-plus-circle p-mr-2"></i>
+                                    New
+                                </div>
+                                <ul class="summary-list p-mt-0">
+                                    <li v-for="(engine, index) in importData.summary.toCreateObjects.engines" :key="'new-engine-' + index" class="p-p-2">
+                                        {{ engine }}
+                                    </li>
+                                </ul>
+                            </div>
+                            <!-- Existing Engines -->
+                            <div v-if="importData.summary.existingObjects?.engines?.length > 0" class="p-flex-1">
+                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #fff3e0; color: #e65100; font-weight: bold;">
+                                    <i class="fa fa-info-circle p-mr-2"></i>
+                                    Existing
+                                </div>
+                                <ul class="summary-list p-mt-0">
+                                    <li v-for="(engine, index) in importData.summary.existingObjects.engines" :key="'exist-engine-' + index" class="p-p-2">
+                                        {{ engine }}
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FUNCTIONALITIES SECTION -->
+                    <div v-if="hasFunctionalities" class="p-mb-4 category-section">
+                        <div style="font-weight: bold; font-size: 1rem; margin-bottom: 1rem; border-bottom: 2px solid #333; padding-bottom: 0.5rem">
+                            <i class="fa fa-folder p-mr-2"></i>Functionalities
+                        </div>
+                        <div class="p-d-flex p-flex-row p-gap-3">
+                            <!-- New Functionalities -->
+                            <div v-if="importData.summary.toCreateObjects?.functionalities?.length > 0" class="p-flex-1">
+                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #e8f5e9; color: #2e7d32; font-weight: bold;">
+                                    <i class="fa fa-plus-circle p-mr-2"></i>
+                                    New
+                                </div>
+                                <ul class="summary-list p-mt-0">
+                                    <li v-for="(func, index) in importData.summary.toCreateObjects.functionalities" :key="'new-func-' + index" class="p-p-2">
+                                        {{ func }}
+                                    </li>
+                                </ul>
+                            </div>
+                            <!-- Existing Functionalities -->
+                            <div v-if="importData.summary.existingObjects?.functionalities?.length > 0" class="p-flex-1">
+                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #fff3e0; color: #e65100; font-weight: bold;">
+                                    <i class="fa fa-info-circle p-mr-2"></i>
+                                    Existing
+                                </div>
+                                <ul class="summary-list p-mt-0">
+                                    <li v-for="(func, index) in importData.summary.existingObjects.functionalities" :key="'exist-func-' + index" class="p-p-2">
+                                        {{ func }}
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CROSS NAVIGATIONS SECTION -->
+                    <div v-if="hasCrossNavigations" class="p-mb-4 category-section">
+                        <div style="font-weight: bold; font-size: 1rem; margin-bottom: 1rem; border-bottom: 2px solid #333; padding-bottom: 0.5rem">
+                            <i class="fa fa-random p-mr-2"></i>Cross Navigations
+                        </div>
+                        <div class="p-d-flex p-flex-row p-gap-3">
+                            <!-- New Cross Navigations -->
+                            <div v-if="importData.summary.toCreateObjects?.crossNavigations?.length > 0" class="p-flex-1">
+                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #e8f5e9; color: #2e7d32; font-weight: bold;">
+                                    <i class="fa fa-plus-circle p-mr-2"></i>
+                                    New
+                                </div>
+                                <ul class="summary-list p-mt-0">
+                                    <li v-for="(nav, index) in importData.summary.toCreateObjects.crossNavigations" :key="'new-nav-' + index" class="p-p-2">
+                                        {{ nav }}
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </q-step>
             <template #navigation>
@@ -408,6 +381,24 @@ export default defineComponent({
         },
         disableStep4() {
             if (this.step === 4) return this.hasEmptyDatasource(this.importData.datasources.associatedDatasources)
+        },
+        hasDocuments() {
+            return (this.importData.summary?.toCreateObjects?.documents?.length > 0) || (this.importData.summary?.existingObjects?.documents?.length > 0)
+        },
+        hasDatasets() {
+            return (this.importData.summary?.toCreateObjects?.datasets?.length > 0) || (this.importData.summary?.existingObjects?.datasets?.length > 0)
+        },
+        hasFunctionalities() {
+            return (this.importData.summary?.toCreateObjects?.functionalities?.length > 0) || (this.importData.summary?.existingObjects?.functionalities?.length > 0)
+        },
+        hasCrossNavigations() {
+            return this.importData.summary?.toCreateObjects?.crossNavigations?.length > 0
+        },
+        hasLovs() {
+            return (this.importData.summary?.toCreateObjects?.lovs?.length > 0) || (this.importData.summary?.existingObjects?.lovs?.length > 0)
+        },
+        hasEngines() {
+            return (this.importData.summary?.toCreateObjects?.engines?.length > 0) || (this.importData.summary?.existingObjects?.engines?.length > 0)
         }
     },
     created() {},
@@ -678,5 +669,73 @@ export default defineComponent({
 
 .datasource-dropdown-option {
     padding: 0.75em;
+}
+
+.metadata-summary-container {
+    overflow-y: auto;
+    max-height: 600px;
+    padding-right: 8px;
+
+    &::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+
+        &:hover {
+            background: #555;
+        }
+    }
+}
+
+.category-section {
+    background-color: #fafafa;
+    padding: 1rem;
+    border-radius: 4px;
+    border-left: 4px solid #333;
+
+    .p-gap-3 {
+        gap: 1rem;
+    }
+
+    .summary-list {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        overflow: auto;
+        max-height: 300px;
+
+        li {
+            padding: 0.75rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            font-size: 0.9rem;
+            word-break: break-word;
+
+            &:last-child {
+                border-bottom: none;
+            }
+
+            &:hover {
+                background-color: rgba(0, 0, 0, 0.03);
+            }
+        }
+    }
+}
+
+.p-flex-1 {
+    flex: 1;
+    min-width: 0;
+}
+
+.p-gap-3 {
+    gap: 1rem;
 }
 </style>
