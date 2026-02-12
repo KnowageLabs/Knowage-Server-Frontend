@@ -17,28 +17,28 @@
         </div>
         <ActiveSelectionsExample ref="activeSelections" :selected-theme-prop="selectedThemeProp" widget-type="activeSelections" />
         <div class="p-p-2 p-d-flex" style="height: 200px">
-            <WidgetRenderer ref="selector" :widget="radioModel" :widget-data="selectorWidgetMock.selectorDataMock" :widget-initial-data="selectorWidgetMock.selectorDataMock" :datasets="[]" :dashboard-id="'selector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
+            <WidgetRenderer ref="selector" :widget="radioModel" :widget-data="formatSelectorData(selectorWidgetMock.selectorDataMock, radioModel)" :widget-initial-data="formatSelectorData(selectorWidgetMock.selectorDataMock, radioModel)" :datasets="[]" :dashboard-id="'selector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
         </div>
         <div class="p-p-2 p-d-flex" style="height: 200px">
-            <WidgetRenderer ref="checkboxSelector" :widget="checkboxModel" :widget-data="selectorWidgetMock.selectorDataMock" :widget-initial-data="selectorWidgetMock.selectorDataMock" :datasets="[]" :dashboard-id="'checkboxSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
+            <WidgetRenderer ref="checkboxSelector" :widget="checkboxModel" :widget-data="formatSelectorData(selectorWidgetMock.selectorDataMock, checkboxModel)" :widget-initial-data="formatSelectorData(selectorWidgetMock.selectorDataMock, checkboxModel)" :datasets="[]" :dashboard-id="'checkboxSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
         </div>
         <div class="p-p-2 p-d-flex" style="height: 100px">
-            <WidgetRenderer ref="dropdownSelector" :widget="selectModel" :widget-data="selectorWidgetMock.selectorDataMock" :widget-initial-data="selectorWidgetMock.selectorDataMock" :datasets="[]" :dashboard-id="'dropdownSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
+            <WidgetRenderer ref="dropdownSelector" :widget="selectModel" :widget-data="formatSelectorData(selectorWidgetMock.selectorDataMock, selectModel)" :widget-initial-data="formatSelectorData(selectorWidgetMock.selectorDataMock, selectModel)" :datasets="[]" :dashboard-id="'dropdownSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
         </div>
         <div class="p-p-2 p-d-flex" style="height: 100px">
-            <WidgetRenderer ref="multiDropdownSelector" :widget="multiDropdownModel" :widget-data="selectorWidgetMock.selectorDataMock" :widget-initial-data="selectorWidgetMock.selectorDataMock" :datasets="[]" :dashboard-id="'multiDropdownSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
+            <WidgetRenderer ref="multiDropdownSelector" :widget="multiDropdownModel" :widget-data="formatSelectorData(selectorWidgetMock.selectorDataMock, multiDropdownModel)" :widget-initial-data="formatSelectorData(selectorWidgetMock.selectorDataMock, multiDropdownModel)" :datasets="[]" :dashboard-id="'multiDropdownSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
         </div>
         <div class="p-p-2 p-d-flex" style="height: 100px">
-            <WidgetRenderer ref="multiDropdownSelector" :widget="dateDropdownModel" :widget-data="selectorWidgetMock.selectorDataMock" :widget-initial-data="selectorWidgetMock.selectorDataMock" :datasets="[]" :dashboard-id="'multiDropdownSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
+            <WidgetRenderer ref="multiDropdownSelector" :widget="dateDropdownModel" :widget-data="formatSelectorData(selectorWidgetMock.selectorDataMock, dateDropdownModel)" :widget-initial-data="formatSelectorData(selectorWidgetMock.selectorDataMock, dateDropdownModel)" :datasets="[]" :dashboard-id="'multiDropdownSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
         </div>
         <div class="p-p-2 p-d-flex" style="height: 100px">
-            <WidgetRenderer ref="multiDropdownSelector" :widget="dateRangeModel" :widget-data="selectorWidgetMock.selectorDataMock" :widget-initial-data="selectorWidgetMock.selectorDataMock" :datasets="[]" :dashboard-id="'multiDropdownSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
+            <WidgetRenderer ref="multiDropdownSelector" :widget="dateRangeModel" :widget-data="formatSelectorData(selectorWidgetMock.selectorDataMock, dateRangeModel)" :widget-initial-data="formatSelectorData(selectorWidgetMock.selectorDataMock, dateRangeModel)" :datasets="[]" :dashboard-id="'multiDropdownSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
         </div>
         <div class="p-p-2 p-d-flex" style="height: 300px">
-            <WidgetRenderer ref="multiDropdownSelector" :widget="sliderModel" :widget-data="selectorWidgetMock.selectorDataMock" :widget-initial-data="selectorWidgetMock.selectorDataMock" :datasets="[]" :dashboard-id="'multiDropdownSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
+            <WidgetRenderer ref="multiDropdownSelector" :widget="sliderModel" :widget-data="formatSelectorData(selectorWidgetMock.selectorDataMock, sliderModel)" :widget-initial-data="formatSelectorData(selectorWidgetMock.selectorDataMock, sliderModel)" :datasets="[]" :dashboard-id="'multiDropdownSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
         </div>
         <div class="p-p-2 p-d-flex" style="height: 300px">
-            <WidgetRenderer ref="multiDropdownSelector" :widget="rangeModel" :widget-data="selectorWidgetMock.selectorDataMock" :widget-initial-data="selectorWidgetMock.selectorDataMock" :datasets="[]" :dashboard-id="'multiDropdownSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
+            <WidgetRenderer ref="multiDropdownSelector" :widget="rangeModel" :widget-data="formatSelectorData(selectorWidgetMock.selectorDataMock, rangeModel)" :widget-initial-data="formatSelectorData(selectorWidgetMock.selectorDataMock, rangeModel)" :datasets="[]" :dashboard-id="'multiDropdownSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
         </div>
     </div>
 </template>
@@ -152,6 +152,13 @@ export default defineComponent({
         },
         removeEventListeners() {
             emitter.off('scrollToExample', this.scrollToExample)
+        },
+        formatSelectorData(mockData: any, model: any): any {
+            // Wrap simple mock data into multi-column format expected by selector
+            // { rows: [...] } => { columnName: { rows: [...] } }
+            if (!model?.columns?.[0]?.columnName) return mockData
+            const columnName = model.columns[0].columnName
+            return { [columnName]: mockData }
         },
         scrollToExample(widgetType: any) {
             if (widgetType === 'activeSelections') {
