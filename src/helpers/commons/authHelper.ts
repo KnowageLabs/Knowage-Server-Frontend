@@ -1,7 +1,7 @@
 import mainStore from '../../App.store'
 import pinia from '@/pinia'
 import axios from '@/axios.js'
-import router from '@/app.routes'
+import router from '@/App.routes'
 
 async function invalidateSession(jsps: string[] = [], redirectURI: string): Promise<void> {
     const jspPromises = jsps.map((p) => {
