@@ -34,6 +34,8 @@ export default defineConfig((command, mode) => {
                     skipWaiting: true,
                     clientsClaim: true,
                     globPatterns: ['**/*.{js,css,woff2,ttf}'],
+                    globIgnores: ['**/ts.worker*.js', '**/kpiLang*.js'],
+                    maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
                     navigateFallback: null,
                     runtimeCaching: [
                         {
