@@ -116,9 +116,17 @@ export default defineComponent({
         ...mapState(store, ['dashboards']),
         ...mapState(mainStore, ['user', 'setInfo', 'setLoading']),
         playSelectionButtonVisible(): boolean {
+            if (!this.widget || !this.widget.settings?.configuration) return false
+
+            // Show play button for multi-column selectors (regardless of type)
+            if (this.widget.type === 'selector' && this.widget.columns && this.widget.columns.length > 1) {
+                return !this.selectionIsLocked
+            }
+
+            // Show play button for specific multi-value selector types
+            if (!this.widget.settings.configuration.selectorType) return false
             const isSelectorWidget = this.widget.type === 'selector' && ['multiValue', 'multiDropdown', 'dateRange', 'range'].includes(this.widget.settings.configuration.selectorType.modality) && !this.selectionIsLocked
             if (this.document.seeAsFinalUser && isSelectorWidget) return true
-            if (!this.widget || !this.widget.settings.configuration || !this.widget.settings.configuration.selectorType) return false
             return isSelectorWidget
         },
         dashboardSheets() {
@@ -521,8 +529,13 @@ export default defineComponent({
         },
         checkIfSelectionIsLocked() {
             if (this.widgetModel.type !== 'selector' || (this.widgetModel.settings as ISelectorWidgetSettings).configuration.valuesManagement.enableAll) return false
-            const index = this.activeSelections.findIndex((selection: ISelection) => selection.datasetId === this.widgetModel.dataset && selection.columnName === this.widgetModel.columns[0].columnName)
-            this.selectionIsLocked = index !== -1
+
+            // For multi-column selectors, check if ANY column has a selection
+            const hasAnySelection = this.widgetModel.columns.some((column: any) => {
+                return this.activeSelections.some((selection: ISelection) => selection.datasetId === this.widgetModel.dataset && selection.columnName === column.columnName)
+            })
+
+            this.selectionIsLocked = hasAnySelection
         },
         getAssociativeSelectionsFromStoreIfDatasetIsBeingUsedInAssociation() {
             const associativeSelections = this.getAssociations(this.dashboardId)
@@ -572,15 +585,22 @@ export default defineComponent({
         },
 
         launchSelection() {
-            this.setSelections(this.dashboardId, this.activeSelections, this.$http)
+            // For multi-column selectors, emit event for local selection handling
+            if (this.widget?.type === 'selector' && this.widget?.columns?.length > 1) {
+                emitter.emit('applySelectionsForMultiColumnSelector', { widgetId: this.widget.id })
+            } else {
+                // For other widgets or single-column selectors, apply selections from store
+                this.setSelections(this.dashboardId, this.activeSelections, this.$http)
+            }
         },
         unlockSelection() {
-            const payload = {
+            // Create payloads for all columns in the selector widget
+            const payloads = this.widgetModel.columns.map((column: any) => ({
                 datasetId: this.widgetModel.dataset as number,
-                columnName: this.widgetModel.columns[0].columnName
-            }
-            emitter.emit('widgetUnlocked', [payload])
-            this.removeSelections([payload], this.dashboardId, this.$http)
+                columnName: column.columnName
+            }))
+            emitter.emit('widgetUnlocked', payloads)
+            this.removeSelections(payloads, this.dashboardId, this.$http)
         },
 
         onChartSelectedForQuickWidgetChange(chartType: string) {

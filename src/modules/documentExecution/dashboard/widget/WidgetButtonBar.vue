@@ -44,7 +44,7 @@
  * ! this component will be in charge of managing the widget buttons and visibility.
  */
 import { defineComponent, PropType } from 'vue'
-import { IDashboard, IMenuItem, IWidget, IWidgetHelpSettings } from '../Dashboard'
+import { IDashboard, IMenuItem, IWidget, IWidgetHelpSettings, ISelection } from '../Dashboard'
 import { mapActions } from 'pinia'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import { canEditDashboard } from '../DashboardHelpers'
@@ -104,19 +104,22 @@ export default defineComponent({
 
             const selections = this.store.getSelections(this.dashboardId)
             const currentWidget = this.widget
-            if (!selections || !selections.length || !currentWidget) return false
+            if (!selections || !selections.length || !currentWidget || !currentWidget.columns || currentWidget.columns.length === 0) return false
 
             const widgetDatasetId = currentWidget.dataset
-            const widgetColumnName = currentWidget.columns && currentWidget.columns.length > 0 ? currentWidget.columns[0].columnName : null
-            if (!widgetDatasetId || !widgetColumnName) return false
+            if (!widgetDatasetId) return false
 
-            const matchingSelection = selections.find((selection) => selection.datasetId === widgetDatasetId && selection.columnName === widgetColumnName && selection.value && selection.value.length > 0)
-            if (matchingSelection) return matchingSelection.locked
-            else return false
+            // For multi-column selectors, check if ANY column has a locked selection
+            const hasLockedSelection = currentWidget.columns.some((column: any) => {
+                const matchingSelection = selections.find((selection) => selection.datasetId === widgetDatasetId && selection.columnName === column.columnName && selection.value && selection.value.length > 0)
+                return matchingSelection && matchingSelection.locked
+            })
+
+            return hasLockedSelection
         }
     },
     methods: {
-        ...mapActions(dashboardStore, ['getDashboard', 'getSelections']),
+        ...mapActions(dashboardStore, ['getDashboard']),
         toggle(event) {
             const menu = this.$refs.widgetmenu as any
             menu.toggle(event)

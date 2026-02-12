@@ -12,10 +12,17 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
     const datasetIndex = datasets.findIndex((dataset: any) => widget.dataset === dataset.id)
     const selectedDataset = datasets[datasetIndex]
 
-    if (selectedDataset) {
-        const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=${!selectedDataset.cache}&useGroupBy=true`
+    if (!selectedDataset) return null
 
-        const postData = formatSelectorWidgetModelForService(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
+    const multiColumnResponses = {} as any
+    const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=${!selectedDataset.cache}&useGroupBy=true`
+
+    // Iterate through each column and fetch data individually
+    for (const column of widget.columns) {
+        // Create a temporary widget with only this column for the POST data
+        const singleColumnWidget = { ...widget, columns: [column] }
+
+        const postData = formatSelectorWidgetModelForService(dashboardId, dashboardConfig, singleColumnWidget, selectedDataset, initialCall, selections, associativeResponseSelections)
         let tempResponse = null as any
 
         const dataHash = md5(JSON.stringify(postData))
@@ -23,10 +30,8 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
 
         if (dashStore.dataProxyQueue[dataHash]) {
             const response = await dashStore.dataProxyQueue[dataHash]
-            return response.data
-        }
-
-        if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) {
+            tempResponse = response.data
+        } else if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) {
             tempResponse = cachedData.data
             tempResponse.initialCall = initialCall
         } else {
@@ -45,10 +50,15 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
             }
         }
 
-        if (widget.settings?.sortingColumn && tempResponse?.metaData?.fields?.length > 2) tempResponse = formatReponseWithTheExternalSortingColumn(tempResponse, widget.settings.sortingOrder)
+        if (widget.settings?.sortingColumn && tempResponse?.metaData?.fields?.length > 2) {
+            tempResponse = formatReponseWithTheExternalSortingColumn(tempResponse, widget.settings.sortingOrder)
+        }
 
-        return tempResponse
+        // Store response by column name
+        multiColumnResponses[column.columnName] = tempResponse
     }
+
+    return multiColumnResponses
 }
 
 const formatSelectorWidgetModelForService = (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, dataset: IDashboardDataset, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {

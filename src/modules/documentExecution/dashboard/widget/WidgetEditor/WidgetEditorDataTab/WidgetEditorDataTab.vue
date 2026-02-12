@@ -2,8 +2,8 @@
     <ChartGallery v-if="chartPickerVisible" :widget-model="widget" @selectedChartTypeChanged="onChartTypeChanged" />
     <div v-else-if="widget" class="p-d-flex kn-flex">
         <WidgetEditorHint v-if="!selectedDataset"></WidgetEditorHint>
-        <WidgetEditorCommonDataContainer v-else-if="['table', 'html', 'text', 'discovery', 'customchart', 'python', 'r'].includes(widget.type)" class="kn-flex" :prop-widget-model="widget" :selected-dataset="selectedDataset"></WidgetEditorCommonDataContainer>
-        <SelectorWidgetDataContainer v-else-if="widget.type === 'selector'" class="kn-flex" :widget-model="propWidget" :selected-dataset="selectedDataset" :selected-dataset-columns="selectedDatasetColumns"></SelectorWidgetDataContainer>
+        <WidgetEditorCommonDataContainer v-else-if="['table', 'html', 'text', 'discovery', 'customchart', 'python', 'r', 'selector'].includes(widget.type)" class="kn-flex" :prop-widget-model="widget" :selected-dataset="selectedDataset"></WidgetEditorCommonDataContainer>
+        <!-- <SelectorWidgetDataContainer v-else-if="widget.type === 'selector'" class="kn-flex" :widget-model="propWidget" :selected-dataset="selectedDataset" :selected-dataset-columns="selectedDatasetColumns"></SelectorWidgetDataContainer> -->
         <HighchartsDataContainer v-else-if="widget.type === 'highcharts' && isEnterprise" class="kn-flex" :widget-model="propWidget" :selected-dataset="selectedDataset" :listDragActive="listDragActive" @selectedChartTypeChanged="onChartTypeChanged"></HighchartsDataContainer>
         <ChartJSDataContainer v-else-if="widget.type === 'chartJS'" class="kn-flex" :widget-model="propWidget" :selected-dataset="selectedDataset" @selectedChartTypeChanged="onChartTypeChanged"></ChartJSDataContainer>
         <PivotTableDataContainer v-else-if="widget.type === 'static-pivot-table'" class="kn-flex" :prop-widget-model="propWidget" :selected-dataset="selectedDataset"></PivotTableDataContainer>

@@ -1,5 +1,4 @@
 <template>
-    <!-- {{ selectedValue }} - {{ selectedValues }} - {{ selectedDate }} - {{ startDate }} - {{ endDate }} -->
     <div v-if="options" class="selector-widget dashboard-scrollbar">
         <RadioSelector v-if="widgetType === 'singleValue'" :model-value="selectedValue" :options="singleValueOptions" :radio-style="propWidget.settings.style.radio" @update:model-value="radioSelectorChanged" />
 
@@ -16,6 +15,11 @@
         <SliderSelector v-if="widgetType === 'slider'" :model-value="selectedValue" :options="sliderOptions" :slider-style="propWidget.settings.style.slider" @update:model-value="sliderSelectorChanged" />
 
         <RangeSelector v-if="widgetType === 'range'" :model-value="selectedRange" :options="sliderOptions" :range-style="propWidget.settings.style.range" @update:model-value="rangeSelectorChanged" />
+
+        <!-- Local play button for multi-value selectors in local mode -->
+        <div v-if="showLocalPlayButton" class="selector-widget-play-button-container">
+            <button class="selector-widget-play-button" @click="applyLocalSelections"><i class="fas fa-play"></i> Apply</button>
+        </div>
     </div>
 </template>
 
@@ -50,9 +54,10 @@ export default defineComponent({
         dashboardId: { type: String, required: true },
         datasets: { type: Array as PropType<IDataset[]>, required: true },
         selectionIsLocked: { type: Boolean, required: true },
-        editorMode: { type: Boolean }
+        editorMode: { type: Boolean },
+        localMode: { type: Boolean, default: false }
     },
-    emits: ['close'],
+    emits: ['close', 'selectionChanged'],
     data() {
         return {
             dashboardDescriptor,
@@ -73,7 +78,6 @@ export default defineComponent({
     computed: {
         widgetType(): string {
             const type = this.propWidget.settings.configuration.selectorType.modality || null
-            console.log('[SelectorWidget] widgetType computed:', type, 'slider style:', this.propWidget.settings.style?.slider)
             return type
         },
         showMode(): string {
@@ -101,6 +105,11 @@ export default defineComponent({
         },
         sliderOptions(): any[] {
             return this.getFilteredOptionsForDisplay().map((row: any) => ({ ...row }))
+        },
+        showLocalPlayButton(): boolean {
+            // Show play button only for multi-value types in local mode when there are local selections
+            const isMultiValueType = ['multivalue', 'multidropdown', 'daterange', 'range'].includes(this.widgetType?.toLowerCase())
+            return this.localMode && isMultiValueType && this.activeSelections.length > 0
         }
     },
     watch: {
@@ -143,12 +152,12 @@ export default defineComponent({
             emitter.off('selectionsDeleted', this.onSelectionsDeleted)
         },
         loadInitialValues() {
-            // this.initialOptions = deepcopy(this.widgetInitialData) // potentially not needed, leaving it for reference
             this.initialOptions = this.widgetInitialData
             this.loadAvailableOptions(this.dataToShow)
         },
         loadAvailableOptions(dataToShow: any) {
             this.options = { rows: [] }
+
             if (!dataToShow || !dataToShow.rows) return
 
             const dataToShowSet = new Set(dataToShow.rows.map((row: any) => String(row.column_1)))
@@ -259,32 +268,48 @@ export default defineComponent({
             if (index !== -1) this.activeSelections[index] = tempSelection
             else this.activeSelections.push(tempSelection)
         },
+        emitSelectionChange(selection: ISelection) {
+            if (this.localMode) {
+                this.$emit('selectionChanged', selection)
+            } else {
+                updateStoreSelections(selection, this.activeSelections, this.dashboardId, this.setSelections, this.$http)
+            }
+        },
         radioSelectorChanged(event: any) {
             this.selectedValue = event
             if (this.editorMode) return
-            updateStoreSelections(this.createNewSelection([this.selectedValue]), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
+            const selection = this.createNewSelection([this.selectedValue])
+            this.emitSelectionChange(selection)
         },
         checkboxSelectorChanged(event: any) {
             this.selectedValues = event
             if (this.editorMode) return
             const tempSelection = this.createNewSelection(this.selectedValues) as ISelection
             this.updateActiveSelectionsWithMultivalueSelection(tempSelection)
+            if (this.localMode) {
+                this.$emit('selectionChanged', tempSelection)
+            }
         },
         dropdownSelectorChanged(value: any) {
             this.selectedValue = value
             if (this.editorMode) return
-            updateStoreSelections(this.createNewSelection([this.selectedValue]), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
+            const selection = this.createNewSelection([this.selectedValue])
+            this.emitSelectionChange(selection)
         },
         multiDropdownSelectorChanged(values: any) {
             this.selectedValues = values
             if (this.editorMode) return
             const tempSelection = this.createNewSelection(this.selectedValues) as ISelection
             this.updateActiveSelectionsWithMultivalueSelection(tempSelection)
+            if (this.localMode) {
+                this.$emit('selectionChanged', tempSelection)
+            }
         },
         dateSelectionChanged(dateValue: string) {
             if (this.editorMode) return
             this.selectedDate = dateValue
-            updateStoreSelections(this.createNewSelection([moment(deepcopy(dateValue)).format(dashboardDescriptor.selectionsDateFormat)]), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
+            const selection = this.createNewSelection([moment(deepcopy(dateValue)).format(dashboardDescriptor.selectionsDateFormat)])
+            this.emitSelectionChange(selection)
         },
         getDateRangeValues(): string[] {
             return [this.startDate ? moment(this.startDate).format('YYYY/MM/DD') : '', this.endDate ? moment(this.endDate).format('YYYY/MM/DD') : '']
@@ -305,12 +330,13 @@ export default defineComponent({
 
             // Create selection with filtered dates and update store
             const tempSelection = this.createNewSelection(filteredDates)
-            updateStoreSelections(tempSelection, this.activeSelections, this.dashboardId, this.setSelections, this.$http)
+            this.emitSelectionChange(tempSelection)
         },
         sliderSelectorChanged(value: number) {
             this.selectedValue = value
             if (this.editorMode) return
-            updateStoreSelections(this.createNewSelection([value]), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
+            const selection = this.createNewSelection([value])
+            this.emitSelectionChange(selection)
         },
         rangeSelectorChanged(data: any) {
             if (this.editorMode) return
@@ -324,7 +350,68 @@ export default defineComponent({
             // Create selection with filtered values and update store
             const tempSelection = this.createNewSelection(filteredValues) as ISelection
             this.updateActiveSelectionsWithMultivalueSelection(tempSelection)
+            if (this.localMode) {
+                this.$emit('selectionChanged', tempSelection)
+            }
+        },
+        async applyLocalSelections() {
+            // In local mode, emit event to parent container to handle store update
+            // Don't call setSelections directly - let parent manage dashboard selections
+            if (this.localMode) {
+                this.$emit('selectionChanged', { isApplyClick: true })
+            } else {
+                // Fallback for non-local mode (shouldn't happen, but safe)
+                if (this.activeSelections.length > 0) {
+                    await this.setSelections(this.dashboardId, this.activeSelections, this.$http)
+                }
+            }
         }
     }
 })
 </script>
+
+<style lang="scss" scoped>
+.selector-widget {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    .selector-widget-play-button-container {
+        display: flex;
+        justify-content: center;
+        padding: 12px;
+        background-color: #f5f5f5;
+        border-top: 1px solid #e0e0e0;
+        margin-top: auto;
+        flex-shrink: 0;
+
+        .selector-widget-play-button {
+            background-color: #1976d2;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+            font-size: 14px;
+
+            &:hover:not(:disabled) {
+                background-color: #1565c0;
+            }
+
+            &:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+
+            i {
+                font-size: 12px;
+            }
+        }
+    }
+}
+</style>
