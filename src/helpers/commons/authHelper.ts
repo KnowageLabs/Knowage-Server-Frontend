@@ -30,7 +30,7 @@ export default {
                 store.storeClearIndexedDBCache()
                 store.setUser({})
                 store.setLoading(false)
-                router.replace({ path: '/login', query: { query }, hash: '' })
+                router.replace({ path: '/login', query: { logout: query }, hash: '' })
             })
     },
     handleUnauthorized(): void {

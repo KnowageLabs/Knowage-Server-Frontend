@@ -1,5 +1,8 @@
 <template>
-    <div class="login-container">
+    <div class="login-container" :class="{ 'bg-loading': !backgroundLoaded }" :style="containerStyles">
+        <!-- Spinner di caricamento del background -->
+        <q-linear-progress v-if="!backgroundLoaded" indeterminate color="primary" class="bg-loading-progress" />
+
         <q-card class="login-card">
             <!-- Logo sempre visibile -->
             <q-card-section class="text-center q-pb-none">
@@ -79,86 +82,44 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useI18n } from 'vue-i18n'
-import axios from 'axios'
-import mainStore from '@/App.store'
-import { loadLanguageAsync } from '@/App.i18n.js'
+import { onMounted, computed } from 'vue'
+import { useRoute } from 'vue-router'
+import { useLoginConfig } from '@/composables/useLoginConfig'
+import { useTokenVerification } from '@/composables/useTokenVerification'
+import { useAuthFlows } from '@/composables/useAuthFlows'
 import MfaVerification from './MfaVerification.vue'
 import ForgotPassword from './ForgotPassword.vue'
 import ResetPassword from './ResetPassword.vue'
 import Registration from './Registration.vue'
 
-const router = useRouter()
 const route = useRoute()
-const { t, locale } = useI18n()
-const store = mainStore()
-
-const username = ref('')
-const password = ref('')
-const isPwd = ref(true)
-const loading = ref(false)
-const error = ref('')
-const success = ref('')
 const publicPath = import.meta.env.VITE_PUBLIC_PATH
-const loginConfig = ref<any>(null)
-const showMfa = ref(false)
-const showForgotPassword = ref(false)
-const showResetPassword = ref(false)
-const showRegistration = ref(false)
-const resetToken = ref('')
-const mfaData = ref<{ tokenMfa: string; secret?: string; qrCodeUrl?: string }>({
-    tokenMfa: '',
-    secret: undefined,
-    qrCodeUrl: undefined
-})
 
-// Carica le configurazioni della login all'avvio del componente
-const loadLoginConfig = async () => {
-    const response = await axios.get(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/loginconfig`)
-    loginConfig.value = response.data
+// Composables
+const { backgroundUrl, backgroundLoaded, loadLoginConfig, preloadImage } = useLoginConfig()
+const authFlows = useAuthFlows()
+const { resetToken, verifyResetToken, verifyRegistrationToken } = useTokenVerification(authFlows.error, authFlows.success)
 
-    // Imposta la lingua di default se presente
-    if (loginConfig.value?.items?.[0]?.defaultLanguage) {
-        const defaultLocale = loginConfig.value.items[0].defaultLanguage.replace('_', '-')
-        localStorage.setItem('locale', defaultLocale)
-        store.setLocale(defaultLocale)
-        locale.value = defaultLocale
-        await loadLanguageAsync(defaultLocale)
-    }
-}
+// Expose nel template
+const { username, password, isPwd, loading, error, success, showMfa, showForgotPassword, showResetPassword, showRegistration, mfaData, onSubmit, onMfaSuccess, onMfaError, onForgotPasswordBack, onForgotPasswordSuccess, onForgotPasswordError, onResetPasswordSuccess, onResetPasswordError, onRegistrationBack, onRegistrationSuccess, onRegistrationError, openForgotPassword, openRegistration } = authFlows
 
-const verifyResetToken = async (token: string) => {
-    try {
-        await axios.post(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/resetPassword/verifyToken`, {
-            token: token
-        })
-        // Token valido
-        resetToken.value = token
-        showResetPassword.value = true
-    } catch (err: any) {
-        console.error('Errore durante la verifica del token di reset:', err)
-        error.value = err.response?.data?.message || t('common.loginPage.invalidResetToken')
-    }
-}
+// Computed styles
+const containerStyles = computed(() => ({
+    backgroundImage: `url('${backgroundUrl.value}')`,
+    backgroundRepeat: 'no-repeat',
+    backgroundSize: 'cover',
+    backgroundAttachment: 'fixed'
+}))
 
-const verifyRegistrationToken = async (token: string) => {
-    try {
-        await axios.post(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/2.0/signup/active`, {
-            token: token
-        })
-        // Token valido - account attivato
-        success.value = t('common.loginPage.registrationActivated')
-        // Rimuovi il registrationToken dall'URL
-        router.replace({ query: {} })
-    } catch (err: any) {
-        console.error("Errore durante l'attivazione dell'account:", err)
-        error.value = err.response?.data?.message || t('common.loginPage.registrationActivationError')
-    }
-}
-
+// Lifecycle
 onMounted(async () => {
+    // Precarica l'immagine di default
+    try {
+        await preloadImage(backgroundUrl.value)
+    } catch (err) {
+        console.warn('Failed to preload default background', err)
+    }
+
     await loadLoginConfig()
 
     // Verifica se c'è un resetToken nell'URL
@@ -173,152 +134,6 @@ onMounted(async () => {
         await verifyRegistrationToken(urlRegistrationToken)
     }
 })
-
-const completeLogin = async (token: string) => {
-    // Salva il token JWT in localStorage
-    localStorage.setItem('token', token)
-
-    // Chiama l'endpoint /currentuser per ottenere le informazioni complete dell'utente
-    const userResponse = await axios.get(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/2.0/currentuser`)
-    const currentUser = userResponse.data
-
-    // Gestisci il session role
-    if (localStorage.getItem('sessionRole')) {
-        currentUser.sessionRole = localStorage.getItem('sessionRole')
-    } else if (currentUser.defaultRole) {
-        currentUser.sessionRole = currentUser.defaultRole
-    }
-
-    // Inizializza l'utente nello store
-    store.initializeUser(currentUser)
-
-    // Gestisci locale
-    const responseLocale = currentUser.locale || 'en_US'
-    let storedLocale = responseLocale.replace('_', '-')
-    if (localStorage.getItem('locale')) {
-        storedLocale = localStorage.getItem('locale')
-    }
-    localStorage.setItem('locale', storedLocale)
-    store.setLocale(storedLocale)
-    await loadLanguageAsync(storedLocale)
-
-    // Redirect alla home o alla pagina richiesta
-    const redirect = (router.currentRoute.value.query.redirect as string) || '/'
-    router.push(redirect)
-}
-
-const onMfaSuccess = async (token: string) => {
-    try {
-        await completeLogin(token)
-    } catch (err: any) {
-        error.value = err.response?.data?.message || t('common.loginPage.loginError')
-        showMfa.value = false
-    }
-}
-
-const onMfaError = (message: string) => {
-    error.value = message
-    success.value = ''
-    showMfa.value = false
-}
-
-const onForgotPasswordBack = () => {
-    showForgotPassword.value = false
-    error.value = ''
-    success.value = ''
-}
-
-const onForgotPasswordSuccess = (message: string) => {
-    success.value = message
-    error.value = ''
-}
-
-const onForgotPasswordError = (message: string) => {
-    error.value = message
-    success.value = ''
-}
-
-const onResetPasswordSuccess = (message: string) => {
-    success.value = message
-    error.value = ''
-    showResetPassword.value = false
-    // Rimuovi il resetToken dall'URL
-    router.replace({ query: {} })
-}
-
-const onResetPasswordError = (message: string) => {
-    error.value = message
-    success.value = ''
-}
-
-const onRegistrationBack = () => {
-    showRegistration.value = false
-    error.value = ''
-    success.value = ''
-}
-
-const onRegistrationSuccess = (message: string) => {
-    success.value = message
-    error.value = ''
-    showRegistration.value = false
-}
-
-const onRegistrationError = (message: string) => {
-    error.value = message
-    success.value = ''
-}
-
-const openForgotPassword = () => {
-    showForgotPassword.value = true
-    error.value = ''
-    success.value = ''
-}
-
-const openRegistration = () => {
-    showRegistration.value = true
-    error.value = ''
-    success.value = ''
-}
-
-const onSubmit = async () => {
-    loading.value = true
-    error.value = ''
-    success.value = ''
-
-    try {
-        // Chiamata API per login che restituisce il token JWT
-        const loginResponse = await axios.post(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/login`, {
-            userID: username.value,
-            password: password.value
-        })
-
-        // Verifica se è richiesta l'autenticazione MFA
-        if (loginResponse.data && loginResponse.data.tokenMfa) {
-            // Mostra il form MFA
-            mfaData.value = {
-                tokenMfa: loginResponse.data.tokenMfa,
-                secret: loginResponse.data.secret,
-                qrCodeUrl: loginResponse.data.qrCodeUrl
-            }
-            showMfa.value = true
-        }
-        // Verifica che ci sia il token nella risposta
-        else if (loginResponse.data && loginResponse.data.token) {
-            await completeLogin(loginResponse.data.token)
-        } else {
-            error.value = t('common.loginPage.loginError')
-        }
-    } catch (err: any) {
-        console.error('Errore durante il login:', err)
-
-        // Pulisci il token se il login fallisce
-        localStorage.removeItem('token')
-
-        error.value = err.response?.data?.message || t('common.loginPage.loginError')
-    } finally {
-        loading.value = false
-    }
-}
 </script>
 
 <style scoped lang="scss">
@@ -328,10 +143,9 @@ const onSubmit = async () => {
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    background: url('/images/home/home-background.jpg') no-repeat;
-    background-size: cover;
     padding: 20px;
     position: relative;
+    transition: background-image 0.3s ease-in-out;
 
     &::before {
         content: '';
@@ -343,6 +157,23 @@ const onSubmit = async () => {
         background-color: rgba(255, 255, 255, 0.1);
         z-index: 0;
     }
+
+    // Se il background è in loading, usa un colore di fallback
+    &.bg-loading {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+        &::before {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+    }
+}
+
+.bg-loading-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
 }
 
 .login-card {
