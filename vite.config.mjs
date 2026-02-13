@@ -31,8 +31,8 @@ export default defineConfig((command, mode) => {
                     enabled: true
                 },
                 workbox: {
-                    skipWaiting: false,
-                    clientsClaim: false,
+                    skipWaiting: true,
+                    clientsClaim: true,
                     globPatterns: ['**/*.{js,css,woff2,ttf}'],
                     globIgnores: ['**/ts.worker*.js', '**/kpiLang*.js', '**/manifest.webmanifest'],
                     maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
