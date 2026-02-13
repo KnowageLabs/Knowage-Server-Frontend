@@ -175,14 +175,6 @@ export default defineComponent({
             return this.user.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user.sessionRole : null
         }
     },
-    watch: {
-        'user.locale'(newLocale: string) {
-            // If QBE is open, rebuild the URL with the new language
-            if (this.qbeIframeVisible && this.qbeDataset) {
-                this.buildQbeUrl(this.qbeDataset)
-            }
-        }
-    },
     created() {
         this.uniqueID = crypto.randomUUID()
     },
