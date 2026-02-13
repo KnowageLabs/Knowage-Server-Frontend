@@ -185,6 +185,11 @@ export const useAuthFlows = () => {
         clearMessages()
     }
 
+    const openResetPassword = () => {
+        showResetPassword.value = true
+        clearMessages()
+    }
+
     const openRegistration = () => {
         showRegistration.value = true
         clearMessages()
@@ -205,6 +210,7 @@ export const useAuthFlows = () => {
         resetToken,
         mfaData,
         // Methods
+        completeLogin,
         onSubmit,
         onMfaSuccess,
         onMfaError,
@@ -217,6 +223,7 @@ export const useAuthFlows = () => {
         onRegistrationSuccess,
         onRegistrationError,
         openForgotPassword,
+        openResetPassword,
         openRegistration,
         resetFlowState
     }

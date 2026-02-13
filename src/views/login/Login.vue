@@ -101,7 +101,17 @@ const authFlows = useAuthFlows()
 const { resetToken, verifyResetToken, verifyRegistrationToken } = useTokenVerification(authFlows.error, authFlows.success)
 
 // Expose nel template
-const { username, password, isPwd, loading, error, success, showMfa, showForgotPassword, showResetPassword, showRegistration, mfaData, onSubmit, onMfaSuccess, onMfaError, onForgotPasswordBack, onForgotPasswordSuccess, onForgotPasswordError, onResetPasswordSuccess, onResetPasswordError, onRegistrationBack, onRegistrationSuccess, onRegistrationError, openForgotPassword, openRegistration } = authFlows
+const { username, password, isPwd, loading, error, success, showMfa, showForgotPassword, showResetPassword, showRegistration, mfaData, onSubmit, onMfaSuccess, onMfaError, onForgotPasswordBack, onForgotPasswordSuccess, onForgotPasswordError, onResetPasswordSuccess, onResetPasswordError, onRegistrationBack, onRegistrationSuccess, onRegistrationError, openForgotPassword, openResetPassword, openRegistration, completeLogin } = authFlows
+
+// Helper per leggere i cookie
+const getCookie = (name: string): string | null => {
+    const value = `; ${document.cookie}`
+    const parts = value.split(`; ${name}=`)
+    if (parts.length === 2) {
+        return parts.pop()?.split(';').shift() || null
+    }
+    return null
+}
 
 // Computed styles
 const containerStyles = computed(() => ({
@@ -113,6 +123,19 @@ const containerStyles = computed(() => ({
 
 // Lifecycle
 onMounted(async () => {
+    // Verifica se esiste il cookie KNOWAGE_TOKEN
+    const knowageToken = getCookie('KNOWAGE_TOKEN')
+    if (knowageToken) {
+        try {
+            // Salva il token nel localStorage e procedi con il login automatico
+            await completeLogin(knowageToken)
+            return // Esci senza mostrare la maschera di login
+        } catch (err) {
+            console.error('Errore durante il login automatico con cookie:', err)
+            // Se il login automatico fallisce, continua con il flusso normale
+        }
+    }
+
     // Precarica l'immagine di default
     try {
         await preloadImage(backgroundUrl.value)
@@ -125,7 +148,10 @@ onMounted(async () => {
     // Verifica se c'è un resetToken nell'URL
     const urlResetToken = route.query.resetToken as string
     if (urlResetToken) {
-        await verifyResetToken(urlResetToken)
+        const isValid = await verifyResetToken(urlResetToken)
+        if (isValid) {
+            openResetPassword()
+        }
     }
 
     // Verifica se c'è un registrationToken nell'URL
