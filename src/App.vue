@@ -2,7 +2,6 @@
     <Toast></Toast>
     <ConfirmDialog></ConfirmDialog>
     <KnOverlaySpinnerPanel />
-    <KnUpdatePrompt v-model:visible="showUpdatePrompt" @update="handleUpdate" @dismiss="handleDismissUpdate" />
     <div class="layout-wrapper-content" :class="{ 'layout-wrapper-content-embed': documentExecution.embed, isMobileDevice: isMobileDevice }">
         <MainMenu v-if="showMenu && mainMenuVisibility" :closeMenu="closedMenu" @openMenu="openMenu" data-tour-id="main-menu"></MainMenu>
 
@@ -17,7 +16,6 @@
 import ConfirmDialog from 'primevue/confirmdialog'
 import KnOverlaySpinnerPanel from '@/components/UI/KnOverlaySpinnerPanel.vue'
 import KnRotate from '@/components/UI/KnRotate.vue'
-import KnUpdatePrompt from '@/components/UI/KnUpdatePrompt.vue'
 import MainMenu from '@/modules/mainMenu/MainMenu'
 import Toast from 'primevue/toast'
 import { defineComponent } from 'vue'
@@ -34,7 +32,7 @@ import { useServiceWorker } from '@/composables/useServiceWorker'
 import { decodeJWT, isTokenExpired } from '@/helpers/commons/jwtHelper'
 
 export default defineComponent({
-    components: { ConfirmDialog, KnOverlaySpinnerPanel, KnRotate, KnUpdatePrompt, MainMenu, Toast },
+    components: { ConfirmDialog, KnOverlaySpinnerPanel, KnRotate, MainMenu, Toast },
 
     data() {
         return {
@@ -92,6 +90,7 @@ export default defineComponent({
             })
         },
         warning(newWarning) {
+            console.log('asd')
             this.$toast.add({
                 severity: 'warn',
                 summary: newWarning.title ? this.$t(newWarning.title) : '',
@@ -99,8 +98,37 @@ export default defineComponent({
                 baseZIndex: typeof newWarning.baseZIndex == 'undefined' ? 0 : newWarning.baseZIndex,
                 life: typeof newWarning.duration == 'undefined' ? import.meta.env.VUE_APP_TOAST_DURATION : newWarning.duration
             })
+        },
+        'swRefresh.showUpdatePrompt'(newVal) {
+            console.log('[App.vue] swRefresh.showUpdatePrompt cambiato:', newVal)
+            if (newVal) {
+                console.log('[App.vue] Mostrando Quasar notify')
+                this.$q.notify({
+                    message: this.$t('common.updateAvailableMessage'),
+                    position: 'bottom',
+                    color: 'primary',
+                    timeout: 0,
+                    actions: [
+                        {
+                            label: this.$t('common.later'),
+                            color: 'white',
+                            handler: () => {
+                                this.swRefresh.dismissUpdate()
+                            }
+                        },
+                        {
+                            label: this.$t('common.updateNow'),
+                            color: 'white',
+                            handler: () => {
+                                this.swRefresh.reloadApp()
+                            }
+                        }
+                    ]
+                })
+            }
         }
     },
+
     async created() {
         // Inizializza il service worker
         this.swRefresh = useServiceWorker()
@@ -299,11 +327,6 @@ export default defineComponent({
         async onLoad() {
             this.showMenu = true
 
-            // Controlla aggiornamenti del service worker
-            if (this.swRefresh.needRefresh.value) {
-                this.showUpdatePrompt = true
-            }
-
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/export/dataset').then((response) => {
                 const totalDownloads = response.data.length
                 const alreadyDownloaded = response.data.filter((x) => x.alreadyDownloaded).length
@@ -489,12 +512,6 @@ export default defineComponent({
                     }
                 }
             }
-        },
-        handleUpdate() {
-            this.swRefresh.reloadApp()
-        },
-        handleDismissUpdate() {
-            this.swRefresh.dismissUpdate()
         }
     }
 })

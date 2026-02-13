@@ -1,19 +1,17 @@
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRegisterSW } from 'virtual:pwa-register/vue'
 
 export const useServiceWorker = () => {
     const { offlineReady, needRefresh, updateServiceWorker } = useRegisterSW({
         immediate: true,
         onRegistered(registration) {
-            console.log('[SW] Service Worker registered successfully:', registration)
+            console.log('[SW] Service Worker registered successfully')
 
             if (registration) {
-                setInterval(
-                    () => {
-                        registration.update()
-                    },
-                    60 * 60 * 1000
-                )
+                const interval = import.meta.env.DEV ? 10 * 1000 : 60 * 60 * 1000
+                setInterval(() => {
+                    registration.update()
+                }, interval)
             }
         },
         onRegisterError(error) {
@@ -22,6 +20,16 @@ export const useServiceWorker = () => {
     })
 
     const showUpdatePrompt = ref(false)
+
+    // Watch needRefresh and update showUpdatePrompt
+    watch(
+        () => needRefresh.value,
+        (newValue) => {
+            if (newValue) {
+                showUpdatePrompt.value = true
+            }
+        }
+    )
 
     const checkForUpdates = () => {
         if (needRefresh.value) {

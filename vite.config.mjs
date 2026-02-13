@@ -31,7 +31,7 @@ export default defineConfig((command, mode) => {
                     enabled: true
                 },
                 workbox: {
-                    skipWaiting: true,
+                    skipWaiting: false,
                     clientsClaim: true,
                     globPatterns: ['**/*.{js,css,woff2,ttf}'],
                     globIgnores: ['**/ts.worker*.js', '**/kpiLang*.js', '**/manifest.webmanifest'],
