@@ -31,10 +31,10 @@ export default defineConfig((command, mode) => {
                     enabled: true
                 },
                 workbox: {
-                    skipWaiting: true,
-                    clientsClaim: true,
+                    skipWaiting: false,
+                    clientsClaim: false,
                     globPatterns: ['**/*.{js,css,woff2,ttf}'],
-                    globIgnores: ['**/ts.worker*.js', '**/kpiLang*.js'],
+                    globIgnores: ['**/ts.worker*.js', '**/kpiLang*.js', '**/manifest.webmanifest'],
                     maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
                     navigateFallback: null,
                     runtimeCaching: [
@@ -104,7 +104,11 @@ export default defineConfig((command, mode) => {
                         }
                     ]
                 },
-                useCredentials: true,
+                manifestFilename: 'manifest.webmanifest',
+                injectManifest: {
+                    globPatterns: ['**/*.{js,css,woff2,ttf}'],
+                    globIgnores: ['**/manifest.webmanifest']
+                },
                 manifest: {
                     name: 'Knowage',
                     short_name: 'Knowage',
