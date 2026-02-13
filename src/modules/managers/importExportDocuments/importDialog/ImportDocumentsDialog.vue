@@ -10,13 +10,28 @@
                 </FileUpload>
             </q-step>
 
-            <q-step :name="2" title="Exported Roles" icon="create_new_folder" :done="step > 2">
-                <form class="p-fluid p-formgrid p-grid kn-toolbar--secondary p-m-0 p-p-0">
+            <q-step :name="2" :title="hasImportErrors ? $t('managers.importExportDocs.uploadErrors') : 'Exported Roles'" icon="create_new_folder" :done="step > 2">
+                <!-- If there are import errors reported by the server after upload, show them here -->
+                <div v-if="hasImportErrors" class="p-mb-4">
+                    <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #ffebee; color: #c62828; font-weight: bold">
+                        <i class="fa fa-exclamation-triangle p-mr-2"></i>
+                        {{ $t('managers.importExportDocs.uploadErrors') }}
+                    </div>
+                    <ul class="roles-list p-mt-0">
+                        <li v-for="(err, idx) in importErrors.concat(importData.errors || [])" :key="'import-err-' + idx" class="p-p-2">
+                            <div class="p-d-flex p-flex-column">
+                                <span style="font-size: 0.95rem; color: #333">{{ err.message || err }}</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <!-- hide the source/target header when showing upload errors -->
+                <form v-if="!hasImportErrors" class="p-fluid p-formgrid p-grid kn-toolbar--secondary p-m-0 p-p-0">
                     <b class="p-field p-col-6 p-d-flex p-jc-center p-ai-center p-m-0">{{ $t('common.source') }}</b>
 
                     <b class="p-field p-col-6 p-d-flex p-jc-center p-ai-center p-m-0">{{ $t('common.target') }}</b>
                 </form>
-                <ul class="roles-list p-mt-0">
+                <ul v-if="!hasImportErrors" class="roles-list p-mt-0">
                     <li v-for="(expRol, index) in importData.roles.exportedRoles" :key="index">
                         <form class="p-fluid p-formgrid p-grid p-m-1">
                             <p class="p-field p-col-6 p-d-flex p-jc-center p-ai-center p-m-0">
@@ -150,13 +165,11 @@
                 <div class="metadata-summary-container">
                     <!-- DOCUMENTS SECTION -->
                     <div v-if="hasDocuments" class="p-mb-4 category-section">
-                        <div style="font-weight: bold; font-size: 1rem; margin-bottom: 1rem; border-bottom: 2px solid #333; padding-bottom: 0.5rem">
-                            <i class="fa fa-file p-mr-2"></i>Documents
-                        </div>
+                        <div style="font-weight: bold; font-size: 1rem; margin-bottom: 1rem; border-bottom: 2px solid #333; padding-bottom: 0.5rem"><i class="fa fa-file p-mr-2"></i>Documents</div>
                         <div class="p-d-flex p-flex-row p-gap-3">
                             <!-- New Documents -->
                             <div v-if="importData.summary.toCreateObjects?.documents?.length > 0" class="p-flex-1">
-                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #e8f5e9; color: #2e7d32; font-weight: bold;">
+                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #e8f5e9; color: #2e7d32; font-weight: bold">
                                     <i class="fa fa-plus-circle p-mr-2"></i>
                                     New
                                 </div>
@@ -168,7 +181,7 @@
                             </div>
                             <!-- Existing Documents -->
                             <div v-if="importData.summary.existingObjects?.documents?.length > 0" class="p-flex-1">
-                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #fff3e0; color: #e65100; font-weight: bold;">
+                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #fff3e0; color: #e65100; font-weight: bold">
                                     <i class="fa fa-info-circle p-mr-2"></i>
                                     Existing
                                 </div>
@@ -183,13 +196,11 @@
 
                     <!-- DATASETS SECTION -->
                     <div v-if="hasDatasets" class="p-mb-4 category-section">
-                        <div style="font-weight: bold; font-size: 1rem; margin-bottom: 1rem; border-bottom: 2px solid #333; padding-bottom: 0.5rem">
-                            <i class="fa fa-database p-mr-2"></i>Datasets
-                        </div>
+                        <div style="font-weight: bold; font-size: 1rem; margin-bottom: 1rem; border-bottom: 2px solid #333; padding-bottom: 0.5rem"><i class="fa fa-database p-mr-2"></i>Datasets</div>
                         <div class="p-d-flex p-flex-row p-gap-3">
                             <!-- New Datasets -->
                             <div v-if="importData.summary.toCreateObjects?.datasets?.length > 0" class="p-flex-1">
-                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #e8f5e9; color: #2e7d32; font-weight: bold;">
+                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #e8f5e9; color: #2e7d32; font-weight: bold">
                                     <i class="fa fa-plus-circle p-mr-2"></i>
                                     New
                                 </div>
@@ -201,7 +212,7 @@
                             </div>
                             <!-- Existing Datasets -->
                             <div v-if="importData.summary.existingObjects?.datasets?.length > 0" class="p-flex-1">
-                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #fff3e0; color: #e65100; font-weight: bold;">
+                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #fff3e0; color: #e65100; font-weight: bold">
                                     <i class="fa fa-info-circle p-mr-2"></i>
                                     Existing
                                 </div>
@@ -216,13 +227,11 @@
 
                     <!-- LOVS SECTION -->
                     <div v-if="hasLovs" class="p-mb-4 category-section">
-                        <div style="font-weight: bold; font-size: 1rem; margin-bottom: 1rem; border-bottom: 2px solid #333; padding-bottom: 0.5rem">
-                            <i class="fa fa-list p-mr-2"></i>LOVs
-                        </div>
+                        <div style="font-weight: bold; font-size: 1rem; margin-bottom: 1rem; border-bottom: 2px solid #333; padding-bottom: 0.5rem"><i class="fa fa-list p-mr-2"></i>LOVs</div>
                         <div class="p-d-flex p-flex-row p-gap-3">
                             <!-- New LOVs -->
                             <div v-if="importData.summary.toCreateObjects?.lovs?.length > 0" class="p-flex-1">
-                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #e8f5e9; color: #2e7d32; font-weight: bold;">
+                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #e8f5e9; color: #2e7d32; font-weight: bold">
                                     <i class="fa fa-plus-circle p-mr-2"></i>
                                     New
                                 </div>
@@ -234,7 +243,7 @@
                             </div>
                             <!-- Existing LOVs -->
                             <div v-if="importData.summary.existingObjects?.lovs?.length > 0" class="p-flex-1">
-                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #fff3e0; color: #e65100; font-weight: bold;">
+                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #fff3e0; color: #e65100; font-weight: bold">
                                     <i class="fa fa-info-circle p-mr-2"></i>
                                     Existing
                                 </div>
@@ -249,13 +258,11 @@
 
                     <!-- ENGINES SECTION -->
                     <div v-if="hasEngines" class="p-mb-4 category-section">
-                        <div style="font-weight: bold; font-size: 1rem; margin-bottom: 1rem; border-bottom: 2px solid #333; padding-bottom: 0.5rem">
-                            <i class="fa fa-cog p-mr-2"></i>Engines
-                        </div>
+                        <div style="font-weight: bold; font-size: 1rem; margin-bottom: 1rem; border-bottom: 2px solid #333; padding-bottom: 0.5rem"><i class="fa fa-cog p-mr-2"></i>Engines</div>
                         <div class="p-d-flex p-flex-row p-gap-3">
                             <!-- New Engines -->
                             <div v-if="importData.summary.toCreateObjects?.engines?.length > 0" class="p-flex-1">
-                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #e8f5e9; color: #2e7d32; font-weight: bold;">
+                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #e8f5e9; color: #2e7d32; font-weight: bold">
                                     <i class="fa fa-plus-circle p-mr-2"></i>
                                     New
                                 </div>
@@ -267,7 +274,7 @@
                             </div>
                             <!-- Existing Engines -->
                             <div v-if="importData.summary.existingObjects?.engines?.length > 0" class="p-flex-1">
-                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #fff3e0; color: #e65100; font-weight: bold;">
+                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #fff3e0; color: #e65100; font-weight: bold">
                                     <i class="fa fa-info-circle p-mr-2"></i>
                                     Existing
                                 </div>
@@ -282,13 +289,11 @@
 
                     <!-- FUNCTIONALITIES SECTION -->
                     <div v-if="hasFunctionalities" class="p-mb-4 category-section">
-                        <div style="font-weight: bold; font-size: 1rem; margin-bottom: 1rem; border-bottom: 2px solid #333; padding-bottom: 0.5rem">
-                            <i class="fa fa-folder p-mr-2"></i>Functionalities
-                        </div>
+                        <div style="font-weight: bold; font-size: 1rem; margin-bottom: 1rem; border-bottom: 2px solid #333; padding-bottom: 0.5rem"><i class="fa fa-folder p-mr-2"></i>Functionalities</div>
                         <div class="p-d-flex p-flex-row p-gap-3">
                             <!-- New Functionalities -->
                             <div v-if="importData.summary.toCreateObjects?.functionalities?.length > 0" class="p-flex-1">
-                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #e8f5e9; color: #2e7d32; font-weight: bold;">
+                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #e8f5e9; color: #2e7d32; font-weight: bold">
                                     <i class="fa fa-plus-circle p-mr-2"></i>
                                     New
                                 </div>
@@ -300,7 +305,7 @@
                             </div>
                             <!-- Existing Functionalities -->
                             <div v-if="importData.summary.existingObjects?.functionalities?.length > 0" class="p-flex-1">
-                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #fff3e0; color: #e65100; font-weight: bold;">
+                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #fff3e0; color: #e65100; font-weight: bold">
                                     <i class="fa fa-info-circle p-mr-2"></i>
                                     Existing
                                 </div>
@@ -315,13 +320,11 @@
 
                     <!-- CROSS NAVIGATIONS SECTION -->
                     <div v-if="hasCrossNavigations" class="p-mb-4 category-section">
-                        <div style="font-weight: bold; font-size: 1rem; margin-bottom: 1rem; border-bottom: 2px solid #333; padding-bottom: 0.5rem">
-                            <i class="fa fa-random p-mr-2"></i>Cross Navigations
-                        </div>
+                        <div style="font-weight: bold; font-size: 1rem; margin-bottom: 1rem; border-bottom: 2px solid #333; padding-bottom: 0.5rem"><i class="fa fa-random p-mr-2"></i>Cross Navigations</div>
                         <div class="p-d-flex p-flex-row p-gap-3">
                             <!-- New Cross Navigations -->
                             <div v-if="importData.summary.toCreateObjects?.crossNavigations?.length > 0" class="p-flex-1">
-                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #e8f5e9; color: #2e7d32; font-weight: bold;">
+                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #e8f5e9; color: #2e7d32; font-weight: bold">
                                     <i class="fa fa-plus-circle p-mr-2"></i>
                                     New
                                 </div>
@@ -331,9 +334,9 @@
                                     </li>
                                 </ul>
                             </div>
-                          <!-- Existing Cross Navigations -->
+                            <!-- Existing Cross Navigations -->
                             <div v-if="importData.summary.existingObjects?.crossNavigations?.length > 0" class="p-flex-1">
-                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #fff3e0; color: #e65100; font-weight: bold;">
+                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #fff3e0; color: #e65100; font-weight: bold">
                                     <i class="fa fa-info-circle p-mr-2"></i>
                                     Existing
                                 </div>
@@ -352,7 +355,7 @@
                     <Button class="p-button-text kn-button" :label="$t('common.cancel')" @click="closeDialog" />
                     <span class="p-ml-auto">
                         <Button v-if="step > 1" class="kn-button kn-button--secondary" :label="$t('common.back')" @click=";($refs.stepper as any).previous()" />
-                        <Button class="kn-button kn-button--primary p-ml-2" :disabled="disableStep1 || disableStep4" :label="step === 5 ? $t('common.finish') : $t('common.next')" @click="goToNextStep" />
+                        <Button class="kn-button kn-button--primary p-ml-2" :disabled="disableStep1 || disableStep4 || (step === 5 && hasImportErrors) || (step === 2 && hasImportErrors)" :label="step === 5 ? $t('common.finish') : $t('common.next')" @click="goToNextStep" />
                     </span>
                 </q-stepper-navigation>
             </template>
@@ -384,10 +387,16 @@ export default defineComponent({
             uploadedFiles: [],
             loading: false,
             fileUploadedMessage: '',
-            importData: {} as any
+            importData: {} as any,
+            // server side import errors (returned in upload response)
+            // example: { service: "", errors: [{ message: "..." }] }
+            importErrors: [] as any[]
         }
     },
     computed: {
+        hasImportErrors() {
+            return (this.importErrors && this.importErrors.length > 0) || (this.importData?.errors && this.importData.errors.length > 0)
+        },
         disableStep1() {
             if (this.step === 1) return this.uploadedFiles.length == 0
         },
@@ -395,25 +404,33 @@ export default defineComponent({
             if (this.step === 4) return this.hasEmptyDatasource(this.importData.datasources.associatedDatasources)
         },
         hasDocuments() {
-            return (this.importData.summary?.toCreateObjects?.documents?.length > 0) || (this.importData.summary?.existingObjects?.documents?.length > 0)
+            return this.importData.summary?.toCreateObjects?.documents?.length > 0 || this.importData.summary?.existingObjects?.documents?.length > 0
         },
         hasDatasets() {
-            return (this.importData.summary?.toCreateObjects?.datasets?.length > 0) || (this.importData.summary?.existingObjects?.datasets?.length > 0)
+            return this.importData.summary?.toCreateObjects?.datasets?.length > 0 || this.importData.summary?.existingObjects?.datasets?.length > 0
         },
         hasFunctionalities() {
-            return (this.importData.summary?.toCreateObjects?.functionalities?.length > 0) || (this.importData.summary?.existingObjects?.functionalities?.length > 0)
+            return this.importData.summary?.toCreateObjects?.functionalities?.length > 0 || this.importData.summary?.existingObjects?.functionalities?.length > 0
         },
         hasCrossNavigations() {
-            return (this.importData.summary?.toCreateObjects?.crossNavigations?.length > 0) || (this.importData.summary?.existingObjects?.crossNavigations?.length > 0)
+            return this.importData.summary?.toCreateObjects?.crossNavigations?.length > 0 || this.importData.summary?.existingObjects?.crossNavigations?.length > 0
         },
         hasLovs() {
-            return (this.importData.summary?.toCreateObjects?.lovs?.length > 0) || (this.importData.summary?.existingObjects?.lovs?.length > 0)
+            return this.importData.summary?.toCreateObjects?.lovs?.length > 0 || this.importData.summary?.existingObjects?.lovs?.length > 0
         },
         hasEngines() {
-            return (this.importData.summary?.toCreateObjects?.engines?.length > 0) || (this.importData.summary?.existingObjects?.engines?.length > 0)
+            return this.importData.summary?.toCreateObjects?.engines?.length > 0 || this.importData.summary?.existingObjects?.engines?.length > 0
         }
     },
     created() {},
+    watch: {
+        step(newStep) {
+            if (newStep > 2 && this.hasImportErrors) {
+                // force back to step 2 to ensure user addresses errors first
+                this.step = 2
+            }
+        }
+    },
     methods: {
         closeDialog() {
             this.$emit('close')
@@ -433,6 +450,9 @@ export default defineComponent({
             this.sendFileForImport()
         },
         goToNextStep() {
+            // Prevent advancing if there are import errors reported by the server
+            if (this.step === 2 && this.hasImportErrors) return
+
             switch (this.step) {
                 case 1:
                     ;(this.$refs.stepper as any).next()
@@ -462,10 +482,31 @@ export default defineComponent({
             this.store.setLoading(true)
 
             this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/serverManager/importExport/document/import', importParams)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/serverManager/importExport/document/import', importParams, {
+                    headers: {
+                        'X-Disable-Interceptor': true
+                    }
+                })
                 .then((response: AxiosResponse<any>) => {
                     console.log(this.uploadedFiles[0])
                     console.log(response)
+                    // If the server returned structured errors about importable objects, keep them and proceed to step 2
+                    if (response.data?.errors && Array.isArray(response.data.errors) && response.data.errors.length > 0) {
+                        // store errors locally to show them in step 2
+                        this.importErrors = response.data.errors
+
+                        // still populate roles/other data if present so user can inspect mappings
+                        this.importData.roles = { currentRoles: response.data.currentRoles, exportedRoles: response.data.exportedRoles, associatedRoles: response.data.associatedRoles }
+                        this.importData.notImportable = response.data.notImportable ?? []
+
+                        this.fileUploadedMessage = `${(this.uploadedFiles[0] as any).name} ${this.$t('managers.importExportDocs.fileUploadSuccess')}`
+
+                        // advance to step 2 to let the user see errors and mappings; do not show a global toaster for these errors
+                        ;(this.$refs.stepper as any).next()
+                        return
+                    }
+
+                    // Normal successful upload with no blocking errors
                     this.importData.roles = { currentRoles: response.data.currentRoles, exportedRoles: response.data.exportedRoles, associatedRoles: response.data.associatedRoles }
                     this.importData.notImportable = response.data.notImportable ?? []
 
@@ -593,6 +634,12 @@ export default defineComponent({
         },
         //Step 5
         importDocuments() {
+            // Do not allow final import if there are server-side import errors reported during upload
+            if (this.hasImportErrors) {
+                this.store.setError({ title: this.$t('managers.importExportDocs.importBlocked'), msg: this.$t('managers.importExportDocs.importBlockedDetails') })
+                return
+            }
+
             this.store.setLoading(true)
 
             this.$http
