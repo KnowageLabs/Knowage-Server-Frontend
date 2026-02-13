@@ -331,6 +331,18 @@
                                     </li>
                                 </ul>
                             </div>
+                          <!-- Existing Cross Navigations -->
+                            <div v-if="importData.summary.existingObjects?.crossNavigations?.length > 0" class="p-flex-1">
+                                <div class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-mb-2" style="background-color: #fff3e0; color: #e65100; font-weight: bold;">
+                                    <i class="fa fa-info-circle p-mr-2"></i>
+                                    Existing
+                                </div>
+                                <ul class="summary-list p-mt-0">
+                                    <li v-for="(nav, index) in importData.summary.existingObjects.crossNavigations" :key="'exist-nav-' + index" class="p-p-2">
+                                        {{ nav }}
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -392,7 +404,7 @@ export default defineComponent({
             return (this.importData.summary?.toCreateObjects?.functionalities?.length > 0) || (this.importData.summary?.existingObjects?.functionalities?.length > 0)
         },
         hasCrossNavigations() {
-            return this.importData.summary?.toCreateObjects?.crossNavigations?.length > 0
+            return (this.importData.summary?.toCreateObjects?.crossNavigations?.length > 0) || (this.importData.summary?.existingObjects?.crossNavigations?.length > 0)
         },
         hasLovs() {
             return (this.importData.summary?.toCreateObjects?.lovs?.length > 0) || (this.importData.summary?.existingObjects?.lovs?.length > 0)
