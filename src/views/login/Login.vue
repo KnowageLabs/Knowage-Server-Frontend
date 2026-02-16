@@ -43,7 +43,7 @@
             <Registration v-else-if="showRegistration" @back="onRegistrationBack" @success="onRegistrationSuccess" @error="onRegistrationError" />
 
             <!-- Login Form -->
-            <template v-else>
+            <template v-else-if="showLoginForm">
                 <q-card-section>
                     <q-form @submit="onSubmit" class="q-gutter-md">
                         <q-input v-model="username" :label="$t('common.loginPage.username')" square outlined :rules="[(val) => !!val || $t('common.loginPage.usernameRequired')]" autocomplete="username">
@@ -82,8 +82,9 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
+import { onMounted, computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useLoginConfig } from '@/composables/useLoginConfig'
 import { useTokenVerification } from '@/composables/useTokenVerification'
 import { useAuthFlows } from '@/composables/useAuthFlows'
@@ -93,27 +94,29 @@ import ResetPassword from './ResetPassword.vue'
 import Registration from './Registration.vue'
 
 const route = useRoute()
+const { t } = useI18n()
 const publicPath = import.meta.env.VITE_PUBLIC_PATH
 
-// Composables
-const { backgroundUrl, backgroundLoaded, loadLoginConfig, preloadImage } = useLoginConfig()
+const { backgroundUrl, backgroundLoaded, loadLoginConfig, preloadImage, loginConfig } = useLoginConfig()
 const authFlows = useAuthFlows()
 const { resetToken, verifyResetToken, verifyRegistrationToken } = useTokenVerification(authFlows.error, authFlows.success)
 
-// Expose nel template
 const { username, password, isPwd, loading, error, success, showMfa, showForgotPassword, showResetPassword, showRegistration, mfaData, onSubmit, onMfaSuccess, onMfaError, onForgotPasswordBack, onForgotPasswordSuccess, onForgotPasswordError, onResetPasswordSuccess, onResetPasswordError, onRegistrationBack, onRegistrationSuccess, onRegistrationError, openForgotPassword, openResetPassword, openRegistration, completeLogin } = authFlows
 
-// Helper per leggere i cookie
+const hideLoginForm = ref(false)
+
 const getCookie = (name: string): string | null => {
     const value = `; ${document.cookie}`
     const parts = value.split(`; ${name}=`)
+
     if (parts.length === 2) {
-        return parts.pop()?.split(';').shift() || null
+        const cookieValue = parts.pop()?.split(';').shift() || null
+        return cookieValue
     }
+
     return null
 }
 
-// Computed styles
 const containerStyles = computed(() => ({
     backgroundImage: `url('${backgroundUrl.value}')`,
     backgroundRepeat: 'no-repeat',
@@ -121,22 +124,9 @@ const containerStyles = computed(() => ({
     backgroundAttachment: 'fixed'
 }))
 
-// Lifecycle
-onMounted(async () => {
-    // Verifica se esiste il cookie KNOWAGE_TOKEN
-    const knowageToken = getCookie('KNOWAGE_TOKEN')
-    if (knowageToken) {
-        try {
-            // Salva il token nel localStorage e procedi con il login automatico
-            await completeLogin(knowageToken)
-            return // Esci senza mostrare la maschera di login
-        } catch (err) {
-            console.error('Errore durante il login automatico con cookie:', err)
-            // Se il login automatico fallisce, continua con il flusso normale
-        }
-    }
+const showLoginForm = computed(() => !hideLoginForm.value && !showMfa.value && !showForgotPassword.value && !showResetPassword.value && !showRegistration.value)
 
-    // Precarica l'immagine di default
+onMounted(async () => {
     try {
         await preloadImage(backgroundUrl.value)
     } catch (err) {
@@ -145,7 +135,26 @@ onMounted(async () => {
 
     await loadLoginConfig()
 
-    // Verifica se c'è un resetToken nell'URL
+    const ssoActive = Boolean(loginConfig.value?.items?.[0]?.ssoActive)
+    hideLoginForm.value = ssoActive
+
+    const urlError = route.query.error as string
+    const genericError = t('common.loginPage.loginError')
+
+    const knowageToken = getCookie('KNOWAGE_TOKEN')
+    if (knowageToken) {
+        try {
+            await completeLogin(knowageToken)
+            return
+        } catch (err) {
+            console.error('Errore durante il login automatico con cookie:', err)
+        }
+    }
+
+    if (ssoActive || urlError) {
+        error.value = genericError
+    }
+
     const urlResetToken = route.query.resetToken as string
     if (urlResetToken) {
         const isValid = await verifyResetToken(urlResetToken)
@@ -154,7 +163,6 @@ onMounted(async () => {
         }
     }
 
-    // Verifica se c'è un registrationToken nell'URL
     const urlRegistrationToken = route.query.registrationToken as string
     if (urlRegistrationToken) {
         await verifyRegistrationToken(urlRegistrationToken)
@@ -184,7 +192,6 @@ onMounted(async () => {
         z-index: 0;
     }
 
-    // Se il background è in loading, usa un colore di fallback
     &.bg-loading {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 
