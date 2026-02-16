@@ -48,7 +48,7 @@ export default defineComponent({
         dashboardId: { type: String, required: true },
         variables: { type: Array as PropType<IVariable[]>, required: true }
     },
-    emits: [],
+    emits: ['sheetDeleted'],
     data() {
         return {
             dashboardModel: {} as any,
@@ -169,6 +169,7 @@ export default defineComponent({
             else return 'xxs'
         },
         onSheetDeleted(payload: { sheetForDelete: IWidgetSheetItem; currentPage: number }) {
+            this.$emit('sheetDeleted', payload)
             this.sheetChange(payload.currentPage)
         },
         onSheetCloned(index) {
