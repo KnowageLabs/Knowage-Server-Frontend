@@ -104,6 +104,7 @@ const { resetToken, verifyResetToken, verifyRegistrationToken } = useTokenVerifi
 const { username, password, isPwd, loading, error, success, showMfa, showForgotPassword, showResetPassword, showRegistration, mfaData, onSubmit, onMfaSuccess, onMfaError, onForgotPasswordBack, onForgotPasswordSuccess, onForgotPasswordError, onResetPasswordSuccess, onResetPasswordError, onRegistrationBack, onRegistrationSuccess, onRegistrationError, openForgotPassword, openResetPassword, openRegistration, completeLogin } = authFlows
 
 const hideLoginForm = ref(false)
+const hasKnowageToken = ref(false)
 
 const getCookie = (name: string): string | null => {
     const value = `; ${document.cookie}`
@@ -124,7 +125,7 @@ const containerStyles = computed(() => ({
     backgroundAttachment: 'fixed'
 }))
 
-const showLoginForm = computed(() => !hideLoginForm.value && !showMfa.value && !showForgotPassword.value && !showResetPassword.value && !showRegistration.value)
+const showLoginForm = computed(() => !hideLoginForm.value && !hasKnowageToken.value && !showMfa.value && !showForgotPassword.value && !showResetPassword.value && !showRegistration.value)
 
 onMounted(async () => {
     try {
@@ -135,26 +136,26 @@ onMounted(async () => {
 
     await loadLoginConfig()
 
-    const ssoActive = Boolean(loginConfig.value?.items?.[0]?.ssoActive)
+    const ssoActive = String(loginConfig.value?.items?.[0]?.ssoActive).toLowerCase() === 'true'
     hideLoginForm.value = ssoActive
 
     const urlError = route.query.error as string
-
     const knowageToken = getCookie('KNOWAGE_TOKEN')
+
     if (knowageToken) {
+        hasKnowageToken.value = true
         try {
             await completeLogin(knowageToken)
             return
         } catch (err) {
-            console.error('Errore durante il login automatico con cookie:', err)
+            return
         }
     }
 
     if (ssoActive) {
-        error.value = genericError
         error.value = t('common.loginPage.ssoError')
     } else if (urlError) {
-        error.value = t('common.loginPage.loginError')
+        error.value = t('common.loginPage.tokenError')
     }
 
     const urlResetToken = route.query.resetToken as string
