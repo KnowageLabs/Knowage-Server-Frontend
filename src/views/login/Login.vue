@@ -139,7 +139,6 @@ onMounted(async () => {
     hideLoginForm.value = ssoActive
 
     const urlError = route.query.error as string
-    const genericError = t('common.loginPage.loginError')
 
     const knowageToken = getCookie('KNOWAGE_TOKEN')
     if (knowageToken) {
@@ -151,8 +150,11 @@ onMounted(async () => {
         }
     }
 
-    if (ssoActive || urlError) {
+    if (ssoActive) {
         error.value = genericError
+        error.value = t('common.loginPage.ssoError')
+    } else if (urlError) {
+        error.value = t('common.loginPage.loginError')
     }
 
     const urlResetToken = route.query.resetToken as string
@@ -216,6 +218,7 @@ onMounted(async () => {
     border-radius: 12px;
     position: relative;
     z-index: 1;
+    padding-bottom: 8px;
 }
 
 .logo-container {

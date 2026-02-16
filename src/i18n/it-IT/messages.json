@@ -171,6 +171,7 @@
             "invalidResetToken": "Token di reset non valido o scaduto.",
             "invalidToken": "Token JWT non valido",
             "loginError": "Credenziali non valide. Riprova.",
+            "ssoError": "Impossibile autenticarsi con SSO. Contatta l'amministratore.",
             "mfaError": "Codice non valido. Riprova.",
             "mfaSubtitle": "Inserisci il codice a 6 cifre dalla tua app di autenticazione",
             "mfaTitle": "Autenticazione a due fattori",

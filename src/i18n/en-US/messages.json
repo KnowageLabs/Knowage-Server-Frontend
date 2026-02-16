@@ -205,6 +205,7 @@
             "usernameRequired": "Username is required",
             "passwordRequired": "Password is required",
             "loginError": "Invalid credentials. Please try again.",
+            "ssoError": "Unable to authenticate with SSO. Please contact your administrator.",
             "invalidToken": "Invalid JWT token",
             "mfaTitle": "Two-Factor Authentication",
             "mfaSubtitle": "Enter the 6-digit code from your authenticator app",
