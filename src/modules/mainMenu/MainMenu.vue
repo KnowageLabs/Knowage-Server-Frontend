@@ -310,7 +310,7 @@ export default defineComponent({
                         const homePage = this.findHomePage(this.dynamicUserFunctionalities) || {}
                         if (homePage && Object.keys(homePage).length !== 0) {
                             if (!this.stateHomePage.label) {
-                                this.setHomePage(homePage)
+                                this.setHomePage({ ...homePage, loading: false })
                             }
                         } else this.setHomePage({ loading: false })
                     } else this.setHomePage({ loading: false })

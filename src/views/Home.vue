@@ -32,8 +32,10 @@ export default defineComponent({
             logo: logo
         }
     },
-    beforeMounted() {
-        this.setCompleteUrl()
+    mounted() {
+        if (!this.homePage.loading) {
+            this.setCompleteUrl()
+        }
     },
     methods: {
         setCompleteUrl() {
@@ -65,8 +67,11 @@ export default defineComponent({
         })
     },
     watch: {
-        homePage(oldHomePage, newHomePage) {
-            if (oldHomePage !== newHomePage) this.setCompleteUrl()
+        'homePage.loading'(newLoading, oldLoading) {
+            // Quando la homepage finisce di caricare, imposta l'URL
+            if (oldLoading === true && newLoading === false) {
+                this.setCompleteUrl()
+            }
         }
     }
 })
