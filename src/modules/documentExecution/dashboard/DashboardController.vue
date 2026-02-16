@@ -6,7 +6,7 @@
             <DashboardHeaderWidget v-if="!loading && showDashboard && model?.configuration?.customHeader && customHeaderVisible && model.configuration.menuWidgets.enableCustomHeader" :dashboard-id="dashboardId" :prop-widget="model?.configuration?.customHeader" :datasets="model.configuration.datasets" :document-drivers="drivers" :variables="model ? model.configuration.variables : []" :custom-chart-gallery-prop="customChartGallery"></DashboardHeaderWidget>
 
             <div class="dashboard-renderer-core">
-                <DashboardRenderer v-if="!loading && visible && showDashboard" :document="document" :model="model" :datasets="datasets" :dashboard-id="dashboardId" :document-drivers="drivers" :variables="model ? model.configuration.variables : []"></DashboardRenderer>
+                <DashboardRenderer v-if="!loading && visible && showDashboard" :document="document" :model="model" :datasets="datasets" :dashboard-id="dashboardId" :document-drivers="drivers" :variables="model ? model.configuration.variables : []" @sheetDeleted="onSheetDeleted"></DashboardRenderer>
             </div>
         </div>
 
@@ -658,6 +658,14 @@ export default defineComponent({
                     }
                 })
             }
+        },
+        onSheetDeleted(payload: any) {
+            const sheetIndex = payload.sheetIndex
+            // create a set of widget ids present in payload.sheetForDelete.widgets.
+            // Use Object.keys() in order to iterate over
+            // the object and get the id in every array contained in the object and push it to the set
+            const widgetIdsInDeletedSheet = new Set(Object.keys(payload.sheetForDelete.widgets).flatMap((key) => payload.sheetForDelete.widgets[key].map((widget) => widget.id)))
+            this.model.widgets = this.model.widgets.filter((widget) => !widgetIdsInDeletedSheet.has(widget.id))
         }
     }
 })
