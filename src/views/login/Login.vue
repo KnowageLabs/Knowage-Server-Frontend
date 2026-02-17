@@ -105,6 +105,7 @@ const { username, password, isPwd, loading, error, success, showMfa, showForgotP
 
 const hideLoginForm = ref(false)
 const hasAuthToken = ref(false)
+const hasUrlError = ref(false)
 
 const containerStyles = computed(() => ({
     backgroundImage: `url('${backgroundUrl.value}')`,
@@ -113,7 +114,7 @@ const containerStyles = computed(() => ({
     backgroundAttachment: 'fixed'
 }))
 
-const showLoginForm = computed(() => !hideLoginForm.value && !hasAuthToken.value && !showMfa.value && !showForgotPassword.value && !showResetPassword.value && !showRegistration.value)
+const showLoginForm = computed(() => !hideLoginForm.value && !hasAuthToken.value && !hasUrlError.value && !showMfa.value && !showForgotPassword.value && !showResetPassword.value && !showRegistration.value)
 
 onMounted(async () => {
     try {
@@ -140,10 +141,11 @@ onMounted(async () => {
         }
     }
 
-    if (ssoActive) {
+    if (urlError) {
+        hasUrlError.value = true
+        error.value = urlError || t('common.loginPage.ssoError')
+    } else if (ssoActive) {
         error.value = t('common.loginPage.ssoError')
-    } else if (urlError) {
-        error.value = t('common.loginPage.tokenError')
     }
 
     const urlResetToken = route.query.resetToken as string

@@ -3,15 +3,14 @@ import pinia from '@/pinia'
 import axios from '@/axios.js'
 import router from '@/App.routes'
 
-async function invalidateSession(jsps: string[] = [], redirectURI: string): Promise<void> {
+async function invalidateSession(jsps: string[] = [], redirectURI: string, query: string): Promise<void> {
     const jspPromises = jsps.map((p) => {
         return axios.get(p)
     })
 
     await Promise.allSettled([...jspPromises])
-    const store = mainStore(pinia)
-    if (store?.configurations?.['SPAGOBI_SSO.ACTIVE']) window.location.href = redirectURI
-    else router.replace({ path: '/login' })
+    if (redirectURI) window.location.href = redirectURI
+    else router.replace({ path: '/login', query: { logout: query }, hash: '' })
 }
 
 export default {
@@ -22,7 +21,7 @@ export default {
         await axios
             .post(`${url}${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/logout`)
             .then((response) => {
-                invalidateSession(response.data.urlEnginesInvalidate, response.data.redirectUrl.replace('${id_token}', sessionStorage.getItem('token') || ''))
+                invalidateSession(response.data.urlEnginesInvalidate, response.data.redirectUrl.replace('${id_token}', sessionStorage.getItem('token') || ''), query)
             })
             .finally(() => {
                 localStorage.clear()
@@ -30,7 +29,6 @@ export default {
                 store.storeClearIndexedDBCache()
                 store.setUser({})
                 store.setLoading(false)
-                router.replace({ path: '/login', query: { logout: query }, hash: '' })
             })
     },
     handleUnauthorized(): void {
