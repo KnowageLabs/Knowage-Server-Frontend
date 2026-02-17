@@ -104,19 +104,7 @@ const { resetToken, verifyResetToken, verifyRegistrationToken } = useTokenVerifi
 const { username, password, isPwd, loading, error, success, showMfa, showForgotPassword, showResetPassword, showRegistration, mfaData, onSubmit, onMfaSuccess, onMfaError, onForgotPasswordBack, onForgotPasswordSuccess, onForgotPasswordError, onResetPasswordSuccess, onResetPasswordError, onRegistrationBack, onRegistrationSuccess, onRegistrationError, openForgotPassword, openResetPassword, openRegistration, completeLogin } = authFlows
 
 const hideLoginForm = ref(false)
-const hasKnowageToken = ref(false)
-
-const getCookie = (name: string): string | null => {
-    const value = `; ${document.cookie}`
-    const parts = value.split(`; ${name}=`)
-
-    if (parts.length === 2) {
-        const cookieValue = parts.pop()?.split(';').shift() || null
-        return cookieValue
-    }
-
-    return null
-}
+const hasAuthToken = ref(false)
 
 const containerStyles = computed(() => ({
     backgroundImage: `url('${backgroundUrl.value}')`,
@@ -125,7 +113,7 @@ const containerStyles = computed(() => ({
     backgroundAttachment: 'fixed'
 }))
 
-const showLoginForm = computed(() => !hideLoginForm.value && !hasKnowageToken.value && !showMfa.value && !showForgotPassword.value && !showResetPassword.value && !showRegistration.value)
+const showLoginForm = computed(() => !hideLoginForm.value && !hasAuthToken.value && !showMfa.value && !showForgotPassword.value && !showResetPassword.value && !showRegistration.value)
 
 onMounted(async () => {
     try {
@@ -140,12 +128,12 @@ onMounted(async () => {
     hideLoginForm.value = ssoActive
 
     const urlError = route.query.error as string
-    const knowageToken = getCookie('KNOWAGE_TOKEN')
+    const authToken = route.query.authToken as string
 
-    if (knowageToken) {
-        hasKnowageToken.value = true
+    if (authToken) {
+        hasAuthToken.value = true
         try {
-            await completeLogin(knowageToken)
+            await completeLogin(authToken)
             return
         } catch (err) {
             return
