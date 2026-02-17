@@ -6,6 +6,7 @@ import deepcopy from 'deepcopy'
 import moment from 'moment/min/moment-with-locales.js'
 import { getColumnAlias } from '../dataLabels/HighchartsDataLabelsHelpers'
 import { fallbackLocale, formatWithIntl, getLocale } from '@/helpers/commons/localeHelper'
+import { attr } from 'highcharts'
 
 export enum DataType {
     DATE_SHORT = 'DD/MM/YYYY',
@@ -41,6 +42,26 @@ export const setRegularData = (model: any, widgetModel: IWidget, data: any, attr
 
     const columnAliases = widgetModel.settings?.series?.aliases ?? []
     const areaRangeColumns = [] as any[]
+
+    // set conditional styles for attribute column if exists
+    attributeColumns.forEach((attributeColumn: any) => {
+        const column = attributeColumn.column as IWidgetColumn
+        data?.rows?.forEach((row: any) => {
+            const attributeValue = row[attributeColumn.metadata.dataIndex]
+            if (attributeValue) {
+                const conditionalStyle = getColumnConditionalStyles(widgetModel, column.id, attributeValue, variables)
+                if (conditionalStyle) {
+                    model.series.forEach((serie: any) => {
+                        const dataPoint = serie.data.find((data: any) => data.name === attributeValue)
+                        if (dataPoint) {
+                            dataPoint.color = conditionalStyle.color
+                            if (conditionalStyle['border-color']) dataPoint.borderColor = conditionalStyle['border-color']
+                        }
+                    })
+                }
+            }
+        })
+    })
     measureColumns.forEach((measureColumn: any, index: number) => {
         const column = measureColumn.column as IWidgetColumn
         const metadata = measureColumn.metadata as any
@@ -376,7 +397,7 @@ export const setSunburstData = (model: any, data: any, widgetModel: IWidget, att
     treemapArray.forEach((el: any) => {
         if (el.value === 0) delete el.value
     })
-    ;(treemapArray[0].parent = null),
+    ;((treemapArray[0].parent = null),
         (treemapArray[0].id = 'root'),
         (treemapArray[0].name = centerTextSettings.text ?? attributeColumns[0].column.columnName),
         (treemapArray[0].dataLabels = {
@@ -389,7 +410,7 @@ export const setSunburstData = (model: any, data: any, widgetModel: IWidget, att
                 color: centerTextSettings.color ?? '#000000',
                 width: '10000'
             }
-        })
+        }))
     serieElement.data = treemapArray
 
     model.series = [serieElement]
