@@ -106,6 +106,24 @@ const { username, password, isPwd, loading, error, success, showMfa, showForgotP
 const hideLoginForm = ref(false)
 const hasAuthToken = ref(false)
 const hasUrlError = ref(false)
+const hasAuthCode = ref(false)
+
+const redirectToKeycloak = () => {
+    const config = loginConfig.value?.items?.[0]
+    if (!config) return
+
+    const keycloakUrl = `${config.keycloakUrl}/realms/${config.keycloakRealm}/protocol/openid-connect/auth`
+    const redirectUri = config.redirectUri || window.location.origin + '/login'
+
+    const params = new URLSearchParams({
+        client_id: config.keycloakClientId,
+        redirect_uri: redirectUri,
+        response_type: 'code',
+        scope: 'openid profile email'
+    })
+
+    window.location.href = `${keycloakUrl}?${params.toString()}`
+}
 
 const containerStyles = computed(() => ({
     backgroundImage: `url('${backgroundUrl.value}')`,
@@ -114,7 +132,7 @@ const containerStyles = computed(() => ({
     backgroundAttachment: 'fixed'
 }))
 
-const showLoginForm = computed(() => !hideLoginForm.value && !hasAuthToken.value && !hasUrlError.value && !showMfa.value && !showForgotPassword.value && !showResetPassword.value && !showRegistration.value)
+const showLoginForm = computed(() => !hideLoginForm.value && !hasAuthToken.value && !hasUrlError.value && !hasAuthCode.value && !showMfa.value && !showForgotPassword.value && !showResetPassword.value && !showRegistration.value)
 
 onMounted(async () => {
     try {
@@ -130,7 +148,9 @@ onMounted(async () => {
 
     const urlError = route.query.error as string
     const authToken = route.query.authToken as string
+    const authCode = route.query.code as string
 
+    // Handle direct authToken (backward compatibility or SSO callback)
     if (authToken) {
         hasAuthToken.value = true
         try {
@@ -141,11 +161,35 @@ onMounted(async () => {
         }
     }
 
+    // Handle OAuth2 authorization code from Keycloak
+    if (authCode) {
+        hasAuthCode.value = true
+        try {
+            // Exchange authorization code for token via backend
+            // The backend will validate the code with Keycloak and return an authToken
+            await completeLogin(authCode)
+            return
+        } catch (err) {
+            hasAuthCode.value = false
+            error.value = t('common.loginPage.tokenError')
+            return
+        }
+    }
+
+    // Handle URL error parameter
     if (urlError) {
         hasUrlError.value = true
         error.value = urlError || t('common.loginPage.ssoError')
     } else if (ssoActive) {
-        error.value = t('common.loginPage.ssoError')
+        // If SSO is active and no code/token/error, redirect to Keycloak
+        const config = loginConfig.value?.items?.[0]
+        if (config?.keycloakUrl && config?.keycloakRealm && config?.keycloakClientId) {
+            redirectToKeycloak()
+            return
+        } else {
+            // SSO is active but Keycloak is not configured
+            error.value = t('common.loginPage.ssoError')
+        }
     }
 
     const urlResetToken = route.query.resetToken as string
