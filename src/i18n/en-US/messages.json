@@ -1106,6 +1106,12 @@
                     "dimensionsTableHint": "Click on exactly one attribute to define categories. Numerical values only.",
                     "valuesTableHint": "Click on at least one measure to define series."
                 },
+                "series": {
+                    "showMeasureToggle": "Show measure selection panel",
+                    "showMeasureToggleHint": "Enables a draggable panel that allows showing/hiding measures in the chart.",
+                    "availableMeasures": "Available measures in panel",
+                    "availableMeasuresHint": "Select which dataset measures should appear in the selection panel. Only measures configured in the widget can be displayed in the chart."
+                },
                 "showChekboxes": "Show Checkboxes",
                 "solidGauge": {
                     "valuesTableHint": "Measures only."
@@ -1257,6 +1263,9 @@
             },
             "line": "Line",
             "manualInput": "Manual input",
+            "measureToggle": {
+                "title": "Measures"
+            },
             "map": {
                 "addThreshold": "Add Threshold",
                 "baseLayer": {

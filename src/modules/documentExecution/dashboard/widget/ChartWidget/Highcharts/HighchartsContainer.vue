@@ -1,5 +1,58 @@
 <template>
-    <div v-show="!error" :id="chartID" style="width: 100%; height: 100%; margin: 0 auto"></div>
+    <div class="highcharts-container">
+        <div v-show="!error" :id="chartID" style="width: 100%; height: 100%; margin: 0 auto"></div>
+        <div
+            v-if="showMeasureTogglePanel"
+            class="measure-toggle-panel"
+            :class="{ 'is-dragging': isDragging }"
+            :style="panelStyle"
+            @mousedown="startDrag"
+        >
+            <button
+                type="button"
+                class="measure-toggle-panel__header"
+                @click="togglePanel"
+            >
+                <span class="measure-toggle-panel__drag-handle">⋮⋮</span>
+                <span>{{ $t('dashboard.widgetEditor.measureToggle.title') }}</span>
+                <span class="measure-toggle-panel__chevron">{{ showMeasurePanel ? '▾' : '▸' }}</span>
+            </button>
+            <div v-show="showMeasurePanel" class="measure-toggle-panel__body">
+                <!-- Single measure selection (for pie, gauge, etc.) -->
+                <select
+                    v-if="isSingleMeasureChart"
+                    v-model="activeMeasureNames[0]"
+                    class="measure-toggle-panel__select"
+                    @change="onSingleMeasureChange"
+                    @mousedown.stop
+                >
+                    <option
+                        v-for="option in measureOptions"
+                        :key="option.column.id || option.column.columnName"
+                        :value="option.seriesName"
+                    >
+                        {{ option.label }}
+                    </option>
+                </select>
+
+                <!-- Multiple measure selection (for bar, line, etc.) -->
+                <template v-else>
+                    <label
+                        v-for="option in measureOptions"
+                        :key="option.column.id || option.column.columnName"
+                        class="measure-toggle-panel__item"
+                    >
+                        <input
+                            type="checkbox"
+                            :checked="activeMeasureNames.includes(option.seriesName)"
+                            @change="onMeasureToggle(option.seriesName, ($event.target as HTMLInputElement).checked)"
+                        />
+                        <span>{{ option.label }}</span>
+                    </label>
+                </template>
+            </div>
+        </div>
+    </div>
     <HighchartsSonificationControls v-if="chartModel?.sonification?.enabled" @playSonify="playSonify" @pauseSonify="pauseSonify" @cancelSonify="cancelSonify"></HighchartsSonificationControls>
 </template>
 
@@ -39,6 +92,7 @@ import HighchartsStreamgraph from 'highcharts/modules/streamgraph'
 import HighchartsWordcloud from 'highcharts/modules/wordcloud'
 import HighchartsAnnotations from 'highcharts/modules/annotations'
 import { getWidgetData } from '../../../DashboardDataProxy'
+import { getColumnAlias } from '../classes/highcharts/helpers/dataLabels/HighchartsDataLabelsHelpers'
 
 HighchartsMore(Highcharts)
 HighchartsSolidGauge(Highcharts)
@@ -89,11 +143,22 @@ export default defineComponent({
             drilldown: [] as any[],
             variables: [] as IVariable[],
             originalReflow: null,
-            handleMouseUp: null as (() => void) | null
+            handleMouseUp: null as (() => void) | null,
+            measureOptions: [] as { column: IWidgetColumn; seriesName: string; label: string }[],
+            activeMeasureNames: [] as string[],
+            measureSelectionInitialized: false,
+            originalWidgetMeasures: [] as string[], // Track measures that were in the original widget model
+            cachedData: null as any, // Cache for fetched data with all measures
+            showMeasurePanel: false,
+            isDragging: false,
+            panelPosition: { x: 0, y: 0 },
+            dragStart: { x: 0, y: 0 }
         }
     },
     watch: {
         dataToShow() {
+            // Reset cached data when original data changes
+            this.cachedData = null
             this.onRefreshChart()
         }
     },
@@ -108,12 +173,38 @@ export default defineComponent({
         if (this.handleMouseUp) {
             window.removeEventListener('mouseup', this.handleMouseUp)
         }
+
+        // Cleanup drag event listeners
+        document.removeEventListener('mousemove', this.onDrag)
+        document.removeEventListener('mouseup', this.stopDrag)
     },
     computed: {
-        ...mapState(store, ['dashboards'])
+        ...mapState(store, ['dashboards']),
+        panelStyle() {
+            return {
+                transform: `translate(${this.panelPosition.x}px, ${this.panelPosition.y}px)`
+            }
+        },
+        showMeasureTogglePanel() {
+            // Only show panel if explicitly enabled (true), not when undefined or false
+            const isEnabled = this.widgetModel?.settings?.series?.showMeasureToggle === true
+
+            // For single-measure charts, show if we have at least 1 measure option
+            // For multi-measure charts, show if we have more than 1 measure option
+            const hasEnoughOptions = this.isSingleMeasureChart
+                ? this.measureOptions.length >= 1
+                : this.measureOptions.length > 1
+
+            return isEnabled && hasEnoughOptions
+        },
+        isSingleMeasureChart() {
+            // Chart types that support only one measure at a time
+            const singleMeasureTypes = ['pie', 'gauge', 'solidgauge', 'activitygauge']
+            return singleMeasureTypes.includes(this.chartModel?.chart?.type)
+        }
     },
     methods: {
-        ...mapActions(store, ['setSelections', 'getDatasetLabel', 'getDashboardDatasets', 'getDashboardDrivers']),
+        ...mapActions(store, ['setSelections', 'getDatasetLabel', 'getDashboardDatasets', 'getDashboardDrivers', 'getAllDatasets']),
         ...mapActions(mainStore, ['setError']),
         setEventListeners() {
             emitter.on('refreshChart', this.onRefreshChart)
@@ -136,6 +227,7 @@ export default defineComponent({
             if (widget && widget.id !== this.widgetModel.id) return
             this.chartModel = this.widgetModel.settings.chartModel ? this.widgetModel.settings.chartModel.model : null
             this.loadVariables()
+            this.syncMeasureOptions()
             this.updateChartModel()
         },
         listenOnMouseUp() {
@@ -161,6 +253,7 @@ export default defineComponent({
             window.addEventListener('mouseup', handleMouseUp)
         },
         updateChartModel() {
+
             if (!this.chartModel) return
 
             const chartContainer = document.getElementById(this.chartID)
@@ -169,10 +262,16 @@ export default defineComponent({
             Highcharts.setOptions({ lang: { noData: this.chartModel.lang.noData } })
             this.widgetModel.settings.chartModel.updateChartColorSettings(this.widgetModel)
 
-            this.widgetModel.settings.chartModel.setData(this.dataToShow, this.widgetModel, this.variables)
+            // Create a temporary widget model with selected measures from availableMeasures
+            const tempWidgetModel = this.getTempWidgetModelWithActiveMeasures()
 
-            this.widgetModel.settings.chartModel.updateSeriesAccessibilitySettings(this.widgetModel)
-            if (!['heatmap', 'dependencywheel', 'sankey', 'spline'].includes(this.chartModel.chart.type)) this.widgetModel.settings.chartModel.updateSeriesLabelSettings(this.widgetModel)
+            // Use cached data if available, otherwise use the original dataToShow
+            const dataToUse = this.cachedData || this.dataToShow
+
+            this.widgetModel.settings.chartModel.setData(dataToUse, tempWidgetModel, this.variables)
+
+            this.widgetModel.settings.chartModel.updateSeriesAccessibilitySettings(tempWidgetModel)
+            if (!['heatmap', 'dependencywheel', 'sankey', 'spline'].includes(this.chartModel.chart.type)) this.widgetModel.settings.chartModel.updateSeriesLabelSettings(tempWidgetModel)
             if (this.chartModel.chart.type === 'heatmap') this.updateAxisLabels()
             else if (this.chartModel.chart.type !== 'radar') this.updateDataLabels()
             this.error = this.updateLegendSettings()
@@ -182,7 +281,7 @@ export default defineComponent({
 
             this.setSeriesEvents()
 
-            const modelToRender = this.getModelForRender()
+          const modelToRender = this.getModelForRender()
 
             if (modelToRender.chart.type === 'pie' && modelToRender.plotOptions?.series?.showCheckbox) {
                 modelToRender.series.forEach((series) => {
@@ -202,6 +301,12 @@ export default defineComponent({
             formatChartAnnotations(modelToRender, this.variables, this.getDashboardDrivers(this.dashboardId))
 
             try {
+
+                // Destroy existing chart instance if it exists
+                if (this.highchartsInstance && this.highchartsInstance.destroy) {
+                    this.highchartsInstance.destroy()
+                }
+
                 this.highchartsInstance = Highcharts.chart(this.chartID, modelToRender as any)
                 this.addAditionalCSSClasses(modelToRender)
                 this.highchartsInstance.reflow()
@@ -364,7 +469,6 @@ export default defineComponent({
             return selection
         },
         resizeChart() {
-            console.log(this.highchartsInstance)
             this.highchartsInstance.series.forEach((serie: any) => {
                 serie.data.forEach((d: any) => {
                     if (d.dataLabelUpper) d.dataLabelUpper.destroy()
@@ -396,51 +500,253 @@ export default defineComponent({
 
             return formattedChartModel
         },
-        onCheckboxClicked(event: any) {
-            if (['area', 'bar', 'column', 'line'].includes(this.chartModel.chart.type)) {
-                this.highchartsInstance.series[event.target.index].data.forEach((point: any) => {
-                    const dataLabelOptions = point.options.dataLabels
-                    dataLabelOptions.enabled = event.checked
-                    point.update(dataLabelOptions)
-                }, false)
-            } else if (this.chartModel.chart.type === 'pie') {
-                this.highchartsInstance.series[0].data.forEach((point: any) => {
-                    const dataLabelOptions = point.options.dataLabels
-                    if (point.name === event.item.name) {
-                        dataLabelOptions.enabled = event.checked
-                        point.update(dataLabelOptions)
-                    }
-                }, false)
-            } else {
-                this.highchartsInstance.series[event.item.columnIndex].data.forEach((point: any) => {
-                    const dataLabelOptions = point.options.dataLabels
-                    dataLabelOptions.enabled = event.checked
-                    point.update(dataLabelOptions)
-                }, false)
+        getTempWidgetModelWithActiveMeasures() {
+            // If measure toggle is explicitly disabled or not initialized, use original model
+            if (this.widgetModel.settings?.series?.showMeasureToggle === false || !this.measureSelectionInitialized) {
+                return this.widgetModel
             }
-            this.highchartsInstance.redraw()
-        },
-        onSunburstLegendItemClick(event: any) {
-            const pointName = event.target.name
-            const point = this.highchartsInstance.series[0].points.find((point: any) => point.name === pointName)
-            const tempPoints = this.getChildrenPoints(point.id)
-            point.setVisible(!point.visible)
-            tempPoints.forEach((point: any) => point.setVisible(!point.visible))
-        },
-        getChildrenPoints(parentId: string) {
-            const seriesData = this.highchartsInstance.series[0].points
-            const childrenPoints = [] as any
 
-            function traversePoints(points: any, parentId: string) {
-                points.forEach((point: any) => {
-                    if (point.parent === parentId) {
-                        childrenPoints.push(point)
-                        traversePoints(points, point.id)
+            // If no measure options available, use original model
+            if (this.measureOptions.length === 0) {
+                return this.widgetModel
+            }
+
+            // Create a deep copy to avoid modifying the original
+            const tempModel = JSON.parse(JSON.stringify(this.widgetModel))
+
+            // Get columns that correspond to active measures
+            // Even if activeMeasureNames is empty, we want to show NO measures (not fall back to original)
+            const activeColumns = this.measureOptions
+                .filter((option) => this.activeMeasureNames.includes(option.seriesName))
+                .map((option) => option.column)
+
+            // Keep all non-measure columns, and add only active measure columns
+            const nonMeasureColumns = this.widgetModel.columns.filter((col: IWidgetColumn) => col.fieldType !== 'MEASURE')
+
+            // If no active measures, set columns to only non-measure columns (this will show empty chart)
+            tempModel.columns = [...nonMeasureColumns, ...activeColumns]
+
+            return tempModel
+        },
+        syncMeasureOptions() {
+            const seriesAliases = this.widgetModel.settings?.series?.aliases ?? []
+            const availableMeasures = this.widgetModel.settings?.series?.availableMeasures ?? []
+
+            // Get all measures to show based on availableMeasures setting
+            let measuresToShow: IWidgetColumn[] = []
+
+            if (availableMeasures.length > 0) {
+                // Show ALL measures from availableMeasures (from dataset)
+                const allDatasets = this.getAllDatasets()
+                const currentDataset = allDatasets.find((ds: any) => ds.id.dsId === this.widgetModel.dataset)
+
+                if (currentDataset && currentDataset.metadata && currentDataset.metadata.fieldsMeta) {
+                    // Get dataset measures that are in availableMeasures
+                    const datasetMeasureFields = currentDataset.metadata.fieldsMeta.filter(
+                        (field: any) => field.fieldType === 'MEASURE' && availableMeasures.includes(field.name)
+                    )
+
+                    // Map to widget column format
+                    measuresToShow = datasetMeasureFields.map((field: any) => {
+                        // Check if measure already exists in widget columns
+                        const existingColumn = this.widgetModel.columns.find(
+                            (col: IWidgetColumn) => col.columnName === field.name
+                        )
+
+                        if (existingColumn) {
+                            return existingColumn
+                        } else {
+                            // Create temporary column representation for dataset measure
+                            const tempColumn = {
+                                id: `temp_${field.name}_${Date.now()}`, // Add unique ID
+                                columnName: field.name,
+                                alias: field.alias || field.name,
+                                fieldType: 'MEASURE',
+                                aggregation: field.aggregation || 'SUM',
+                                aggregationColumn: field.name,
+                                type: field.type,
+                                multiValue: false,
+                                filter: { enabled: false, operator: '', value: '' }
+                            } as IWidgetColumn
+
+                            return tempColumn
+                        }
+                    })
+                }
+            } else {
+                // Fallback: show all widget measures if availableMeasures not configured
+                measuresToShow = this.widgetModel.columns.filter(
+                    (column: IWidgetColumn) =>
+                        column.fieldType === 'MEASURE' &&
+                        (!column.axis || ['Y', 'start'].includes(column.axis))
+                )
+            }
+
+            this.measureOptions = measuresToShow.map((column: IWidgetColumn) => {
+                const aliasFromSettings = getColumnAlias(column, seriesAliases)
+                // Priority: alias from settings > column alias > column name
+                const finalSeriesName = aliasFromSettings || column.alias || column.columnName || 'Unknown'
+                const label = column.alias || column.columnName || 'Unknown'
+
+                return {
+                    column,
+                    seriesName: finalSeriesName,
+                    label
+                }
+            })
+
+            if (!this.measureSelectionInitialized) {
+
+                // Store the original widget measures (for data availability check)
+                const widgetMeasureNames = this.widgetModel.columns
+                    .filter((col: IWidgetColumn) => col.fieldType === 'MEASURE')
+                    .map((col: IWidgetColumn) => getColumnAlias(col, seriesAliases) || col.columnName)
+
+                this.originalWidgetMeasures = [...widgetMeasureNames]
+                // ALWAYS activate only measures that exist in the widget model
+                // The panel will show ALL measures from availableMeasures, but only widget measures are initially active
+                const measuresToActivate = this.measureOptions
+                    .filter((option) => widgetMeasureNames.includes(option.seriesName))
+                    .map((option) => option.seriesName)
+
+                // For single-measure charts (pie, gauge), select only the first measure with data
+                if (this.isSingleMeasureChart && measuresToActivate.length > 0) {
+                    this.activeMeasureNames = [measuresToActivate[0]]
+                } else if (measuresToActivate.length > 0) {
+                    // For multi-measure charts, activate all widget measures
+                    this.activeMeasureNames = measuresToActivate
+                } else {
+                    // No measures with data available
+                    this.activeMeasureNames = []
+                }
+
+                this.measureSelectionInitialized = true
+                return
+            }
+
+            // When already initialized, keep the current selection but validate it's still valid
+            const validSeries = new Set(this.measureOptions.map((option) => option.seriesName))
+
+            // Only keep active measures that are still valid
+            this.activeMeasureNames = this.activeMeasureNames.filter((name) => validSeries.has(name))
+        },
+        async onMeasureToggle(seriesName: string, isChecked: boolean) {
+            this.measureSelectionInitialized = true
+
+            if (isChecked) {
+                // Add to active measures (only visual filter, no model modification)
+                if (!this.activeMeasureNames.includes(seriesName)) {
+                    this.activeMeasureNames.push(seriesName)
+                }
+
+                // Check if this measure is in the original widget model
+                const isInOriginalModel = this.originalWidgetMeasures.includes(seriesName)
+
+                if (!isInOriginalModel) {
+                    // Need to fetch data for this measure
+                    await this.fetchDataWithMeasures(this.activeMeasureNames)
+                    // After fetching, update the chart
+                    this.updateChartModel()
+                    return
+                } else {
+                    // Measure is in original model
+                    // If we have cached data, check if we need to refetch or can use original data
+                    const hasNonOriginalMeasures = this.activeMeasureNames.some(
+                        (name) => !this.originalWidgetMeasures.includes(name)
+                    )
+
+                    if (hasNonOriginalMeasures && !this.cachedData) {
+                        // We have some non-original measures selected but no cached data yet
+                        // Need to fetch data with all active measures
+                        await this.fetchDataWithMeasures(this.activeMeasureNames)
+                        this.updateChartModel()
+                        return
                     }
+                }
+            } else {
+                // Remove from active measures
+                this.activeMeasureNames = this.activeMeasureNames.filter((name) => name !== seriesName)
+
+                // Check if all remaining active measures are in the original model
+                const allActiveInOriginal = this.activeMeasureNames.every(
+                    (name) => this.originalWidgetMeasures.includes(name)
+                )
+
+                // If all remaining measures are in original model, we can clear the cache and use original data
+                if (allActiveInOriginal) {
+                    this.cachedData = null
+                }
+            }
+
+            this.updateChartModel()
+        },
+        async onSingleMeasureChange() {
+            this.measureSelectionInitialized = true
+
+            const selectedMeasure = this.activeMeasureNames[0]
+
+            // Check if this measure is in the original widget model
+            const isInOriginalModel = this.originalWidgetMeasures.includes(selectedMeasure)
+
+            if (!isInOriginalModel) {
+                // Need to fetch data for this measure
+                await this.fetchDataWithMeasures([selectedMeasure])
+            } else {
+                // Measure is in original model, clear cache and use original data
+                this.cachedData = null
+            }
+
+            // Update the chart
+            this.updateChartModel()
+        },
+        async fetchDataWithMeasures(measureNames: string[]) {
+
+            try {
+                // Create a temporary widget model with all requested measures
+                const tempWidgetModel = JSON.parse(JSON.stringify(this.widgetModel))
+
+                // Get all non-measure columns
+                const nonMeasureColumns = this.widgetModel.columns.filter(
+                    (col: IWidgetColumn) => col.fieldType !== 'MEASURE'
+                )
+
+                // Get measure columns for the requested measures
+                const measureColumns = this.measureOptions
+                    .filter((option) => measureNames.includes(option.seriesName))
+                    .map((option) => option.column)
+
+
+                // Update temp model columns
+                tempWidgetModel.columns = [...nonMeasureColumns, ...measureColumns]
+
+                // Fetch data with the new columns
+                const dashboardDatasets = this.getDashboardDatasets(this.dashboardId)
+                const newData = await getWidgetData(
+                    this.dashboardId,
+                    tempWidgetModel,
+                    dashboardDatasets,
+                    this.$http,
+                    false,
+                    this.propActiveSelections,
+                    { searchText: '', searchColumns: [] },
+                    this.dashboards[this.dashboardId].configuration,
+                    null,
+                    false,
+                    null,
+                    this.drillLevel,
+                    null
+                )
+
+                // Store the fetched data
+                this.cachedData = newData
+
+                return newData
+            } catch (error: any) {
+                this.setError({
+                    title: this.$t('common.toast.errorTitle'),
+                    msg: error ? error.message : 'Failed to fetch data for selected measures'
                 })
             }
-            traversePoints(seriesData, parentId)
-            return childrenPoints
         },
         playSonify() {
             this.highchartsInstance.toggleSonify()
@@ -464,21 +770,148 @@ export default defineComponent({
             })
             const datasetLabel = selectedDataset.dsLabel as any
             return { [datasetLabel]: formattedLikeSelections }
+        },
+        startDrag(event: MouseEvent) {
+            // Only start drag if not clicking on interactive elements
+            const target = event.target as HTMLElement
+            if (target.tagName === 'INPUT' || target.tagName === 'LABEL' || target.tagName === 'SPAN') {
+                if (!target.classList.contains('measure-toggle-panel__drag-handle')) return
+            }
+
+            this.isDragging = true
+            this.dragStart = {
+                x: event.clientX - this.panelPosition.x,
+                y: event.clientY - this.panelPosition.y
+            }
+
+            document.addEventListener('mousemove', this.onDrag)
+            document.addEventListener('mouseup', this.stopDrag)
+            event.preventDefault()
+        },
+        onDrag(event: MouseEvent) {
+            if (!this.isDragging) return
+
+            this.panelPosition = {
+                x: event.clientX - this.dragStart.x,
+                y: event.clientY - this.dragStart.y
+            }
+        },
+        stopDrag() {
+            this.isDragging = false
+            document.removeEventListener('mousemove', this.onDrag)
+            document.removeEventListener('mouseup', this.stopDrag)
+        },
+        togglePanel(event: MouseEvent) {
+            // Prevent toggle if we're dragging
+            const target = event.target as HTMLElement
+            if (target.classList.contains('measure-toggle-panel__drag-handle')) return
+
+            this.showMeasurePanel = !this.showMeasurePanel
         }
     }
 })
 </script>
 
 <style lang="scss">
-.custom-checkbox-style-horizontal {
-    margin-top: 3.3px;
-    margin-left: -10px;
-    vertical-align: middle;
+.highcharts-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
 }
 
-.custom-checkbox-style-vertical {
-    margin-top: 3.5px;
-    margin-left: 5.5px;
-    vertical-align: middle;
+.measure-toggle-panel {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    min-width: 140px;
+    background: #ffffff;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    transition: box-shadow 0.2s ease;
+    user-select: none;
+
+    &.is-dragging {
+        cursor: grabbing;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+
+        .measure-toggle-panel__header {
+            cursor: grabbing;
+        }
+    }
+}
+
+.measure-toggle-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 6px 8px;
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: grab;
+    gap: 4px;
+
+    &:active {
+        cursor: grabbing;
+    }
+}
+
+.measure-toggle-panel__drag-handle {
+    font-size: 14px;
+    color: #888;
+    cursor: grab;
+    line-height: 1;
+    letter-spacing: -2px;
+
+    &:active {
+        cursor: grabbing;
+    }
+}
+
+.measure-toggle-panel__chevron {
+    margin-left: auto;
+    font-size: 12px;
+    pointer-events: none;
+}
+
+.measure-toggle-panel__body {
+    padding: 4px 8px 8px;
+}
+
+.measure-toggle-panel__select {
+    width: 100%;
+    padding: 4px 6px;
+    font-size: 12px;
+    border: 1px solid #d0d0d0;
+    border-radius: 3px;
+    background-color: #ffffff;
+    cursor: pointer;
+    outline: none;
+
+    &:focus {
+        border-color: #007ad9;
+        box-shadow: 0 0 0 2px rgba(0, 122, 217, 0.1);
+    }
+
+    &:hover {
+        border-color: #b0b0b0;
+    }
+}
+
+.measure-toggle-panel__item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    margin-top: 4px;
+    cursor: pointer;
+
+    input[type="checkbox"] {
+        cursor: pointer;
+    }
 }
 </style>

@@ -41,7 +41,12 @@ export const createNewHighchartsSettings = () => {
             axisLines: { color: '', crosshairColor: '', crosshairWidth: 8 }
         },
         accesssibility: { seriesAccesibilitySettings: getSeriesAccesibilitySettings() },
-        series: { seriesSettings: getSerieSettings(), conditionalStyles: { enabled: false, conditions: [widgetCommonDefaultValues.getDefaultConditionalStyles()] } },
+        series: {
+            seriesSettings: getSerieSettings(),
+            conditionalStyles: { enabled: false, conditions: [widgetCommonDefaultValues.getDefaultConditionalStyles()] },
+            showMeasureToggle: false,
+            availableMeasures: []
+        },
         interactions: {
             drilldown: { enabled: false },
             crossNavigation: widgetCommonDefaultValues.getDefaultCrossNavigation(),

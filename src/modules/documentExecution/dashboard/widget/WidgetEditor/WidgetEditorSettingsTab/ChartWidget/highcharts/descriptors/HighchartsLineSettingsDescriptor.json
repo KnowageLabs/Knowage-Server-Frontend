@@ -112,6 +112,10 @@
             {
                 "title": "common.aliases",
                 "type": "SeriesAliasesSettings"
+            },
+            {
+                "title": "dashboard.widgetEditor.highcharts.series.showMeasureToggle",
+                "type": "MeasureToggleSettings"
             }
         ],
         "Style": [

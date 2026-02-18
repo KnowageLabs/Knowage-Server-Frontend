@@ -886,6 +886,12 @@
                     "dimensionsTableHint": "Click on exactly one attribute to define categories.",
                     "valuesTableHint": "Click on at least one measure to define series."
                 },
+                "series": {
+                    "showMeasureToggle": "Mostra pannello selezione misure",
+                    "showMeasureToggleHint": "Abilita un pannello trascinabile che permette di mostrare/nascondere le misure nel grafico.",
+                    "availableMeasures": "Misure disponibili nel pannello",
+                    "availableMeasuresHint": "Seleziona quali misure del dataset devono apparire nel pannello di selezione. Solo le misure configurate nel widget possono essere visualizzate nel grafico."
+                },
                 "showChekboxes": "Show Checkboxes",
                 "solidGauge": {
                     "valuesTableHint": "Measures only."
@@ -1018,6 +1024,9 @@
             },
             "libraries": {
                 "hint": "Seleziona o incolla la URL della libreria esterna qui. Premi invio per aggiungerla alla lista."
+            },
+            "measureToggle": {
+                "title": "Misure"
             },
             "line": "Line",
             "manualInput": "Manual input",

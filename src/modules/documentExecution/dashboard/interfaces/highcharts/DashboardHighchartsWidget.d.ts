@@ -44,6 +44,8 @@ export interface IHighchartsSeriesSetting {
     seriesSettings: IHighchartsSeriesLabelsSetting[]
     conditionalStyles?: any
     aliases: { column: IWidgetColumn | null; alias: string }[]
+    showMeasureToggle?: boolean
+    availableMeasures?: string[]
 }
 
 export interface IHighchartsSeriesLabelsSetting {

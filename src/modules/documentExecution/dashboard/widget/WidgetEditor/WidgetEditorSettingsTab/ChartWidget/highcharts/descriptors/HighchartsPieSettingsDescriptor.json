@@ -102,6 +102,10 @@
                 "type": "SeriesAliasesSettings"
             },
             {
+                "title": "dashboard.widgetEditor.highcharts.series.showMeasureToggle",
+                "type": "MeasureToggleSettings"
+            },
+            {
                 "title": "dashboard.widgetEditor.highcharts.piechart.donutSettings",
                 "type": "PieDonutSettings"
             }

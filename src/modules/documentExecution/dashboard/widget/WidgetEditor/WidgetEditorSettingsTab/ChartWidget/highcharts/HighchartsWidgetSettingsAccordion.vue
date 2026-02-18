@@ -66,6 +66,7 @@
                 <HighchartsJitterSettings v-else-if="accordion.type === 'JitterSettings' && isJittered" :widget-model="widgetModel"></HighchartsJitterSettings>
                 <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
                 <HighchartsSeriesAliasesSettings v-else-if="accordion.type === 'SeriesAliasesSettings'" :prop-widget-model="widgetModel"></HighchartsSeriesAliasesSettings>
+                <HighchartsMeasureToggleSettings v-else-if="accordion.type === 'MeasureToggleSettings'" :prop-widget-model="widgetModel"></HighchartsMeasureToggleSettings>
             </AccordionTab>
         </Accordion>
     </div>
@@ -133,6 +134,7 @@ import HighchartsAnnotations from './configuration/HighchartsAnnotations.vue'
 import HighchartsJitterSettings from './configuration/HighchartsJitterSettings.vue'
 import WidgetHelpSettings from '../../common/help/WidgetHelpSettings.vue'
 import HighchartsSeriesAliasesSettings from '../highcharts/series/HighchartsSeriesAliasesSettings.vue'
+import HighchartsMeasureToggleSettings from '../highcharts/series/HighchartsMeasureToggleSettings.vue'
 
 export default defineComponent({
     name: 'hihgcharts-widget-configuration-container',
@@ -192,7 +194,8 @@ export default defineComponent({
         HighchartsJitterSettings,
         WidgetHelpSettings,
         HighchartsSeriesAliasesSettings,
-        HighchartsPieDonutSettings
+        HighchartsPieDonutSettings,
+        HighchartsMeasureToggleSettings
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
