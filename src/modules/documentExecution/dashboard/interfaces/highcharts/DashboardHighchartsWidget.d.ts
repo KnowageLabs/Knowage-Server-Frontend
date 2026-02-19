@@ -28,6 +28,7 @@ export interface IHighchartsWidgetConfiguration {
     centerText?: any
     limit?: any
     axisLines?: any
+    categoryThreshold?: ICategoryThreshold
     exports: IWidgetExports
 }
 
@@ -156,6 +157,25 @@ export interface IHighchartsNoDataConfiguration {
         color: string
         backgroundColor: string
     }
+}
+
+export interface ICategoryThreshold {
+    enabled: boolean
+    operator: 'AND' | 'OR'
+    conditions: ICategoryThresholdCondition[]
+    message: string
+    style: {
+        fontFamily: string
+        fontSize: string
+        fontWeight: string
+        color: string
+        backgroundColor: string
+    }
+}
+
+export interface ICategoryThresholdCondition {
+    category: string
+    threshold: number
 }
 
 export interface IHighchartsAccessibilitySettings {

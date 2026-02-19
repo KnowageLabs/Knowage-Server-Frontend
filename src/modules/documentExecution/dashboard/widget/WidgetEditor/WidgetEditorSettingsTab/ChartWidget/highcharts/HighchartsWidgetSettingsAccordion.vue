@@ -10,6 +10,7 @@
 
                 <Highcharts3DConfiguration v-if="accordion.type === 'ConfigurationOf3D'" :widget-model="widgetModel"></Highcharts3DConfiguration>
                 <HighchartsNoDataMessageConfiguration v-else-if="accordion.type === 'NoDataMessageConfiguration'" :widget-model="widgetModel"></HighchartsNoDataMessageConfiguration>
+                <HighchartsCategoryThresholdSettings v-else-if="accordion.type === 'CategoryThresholdSettings'" :widget-model="widgetModel"></HighchartsCategoryThresholdSettings>
                 <HighchartsAccessibilitySettings v-else-if="accordion.type === 'AccessibilitySettings'" :widget-model="widgetModel"></HighchartsAccessibilitySettings>
                 <HighchartsSeriesAccessibilitySettings v-else-if="accordion.type === 'SeriesAccessibilitySettings'" :prop-widget-model="widgetModel"></HighchartsSeriesAccessibilitySettings>
                 <HighchartsLabelsSettings v-else-if="accordion.type === 'Labels'" :widget-model="widgetModel"></HighchartsLabelsSettings>
@@ -96,6 +97,7 @@ import WidgetBackgroundColorStyle from '../../common/style/WidgetBackgroundColor
 import Highcharts3DConfiguration from '../highcharts/configuration/Highcharts3DConfiguration.vue'
 import HighchartsCenterTextSettings from '../highcharts/configuration/HighchartsCenterTextSettings.vue'
 import HighchartsNoDataMessageConfiguration from '../highcharts/configuration/HighchartsNoDataMessageConfiguration.vue'
+import HighchartsCategoryThresholdSettings from '../highcharts/configuration/HighchartsCategoryThresholdSettings.vue'
 import HighchartsAccessibilitySettings from '../highcharts/accessibility/HighchartsAccessibilitySettings.vue'
 import HighchartsSeriesAccessibilitySettings from '../highcharts/accessibility/HighchartsSeriesAccessibilitySettings.vue'
 import HighchartsLabelsSettings from '../highcharts/labels/HighchartsLabelsSettings.vue'
@@ -153,6 +155,7 @@ export default defineComponent({
         WidgetPreview,
         Highcharts3DConfiguration,
         HighchartsNoDataMessageConfiguration,
+        HighchartsCategoryThresholdSettings,
         HighchartsAccessibilitySettings,
         HighchartsSeriesAccessibilitySettings,
         HighchartsLabelsSettings,

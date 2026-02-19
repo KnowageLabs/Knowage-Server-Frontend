@@ -152,7 +152,8 @@ export default defineComponent({
             showMeasurePanel: false,
             isDragging: false,
             panelPosition: { x: 0, y: 0 },
-            dragStart: { x: 0, y: 0 }
+            dragStart: { x: 0, y: 0 },
+            thresholdMessageShown: false
         }
     },
     watch: {
@@ -281,7 +282,19 @@ export default defineComponent({
 
             this.setSeriesEvents()
 
-          const modelToRender = this.getModelForRender()
+            const modelToRender = this.getModelForRender()
+
+            // Check category threshold before rendering
+            if (this.shouldShowThresholdMessage(dataToUse)) {
+                this.showCategoryThresholdMessage()
+                return
+            }
+
+            // Se il messaggio era mostrato ma ora le condizioni sono OK, ripulisci il container
+            if (this.thresholdMessageShown) {
+                chartContainer.innerHTML = ''
+                this.thresholdMessageShown = false
+            }
 
             if (modelToRender.chart.type === 'pie' && modelToRender.plotOptions?.series?.showCheckbox) {
                 modelToRender.series.forEach((series) => {
@@ -303,13 +316,21 @@ export default defineComponent({
             try {
 
                 // Destroy existing chart instance if it exists
-                if (this.highchartsInstance && this.highchartsInstance.destroy) {
-                    this.highchartsInstance.destroy()
+                if (this.highchartsInstance && typeof this.highchartsInstance.destroy === 'function') {
+                    try {
+                        this.highchartsInstance.destroy()
+                    } catch (error) {
+                        console.warn('Error destroying previous chart instance:', error)
+                    }
                 }
 
                 this.highchartsInstance = Highcharts.chart(this.chartID, modelToRender as any)
                 this.addAditionalCSSClasses(modelToRender)
-                this.highchartsInstance.reflow()
+
+                // Safely call reflow
+                if (this.highchartsInstance && typeof this.highchartsInstance.reflow === 'function') {
+                    this.highchartsInstance.reflow()
+                }
             } catch (error: any) {
                 this.setError({
                     title: this.$t('common.toast.errorTitle'),
@@ -469,9 +490,14 @@ export default defineComponent({
             return selection
         },
         resizeChart() {
+            if (!this.highchartsInstance || !this.highchartsInstance.series) return
+
             this.highchartsInstance.series.forEach((serie: any) => {
+                if (!serie || !serie.data) return
                 serie.data.forEach((d: any) => {
-                    if (d.dataLabelUpper) d.dataLabelUpper.destroy()
+                    if (d && d.dataLabelUpper && typeof d.dataLabelUpper.destroy === 'function') {
+                        d.dataLabelUpper.destroy()
+                    }
                 })
             })
         },
@@ -807,12 +833,121 @@ export default defineComponent({
             if (target.classList.contains('measure-toggle-panel__drag-handle')) return
 
             this.showMeasurePanel = !this.showMeasurePanel
+        },
+        shouldShowThresholdMessage(data: any): boolean {
+            const categoryThreshold = this.widgetModel.settings?.configuration?.categoryThreshold
+
+            if (!categoryThreshold || !categoryThreshold.enabled) {
+                return false
+            }
+
+            if (!categoryThreshold.conditions || categoryThreshold.conditions.length === 0) {
+                return false
+            }
+
+            if (!data || !data.rows || data.rows.length === 0) {
+                return false
+            }
+
+            const operator = categoryThreshold.operator || 'OR'
+            const results: boolean[] = []
+
+            // Verifica ogni condizione
+            for (const condition of categoryThreshold.conditions) {
+                if (!condition.category) continue
+
+                // Trova la colonna categoria nel widget model
+                const categoryColumn = this.widgetModel.columns?.find(
+                    (col) => col.columnName === condition.category && col.fieldType === 'ATTRIBUTE'
+                )
+
+                if (!categoryColumn) continue
+
+                // Trova il field corrispondente nei metaData per ottenere il dataIndex (column_X)
+                const fieldMeta = data.metaData?.fields?.find(
+                    (field: any) => field.header === (categoryColumn.alias || categoryColumn.columnName)
+                )
+
+                if (!fieldMeta) continue
+
+                const dataIndex = fieldMeta.name // questo sarà "column_1", "column_2", ecc.
+
+                // Conta valori univoci per questa categoria usando il dataIndex corretto
+                const uniqueCategories = new Set()
+                data.rows.forEach((row: any) => {
+                    const categoryValue = row[dataIndex]
+                    if (categoryValue !== null && categoryValue !== undefined) {
+                        uniqueCategories.add(categoryValue)
+                    }
+                })
+
+                // La condizione fallisce se count < threshold (dobbiamo nascondere il grafico)
+                const conditionFailed = uniqueCategories.size < condition.threshold
+                results.push(conditionFailed)
+            }
+
+            // Applica l'operatore logico
+            if (operator === 'AND') {
+                // AND: nascondi il grafico se TUTTE le condizioni falliscono
+                return results.length > 0 && results.every(failed => failed)
+            } else {
+                // OR: nascondi il grafico se ALMENO UNA condizione fallisce
+                return results.some(failed => failed)
+            }
+        },
+        showCategoryThresholdMessage() {
+            const categoryThreshold = this.widgetModel.settings?.configuration?.categoryThreshold
+            const chartContainer = document.getElementById(this.chartID)
+
+            if (!chartContainer || !categoryThreshold) return
+
+            // Destroy existing chart if any - safely
+            if (this.highchartsInstance && typeof this.highchartsInstance.destroy === 'function') {
+                try {
+                    this.highchartsInstance.destroy()
+                    this.highchartsInstance = null
+                } catch (error) {
+                    console.warn('Error destroying chart:', error)
+                }
+            }
+
+            // Display the threshold message with custom styling
+            const message = categoryThreshold.message || this.$t('dashboard.widgetEditor.highcharts.categoryThreshold.defaultMessage')
+            const style = categoryThreshold.style || {
+                fontFamily: '',
+                fontSize: '14px',
+                fontWeight: '',
+                color: '#666',
+                backgroundColor: ''
+            }
+
+            chartContainer.innerHTML = `
+                <div style="
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    height: 100%;
+                    width: 100%;
+                    text-align: center;
+                    padding: 20px;
+                    font-size: ${style.fontSize || '14px'};
+                    font-family: ${style.fontFamily || 'inherit'};
+                    font-weight: ${style.fontWeight || 'normal'};
+                    color: ${style.color || '#666'};
+                    background-color: ${style.backgroundColor || 'transparent'};
+                ">
+                    <div>${message}</div>
+                </div>
+            `
+
+            // Setta il flag per indicare che il messaggio è mostrato
+            this.thresholdMessageShown = true
         }
     }
 })
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 .highcharts-container {
     position: relative;
     width: 100%;

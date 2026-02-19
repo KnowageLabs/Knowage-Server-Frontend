@@ -951,6 +951,19 @@
                     "valuesTableHint": "Click on at least one measure to define series.",
                     "xAndZAxesHint": "Click on exactly one measure to define series."
                 },
+                "categoryThreshold": {
+                    "title": "Significant Category Threshold",
+                    "hint": "Configure one or more threshold conditions for categories. The chart is displayed only if the conditions are met.",
+                    "operator": "Logical operator",
+                    "operatorHint": "AND: all conditions must be met. OR: at least one condition must be met",
+                    "conditions": "Conditions",
+                    "addCondition": "Add Condition",
+                    "category": "Category",
+                    "threshold": "Minimum threshold",
+                    "message": "Message to display",
+                    "defaultMessage": "Chart cannot be displayed: insufficient number of categories",
+                    "noConditions": "No conditions configured. Add at least one condition."
+                },
                 "centerText": {
                     "hint": "Center Text Hint",
                     "title": "Center Text"

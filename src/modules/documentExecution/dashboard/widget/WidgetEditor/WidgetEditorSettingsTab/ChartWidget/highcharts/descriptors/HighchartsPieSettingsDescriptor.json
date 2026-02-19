@@ -46,6 +46,10 @@
             {
                 "title": "dashboard.widgetEditor.export.title",
                 "type": "Export"
+            },
+            {
+                "title": "dashboard.widgetEditor.highcharts.categoryThreshold.title",
+                "type": "CategoryThresholdSettings"
             }
         ],
         "Help": [

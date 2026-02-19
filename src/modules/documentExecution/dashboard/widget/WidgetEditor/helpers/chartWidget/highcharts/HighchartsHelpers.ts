@@ -38,7 +38,8 @@ export const createNewHighchartsSettings = () => {
             datetypeSettings: highchartsDefaultValues.getDefaultDateTypeSettings(),
             grouping: { enabled: false, secondSeries: { enabled: false }, secondDimension: { enabled: false, serie: '' } },
             limit: { enabled: false, itemsNumber: 5 },
-            axisLines: { color: '', crosshairColor: '', crosshairWidth: 8 }
+            axisLines: { color: '', crosshairColor: '', crosshairWidth: 8 },
+            categoryThreshold: highchartsDefaultValues.getDefaultCategoryThreshold()
         },
         accesssibility: { seriesAccesibilitySettings: getSeriesAccesibilitySettings() },
         series: {
