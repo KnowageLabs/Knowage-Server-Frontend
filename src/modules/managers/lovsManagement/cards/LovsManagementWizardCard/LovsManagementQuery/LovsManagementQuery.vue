@@ -75,7 +75,8 @@ export default defineComponent({
             this.loadSelectedQuery()
         },
         code(newCode) {
-            this.query.query = newCode
+            // Remove trailing semicolon from query if present
+            this.query.query = newCode.trimEnd().replace(/;$/, '')
         }
     },
     async created() {
