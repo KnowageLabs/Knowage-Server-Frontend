@@ -1,10 +1,14 @@
 import { IWidgetSelection } from '@/modules/documentExecution/dashboard/Dashboard'
-import { IHighchartsAccessibilitySettings, IHighchartsLegend, IHighchartsNoDataConfiguration, IHighchartsOptions3D, IHighchartsSerieAccessibility, IHighchartsSerieLabelSettings, IHighchartsSeriesLabelsSetting, IHighchartsTooltip, ISerieAccessibilitySetting } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
+import { IHighchartsAccessibilitySettings, IHighchartsLegend, IHighchartsNoDataConfiguration, IHighchartsOptions3D, IHighchartsSerieAccessibility, IHighchartsSerieLabelSettings, IHighchartsSeriesLabelsSetting, IHighchartsTooltip, ISerieAccessibilitySetting, ICategoryThreshold } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import deepcopy from 'deepcopy'
 import descriptor from './HighchartsDefaultValuesDescriptor.json'
 
 export const getDefaultNoDataConfiguration = () => {
     return deepcopy(descriptor.defaultNoDataConfiguration) as IHighchartsNoDataConfiguration
+}
+
+export const getDefaultCategoryThreshold = () => {
+    return deepcopy(descriptor.defaultCategoryThreshold) as ICategoryThreshold
 }
 
 export const getDefaultAccessibilitySettings = () => {

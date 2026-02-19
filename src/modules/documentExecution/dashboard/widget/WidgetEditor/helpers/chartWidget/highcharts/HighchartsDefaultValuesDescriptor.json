@@ -348,6 +348,19 @@
             "fontWeight": ""
         }
     },
+    "defaultCategoryThreshold": {
+        "enabled": false,
+        "operator": "OR",
+        "conditions": [],
+        "message": "",
+        "style": {
+            "fontFamily": "",
+            "fontSize": "14px",
+            "fontWeight": "",
+            "color": "#666",
+            "backgroundColor": ""
+        }
+    },
     "defaultPackedBubblePlotOptions": {
         "layoutAlgorithm": {
             "gravitationalConstant": 0.02,

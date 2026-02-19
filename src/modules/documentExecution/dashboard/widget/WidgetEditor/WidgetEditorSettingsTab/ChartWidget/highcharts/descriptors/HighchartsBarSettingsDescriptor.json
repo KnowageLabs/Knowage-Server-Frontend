@@ -62,6 +62,10 @@
             {
                 "title": "dashboard.widgetEditor.noData.title",
                 "type": "NoDataMessageConfiguration"
+            },
+            {
+                "title": "dashboard.widgetEditor.highcharts.categoryThreshold.title",
+                "type": "CategoryThresholdSettings"
             }
         ],
         "Help": [

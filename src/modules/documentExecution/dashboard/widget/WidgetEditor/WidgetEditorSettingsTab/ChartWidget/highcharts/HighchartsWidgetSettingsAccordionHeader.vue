@@ -10,6 +10,7 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
+import * as highchartsDefaultValues from '../../../helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
@@ -63,6 +64,12 @@ export default defineComponent({
                     return this.widgetModel.settings.chartModel.model?.xAxis?.title
                 case 'DatetypeSettings':
                     return this.widgetModel.settings.configuration.datetypeSettings
+                case 'CategoryThresholdSettings':
+                    // Inizializza categoryThreshold se non esiste (widget esistenti)
+                    if (!this.widgetModel.settings.configuration.categoryThreshold) {
+                        this.widgetModel.settings.configuration.categoryThreshold = highchartsDefaultValues.getDefaultCategoryThreshold()
+                    }
+                    return this.widgetModel.settings.configuration.categoryThreshold
                 case 'GroupingSettings':
                     return this.widgetModel.settings.configuration.splitting
                 case 'Title':
@@ -111,6 +118,7 @@ export default defineComponent({
                 case 'Legend':
                 case 'Tooltip':
                 case 'ActivityGaugeTooltip':
+                case 'CategoryThresholdSettings':
                     setTimeout(() => emitter.emit('refreshChart', this.widgetModel.id), 250)
                     break
                 case 'Header':
