@@ -151,6 +151,9 @@ export default class CellRenderer {
         }
 
         const styleObject = getCellStyle()
+        // Hardcode padding so columns can be easily distinguished, can be moved to editor later if needed
+        styleObject['padding-left'] = '0.5rem'
+
         // HARDCODED ICON COLUMN STYLES, WE CAN ADD NEW OPTIONS IN EDITOR OR TWEAK THIS
         if (params.colId === 'iconColumn') this.setStyle({ 'align-items': 'center', 'justify-content': 'center' })
         else this.setStyle(styleObject)
