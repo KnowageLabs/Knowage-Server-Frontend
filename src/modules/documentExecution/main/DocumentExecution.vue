@@ -274,7 +274,8 @@ export default defineComponent({
             datasetPreviewShown: false as boolean,
             datasetToPreview: {} as any,
             initializePolling: null as any,
-            filtersLoaded: false
+            filtersLoaded: false,
+            reportRefreshInterval: null as any
         }
     },
     computed: {
@@ -358,6 +359,7 @@ export default defineComponent({
     deactivated() {
         this.parameterSidebarVisible = false
         window.removeEventListener('message', this.iframeEventsListener)
+        if (this.reportRefreshInterval) clearInterval(this.reportRefreshInterval)
     },
 
     async mounted() {
@@ -371,6 +373,7 @@ export default defineComponent({
     },
     unmounted() {
         if (this.initializePolling) clearInterval(this.initializePolling)
+        if (this.reportRefreshInterval) clearInterval(this.reportRefreshInterval)
         this.removeEventListeners()
     },
     methods: {
@@ -597,6 +600,14 @@ export default defineComponent({
             await this.loadURL(null)
             this.reloadTrigger = !this.reloadTrigger
         },
+        startReportAutoRefresh() {
+            if (this.reportRefreshInterval) clearInterval(this.reportRefreshInterval)
+
+            const refreshIntervalMs = this.document.refreshSeconds * 1000
+            this.reportRefreshInterval = setInterval(async () => {
+                await this.refresh()
+            }, refreshIntervalMs)
+        },
         toggle(event: Event) {
             this.createMenuItems()
             const menu = this.$refs.menu as any
@@ -822,6 +833,8 @@ export default defineComponent({
                 this.breadcrumbs = []
             }
             if (this.newDashboardMode) emitter.emit('newDashboardClosed', this.document.dashboardId)
+            if (this.reportRefreshInterval) clearInterval(this.reportRefreshInterval)
+
             this.$emit('close')
         },
         getRouteForCloseDocument() {
@@ -926,6 +939,8 @@ export default defineComponent({
                     this.sbiExecutionId = this.urlData?.sbiExecutionId as string
                 }
                 if (error) return
+
+                if (this.document.typeCode === 'REPORT' && this.document.refreshSeconds > 0) this.startReportAutoRefresh()
             }
             await this.sendForm(documentLabel, crossNavigationPopupMode)
         },
