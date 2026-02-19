@@ -119,6 +119,7 @@ async function sendMessage() {
         turnId: turnId.value++
     }
     ;((body.tenant = store.user.organization), (body.token = localStorage.getItem('token')), (body.role = store.user.defaultRole || store.user.roles[0]), (body.pathQuestion = router.currentRoute.value.path), (body.promptUser = userMessage.value), (body.conversationHistory = chat.value), (body.timestamp = new Date().toISOString()))
+
     body.dashboard = null
     body.drivers = null
 
@@ -130,9 +131,18 @@ async function sendMessage() {
 
         const dashboardId = Array.isArray(router.currentRoute.value?.params?.id) ? router.currentRoute.value?.params?.id[0] : router.currentRoute.value?.params?.id
 
-        const currentDashboard: any = dashStore.getDashboardFromLabel(dashboardId)
-        body.dashboard = currentDashboard.configuration.aiSettings
-        body.drivers = currentDashboard.drivers
+        // Try to get dashboard by ID first, then by label as fallback
+        let currentDashboard: any = dashStore.getDashboard(dashboardId)
+        if (!currentDashboard) {
+            currentDashboard = dashStore.getDashboardFromLabel(dashboardId)
+        }
+
+        if (currentDashboard?.configuration?.aiSettings) {
+            body.dashboard = currentDashboard.configuration.aiSettings
+        }
+        if (currentDashboard?.drivers) {
+            body.drivers = currentDashboard.drivers
+        }
     }
     chat.value.push(newMessage)
 
