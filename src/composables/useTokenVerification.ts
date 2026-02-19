@@ -47,6 +47,10 @@ export const useTokenVerification = (error: any, success: any) => {
                 code: code
             })
 
+            if (response.data?.id_token) {
+                sessionStorage.setItem('id_token', response.data.oidcToken)
+            }
+
             return response.data?.token || ''
         } catch (err: any) {
             console.error("Errore durante l'exchange dell'authorization code:", err)
