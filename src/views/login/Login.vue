@@ -108,7 +108,7 @@ const hasAuthToken = ref(false)
 const hasUrlError = ref(false)
 const hasAuthCode = ref(false)
 
-const redirectToKeycloak = () => {
+const redirectToOIDC = () => {
     const config = loginConfig.value?.items?.[0]
     if (!config) return
 
@@ -197,7 +197,7 @@ onMounted(async () => {
         // If SSO is active and no code/token/error, redirect to Keycloak
         const config = loginConfig.value?.items?.[0]
         if (config.oauth2FlowType === 'AUTHORIZATION_CODE' && config?.authorizeUrl && config?.clientId && config?.redirectUrl && config?.scopes) {
-            redirectToKeycloak()
+            redirectToOIDC()
             return
         } else {
             // SSO is active but Keycloak is not configured
