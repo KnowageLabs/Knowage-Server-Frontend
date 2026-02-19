@@ -134,7 +134,7 @@ export const cloneSheet = (dashboard: IDashboard, selectedSheet: IDashboardSheet
                 const clonedWidget = { ...originalWidget, id: newId }
                 newWidgets.push(clonedWidget)
             }
-            return { ...structuredClone(widget), id: idMap.get(oldId) }
+            return { ...structuredClone(widget), id: idMap.get(oldId), i: crypto.randomUUID() }
         })
     })
 
