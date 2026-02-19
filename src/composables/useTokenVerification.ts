@@ -41,9 +41,24 @@ export const useTokenVerification = (error: any, success: any) => {
         }
     }
 
+    const exchangeAuthorizationCode = async (code: string) => {
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/login/oidc/authorization_code`, {
+                code: code
+            })
+
+            return response.data?.token || ''
+        } catch (err: any) {
+            console.error("Errore durante l'exchange dell'authorization code:", err)
+            error.value = err.response?.data?.message || t('common.loginPage.tokenError')
+            return ''
+        }
+    }
+
     return {
         resetToken,
         verifyResetToken,
-        verifyRegistrationToken
+        verifyRegistrationToken,
+        exchangeAuthorizationCode
     }
 }

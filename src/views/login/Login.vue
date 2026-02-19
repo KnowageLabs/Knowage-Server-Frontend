@@ -99,7 +99,7 @@ const publicPath = import.meta.env.VITE_PUBLIC_PATH
 
 const { backgroundUrl, backgroundLoaded, loadLoginConfig, preloadImage, loginConfig } = useLoginConfig()
 const authFlows = useAuthFlows()
-const { resetToken, verifyResetToken, verifyRegistrationToken } = useTokenVerification(authFlows.error, authFlows.success)
+const { resetToken, verifyResetToken, verifyRegistrationToken, exchangeAuthorizationCode } = useTokenVerification(authFlows.error, authFlows.success)
 
 const { username, password, isPwd, loading, error, success, showMfa, showForgotPassword, showResetPassword, showRegistration, mfaData, onSubmit, onMfaSuccess, onMfaError, onForgotPasswordBack, onForgotPasswordSuccess, onForgotPasswordError, onResetPasswordSuccess, onResetPasswordError, onRegistrationBack, onRegistrationSuccess, onRegistrationError, openForgotPassword, openResetPassword, openRegistration, completeLogin } = authFlows
 
@@ -112,17 +112,17 @@ const redirectToKeycloak = () => {
     const config = loginConfig.value?.items?.[0]
     if (!config) return
 
-    const keycloakUrl = `${config.keycloakUrl}/realms/${config.keycloakRealm}/protocol/openid-connect/auth`
-    const redirectUri = config.redirectUri || window.location.origin + '/login'
-
+    const state = window.crypto?.randomUUID ? window.crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+    window.sessionStorage.setItem('oauth2_state', state)
     const params = new URLSearchParams({
-        client_id: config.keycloakClientId,
-        redirect_uri: redirectUri,
+        client_id: config.clientId,
+        redirect_uri: config.redirectUrl,
         response_type: 'code',
-        scope: 'openid profile email'
+        scope: config.scopes,
+        state: state
     })
 
-    window.location.href = `${keycloakUrl}?${params.toString()}`
+    window.location.href = `${config.authorizeUrl}?${params.toString()}`
 }
 
 const containerStyles = computed(() => ({
@@ -149,6 +149,7 @@ onMounted(async () => {
     const urlError = route.query.error as string
     const authToken = route.query.authToken as string
     const authCode = route.query.code as string
+    const authState = route.query.state as string
 
     // Handle direct authToken (backward compatibility or SSO callback)
     if (authToken) {
@@ -165,9 +166,21 @@ onMounted(async () => {
     if (authCode) {
         hasAuthCode.value = true
         try {
-            // Exchange authorization code for token via backend
-            // The backend will validate the code with Keycloak and return an authToken
-            await completeLogin(authCode)
+            const storedState = window.sessionStorage.getItem('oauth2_state')
+            if (!authState || !storedState || authState !== storedState) {
+                hasUrlError.value = true
+                error.value = t('common.loginPage.ssoError')
+                return
+            }
+
+            const token = await exchangeAuthorizationCode(authCode)
+            if (!token) {
+                hasAuthCode.value = false
+                return
+            }
+
+            window.sessionStorage.removeItem('oauth2_state')
+            await completeLogin(token)
             return
         } catch (err) {
             hasAuthCode.value = false
@@ -183,7 +196,7 @@ onMounted(async () => {
     } else if (ssoActive) {
         // If SSO is active and no code/token/error, redirect to Keycloak
         const config = loginConfig.value?.items?.[0]
-        if (config?.keycloakUrl && config?.keycloakRealm && config?.keycloakClientId) {
+        if (config.oauth2FlowType === 'AUTHORIZATION_CODE' && config?.authorizeUrl && config?.clientId && config?.redirectUrl && config?.scopes) {
             redirectToKeycloak()
             return
         } else {
