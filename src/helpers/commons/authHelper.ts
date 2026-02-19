@@ -21,7 +21,7 @@ export default {
         await axios
             .post(`${url}${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/logout`)
             .then((response) => {
-                invalidateSession(response.data.urlEnginesInvalidate, response.data.redirectUrl.replace('${id_token}', sessionStorage.getItem('id_token') || ''), query)
+                invalidateSession(response.data.urlEnginesInvalidate, response.data.redirectUrl.replace('${id_token}', sessionStorage.getItem('idToken') || ''), query)
             })
             .finally(() => {
                 localStorage.clear()

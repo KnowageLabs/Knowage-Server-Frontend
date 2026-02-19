@@ -47,8 +47,8 @@ export const useTokenVerification = (error: any, success: any) => {
                 code: code
             })
 
-            if (response.data?.id_token) {
-                sessionStorage.setItem('id_token', response.data.oidcToken)
+            if (response.data?.idToken) {
+                sessionStorage.setItem('idToken', response.data.idToken)
             }
 
             return response.data?.token || ''
