@@ -228,7 +228,7 @@ onMounted(async () => {
     } else if (ssoActive) {
         // If SSO is active and no code/token/error, redirect to Keycloak
         const config = loginConfig.value?.items?.[0]
-        if (config.oauth2FlowType === 'AUTHORIZATION_CODE' && config?.authorizeUrl && config?.clientId && config?.redirectUrl && config?.scopes) {
+        if ((config.oauth2FlowType === 'AUTHORIZATION_CODE' || config.oauth2FlowType === 'PKCE') && config?.authorizeUrl && config?.clientId && config?.redirectUrl && config?.scopes) {
             redirectToOIDC()
             return
         } else {
