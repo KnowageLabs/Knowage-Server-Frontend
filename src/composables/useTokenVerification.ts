@@ -41,11 +41,16 @@ export const useTokenVerification = (error: any, success: any) => {
         }
     }
 
-    const exchangeAuthorizationCode = async (code: string) => {
+    const exchangeAuthorizationCode = async (code: string, codeVerifier?: string) => {
         try {
-            const response = await axios.post(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/login/oidc/authorization_code`, {
-                code: code
-            })
+            const payload: any = { code: code }
+
+            // Add PKCE code_verifier if provided
+            if (codeVerifier) {
+                payload.codeVerifier = codeVerifier
+            }
+
+            const response = await axios.post(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/login/oidc/authorization_code`, payload)
 
             if (response.data?.idToken) {
                 sessionStorage.setItem('idToken', response.data.idToken)

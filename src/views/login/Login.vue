@@ -108,12 +108,34 @@ const hasAuthToken = ref(false)
 const hasUrlError = ref(false)
 const hasAuthCode = ref(false)
 
-const redirectToOIDC = () => {
+const generatePKCE = async () => {
+    // Generate code_verifier: random string 43-128 chars
+    const array = new Uint8Array(32)
+    window.crypto.getRandomValues(array)
+    const codeVerifier = btoa(String.fromCharCode.apply(null, Array.from(array)))
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=/g, '')
+
+    // Generate code_challenge: SHA-256 hash of code_verifier, base64url encoded
+    const encoder = new TextEncoder()
+    const data = encoder.encode(codeVerifier)
+    const hashBuffer = await window.crypto.subtle.digest('SHA-256', data)
+    const codeChallenge = btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(hashBuffer))))
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=/g, '')
+
+    return { codeVerifier, codeChallenge }
+}
+
+const redirectToOIDC = async () => {
     const config = loginConfig.value?.items?.[0]
     if (!config) return
 
     const state = window.crypto?.randomUUID ? window.crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`
     window.sessionStorage.setItem('oauth2_state', state)
+
     const params = new URLSearchParams({
         client_id: config.clientId,
         redirect_uri: config.redirectUrl,
@@ -121,6 +143,14 @@ const redirectToOIDC = () => {
         scope: config.scopes,
         state: state
     })
+
+    // Add PKCE parameters if configured
+    if (config.oauth2FlowType === 'PKCE') {
+        const { codeVerifier, codeChallenge } = await generatePKCE()
+        window.sessionStorage.setItem('pkce_verifier', codeVerifier)
+        params.append('code_challenge', codeChallenge)
+        params.append('code_challenge_method', 'S256')
+    }
 
     window.location.href = `${config.authorizeUrl}?${params.toString()}`
 }
@@ -173,13 +203,15 @@ onMounted(async () => {
                 return
             }
 
-            const token = await exchangeAuthorizationCode(authCode)
+            const pkceVerifier = window.sessionStorage.getItem('pkce_verifier')
+            const token = await exchangeAuthorizationCode(authCode, pkceVerifier || undefined)
             if (!token) {
                 hasAuthCode.value = false
                 return
             }
 
             window.sessionStorage.removeItem('oauth2_state')
+            window.sessionStorage.removeItem('pkce_verifier')
             await completeLogin(token)
             return
         } catch (err) {
