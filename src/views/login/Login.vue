@@ -108,23 +108,26 @@ const hasAuthToken = ref(false)
 const hasUrlError = ref(false)
 const hasAuthCode = ref(false)
 
+// Helper per convertire a base64url
+const toBase64Url = (base64: string): string => {
+    return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+}
+
+const generateNonce = () => {
+    return window.crypto?.randomUUID ? window.crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+}
+
 const generatePKCE = async () => {
     // Generate code_verifier: random string 43-128 chars
     const array = new Uint8Array(32)
     window.crypto.getRandomValues(array)
-    const codeVerifier = btoa(String.fromCharCode.apply(null, Array.from(array)))
-        .replace(/\+/g, '-')
-        .replace(/\//g, '_')
-        .replace(/=/g, '')
+    const codeVerifier = toBase64Url(btoa(String.fromCharCode.apply(null, Array.from(array))))
 
     // Generate code_challenge: SHA-256 hash of code_verifier, base64url encoded
     const encoder = new TextEncoder()
     const data = encoder.encode(codeVerifier)
     const hashBuffer = await window.crypto.subtle.digest('SHA-256', data)
-    const codeChallenge = btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(hashBuffer))))
-        .replace(/\+/g, '-')
-        .replace(/\//g, '_')
-        .replace(/=/g, '')
+    const codeChallenge = toBase64Url(btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(hashBuffer)))))
 
     return { codeVerifier, codeChallenge }
 }
@@ -133,23 +136,31 @@ const redirectToOIDC = async () => {
     const config = loginConfig.value?.items?.[0]
     if (!config) return
 
-    const state = window.crypto?.randomUUID ? window.crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+    const state = generateNonce()
     window.sessionStorage.setItem('oauth2_state', state)
 
-    const params = new URLSearchParams({
+    let params = new URLSearchParams({
         client_id: config.clientId,
         redirect_uri: config.redirectUrl,
-        response_type: 'code',
         scope: config.scopes,
         state: state
     })
 
-    // Add PKCE parameters if configured
-    if (config.oauth2FlowType === 'PKCE') {
+    // Handle different OAuth2 flow types
+    if (config.oauth2FlowType === 'OIDC_IMPLICIT') {
+        const nonce = generateNonce()
+        window.sessionStorage.setItem('oauth2_nonce', nonce)
+        params.append('response_type', 'id_token token')
+        params.append('nonce', nonce)
+    } else if (config.oauth2FlowType === 'PKCE') {
         const { codeVerifier, codeChallenge } = await generatePKCE()
         window.sessionStorage.setItem('pkce_verifier', codeVerifier)
+        params.append('response_type', 'code')
         params.append('code_challenge', codeChallenge)
         params.append('code_challenge_method', 'S256')
+    } else {
+        // AUTHORIZATION_CODE flow
+        params.append('response_type', 'code')
     }
 
     window.location.href = `${config.authorizeUrl}?${params.toString()}`
@@ -180,6 +191,7 @@ onMounted(async () => {
     const authToken = route.query.authToken as string
     const authCode = route.query.code as string
     const authState = route.query.state as string
+    const config = loginConfig.value?.items?.[0]
 
     // Handle direct authToken (backward compatibility or SSO callback)
     if (authToken) {
@@ -192,7 +204,48 @@ onMounted(async () => {
         }
     }
 
-    // Handle OAuth2 authorization code from Keycloak
+    // Handle OIDC Implicit flow with ID Token
+    if (config?.oauth2FlowType === 'OIDC_IMPLICIT' && window.location.hash) {
+        hasAuthCode.value = true
+        try {
+            const hash = window.location.hash.substring(1)
+            const hashParams = new URLSearchParams(hash)
+            const idToken = hashParams.get('id_token')
+            const implicitState = hashParams.get('state')
+
+            if (!idToken) {
+                hasAuthCode.value = false
+                return
+            }
+
+            // Validate state
+            const storedState = window.sessionStorage.getItem('oauth2_state')
+            if (!implicitState || !storedState || implicitState !== storedState) {
+                hasUrlError.value = true
+                error.value = t('common.loginPage.ssoError')
+                return
+            }
+
+            // Exchange ID Token with backend for Knowage token
+            const token = await exchangeAuthorizationCode(idToken)
+            if (!token) {
+                hasAuthCode.value = false
+                return
+            }
+
+            window.sessionStorage.removeItem('oauth2_state')
+            window.sessionStorage.removeItem('oauth2_nonce')
+            window.history.replaceState({}, document.title, window.location.pathname)
+            await completeLogin(token)
+            return
+        } catch (err) {
+            hasAuthCode.value = false
+            error.value = t('common.loginPage.tokenError')
+            return
+        }
+    }
+
+    // Handle OAuth2 authorization code from Keycloak (AUTHORIZATION_CODE or PKCE)
     if (authCode) {
         hasAuthCode.value = true
         try {
@@ -227,8 +280,7 @@ onMounted(async () => {
         error.value = urlError || t('common.loginPage.ssoError')
     } else if (ssoActive) {
         // If SSO is active and no code/token/error, redirect to Keycloak
-        const config = loginConfig.value?.items?.[0]
-        if ((config.oauth2FlowType === 'AUTHORIZATION_CODE' || config.oauth2FlowType === 'PKCE') && config?.authorizeUrl && config?.clientId && config?.redirectUrl && config?.scopes) {
+        if ((config?.oauth2FlowType === 'AUTHORIZATION_CODE' || config?.oauth2FlowType === 'PKCE' || config?.oauth2FlowType === 'OIDC_IMPLICIT') && config?.authorizeUrl && config?.clientId && config?.redirectUrl && config?.scopes) {
             redirectToOIDC()
             return
         } else {
