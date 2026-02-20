@@ -19,6 +19,9 @@
             "type": "text-align"
         },
         {
+            "type": "vertical-align"
+        },
+        {
             "type": "font-family"
         },
         {
@@ -210,6 +213,29 @@
     "styleToolbarVisualizationTypeOptions": [
         {
             "type": "icon"
+        }
+    ],
+    "totalsToolbarStyleOptions": [
+        {
+            "type": "font-weight"
+        },
+        {
+            "type": "font-style"
+        },
+        {
+            "type": "font-size"
+        },
+        {
+            "type": "text-align"
+        },
+        {
+            "type": "font-family"
+        },
+        {
+            "type": "color"
+        },
+        {
+            "type": "background-color"
         }
     ],
     "visualizationTypes": [

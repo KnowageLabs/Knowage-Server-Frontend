@@ -8,7 +8,8 @@
             "font-size": "14px",
             "font-style": "normal",
             "font-weight": "",
-            "text-align": "center"
+            "text-align": "center",
+            "vertical-align": ""
         }
     },
     "defaultColumnStyles": {
@@ -66,7 +67,8 @@
             "font-size": "14px",
             "font-style": "normal",
             "font-weight": "",
-            "text-align": "center"
+            "text-align": "center",
+            "vertical-align": ""
         }
     },
     "defaultTooltips": [
@@ -83,8 +85,10 @@
         }
     ],
     "defaultTotalValues": {
+        "colsExpanded": false,
         "grandTotal": false,
         "grandTotalLabel": "",
+        "rowsExpanded": false,
         "subTotal": false,
         "subTotalLabel": ""
     },

@@ -5,14 +5,14 @@
                 <div class="p-field p-col-12 p-d-flex p-flex-row">
                     <span class="p-float-label kn-flex">
                         <Dropdown v-if="index === 0" v-model="fieldStyle.target" class="kn-material-input" :options="descriptor.allColumnOption" option-value="value" option-label="label" :disabled="true"> </Dropdown>
-                        <WidgetEditorColumnsMultiselect v-else :value="(fieldStyle.target as string[])" :available-target-options="availableFieldOptions" :widget-columns-alias-map="widgetFieldsAliasMap" option-label="alias" option-value="id" :disabled="fieldStylesDisabled" @change="onFieldsSelected($event, fieldStyle)" />
+                        <WidgetEditorColumnsMultiselect v-else :value="fieldStyle.target as string[]" :available-target-options="availableFieldOptions" :widget-columns-alias-map="widgetFieldsAliasMap" option-label="alias" option-value="id" :disabled="fieldStylesDisabled" @change="onFieldsSelected($event, fieldStyle)" />
                         <label class="kn-material-input-label"> {{ $t('common.fields') }}</label>
                     </span>
                     <i v-if="widgetModel" :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash', fieldStylesDisabled ? 'icon-disabled' : '']" class="kn-cursor-pointer p-as-center p-ml-3" @click="index === 0 ? addFieldStyle() : removeFieldStyle(index)"></i>
                 </div>
             </form>
 
-            <WidgetEditorStyleToolbar :options="descriptor.defaultToolbarStyleOptions" :prop-model="fieldStyle.properties" :disabled="fieldStylesDisabled" @change="onStyleToolbarChange($event, fieldStyle, index)"> </WidgetEditorStyleToolbar>
+            <WidgetEditorStyleToolbar :options="toolbarOptions" :prop-model="fieldStyle.properties" :disabled="fieldStylesDisabled" @change="onStyleToolbarChange($event, fieldStyle, index)"> </WidgetEditorStyleToolbar>
 
             <br v-if="widgetModel && index < fieldStyles.styles.length - 1" />
             <br v-if="widgetModel && index < fieldStyles.styles.length - 1" />
@@ -52,6 +52,9 @@ export default defineComponent({
         },
         fieldStylesDisabled() {
             return !this.fieldStyles || !this.fieldStyles.enabled
+        },
+        toolbarOptions(): any {
+            return this.fieldType === 'fieldHeaders' ? this.descriptor.columnHeadersToolbarStyleOptions : this.descriptor.defaultToolbarStyleOptions
         }
     },
     created() {
@@ -123,7 +126,7 @@ export default defineComponent({
         },
         addFieldStyle() {
             if (!this.fieldStyles || this.fieldStylesDisabled) return
-            this.fieldStyles.styles.push({
+            const newStyle: any = {
                 target: [],
                 properties: {
                     'background-color': 'rgb(255, 255, 255, 0)',
@@ -134,7 +137,11 @@ export default defineComponent({
                     'font-style': '',
                     'font-weight': ''
                 }
-            })
+            }
+            if (this.fieldType === 'fieldHeaders') {
+                newStyle.properties['vertical-align'] = ''
+            }
+            this.fieldStyles.styles.push(newStyle)
         },
         removeFieldStyle(index: number) {
             if (!this.fieldStyles || this.fieldStylesDisabled) return
@@ -148,13 +155,14 @@ export default defineComponent({
             this.reloadModel()
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel, fieldStyle: IPivotTableColumnStyle, index: number | null = null) {
-            ;(fieldStyle.properties['background-color'] = model['background-color'] ?? 'rgb(0, 0, 0)'),
+            ;((fieldStyle.properties['background-color'] = model['background-color'] ?? 'rgb(0, 0, 0)'),
                 (fieldStyle.properties.color = model.color ?? 'rgb(255, 255, 255)'),
                 (fieldStyle.properties['text-align'] = model['text-align'] ?? 'center'),
+                (fieldStyle.properties['vertical-align'] = model['vertical-align'] ?? ''),
                 (fieldStyle.properties['font-size'] = model['font-size'] ?? '14px'),
                 (fieldStyle.properties['font-family'] = model['font-family'] ?? ''),
                 (fieldStyle.properties['font-style'] = model['font-style'] ?? 'normal'),
-                (fieldStyle.properties['font-weight'] = model['font-weight'] ?? '')
+                (fieldStyle.properties['font-weight'] = model['font-weight'] ?? ''))
             this.pivotTableFieldsStyleChanged(index)
         },
         reloadModel() {

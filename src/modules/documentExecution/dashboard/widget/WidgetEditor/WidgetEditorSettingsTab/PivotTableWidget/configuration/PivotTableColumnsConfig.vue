@@ -12,19 +12,25 @@
                 <InputText v-model="responsiveModel[`${field}Label`]" class="kn-material-input p-inputtext-sm" />
             </div>
         </div>
+        <div class="p-col-12 p-grid p-d-flex p-flex-row p-jc-start p-pt-3">
+            <div class="p-sm-12 p-md-2">
+                <q-checkbox v-model="responsiveModel.colsExpanded" :label="$t('dashboard.widgetEditor.pivot.configuration.colsExpanded')" dense />
+            </div>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget } from '@/modules/documentExecution/Dashboard/Dashboard'
+import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IPivotColumnsConfiguration } from '@/modules/documentExecution/dashboard/interfaces/pivotTable/DashboardPivotTableWidget'
 import descriptor from './PivotTableConfigDescriptor.json'
 import InputSwitch from 'primevue/inputswitch'
+import InputText from 'primevue/inputtext'
 
 export default defineComponent({
     name: 'widget-responsive',
-    components: { InputSwitch },
+    components: { InputSwitch, InputText },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {

@@ -183,6 +183,7 @@
         "language": "Language",
         "large": "Large",
         "lastChangeDate": "Last change date",
+        "later": "Later",
         "layer": "Layer",
         "layers": "Layers",
         "layout": "Layout",
@@ -327,6 +328,10 @@
         "type": "type",
         "unlock": "Unlock",
         "update": "Update",
+        "updateAvailable": "Application Update Available",
+        "updateAvailableInfo": "You will be asked to refresh the page.",
+        "updateAvailableMessage": "A new version of the application is available. Please update to get the latest features and improvements.",
+        "updateNow": "Update Now",
         "upload": "upload",
         "uploadFile": "Upload File",
         "uploadFileSuccess": "File uploaded",
@@ -453,8 +458,6 @@
         "yearly": "Yearly"
     },
     "dashboard": {
-        "lockAllWidgets": "Lock all widgets",
-        "unlockAllWidgets": "Unlock all widgets",
         "activeSelections": {
             "noActiveSelections": "No Active Selections"
         },
@@ -550,6 +553,7 @@
             "variablesHint": "Variables can be used everywhere in the dashboard widgets. They can be static values or dynamic values set in different ways. Check the documentation or the single widgets to learn how to use them."
         },
         "getDataError": "Unable to load data from dataset {datasetLabel}. Please check dataset & widget configuration.",
+        "lockAllWidgets": "Lock all widgets",
         "qMenu": {
             "changeType": "Change Chart Type",
             "clone": "Clone Widget",
@@ -614,6 +618,7 @@
             "spacingAndSize": "Spacing & Size"
         },
         "truncateDialog": "Cell Content",
+        "unlockAllWidgets": "Unlock all widgets",
         "warning": {
             "downloading": "The document has been requested in a specific output type and will be available soon"
         },
@@ -1127,7 +1132,8 @@
                 "fontSize": "Font size",
                 "iconPicker": "Icon picker",
                 "italic": "Italic",
-                "textAlignment": "Text alignment"
+                "textAlignment": "Text alignment",
+                "verticalAlignment": "Vertical alignment"
             },
             "imageWidget": {
                 "imageUploadErrors": {
@@ -1302,6 +1308,9 @@
                 }
             },
             "maxZoom": "Max Zoom",
+            "measureToggle": {
+                "title": "Measures"
+            },
             "menuConfiguration": "Menu Configuration",
             "menuConfigurationTooltip": "Holding down CTRL key will force the menu to show when it is hidden.",
             "noData": {
@@ -1327,10 +1336,12 @@
             "percentage": "Percentage",
             "pivot": {
                 "configuration": {
+                    "colsExpanded": "Columns Expanded",
                     "fieldPanel": "Field Panel",
                     "fieldPicker": "Field Picker",
                     "grandTotal": "Show Totals",
                     "grandTotalLabel": "Labels for Totals",
+                    "rowsExpanded": "Rows Expanded",
                     "showFieldPicker": "Show Integrated Field Picker",
                     "subTotalLabel": "Labels for SubTotals",
                     "subtotal": "Show Subtotals"
@@ -2960,7 +2971,8 @@
             "rel": "Released",
             "status": "Filter by Status",
             "test": "Test",
-            "title": "Import/Export Documents"
+            "title": "Import/Export Documents",
+            "uploadErrors": "Upload Errors"
         },
         "internationalizationManagement": {
             "defaultLanguage": "(Default)",
