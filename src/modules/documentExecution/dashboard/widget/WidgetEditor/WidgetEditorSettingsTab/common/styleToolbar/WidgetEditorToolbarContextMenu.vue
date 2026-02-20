@@ -38,6 +38,8 @@ export default defineComponent({
                     return descriptor.cellAlignmentOptions
                 case 'text-align':
                     return descriptor.textAlignmentOptions
+                case 'vertical-align':
+                    return descriptor.verticalAlignmentOptions
                 case 'font-family':
                     return descriptor.fontFamilyOptions
                 default:

@@ -83,6 +83,7 @@ export interface IPivotRowsConfiguration {
     subTotal: boolean
     grandTotalLabel: string
     subTotalLabel: string
+    rowsExpanded?: boolean
 }
 
 export interface IPivotColumnsConfiguration {
@@ -90,6 +91,7 @@ export interface IPivotColumnsConfiguration {
     subTotal: boolean
     grandTotalLabel: string
     subTotalLabel: string
+    colsExpanded?: boolean
 }
 
 export interface IPivotFieldPicker {

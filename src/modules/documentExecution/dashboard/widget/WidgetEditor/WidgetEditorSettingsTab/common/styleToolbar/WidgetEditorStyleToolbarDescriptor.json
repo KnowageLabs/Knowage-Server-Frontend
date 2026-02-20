@@ -95,7 +95,8 @@
         "font-weight": "fas fa-bold",
         "icon": "fas fa-icons",
         "justify-content": "fas fa-align-left",
-        "text-align": "fas fa-align-left"
+        "text-align": "fas fa-align-left",
+        "vertical-align": "fas fa-align-center"
     },
     "iconsList": [
         {
@@ -15687,6 +15688,24 @@
             "value": "right"
         }
     ],
+    "verticalAlignmentOptions": [
+        {
+            "label": "",
+            "value": ""
+        },
+        {
+            "label": "common.top",
+            "value": "top"
+        },
+        {
+            "label": "common.center",
+            "value": "middle"
+        },
+        {
+            "label": "common.bottom",
+            "value": "bottom"
+        }
+    ],
     "tooltips": {
         "background-color": "dashboard.widgetEditor.iconTooltips.backgroundColor",
         "border-color": "dashboard.widgetEditor.iconTooltips.borderColor",
@@ -15697,6 +15716,7 @@
         "font-weight": "dashboard.widgetEditor.iconTooltips.bold",
         "icon": "dashboard.widgetEditor.iconTooltips.iconPicker",
         "justify-content": "dashboard.widgetEditor.iconTooltips.textAlignment",
-        "text-align": "dashboard.widgetEditor.iconTooltips.textAlignment"
+        "text-align": "dashboard.widgetEditor.iconTooltips.textAlignment",
+        "vertical-align": "dashboard.widgetEditor.iconTooltips.verticalAlignment"
     }
 }
