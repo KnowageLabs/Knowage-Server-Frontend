@@ -852,28 +852,33 @@ export default defineComponent({
         },
         async loadPage(initialLoading = false, documentLabel: string | null = null, crossNavigationPopupMode = false) {
             this.loading = crossNavigationPopupMode ? false : true
-            if (!this.userRole) {
-                this.parameterSidebarVisible = true
-                return
+            try {
+                if (!this.userRole) {
+                    this.parameterSidebarVisible = true
+                    return
+                }
+                this.filtersData = await loadFilters(initialLoading, this.filtersData, this.document, this.breadcrumbs, this.userRole, this.tabKey as string, this.sessionEnabled, this.$http, this.dateFormat, this.$route, this)
+                this.filtersLoaded = true
+                if (this.dashboardView) formatDriversUsingDashboardView(this.filtersData, this.dashboardView)
+                else if (this.cockpitViewForExecution) formatDriversUsingDashboardView(this.filtersData, this.cockpitViewForExecution)
+                if (this.filtersData?.isReadyForExecution) {
+                    this.parameterSidebarVisible = false
+                    await this.loadURL(null, documentLabel, crossNavigationPopupMode)
+                    await this.loadExporters()
+                } else if (this.filtersData?.filterStatus) {
+                    this.parameterSidebarVisible = true
+                }
+                this.updateMode(!initialLoading)
+                if (this.$route.query.outputType && ['png', 'xls', 'xlsx', 'pdf'].includes(this.$route.query.outputType.toLowerCase())) {
+                    this.downloadMode = true
+                    await this.dashboardExport(this.$route.query.outputType.toLowerCase())
+                    return
+                }
+            } finally {
+                if (!crossNavigationPopupMode) {
+                    this.loading = false
+                }
             }
-            this.filtersData = await loadFilters(initialLoading, this.filtersData, this.document, this.breadcrumbs, this.userRole, this.tabKey as string, this.sessionEnabled, this.$http, this.dateFormat, this.$route, this)
-            this.filtersLoaded = true
-            if (this.dashboardView) formatDriversUsingDashboardView(this.filtersData, this.dashboardView)
-            else if (this.cockpitViewForExecution) formatDriversUsingDashboardView(this.filtersData, this.cockpitViewForExecution)
-            if (this.filtersData?.isReadyForExecution) {
-                this.parameterSidebarVisible = false
-                await this.loadURL(null, documentLabel, crossNavigationPopupMode)
-                await this.loadExporters()
-            } else if (this.filtersData?.filterStatus) {
-                this.parameterSidebarVisible = true
-            }
-            this.updateMode(!initialLoading)
-            if (this.$route.query.outputType && ['png', 'xls', 'xlsx', 'pdf'].includes(this.$route.query.outputType.toLowerCase())) {
-                this.downloadMode = true
-                await this.dashboardExport(this.$route.query.outputType.toLowerCase())
-                return
-            }
-            this.loading = false
         },
         updateMode(refresh = false) {
             if (this.document.typeCode === 'DATAMART') this.mode = 'registry'
