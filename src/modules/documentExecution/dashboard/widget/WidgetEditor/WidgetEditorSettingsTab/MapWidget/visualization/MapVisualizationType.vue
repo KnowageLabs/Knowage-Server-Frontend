@@ -1,431 +1,626 @@
 <template>
-    <div v-for="(visType, visTypeIndex) in visualizationTypeModel" :key="visTypeIndex" class="p-d-flex p-flex-column p-m-3 widget-editor-card">
-        <div class="dynamic-form-item p-grid p-col-12 p-ai-center">
-            <div v-show="dropzoneTopVisible[visTypeIndex]" class="p-col-12 p-px-3" @drop.stop="onDropComplete($event, 'before', visTypeIndex)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
-            <div class="p-col-12 form-list-item-dropzone p-m-1" :class="{ 'form-list-item-dropzone-active': dropzoneTopVisible[visTypeIndex] }" @drop.stop="onDropComplete($event, 'before', visTypeIndex)" @dragover.prevent @dragenter.prevent="displayDropzone('top', visTypeIndex)" @dragleave.prevent="hideDropzone('top', visTypeIndex)"></div>
+    <div class="visualizations-container">
+        <!-- Header -->
+        <div class="visualizations-header">
+            <div class="header-content">
+                <h3>{{ $t('dashboard.widgetEditor.visualizations') }}</h3>
+                <p class="subtitle">
+                    {{ visualizations.length }} {{ $t('dashboard.widgetEditor.visualizations').toLowerCase() }}
+                </p>
+            </div>
+        </div>
 
-            <div class="p-col-12 p-grid p-p-0" @dragstart.stop="onDragStart($event, visTypeIndex)">
-                <div class="p-col-1 p-d-flex p-flex-column p-jc-center p-ai-center">
-                    <i class="pi pi-th-large kn-cursor-pointer"></i>
-                </div>
-                <div class="p-col-11 p-d-flex p-flex-column">
-                    <div class="row items-start q-mb-sm">
-                        <q-input filled dense class="col q-ml-sm" v-model="visType.label" :rules="getLabelRules(visTypeIndex)" @blur="normalizeLabel(visType)" label="label"></q-input>
-                        <q-select filled dense class="col q-ml-sm" v-model="visType.target" :options="availableLayersOptions" emit-value map-options option-value="layerId" option-label="name" options-dense :label="$t('common.layer')" @update:modelValue="onTargetChange($event, visType)"></q-select>
+        <!-- Visualizations Content -->
+        <div class="visualizations-content">
+            <!-- Add Visualization Button -->
+            <div class="add-visualization-btn-container">
+                <q-btn
+                    unelevated
+                    color="primary"
+                    icon="add"
+                    :label="$t('dashboard.widgetEditor.map.addVisualization')"
+                    class="add-visualization-btn"
+                    @click="openWizard()"
+                />
+            </div>
 
-                        <q-select v-if="visType && getTargetLayerType(visType) === 'layer' && visType.type !== 'geography'" filled dense class="col q-ml-sm" v-model="visType.targetType" :options="['column', 'property']" emit-value map-options option-value="name" option-label="name" options-dense label="Data Link" @update:modelValue="onDataLinkChange($event, visType)"></q-select>
+            <!-- Visualizations List -->
+            <div class="visualizations-list">
+                <div
+                    v-for="(viz, index) in visualizations"
+                    :key="viz.id"
+                    class="viz-wrapper"
+                >
+                    <!-- Top Dropzone -->
+                    <div
+                        v-show="dropzoneTopVisible[index]"
+                        class="dropzone-indicator"
+                    ></div>
+                    <div
+                        class="dropzone-target"
+                        :class="{ 'dropzone-active': dropzoneTopVisible[index] }"
+                        @drop.stop="onDropComplete($event, 'before', index)"
+                        @dragover.prevent
+                        @dragenter.prevent="displayDropzone('top', index)"
+                        @dragleave.prevent="hideDropzone('top', index)"
+                    ></div>
 
-                        <q-select v-if="getTargetLayerType(visType) === 'layer' && visType.targetType === 'column' && visType.type !== 'geography'" filled dense class="col q-ml-sm" v-model="visType.targetDataset" :options="availableDatasets" emit-value map-options option-value="layerId" option-label="name" options-dense :label="$t('common.dataset')" @update:modelValue="updateMapWidgetLegendWithSepecificModel(visType)"></q-select>
+                    <!-- Visualization Card -->
+                    <div
+                        class="visualization-item"
+                        :class="{ 'inactive': !viz.visible }"
+                        @click="editVisualization(viz)"
+                    >
+                        <div
+                            class="viz-drag-handle"
+                            draggable="true"
+                            @dragstart="onDragStart($event, index)"
+                            @click.stop
+                        >
+                            <q-icon name="drag_indicator" size="xs" />
+                        </div>
 
-                        <q-select
-                            v-if="visType.type !== 'geography' && visType.type !== 'pies' && (getTargetLayerType(visType) === 'dataset' || (visType.targetType === 'column' && visType.targetDataset))"
-                            filled
-                            dense
-                            class="col q-ml-sm"
-                            v-model="visType.targetMeasure"
-                            :options="availableMeasures(visType.targetDataset || visType.target)"
-                            emit-value
-                            map-options
-                            option-value="name"
-                            option-label="name"
-                            options-dense
-                            :label="$t('common.measure')"
-                            @update:modelValue="updateMapWidgetLegendWithSepecificModel(visType)"
-                        ></q-select>
-                        <q-select
-                            v-if="visType.type === 'pies' && visType.targetType === 'column' && visType.targetDataset"
-                            filled
-                            dense
-                            multiple
-                            class="col q-ml-sm"
-                            v-model="visType.targetDatasetMeasures"
-                            :options="availableMeasures(visType.targetDataset || visType.target)"
-                            emit-value
-                            map-options
-                            option-value="name"
-                            option-label="name"
-                            options-dense
-                            :label="$t('dashboard.widgetEditor.map.targetDatasetMeasures')"
-                            @update:modelValue="updateMapWidgetLegendWithSepecificModel(visType)"
-                        ></q-select>
+                        <div class="viz-content">
+                            <div class="viz-header">
+                                <div class="viz-title-section">
+                                    <q-icon
+                                        :name="getVisualizationIcon(viz.type)"
+                                        size="sm"
+                                        class="viz-type-icon"
+                                    />
+                                    <div class="viz-info-main">
+                                        <div class="viz-name">{{ viz.label }}</div>
+                                        <div class="viz-details">
+                                            <!-- Type -->
+                                            <span class="viz-type-label">{{ getVisualizationTypeLabel(viz.type) }}</span>
 
-                        <q-select
-                            v-if="visType.type !== 'geography' && visType.targetType === 'column' && visType.targetDataset"
-                            filled
-                            dense
-                            class="col q-ml-sm"
-                            v-model="visType.targetDatasetForeignKeyColumn"
-                            :options="availableTargetDatasetColumns(visType.targetDataset || visType.target)"
-                            emit-value
-                            map-options
-                            option-value="name"
-                            option-label="name"
-                            options-dense
-                            :label="$t('dashboard.widgetEditor.map.targetDatasetColumn')"
-                            @update:modelValue="updateMapWidgetLegendWithSepecificModel(visType)"
-                        ></q-select>
+                                            <!-- Layer/Dataset -->
+                                            <template v-if="viz.target">
+                                                <span class="detail-separator">•</span>
+                                                <span class="detail-label">{{ getTargetType(viz.target) }}:</span>
+                                                <span class="detail-value">{{ getTargetName(viz.target) }}</span>
+                                            </template>
 
-                        <q-select
-                            v-if="getTargetLayerType(visType) === 'layer' && ((visType.targetType === 'column' && visType.targetDataset) || !['geography', 'pies'].includes(visType.type))"
-                            filled
-                            dense
-                            class="col q-ml-sm"
-                            v-model="visType.targetProperty"
-                            :options="visType.properties || []"
-                            emit-value
-                            map-options
-                            option-value="property"
-                            option-label="property"
-                            options-dense
-                            :label="$t('common.properties')"
-                            @update:modelValue="updateMapWidgetLegendWithSepecificModel(visType)"
-                        ></q-select>
+                                            <!-- Measure/Property (single mode) -->
+                                            <template v-if="!viz.targetDataset">
+                                                <template v-if="viz.targetMeasure">
+                                                    <span class="detail-separator">•</span>
+                                                    <span class="detail-label">{{ $t('common.measure') }}:</span>
+                                                    <span class="detail-value">{{ viz.targetMeasure }}</span>
+                                                </template>
+                                                <template v-else-if="viz.targetProperty">
+                                                    <span class="detail-separator">•</span>
+                                                    <span class="detail-label">{{ $t('common.properties') }}:</span>
+                                                    <span class="detail-value">{{ viz.targetProperty }}</span>
+                                                </template>
+                                            </template>
 
-                        <q-select v-if="visType && visType.type === 'pies'" filled dense multiple class="col q-ml-sm" v-model="visType.chartMeasures" :options="availableChartMeasures(visType.targetDataset || visType.target)" emit-value map-options option-value="name" option-label="name" options-dense :label="$t('common.measures')" @update:modelValue="updateMapWidgetLegendWithSepecificModel(visType)"> </q-select>
+                                            <!-- Join mode -->
+                                            <template v-if="viz.targetDataset">
+                                                <span class="detail-separator">•</span>
+                                                <span class="detail-label">{{ $t('common.dataset') }}:</span>
+                                                <span class="detail-value">{{ getTargetName(viz.targetDataset) }}</span>
 
-                        <span class="p-d-flex p-flex-row p-ai-center p-pl-2">
-                            {{ $t('common.show') }}
-                            <q-toggle v-model="visType.visible" color="primary" />
-                        </span>
-                        <Button v-if="visTypeIndex === 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" @click="addVisualizationType" />
-                        <Button v-if="visTypeIndex !== 0" icon="pi pi-trash kn-cursor-pointer" class="p-button-text p-button-plain p-js-center p-ml-2" @click="removeVisualizationType(visTypeIndex)" />
-                    </div>
+                                                <template v-if="viz.targetMeasure || viz.chartMeasures">
+                                                    <span class="detail-separator">•</span>
+                                                    <span class="detail-label">{{ $t('common.measure') }}:</span>
+                                                    <span class="detail-value">{{ viz.chartMeasures ? viz.chartMeasures.join(', ') : viz.targetMeasure }}</span>
+                                                </template>
 
-                    <div class="p-grid gap-1 p-m-0" style="column-gap: 0.5em; row-gap: 0.5em">
-                        <div v-for="(visTypeConfig, visTypeConfigIndex) in descriptor.visTypes" :key="visTypeConfigIndex" v-tooltip.bottom="$t(visTypeConfig.tooltip)" class="visTypeCards" :class="{ selected: visType.type === visTypeConfig.name }" @click="selectVisTypeConfig(visTypeIndex, visTypeConfig.name)">
-                            <img class="kn-width-full kn-height-full" :src="getImageSource(visTypeConfig.name)" />
+                                                <template v-if="viz.targetDatasetForeignKeyColumn && viz.targetProperty">
+                                                    <span class="detail-separator">•</span>
+                                                    <span class="detail-label">JOIN:</span>
+                                                    <span class="detail-value">{{ viz.targetProperty }} ↔ {{ viz.targetDatasetForeignKeyColumn }}</span>
+                                                </template>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="viz-actions">
+                                    <div class="viz-preview-colors" v-if="viz.type === 'choropleth' || viz.type === 'markers'">
+                                        <div
+                                            v-for="(color, i) in getVisualizationColors(viz)"
+                                            :key="i"
+                                            class="color-dot"
+                                            :style="{ background: color }"
+                                        ></div>
+                                    </div>
+                                    <q-btn
+                                        flat
+                                        dense
+                                        round
+                                        :icon="viz.visible ? 'visibility' : 'visibility_off'"
+                                        size="sm"
+                                        @click.stop="toggleVisibility(viz)"
+                                    >
+                                        <q-tooltip>{{ viz.visible ? $t('common.hide') : $t('common.show') }}</q-tooltip>
+                                    </q-btn>
+                                    <q-btn flat dense round icon="edit" size="sm" @click.stop="editVisualization(viz)">
+                                        <q-tooltip>{{ $t('common.edit') }}</q-tooltip>
+                                    </q-btn>
+                                    <q-btn flat dense round icon="delete" size="sm" @click.stop="confirmDelete(viz, index)">
+                                        <q-tooltip>{{ $t('common.delete') }}</q-tooltip>
+                                    </q-btn>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <hr class="kn-width-full p-my-2" />
+                    <!-- Bottom Dropzone -->
+                    <div
+                        class="dropzone-target"
+                        :class="{ 'dropzone-active': dropzoneBottomVisible[index] }"
+                        @drop.stop="onDropComplete($event, 'after', index)"
+                        @dragover.prevent
+                        @dragenter.prevent="displayDropzone('bottom', index)"
+                        @dragleave.prevent="hideDropzone('bottom', index)"
+                    ></div>
+                    <div
+                        v-show="dropzoneBottomVisible[index]"
+                        class="dropzone-indicator"
+                    ></div>
+                </div>
 
-                    <VisTypeConfig :widget-model="widgetModel" :vis-type-prop="visType" @marker-configuration-updated="onMarkerConfigurationUpdated(visType)" />
+                <!-- Empty State -->
+                <div v-if="visualizations.length === 0" class="no-visualizations">
+                    <q-icon name="auto_awesome" size="3rem" color="grey-4" />
+                    <h4>{{ $t('dashboard.widgetEditor.map.noVisualizations') }}</h4>
+                    <p>{{ $t('dashboard.widgetEditor.map.clickAddToCreateFirst') }}</p>
                 </div>
             </div>
-
-            <div class="p-col-12 form-list-item-dropzone p-m-1" :class="dropzoneBottomVisible[visTypeIndex] ? 'form-list-item-dropzone-active' : ''" @drop.stop="onDropComplete($event, 'after', visTypeIndex)" @dragover.prevent @dragenter.prevent="displayDropzone('bottom', visTypeIndex)" @dragleave.prevent="hideDropzone('bottom', visTypeIndex)"></div>
-            <div v-show="dropzoneBottomVisible[visTypeIndex]" class="p-col-12" @drop.stop="onDropComplete($event, 'after', visTypeIndex)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
         </div>
+
+        <!-- Wizard -->
+        <MapLayerConfigurationWizard
+            :visible="wizardVisible"
+            :layer="getFirstLayer()"
+            :datasets="availableDatasets"
+            :widget-model="widgetModel"
+            :selected-visualization="selectedVisualization"
+            :dashboard-id="dashboardId"
+            @close="closeWizard"
+            @save="saveVisualization"
+        />
     </div>
 </template>
 
 <script lang="ts">
-import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
-import { IMapWidgetLayer, IMapWidgetLayerProperty, IMapWidgetLegend, IMapWidgetVisualizationType, IMapWidgetVisualizationTypeLegendSettings } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { defineComponent, PropType } from 'vue'
-import { mapActions } from 'pinia'
-import { getPropertiesByLayerLabel } from '../../../../MapWidget/MapWidgetDataProxy'
-import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
-import appStore from '@/App.store'
-import descriptor from './MapVisualizationTypeDescriptor.json'
-import VisTypeConfig from './MapVisualizationTypeConfigurations.vue'
-import * as mapWidgetDefaultValues from '../../../../WidgetEditor/helpers/mapWidget/MapWidgetDefaultValues'
-import { removeVisualizationTypeFromModel } from './MapVisualizationTypeHelpers'
+import { useQuasar } from 'quasar'
+import { IWidget } from '../../../../../Dashboard'
+import { IMapWidgetLayer, IMapWidgetVisualizationType } from '../../../../../interfaces/mapWidget/DashboardMapWidget'
+import MapLayerConfigurationWizard from '../../../MapWidget/MapLayerConfigurationWizard.vue'
 
 export default defineComponent({
     name: 'map-visualization-type',
-    components: { VisTypeConfig },
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, dashboardId: { type: [String, Number] as PropType<string | number>, required: false } },
-    emits: [],
+    components: { MapLayerConfigurationWizard },
+    props: {
+        widgetModel: { type: Object as PropType<IWidget>, required: true },
+        dashboardId: { type: [String, Number] as PropType<string | number>, required: false }
+    },
+    setup() {
+        const $q = useQuasar()
+        return { $q }
+    },
     data() {
         return {
-            descriptor,
-            visualizationTypeModel: [] as IMapWidgetVisualizationType[],
-            availableLayersOptions: [] as {
-                layerId: string | null
-                name: string
-            }[],
-            widgetLayersNameMap: {} as any,
-            propertiesCache: new Map<string, IMapWidgetLayerProperty[]>(),
-            dropzoneTopVisible: {},
-            dropzoneBottomVisible: {}
+            wizardVisible: false,
+            selectedVisualization: null as IMapWidgetVisualizationType | null,
+            visualizations: [] as IMapWidgetVisualizationType[],
+            dropzoneTopVisible: {} as Record<number, boolean>,
+            dropzoneBottomVisible: {} as Record<number, boolean>
         }
     },
     computed: {
         availableDatasets() {
-            if (!this.widgetModel?.layers) return []
-            return this.widgetModel.layers.filter((layer: IMapWidgetLayer) => layer.type === 'dataset')
+            return this.widgetModel?.layers?.filter((layer: IMapWidgetLayer) => layer.type === 'dataset') || []
         }
     },
     watch: {
         widgetModel: {
-            handler(newVal) {
-                if (newVal?.settings?.visualizations) {
-                    this.loadVisTypeModel()
-                }
+            handler() {
+                this.loadVisualizations()
             },
             deep: true,
             immediate: true
         }
     },
-    mounted() {
-        this.setEventListeners()
-        this.loadVisTypeModel()
-    },
-    unmounted() {
-        this.removeEventListeners()
-    },
     methods: {
-        ...mapActions(appStore, ['setLoading']),
-        setEventListeners() {
-            emitter.on('mapFieldsUpdated', this.loadVisTypeModel)
+        loadVisualizations() {
+            this.visualizations = this.widgetModel?.settings?.visualizations || []
         },
-        isLabelUnique(label: string | null | undefined, currentIndex: number) {
-            if (!label) return false
-            const normalized = label.toString().trim().toLowerCase()
-            return !this.visualizationTypeModel.some((vt: any, idx: number) => idx !== currentIndex && vt.label && vt.label.toString().trim().toLowerCase() === normalized)
+        getFirstLayer() {
+            return this.widgetModel?.layers?.[0] || null
         },
-        normalizeLabel(visType: any) {
-            if (visType && typeof visType.label === 'string') visType.label = visType.label.trim()
+        openWizard(visualization: IMapWidgetVisualizationType | null = null) {
+            this.selectedVisualization = visualization
+            this.wizardVisible = true
         },
-        getLabelRules(index: number) {
-            return [(val: any) => !!(val && val.toString().trim()) || this.$t('common.required'), (val: any) => this.isLabelUnique(val, index) || this.$t('dashboard.widgetEditor.map.uniqueLabel')]
+        closeWizard() {
+            this.wizardVisible = false
+            this.selectedVisualization = null
         },
-        removeEventListeners() {
-            emitter.off('mapFieldsUpdated', this.loadVisTypeModel)
-        },
-        availableMeasures(dsId: string) {
-            const targetDataset = this.availableDatasets.find((layer: IMapWidgetLayer) => dsId === layer.layerId)
-            return targetDataset ? targetDataset.columns.filter((column: IWidgetColumn) => column.fieldType === 'MEASURE') : []
-        },
-        availableTargetDatasetColumns(dsId: string) {
-            const targetDataset = this.availableDatasets.find((layer: IMapWidgetLayer) => dsId === layer.layerId)
-            return targetDataset ? [...targetDataset.columns] : []
-        },
-        async loadPropertiesForVisualizationTypes() {
-            await Promise.all(this.visualizationTypeModel.map((visTypeModel) => this.loadAvailableProperties(visTypeModel)))
-        },
-        async loadAvailableProperties(visualization: IMapWidgetVisualizationType) {
-            if (!visualization.target) return
-
-            if (this.propertiesCache.has(visualization.target)) {
-                visualization.properties = this.propertiesCache.get(visualization.target)
+        saveVisualization(config: any) {
+            // Validate config has required fields
+            if (!config || !config.label || !config.type) {
+                console.warn('Invalid visualization config:', config)
+                this.closeWizard()
                 return
             }
 
-            const targetLayer = this.widgetModel.layers.find((layer: IMapWidgetLayer) => visualization.target === layer.layerId)
-            if (targetLayer?.type === 'layer') {
-                this.setLoading(true)
-                const properties = await getPropertiesByLayerLabel(targetLayer.label, this.dashboardId)
-                this.setLoading(false)
-                this.propertiesCache.set(targetLayer.layerId, properties)
-                visualization.properties = properties
+            if (!this.widgetModel.settings.visualizations) {
+                this.widgetModel.settings.visualizations = []
             }
-        },
-        async loadAvailablePropertiesInVisualizationTypeForLayer(targetLayer: IMapWidgetLayer, visualization: IMapWidgetVisualizationType) {
-            this.setLoading(true)
-            const properties = await getPropertiesByLayerLabel(targetLayer.label, this.dashboardId)
-            this.setLoading(false)
-            this.propertiesCache.set(targetLayer.layerId, properties)
-            visualization.properties = properties
 
-            return visualization.properties
-        },
-        availableChartMeasures(id: string) {
-            const targetDataset = this.availableDatasets.find((layer: IMapWidgetLayer) => id === layer.name || id === layer.layerId)
-            if (targetDataset) return targetDataset.columns.filter((column: IWidgetColumn) => column.fieldType === 'MEASURE')
-
-            const targetLayer = this.widgetModel.layers.find((layer: IMapWidgetLayer) => id === layer.layerId)
-            if (targetLayer && this.propertiesCache.has(targetLayer.layerId)) return this.propertiesCache.get(targetLayer.layerId)
-
-            return []
-        },
-        async onTargetChange(id: string, visualization: IMapWidgetVisualizationType) {
-            ;['targetDataset', 'targetMeasure', 'targetProperty', 'targetType'].forEach((property: string) => delete visualization[property])
-            visualization.filter = mapWidgetDefaultValues.getDefaultVisualizationMapFilter()
-
-            if (visualization.chartMeasures && visualization.chartMeasures.length > 0) visualization.chartMeasures = []
-
-            const target = this.widgetModel.layers.find((layer: IMapWidgetLayer) => id === layer.layerId)
-            if (!target || target.type !== 'layer' || this.propertiesCache.has(visualization.target)) {
-                visualization.properties = this.propertiesCache.get(visualization.target)
-                return
-            }
-            await this.loadAvailablePropertiesInVisualizationTypeForLayer(target, visualization)
-            this.updateMapWidgetLegendWithSepecificModel(visualization)
-            emitter.emit('vizualizationTypesUpdated')
-        },
-        onDataLinkChange(dataLinkType: 'column' | 'property', visualization: IMapWidgetVisualizationType) {
-            visualization.targetProperty = null
-            visualization.targetDatasetForeignKeyColumn = undefined
-            if (dataLinkType === 'property') delete visualization.targetDataset
-            this.updateMapWidgetLegendWithSepecificModel(visualization)
-        },
-        getTargetLayerType(visualization: IMapWidgetVisualizationType) {
-            return this.widgetModel.layers.find((layer: IMapWidgetLayer) => visualization.target === layer.layerId) ? this.widgetModel.layers.find((layer: IMapWidgetLayer) => visualization.target === layer.layerId).type : 'dataset'
-        },
-        async loadVisTypeModel() {
-            if (this.widgetModel.settings?.visualizations) {
-                this.visualizationTypeModel = this.widgetModel.settings?.visualizations as IMapWidgetVisualizationType[]
-
-                // Normalize common fields so UI controls that expect arrays (multi-select)
-                // receive arrays even if older saved models contain single values.
-                this.visualizationTypeModel.forEach((vis: any) => this.normalizeVisualizationType(vis))
-            }
-            this.loadLayersOptions()
-            this.loadWidgetLayersMaps()
-            this.removelayersFromAvailableOptions()
-            await this.loadPropertiesForVisualizationTypes()
-            this.updateVisualizationTypesId()
-            if (this.widgetModel.settings.visualizations.length === 0) this.widgetModel.settings.visualizations.push(mapWidgetDefaultValues.getDefaultVisualizationSettings()[0])
-            this.updateMapWidgetLegendWithExistingVisualizationModels()
-        },
-        normalizeVisualizationType(visualization: any) {
-            // Ensure multi-select bound fields are arrays
-            if (!Array.isArray(visualization.chartMeasures)) {
-                visualization.chartMeasures = visualization.chartMeasures ? [visualization.chartMeasures] : []
-            }
-            if (!Array.isArray(visualization.targetDatasetMeasures)) {
-                visualization.targetDatasetMeasures = visualization.targetDatasetMeasures ? [visualization.targetDatasetMeasures] : []
-            }
-            if (!Array.isArray(visualization.properties)) {
-                visualization.properties = visualization.properties ? visualization.properties : []
-            }
-            // Keep target as a primitive (string) if present. Ensure targetProperty is null when missing
-            if (visualization.targetProperty === undefined) visualization.targetProperty = null
-            if (visualization.targetType === undefined) visualization.targetType = visualization.target ? 'column' : null
-        },
-        updateVisualizationTypesId() {
-            this.visualizationTypeModel?.forEach((visualizationType: IMapWidgetVisualizationType) => {
-                if (!visualizationType?.id) visualizationType.id = crypto.randomUUID()
-            })
-        },
-        updateMapWidgetLegendWithExistingVisualizationModels() {
-            this.visualizationTypeModel?.forEach((visualizationType: IMapWidgetVisualizationType) => {
-                const mapLegend = this.widgetModel?.settings?.legend as IMapWidgetLegend | undefined
-                if (mapLegend?.visualizationTypes.some((visualizationTypeLegendSettings: IMapWidgetVisualizationTypeLegendSettings) => visualizationTypeLegendSettings.visualizationType?.id === visualizationType.id)) return
-                this.addVisualizationTypeLegendOption(visualizationType)
-            })
-        },
-        updateMapWidgetLegendWithSepecificModel(visualizationType: IMapWidgetVisualizationType) {
-            const mapLegend = this.widgetModel?.settings?.legend as IMapWidgetLegend | undefined
-            if (!mapLegend) return
-            const index = mapLegend.visualizationTypes.findIndex((visualizationTypeLegendSettings: IMapWidgetVisualizationTypeLegendSettings) => visualizationTypeLegendSettings.visualizationType?.id === visualizationType.id)
-            if (index !== -1) {
-                const defaultVisualizationTypeLegendSettings = mapWidgetDefaultValues.getDefaultVisualizationTypeLegendSettings()
-                mapLegend.visualizationTypes[index] = { ...defaultVisualizationTypeLegendSettings, visualizationType: visualizationType }
-            }
-        },
-        loadLayersOptions() {
-            this.availableLayersOptions = this.widgetModel.layers
-                ? this.widgetModel.layers.map((layer: IMapWidgetLayer) => {
-                      return { layerId: layer.layerId, name: layer.name }
-                  })
-                : []
-        },
-        loadWidgetLayersMaps() {
-            this.widgetModel.layers.forEach((layer: IMapWidgetLayer) => {
-                this.widgetLayersNameMap[layer.layerId] = layer.name
-            })
-        },
-        removelayersFromAvailableOptions() {
-            for (let i = 0; i < this.widgetModel.settings.visualizations.length; i++) {
-                for (let j = 0; j < this.widgetModel.settings.visualizations[i].target.length; j++) {
-                    this.removeLayerFromAvailableOptions(this.widgetModel.settings.visualizations[i].target[j])
+            if (this.selectedVisualization) {
+                // Edit existing
+                const index = this.widgetModel.settings.visualizations.findIndex(
+                    (v: IMapWidgetVisualizationType) => v.id === this.selectedVisualization!.id
+                )
+                if (index !== -1) {
+                    this.widgetModel.settings.visualizations[index] = { ...this.selectedVisualization, ...config }
                 }
+            } else {
+                // Add new
+                const newVisualization = {
+                    id: crypto.randomUUID(),
+                    visible: true,
+                    ...config
+                }
+                this.widgetModel.settings.visualizations.push(newVisualization)
             }
-        },
-        removeLayerFromAvailableOptions(layerId: string) {
-            const index = this.availableLayersOptions.findIndex((tempLayer: { layerId: string | null; name: string }) => tempLayer.layerId === layerId)
-            if (index !== -1) this.availableLayersOptions.splice(index, 1)
-        },
-        getImageSource(visType: string) {
-            return `${import.meta.env.VITE_PUBLIC_PATH}images/dashboard/mapVisTypes/${visType}.svg`
-        },
-        selectVisTypeConfig(visTypeIndex, visTypeConfigName) {
-            this.visualizationTypeModel[visTypeIndex].type = visTypeConfigName
-            this.updateMapWidgetLegendWithSepecificModel(this.visualizationTypeModel[visTypeIndex])
-        },
-        addVisualizationType() {
-            const visualizationType = this.createDefaultVisualizationType()
-            this.visualizationTypeModel.push(visualizationType)
-            this.addVisualizationTypeLegendOption(visualizationType)
-            emitter.emit('vizualizationTypesUpdated')
-        },
-        addVisualizationTypeLegendOption(visualizationType: IMapWidgetVisualizationType) {
-            const mapLegend = this.widgetModel?.settings?.legend as IMapWidgetLegend | undefined
-            if (!mapLegend) return
-            const defaultVisualizationTypeLegendSettings = mapWidgetDefaultValues.getDefaultVisualizationTypeLegendSettings()
-            mapLegend.visualizationTypes.push({ ...defaultVisualizationTypeLegendSettings, visualizationType: visualizationType })
-        },
-        removeVisualizationType(index: number) {
-            removeVisualizationTypeFromModel(this.visualizationTypeModel[index], this.widgetModel)
 
-            if (index === 0) this.visualizationTypeModel[0] = this.createDefaultVisualizationType()
-            else this.visualizationTypeModel.splice(index, 1)
-            emitter.emit('vizualizationTypesUpdated')
+            this.closeWizard()
+            this.loadVisualizations()
         },
+        editVisualization(viz: IMapWidgetVisualizationType) {
+            this.openWizard(viz)
+        },
+        toggleVisibility(viz: IMapWidgetVisualizationType) {
+            viz.visible = !viz.visible
+        },
+        confirmDelete(viz: IMapWidgetVisualizationType, index: number) {
+            this.$q.dialog({
+                title: this.$t('common.confirm'),
+                message: this.$t('common.confirmDelete'),
+                cancel: true,
+                persistent: true
+            }).onOk(() => {
+                this.deleteVisualization(index)
+            })
+        },
+        deleteVisualization(index: number) {
+            if (this.widgetModel.settings.visualizations) {
+                this.widgetModel.settings.visualizations.splice(index, 1)
+            }
+            this.loadVisualizations()
+        },
+        getVisualizationIcon(type: string): string {
+            const icons: Record<string, string> = {
+                markers: 'place',
+                choropleth: 'map',
+                heatmap: 'blur_on',
+                clusters: 'group_work',
+                charts: 'pie_chart',
+                pies: 'pie_chart', // backward compatibility
+                balloons: 'bubble_chart'
+            }
+            return icons[type] || 'layers'
+        },
+        getVisualizationTypeLabel(type: string): string {
+            return this.$t(`dashboard.widgetEditor.map.visTypes.${type}`)
+        },
+        getTargetName(targetId: string): string {
+            const target = this.widgetModel?.layers?.find((l: IMapWidgetLayer) => l.layerId === targetId)
+            return target?.name || targetId
+        },
+        getTargetType(targetId: string): string {
+            const target = this.widgetModel?.layers?.find((l: IMapWidgetLayer) => l.layerId === targetId)
+            return target?.type === 'layer' ? this.$t('common.layer') : this.$t('common.dataset')
+        },
+        getVisualizationColors(viz: IMapWidgetVisualizationType): string[] {
+            // Get colors from style configuration
+            if (viz.type === 'choropleth' && viz.analysisConf?.style) {
+                const colors: string[] = []
+                const style = viz.analysisConf.style
+                if (style.color) colors.push(style.color)
+                if (style.toColor) colors.push(style.toColor)
+                if (colors.length > 0) return colors
+            }
 
-        createDefaultVisualizationType() {
-            return mapWidgetDefaultValues.getDefaultVisualizationSettings()[0]
+            if (viz.type === 'markers' && viz.markerConf?.style?.color) {
+                return [viz.markerConf.style.color]
+            }
+
+            // Default fallback colors
+            return ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981']
         },
-        onDragStart(event: any, index: number) {
-            if (!this.visualizationTypeModel) return
-            event.dataTransfer.setData('text/plain', JSON.stringify(index))
-            event.dataTransfer.dropEffect = 'move'
-            event.dataTransfer.effectAllowed = 'move'
+        onDragStart(event: DragEvent, index: number) {
+            event.dataTransfer!.setData('text/plain', JSON.stringify(index))
+            event.dataTransfer!.dropEffect = 'move'
+            event.dataTransfer!.effectAllowed = 'move'
         },
-        onDropComplete(event: any, position: 'before' | 'after', index: number) {
-            if (!this.visualizationTypeModel) return
+        onDropComplete(event: DragEvent, position: 'before' | 'after', index: number) {
             this.hideDropzone('bottom', index)
             this.hideDropzone('top', index)
-            const eventData = JSON.parse(event.dataTransfer.getData('text/plain'))
+            const eventData = JSON.parse(event.dataTransfer!.getData('text/plain'))
             this.onRowsMove(eventData, index, position)
         },
-        displayDropzone(position: string, index: number) {
-            if (!this.visualizationTypeModel) return
-            position === 'top' ? (this.dropzoneTopVisible[index] = true) : (this.dropzoneBottomVisible[index] = true)
-        },
-        hideDropzone(position: string, index: number) {
-            if (!this.visualizationTypeModel) return
-            position === 'top' ? (this.dropzoneTopVisible[index] = false) : (this.dropzoneBottomVisible[index] = false)
-        },
-        onRowsMove(sourceRowIndex: number, targetRowIndex: number, position: string) {
-            if (sourceRowIndex === targetRowIndex) return
-            if (this.visualizationTypeModel) {
-                const newIndex = sourceRowIndex > targetRowIndex && position === 'after' ? targetRowIndex + 1 : targetRowIndex
-                this.visualizationTypeModel.splice(newIndex, 0, this.visualizationTypeModel.splice(sourceRowIndex, 1)[0])
+        displayDropzone(position: 'top' | 'bottom', index: number) {
+            if (position === 'top') {
+                this.dropzoneTopVisible[index] = true
+            } else {
+                this.dropzoneBottomVisible[index] = true
             }
         },
-        onMarkerConfigurationUpdated(visualizationType: IMapWidgetVisualizationType) {
-            this.updateMapWidgetLegendWithSepecificModel(visualizationType)
+        hideDropzone(position: 'top' | 'bottom', index: number) {
+            if (position === 'top') {
+                this.dropzoneTopVisible[index] = false
+            } else {
+                this.dropzoneBottomVisible[index] = false
+            }
+        },
+        onRowsMove(sourceRowIndex: number, targetRowIndex: number, position: 'before' | 'after') {
+            if (sourceRowIndex === targetRowIndex) return
+
+            const newIndex = sourceRowIndex > targetRowIndex && position === 'after'
+                ? targetRowIndex + 1
+                : targetRowIndex
+
+            // Move in widget model
+            if (this.widgetModel.settings.visualizations) {
+                this.widgetModel.settings.visualizations.splice(
+                    newIndex,
+                    0,
+                    this.widgetModel.settings.visualizations.splice(sourceRowIndex, 1)[0]
+                )
+            }
+
+            // Reload visualizations
+            this.loadVisualizations()
         }
     }
 })
 </script>
 
 <style lang="scss" scoped>
-.visTypeCards {
-    cursor: pointer;
-    border: 1px solid #cccccc;
-    height: 80px;
-    width: 140px;
-    &.selected {
-        background-color: #bbd6ed;
-    }
-    &:hover {
-        background-color: color.adjust(#bbd6ed, $lightness: -15%);
-    }
-    &:hover,
-    &.selected {
-        .visTypeIcon {
-            background-color: #deecf8;
+.visualizations-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #f8f9fa;
+}
+
+.visualizations-header {
+    padding: 24px 32px;
+    background: #ffffff;
+    border-bottom: 1px solid #e9ecef;
+
+    .header-content {
+        h3 {
+            margin: 0 0 8px 0;
+            font-size: 24px;
+            font-weight: 600;
+            color: #212529;
+        }
+
+        .subtitle {
+            margin: 0;
+            color: #6c757d;
+            font-size: 14px;
         }
     }
 }
 
-.form-list-item-dropzone {
+.visualizations-content {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.add-visualization-btn-container {
+    padding: 0 0 8px 0;
+
+    .add-visualization-btn {
+        width: 100%;
+        text-transform: none;
+        font-weight: 500;
+        padding: 12px;
+        border-radius: 8px;
+    }
+}
+
+.visualizations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.viz-wrapper {
+    position: relative;
+}
+
+.dropzone-target {
     height: 20px;
     width: 100%;
-    background-color: white;
     opacity: 0;
     visibility: visible;
     transition: opacity 0.2s, visibility 0.2s;
+
+    &.dropzone-active {
+        opacity: 1;
+        visibility: visible;
+        background-color: #aec1d3;
+    }
 }
 
-.form-list-item-dropzone-active {
-    opacity: 1;
-    visibility: visible;
+.dropzone-indicator {
+    height: 20px;
+    width: 100%;
     background-color: #aec1d3;
 }
+
+.visualization-item {
+    background: #ffffff;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+    &:hover {
+        border-color: rgba(59, 130, 246, 0.3);
+        background: #f8f9fa;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    &.inactive {
+        opacity: 0.6;
+    }
+
+    .viz-drag-handle {
+        padding: 16px 8px 16px 12px;
+        display: flex;
+        align-items: flex-start;
+        color: #adb5bd;
+        cursor: grab;
+
+        &:active {
+            cursor: grabbing;
+        }
+
+        &:hover {
+            color: #6c757d;
+        }
+    }
+
+
+    .viz-content {
+        flex: 1;
+        padding: 16px 16px 16px 0;
+    }
+
+    .viz-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .viz-title-section {
+        display: flex;
+        gap: 12px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .viz-type-icon {
+        color: #3b82f6;
+        margin-top: 2px;
+    }
+
+    .viz-info-main {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .viz-name {
+        font-size: 16px;
+        font-weight: 500;
+        color: #212529;
+        margin-bottom: 6px;
+    }
+
+    .viz-details {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: #6c757d;
+        flex-wrap: wrap;
+
+        .viz-type-label {
+            color: #3b82f6;
+            font-family: monospace;
+            font-size: 12px;
+            background: none;
+            padding: 0;
+            font-weight: 600;
+        }
+
+        .detail-separator {
+            color: #adb5bd;
+            font-weight: 300;
+        }
+
+        .detail-label {
+            color: #6c757d;
+            font-weight: 500;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .detail-value {
+            color: #212529;
+            font-weight: 500;
+        }
+
+        .viz-target,
+        .viz-measure {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+
+            .q-icon {
+                font-size: 14px;
+            }
+        }
+    }
+
+    .viz-actions {
+        display: flex;
+        align-items: flex-start;
+        gap: 4px;
+        flex-shrink: 0;
+    }
+
+    .viz-preview-colors {
+        display: flex;
+        gap: 4px;
+        margin-right: 8px;
+        align-items: center;
+
+        .color-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+    }
+}
+
+.no-visualizations {
+    padding: 64px 24px;
+    text-align: center;
+    color: #adb5bd;
+
+    h4 {
+        margin: 16px 0 8px 0;
+        color: #6c757d;
+        font-weight: 500;
+    }
+
+    p {
+        margin: 0;
+        font-size: 14px;
+    }
+}
 </style>
+

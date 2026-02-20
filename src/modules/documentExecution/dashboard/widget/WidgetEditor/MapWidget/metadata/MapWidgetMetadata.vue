@@ -1,5 +1,5 @@
 <template>
-    <div class="widget-editor-card p-p-2">
+    <div class="p-p-2">
         <h4 class="q-mx-sm q-my-sm">{{ layer?.type.toLowerCase() === 'dataset' ? $t('common.metadata') : $t('common.properties') }}</h4>
         <MapWidgetMetadataSpatialAttribute v-if="selectedLayer?.columns" :prop-spatial-attribute="spatialAttribute"></MapWidgetMetadataSpatialAttribute>
         <hr />
