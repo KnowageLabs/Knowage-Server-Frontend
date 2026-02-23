@@ -1,15 +1,5 @@
 <template>
     <div class="visualizations-container">
-        <!-- Header -->
-        <div class="visualizations-header">
-            <div class="header-content">
-                <h3>{{ $t('dashboard.widgetEditor.visualizations') }}</h3>
-                <p class="subtitle">
-                    {{ visualizations.length }} {{ $t('dashboard.widgetEditor.visualizations').toLowerCase() }}
-                </p>
-            </div>
-        </div>
-
         <!-- Visualizations Content -->
         <div class="visualizations-content">
             <!-- Add Visualization Button -->

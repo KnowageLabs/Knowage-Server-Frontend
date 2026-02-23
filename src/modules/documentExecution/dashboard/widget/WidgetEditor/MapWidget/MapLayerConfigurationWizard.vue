@@ -2,20 +2,12 @@
     <q-dialog
         v-model="dialogVisible"
         persistent
-        maximized
-        transition-show="slide-up"
-        transition-hide="slide-down"
+        transition-show="slide-left"
+        transition-hide="slide-right"
+        content-class="wizard-overlay-dialog"
+        position="right"
     >
         <q-card class="layer-wizard-card">
-            <!-- Header -->
-            <q-card-section class="wizard-header">
-                <div class="header-content">
-                    <h2>{{ $t('dashboard.widgetEditor.map.layerConfigurationWizard') }}</h2>
-                    <p class="subtitle">{{ $t('dashboard.widgetEditor.map.configureLayerDataAndAppearance') }}</p>
-                </div>
-                <q-btn flat round dense icon="close" @click="closeDialog" />
-            </q-card-section>
-
             <!-- Stepper Navigation -->
             <q-card-section class="stepper-nav">
                 <div class="steps">
@@ -117,7 +109,8 @@
                             <label class="section-label">
                                 {{ $t('dashboard.widgetEditor.map.heatmapConfiguration') }}
                             </label>
-                            <div class="config-row">
+                            <!-- Put all three controls on a single row -->
+                            <div class="config-row three-col-row">
                                 <q-input
                                     v-model.number="visualizationConfig.heatmapRadius"
                                     outlined
@@ -140,8 +133,7 @@
                                     :max="50"
                                     dense
                                 />
-                            </div>
-                            <div class="config-row">
+
                                 <q-input
                                     v-model.number="visualizationConfig.heatmapMaxZoom"
                                     outlined
@@ -160,116 +152,209 @@
                             <label class="section-label">
                                 {{ $t('dashboard.widgetEditor.map.markerConfiguration') }}
                             </label>
-                            <div class="config-row">
-                                <q-select
-                                    v-model="visualizationConfig.markerType"
-                                    outlined
-                                    dense
-                                    :options="markerTypeOptions"
-                                    :label="$t('dashboard.widgetEditor.map.markerType')"
-                                    option-value="value"
-                                    option-label="label"
-                                    emit-value
-                                    map-options
-                                >
-                                    <template v-slot:option="scope">
-                                        <q-item v-bind="scope.itemProps">
-                                            <q-item-section>
-                                                <q-item-label>{{ $t(scope.opt.label) }}</q-item-label>
-                                            </q-item-section>
-                                        </q-item>
-                                    </template>
-                                    <template v-slot:selected>
-                                        {{ $t(markerTypeOptions.find(m => m.value === visualizationConfig.markerType)?.label || '') }}
-                                    </template>
-                                </q-select>
+                            <div class="markers-controls">
+                                <!-- Markers controls: when markerType is default show type, size and color on the same row -->
+                                <div v-if="visualizationConfig.markerType === 'default'" class="three-col-row">
+                                    <q-select
+                                        v-model="visualizationConfig.markerType"
+                                        outlined
+                                        dense
+                                        :options="markerTypeOptions"
+                                        :label="$t('dashboard.widgetEditor.map.markerType')"
+                                        option-value="value"
+                                        option-label="label"
+                                        emit-value
+                                        map-options
+                                    >
+                                        <template v-slot:option="scope">
+                                            <q-item v-bind="scope.itemProps">
+                                                <q-item-section>
+                                                    <q-item-label>{{ $t(scope.opt.label) }}</q-item-label>
+                                                </q-item-section>
+                                            </q-item>
+                                        </template>
+                                        <template v-slot:selected>
+                                            {{ $t(markerTypeOptions.find(m => m.value === visualizationConfig.markerType)?.label || '') }}
+                                        </template>
+                                    </q-select>
 
-                                <q-input
-                                    v-model.number="visualizationConfig.markerSize"
-                                    outlined
-                                    type="number"
-                                    :label="$t('dashboard.widgetEditor.map.markerSize')"
-                                    :min="5"
-                                    :max="100"
-                                    suffix="px"
-                                    dense
-                                />
+                                    <q-input
+                                        v-model.number="visualizationConfig.markerSize"
+                                        outlined
+                                        type="number"
+                                        :label="$t('dashboard.widgetEditor.map.markerSize')"
+                                        :min="5"
+                                        :max="100"
+                                        suffix="px"
+                                        dense
+                                    />
+
+                                    <WidgetEditorColorPicker
+                                        :initial-value="visualizationConfig.fromColor"
+                                        :label="$t('common.color')"
+                                        @change="(newColor) => { visualizationConfig.fromColor = newColor }"
+                                    />
+                                </div>
+
+                                <!-- Non-default marker types: keep existing layout -->
+                                <div v-else class="config-row">
+                                    <q-select
+                                        v-model="visualizationConfig.markerType"
+                                        outlined
+                                        dense
+                                        :options="markerTypeOptions"
+                                        :label="$t('dashboard.widgetEditor.map.markerType')"
+                                        option-value="value"
+                                        option-label="label"
+                                        emit-value
+                                        map-options
+                                    >
+                                        <template v-slot:option="scope">
+                                            <q-item v-bind="scope.itemProps">
+                                                <q-item-section>
+                                                    <q-item-label>{{ $t(scope.opt.label) }}</q-item-label>
+                                                </q-item-section>
+                                            </q-item>
+                                        </template>
+                                        <template v-slot:selected>
+                                            {{ $t(markerTypeOptions.find(m => m.value === visualizationConfig.markerType)?.label || '') }}
+                                        </template>
+                                    </q-select>
+
+                                    <q-input
+                                        v-model.number="visualizationConfig.markerSize"
+                                        outlined
+                                        type="number"
+                                        :label="$t('dashboard.widgetEditor.map.markerSize')"
+                                        :min="5"
+                                        :max="100"
+                                        suffix="px"
+                                        dense
+                                    />
+                                </div>
                             </div>
 
-                            <!-- Icon picker for icon type -->
-                            <div v-if="visualizationConfig.markerType === 'icon'" class="config-row">
-                                <q-input
-                                    :model-value="visualizationConfig.iconClass || 'fa fa-map-marker'"
-                                    outlined
-                                    readonly
-                                    :label="$t('dashboard.widgetEditor.iconTooltips.iconPicker')"
-                                    dense
-                                />
-                                <q-btn
-                                    flat
-                                    round
-                                    icon="fas fa-icons"
-                                    size="lg"
-                                    color="primary"
-                                    @click="iconPickerVisible = true"
-                                >
-                                    <q-tooltip>{{ $t('dashboard.widgetEditor.iconTooltips.iconPicker') }}</q-tooltip>
-                                </q-btn>
-                            </div>
+                            <!-- Non-default marker types: show color picker and picker controls inline for icon/img types -->
+                            <div v-if="visualizationConfig.markerType !== 'default'">
+                                <!-- Icon type: color + icon picker on same row -->
+                                <div v-if="visualizationConfig.markerType === 'icon'" class="config-row">
+                                    <WidgetEditorColorPicker
+                                        :initial-value="visualizationConfig.fromColor"
+                                        :label="$t('common.color')"
+                                        @change="(newColor) => { visualizationConfig.fromColor = newColor }"
+                                    />
 
-                            <!-- Image gallery for img type -->
-                            <div v-if="visualizationConfig.markerType === 'img'" class="config-row">
-                                <q-input
-                                    :model-value="visualizationConfig.iconImg || ''"
-                                    outlined
-                                    readonly
-                                    :label="$t('dashboard.widgetEditor.map.imageUrl')"
-                                    dense
-                                    :hint="$t('dashboard.widgetEditor.map.imageUrlHint')"
-                                />
-                                <q-btn
-                                    flat
-                                    round
-                                    icon="fas fa-images"
-                                    size="lg"
-                                    color="primary"
-                                    @click="imagePickerVisible = true"
-                                >
-                                    <q-tooltip>{{ $t('dashboard.widgetEditor.iconTooltips.imagePicker') }}</q-tooltip>
-                                </q-btn>
-                            </div>
+                                    <div class="picker-inline">
+                                        <q-input
+                                            :model-value="visualizationConfig.iconClass || 'fa fa-map-marker'"
+                                            outlined
+                                            readonly
+                                            :label="$t('dashboard.widgetEditor.iconTooltips.iconPicker')"
+                                            dense
+                                        />
+                                        <q-btn
+                                            flat
+                                            round
+                                            icon="fas fa-icons"
+                                            size="lg"
+                                            color="primary"
+                                            @click="iconPickerVisible = true"
+                                        >
+                                            <q-tooltip>{{ $t('dashboard.widgetEditor.iconTooltips.iconPicker') }}</q-tooltip>
+                                        </q-btn>
+                                    </div>
+                                </div>
 
-                            <!-- External URL for url type -->
-                            <div v-if="visualizationConfig.markerType === 'url'" class="config-row">
-                                <q-input
-                                    v-model="visualizationConfig.iconUrl"
-                                    outlined
-                                    :label="$t('dashboard.widgetEditor.map.markerTypes.iconUrl')"
-                                    dense
-                                    :hint="$t('dashboard.widgetEditor.map.iconUrlHint')"
-                                />
-                            </div>
+                                <!-- Img type: color + image picker on same row -->
+                                <div v-else-if="visualizationConfig.markerType === 'img'" class="config-row">
+                                    <WidgetEditorColorPicker
+                                        :initial-value="visualizationConfig.fromColor"
+                                        :label="$t('common.color')"
+                                        @change="(newColor) => { visualizationConfig.fromColor = newColor }"
+                                    />
 
-                            <div class="config-row">
-                                <WidgetEditorColorPicker
-                                    :initial-value="visualizationConfig.fromColor"
-                                    :label="$t('dashboard.widgetEditor.map.fromColor')"
-                                    @change="(newColor) => { visualizationConfig.fromColor = newColor }"
-                                />
+                                    <div class="picker-inline">
+                                        <q-input
+                                            :model-value="visualizationConfig.iconImg || ''"
+                                            outlined
+                                            readonly
+                                            :label="$t('dashboard.widgetEditor.map.imageUrl')"
+                                            dense
+                                            :hint="$t('dashboard.widgetEditor.map.imageUrlHint')"
+                                        />
+                                        <q-btn
+                                            flat
+                                            round
+                                            icon="fas fa-images"
+                                            size="lg"
+                                            color="primary"
+                                            @click="imagePickerVisible = true"
+                                        >
+                                            <q-tooltip>{{ $t('dashboard.widgetEditor.iconTooltips.imagePicker') }}</q-tooltip>
+                                        </q-btn>
+                                    </div>
+                                </div>
+
+                                <!-- Url type: color + url input on same row -->
+                                <div v-else-if="visualizationConfig.markerType === 'url'" class="config-row">
+                                    <WidgetEditorColorPicker
+                                        :initial-value="visualizationConfig.fromColor"
+                                        :label="$t('common.color')"
+                                        @change="(newColor) => { visualizationConfig.fromColor = newColor }"
+                                    />
+
+                                    <div class="picker-inline">
+                                        <q-input
+                                            v-model="visualizationConfig.iconUrl"
+                                            outlined
+                                            :label="$t('dashboard.widgetEditor.map.markerTypes.iconUrl')"
+                                            dense
+                                            :hint="$t('dashboard.widgetEditor.map.iconUrlHint')"
+                                        />
+                                    </div>
+                                </div>
+
+                                <!-- Other non-default types: only color or existing fields -->
+                                <div v-else class="config-row">
+                                    <WidgetEditorColorPicker
+                                        :initial-value="visualizationConfig.fromColor"
+                                        :label="$t('common.color')"
+                                        @change="(newColor) => { visualizationConfig.fromColor = newColor }"
+                                    />
+
+                                    <!-- placeholder to keep grid alignment for the second column -->
+                                    <div></div>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Balloons Configuration -->
-                        <div v-if="selectedVisualizationType === 'balloons'" class="balloon-config-section">
-                            <label class="section-label">
-                                {{ $t('dashboard.widgetEditor.map.styleConfiguration') }}
-                            </label>
-                            <div class="config-row">
+                        <!-- Choropleth Configuration -->
+                        <div v-if="selectedVisualizationType === 'choropleth'" class="color-config-section">
+                            <label class="section-label">{{ $t('dashboard.widgetEditor.map.styleConfiguration') }}</label>
+
+                            <!-- Row 1: three color pickers -->
+                            <div class="config-row three-col-row">
                                 <WidgetEditorColorPicker
                                     :initial-value="visualizationConfig.fromColor"
                                     :label="$t('dashboard.widgetEditor.map.fromColor')"
                                     @change="(newColor) => { visualizationConfig.fromColor = newColor }"
                                 />
+
+                                <WidgetEditorColorPicker
+                                    :initial-value="visualizationConfig.toColor"
+                                    :label="$t('dashboard.widgetEditor.map.toColor')"
+                                    @change="(newColor) => { visualizationConfig.toColor = newColor }"
+                                />
+
+                                <WidgetEditorColorPicker
+                                    :initial-value="visualizationConfig.borderColor"
+                                    :label="$t('dashboard.widgetEditor.map.borderColor')"
+                                    @change="(newColor) => { visualizationConfig.borderColor = newColor }"
+                                />
+                            </div>
+
+                            <!-- Row 2: classification method, number of classes, border width -->
+                            <div class="config-row three-col-row">
                                 <q-select
                                     v-model="visualizationConfig.classificationMethod"
                                     outlined
@@ -292,8 +377,65 @@
                                         {{ $t(classificationMethodOptions.find(m => m.value === visualizationConfig.classificationMethod)?.label || '') }}
                                     </template>
                                 </q-select>
+
+                                <q-input
+                                    v-model.number="visualizationConfig.numberOfClasses"
+                                    outlined
+                                    type="number"
+                                    :label="$t('dashboard.widgetEditor.map.numberOfClasses')"
+                                    :min="2"
+                                    :max="10"
+                                    dense
+                                />
+
+                                <q-input
+                                    v-model.number="visualizationConfig.borderWidth"
+                                    outlined
+                                    type="number"
+                                    :label="$t('dashboard.widgetEditor.map.borderWidth')"
+                                    :min="0"
+                                    :max="10"
+                                    dense
+                                />
                             </div>
-                            <div class="config-row">
+                        </div>
+
+                        <!-- Balloons Configuration -->
+                        <div v-if="selectedVisualizationType === 'balloons'" class="balloon-config-section">
+                            <label class="section-label">
+                                {{ $t('dashboard.widgetEditor.map.styleConfiguration') }}
+                            </label>
+                            <!-- Put color, classification method and number of classes on a single row -->
+                            <div class="config-row three-col-row">
+                                <WidgetEditorColorPicker
+                                    :initial-value="visualizationConfig.fromColor"
+                                    :label="$t('common.color')"
+                                    @change="(newColor) => { visualizationConfig.fromColor = newColor }"
+                                />
+
+                                <q-select
+                                    v-model="visualizationConfig.classificationMethod"
+                                    outlined
+                                    dense
+                                    :options="classificationMethodOptions"
+                                    :label="$t('dashboard.widgetEditor.map.classesMethodOptions.title')"
+                                    option-value="value"
+                                    option-label="label"
+                                    emit-value
+                                    map-options
+                                >
+                                    <template v-slot:option="scope">
+                                        <q-item v-bind="scope.itemProps">
+                                            <q-item-section>
+                                                <q-item-label>{{ $t(scope.opt.label) }}</q-item-label>
+                                            </q-item-section>
+                                        </q-item>
+                                    </template>
+                                    <template v-slot:selected>
+                                        {{ $t(classificationMethodOptions.find(m => m.value === visualizationConfig.classificationMethod)?.label || '') }}
+                                    </template>
+                                </q-select>
+
                                 <q-input
                                     v-model.number="visualizationConfig.numberOfClasses"
                                     outlined
@@ -325,7 +467,7 @@
                                 />
                                 <WidgetEditorColorPicker
                                     :initial-value="visualizationConfig.fromColor"
-                                    :label="$t('dashboard.widgetEditor.map.fromColor')"
+                                    :label="$t('common.color')"
                                     @change="(newColor) => { visualizationConfig.fromColor = newColor }"
                                 />
                             </div>
@@ -387,29 +529,20 @@
 
                     <!-- Show rest of form only after target is selected -->
                     <template v-if="visualizationData.target">
-                        <!-- Label + Show Toggle on same row -->
-                        <div class="config-row">
+                        <!-- If connection is single, show label + measure/property + inline toggle on one row -->
+                        <div v-if="visualizationData.connectionType === 'single'" class="data-connection-row">
                             <q-input
                                 v-model="visualizationData.label"
                                 filled
                                 dense
                                 :label="$t('common.label')"
-                                :rules="[(val) => !!(val && val.toString().trim()) || $t('common.required')]"
                                 class="layer-name-input"
                             />
-                            <div class="show-toggle-wrapper">
-                                <label class="show-label">{{ $t('common.show') }}</label>
-                                <q-toggle v-model="visualizationData.visible" color="primary" />
-                            </div>
-                        </div>
 
-                        <!-- Single Layer / Single Dataset -->
-                        <div v-if="visualizationData.connectionType === 'single'">
-                            <!-- Charts: Multiple Measures -->
-                            <div class="config-section" v-if="getSelectedLayerType() === 'dataset' && selectedVisualizationType === 'charts'">
-                                <label class="section-label">{{ $t('common.measures') }}</label>
-                                <p class="section-subtitle">{{ $t('dashboard.widgetEditor.map.selectMultipleMeasuresForCharts') }}</p>
+                            <!-- Measures / Property selector (adapts to layer/dataset and charts vs others) -->
+                            <div>
                                 <q-select
+                                    v-if="getSelectedLayerType() === 'dataset' && selectedVisualizationType === 'charts'"
                                     v-model="visualizationData.chartMeasures"
                                     filled
                                     dense
@@ -427,11 +560,9 @@
                                         {{ $t('dashboard.widgetEditor.map.minTwoMeasures') }}
                                     </template>
                                 </q-select>
-                            </div>
 
-                            <!-- Other types: Single Measure -->
-                            <div class="config-section" v-if="getSelectedLayerType() === 'dataset' && selectedVisualizationType !== 'charts'">
                                 <q-select
+                                    v-else-if="getSelectedLayerType() === 'dataset'"
                                     v-model="visualizationData.targetMeasure"
                                     filled
                                     dense
@@ -443,11 +574,9 @@
                                     map-options
                                     options-dense
                                 />
-                            </div>
 
-                            <!-- Property only for Single Layer -->
-                            <div class="config-section" v-if="getSelectedLayerType() === 'layer'">
                                 <q-select
+                                    v-else
                                     v-model="visualizationData.targetProperty"
                                     filled
                                     dense
@@ -460,97 +589,139 @@
                                     options-dense
                                 />
                             </div>
+
+                            <div class="inline-toggle">
+                                <label class="show-label">{{ $t('common.show') }}</label>
+                                <q-toggle v-model="visualizationData.visible" color="primary" />
+                            </div>
                         </div>
 
-                    <!-- Data Join -->
-                    <div v-if="visualizationData.connectionType === 'join'">
-                        <!-- Row 1: Dataset + Measure -->
-                        <div class="config-row">
-                            <q-select
-                                v-model="visualizationData.targetDataset"
-                                filled
-                                dense
-                                :options="availableDatasets"
-                                :label="$t('common.dataset')"
-                                option-value="layerId"
-                                option-label="name"
-                                emit-value
-                                map-options
-                                options-dense
-                            />
+                        <!-- If connection is join, keep label and toggle together on the left to avoid large empty middle column -->
+                        <div v-else class="config-row join-compact-row">
+                            <div class="label-with-toggle">
+                                <q-input
+                                    v-model="visualizationData.label"
+                                    filled
+                                    dense
+                                    :label="$t('common.label')"
+                                    :rules="[(val) => !!(val && val.toString().trim()) || $t('common.required')]"
+                                    class="layer-name-input"
+                                />
 
-                            <!-- Charts: Multiple Measures -->
-                            <q-select
-                                v-if="visualizationData.targetDataset && selectedVisualizationType === 'charts'"
-                                v-model="visualizationData.chartMeasures"
-                                filled
-                                dense
-                                multiple
-                                use-chips
-                                :options="availableMeasures(visualizationData.targetDataset)"
-                                :label="$t('common.measures')"
-                                option-value="name"
-                                option-label="name"
-                                emit-value
-                                map-options
-                                options-dense
-                            >
-                                <template v-slot:hint>
-                                    {{ $t('dashboard.widgetEditor.map.minTwoMeasures') }}
-                                </template>
-                            </q-select>
+                                <!-- Put the show-toggle next to the label input for join mode -->
+                                <div class="inline-toggle">
+                                    <label class="show-label">{{ $t('common.show') }}</label>
+                                    <q-toggle v-model="visualizationData.visible" color="primary" />
+                                </div>
+                            </div>
 
-                            <!-- Other types: Single Measure -->
-                            <q-select
-                                v-else-if="visualizationData.targetDataset"
-                                v-model="visualizationData.targetMeasure"
-                                filled
-                                dense
-                                :options="availableMeasures(visualizationData.targetDataset)"
-                                :label="$t('common.measure')"
-                                option-value="name"
-                                option-label="name"
-                                emit-value
-                                map-options
-                                options-dense
-                            />
+                            <!-- keep second column empty to preserve grid alignment for join controls below -->
+                            <div></div>
                         </div>
 
-                        <!-- Row 2: Join Column + Join Property -->
-                        <div class="config-row" v-if="visualizationData.targetDataset">
-                            <q-select
-                                v-model="visualizationData.targetDatasetForeignKeyColumn"
-                                filled
-                                dense
-                                :options="availableTargetDatasetColumns(visualizationData.targetDataset)"
-                                :label="$t('dashboard.widgetEditor.map.datasetJoinColumn')"
-                                option-value="name"
-                                option-label="name"
-                                emit-value
-                                map-options
-                                options-dense
-                            />
+                        <!-- Data Join -->
+                        <div v-if="visualizationData.connectionType === 'join'">
+                            <!-- Row 1: Dataset + Measure -->
+                            <div class="config-row">
+                                <q-select
+                                    v-model="visualizationData.targetDataset"
+                                    filled
+                                    dense
+                                    :options="availableDatasets"
+                                    :label="$t('common.dataset')"
+                                    option-value="layerId"
+                                    option-label="name"
+                                    emit-value
+                                    map-options
+                                    options-dense
+                                />
 
-                            <!-- Join Property (for layers only) -->
-                            <q-select
-                                v-if="getSelectedLayerType() === 'layer'"
-                                v-model="visualizationData.targetProperty"
-                                filled
-                                dense
-                                :options="visualizationData.properties || []"
-                                :label="$t('dashboard.widgetEditor.map.joinProperty')"
-                                option-value="property"
-                                option-label="property"
-                                emit-value
-                                map-options
-                                options-dense
-                            >
-                                <template v-slot:hint>
-                                    {{ $t('dashboard.widgetEditor.map.propertyUsedForJoin') }}
-                                </template>
-                            </q-select>
+                                <!-- Charts: Multiple Measures -->
+                                <q-select
+                                    v-if="visualizationData.targetDataset && selectedVisualizationType === 'charts'"
+                                    v-model="visualizationData.chartMeasures"
+                                    filled
+                                    dense
+                                    multiple
+                                    use-chips
+                                    :options="availableMeasures(visualizationData.targetDataset)"
+                                    :label="$t('common.measures')"
+                                    option-value="name"
+                                    option-label="name"
+                                    emit-value
+                                    map-options
+                                    options-dense
+                                >
+                                    <template v-slot:hint>
+                                        {{ $t('dashboard.widgetEditor.map.minTwoMeasures') }}
+                                    </template>
+                                </q-select>
+
+                                <!-- Other types: Single Measure -->
+                                <q-select
+                                    v-else-if="visualizationData.targetDataset"
+                                    v-model="visualizationData.targetMeasure"
+                                    filled
+                                    dense
+                                    :options="availableMeasures(visualizationData.targetDataset)"
+                                    :label="$t('common.measure')"
+                                    option-value="name"
+                                    option-label="name"
+                                    emit-value
+                                    map-options
+                                    options-dense
+                                />
+                            </div>
+
+                            <!-- Row 2: Join Column + Join Property -->
+                            <div v-if="visualizationData.targetDataset">
+                                    <div class="config-section data-join">
+                                    <div class="data-join-header">
+                                        <label class="section-label">{{ $t('dashboard.widgetEditor.map.dataJoin') }}</label>
+                                    </div>
+                                    <div class="data-join-container">
+                                        <q-select
+                                            v-model="visualizationData.targetDatasetForeignKeyColumn"
+                                            filled
+                                            dense
+                                            :options="availableTargetDatasetColumns(visualizationData.targetDataset)"
+                                            :label="$t('dashboard.widgetEditor.map.datasetJoinColumn')"
+                                            option-value="name"
+                                            option-label="name"
+                                            emit-value
+                                            map-options
+                                            options-dense
+                                            class="join-field"
+                                        />
+
+                                        <div class="join-icon" aria-hidden="true">
+                                            <q-icon name="compare_arrows" />
+                                        </div>
+
+                                        <!-- Join Property (for layers only) -->
+                                        <q-select
+                                            v-if="getSelectedLayerType() === 'layer'"
+                                            v-model="visualizationData.targetProperty"
+                                            filled
+                                            dense
+                                            :options="visualizationData.properties || []"
+                                            :label="$t('dashboard.widgetEditor.map.joinProperty')"
+                                            option-value="property"
+                                            option-label="property"
+                                            emit-value
+                                            map-options
+                                            options-dense
+                                            class="join-field"
+                                        >
+                                            <template v-slot:hint>
+                                                {{ $t('dashboard.widgetEditor.map.propertyUsedForJoin') }}
+                                            </template>
+                                        </q-select>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
-                    </div>
                     </template>
                 </div>
             </q-card-section>
@@ -574,7 +745,7 @@
                     v-if="currentStep < 2"
                     unelevated
                     color="primary"
-                    :label="$t('dashboard.widgetEditor.map.nextVisualization')"
+                    :label="$t('common.next')"
                     icon-right="arrow_forward"
                     @click="currentStep++"
                     :disable="!canProceed"
@@ -1160,8 +1331,14 @@ export default defineComponent({
     color: #212529;
     display: flex;
     flex-direction: column;
-    height: 100%;
-    margin-left: 56px; // Offset per sidebar Knowage (circa 50-60px)
+    height: 90vh;
+    max-height: 900px;
+    width: 75vw;
+    max-width: 1600px;
+    min-width: 800px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
 }
 
 .wizard-header {
@@ -1235,23 +1412,23 @@ export default defineComponent({
 
         &.active {
             .step-number {
-                background: #3b82f6;
+                background: var(--kn-color-fab);
                 color: #fff;
             }
 
             .step-label {
-                color: #3b82f6;
+                color: var(--kn-color-fab);
             }
         }
 
         &.completed {
             .step-number {
-                background: #10b981;
+                background: var(--kn-color-fab);
                 color: #fff;
             }
 
             .step-label {
-                color: #10b981;
+                color: var(--kn-color-fab);
             }
         }
     }
@@ -1329,27 +1506,64 @@ export default defineComponent({
     grid-template-columns: 1fr 1fr;
     gap: 16px;
     margin-bottom: 24px;
+    align-items: center;
+}
 
-    :deep(.q-field__control) {
-        background: #ffffff;
-        border-radius: 8px;
+/* Three-column row utility for choropleth layout */
+.three-col-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    align-items: center;
+}
 
-        &::before {
-            border-color: #e9ecef;
-        }
-
-        &:hover::before {
-            border-color: #ced4da;
-        }
+@media (max-width: 900px) {
+    .three-col-row {
+        grid-template-columns: 1fr;
     }
+}
 
-    :deep(.q-field__native),
-    :deep(input) {
-        color: #212529;
+.data-join .join-field :deep(.q-field__control),
+.data-join :deep(.q-field__control) {
+    padding: 6px 8px;
+    min-height: 36px;
+}
+
+/* Data join container: show join fields and icon inline */
+.data-join {
+    padding: 12px;
+}
+
+.data-join .data-join-container {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.data-join .join-field {
+    flex: 1 1 45%;
+}
+
+.data-join .join-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+/* When screen is narrow stack the join fields vertically */
+@media (max-width: 640px) {
+    .data-join .data-join-container {
+        flex-direction: column;
+        gap: 12px;
     }
-
-    :deep(.q-field__label) {
-        color: #6c757d;
+    .data-join .join-icon {
+        width: 100%;
+        height: 40px;
     }
 }
 
@@ -1391,21 +1605,21 @@ export default defineComponent({
         position: absolute;
         top: 16px;
         right: 16px;
-        color: #3b82f6;
+        color: var(--kn-color-fab);
     }
 
     &:hover {
-        border-color: rgba(59, 130, 246, 0.3);
+        border-color: color-mix(in srgb, var(--kn-color-fab), transparent 70%);
         background: #f8f9fa;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
 
     &.selected {
-        border-color: #3b82f6;
-        background: rgba(59, 130, 246, 0.05);
+        border-color: var(--kn-color-fab);
+        background: color-mix(in srgb, var(--kn-color-fab), transparent 95%);
 
         .q-icon:first-child {
-            color: #3b82f6;
+            color: var(--kn-color-fab);
         }
     }
 }
@@ -1515,21 +1729,21 @@ export default defineComponent({
         position: absolute;
         top: 12px;
         right: 12px;
-        color: #3b82f6;
+        color: var(--kn-color-fab);
     }
 
     &:hover {
-        border-color: rgba(59, 130, 246, 0.3);
+        border-color: color-mix(in srgb, var(--kn-color-fab), transparent 70%);
         background: #f8f9fa;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
 
     &.selected {
-        border-color: #3b82f6;
-        background: rgba(59, 130, 246, 0.05);
+        border-color: var(--kn-color-fab);
+        background: color-mix(in srgb, var(--kn-color-fab), transparent 95%);
 
         .q-icon:first-child {
-            color: #3b82f6;
+            color: var(--kn-color-fab);
         }
     }
 }
@@ -1583,6 +1797,63 @@ export default defineComponent({
     border-radius: 12px;
 }
 
+/* Ensure markers controls can use the full width inside the marker-config-section
+   (previously the controls were constrained by a surrounding grid) */
+.marker-config-section .markers-controls {
+    width: 100% !important;
+    display: block;
+}
+
+.marker-config-section .three-col-row {
+    /* force the three columns to span the full available width */
+    grid-template-columns: repeat(3, 1fr);
+}
+
+/* If marker-config-section lives inside a grid parent, force it to span all columns */
+.marker-config-section {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+}
+
+.color-pickers-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+}
+
+
+.slider-control {
+    margin-bottom: 16px;
+
+    :deep(.q-slider) {
+        margin-top: 24px;
+    }
+}
+
+
+.cluster-config {
+    margin-top: 16px;
+}
+
+.heatmap-config-section {
+    margin-top: 32px;
+    padding: 24px;
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+}
+
+.marker-config-section,
+.balloon-config-section,
+.cluster-config-section {
+    margin-top: 32px;
+    padding: 24px;
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+}
+
 .show-toggle-wrapper {
     display: flex;
     align-items: center;
@@ -1597,26 +1868,117 @@ export default defineComponent({
         margin: 0;
     }
 }
+
+/* Inline picker container used next to color pickers for icon/img markers */
+.picker-inline {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.picker-inline :deep(.q-input) {
+    flex: 1 1 auto;
+}
+.picker-inline :deep(.q-btn) {
+    flex: 0 0 auto;
+}
+
+/* Data connection row: label, measure/property, show toggle on same row */
+.data-connection-row {
+    display: grid;
+    grid-template-columns: 1fr 2fr auto;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 24px;
+
+    .layer-name-input {
+        grid-column: 1 / 2;
+    }
+
+    .show-toggle-wrapper {
+        grid-column: 3 / 4;
+        justify-self: flex-end;
+    }
+
+    /* Measures / Property selector */
+    :deep(.q-select) {
+        width: 100%;
+    }
+}
+
+
+/* Reduce gap when label row is directly above the data-join section to avoid big empty space */
+.config-section.data-join {
+      /* Reduce top spacing for the join box to keep the UI compact.
+         Applied globally to the data-join section so it works regardless
+         of intermediate wrapper elements in the template. */
+      margin-top: 8px;
+ }
+
+.join-compact-row .label-with-toggle {
+     /* Keep label and toggle on the same row, prevent wrapping */
+     display: flex;
+     flex-direction: row;
+     align-items: center;
+     gap: 8px;
+     width: 100%;
+     flex-wrap: nowrap;
+ }
+
+.join-compact-row .label-with-toggle .inline-toggle {
+     /* Keep toggle compact and prevent it from growing */
+     flex: 0 0 auto;
+     display: flex;
+     align-items: center;
+     gap: 6px;
+ }
+
+.join-compact-row .label-with-toggle :deep(.q-field__control) {
+     /* Make sure the inner control aligns vertically */
+     height: 40px !important;
+     display: flex !important;
+     align-items: center !important;
+ }
+
+/* Stronger fallback: reserve a fixed width for the toggle to prevent wrapping
+   in tight containers by making the input calculate available space. */
+.join-compact-row .label-with-toggle .inline-toggle {
+    width: 110px !important; /* fits label + toggle control */
+    justify-content: flex-end;
+}
+
+.join-compact-row .label-with-toggle .layer-name-input {
+    flex: 1 1 auto !important;
+    min-width: 0 !important; /* critical to allow shrinking */
+    width: auto !important;
+}
+
+.join-compact-row .label-with-toggle :deep(.q-input__control),
+.join-compact-row .label-with-toggle :deep(.q-field__control) {
+    padding-right: 8px !important;
+}
 </style>
 
 <style lang="scss">
-/* Force icon picker and image picker dialogs to appear ABOVE wizard dialog */
-#widget-editor-icon-picker-dialog {
-    z-index: 99999 !important;
-}
+/* Global styles for dialog positioning */
+.wizard-overlay-dialog {
+    position: fixed !important;
+    right: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 60% !important;
+    max-width: none !important;
+    margin: 0 !important;
 
-#widget-editor-icon-picker-dialog .p-dialog {
-    z-index: 99999 !important;
-}
+    .q-dialog__inner {
+        justify-content: flex-end !important;
+        align-items: stretch !important;
+        padding: 0 !important;
+        max-width: none !important;
+    }
 
-.p-dialog-mask {
-    z-index: 99998 !important;
-}
-
-/* Target any dialog inside teleported wrapper */
-[style*="z-index: 99999"] .p-dialog,
-[style*="z-index: 99999"] > * {
-    z-index: 99999 !important;
+    .q-dialog__backdrop {
+        background: rgba(0, 0, 0, 0.3) !important;
+    }
 }
 </style>
 

@@ -2,7 +2,14 @@
     <div v-show="widgetModel">
         <Message v-if="themePropertyChanged" class="p-p-2 p-m-4" severity="warn" :closable="false">{{ $t('dashboard.widgetEditor.themeChangedWarning') }}</Message>
         <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker>
-        <Accordion v-model:activeIndex="activeIndex" class="widget-editor-accordion">
+
+        <!-- Direct rendering for VisualizationType without accordion -->
+        <template v-if="isVisualizationTypeOnly">
+            <WidgetVisType :widget-model="widgetModel" :dashboard-id="dashboardId" />
+        </template>
+
+        <!-- Standard accordion for other types -->
+        <Accordion v-else v-model:activeIndex="activeIndex" class="widget-editor-accordion">
             <AccordionTab v-for="(accordion, index) in settings" :key="index">
                 <template #header>
                     <MapSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></MapSettingsAccordionHeader>
@@ -20,7 +27,6 @@
                 <MapWidgetCrossNavigationConfiguration v-else-if="accordion.type === 'CrossNavigation'" :visible="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></MapWidgetCrossNavigationConfiguration>
                 <MapWidgetLinkConfiguration v-else-if="accordion.type === 'Link'" :visible="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></MapWidgetLinkConfiguration>
                 <MapWidgetDatasetPreviewConfiguration v-else-if="accordion.type === 'Preview'" :visible="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></MapWidgetDatasetPreviewConfiguration>
-                <WidgetVisType v-else-if="accordion.type === 'VisualizationType'" :widget-model="widgetModel" :dashboard-id="dashboardId" />
                 <MapTooltips v-else-if="accordion.type === 'Tooltips'" :widget-model="widgetModel" :dashboard-id="dashboardId"></MapTooltips>
                 <MapDialogSettings v-else-if="accordion.type === 'DialogSettings'" :widget-model="widgetModel" :dashboard-id="dashboardId"></MapDialogSettings>
                 <MapLegendSettings v-else-if="accordion.type === 'Legend'" :widget-model="widgetModel"></MapLegendSettings>
@@ -121,6 +127,9 @@ export default defineComponent({
         }),
         showThemePicker() {
             return this.isEnterprise && this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
+        },
+        isVisualizationTypeOnly() {
+            return this.settings && this.settings.length === 1 && this.settings[0].type === 'VisualizationType'
         }
     },
     watch: {

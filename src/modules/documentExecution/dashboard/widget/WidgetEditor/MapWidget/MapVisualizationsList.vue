@@ -237,10 +237,13 @@ export default defineComponent({
             })
         },
         deleteVisualization(index: number) {
+            // Get the visualization BEFORE removing it from the array
+            const vizToDelete = this.visualizations[index]
+
+            // Remove from local visualizations array
             this.visualizations.splice(index, 1)
 
             // Also remove from widget model
-            const vizToDelete = this.visualizations[index]
             if (vizToDelete && this.widgetModel.settings.visualizations) {
                 const modelIndex = this.widgetModel.settings.visualizations.findIndex(
                     (v: IMapWidgetVisualizationType) => v.id === vizToDelete.id
@@ -269,8 +272,23 @@ export default defineComponent({
             return target?.name || targetId
         },
         getVisualizationColors(viz: IMapWidgetVisualizationType): string[] {
-            // Mock colors - in real implementation, get from viz configuration
-            return ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981']
+            // Get colors from visualization configuration
+            if (viz.type === 'choropleth' && viz.analysisConf?.style) {
+                const colors: string[] = []
+                const style = viz.analysisConf.style
+                if (style.color) colors.push(style.color)
+                if (style.toColor) colors.push(style.toColor)
+                if (colors.length > 0) return colors
+            }
+            if (viz.type === 'markers' && viz.markerConf?.style?.color) {
+                return [viz.markerConf.style.color]
+            }
+            if (viz.type === 'pies' && viz.pieConf?.colors) {
+                return viz.pieConf.colors
+            }
+            // Default fallback colors using theme variable
+            const fabColor = getComputedStyle(document.documentElement).getPropertyValue('--kn-color-fab').trim()
+            return [fabColor || '#c41b87']
         }
     }
 })
@@ -357,17 +375,17 @@ export default defineComponent({
     min-height: 280px;
 
     &:hover {
-        border-color: #3b82f6;
-        background: rgba(59, 130, 246, 0.02);
+        border-color: var(--kn-color-fab);
+        background: color-mix(in srgb, var(--kn-color-fab), transparent 98%);
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+        box-shadow: 0 4px 12px color-mix(in srgb, var(--kn-color-fab), transparent 90%);
     }
 
     .add-text {
         margin-top: 16px;
         font-size: 16px;
         font-weight: 600;
-        color: #3b82f6;
+        color: var(--kn-color-fab);
     }
 
     .add-hint {
@@ -404,13 +422,17 @@ export default defineComponent({
 
     .card-header {
         padding: 16px 20px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--kn-color-fab);
         display: flex;
         justify-content: space-between;
         align-items: center;
 
         .viz-icon {
             color: #ffffff;
+
+            .q-icon {
+                color: #ffffff;
+            }
         }
 
         .card-actions {
@@ -442,8 +464,8 @@ export default defineComponent({
         .viz-type-badge {
             display: inline-block;
             padding: 4px 12px;
-            background: #e7f5ff;
-            color: #1971c2;
+            background: color-mix(in srgb, var(--kn-color-fab), transparent 85%);
+            color: var(--kn-color-fab);
             border-radius: 12px;
             font-size: 12px;
             font-weight: 500;
