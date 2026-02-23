@@ -45,7 +45,8 @@ export default defineComponent({
             tourRunning: false,
             activeTour: null as any,
             showUpdatePrompt: false,
-            swRefresh: null as any
+            swRefresh: null as any,
+            postLoginInitDone: false
         }
     },
     computed: {
@@ -125,6 +126,11 @@ export default defineComponent({
                         }
                     ]
                 })
+            }
+        },
+        userLoaded(newVal) {
+            if (newVal && !this.postLoginInitDone) {
+                this.loadUserConfigsAndInitialize()
             }
         }
     },
@@ -226,43 +232,7 @@ export default defineComponent({
                 })
         }
 
-        await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/user-configs').then(async (response: any) => {
-            this.checkTopLevelIframe(response.data)
-            this.setConfigurations(response.data)
-            this.checkOIDCSession(response.data)
-
-            // Carica il tema di default sempre, non solo per enterprise
-            if (Object.keys(this.defaultTheme).length === 0) {
-                this.setDefaultTheme(this.themeHelper.getDefaultKnowageTheme())
-            }
-
-            if (this.isEnterprise) {
-                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/license').then((response) => {
-                    this.setLicenses(response.data)
-                    if (!this.isEnterpriseValid) {
-                        this.$q.notify({
-                            position: 'top',
-                            type: 'warning',
-                            timeout: 0,
-                            closeBtn: this.$t('common.dismiss'),
-                            message: this.$t('common.error.licenseInvalid')
-                        })
-                    }
-                })
-
-                // Carica tema personalizzato se enterprise
-                if (Object.keys(this.theme).length === 0) {
-                    await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/thememanagement/current`).then((themes: any) => {
-                        this.setTheme(themes.data.config)
-                        this.themeHelper.setTheme(themes.data.config)
-                    })
-                } else {
-                    this.themeHelper.setTheme(this.theme)
-                }
-            }
-
-            this.onLoad()
-        })
+        await this.loadUserConfigsAndInitialize()
     },
 
     mounted() {
@@ -279,6 +249,48 @@ export default defineComponent({
 
     methods: {
         ...mapActions(mainStore, ['setTheme', 'setDefaultTheme', 'setLicenses', 'setConfigurations', 'setLoading', 'setLocale', 'initializeUser', 'setNews', 'setDownloads', 'setInternationalization', 'setCSRFToken']),
+        async loadUserConfigsAndInitialize() {
+            if (this.postLoginInitDone) return
+            this.postLoginInitDone = true
+
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/user-configs').then(async (response: any) => {
+                this.checkTopLevelIframe(response.data)
+                this.setConfigurations(response.data)
+                this.checkOIDCSession(response.data)
+
+                // Carica il tema di default sempre, non solo per enterprise
+                if (Object.keys(this.defaultTheme).length === 0) {
+                    this.setDefaultTheme(this.themeHelper.getDefaultKnowageTheme())
+                }
+
+                if (this.isEnterprise) {
+                    await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/license').then((response) => {
+                        this.setLicenses(response.data)
+                        if (!this.isEnterpriseValid) {
+                            this.$q.notify({
+                                position: 'top',
+                                type: 'warning',
+                                timeout: 0,
+                                closeBtn: this.$t('common.dismiss'),
+                                message: this.$t('common.error.licenseInvalid')
+                            })
+                        }
+                    })
+
+                    // Carica tema personalizzato se enterprise
+                    if (Object.keys(this.theme).length === 0) {
+                        await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/thememanagement/current`).then((themes: any) => {
+                            this.setTheme(themes.data.config)
+                            this.themeHelper.setTheme(themes.data.config)
+                        })
+                    } else {
+                        this.themeHelper.setTheme(this.theme)
+                    }
+                }
+
+                this.onLoad()
+            })
+        },
         closeDialog() {
             this.$emit('update:visibility', false)
         },
