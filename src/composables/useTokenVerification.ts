@@ -61,10 +61,36 @@ export const useTokenVerification = (error: any, success: any) => {
         }
     }
 
+    const loginWithJwtFromSessionStorage = async (jwtLabel: string, jwtSessionStorageKey: string) => {
+        try {
+            if (!jwtLabel) {
+                error.value = t('common.loginPage.ssoError')
+                return ''
+            }
+
+            const jwtValue = window.sessionStorage.getItem(jwtSessionStorageKey)
+            if (!jwtValue) {
+                error.value = t('common.loginPage.ssoError')
+                return ''
+            }
+
+            const response = await axios.post(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/login/oauth2`, {
+                [jwtLabel]: jwtValue
+            })
+
+            return response.data?.token || ''
+        } catch (err: any) {
+            console.error('Errore durante il login OAuth2 con JWT dal sessionStorage:', err)
+            error.value = err.response?.data?.message || t('common.loginPage.tokenError')
+            return ''
+        }
+    }
+
     return {
         resetToken,
         verifyResetToken,
         verifyRegistrationToken,
-        exchangeAuthorizationCode
+        exchangeAuthorizationCode,
+        loginWithJwtFromSessionStorage
     }
 }

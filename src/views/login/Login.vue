@@ -99,7 +99,7 @@ const publicPath = import.meta.env.VITE_PUBLIC_PATH
 
 const { backgroundUrl, backgroundLoaded, loadLoginConfig, preloadImage, loginConfig } = useLoginConfig()
 const authFlows = useAuthFlows()
-const { resetToken, verifyResetToken, verifyRegistrationToken, exchangeAuthorizationCode } = useTokenVerification(authFlows.error, authFlows.success)
+const { resetToken, verifyResetToken, verifyRegistrationToken, exchangeAuthorizationCode, loginWithJwtFromSessionStorage } = useTokenVerification(authFlows.error, authFlows.success)
 
 const { username, password, isPwd, loading, error, success, showMfa, showForgotPassword, showResetPassword, showRegistration, mfaData, onSubmit, onMfaSuccess, onMfaError, onForgotPasswordBack, onForgotPasswordSuccess, onForgotPasswordError, onResetPasswordSuccess, onResetPasswordError, onRegistrationBack, onRegistrationSuccess, onRegistrationError, openForgotPassword, openResetPassword, openRegistration, completeLogin } = authFlows
 
@@ -279,12 +279,24 @@ onMounted(async () => {
         hasUrlError.value = true
         error.value = urlError || t('common.loginPage.ssoError')
     } else if (ssoActive) {
-        // If SSO is active and no code/token/error, redirect to Keycloak
-        if ((config?.oauth2FlowType === 'AUTHORIZATION_CODE' || config?.oauth2FlowType === 'PKCE' || config?.oauth2FlowType === 'OIDC_IMPLICIT') && config?.authorizeUrl && config?.clientId && config?.redirectUrl && config?.scopes) {
+        // Handle JWT from SessionStorage (oauth2FlowType === 'NONE')
+        if (config?.oauth2FlowType === 'NONE' && config?.jwtSessionStorage) {
+            hasAuthToken.value = true
+            const token = await loginWithJwtFromSessionStorage(config.jwtLabel || '', config.jwtSessionStorage)
+            if (!token) {
+                hasUrlError.value = true
+                return
+            }
+            await completeLogin(token)
+            return
+        }
+        // If SSO is active and no code/token/error, redirect to OIDC
+        else if ((config?.oauth2FlowType === 'AUTHORIZATION_CODE' || config?.oauth2FlowType === 'PKCE' || config?.oauth2FlowType === 'OIDC_IMPLICIT') && config?.authorizeUrl && config?.clientId && config?.redirectUrl && config?.scopes) {
             redirectToOIDC()
             return
-        } else {
-            // SSO is active but Keycloak is not configured
+        }
+        // SSO is active but not properly configured
+        else if (config?.oauth2FlowType !== 'NONE') {
             error.value = t('common.loginPage.ssoError')
         }
     }
