@@ -41,24 +41,21 @@ export const useTokenVerification = (error: any, success: any) => {
         }
     }
 
-    const exchangeAuthorizationCode = async (code: string, codeVerifier?: string) => {
+    const exchangeAuthorizationCode = async (code: string, codeVerifier?: string, flowType: 'authorization_code' | 'implicit' = 'authorization_code') => {
         try {
             const payload: any = { code: code }
-
-            // Add PKCE code_verifier if provided
             if (codeVerifier) {
                 payload.codeVerifier = codeVerifier
             }
-
-            const response = await axios.post(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/login/oidc/authorization_code`, payload)
-
+            // Scegli endpoint in base al flow
+            const endpoint = flowType === 'implicit' ? '/restful-services/login/oidc/implicit' : '/restful-services/login/oidc/authorization_code'
+            const response = await axios.post(`${import.meta.env.VITE_KNOWAGE_CONTEXT}${endpoint}`, payload)
             if (response.data?.idToken) {
                 sessionStorage.setItem('idToken', response.data.idToken)
             }
-
             return response.data?.token || ''
         } catch (err: any) {
-            console.error("Errore durante l'exchange dell'authorization code:", err)
+            console.error("Errore durante l'exchange del code OIDC:", err)
             error.value = err.response?.data?.message || t('common.loginPage.tokenError')
             return ''
         }

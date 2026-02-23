@@ -226,8 +226,8 @@ onMounted(async () => {
                 return
             }
 
-            // Exchange ID Token with backend for Knowage token
-            const token = await exchangeAuthorizationCode(idToken)
+            // Exchange ID Token with backend for Knowage token (OIDC_IMPLICIT)
+            const token = await exchangeAuthorizationCode(idToken, undefined, 'implicit')
             if (!token) {
                 hasAuthCode.value = false
                 return
