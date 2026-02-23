@@ -68,17 +68,18 @@ const formatPivotModelForGet = (dashboardId: any, dashboardConfig: IDashboardCon
     for (const fieldsName in propWidget.fields) {
         const fields = propWidget.fields[fieldsName]
         fields.forEach((field) => {
+            console.log('field', field)
             if (field.fieldType === 'MEASURE') {
                 if (field.type === 'pythonFunction') {
                     addFunctionColumnToTheMeasuresForThePostData(dataToSend.aggregations.measures, field as IWidgetFunctionColumn)
                     return
                 }
-                const measureToPush = { id: field.alias, alias: field.alias, columnName: field.columnName, funct: field.aggregation, orderColumn: field.alias } as any
+                const measureToPush = { id: field.alias, alias: field.alias, columnName: field.columnName, funct: field.aggregation, orderColumn: field.orderColumn ?? field.columnName, orderType: field.sort ?? '' } as any
                 if (field.formula) measureToPush.formula = addVariablesToFormula(field, dashboardConfig)
 
                 dataToSend.aggregations.measures.push(measureToPush)
             } else {
-                const attributeToPush = { id: field.alias, alias: field.alias, columnName: field.columnName, orderType: '', funct: 'NONE' } as any
+                const attributeToPush = { id: field.alias, alias: field.alias, columnName: field.columnName, funct: 'NONE', orderColumn: field.orderColumn ?? field.columnName, orderType: field.sort ?? '' } as any
                 dataToSend.aggregations.categories.push(attributeToPush)
             }
         })

@@ -12,6 +12,11 @@
                     </q-item>
                 </template>
             </q-select>
+            <q-select class="col-4" v-model="column.orderColumn" :options="selectedDatasetColumns" emitValue clearable dense square :label="$t('dashboard.widgetEditor.sortingColumn')" option-value="name" option-label="name" @update:model-value="selectedColumnUpdated">
+                <template v-slot:selected-item="scope">
+                    {{ selectedDatasetColumns.find((tempColumn: IDatasetColumn) => tempColumn.name === scope.opt)?.alias ?? '' }}
+                </template>
+            </q-select>
 
             <q-select v-if="column.fieldType === 'ATTRIBUTE' && widgetType === 'discovery' && column.aggregation !== 'COUNT'" class="col-12" v-model="column.aggregationColumn" :options="widgetMeasureColumns" emitValue clearable dense square :label="$t('dashboard.widgetEditor.drillSortingColumn')" option-value="columnName" option-label="columnName" @update:model-value="selectedColumnUpdated" />
         </div>
@@ -21,8 +26,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
-import { IWidget, IWidgetColumn, IWidgetColumnFilter } from '../../../../Dashboard'
+import { defineComponent, inject, PropType } from 'vue'
+import { IDatasetColumn, IWidget, IWidgetColumn, IWidgetColumnFilter } from '../../../../Dashboard'
 import { emitter } from '../../../../DashboardHelpers'
 import descriptor from './TableWidgetDataDescriptor.json'
 import commonDescriptor from '../common/WidgetCommonDescriptor.json'
@@ -37,7 +42,8 @@ export default defineComponent({
         return {
             descriptor,
             commonDescriptor,
-            column: null as IWidgetColumn | null
+            column: null as IWidgetColumn | null,
+            selectedDatasetColumns: inject('selectedDatasetColumns', []) as unknown as IDatasetColumn[]
         }
     },
     computed: {
