@@ -8,7 +8,10 @@
         "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src --quiet",
         "dev": "vite dev",
         "build": "vite build --base=/knowage-vue",
-        "preview": "vite preview --base=/knowage-vue"
+        "preview": "vite preview --base=/knowage-vue",
+        "test": "vitest",
+        "test:run": "vitest run",
+        "coverage": "vitest run --coverage"
     },
     "main": "main.ts",
     "dependencies": {
@@ -81,17 +84,23 @@
     "devDependencies": {
         "@eslint/eslintrc": "^3.2.0",
         "@eslint/js": "^9.18.0",
+        "@pinia/testing": "^0.1.7",
         "@quasar/vite-plugin": "1.9.0",
+        "@testing-library/vue": "^8.1.0",
         "@types/luxon": "^2.3.1",
         "@types/sanitize-html": "^2.6.2",
         "@types/stompjs": "^2.3.5",
         "@vitejs/plugin-vue": "5.2.1",
+        "@vitest/coverage-v8": "^3.2.4",
+        "@vue/test-utils": "^2.4.6",
         "globals": "^15.14.0",
+        "jsdom": "^26.1.0",
         "material-icons": "^1.10.0",
         "sass": "1.83.4",
         "typescript": "5.7.3",
         "vite": "6.4.1",
-        "vite-plugin-pwa": "1.0.1"
+        "vite-plugin-pwa": "1.0.1",
+        "vitest": "^3.2.4"
     },
     "exports": {
         ".": {

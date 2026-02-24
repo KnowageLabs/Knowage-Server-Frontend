@@ -259,6 +259,22 @@ export default defineConfig((command, mode) => {
         },
         preview: {
             port: 3000
+        },
+        test: {
+            environment: 'jsdom',
+            globals: true,
+            include: ['src/**/*.spec.ts', 'src/**/*.test.ts'],
+            exclude: ['node_modules', 'target', 'dist'],
+            setupFiles: ['src/__tests__/setup.ts'],
+            coverage: {
+                provider: 'v8',
+                reporter: ['text', 'lcov', 'html'],
+                include: ['src/modules/documentExecution/dashboard/**'],
+                exclude: ['src/modules/documentExecution/dashboard/**/__tests__/**', 'src/modules/documentExecution/dashboard/**/*.spec.ts']
+            },
+            alias: {
+                '@': new URL('./src', import.meta.url).pathname
+            }
         }
     }
 })
