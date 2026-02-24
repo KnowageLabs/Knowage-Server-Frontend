@@ -346,7 +346,7 @@ const calcReplacer = (match: string, p1: string, min: string, max: string, preci
     var result = eval(p1)
     if (min && result < min) result = min
     if (max && result > max) result = max
-    if (format) return precision ? parseFloat(result).toFixed(precision) : result
+    if (format) return precision ? formatNumberWithLocale(result, precision, null) : formatNumberWithLocale(result, undefined, null)
     return precision && !isNaN(result) ? parseFloat(result).toFixed(precision) : result
 }
 
