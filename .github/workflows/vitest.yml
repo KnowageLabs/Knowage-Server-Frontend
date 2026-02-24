@@ -23,12 +23,11 @@ jobs:
                   node-version: '20'
                   cache: 'npm'
 
-            - name: Clean Node modules and package-lock
-              run: |
-                  rm -rf node_modules package-lock.json
+            - name: Clean Node modules
+              run: rm -rf node_modules
 
             - name: Install dependencies
-              run: npm ci
+              run: npm install
 
             - name: Run unit tests
               run: npm run test -- --run --reporter=verbose
