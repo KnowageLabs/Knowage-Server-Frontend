@@ -322,7 +322,6 @@
 
                         <!-- Choropleth Configuration -->
                         <div v-if="selectedVisualizationType === 'choropleth'" class="color-config-section">
-                          {{visualizationConfig}}
                             <label class="section-label">{{ $t('dashboard.widgetEditor.map.styleConfiguration') }}</label>
 
                             <!-- Row 1: three color pickers -->
