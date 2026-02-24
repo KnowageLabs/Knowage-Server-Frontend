@@ -10,7 +10,7 @@
         <div class="datasetEditor-container kn-overflow">
             <WidgetEditorTabs class="dashboardEditor-tabs" :prop-widget="widget" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId" :selected-setting-prop="selectedSetting" @settingChanged="onSettingChanged" />
 
-            <div v-if="selectedSetting != 'Gallery'" class="preview-buttons-container p-d-flex" style="position: absolute; top: 38px; right: 10px" :style="{ top: isDashboardHeader ? '0px' : '' }">
+            <div v-if="selectedSetting != 'Gallery' && widget.type !== 'map'" class="preview-buttons-container p-d-flex" style="position: absolute; top: 38px; right: 10px" :style="{ top: isDashboardHeader ? '0px' : '' }">
                 <Button icon="fas fa-magnifying-glass" class="p-button-rounded p-button-text p-button-plain expand-button" @click="togglePreview" />
             </div>
 

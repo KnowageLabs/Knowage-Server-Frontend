@@ -1,16 +1,8 @@
 <template>
-    <q-dialog
-        v-model="dialogVisible"
-        persistent
-        transition-show="slide-left"
-        transition-hide="slide-right"
-        content-class="wizard-overlay-dialog"
-        position="right"
-    >
-        <q-card class="layer-wizard-card">
-            <!-- Stepper Navigation -->
-            <q-card-section class="stepper-nav">
-                <div class="steps">
+    <div v-if="visible" class="layer-wizard-card">
+        <!-- Stepper Navigation -->
+        <div class="stepper-nav">
+            <div class="steps">
                     <div
                         class="step"
                         :class="{ active: currentStep === 1, completed: currentStep > 1 }"
@@ -27,12 +19,12 @@
                         <div class="step-label">{{ $t('dashboard.widgetEditor.map.dataConnection') }}</div>
                     </div>
                 </div>
-            </q-card-section>
+            </div>
 
-            <q-separator />
+            <div class="wizard-separator"></div>
 
             <!-- Step Content -->
-            <q-card-section class="wizard-content">
+            <div class="wizard-content">
                 <!-- Step 1: Visualization Type Selection -->
                 <div v-show="currentStep === 1" class="step-content">
                     <div class="viz-section">
@@ -190,9 +182,9 @@
                                     />
 
                                     <WidgetEditorColorPicker
-                                        :initial-value="visualizationConfig.fromColor"
+                                        :initial-value="visualizationConfig.color"
                                         :label="$t('common.color')"
-                                        @change="(newColor) => { visualizationConfig.fromColor = newColor }"
+                                        @change="(newColor) => { visualizationConfig.color = newColor }"
                                     />
                                 </div>
 
@@ -239,9 +231,9 @@
                                 <!-- Icon type: color + icon picker on same row -->
                                 <div v-if="visualizationConfig.markerType === 'icon'" class="config-row">
                                     <WidgetEditorColorPicker
-                                        :initial-value="visualizationConfig.fromColor"
+                                        :initial-value="visualizationConfig.color"
                                         :label="$t('common.color')"
-                                        @change="(newColor) => { visualizationConfig.fromColor = newColor }"
+                                        @change="(newColor) => { visualizationConfig.color = newColor }"
                                     />
 
                                     <div class="picker-inline">
@@ -268,9 +260,9 @@
                                 <!-- Img type: color + image picker on same row -->
                                 <div v-else-if="visualizationConfig.markerType === 'img'" class="config-row">
                                     <WidgetEditorColorPicker
-                                        :initial-value="visualizationConfig.fromColor"
+                                        :initial-value="visualizationConfig.color"
                                         :label="$t('common.color')"
-                                        @change="(newColor) => { visualizationConfig.fromColor = newColor }"
+                                        @change="(newColor) => { visualizationConfig.color = newColor }"
                                     />
 
                                     <div class="picker-inline">
@@ -298,9 +290,9 @@
                                 <!-- Url type: color + url input on same row -->
                                 <div v-else-if="visualizationConfig.markerType === 'url'" class="config-row">
                                     <WidgetEditorColorPicker
-                                        :initial-value="visualizationConfig.fromColor"
+                                        :initial-value="visualizationConfig.color"
                                         :label="$t('common.color')"
-                                        @change="(newColor) => { visualizationConfig.fromColor = newColor }"
+                                        @change="(newColor) => { visualizationConfig.color = newColor }"
                                     />
 
                                     <div class="picker-inline">
@@ -317,9 +309,9 @@
                                 <!-- Other non-default types: only color or existing fields -->
                                 <div v-else class="config-row">
                                     <WidgetEditorColorPicker
-                                        :initial-value="visualizationConfig.fromColor"
+                                        :initial-value="visualizationConfig.color"
                                         :label="$t('common.color')"
-                                        @change="(newColor) => { visualizationConfig.fromColor = newColor }"
+                                        @change="(newColor) => { visualizationConfig.color = newColor }"
                                     />
 
                                     <!-- placeholder to keep grid alignment for the second column -->
@@ -330,14 +322,15 @@
 
                         <!-- Choropleth Configuration -->
                         <div v-if="selectedVisualizationType === 'choropleth'" class="color-config-section">
+                          {{visualizationConfig}}
                             <label class="section-label">{{ $t('dashboard.widgetEditor.map.styleConfiguration') }}</label>
 
                             <!-- Row 1: three color pickers -->
                             <div class="config-row three-col-row">
                                 <WidgetEditorColorPicker
-                                    :initial-value="visualizationConfig.fromColor"
+                                    :initial-value="visualizationConfig.color"
                                     :label="$t('dashboard.widgetEditor.map.fromColor')"
-                                    @change="(newColor) => { visualizationConfig.fromColor = newColor }"
+                                    @change="(newColor) => { visualizationConfig.color = newColor }"
                                 />
 
                                 <WidgetEditorColorPicker
@@ -408,9 +401,9 @@
                             <!-- Put color, classification method and number of classes on a single row -->
                             <div class="config-row three-col-row">
                                 <WidgetEditorColorPicker
-                                    :initial-value="visualizationConfig.fromColor"
+                                    :initial-value="visualizationConfig.color"
                                     :label="$t('common.color')"
-                                    @change="(newColor) => { visualizationConfig.fromColor = newColor }"
+                                    @change="(newColor) => { visualizationConfig.color = newColor }"
                                 />
 
                                 <q-select
@@ -466,9 +459,9 @@
                                     dense
                                 />
                                 <WidgetEditorColorPicker
-                                    :initial-value="visualizationConfig.fromColor"
+                                    :initial-value="visualizationConfig.color"
                                     :label="$t('common.color')"
-                                    @change="(newColor) => { visualizationConfig.fromColor = newColor }"
+                                    @change="(newColor) => { visualizationConfig.color = newColor }"
                                 />
                             </div>
                         </div>
@@ -724,45 +717,46 @@
                         </div>
                     </template>
                 </div>
-            </q-card-section>
+            </div>
 
             <!-- Footer Actions -->
-            <q-separator />
-            <q-card-actions class="wizard-footer">
+            <div class="wizard-separator"></div>
+            <div class="wizard-footer">
                 <q-btn
                     flat
                     :label="$t('common.cancel')"
                     @click="closeDialog"
                 />
-                <q-space />
-                <q-btn
-                    v-if="currentStep > 1"
-                    flat
-                    :label="$t('common.back')"
-                    @click="currentStep--"
-                />
-                <q-btn
-                    v-if="currentStep < 2"
-                    unelevated
-                    color="primary"
-                    :label="$t('common.next')"
-                    icon-right="arrow_forward"
-                    @click="currentStep++"
-                    :disable="!canProceed"
-                />
-                <q-btn
-                    v-else
-                    unelevated
-                    color="primary"
-                    :label="$t('common.save')"
-                    icon-right="check"
-                    @click="saveConfiguration"
-                />
-            </q-card-actions>
-        </q-card>
-    </q-dialog>
+                <div class="spacer"></div>
+                <div class="footer-actions-right">
+                    <q-btn
+                        v-if="currentStep > 1"
+                        flat
+                        :label="$t('common.back')"
+                        @click="currentStep--"
+                    />
+                    <q-btn
+                        v-if="currentStep < 2"
+                        unelevated
+                        color="primary"
+                        :label="$t('common.next')"
+                        icon-right="arrow_forward"
+                        @click="currentStep++"
+                        :disable="!canProceed"
+                    />
+                    <q-btn
+                        v-else
+                        unelevated
+                        color="primary"
+                        :label="$t('common.save')"
+                        icon-right="check"
+                        @click="() => saveConfiguration(false)"
+                    />
+                </div>
+            </div>
+    </div>
 
-    <!-- Icon Picker Dialog - OUTSIDE main dialog using Teleport -->
+    <!-- Icon Picker Dialog - OUTSIDE main wizard using Teleport -->
     <Teleport to="body">
         <div style="z-index: 99999 !important; position: relative;">
             <WidgetEditorStyleIconPickerDialog
@@ -814,8 +808,8 @@ export default defineComponent({
     emits: ['close', 'save'],
     data() {
         return {
-            dialogVisible: false,
             currentStep: 1,
+            hasUnsavedChanges: false,
             availableLayersOptions: [] as { layerId: string | null; name: string }[],
             propertiesCache: new Map<string, any[]>(),
             visualizationData: {
@@ -845,7 +839,7 @@ export default defineComponent({
             visualizationConfig: {
                 classificationMethod: 'CLASSIFY_BY_EQUAL_INTERVALS',
                 numberOfClasses: 5,
-                fromColor: 'rgba(59, 130, 246, 1)',
+                color: 'rgba(59, 130, 246, 1)',
                 toColor: 'rgba(236, 72, 153, 1)',
                 borderColor: 'rgba(255, 255, 255, 1)',
                 borderWidth: 1,
@@ -972,19 +966,12 @@ export default defineComponent({
             if (this.currentStep === 2) {
                 // Step 2: Must have label and target
                 if (!this.visualizationData.label || !this.visualizationData.target) {
-                    console.log('❌ canProceed FALSE: Missing label or target')
                     return false
                 }
 
                 // Charts: Require at least 2 measures
                 if (this.selectedVisualizationType === 'charts') {
-                    const canProceed = this.visualizationData.chartMeasures && this.visualizationData.chartMeasures.length >= 2
-                    console.log('🔍 Charts validation:', {
-                        chartMeasures: this.visualizationData.chartMeasures,
-                        length: this.visualizationData.chartMeasures?.length,
-                        canProceed
-                    })
-                    return canProceed
+                    return this.visualizationData.chartMeasures && this.visualizationData.chartMeasures.length >= 2
                 }
 
                 // Other types: Require targetMeasure OR targetProperty
@@ -995,10 +982,37 @@ export default defineComponent({
         }
     },
     watch: {
-        visible(newVal) {
-            this.dialogVisible = newVal
+        visible(newVal, oldVal) {
             if (newVal) {
                 this.loadWizardData()
+                this.hasUnsavedChanges = false
+            } else if (oldVal && !newVal) {
+                // Wizard is closing - auto-save if there are valid changes and user made modifications
+                if (this.selectedVisualization && this.hasUnsavedChanges && this.hasValidConfiguration()) {
+                    this.saveConfiguration(true) // true = silent auto-save
+                }
+                this.hasUnsavedChanges = false
+            }
+        },
+        visualizationData: {
+            handler() {
+                if (this.visible) {
+                    this.hasUnsavedChanges = true
+                }
+            },
+            deep: true
+        },
+        visualizationConfig: {
+            handler() {
+                if (this.visible) {
+                    this.hasUnsavedChanges = true
+                }
+            },
+            deep: true
+        },
+        selectedVisualizationType() {
+            if (this.visible) {
+                this.hasUnsavedChanges = true
             }
         },
         'visualizationData.chartMeasures': {
@@ -1048,7 +1062,8 @@ export default defineComponent({
                 this.visualizationConfig.classificationMethod = conf.method || 'CLASSIFY_BY_EQUAL_INTERVALS'
                 this.visualizationConfig.numberOfClasses = conf.classes || 5
                 if (conf.style) {
-                    this.visualizationConfig.fromColor = conf.style.color || 'rgba(59, 130, 246, 1)'
+                    // style.color is the main property
+                    this.visualizationConfig.color = conf.style.color || 'rgba(59, 130, 246, 1)'
                     this.visualizationConfig.toColor = conf.style.toColor || 'rgba(236, 72, 153, 1)'
                     this.visualizationConfig.borderColor = conf.style.borderColor || 'rgba(255, 255, 255, 1)'
                 }
@@ -1074,7 +1089,7 @@ export default defineComponent({
                 }
 
                 if (conf.style) {
-                    this.visualizationConfig.fromColor = conf.style.color || 'rgba(59, 130, 246, 1)'
+                    this.visualizationConfig.color = conf.style.color || 'rgba(59, 130, 246, 1)'
                 }
             }
 
@@ -1095,7 +1110,7 @@ export default defineComponent({
                 this.visualizationConfig.classificationMethod = conf.method || 'CLASSIFY_BY_EQUAL_INTERVALS'
                 this.visualizationConfig.numberOfClasses = conf.classes || 5
                 if (conf.style) {
-                    this.visualizationConfig.fromColor = conf.style.color || 'rgba(59, 130, 246, 1)'
+                    this.visualizationConfig.color = conf.style.color || 'rgba(59, 130, 246, 1)'
                 }
             }
 
@@ -1109,7 +1124,7 @@ export default defineComponent({
             if (this.selectedVisualization.clusterConf) {
                 this.visualizationConfig.clusterRadius = this.selectedVisualization.clusterConf.clusterRadius || 40
                 if (this.selectedVisualization.clusterConf.style) {
-                    this.visualizationConfig.fromColor = this.selectedVisualization.clusterConf.style.color || 'rgba(59, 130, 246, 1)'
+                    this.visualizationConfig.color = this.selectedVisualization.clusterConf.style.color || 'rgba(59, 130, 246, 1)'
                 }
             }
         },
@@ -1213,6 +1228,20 @@ export default defineComponent({
             this.currentStep = 1
             this.$emit('close')
         },
+        hasValidConfiguration() {
+            // Check if the current configuration is valid enough to be saved
+            if (!this.visualizationData.label || !this.visualizationData.target) {
+                return false
+            }
+
+            // Charts require at least 2 measures
+            if (this.selectedVisualizationType === 'charts') {
+                return this.visualizationData.chartMeasures && this.visualizationData.chartMeasures.length >= 2
+            }
+
+            // Other types require targetMeasure OR targetProperty
+            return !!(this.visualizationData.targetMeasure || this.visualizationData.targetProperty)
+        },
         onIconSelected(icon: any) {
             this.visualizationConfig.iconClass = icon.className
             this.iconPickerVisible = false
@@ -1222,16 +1251,11 @@ export default defineComponent({
             this.visualizationConfig.iconImg = `${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services` + image.url
             this.imagePickerVisible = false
         },
-        saveConfiguration() {
-            // Debug logging for charts
-            if (this.selectedVisualizationType === 'charts') {
-                console.log('🔍 CHARTS DEBUG - Saving configuration:')
-                console.log('chartMeasures:', this.visualizationData.chartMeasures)
-                console.log('connectionType:', this.visualizationData.connectionType)
-                console.log('target:', this.visualizationData.target)
-                console.log('targetDataset:', this.visualizationData.targetDataset)
-            }
-
+        handleSaveClick() {
+            (this as any).saveConfiguration(false)
+        },
+        saveConfiguration(silent?: boolean) {
+            const isSilent = silent === true
             // Build proper configuration structure based on visualization type
             const baseConfig: any = {
                 ...this.visualizationData,
@@ -1245,7 +1269,7 @@ export default defineComponent({
                     method: this.visualizationConfig.classificationMethod,
                     classes: this.visualizationConfig.numberOfClasses,
                     style: {
-                        color: this.visualizationConfig.fromColor,
+                        color: this.visualizationConfig.color,           // main color property
                         toColor: this.visualizationConfig.toColor,
                         borderColor: this.visualizationConfig.borderColor
                     },
@@ -1255,7 +1279,7 @@ export default defineComponent({
                 baseConfig.markerConf = {
                     type: this.visualizationConfig.markerType,
                     style: {
-                        color: this.visualizationConfig.fromColor
+                        color: this.visualizationConfig.color
                     },
                     size: this.visualizationConfig.markerSize,
                     opacity: this.visualizationConfig.opacity
@@ -1290,15 +1314,10 @@ export default defineComponent({
                     minSize: 10,
                     maxSize: 40,
                     style: {
-                        color: this.visualizationConfig.fromColor
+                        color: this.visualizationConfig.color
                     }
                 }
             } else if (this.selectedVisualizationType === 'heatmap') {
-                console.log('🔥 HEATMAP DEBUG - Saving configuration:')
-                console.log('targetMeasure:', this.visualizationData.targetMeasure)
-                console.log('targetProperty:', this.visualizationData.targetProperty)
-                console.log('target:', this.visualizationData.target)
-
                 baseConfig.heatmapConf = {
                     radius: this.visualizationConfig.heatmapRadius || 25,
                     blur: this.visualizationConfig.heatmapBlur || 15,
@@ -1308,18 +1327,19 @@ export default defineComponent({
                 baseConfig.clusterConf = {
                     clusterRadius: this.visualizationConfig.clusterRadius,
                     style: {
-                        color: this.visualizationConfig.fromColor
+                        color: this.visualizationConfig.color
                     }
                 }
             }
-
-            // Final debug log for charts
-            if (this.selectedVisualizationType === 'charts') {
-                console.log('📦 FINAL baseConfig being saved:', JSON.stringify(baseConfig, null, 2))
-            }
-
             this.$emit('save', baseConfig)
-            this.closeDialog()
+
+            // Reset unsaved changes flag
+            this.hasUnsavedChanges = false
+
+            // Only close dialog if not in silent auto-save mode
+            if (!silent) {
+                this.closeDialog()
+            }
         }
     }
 })
@@ -1327,20 +1347,29 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .layer-wizard-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+    height: 100%;
     background: #ffffff;
     color: #212529;
     display: flex;
     flex-direction: column;
-    height: 90vh;
-    max-height: 900px;
-    width: 75vw;
-    max-width: 1600px;
-    min-width: 800px;
-    border-radius: 12px;
     overflow: hidden;
-    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
+.wizard-separator {
+    height: 1px;
+    background: #e9ecef;
+}
+
+.spacer {
+    flex: 1;
+}
 .wizard-header {
     padding: 24px 32px;
     display: flex;
@@ -1626,6 +1655,8 @@ export default defineComponent({
 
 
 .wizard-footer {
+    display: flex;
+    align-items: center;
     padding: 16px 32px;
     background: #f8f9fa;
     border-top: 1px solid #e9ecef;
@@ -1635,6 +1666,12 @@ export default defineComponent({
         font-weight: 500;
         padding: 8px 24px;
     }
+}
+
+.footer-actions-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .viz-section {
@@ -1797,63 +1834,6 @@ export default defineComponent({
     border-radius: 12px;
 }
 
-/* Ensure markers controls can use the full width inside the marker-config-section
-   (previously the controls were constrained by a surrounding grid) */
-.marker-config-section .markers-controls {
-    width: 100% !important;
-    display: block;
-}
-
-.marker-config-section .three-col-row {
-    /* force the three columns to span the full available width */
-    grid-template-columns: repeat(3, 1fr);
-}
-
-/* If marker-config-section lives inside a grid parent, force it to span all columns */
-.marker-config-section {
-    grid-column: 1 / -1 !important;
-    width: 100% !important;
-}
-
-.color-pickers-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 16px;
-      margin-bottom: 24px;
-}
-
-
-.slider-control {
-    margin-bottom: 16px;
-
-    :deep(.q-slider) {
-        margin-top: 24px;
-    }
-}
-
-
-.cluster-config {
-    margin-top: 16px;
-}
-
-.heatmap-config-section {
-    margin-top: 32px;
-    padding: 24px;
-    background: #ffffff;
-    border: 1px solid #e9ecef;
-    border-radius: 12px;
-}
-
-.marker-config-section,
-.balloon-config-section,
-.cluster-config-section {
-    margin-top: 32px;
-    padding: 24px;
-    background: #ffffff;
-    border: 1px solid #e9ecef;
-    border-radius: 12px;
-}
-
 .show-toggle-wrapper {
     display: flex;
     align-items: center;
@@ -1955,30 +1935,6 @@ export default defineComponent({
 .join-compact-row .label-with-toggle :deep(.q-input__control),
 .join-compact-row .label-with-toggle :deep(.q-field__control) {
     padding-right: 8px !important;
-}
-</style>
-
-<style lang="scss">
-/* Global styles for dialog positioning */
-.wizard-overlay-dialog {
-    position: fixed !important;
-    right: 0 !important;
-    top: 0 !important;
-    bottom: 0 !important;
-    width: 60% !important;
-    max-width: none !important;
-    margin: 0 !important;
-
-    .q-dialog__inner {
-        justify-content: flex-end !important;
-        align-items: stretch !important;
-        padding: 0 !important;
-        max-width: none !important;
-    }
-
-    .q-dialog__backdrop {
-        background: rgba(0, 0, 0, 0.3) !important;
-    }
 }
 </style>
 

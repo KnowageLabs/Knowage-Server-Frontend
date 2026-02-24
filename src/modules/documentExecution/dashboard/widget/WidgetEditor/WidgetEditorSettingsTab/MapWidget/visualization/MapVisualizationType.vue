@@ -1,5 +1,20 @@
 <template>
     <div class="visualizations-container">
+        <!-- Wizard Overlay with Transition -->
+        <transition name="slide-from-right">
+            <MapLayerConfigurationWizard
+                v-if="wizardVisible"
+                :visible="wizardVisible"
+                :layer="getFirstLayer()"
+                :datasets="availableDatasets"
+                :widget-model="widgetModel"
+                :selected-visualization="selectedVisualization"
+                :dashboard-id="dashboardId"
+                @close="closeWizard"
+                @save="saveVisualization"
+            />
+        </transition>
+
         <!-- Visualizations Content -->
         <div class="visualizations-content">
             <!-- Add Visualization Button -->
@@ -76,7 +91,7 @@
                                                 <template v-if="viz.targetMeasure">
                                                     <span class="detail-separator">•</span>
                                                     <span class="detail-label">{{ $t('common.measure') }}:</span>
-                                                    <span class="detail-value">{{ viz.targetMeasure }}</span>
+                                                    <span class="detail-value">{{ viz.targetMeasure}}</span>
                                                 </template>
                                                 <template v-else-if="viz.targetProperty">
                                                     <span class="detail-separator">•</span>
@@ -94,7 +109,7 @@
                                                 <template v-if="viz.targetMeasure || viz.chartMeasures">
                                                     <span class="detail-separator">•</span>
                                                     <span class="detail-label">{{ $t('common.measure') }}:</span>
-                                                    <span class="detail-value">{{ viz.chartMeasures ? viz.chartMeasures.join(', ') : viz.targetMeasure }}</span>
+                                                    <span class="detail-value">{{ viz.targetMeasure }}</span>
                                                 </template>
 
                                                 <template v-if="viz.targetDatasetForeignKeyColumn && viz.targetProperty">
@@ -160,18 +175,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Wizard -->
-        <MapLayerConfigurationWizard
-            :visible="wizardVisible"
-            :layer="getFirstLayer()"
-            :datasets="availableDatasets"
-            :widget-model="widgetModel"
-            :selected-visualization="selectedVisualization"
-            :dashboard-id="dashboardId"
-            @close="closeWizard"
-            @save="saveVisualization"
-        />
     </div>
 </template>
 
@@ -376,10 +379,41 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .visualizations-container {
+    position: relative;
     display: flex;
     flex-direction: column;
     height: 100%;
+    min-height: 900px;
     background: #f8f9fa;
+    overflow: hidden;
+}
+
+/* Slide from right transition */
+.slide-from-right-enter-active,
+.slide-from-right-leave-active {
+    transition: transform 0.3s ease-out;
+}
+
+.slide-from-right-enter-from {
+    transform: translateX(100%);
+}
+
+.slide-from-right-enter-to {
+    transform: translateX(0);
+}
+
+.slide-from-right-leave-from {
+    transform: translateX(0);
+}
+
+.slide-from-right-leave-to {
+    transform: translateX(100%);
+}
+
+.visualizations-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .visualizations-header {
@@ -405,21 +439,21 @@ export default defineComponent({
 
 .visualizations-content {
     flex: 1;
-    padding: 16px;
+    padding: 12px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
 }
 
 .add-visualization-btn-container {
-    padding: 0 0 8px 0;
+    padding: 0 0 4px 0;
 
     .add-visualization-btn {
         width: 100%;
         text-transform: none;
         font-weight: 500;
-        padding: 12px;
+        padding: 10px;
         border-radius: 8px;
     }
 }
@@ -435,30 +469,28 @@ export default defineComponent({
 }
 
 .dropzone-target {
-    height: 20px;
+    height: 4px;
     width: 100%;
-    opacity: 0;
-    visibility: visible;
-    transition: opacity 0.2s, visibility 0.2s;
+    margin: 2px 0;
+    transition: all 0.2s ease;
+    border-radius: 2px;
 
     &.dropzone-active {
-        opacity: 1;
-        visibility: visible;
-        background-color: #aec1d3;
+        height: 8px;
+        background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+        box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
     }
 }
 
 .dropzone-indicator {
-    height: 20px;
-    width: 100%;
-    background-color: #aec1d3;
+    display: none;
 }
 
 .visualization-item {
     background: #ffffff;
     border: 2px solid #e9ecef;
-    border-radius: 12px;
-    margin-bottom: 12px;
+    border-radius: 8px;
+    margin-bottom: 8px;
     cursor: pointer;
     transition: all 0.2s ease;
     display: flex;
@@ -475,7 +507,7 @@ export default defineComponent({
     }
 
     .viz-drag-handle {
-        padding: 16px 8px 16px 12px;
+        padding: 12px 6px 12px 10px;
         display: flex;
         align-items: flex-start;
         color: #adb5bd;
@@ -490,10 +522,9 @@ export default defineComponent({
         }
     }
 
-
     .viz-content {
         flex: 1;
-        padding: 16px 16px 16px 0;
+        padding: 12px 12px 12px 0;
     }
 
     .viz-header {
@@ -505,7 +536,7 @@ export default defineComponent({
 
     .viz-title-section {
         display: flex;
-        gap: 12px;
+        gap: 10px;
         flex: 1;
         min-width: 0;
     }
@@ -513,6 +544,7 @@ export default defineComponent({
     .viz-type-icon {
         color: #3b82f6;
         margin-top: 2px;
+        flex-shrink: 0;
     }
 
     .viz-info-main {
@@ -521,24 +553,24 @@ export default defineComponent({
     }
 
     .viz-name {
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 500;
         color: #212529;
-        margin-bottom: 6px;
+        margin-bottom: 4px;
     }
 
     .viz-details {
         display: flex;
         align-items: center;
         gap: 6px;
-        font-size: 13px;
+        font-size: 12px;
         color: #6c757d;
         flex-wrap: wrap;
 
         .viz-type-label {
             color: #3b82f6;
             font-family: monospace;
-            font-size: 12px;
+            font-size: 11px;
             background: none;
             padding: 0;
             font-weight: 600;
@@ -552,7 +584,7 @@ export default defineComponent({
         .detail-label {
             color: #6c757d;
             font-weight: 500;
-            font-size: 11px;
+            font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 0.3px;
         }
@@ -577,19 +609,19 @@ export default defineComponent({
     .viz-actions {
         display: flex;
         align-items: flex-start;
-        gap: 4px;
+        gap: 2px;
         flex-shrink: 0;
     }
 
     .viz-preview-colors {
         display: flex;
         gap: 4px;
-        margin-right: 8px;
+        margin-right: 6px;
         align-items: center;
 
         .color-dot {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
             border: 1px solid rgba(0, 0, 0, 0.1);
         }

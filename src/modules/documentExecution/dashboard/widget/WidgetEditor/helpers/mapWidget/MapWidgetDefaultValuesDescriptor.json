@@ -123,10 +123,10 @@
             "thresholds": []
         },
         "style": {
-            "borderColor": "rgba(0, 0, 0, 1)",
+            "borderColor": "",
             "borderWidth": 2,
-            "color": "rgba(51, 0, 255, 1)",
-            "toColor": "rgba(255, 6, 0, 1)"
+            "color": "",
+            "toColor": ""
         }
     },
     "defaultVisualizationClusterConfiguration": {
@@ -134,8 +134,8 @@
         "maxClusterRadius": 10,
         "radiusSize": 30,
         "style": {
-            "background-color": "rgba(0, 146, 255, 1)",
-            "color": "rgba(0, 0, 0, 1)",
+            "background-color": "",
+            "color": "",
             "font-size": "12px"
         }
     },
