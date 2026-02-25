@@ -68,6 +68,20 @@ export default defineComponent({
             // Refresh data to reflect store selection changes from other widgets
             await this.refreshLocalWidgetData()
         },
+        gridLayout: {
+            handler(newLayout: any[]) {
+                const dashboard = this.getDashboard(this.dashboardId)
+                if (!dashboard) return
+                const widget = dashboard.widgets.find((w: any) => w.id === this.propWidget.id)
+                if (!widget?.settings?.responsive) return
+                const columnLayout: Record<string, { x: number; y: number; w: number; h: number }> = {}
+                newLayout.forEach((item: any) => {
+                    columnLayout[item.columnName] = { x: item.x, y: item.y, w: item.w, h: item.h }
+                })
+                widget.settings.responsive.columnLayout = columnLayout
+            },
+            deep: true
+        },
         propWidget() {
             this.initializeGridLayout()
         },
@@ -89,7 +103,7 @@ export default defineComponent({
         window.removeEventListener('keyup', this.onCtrlKeyUp)
     },
     methods: {
-        ...mapActions(store, ['setSelections']),
+        ...mapActions(store, ['setSelections', 'getDashboard']),
         setEventListeners() {
             emitter.on('applySelectionsForMultiColumnSelector', this.onPlayClicked)
             window.addEventListener('keydown', this.onCtrlKeyDown)
@@ -139,15 +153,19 @@ export default defineComponent({
             await this.refreshLocalWidgetData()
         },
         initializeGridLayout() {
-            this.gridLayout = this.propWidget.columns.map((col: any, index: number) => ({
-                x: (index % 2) * 2,
-                y: Math.floor(index / 2) * 2,
-                w: 2,
-                h: 2,
-                i: col.columnName,
-                columnName: col.columnName,
-                static: false
-            }))
+            const savedLayout = this.propWidget.settings?.responsive?.columnLayout ?? {}
+            this.gridLayout = this.propWidget.columns.map((col: any, index: number) => {
+                const saved = savedLayout[col.columnName]
+                return {
+                    x: saved?.x ?? (index % 2) * 2,
+                    y: saved?.y ?? Math.floor(index / 2) * 2,
+                    w: saved?.w ?? 2,
+                    h: saved?.h ?? 2,
+                    i: col.columnName,
+                    columnName: col.columnName,
+                    static: false
+                }
+            })
         },
         getColumnByName(columnName: string): any {
             return this.propWidget.columns.find((col: any) => col.columnName === columnName)
