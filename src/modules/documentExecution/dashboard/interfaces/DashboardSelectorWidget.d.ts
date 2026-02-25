@@ -15,10 +15,21 @@ export interface ISelectorWidgetConfiguration {
     defaultValues: ISelectorWidgetDefaultValues
     valuesManagement: ISelectorWidgetValuesManagement
     exports: IWidgetExports
+    columnTypeConfigs?: ISelectorColumnTypeConfig[]
+}
+
+export type SelectorModality = 'singleValue' | 'multiValue' | 'dropdown' | 'multiDropdown' | 'date' | 'dateRange' | 'slider' | 'range'
+
+export interface ISelectorColumnTypeConfig {
+    id: string
+    columns: string[]
+    selectorType: SelectorModality
+    alignment: 'vertical' | 'horizontal' | 'grid'
+    columnSize: string
 }
 
 export interface ISelectorWidgetSelectorType {
-    modality: 'singleValue' | 'multiValue' | 'dropdown' | 'multiDropdown' | 'date' | 'dateRange' | 'slider' | 'range'
+    modality: SelectorModality
     alignment: 'vertical' | 'horizontal' | 'grid'
     columnSize: string
 }

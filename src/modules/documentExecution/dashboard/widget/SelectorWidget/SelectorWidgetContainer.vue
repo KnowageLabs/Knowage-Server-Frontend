@@ -173,6 +173,18 @@ export default defineComponent({
         getSingleColumnWidget(column: any): IWidget {
             const singleColumnWidget = deepcopy(this.propWidget)
             singleColumnWidget.columns = [column]
+
+            // Apply per-column type override from columnTypeConfigs if defined
+            const configs = this.propWidget.settings?.configuration?.columnTypeConfigs ?? []
+            const matchingConfig = configs.find((cfg: any) => cfg.columns?.includes(column.columnName))
+            if (matchingConfig) {
+                singleColumnWidget.settings.configuration.selectorType = {
+                    modality: matchingConfig.selectorType,
+                    alignment: matchingConfig.alignment ?? 'vertical',
+                    columnSize: matchingConfig.columnSize ?? ''
+                }
+            }
+
             return singleColumnWidget
         },
         getColumnData(columnName: string): any {

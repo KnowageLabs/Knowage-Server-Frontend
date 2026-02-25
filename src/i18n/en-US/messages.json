@@ -1441,7 +1441,9 @@
                     "thumbColor": "Thumb Color",
                     "title": "Slider Style",
                     "trackSize": "Track Size"
-                }
+                },
+                "type": "Selector Type",
+                "typeOverrides": "Type Overrides"
             },
             "series": {
                 "enableColor": "Enable Color",
