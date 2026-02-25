@@ -187,7 +187,7 @@ export default defineComponent({
             const modelToRender = this.getModelForRender()
 
             // Check category threshold before rendering
-            if (this.shouldShowThresholdMessage(dataToUse)) {
+            if (this.shouldShowThresholdMessage(this.dataToShow)) {
                 this.showCategoryThresholdMessage()
                 return
             }
@@ -496,96 +496,95 @@ export default defineComponent({
             })
             const datasetLabel = selectedDataset.dsLabel as any
             return { [datasetLabel]: formattedLikeSelections }
+        },
+        shouldShowThresholdMessage(data: any): boolean {
+        const categoryThreshold = this.widgetModel.settings?.configuration?.categoryThreshold
+
+        if (!categoryThreshold || !categoryThreshold.enabled) {
+          return false
         }
-    },
-  shouldShowThresholdMessage(data: any): boolean {
-    const categoryThreshold = this.widgetModel.settings?.configuration?.categoryThreshold
 
-    if (!categoryThreshold || !categoryThreshold.enabled) {
-      return false
-    }
-
-    if (!categoryThreshold.conditions || categoryThreshold.conditions.length === 0) {
-      return false
-    }
-
-    if (!data || !data.rows || data.rows.length === 0) {
-      return false
-    }
-
-    const operator = categoryThreshold.operator || 'OR'
-    const results: boolean[] = []
-
-    // Verifica ogni condizione
-    for (const condition of categoryThreshold.conditions) {
-      if (!condition.category) continue
-
-      // Trova la colonna categoria nel widget model
-      const categoryColumn = this.widgetModel.columns?.find(
-          (col) => col.columnName === condition.category && col.fieldType === 'ATTRIBUTE'
-      )
-
-      if (!categoryColumn) continue
-
-      // Trova il field corrispondente nei metaData per ottenere il dataIndex (column_X)
-      const fieldMeta = data.metaData?.fields?.find(
-          (field: any) => field.header === (categoryColumn.alias || categoryColumn.columnName)
-      )
-
-      if (!fieldMeta) continue
-
-      const dataIndex = fieldMeta.name // questo sarà "column_1", "column_2", ecc.
-
-      // Conta valori univoci per questa categoria usando il dataIndex corretto
-      const uniqueCategories = new Set()
-      data.rows.forEach((row: any) => {
-        const categoryValue = row[dataIndex]
-        if (categoryValue !== null && categoryValue !== undefined) {
-          uniqueCategories.add(categoryValue)
+        if (!categoryThreshold.conditions || categoryThreshold.conditions.length === 0) {
+          return false
         }
-      })
 
-      // La condizione fallisce se count < threshold (dobbiamo nascondere il grafico)
-      const conditionFailed = uniqueCategories.size < condition.threshold
-      results.push(conditionFailed)
-    }
+        if (!data || !data.rows || data.rows.length === 0) {
+          return false
+        }
 
-    // Applica l'operatore logico
-    if (operator === 'AND') {
-      // AND: nascondi il grafico se TUTTE le condizioni falliscono
-      return results.length > 0 && results.every(failed => failed)
-    } else {
-      // OR: nascondi il grafico se ALMENO UNA condizione fallisce
-      return results.some(failed => failed)
-    }
-  },
-  showCategoryThresholdMessage() {
-    const categoryThreshold = this.widgetModel.settings?.configuration?.categoryThreshold
-    const chartContainer = document.getElementById(this.chartID)
+        const operator = categoryThreshold.operator || 'OR'
+        const results: boolean[] = []
 
-    if (!chartContainer || !categoryThreshold) return
+        // Verifica ogni condizione
+        for (const condition of categoryThreshold.conditions) {
+          if (!condition.category) continue
 
-    // Destroy existing chart if any - safely
-    if (this.highchartsInstance && typeof this.highchartsInstance.destroy === 'function') {
-      try {
-        this.highchartsInstance.destroy()
-        this.highchartsInstance = null
-      } catch (error) {
-        console.warn('Error destroying chart:', error)
-      }
-    }
+          // Trova la colonna categoria nel widget model
+          const categoryColumn = this.widgetModel.columns?.find(
+              (col) => col.columnName === condition.category && col.fieldType === 'ATTRIBUTE'
+          )
 
-    // Display the threshold message with custom styling
-    const message = categoryThreshold.message || this.$t('dashboard.widgetEditor.highcharts.categoryThreshold.defaultMessage')
-    const style = categoryThreshold.style || {
-      fontFamily: '',
-      fontSize: '14px',
-      fontWeight: '',
-      color: '#666',
-      backgroundColor: ''
-    }
+          if (!categoryColumn) continue
 
-    chartContainer.innerHTML = `
+          // Trova il field corrispondente nei metaData per ottenere il dataIndex (column_X)
+          const fieldMeta = data.metaData?.fields?.find(
+              (field: any) => field.header === (categoryColumn.alias || categoryColumn.columnName)
+          )
+
+          if (!fieldMeta) continue
+
+          const dataIndex = fieldMeta.name // questo sarà "column_1", "column_2", ecc.
+
+          // Conta valori univoci per questa categoria usando il dataIndex corretto
+          const uniqueCategories = new Set()
+          data.rows.forEach((row: any) => {
+            const categoryValue = row[dataIndex]
+            if (categoryValue !== null && categoryValue !== undefined) {
+              uniqueCategories.add(categoryValue)
+            }
+          })
+
+          // La condizione fallisce se count < threshold (dobbiamo nascondere il grafico)
+          const conditionFailed = uniqueCategories.size < condition.threshold
+          results.push(conditionFailed)
+        }
+
+        // Applica l'operatore logico
+        if (operator === 'AND') {
+          // AND: nascondi il grafico se TUTTE le condizioni falliscono
+          return results.length > 0 && results.every(failed => failed)
+        } else {
+          // OR: nascondi il grafico se ALMENO UNA condizione fallisce
+          return results.some(failed => failed)
+        }
+      },
+        showCategoryThresholdMessage() {
+        const categoryThreshold = this.widgetModel.settings?.configuration?.categoryThreshold
+        const chartContainer = document.getElementById(this.chartID)
+
+        if (!chartContainer || !categoryThreshold) return
+
+        // Destroy existing chart if any - safely
+        if (this.highchartsInstance && typeof this.highchartsInstance.destroy === 'function') {
+          try {
+            this.highchartsInstance.destroy()
+            this.highchartsInstance = null
+          } catch (error) {
+            console.warn('Error destroying chart:', error)
+          }
+        }
+
+        // Display the threshold message with custom styling
+        const message = categoryThreshold.message || this.$t('dashboard.widgetEditor.highcharts.categoryThreshold.defaultMessage')
+        const style = categoryThreshold.style || {
+          fontFamily: '',
+          fontSize: '14px',
+          fontWeight: '',
+          color: '#666',
+          backgroundColor: ''
+        }
+
+        chartContainer.innerHTML = `
                 <div style="
                     display: flex;
                     align-items: center;
@@ -604,9 +603,10 @@ export default defineComponent({
                 </div>
             `
 
-    // Setta il flag per indicare che il messaggio è mostrato
-    this.thresholdMessageShown = true
-  }
+        // Setta il flag per indicare che il messaggio è mostrato
+        this.thresholdMessageShown = true
+      }
+    },
 })
 </script>
 
