@@ -130,6 +130,9 @@
         "type": "git",
         "url": "git+https://github.com/KnowageLabs/Knowage-Server.git"
     },
+    "optionalDependencies": {
+        "@rollup/rollup-linux-x64-gnu": "4.45.1"
+    },
     "workspaces": [
         "src/workspaces"
     ]
