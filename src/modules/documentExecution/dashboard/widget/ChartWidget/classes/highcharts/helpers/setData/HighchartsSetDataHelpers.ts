@@ -43,25 +43,7 @@ export const setRegularData = (model: any, widgetModel: IWidget, data: any, attr
     const columnAliases = widgetModel.settings?.series?.aliases ?? []
     const areaRangeColumns = [] as any[]
 
-    // set conditional styles for attribute column if exists
-    attributeColumns.forEach((attributeColumn: any) => {
-        const column = attributeColumn.column as IWidgetColumn
-        data?.rows?.forEach((row: any) => {
-            const attributeValue = row[attributeColumn.metadata.dataIndex]
-            if (attributeValue) {
-                const conditionalStyle = getColumnConditionalStyles(widgetModel, column.id, attributeValue, variables)
-                if (conditionalStyle) {
-                    model.series.forEach((serie: any) => {
-                        const dataPoint = serie.data.find((data: any) => data.name === attributeValue)
-                        if (dataPoint) {
-                            dataPoint.color = conditionalStyle.color
-                            if (conditionalStyle['border-color']) dataPoint.borderColor = conditionalStyle['border-color']
-                        }
-                    })
-                }
-            }
-        })
-    })
+
     measureColumns.forEach((measureColumn: any, index: number) => {
         const column = measureColumn.column as IWidgetColumn
         const metadata = measureColumn.metadata as any
@@ -73,10 +55,12 @@ export const setRegularData = (model: any, widgetModel: IWidget, data: any, attr
             else if (model.xAxis && model.xAxis[0]) model.xAxis[0].categories = []
             data?.rows?.forEach((row: any) => {
                 const serieName = dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : row[attributeColumn.metadata.dataIndex]
+                const attributeColumnConditionalStyle = getColumnConditionalStyles(widgetModel, attributeColumn.column.id, row[attributeColumn.metadata.dataIndex], variables)
+                const measureColumnConditionalStyle = getColumnConditionalStyles(widgetModel, column.id, row[metadata.dataIndex], variables)
                 serieElement.data.push({
                     name: serieName,
                     y: row[metadata.dataIndex],
-                    color: getColumnConditionalStyles(widgetModel, column.id, row[metadata.dataIndex], variables)?.color,
+                    color: measureColumnConditionalStyle?.color || attributeColumnConditionalStyle?.color,
                     drilldown: drilldownEnabled && attributeColumns.length > 1
                 })
                 if (!drilldownEnabled && model.xAxis && model.xAxis[0]) model.xAxis[0].categories.push(serieName)
@@ -86,6 +70,7 @@ export const setRegularData = (model: any, widgetModel: IWidget, data: any, attr
             areaRangeColumns.push(measureColumn)
         }
     })
+
     if (areaRangeColumns.length > 1) setRegularAreaRangeData(model, data, attributeColumn, areaRangeColumns, dateFormat, columnAliases)
 }
 
