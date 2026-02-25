@@ -1,7 +1,6 @@
 <template>
     <GridItem :id="`widget${item.id}`" :ref="`widget${item.id}`" :key="item.id" class="p-d-flex widget-grid-item" :x="item.x" :y="item.y" :w="item.w" :h="item.h" :i="item.i" :static="widget?.settings?.locked" drag-allow-from=".drag-handle" :class="{ canEdit: canEditDashboard(document) && !widget?.settings?.locked, 'full-grid-widget': widget?.settings.responsive.fullGrid }" @resized="onWidgetResize">
         <div v-if="initialized" class="drag-handle"></div>
-        <q-spinner-grid v-if="loading || customChartLoading || widgetLoading" color="primary" size="3rem" class="widgetSpinner" />
         <q-skeleton v-if="!initialized" height="100%" width="100%" square />
         <WidgetRenderer
             v-if="!loading && widget"
@@ -23,6 +22,10 @@
         ></WidgetRenderer>
         <WidgetButtonBar v-if="items.filter((i) => i.visible).length > 0 || playSelectionButtonVisible" :document="document" :widget="widget" :play-selection-button-visible="playSelectionButtonVisible" :selection-is-locked="selectionIsLocked" :dashboard-id="dashboardId" :in-focus="inFocus" :menu-items="items" @edit-widget="toggleEditMode" @unlock-selection="unlockSelection" @launch-selection="launchSelection" @change-focus="changeFocus"></WidgetButtonBar>
         <ContextMenu v-if="canEditDashboard(document)" ref="contextMenu" :model="items" />
+
+        <q-inner-loading :showing="loading || customChartLoading || widgetLoading">
+            <q-spinner-grid color="primary" size="3rem" class="widgetSpinner" />
+        </q-inner-loading>
     </GridItem>
 
     <QuickWidgetDialog v-if="showQuickDialog" @close="toggleQuickDialog" @chartTypeSelected="onChartSelectedForQuickWidgetChange" />

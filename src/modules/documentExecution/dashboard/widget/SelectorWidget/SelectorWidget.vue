@@ -15,11 +15,6 @@
         <SliderSelector v-if="widgetType === 'slider'" :model-value="selectedValue" :options="sliderOptions" :slider-style="propWidget.settings.style.slider" @update:model-value="sliderSelectorChanged" />
 
         <RangeSelector v-if="widgetType === 'range'" :model-value="selectedRange" :options="sliderOptions" :range-style="propWidget.settings.style.range" @update:model-value="rangeSelectorChanged" />
-
-        <!-- Local play button for multi-value selectors in local mode -->
-        <div v-if="showLocalPlayButton" class="selector-widget-play-button-container">
-            <button class="selector-widget-play-button" @click="applyLocalSelections"><i class="fas fa-play"></i> Apply</button>
-        </div>
     </div>
 </template>
 
@@ -72,7 +67,8 @@ export default defineComponent({
             startDate: null as any,
             endDate: null as any,
             selectedRange: [0, 0] as number[],
-            activeSelections: [] as ISelection[]
+            activeSelections: [] as ISelection[],
+            multiValueDebounceTimer: null as ReturnType<typeof setTimeout> | null
         }
     },
     computed: {
@@ -105,16 +101,12 @@ export default defineComponent({
         },
         sliderOptions(): any[] {
             return this.getFilteredOptionsForDisplay().map((row: any) => ({ ...row }))
-        },
-        showLocalPlayButton(): boolean {
-            // Show play button only for multi-value types in local mode when there are local selections
-            const isMultiValueType = ['multivalue', 'multidropdown', 'daterange', 'range'].includes(this.widgetType?.toLowerCase())
-            return this.localMode && isMultiValueType && this.activeSelections.length > 0
         }
     },
     watch: {
         propActiveSelections() {
             this.loadActiveSelections()
+            if (!this.loadActiveSelectionValue()) this.removeDeafultValues()
         },
         dataToShow() {
             this.loadAvailableOptions(this.dataToShow)
@@ -134,6 +126,7 @@ export default defineComponent({
     },
     unmounted() {
         this.removeEventListeners()
+        if (this.multiValueDebounceTimer) clearTimeout(this.multiValueDebounceTimer)
     },
     methods: {
         ...mapActions(store, ['setSelections']),
@@ -288,6 +281,8 @@ export default defineComponent({
             this.updateActiveSelectionsWithMultivalueSelection(tempSelection)
             if (this.localMode) {
                 this.$emit('selectionChanged', tempSelection)
+            } else {
+                this.debounceMultiValueSelection(tempSelection)
             }
         },
         dropdownSelectorChanged(value: any) {
@@ -303,6 +298,8 @@ export default defineComponent({
             this.updateActiveSelectionsWithMultivalueSelection(tempSelection)
             if (this.localMode) {
                 this.$emit('selectionChanged', tempSelection)
+            } else {
+                this.debounceMultiValueSelection(tempSelection)
             }
         },
         dateSelectionChanged(dateValue: string) {
@@ -352,19 +349,18 @@ export default defineComponent({
             this.updateActiveSelectionsWithMultivalueSelection(tempSelection)
             if (this.localMode) {
                 this.$emit('selectionChanged', tempSelection)
+            } else {
+                this.debounceMultiValueSelection(tempSelection)
             }
         },
-        async applyLocalSelections() {
-            // In local mode, emit event to parent container to handle store update
-            // Don't call setSelections directly - let parent manage dashboard selections
-            if (this.localMode) {
-                this.$emit('selectionChanged', { isApplyClick: true })
-            } else {
-                // Fallback for non-local mode (shouldn't happen, but safe)
-                if (this.activeSelections.length > 0) {
-                    await this.setSelections(this.dashboardId, this.activeSelections, this.$http)
-                }
-            }
+        debounceMultiValueSelection(selection: ISelection) {
+            // For standalone (non-local) multi-value selectors: wait 1 s after the
+            // last change before pushing to the dashboard store.
+            if (this.multiValueDebounceTimer) clearTimeout(this.multiValueDebounceTimer)
+            this.multiValueDebounceTimer = setTimeout(() => {
+                this.multiValueDebounceTimer = null
+                updateStoreSelections(selection, this.activeSelections, this.dashboardId, this.setSelections, this.$http)
+            }, 1000)
         }
     }
 })
@@ -375,43 +371,5 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     height: 100%;
-
-    .selector-widget-play-button-container {
-        display: flex;
-        justify-content: center;
-        padding: 12px;
-        background-color: #f5f5f5;
-        border-top: 1px solid #e0e0e0;
-        margin-top: auto;
-        flex-shrink: 0;
-
-        .selector-widget-play-button {
-            background-color: #1976d2;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: background-color 0.2s;
-            font-size: 14px;
-
-            &:hover:not(:disabled) {
-                background-color: #1565c0;
-            }
-
-            &:disabled {
-                opacity: 0.5;
-                cursor: not-allowed;
-            }
-
-            i {
-                font-size: 12px;
-            }
-        }
-    }
 }
 </style>

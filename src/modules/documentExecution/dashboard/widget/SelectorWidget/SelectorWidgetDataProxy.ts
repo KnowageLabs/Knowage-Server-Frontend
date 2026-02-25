@@ -6,7 +6,7 @@ import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.stor
 import moment from 'moment'
 import { DataType } from '../ChartWidget/classes/highcharts/helpers/setData/HighchartsSetDataHelpers'
 
-export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
+export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any, unlockedColumnName?: string) => {
     const dashStore = dashboardStore()
 
     const datasetIndex = datasets.findIndex((dataset: any) => widget.dataset === dataset.id)
@@ -22,7 +22,13 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
         // Create a temporary widget with only this column for the POST data
         const singleColumnWidget = { ...widget, columns: [column] }
 
-        const postData = formatSelectorWidgetModelForService(dashboardId, dashboardConfig, singleColumnWidget, selectedDataset, initialCall, selections, associativeResponseSelections)
+        // For the "unlocked" column (the one that just fired its selection), exclude its own
+        // selection from the filter so it keeps showing all its available values.
+        // Only applies when there are multiple columns (multi-selector widget) — single-column
+        // widgets should always self-filter normally.
+        const effectiveSelections = unlockedColumnName && widget.columns.length > 1 && column.columnName === unlockedColumnName ? selections.filter((s: ISelection) => !(s.datasetId === widget.dataset && s.columnName === unlockedColumnName)) : selections
+
+        const postData = formatSelectorWidgetModelForService(dashboardId, dashboardConfig, singleColumnWidget, selectedDataset, initialCall, effectiveSelections, associativeResponseSelections)
         let tempResponse = null as any
 
         const dataHash = md5(JSON.stringify(postData))

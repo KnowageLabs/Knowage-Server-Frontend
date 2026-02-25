@@ -2,11 +2,20 @@
     <div class="selector-widget-container">
         <GridLayout v-model:layout="gridLayout" :cols="4" :row-height="30" :is-draggable="true" :is-resizable="true" :vertical-compact="false" :use-css-transforms="false" :margin="[0, 0]" :responsive="false" :auto-size="false">
             <template #item="{ item }">
-                <div class="selector-column-wrapper">
+                <div class="selector-column-wrapper" @mouseenter="onColumnMouseEnter(item.columnName)" @mouseleave="onColumnMouseLeave(item.columnName)" @mousemove="onColumnMouseMove(item.columnName)">
                     <SelectorWidget :prop-widget="getSingleColumnWidget(getColumnByName(item.columnName))" :data-to-show="getColumnData(item.columnName)" :widget-initial-data="getColumnInitialData(item.columnName)" :prop-active-selections="getColumnSelections(item.columnName)" :editor-mode="false" :dashboard-id="dashboardId" :datasets="datasets" :selection-is-locked="selectionIsLocked" :local-mode="true" @selection-changed="onColumnSelectionChanged" />
+                    <transition name="column-overlay-fade">
+                        <div v-if="isColumnOverlayVisible(item.columnName)" class="column-clear-overlay" @mousemove.stop>
+                            <q-btn flat color="info" icon="lock_open" size="lg" @click.stop="clearColumnSelection(item.columnName)" />
+                        </div>
+                    </transition>
                 </div>
             </template>
         </GridLayout>
+
+        <q-inner-loading :showing="loading">
+            <q-spinner-grid color="primary" size="3rem" />
+        </q-inner-loading>
     </div>
 </template>
 
@@ -19,7 +28,7 @@ import store from '../../Dashboard.store'
 import dashboardStore from '../../Dashboard.store'
 import mainStore from '@/App.store'
 import deepcopy from 'deepcopy'
-import { getWidgetData } from '../../DashboardDataProxy'
+import { getSelectorWidgetData } from './SelectorWidgetDataProxy'
 import { emitter } from '../../DashboardHelpers'
 
 export default defineComponent({
@@ -39,7 +48,13 @@ export default defineComponent({
         return {
             localSelections: {} as any,
             gridLayout: [] as any[],
-            localWidgetData: {} as any
+            localWidgetData: {} as any,
+            unlockedColumnName: null as string | null,
+            debounceTimers: {} as Record<string, ReturnType<typeof setTimeout>>,
+            hoverTimers: {} as Record<string, ReturnType<typeof setTimeout>>,
+            slowHoverColumn: null as string | null,
+            ctrlPressed: false,
+            loading: false
         }
     },
     computed: {
@@ -66,22 +81,62 @@ export default defineComponent({
         this.loadActiveSelectionsIntoLocal()
         this.initializeGridLayout()
         this.localWidgetData = deepcopy(this.dataToShow)
-
-        console.group('[SelectorWidgetContainer] Created with widget:', this.propWidget)
-        console.log('Initial active selections:', this.propActiveSelections)
-        console.log('localSelections initialized to:', this.localSelections)
-        console.groupEnd()
     },
     unmounted() {
-        this.removeEventListeners()
+        Object.values(this.debounceTimers).forEach((timer) => clearTimeout(timer))
+        Object.values(this.hoverTimers).forEach((timer) => clearTimeout(timer))
+        window.removeEventListener('keydown', this.onCtrlKeyDown)
+        window.removeEventListener('keyup', this.onCtrlKeyUp)
     },
     methods: {
         ...mapActions(store, ['setSelections']),
         setEventListeners() {
             emitter.on('applySelectionsForMultiColumnSelector', this.onPlayClicked)
+            window.addEventListener('keydown', this.onCtrlKeyDown)
+            window.addEventListener('keyup', this.onCtrlKeyUp)
         },
         removeEventListeners() {
             emitter.off('applySelectionsForMultiColumnSelector', this.onPlayClicked)
+            window.removeEventListener('keydown', this.onCtrlKeyDown)
+            window.removeEventListener('keyup', this.onCtrlKeyUp)
+        },
+        onCtrlKeyDown(e: KeyboardEvent) {
+            if (e.key === 'Control') this.ctrlPressed = true
+        },
+        onCtrlKeyUp(e: KeyboardEvent) {
+            if (e.key === 'Control') this.ctrlPressed = false
+        },
+        isColumnOverlayVisible(columnName: string): boolean {
+            if (!this.localSelections[columnName]) return false
+            return this.ctrlPressed || this.slowHoverColumn === columnName
+        },
+        onColumnMouseEnter(columnName: string) {
+            this.hoverTimers[columnName] = setTimeout(() => {
+                this.slowHoverColumn = columnName
+            }, 1000)
+        },
+        onColumnMouseLeave(columnName: string) {
+            if (this.hoverTimers[columnName]) {
+                clearTimeout(this.hoverTimers[columnName])
+                delete this.hoverTimers[columnName]
+            }
+            if (this.slowHoverColumn === columnName) this.slowHoverColumn = null
+        },
+        onColumnMouseMove(columnName: string) {
+            if (this.hoverTimers[columnName]) {
+                clearTimeout(this.hoverTimers[columnName])
+                delete this.hoverTimers[columnName]
+            }
+            if (this.slowHoverColumn === columnName) this.slowHoverColumn = null
+            this.hoverTimers[columnName] = setTimeout(() => {
+                this.slowHoverColumn = columnName
+            }, 1000)
+        },
+        async clearColumnSelection(columnName: string) {
+            delete this.localSelections[columnName]
+            this.slowHoverColumn = null
+            this.unlockedColumnName = null
+            await this.refreshLocalWidgetData()
         },
         initializeGridLayout() {
             this.gridLayout = this.propWidget.columns.map((col: any, index: number) => ({
@@ -122,34 +177,49 @@ export default defineComponent({
             })
         },
         async onColumnSelectionChanged(selection: ISelection | any) {
-            // Check if this is an "apply" signal from child's local play button
-            if (selection?.isApplyClick) {
-                // Child widget's local play button was clicked
-                // Refresh local data based on accumulated selections
-                // But do NOT update dashboard selections
-                await this.refreshLocalWidgetData()
-                return
-            }
+            if (selection?.isApplyClick) return // obsolete signal; ignore
 
-            // Regular selection change - update local selection
             this.localSelections[selection.columnName] = selection
+
             const selectorType = this.propWidget.settings?.configuration?.selectorType?.modality?.toLowerCase()
             const isMultiValueType = ['multivalue', 'multidropdown', 'daterange', 'range'].includes(selectorType)
 
-            if (!isMultiValueType) {
-                // Only refresh for single-value selectors to update dependent column options
+            if (isMultiValueType) {
+                // Debounce: reset the 1-second timer for this column on every change
+                if (this.debounceTimers[selection.columnName]) {
+                    clearTimeout(this.debounceTimers[selection.columnName])
+                }
+                this.debounceTimers[selection.columnName] = setTimeout(async () => {
+                    delete this.debounceTimers[selection.columnName]
+                    // Mark this column as unlocked so it won't self-filter
+                    this.unlockedColumnName = selection.columnName
+                    await this.refreshLocalWidgetData()
+                }, 1000)
+            } else {
+                // Single-value: push immediately and refresh all columns
+                this.unlockedColumnName = null
+                const selectionsArray = Object.values(this.localSelections).filter((sel: any) => sel !== undefined) as ISelection[]
+                if (selectionsArray.length > 0) {
+                    await this.setSelections(this.dashboardId, selectionsArray, this.$http)
+                }
                 await this.refreshLocalWidgetData()
             }
         },
         async refreshLocalWidgetData() {
+            this.loading = true
             try {
                 const selectionsArray = Object.values(this.localSelections).filter((sel: any) => sel !== undefined) as any as ISelection[]
                 const dashboard = this.dashboards[this.dashboardId]
                 if (!dashboard) return
 
-                this.localWidgetData = await getWidgetData(this.dashboardId, this.propWidget, dashboard.configuration?.datasets, this.$http, false, selectionsArray, { searchText: '', searchColumns: [] }, dashboard.configuration, null, false)
+                // Call the proxy directly so we can pass unlockedColumnName.
+                // The unlocked column fetches its own data without its own selection applied,
+                // keeping all its options visible after the user has committed a value.
+                this.localWidgetData = await getSelectorWidgetData(this.dashboardId, dashboard.configuration, this.propWidget, dashboard.configuration?.datasets, this.$http, false, selectionsArray, undefined, this.unlockedColumnName ?? undefined)
             } catch (error) {
                 console.error('[SelectorWidgetContainer] Error refreshing widget data:', error)
+            } finally {
+                this.loading = false
             }
         },
         async onPlayClicked() {
@@ -164,6 +234,7 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .selector-widget-container {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -191,11 +262,34 @@ export default defineComponent({
     }
 
     .selector-column-wrapper {
+        position: relative;
         width: 100%;
         height: 100%;
         display: flex;
         flex-direction: column;
         overflow: auto;
+
+        .column-clear-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            border-radius: 4px;
+            pointer-events: auto;
+        }
+    }
+
+    .column-overlay-fade-enter-active,
+    .column-overlay-fade-leave-active {
+        transition: opacity 0.15s ease;
+    }
+
+    .column-overlay-fade-enter-from,
+    .column-overlay-fade-leave-to {
+        opacity: 0;
     }
 
     .play-button-container {
