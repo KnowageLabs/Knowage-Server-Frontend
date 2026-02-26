@@ -1,15 +1,12 @@
 <template>
     <div class="p-d-flex p-flex-column kn-width-full kn-height-full">
-        <Toolbar v-if="isPivot" class="kn-toolbar kn-toolbar--secondary kn-width-full">
-            <template #start>
-                {{ $t('documentExecution.registry.title') }}
-            </template>
-            <template #end>
-                <div class="p-d-flex p-flex-row">
-                    <Button class="kn-button p-button-text" data-test="submit-button" @click="saveRegistry">{{ $t('common.save') }}</Button>
-                </div>
-            </template>
-        </Toolbar>
+        <q-toolbar v-if="isPivot" class="kn-toolbar kn-toolbar--secondary">
+            <q-toolbar-title>{{ $t('documentExecution.registry.title') }}</q-toolbar-title>
+
+            <q-btn flat round dense icon="save" data-test="submit-button" @click="saveRegistry">
+                <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.save') }}</q-tooltip>
+            </q-btn>
+        </q-toolbar>
         <div class="p-d-flex p-flex-column kn-overflow kn-flex">
             <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
             <div class="">
@@ -46,16 +43,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import { AxiosResponse } from 'axios'
+import { defineComponent, defineAsyncComponent } from 'vue'
+import type { AxiosResponse } from 'axios'
 import registryDescriptor from './RegistryDescriptor.json'
-import RegistryDatatable from './tables/RegistryDatatable.vue'
-import RegistryPivotDatatable from './tables/RegistryPivotDatatable.vue'
-import RegistryFiltersCard from './RegistryFiltersCard.vue'
 import { formatDate } from '@/helpers/commons/localeHelper'
 import { mapActions } from 'pinia'
 import store from '../../../App.store'
 import { emitter } from './tables/RegistryDatatableHelper'
+
+const RegistryDatatable = defineAsyncComponent(() => import('./tables/RegistryDatatable.vue'))
+const RegistryPivotDatatable = defineAsyncComponent(() => import('./tables/RegistryPivotDatatable.vue'))
+const RegistryFiltersCard = defineAsyncComponent(() => import('./RegistryFiltersCard.vue'))
 
 export default defineComponent({
     name: 'registry',
@@ -357,6 +355,9 @@ export default defineComponent({
 .registry-custom-card {
     background: #ffffff;
     color: rgba(0, 0, 0, 0.87);
-    box-shadow: 0 2px 1px -1px rgb(0 0 0 / 20%), 0 1px 1px 0 rgb(0 0 0 / 14%), 0 1px 3px 0 rgb(0 0 0 / 12%);
+    box-shadow:
+        0 2px 1px -1px rgb(0 0 0 / 20%),
+        0 1px 1px 0 rgb(0 0 0 / 14%),
+        0 1px 3px 0 rgb(0 0 0 / 12%);
 }
 </style>

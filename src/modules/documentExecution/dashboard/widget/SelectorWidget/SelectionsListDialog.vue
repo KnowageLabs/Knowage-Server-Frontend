@@ -17,10 +17,11 @@ import { mapState, mapActions } from 'pinia'
 import store from '../../Dashboard.store'
 import deepcopy from 'deepcopy'
 import { ISelection } from '../../Dashboard'
+import { AgGridVue } from '@/composables/useAgGrid'
 
 export default defineComponent({
     name: 'datasets-catalog-datatable',
-    components: { Dialog },
+    components: { Dialog, AgGridVue },
     props: {
         visible: { type: Boolean },
         dashboardId: { type: String, required: true },

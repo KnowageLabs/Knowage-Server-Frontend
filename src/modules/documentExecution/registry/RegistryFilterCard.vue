@@ -29,8 +29,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
-import { AxiosResponse } from 'axios'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
+import type { AxiosResponse } from 'axios'
 import Dropdown from 'primevue/dropdown'
 import useValidate from '@vuelidate/core'
 import { createValidations } from '@/helpers/commons/validationHelper'

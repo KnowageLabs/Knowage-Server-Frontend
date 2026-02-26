@@ -49,10 +49,12 @@ import TruncationDialog from './TruncationDialog.vue'
 import { replaceVariablesPlaceholdersByVariableName } from '../interactionsHelpers/InteractionsParserHelper'
 import deepcopy from 'deepcopy'
 import { themeBalham } from 'ag-grid-community'
+import { AgGridVue } from '@/composables/useAgGrid'
 
 export default defineComponent({
     name: 'table-widget',
     components: {
+        AgGridVue,
         // eslint-disable-next-line vue/no-unused-components
         HeaderRenderer,
         // eslint-disable-next-line vue/no-unused-components

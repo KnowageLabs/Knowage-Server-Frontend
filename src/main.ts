@@ -43,10 +43,6 @@ if (import.meta.env.DEV) document.domain = '127.0.0.1'
 
 import { GridLayout, GridItem } from 'grid-layout-plus'
 
-import { AgGridVue } from 'ag-grid-vue3'
-import { ClientSideRowModelModule, ModuleRegistry } from 'ag-grid-community'
-ModuleRegistry.registerModules([ClientSideRowModelModule])
-
 import ResizeObserver from '@vue-toys/resize-observer'
 
 const app = createApp(App)
@@ -89,7 +85,6 @@ app.use(VueAxios, interceptor)
     .component('QBEOperator', QBEOperator)
     .component('GridLayout', GridLayout)
     .component('GridItem', GridItem)
-    .component('AgGridVue', AgGridVue)
 
 // Wait for router to be ready before mounting to ensure initial navigation is resolved
 router.isReady().then(() => {

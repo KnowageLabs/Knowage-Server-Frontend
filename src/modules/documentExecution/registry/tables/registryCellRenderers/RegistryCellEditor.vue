@@ -22,8 +22,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { setInputDataType, getInputStep, formatRegistryNumber } from '@/helpers/commons/tableHelpers'
-import { formatDate, getLocale } from '@/helpers/commons/localeHelper'
-import { luxonFormatDate, primeVueDate } from '@/helpers/commons/localeHelper'
+import { getLocale, luxonFormatDate, primeVueDate } from '@/helpers/commons/localeHelper'
 import Calendar from 'primevue/calendar'
 import Dropdown from 'primevue/dropdown'
 import InputNumber from 'primevue/inputnumber'
@@ -120,9 +119,6 @@ export default defineComponent({
         },
         loadColumnOptions() {
             this.columnOptions = this.params.comboColumnOptions as any[]
-        },
-        getFormattedDate(date: any, format: any, incomingFormat?: string) {
-            return formatDate(date, format, incomingFormat)
         },
         onInputNumberChange() {
             setTimeout(() => {

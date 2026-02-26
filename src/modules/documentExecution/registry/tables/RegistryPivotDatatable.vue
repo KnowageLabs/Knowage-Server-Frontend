@@ -1,22 +1,11 @@
 <template>
-    <KnPivotTable
-        :id="id"
-        :columns="filteredColumns"
-        :rows="tempRows"
-        :prop-configuration="propConfiguration"
-        :entity="entity"
-        :pagination="pagination"
-        :combo-column-options="comboColumnOptions"
-        :number-of-rows="registryDescriptor.paginationNumberOfItems"
-        @rowChanged="onRowChanged"
-        @pageChanged="onPageChange"
-        @dropdownOpened="addColumnOptions"
-    ></KnPivotTable>
+    <KnPivotTable :id="id" :columns="filteredColumns" :rows="tempRows" :prop-configuration="propConfiguration" :entity="entity" :pagination="pagination" :combo-column-options="comboColumnOptions" :number-of-rows="registryDescriptor.paginationNumberOfItems" @rowChanged="onRowChanged" @pageChanged="onPageChange" @dropdownOpened="addColumnOptions"></KnPivotTable>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
-import { AxiosResponse } from 'axios'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
+import type { AxiosResponse } from 'axios'
 import registryDescriptor from '../RegistryDescriptor.json'
 import KnPivotTable from '@/components/UI/KnPivotTable/KnPivotTable.vue'
 
@@ -111,9 +100,7 @@ export default defineComponent({
             if (column.dependences && row && row[column.dependences].data) {
                 postData.append('DEPENDENCES', this.entity + subEntity + ':' + column.dependences + '=' + row[column.dependences].data)
             }
-            await this.$http
-                .post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=GET_FILTER_VALUES_ACTION&SBI_EXECUTION_ID=${this.id}`, postData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
-                .then((response: AxiosResponse<any>) => (this.comboColumnOptions[column.field][row[column.dependences]?.data] = response.data.rows))
+            await this.$http.post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=GET_FILTER_VALUES_ACTION&SBI_EXECUTION_ID=${this.id}`, postData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).then((response: AxiosResponse<any>) => (this.comboColumnOptions[column.field][row[column.dependences]?.data] = response.data.rows))
         }
     }
 })

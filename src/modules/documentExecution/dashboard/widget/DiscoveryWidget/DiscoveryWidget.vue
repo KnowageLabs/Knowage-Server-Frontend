@@ -55,10 +55,11 @@ import TooltipRenderer from '../TableWidget/TooltipRenderer.vue'
 import ProgressSpinner from 'primevue/progressspinner'
 import ContextMenu from 'primevue/contextmenu'
 import CellRenderer from '../TableWidget/CellRenderer'
+import { AgGridVue } from '@/composables/useAgGrid'
 
 export default defineComponent({
     name: 'table-widget',
-    components: { PaginationRenderer, ProgressSpinner, ContextMenu },
+    components: { AgGridVue, PaginationRenderer, ProgressSpinner, ContextMenu },
     props: {
         widgetLoading: { type: Boolean, required: true },
         propWidget: { type: Object as PropType<IWidget>, required: true },

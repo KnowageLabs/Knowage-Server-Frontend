@@ -16,10 +16,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
-import { luxonFormatDate, formatDateWithLocale, localeDate, primeVueDate, getLocale, formatNumberWithLocale } from '@/helpers/commons/localeHelper'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
+import { luxonFormatDate, formatDateWithLocale, localeDate, primeVueDate, getLocale } from '@/helpers/commons/localeHelper'
 import { setInputDataType, formatRegistryNumber } from '@/helpers/commons/tableHelpers'
-import { AxiosResponse } from 'axios'
+import type { AxiosResponse } from 'axios'
 import { mapActions } from 'pinia'
 import { emitter } from './RegistryDatatableHelper'
 import registryDescriptor from '../RegistryDescriptor.json'
@@ -28,9 +29,11 @@ import CellEditor from './registryCellRenderers/RegistryCellEditor.vue'
 import HeaderRenderer from './registryCellRenderers/RegistryHeaderRenderer.vue'
 import TooltipRenderer from './registryCellRenderers/RegistryTooltipRenderer.vue'
 import store from '../../../../App.store'
+import { AgGridVue } from '@/composables/useAgGrid'
 export default defineComponent({
     name: 'registry-datatable',
     components: {
+        AgGridVue,
         RegistryDatatableWarningDialog,
         // eslint-disable-next-line vue/no-unused-components
         HeaderRenderer,
@@ -69,7 +72,6 @@ export default defineComponent({
             loading: false,
             multiSortMeta: [],
             gridApi: null as any,
-            columnApi: null as any,
             timeout: null as any,
             selectedRows: [] as any,
             gridOptions: null as any,
@@ -144,7 +146,6 @@ export default defineComponent({
         },
         onGridReady(params) {
             this.gridApi = params.api
-            this.columnApi = params.columnApi
             this.refreshGridConfiguration()
         },
         refreshGridConfiguration() {
