@@ -1,109 +1,97 @@
 <template>
-    <Card v-if="filters.length > 0" class="filtersCard p-m-2">
-        <template #header>
-            <Toolbar class="kn-toolbar kn-toolbar--default">
-                <template #start>
-                    {{ $t('documentExecution.registry.filters') }}
-                </template>
-            </Toolbar>
-        </template>
-        <template #content>
+    <q-card v-if="filters.length > 0" class="filtersCard q-ma-sm" flat bordered>
+        <q-toolbar class="kn-toolbar kn-toolbar--default">
+            <q-toolbar-title>{{ $t('documentExecution.registry.filters') }}</q-toolbar-title>
+        </q-toolbar>
+        <q-card-section class="q-pa-sm">
             <div class="filter-container">
-                <form class="p-fluid p-formgrid p-grid fields-container" @submit="filterRegistry">
+                <form class="fields-container" @submit="filterRegistry">
                     <template v-for="(filter, index) in filters.filter((fil) => fil.presentation !== 'DRIVER')" :key="index">
                         <RegistryFilterCard :id="id" class="kn-flex" :prop-filter="filter" :entity="entity" :clear-trigger="clearFiltersTrigger" :all-filters="filters" @changed="setFilterValue($event, index, filter)" @valid="setFilterButtonDisabled"> </RegistryFilterCard>
                     </template>
                 </form>
 
-                <div class="button-container p-ml-2" :style="registryDescriptor.styles.buttonsContainer">
-                    <Button class="p-button kn-button--primary p-mx-1" :style="registryDescriptor.styles.filtersButton" @click="clearAllFilters">{{ $t('documentExecution.registry.clearFilters') }}</Button>
-                    <Button class="p-button kn-button--primary p-mx-1" :style="registryDescriptor.styles.filtersButton" data-test="filter-button" :disabled="filterButtonDisabled" @click="filterRegistry">{{ $t('documentExecution.registry.filter') }} </Button>
+                <div class="button-container q-ml-sm">
+                    <q-btn class="q-mx-xs" color="primary" unelevated :style="registryDescriptor.styles.filtersButton" @click="clearAllFilters">{{ $t('documentExecution.registry.clearFilters') }}</q-btn>
+                    <q-btn class="q-mx-xs" color="primary" unelevated data-test="filter-button" :disable="filterButtonDisabled" :style="registryDescriptor.styles.filtersButton" @click="filterRegistry">{{ $t('documentExecution.registry.filter') }}</q-btn>
                 </div>
             </div>
-        </template>
-    </Card>
+        </q-card-section>
+    </q-card>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType } from 'vue'
-import Card from 'primevue/card'
+<script lang="ts" setup>
+import { ref, watch, onMounted } from 'vue'
 import RegistryFilterCard from './RegistryFilterCard.vue'
 import registryDescriptor from './RegistryDescriptor.json'
 
-export default defineComponent({
-    name: 'registry-filters-card',
-    components: { Card, RegistryFilterCard },
-    props: {
-        propFilters: { type: Array },
-        entity: { type: Object as PropType<string | null> },
-        id: { type: String }
-    },
-    emits: ['filter'],
-    data() {
-        return {
-            registryDescriptor,
-            filters: [] as any[],
-            clearFiltersTrigger: false,
-            filterButtonDisabled: false
-        }
-    },
-    watch: {
-        propFilters() {
-            this.loadFilters()
-        }
-    },
-    async created() {
-        this.loadFilters()
-        this.setFilterDependencies()
-    },
-    methods: {
-        loadFilters() {
-            this.filters = this.propFilters ? this.propFilters.filter((filter: any) => filter.visible) : []
-        },
-        setFilterDependencies() {
-            this.filters.forEach((filter: any) => {
-                if (filter.column?.dependences) {
-                    const index = this.filters.findIndex((parentFilter: any) => parentFilter.field === filter.column.dependences)
-                    if (index !== -1) this.filters[index].hasDependencies ? this.filters[index].hasDependencies.push(filter) : (this.filters[index].hasDependencies = [filter])
-                }
-            })
-        },
-        setFilterValue(value: string, index: number, filter) {
-            const filterIndex = this.filters.findIndex((fil) => fil.field === filter.field)
-            this.filters[filterIndex].filterValue = value
+const props = defineProps<{
+    propFilters?: any[]
+    entity?: string | null
+    id?: string
+}>()
 
-            if (this.filters[filterIndex].hasDependencies) this.clearDependentFilterValues(this.filters[filterIndex])
-        },
-        clearDependentFilterValues(parentFilter: any) {
-            if (!parentFilter.hasDependencies) return
+const emit = defineEmits<{
+    (e: 'filter', filters: any[]): void
+}>()
 
-            parentFilter.hasDependencies.forEach((dependentFilter: any) => {
-                const index = this.filters.findIndex((fil) => fil.field === dependentFilter.field)
-                if (index !== -1) {
-                    this.filters[index].filterValue = ''
-                    this.clearDependentFilterValues(this.filters[index])
-                }
-            })
-        },
-        clearAllFilters() {
-            this.filters.forEach((el: any) => (el.filterValue = ''))
-            this.clearFiltersTrigger = !this.clearFiltersTrigger
-            this.$emit('filter', this.filters)
-        },
-        filterRegistry(e) {
-            e.preventDefault()
-            this.$emit('filter', this.filters)
-        },
-        setFilterButtonDisabled(valid) {
-            this.filterButtonDisabled = !valid
-        },
-        getFilterValues() {
-            return this.filters.reduce((acc, filter) => {
-                if (filter.filterValue) acc[filter.field] = filter.filterValue
-                return acc
-            }, {})
+const filters = ref<any[]>([])
+const clearFiltersTrigger = ref(false)
+const filterButtonDisabled = ref(false)
+
+function loadFilters() {
+    filters.value = props.propFilters ? props.propFilters.filter((filter: any) => filter.visible) : []
+}
+
+function setFilterDependencies() {
+    filters.value.forEach((filter: any) => {
+        if (filter.column?.dependences) {
+            const index = filters.value.findIndex((parentFilter: any) => parentFilter.field === filter.column.dependences)
+            if (index !== -1) filters.value[index].hasDependencies ? filters.value[index].hasDependencies.push(filter) : (filters.value[index].hasDependencies = [filter])
         }
-    }
+    })
+}
+
+function setFilterValue(value: string, index: number, filter: any) {
+    const filterIndex = filters.value.findIndex((fil) => fil.field === filter.field)
+    filters.value[filterIndex].filterValue = value
+    if (filters.value[filterIndex].hasDependencies) clearDependentFilterValues(filters.value[filterIndex])
+}
+
+function clearDependentFilterValues(parentFilter: any) {
+    if (!parentFilter.hasDependencies) return
+    parentFilter.hasDependencies.forEach((dependentFilter: any) => {
+        const index = filters.value.findIndex((fil) => fil.field === dependentFilter.field)
+        if (index !== -1) {
+            filters.value[index].filterValue = ''
+            clearDependentFilterValues(filters.value[index])
+        }
+    })
+}
+
+function clearAllFilters() {
+    filters.value.forEach((el: any) => (el.filterValue = ''))
+    clearFiltersTrigger.value = !clearFiltersTrigger.value
+    emit('filter', filters.value)
+}
+
+function filterRegistry(e: Event) {
+    e.preventDefault()
+    emit('filter', filters.value)
+}
+
+function setFilterButtonDisabled(valid: boolean) {
+    filterButtonDisabled.value = !valid
+}
+
+watch(
+    () => props.propFilters,
+    () => loadFilters()
+)
+
+onMounted(() => {
+    loadFilters()
+    setFilterDependencies()
 })
 </script>
 <style lang="scss">

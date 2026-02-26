@@ -19,174 +19,167 @@
     </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { setInputDataType, getInputStep, formatRegistryNumber } from '@/helpers/commons/tableHelpers'
 import { getLocale, luxonFormatDate, primeVueDate } from '@/helpers/commons/localeHelper'
 import Calendar from 'primevue/calendar'
 import Dropdown from 'primevue/dropdown'
 import InputNumber from 'primevue/inputnumber'
 import Checkbox from 'primevue/checkbox'
-import registryDatatableDescriptor from '../RegistryDatatableDescriptor.json'
 import Textarea from 'primevue/textarea'
+import registryDatatableDescriptor from '../RegistryDatatableDescriptor.json'
 
-export default defineComponent({
-    name: 'registry-datatable-editable-field',
-    components: { Calendar, Dropdown, InputNumber, Checkbox, Textarea },
-    props: {
-        comboColumnOptions: { type: Array },
-        params: {
-            required: true,
-            type: Object as any
-        }
-    },
-    emits: ['rowChanged', 'dropdownChanged', 'dropdownOpened'],
-    data() {
-        return {
-            registryDatatableDescriptor,
-            row: {} as any,
-            column: {} as any,
-            columnOptions: [] as any[],
-            options: [] as any[],
-            useGrouping: false,
-            locale: '',
-            minFractionDigits: 2,
-            maxFractionDigits: 2,
-            value: null as any
-        }
-    },
-    computed: {
-        getCurrentLocaleDefaultDateFormat() {
-            return (column) => column.format || primeVueDate()
-        }
-    },
-    watch: {
-        propRow() {
-            this.loadRow()
-        },
-        comboColumnOptions: {
-            handler() {
-                this.loadColumnOptions()
-            },
-            deep: true
-        }
-    },
-    mounted() {
-        this.$nextTick(() => {
-            const inputFocus = this.$refs['input'] as any
-            switch (this.getCellType(this.params.colDef)) {
-                case 'text':
-                    return inputFocus.$el.focus()
-                case 'checkbox':
-                case 'dropdown':
-                case 'temporal':
-                case 'number':
-                    return inputFocus.$el.children[0].focus()
-                default:
-                    return inputFocus.$el.focus()
-            }
-        })
-    },
-    created() {
-        this.setDefaultLocale()
-        this.column = this.params.colDef
-        this.loadRow()
-        this.loadColumnOptions()
-        this.value = this.getInitialValue()
-        this.formatNumberConfiguration()
-    },
-    methods: {
-        loadRow() {
-            this.row = this.params.data
-        },
-        formatNumberConfiguration() {
-            const configuration = formatRegistryNumber(this.column)
-            if (configuration) {
-                this.useGrouping = configuration.useGrouping
-                this.minFractionDigits = configuration.minFractionDigits
-                this.maxFractionDigits = configuration.maxFractionDigits
-            }
-        },
-        setDefaultLocale() {
-            const locale = getLocale()
-            this.locale = locale ? locale.replace('_', '-') : ''
-        },
-        getDataType(columnType: string) {
-            return setInputDataType(columnType)
-        },
-        getStep(dataType: string) {
-            return getInputStep(dataType)
-        },
-        loadColumnOptions() {
-            this.columnOptions = this.params.comboColumnOptions as any[]
-        },
-        onInputNumberChange() {
-            setTimeout(() => {
-                this.row[this.column.field] = this.value
-                this.onRowChanged(this.row)
-            }, 250)
-        },
-        getOptions(column: any, row: any) {
-            let options = this.columnOptions && this.columnOptions[column.field] ? this.columnOptions[column.field][row[column.dependences]] : []
-            if (!options || options.length === 0) options = this.columnOptions[column.field]['All']
-            return options ?? []
-        },
-        getValue() {
-            if (this.column.columnInfo?.type === 'date' || this.column.columnInfo?.type === 'timestamp') return this.returnDateValues()
-            return this.value
-        },
-        returnDateValues() {
-            if (!this.value) return ''
+const props = defineProps<{
+    comboColumnOptions?: any[]
+    params: any
+}>()
 
-            if (this.value instanceof Date) {
-                if (this.column.columnInfo?.type === 'timestamp') return luxonFormatDate(this.value, undefined, 'yyyy-MM-dd HH:mm:ss.S')
-                else return luxonFormatDate(this.value, undefined, 'yyyy-MM-dd')
-            }
+const input = ref<any>(null)
+const row = ref<any>({})
+const column = ref<any>({})
+const columnOptions = ref<any[]>([])
+const useGrouping = ref(false)
+const locale = ref('')
+const minFractionDigits = ref(2)
+const maxFractionDigits = ref(2)
+const value = ref<any>(null)
 
-            return this.value
-        },
-        isPopup() {
-            switch (this.getCellType(this.params.colDef)) {
-                case 'text':
-                    return true
-                default:
-                    return false
-            }
-        },
-        getInitialValue() {
-            let startValue = this.params.value
-            const isBackspaceOrDelete = this.params.eventKey === 'Backspace' || this.params.eventKey === 'Delete'
-            if (isBackspaceOrDelete) return null
+const getCurrentLocaleDefaultDateFormat = computed(() => (col: any) => col.format || primeVueDate())
 
-            if (this.column.columnInfo?.type === 'date' || this.column.columnInfo?.type === 'timestamp') {
-                if (typeof startValue === 'string' && startValue) {
-                    if (this.column.columnInfo?.type === 'date') return new Date(luxonFormatDate(startValue, 'yyyy-MM-dd', 'yyyy-MM-dd'))
-                    else return new Date(luxonFormatDate(startValue, 'yyyy-MM-dd HH:mm:ss.S', 'yyyy-MM-dd HH:mm:ss.S'))
-                }
-                if (startValue instanceof Date) return startValue
-            }
+function loadRow() {
+    row.value = props.params.data
+}
 
-            return startValue || null
-        },
-        onRowChanged(payload: any) {
-            this.params.context.componentParent.setRowEdited(payload)
-            this.params.api.refreshCells()
-        },
-        onDropdownChange(payload: any) {
-            this.params.context.componentParent.onDropdownChange(payload)
-        },
-        addColumnOptions(payload: any) {
-            this.params.context.componentParent.addColumnOptions(payload)
-        },
-        getCellType(colDef) {
-            if (colDef.editorType == 'TEXT' && colDef.columnInfo.type === 'boolean') return 'checkbox'
-            if (colDef.editorType !== 'COMBO' && colDef.columnInfo?.type !== 'date' && colDef.columnInfo?.type !== 'timestamp' && setInputDataType(colDef.columnInfo?.type) === 'text') return 'text'
-            if (colDef.editorType !== 'COMBO' && colDef.columnInfo?.type !== 'date' && colDef.columnInfo?.type !== 'timestamp' && setInputDataType(colDef.columnInfo?.type) === 'number') return 'number'
-            if (colDef.editorType === 'COMBO') return 'dropdown'
-            if (colDef.columnInfo?.type === 'date' || colDef.columnInfo?.type === 'timestamp') return 'temporal'
-        }
+function formatNumberConfiguration() {
+    const configuration = formatRegistryNumber(column.value)
+    if (configuration) {
+        useGrouping.value = configuration.useGrouping
+        minFractionDigits.value = configuration.minFractionDigits
+        maxFractionDigits.value = configuration.maxFractionDigits
     }
+}
+
+function setDefaultLocale() {
+    const loc = getLocale()
+    locale.value = loc ? loc.replace('_', '-') : ''
+}
+
+function getDataType(columnType: string) {
+    return setInputDataType(columnType)
+}
+
+function getStep(dataType: string) {
+    return getInputStep(dataType)
+}
+
+function loadColumnOptions() {
+    columnOptions.value = props.params.comboColumnOptions as any[]
+}
+
+function onInputNumberChange() {
+    setTimeout(() => {
+        row.value[column.value.field] = value.value
+        onRowChanged(row.value)
+    }, 250)
+}
+
+function getOptions(col: any, rowVal: any) {
+    let opts = columnOptions.value && columnOptions.value[col.field] ? columnOptions.value[col.field][rowVal[col.dependences]] : []
+    if (!opts || opts.length === 0) opts = columnOptions.value[col.field]['All']
+    return opts ?? []
+}
+
+function getValue() {
+    if (column.value.columnInfo?.type === 'date' || column.value.columnInfo?.type === 'timestamp') return returnDateValues()
+    return value.value
+}
+
+function returnDateValues() {
+    if (!value.value) return ''
+    if (value.value instanceof Date) {
+        if (column.value.columnInfo?.type === 'timestamp') return luxonFormatDate(value.value, undefined, 'yyyy-MM-dd HH:mm:ss.S')
+        else return luxonFormatDate(value.value, undefined, 'yyyy-MM-dd')
+    }
+    return value.value
+}
+
+function isPopup() {
+    switch (getCellType(props.params.colDef)) {
+        case 'text':
+            return true
+        default:
+            return false
+    }
+}
+
+function getInitialValue() {
+    let startValue = props.params.value
+    const isBackspaceOrDelete = props.params.eventKey === 'Backspace' || props.params.eventKey === 'Delete'
+    if (isBackspaceOrDelete) return null
+    if (column.value.columnInfo?.type === 'date' || column.value.columnInfo?.type === 'timestamp') {
+        if (typeof startValue === 'string' && startValue) {
+            if (column.value.columnInfo?.type === 'date') return new Date(luxonFormatDate(startValue, 'yyyy-MM-dd', 'yyyy-MM-dd'))
+            else return new Date(luxonFormatDate(startValue, 'yyyy-MM-dd HH:mm:ss.S', 'yyyy-MM-dd HH:mm:ss.S'))
+        }
+        if (startValue instanceof Date) return startValue
+    }
+    return startValue || null
+}
+
+function onRowChanged(payload: any) {
+    props.params.context.componentParent.setRowEdited(payload)
+    props.params.api.refreshCells()
+}
+
+function onDropdownChange(payload: any) {
+    props.params.context.componentParent.onDropdownChange(payload)
+}
+
+function addColumnOptions(payload: any) {
+    props.params.context.componentParent.addColumnOptions(payload)
+}
+
+function getCellType(colDef: any) {
+    if (colDef.editorType == 'TEXT' && colDef.columnInfo.type === 'boolean') return 'checkbox'
+    if (colDef.editorType !== 'COMBO' && colDef.columnInfo?.type !== 'date' && colDef.columnInfo?.type !== 'timestamp' && setInputDataType(colDef.columnInfo?.type) === 'text') return 'text'
+    if (colDef.editorType !== 'COMBO' && colDef.columnInfo?.type !== 'date' && colDef.columnInfo?.type !== 'timestamp' && setInputDataType(colDef.columnInfo?.type) === 'number') return 'number'
+    if (colDef.editorType === 'COMBO') return 'dropdown'
+    if (colDef.columnInfo?.type === 'date' || colDef.columnInfo?.type === 'timestamp') return 'temporal'
+}
+
+watch(
+    () => props.comboColumnOptions,
+    () => loadColumnOptions(),
+    { deep: true }
+)
+
+onMounted(() => {
+    setDefaultLocale()
+    column.value = props.params.colDef
+    loadRow()
+    loadColumnOptions()
+    value.value = getInitialValue()
+    formatNumberConfiguration()
+
+    nextTick(() => {
+        const inputFocus = input.value as any
+        if (!inputFocus) return
+        switch (getCellType(props.params.colDef)) {
+            case 'text':
+                return inputFocus.$el.focus()
+            case 'checkbox':
+            case 'dropdown':
+            case 'temporal':
+            case 'number':
+                return inputFocus.$el.children[0].focus()
+            default:
+                return inputFocus.$el.focus()
+        }
+    })
 })
+
+defineExpose({ getValue, isPopup })
 </script>
 
 <style lang="scss"></style>

@@ -17,37 +17,28 @@
     </Dialog>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
+import { ref, computed } from 'vue'
 import Checkbox from 'primevue/checkbox'
 import Dialog from 'primevue/dialog'
 import registryDatatableWarningDialogDescriptor from './RegistryDatatableWarningDialogDescriptor.json'
 
-export default defineComponent({
-    name: 'registry-datatable-warning-dialog',
-    components: { Checkbox, Dialog },
-    props: {
-        visible: { type: Boolean },
-        columns: { type: Array, required: true }
-    },
-    emits: ['close'],
-    data() {
-        return {
-            registryDatatableWarningDialogDescriptor,
-            stopWarnings: false
-        }
-    },
-    computed: {
-        columnFileds(): string {
-            let fields = ''
-            for (let i = 0; i < this.columns.length; i++) {
-                fields += (this.columns[i] as any).title + (i === this.columns.length - 1 ? ' ' : ', ')
-            }
+const props = defineProps<{
+    visible?: boolean
+    columns: any[]
+}>()
 
-            return fields
-        }
-    },
-    created() {},
-    methods: {}
+const emit = defineEmits<{
+    (e: 'close', payload: { stopWarnings: boolean; columnField: any }): void
+}>()
+
+const stopWarnings = ref(false)
+
+const columnFileds = computed(() => {
+    let fields = ''
+    for (let i = 0; i < props.columns.length; i++) {
+        fields += props.columns[i].title + (i === props.columns.length - 1 ? ' ' : ', ')
+    }
+    return fields
 })
 </script>

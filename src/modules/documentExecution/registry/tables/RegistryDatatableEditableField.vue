@@ -16,96 +16,100 @@
     />
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
+import { ref, computed, watch, onMounted } from 'vue'
 import { setInputDataType, getInputStep, formatRegistryNumber } from '@/helpers/commons/tableHelpers'
 import { getLocale, luxonFormatDate, primeVueDate } from '@/helpers/commons/localeHelper'
 import Calendar from 'primevue/calendar'
 import Dropdown from 'primevue/dropdown'
 import InputNumber from 'primevue/inputnumber'
+import InputText from 'primevue/inputtext'
 import registryDatatableDescriptor from './RegistryDatatableDescriptor.json'
 
-export default defineComponent({
-    name: 'registry-datatable-editable-field',
-    components: { Calendar, Dropdown, InputNumber },
-    props: { column: { type: Object }, propRow: { type: Object }, comboColumnOptions: { type: Array } },
-    emits: ['rowChanged', 'dropdownChanged', 'dropdownOpened'],
-    data() {
-        return {
-            registryDatatableDescriptor,
-            row: {} as any,
-            columnOptions: [] as any[],
-            options: [] as any[],
-            useGrouping: false,
-            locale: '',
-            minFractionDigits: 2,
-            maxFractionDigits: 2
-        }
-    },
-    computed: {
-        getCurrentLocaleDefaultDateFormat() {
-            return (column) => column.format || primeVueDate()
-        }
-    },
-    watch: {
-        propRow() {
-            this.loadRow()
-        },
-        comboColumnOptions: {
-            handler() {
-                this.loadColumnOptions()
-            },
-            deep: true
-        }
-    },
-    created() {
-        this.setDefaultLocale()
-        this.loadRow()
-        this.loadColumnOptions()
-    },
-    methods: {
-        loadRow() {
-            this.row = this.propRow
-            if (this.column && (this.row[this.column.field] || this.row[this.column.field] === 0 || this.row[this.column.field] === '')) {
-                if (this.column.columnInfo?.type === 'date' && typeof this.row[this.column.field] === 'string') {
-                    this.row[this.column.field] = this.row[this.column.field] ? new Date(luxonFormatDate(this.row[this.column.field], 'yyyy-MM-dd', 'yyyy-MM-dd')) : null
-                } else if (this.column.columnInfo?.type === 'timestamp' && typeof this.row[this.column.field] === 'string' && this.row[this.column.field] !== '') {
-                    this.row[this.column.field] = new Date(luxonFormatDate(this.row[this.column.field], 'yyyy-MM-dd HH:mm:ss.S', 'yyyy-MM-dd HH:mm:ss.S'))
-                } else if (this.column.editorType !== 'COMBO' && this.column.columnInfo?.type !== 'date' && this.column.columnInfo?.type !== 'timestamp' && this.getDataType(this.column.columnInfo?.type) === 'number') {
-                    this.formatNumberConfiguration()
-                }
-            }
-        },
-        formatNumberConfiguration() {
-            const configuration = formatRegistryNumber(this.column)
-            if (configuration) {
-                this.useGrouping = configuration.useGrouping
-                this.minFractionDigits = configuration.minFractionDigits
-                this.maxFractionDigits = configuration.maxFractionDigits
-            }
-        },
-        setDefaultLocale() {
-            const locale = getLocale()
-            this.locale = locale ? locale.replace('_', '-') : ''
-        },
-        getDataType(columnType: string) {
-            return setInputDataType(columnType)
-        },
-        getStep(dataType: string) {
-            return getInputStep(dataType)
-        },
-        loadColumnOptions() {
-            this.columnOptions = this.comboColumnOptions as any[]
-        },
-        onInputNumberChange() {
-            setTimeout(() => this.$emit('rowChanged', this.row), 250)
-        },
-        getOptions(column: any, row: any) {
-            let options = this.columnOptions && this.columnOptions[column.field] ? this.columnOptions[column.field][row[column.dependences]] : []
-            if (!options || options.length === 0) options = this.columnOptions[column.field]['All']
-            return options ?? []
+const props = defineProps<{
+    column?: any
+    propRow?: any
+    comboColumnOptions?: any[]
+}>()
+
+const emit = defineEmits<{
+    (e: 'rowChanged', row: any): void
+    (e: 'dropdownChanged', payload: any): void
+    (e: 'dropdownOpened', payload: any): void
+}>()
+
+const row = ref<any>({})
+const columnOptions = ref<any[]>([])
+const useGrouping = ref(false)
+const locale = ref('')
+const minFractionDigits = ref(2)
+const maxFractionDigits = ref(2)
+
+const getCurrentLocaleDefaultDateFormat = computed(() => (column: any) => column.format || primeVueDate())
+
+function loadRow() {
+    row.value = props.propRow
+    if (props.column && (row.value[props.column.field] || row.value[props.column.field] === 0 || row.value[props.column.field] === '')) {
+        if (props.column.columnInfo?.type === 'date' && typeof row.value[props.column.field] === 'string') {
+            row.value[props.column.field] = row.value[props.column.field] ? new Date(luxonFormatDate(row.value[props.column.field], 'yyyy-MM-dd', 'yyyy-MM-dd')) : null
+        } else if (props.column.columnInfo?.type === 'timestamp' && typeof row.value[props.column.field] === 'string' && row.value[props.column.field] !== '') {
+            row.value[props.column.field] = new Date(luxonFormatDate(row.value[props.column.field], 'yyyy-MM-dd HH:mm:ss.S', 'yyyy-MM-dd HH:mm:ss.S'))
+        } else if (props.column.editorType !== 'COMBO' && props.column.columnInfo?.type !== 'date' && props.column.columnInfo?.type !== 'timestamp' && getDataType(props.column.columnInfo?.type) === 'number') {
+            formatNumberConfiguration()
         }
     }
+}
+
+function formatNumberConfiguration() {
+    const configuration = formatRegistryNumber(props.column)
+    if (configuration) {
+        useGrouping.value = configuration.useGrouping
+        minFractionDigits.value = configuration.minFractionDigits
+        maxFractionDigits.value = configuration.maxFractionDigits
+    }
+}
+
+function setDefaultLocale() {
+    const loc = getLocale()
+    locale.value = loc ? loc.replace('_', '-') : ''
+}
+
+function getDataType(columnType: string) {
+    return setInputDataType(columnType)
+}
+
+function getStep(dataType: string) {
+    return getInputStep(dataType)
+}
+
+function loadColumnOptions() {
+    columnOptions.value = props.comboColumnOptions as any[]
+}
+
+function onInputNumberChange() {
+    setTimeout(() => emit('rowChanged', row.value), 250)
+}
+
+function getOptions(column: any, rowVal: any) {
+    let opts = columnOptions.value && columnOptions.value[column.field] ? columnOptions.value[column.field][rowVal[column.dependences]] : []
+    if (!opts || opts.length === 0) opts = columnOptions.value[column.field]['All']
+    return opts ?? []
+}
+
+watch(
+    () => props.propRow,
+    () => loadRow()
+)
+watch(
+    () => props.comboColumnOptions,
+    () => loadColumnOptions(),
+    { deep: true }
+)
+
+onMounted(() => {
+    setDefaultLocale()
+    loadRow()
+    loadColumnOptions()
 })
 </script>
 
