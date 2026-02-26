@@ -14,12 +14,9 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
 
     if (!selectedDataset) return null
 
-    const multiColumnResponses = {} as any
     const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=${!selectedDataset.cache}&useGroupBy=true`
 
-    // Iterate through each column and fetch data individually
-    for (const column of widget.columns) {
-        // Create a temporary widget with only this column for the POST data
+    const fetchColumn = async (column: any): Promise<[string, any]> => {
         const singleColumnWidget = { ...widget, columns: [column] }
 
         // For the "unlocked" column (the one that just fired its selection), exclude its own
@@ -60,11 +57,12 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
             tempResponse = formatReponseWithTheExternalSortingColumn(tempResponse, widget.settings.sortingOrder)
         }
 
-        // Store response by column name
-        multiColumnResponses[column.columnName] = tempResponse
+        return [column.columnName, tempResponse]
     }
 
-    return multiColumnResponses
+    // Fetch all columns in parallel
+    const entries = await Promise.all(widget.columns.map(fetchColumn))
+    return Object.fromEntries(entries)
 }
 
 const formatSelectorWidgetModelForService = (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, dataset: IDashboardDataset, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
