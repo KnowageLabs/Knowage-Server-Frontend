@@ -5,4 +5,5 @@ export interface IChat {
     image?: string
     turnId: number
     dashboard?: any
+    timestamp?: Date
 }
