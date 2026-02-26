@@ -1,9 +1,10 @@
 <template>
     <q-dialog v-model="internalVisibility" allow-focus-outside>
-        <q-card :style="{ overflow: 'visible', width: '60vw', maxWidth: '1200px', display: 'flex', flexDirection: 'column', height: editorMode === 'blockly' ? '80vh' : 'auto' }">
+        <q-card ref="cardRef" :style="{ overflow: 'visible', width: '60vw', maxWidth: '1200px', display: 'flex', flexDirection: 'column', height: editorMode === 'blockly' ? '80vh' : 'auto' }">
             <q-toolbar class="kn-toolbar kn-toolbar--secondary">
                 <q-toolbar-title>{{ t('knBlockly.title') }}</q-toolbar-title>
                 <q-btn-toggle
+                    v-if="!isModeFixed"
                     v-model="editorMode"
                     :options="[
                         { label: t('knBlockly.modeVisual'), value: 'blockly', icon: 'widgets' },
@@ -19,13 +20,10 @@
             <q-card-section class="q-pt-none flex-grow" style="overflow: visible; display: flex; flex-direction: column">
                 <q-input v-model="fieldName" filled square :label="t('knBlockly.fieldName')" :placeholder="t('knBlockly.fieldNamePlaceholder')" class="q-my-sm" :error="!fieldName || !fieldName.trim()" :error-message="t('knBlockly.fieldNameRequired')" />
 
-                <!-- Blockly Editor -->
                 <div v-show="editorMode === 'blockly'" ref="blocklyDiv" class="bcf-editor flex-grow"></div>
 
-                <!-- Text Editor -->
                 <q-input v-show="editorMode === 'text'" v-model="textDsl" type="textarea" filled square :label="t('knBlockly.formulaLabel')" :placeholder="t('knBlockly.formulaPlaceholder')" class="bcf-text-editor" :input-style="{ fontFamily: 'monospace', fontSize: '12px', minHeight: '300px' }" @update:model-value="onTextDslChange" />
 
-                <!-- Output DSL (solo in modalità blockly) -->
                 <q-banner class="bg-light-blue-1 text-black q-my-sm" v-if="showOutputs && dsl && editorMode === 'blockly'">
                     <template v-slot:avatar>
                         <q-icon name="check" color="primary" />
@@ -33,7 +31,6 @@
                     <pre class="bcf-pre">{{ dsl }}</pre>
                 </q-banner>
 
-                <!-- Validation Errors -->
                 <q-banner class="bg-red-1 text-black q-my-sm" v-if="errors.length">
                     <template v-slot:avatar>
                         <q-icon name="error" color="primary" />
@@ -72,9 +69,7 @@ const { t } = useI18n()
 type Props = {
     fields: string[]
     variables?: any[]
-    /** JSON object o string JSON (opzionale) */
     initialState?: unknown
-    /** Nome iniziale del campo calcolato (opzionale) */
     fieldName?: string
     showOutputs?: boolean
     visibility: boolean
@@ -103,6 +98,7 @@ const emit = defineEmits<{
 }>()
 
 const blocklyDiv = ref<HTMLElement | null>(null)
+const cardRef = ref<{ $el: HTMLElement } | null>(null)
 const workspace = shallowRef<Blockly.WorkspaceSvg | null>(null)
 const fieldName = ref(props.fieldName)
 const editorMode = ref<'blockly' | 'text'>('blockly')
@@ -117,23 +113,20 @@ const dsl = ref('')
 const state = ref<any>(null)
 const errors = ref<string[]>([])
 
+// Blocca il toggle modalità se il campo è già stato salvato con una modalità specifica
+const isModeFixed = computed(() => {
+    const saved = normalizeStateInput(props.initialState)
+    return saved?.mode === 'text' || saved?.mode === 'blockly'
+})
+
 const dynamicToolbox = computed(() => {
     const toolbox = JSON.parse(JSON.stringify(toolboxJson))
 
-    // Se non ci sono variabili, rimuovi la categoria Variables
     if (!props.variables || props.variables.length === 0) {
         toolbox.contents = toolbox.contents.filter((cat: any) => cat.name !== 'Variables')
     }
 
     return toolbox
-})
-
-const prettyState = computed(() => {
-    try {
-        return JSON.stringify(state.value, null, 2)
-    } catch {
-        return String(state.value ?? '')
-    }
 })
 
 function refreshOutputs() {
@@ -153,13 +146,10 @@ function refreshOutputs() {
 
 function onEditorModeChange(mode: 'blockly' | 'text') {
     if (mode === 'text') {
-        // Passando da blockly a text, copia il DSL generato
         refreshOutputs()
     } else {
-        // Passando da text a blockly, aggiorna il workspace e centra il root
         refreshOutputs()
         if (workspace.value) {
-            // Usa nextTick e setTimeout per assicurarsi che il rendering sia completo
             nextTick(() => {
                 setTimeout(() => {
                     if (workspace.value) {
@@ -178,7 +168,6 @@ function onTextDslChange() {
 }
 
 function onSave() {
-    // Validazione: il nome è obbligatorio
     if (!fieldName.value || !fieldName.value.trim()) {
         errors.value = [t('knBlockly.fieldNameRequired')]
         return
@@ -186,7 +175,6 @@ function onSave() {
 
     refreshOutputs()
 
-    // Aggiungi errore se il nome è mancante anche nella validazione
     const allErrors = [...errors.value]
     if (!fieldName.value.trim()) {
         allErrors.unshift(t('knBlockly.fieldNameRequired'))
@@ -196,7 +184,6 @@ function onSave() {
         return
     }
 
-    // Crea lo stato strutturato con la modalità
     let savedState: any
     if (editorMode.value === 'text') {
         savedState = {
@@ -234,6 +221,17 @@ function initializeBlockly() {
 
     initBlockly()
 
+    if (cardRef.value?.$el) {
+        const dialogInner = cardRef.value.$el.closest('.q-dialog__inner') as HTMLElement | null
+        const container: HTMLElement = dialogInner ?? document.body
+
+        Blockly.setParentContainer(container)
+        ;['.blocklyDropDownDiv', '.blocklyWidgetDiv', '.blocklyTooltipDiv'].forEach((sel) => {
+            const el = document.querySelector(sel)
+            if (el && el.parentElement !== container) container.appendChild(el)
+        })
+    }
+
     const ws = Blockly.inject(blocklyDiv.value, {
         toolbox: dynamicToolbox.value as any,
         scrollbars: true,
@@ -252,7 +250,6 @@ function initializeBlockly() {
 
     workspace.value = ws
 
-    // Carica initialState se presente, altrimenti crea root
     const initial = normalizeStateInput(props.initialState)
     const blocklyXmlState = extractBlocklyXmlFromState(initial)
 
@@ -270,17 +267,13 @@ function initializeBlockly() {
         setVariableOptions(ws, props.variables || [])
     }
 
-    // Centra il root block nella viewport
     centerOnRoot(ws)
 
-    // Resize robusto
     resizeObserver = new ResizeObserver(() => Blockly.svgResize(ws))
     resizeObserver.observe(blocklyDiv.value)
 
-    // Listener con debounce per aggiornare lo stato
     let t: number | null = null
     changeListener = (event: Blockly.Events.Abstract) => {
-        // Quando viene creato un nuovo blocco agg_field, aggiorna le opzioni
         if (event instanceof Blockly.Events.BlockCreate) {
             const block = ws.getBlockById(event.blockId)
             if (block?.type === 'agg_field') {
@@ -314,7 +307,6 @@ function initializeBlockly() {
             const parsed = normalizeStateInput(s)
             if (!parsed) return
 
-            // Estrai il XML dello state per caricarlo nel workspace
             const blocklyXml = extractBlocklyXmlFromState(parsed)
             if (blocklyXml) {
                 safeLoadState(ws, blocklyXml, () => {
@@ -323,7 +315,6 @@ function initializeBlockly() {
                 })
             }
 
-            // Se era in text mode, ripristina il DSL
             const savedDsl = extractDslFromState(parsed)
             if (savedDsl) {
                 textDsl.value = savedDsl
@@ -336,7 +327,6 @@ function initializeBlockly() {
 
 watch(internalVisibility, async (isVisible) => {
     if (isVisible) {
-        // Aggiorna il nome del campo quando il dialog viene aperto
         fieldName.value = props.fieldName || ''
 
         if (!workspace.value) {
@@ -349,10 +339,8 @@ watch(internalVisibility, async (isVisible) => {
 })
 
 onMounted(async () => {
-    // Determina la modalità iniziale dallo stato salvato
     editorMode.value = getInitialMode(props.initialState)
 
-    // Se era in text mode, estrai il DSL salvato
     const savedState = normalizeStateInput(props.initialState)
     if (editorMode.value === 'text' && savedState?.dsl) {
         textDsl.value = savedState.dsl
@@ -406,6 +394,13 @@ onBeforeUnmount(() => {
     workspace.value = null
 })
 </script>
+
+<style>
+.blocklyDropDownDiv,
+.blocklyWidgetDiv {
+    pointer-events: all !important;
+}
+</style>
 
 <style scoped>
 .bcf-editor {
