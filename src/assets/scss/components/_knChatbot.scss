@@ -1,0 +1,264 @@
+.kn-chatbot {
+    position: fixed;
+    z-index: 1500;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 10px;
+    overflow: visible;
+    min-height: 300px;
+    min-width: 400px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18) !important;
+
+    // clip inner content to rounded corners without clipping the resize handle
+    & > *:not(.kn-chatbot-resize-handle) {
+        overflow: hidden;
+    }
+    & > *:first-child {
+        border-radius: 10px 10px 0 0;
+        overflow: hidden;
+    }
+    & > *:nth-last-child(2) {
+        border-radius: 0 0 10px 10px;
+        overflow: hidden;
+    }
+
+    .kn-chatbot-resize-handle {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 18px;
+        height: 18px;
+        cursor: se-resize;
+        z-index: 5;
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            width: 8px;
+            height: 8px;
+            border-right: 2px solid rgba(0, 0, 0, 0.3);
+            border-bottom: 2px solid rgba(0, 0, 0, 0.3);
+            border-radius: 1px;
+        }
+    }
+
+    .kn-chatbot-toolbar {
+        cursor: move;
+        user-select: none;
+        border-radius: 0;
+        min-height: 56px;
+        align-items: center;
+
+        &.kn-chatbot-toolbar--minimized {
+            min-height: 36px;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+    }
+
+    .kn-chatbot-toolbar-title {
+        line-height: 1.2;
+        padding: 6px 0;
+    }
+
+    .kn-chatbot-toolbar-main {
+        font-size: 0.95rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+    }
+
+    .kn-chatbot-toolbar-sub {
+        font-size: 0.7rem;
+        opacity: 0.8;
+        font-weight: 400;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-top: 1px;
+        text-transform: capitalize;
+    }
+
+    .kn-chatbot-toolbar-dot {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #69f0ae;
+        flex-shrink: 0;
+        box-shadow: 0 0 4px #69f0ae;
+    }
+
+    // ── Chat scroll area ──────────────────────────────────────
+    .kn-chatbot-messages {
+        background-color: #f4f6f9;
+
+        &::-webkit-scrollbar {
+            width: 4px;
+        }
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        &::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.18);
+            border-radius: 4px;
+        }
+    }
+
+    // ── Message bubbles ───────────────────────────────────────
+    .q-message {
+        margin-bottom: 2px;
+    }
+
+    .q-message-name {
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        opacity: 0.55;
+        margin-bottom: 2px;
+    }
+
+    .q-message-avatar {
+        border-radius: 50%;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+    }
+
+    .q-message-text {
+        border-radius: 14px !important;
+        padding: 10px 14px !important;
+        line-height: 1.55;
+        font-size: 0.875rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
+
+        p {
+            margin: 0 0 6px;
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+        ul,
+        ol {
+            padding-left: 1.2em;
+            margin: 4px 0;
+        }
+        code {
+            background: rgba(0, 0, 0, 0.08);
+            border-radius: 4px;
+            padding: 1px 5px;
+            font-size: 0.82em;
+            font-family: 'Fira Mono', 'Consolas', monospace;
+        }
+        pre {
+            background: rgba(0, 0, 0, 0.06);
+            border-radius: 6px;
+            padding: 10px 14px;
+            overflow-x: auto;
+            font-size: 0.82em;
+            margin: 6px 0 0;
+        }
+    }
+
+    .q-message-text--received {
+        background-color: #ffffff !important;
+        color: #1a2332 !important;
+        border-radius: 4px 14px 14px 14px !important;
+        border-left: 3px solid var(--q-primary);
+
+        &::before,
+        &::after {
+            display: none;
+        }
+    }
+
+    .q-message-text--sent {
+        background: linear-gradient(135deg, var(--q-primary), color-mix(in srgb, var(--q-primary) 80%, #000)) !important;
+        color: #ffffff !important;
+        border-radius: 14px 4px 14px 14px !important;
+
+        &,
+        & * {
+            color: #ffffff !important;
+        }
+
+        code,
+        pre {
+            background: rgba(255, 255, 255, 0.15) !important;
+        }
+
+        &::before,
+        &::after {
+            display: none;
+        }
+    }
+
+    // ── Dashboard chip ────────────────────────────────────────
+    .dashboard-link {
+        position: absolute;
+        left: 50px;
+        bottom: -25px;
+    }
+
+    // ── Timestamp ─────────────────────────────────────────────
+    .kn-chatbot-timestamp {
+        font-size: 0.68rem;
+        opacity: 0.5;
+        margin-top: -2px;
+        margin-bottom: 12px;
+        letter-spacing: 0.02em;
+    }
+
+    // ── Input area ────────────────────────────────────────────
+    .kn-chatbot-input-area {
+        background: #ffffff;
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+
+        .q-field__control {
+            border-radius: 8px;
+        }
+    }
+
+    // ── Confirm overlay ───────────────────────────────────────
+    .kn-chatbot-confirm-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        border-radius: inherit;
+        backdrop-filter: blur(2px);
+
+        .kn-chatbot-confirm-card {
+            min-width: 280px;
+            border-radius: 10px;
+        }
+    }
+}
+
+@media (max-width: 600px) {
+    .kn-chatbot {
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+
+        .kn-chatbot-toolbar {
+            cursor: default;
+        }
+
+        .kn-chatbot-messages {
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .kn-chatbot-input-area {
+            padding-bottom: env(safe-area-inset-bottom, 8px);
+        }
+
+        & > *:first-child {
+            border-radius: 0 !important;
+        }
+        & > *:nth-last-child(2) {
+            border-radius: 0 !important;
+        }
+    }
+}

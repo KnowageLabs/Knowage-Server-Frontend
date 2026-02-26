@@ -23,12 +23,17 @@
     "ai": {
         "dashboardLink": "Dashboard Link",
         "disclaimer": "The virtual assistant generates real-time responses using AI. Please consult other sources if necessary.",
+        "error": "Sorry, I cannot help you with that right now. Please try again later.",
         "message": {
             "limitReached": "You have reached the maximum number of messages allowed by your license.",
             "placeholder": "Type your message"
         },
         "newConversationConfirm": "Are you sure you want to start a new conversation? All the current conversation will be lost.",
         "title": "Virtual Assistant",
+        "voice": {
+            "start": "Start voice input",
+            "stop": "Stop voice input"
+        },
         "welcomeMessage": "Welcome to the Knowage Virtual Assistant! Ask me anything and I will do my best to help you."
     },
     "common": {

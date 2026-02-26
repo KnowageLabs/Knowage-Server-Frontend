@@ -22,12 +22,17 @@
     },
     "ai": {
         "disclaimer": "L'assistente virtuale genera risposte in tempo reale con l'IA. Consulta altre fonti, se necessario.",
+        "error": "Mi dispiace, al momento non riesco ad aiutarti. Per favore riprova più tardi.",
         "message": {
             "limitReached": "Hai raggiunto il numero massimo di messaggi consentiti dalla tua licenza.",
             "placeholder": "Scrivi qui il tuo messaggio"
         },
         "newConversationConfirm": "Sei sicuro di voler iniziare una nuova conversazione? Tutti i messaggi precedenti andranno persi.",
         "title": "Assistente Virtuale",
+        "voice": {
+            "start": "Avvia input vocale",
+            "stop": "Interrompi input vocale"
+        },
         "welcomeMessage": "Benvenuto nell'assitente virtuale di Knowage! Fammi una domanda e farò del mio meglio per aiutarti."
     },
     "common": {
