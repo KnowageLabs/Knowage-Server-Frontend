@@ -97,10 +97,9 @@ export default defineComponent({
         this.localWidgetData = deepcopy(this.dataToShow)
     },
     unmounted() {
+        this.removeEventListeners()
         Object.values(this.debounceTimers).forEach((timer) => clearTimeout(timer))
         Object.values(this.hoverTimers).forEach((timer) => clearTimeout(timer))
-        window.removeEventListener('keydown', this.onCtrlKeyDown)
-        window.removeEventListener('keyup', this.onCtrlKeyUp)
     },
     methods: {
         ...mapActions(store, ['setSelections', 'getDashboard']),
@@ -174,7 +173,6 @@ export default defineComponent({
             const singleColumnWidget = deepcopy(this.propWidget)
             singleColumnWidget.columns = [column]
 
-            // Apply per-column type override from columnTypeConfigs if defined
             const configs = this.propWidget.settings?.configuration?.columnTypeConfigs ?? []
             const matchingConfig = configs.find((cfg: any) => cfg.columns?.includes(column.columnName))
             if (matchingConfig) {
@@ -207,27 +205,21 @@ export default defineComponent({
             })
         },
         async onColumnSelectionChanged(selection: ISelection | any) {
-            if (selection?.isApplyClick) return // obsolete signal; ignore
-
             this.localSelections[selection.columnName] = selection
 
             const selectorType = this.propWidget.settings?.configuration?.selectorType?.modality?.toLowerCase()
             const isMultiValueType = ['multivalue', 'multidropdown', 'daterange', 'range'].includes(selectorType)
 
             if (isMultiValueType) {
-                // Debounce: reset the 1-second timer for this column on every change
                 if (this.debounceTimers[selection.columnName]) {
                     clearTimeout(this.debounceTimers[selection.columnName])
                 }
                 this.debounceTimers[selection.columnName] = setTimeout(async () => {
                     delete this.debounceTimers[selection.columnName]
-                    // Mark this column as unlocked so it won't self-filter
-                    this.unlockedColumnName = selection.columnName
+                    this.unlockedColumnName = selection.columnName // Mark this column as unlocked so it won't self-filter
                     await this.refreshLocalWidgetData()
                 }, 1000)
             } else {
-                // Single-value: update local state and refresh data only.
-                // The play button (onPlayClicked) is responsible for committing to the store.
                 this.unlockedColumnName = null
                 await this.refreshLocalWidgetData()
             }
@@ -239,10 +231,17 @@ export default defineComponent({
                 const dashboard = this.dashboards[this.dashboardId]
                 if (!dashboard) return
 
-                // Call the proxy directly so we can pass unlockedColumnName.
-                // The unlocked column fetches its own data without its own selection applied,
-                // keeping all its options visible after the user has committed a value.
-                this.localWidgetData = await getSelectorWidgetData(this.dashboardId, dashboard.configuration, this.propWidget, dashboard.configuration?.datasets, this.$http, false, selectionsArray, undefined, this.unlockedColumnName ?? undefined)
+                const storedAssociations = (dashboard as any).associations ?? {}
+                let associativeResponseSelections: any = undefined
+
+                if (Object.keys(storedAssociations).length > 0) {
+                    const datasetConfig = dashboard.configuration?.datasets?.find((ds: any) => ds.id === this.propWidget.dataset)
+                    if (datasetConfig?.dsLabel && storedAssociations[datasetConfig.dsLabel]) {
+                        associativeResponseSelections = storedAssociations
+                    }
+                }
+
+                this.localWidgetData = await getSelectorWidgetData(this.dashboardId, dashboard.configuration, this.propWidget, dashboard.configuration?.datasets, this.$http, false, selectionsArray, associativeResponseSelections, this.unlockedColumnName ?? undefined)
             } catch (error) {
                 console.error('[SelectorWidgetContainer] Error refreshing widget data:', error)
             } finally {
@@ -273,15 +272,6 @@ export default defineComponent({
         // min-width: 500px;
         overflow-y: auto;
     }
-
-    // :deep(.vgl-item:not(.vgl-item--placeholder)) {
-    //     background-color: #fff;
-    //     border: 1px solid #e0e0e0;
-    //     border-radius: 4px;
-    //     padding: 12px;
-    //     box-sizing: border-box;
-    //     touch-action: auto;
-    // }
 
     :deep(.vgl-item--placeholder) {
         background-color: rgba(25, 118, 210, 0.1);
@@ -317,42 +307,6 @@ export default defineComponent({
     .column-overlay-fade-enter-from,
     .column-overlay-fade-leave-to {
         opacity: 0;
-    }
-
-    .play-button-container {
-        display: flex;
-        justify-content: flex-end;
-        padding: 12px;
-        background-color: #fff;
-        border-top: 1px solid #e0e0e0;
-        flex-shrink: 0;
-
-        .play-button {
-            background-color: #1976d2;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: background-color 0.2s;
-
-            &:hover:not(:disabled) {
-                background-color: #1565c0;
-            }
-
-            &:disabled {
-                opacity: 0.5;
-                cursor: not-allowed;
-            }
-
-            i {
-                font-size: 0.875rem;
-            }
-        }
     }
 }
 </style>
