@@ -49,10 +49,18 @@ export function useChatbotPanel() {
     let dragOffsetX = 0
     let dragOffsetY = 0
 
+    function disableSelect() {
+        document.body.style.userSelect = 'none'
+    }
+    function enableSelect() {
+        document.body.style.userSelect = ''
+    }
+
     function startDrag(e: MouseEvent) {
         if (isMobile.value) return
         dragOffsetX = e.clientX - posX.value
         dragOffsetY = e.clientY - posY.value
+        disableSelect()
         document.addEventListener('mousemove', onDragMove)
         document.addEventListener('mouseup', onDragEnd)
     }
@@ -63,6 +71,7 @@ export function useChatbotPanel() {
     }
 
     function onDragEnd() {
+        enableSelect()
         document.removeEventListener('mousemove', onDragMove)
         document.removeEventListener('mouseup', onDragEnd)
     }
@@ -80,6 +89,7 @@ export function useChatbotPanel() {
         resizeStartY = e.clientY
         resizeStartW = panelWidth.value
         resizeStartH = panelHeight.value
+        disableSelect()
         document.addEventListener('mousemove', onResizeMove)
         document.addEventListener('mouseup', onResizeEnd)
     }
@@ -90,6 +100,7 @@ export function useChatbotPanel() {
     }
 
     function onResizeEnd() {
+        enableSelect()
         document.removeEventListener('mousemove', onResizeMove)
         document.removeEventListener('mouseup', onResizeEnd)
     }
