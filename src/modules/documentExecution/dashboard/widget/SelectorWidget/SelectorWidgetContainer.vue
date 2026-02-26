@@ -226,12 +226,9 @@ export default defineComponent({
                     await this.refreshLocalWidgetData()
                 }, 1000)
             } else {
-                // Single-value: push immediately and refresh all columns
+                // Single-value: update local state and refresh data only.
+                // The play button (onPlayClicked) is responsible for committing to the store.
                 this.unlockedColumnName = null
-                const selectionsArray = Object.values(this.localSelections).filter((sel: any) => sel !== undefined) as ISelection[]
-                if (selectionsArray.length > 0) {
-                    await this.setSelections(this.dashboardId, selectionsArray, this.$http)
-                }
                 await this.refreshLocalWidgetData()
             }
         },
