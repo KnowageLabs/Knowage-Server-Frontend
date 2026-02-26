@@ -132,6 +132,10 @@
             {
                 "title": "dashboard.widgetEditor.selectorWidget.range.title",
                 "type": "RangeStyle"
+            },
+            {
+                "title": "dashboard.widgetEditor.selectorWidget.buttonToggle.title",
+                "type": "ButtonToggleStyle"
             }
         ]
     },

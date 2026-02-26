@@ -18,7 +18,7 @@ export interface ISelectorWidgetConfiguration {
     columnTypeConfigs?: ISelectorColumnTypeConfig[]
 }
 
-export type SelectorModality = 'singleValue' | 'multiValue' | 'dropdown' | 'multiDropdown' | 'date' | 'dateRange' | 'slider' | 'range'
+export type SelectorModality = 'singleValue' | 'multiValue' | 'dropdown' | 'multiDropdown' | 'date' | 'dateRange' | 'slider' | 'range' | 'buttonToggle'
 
 export interface ISelectorColumnTypeConfig {
     id: string
@@ -59,6 +59,7 @@ export interface ISelectorWidgetStyle {
     dateRange: ISelectorWidgetDateRangeStyle
     slider: ISelectorWidgetSliderStyle
     range: ISelectorWidgetRangeStyle
+    buttonToggle: ISelectorWidgetButtonToggleStyle
     padding: IWidgetPaddingStyle
     borders: IWidgetBordersStyle
     shadows: IWidgetShadowsStyle
@@ -185,4 +186,16 @@ export interface ISelectorWidgetRangeStyle {
     labelColor?: string
     markerFontSize?: string
     switchMarkerLabelsSide?: boolean
+}
+
+export interface ISelectorWidgetButtonToggleStyle {
+    spread?: boolean
+    type?: 'unelevated' | 'outline' | 'flat'
+    rounded?: boolean
+    dense?: boolean
+    size?: string
+    color?: string
+    textColor?: string
+    toggleColor?: string
+    toggleTextColor?: string
 }

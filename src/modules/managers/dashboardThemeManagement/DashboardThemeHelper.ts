@@ -77,6 +77,7 @@ const addUniqueSelectorWidgetStyles = (config: ISelectorWidgetStyle) => {
     config.dateRange = selectorWidgetDefaultValues.getDefaultDateRangeStyle()
     config.slider = selectorWidgetDefaultValues.getDefaultSliderStyle()
     config.range = selectorWidgetDefaultValues.getDefaultRangeStyle()
+    config.buttonToggle = selectorWidgetDefaultValues.getDefaultButtonToggleStyle()
 }
 
 const addUniqueChartWidgetStyles = (config: any) => {
@@ -99,5 +100,6 @@ export const themeBackwardsCompatibility = (theme: IDashboardThemeConfig) => {
         if (!selectorStyle.dateRange) selectorStyle.dateRange = selectorWidgetDefaultValues.getDefaultDateRangeStyle()
         if (!selectorStyle.slider) selectorStyle.slider = selectorWidgetDefaultValues.getDefaultSliderStyle()
         if (!selectorStyle.range) selectorStyle.range = selectorWidgetDefaultValues.getDefaultRangeStyle()
+        if (!selectorStyle.buttonToggle) selectorStyle.buttonToggle = selectorWidgetDefaultValues.getDefaultButtonToggleStyle()
     }
 }

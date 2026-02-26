@@ -1436,6 +1436,13 @@
                 "range": {
                     "title": "Range Style"
                 },
+                "buttonToggle": {
+                    "title": "Button Toggle Style",
+                    "color": "Inactive Color",
+                    "textColor": "Inactive Text Color",
+                    "toggleColor": "Active Color",
+                    "toggleTextColor": "Active Text Color"
+                },
                 "slider": {
                     "sliderColor": "Slider Color",
                     "thumbColor": "Thumb Color",
@@ -2655,6 +2662,7 @@
                 "padding": "Padding",
                 "paginator": "Paginator",
                 "radio": "Radio",
+                "buttonToggle": "Button Toggle",
                 "range": "Range",
                 "rows": "Rows",
                 "shadows": "Shadows",

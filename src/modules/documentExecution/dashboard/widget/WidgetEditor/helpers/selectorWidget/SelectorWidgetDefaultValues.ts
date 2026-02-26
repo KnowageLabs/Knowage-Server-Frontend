@@ -1,4 +1,18 @@
-import { ISelectorWidgetDefaultValues, ISelectorWidgetLabelStyle, ISelectorWidgetRadioStyle, ISelectorWidgetCheckboxStyle, ISelectorWidgetDropdownStyle, ISelectorWidgetMultiDropdownStyle, ISelectorWidgetDateStyle, ISelectorWidgetDateRangeStyle, ISelectorWidgetSliderStyle, ISelectorWidgetRangeStyle, ISelectorWidgetSelectorType, ISelectorWidgetValuesManagement } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectorWidget'
+import {
+    ISelectorWidgetDefaultValues,
+    ISelectorWidgetLabelStyle,
+    ISelectorWidgetRadioStyle,
+    ISelectorWidgetCheckboxStyle,
+    ISelectorWidgetDropdownStyle,
+    ISelectorWidgetMultiDropdownStyle,
+    ISelectorWidgetDateStyle,
+    ISelectorWidgetDateRangeStyle,
+    ISelectorWidgetSliderStyle,
+    ISelectorWidgetRangeStyle,
+    ISelectorWidgetButtonToggleStyle,
+    ISelectorWidgetSelectorType,
+    ISelectorWidgetValuesManagement
+} from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectorWidget'
 import descriptor from './SelectorWidgetDefaultValuesDescriptor.json'
 import deepcopy from 'deepcopy'
 
@@ -48,4 +62,8 @@ export const getDefaultSliderStyle = () => {
 
 export const getDefaultRangeStyle = () => {
     return deepcopy(descriptor.defaultRangeStyle) as ISelectorWidgetRangeStyle
+}
+
+export const getDefaultButtonToggleStyle = () => {
+    return deepcopy(descriptor.defaultButtonToggleStyle) as ISelectorWidgetButtonToggleStyle
 }

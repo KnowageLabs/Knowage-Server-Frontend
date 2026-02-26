@@ -40,6 +40,9 @@
         <div class="p-p-2 p-d-flex" style="height: 300px">
             <WidgetRenderer ref="multiDropdownSelector" :widget="rangeModel" :widget-data="formatSelectorData(selectorWidgetMock.selectorDataMock, rangeModel)" :widget-initial-data="formatSelectorData(selectorWidgetMock.selectorDataMock, rangeModel)" :datasets="[]" :dashboard-id="'multiDropdownSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
         </div>
+        <div class="p-p-2 p-d-flex" style="height: 100px">
+            <WidgetRenderer ref="buttonToggleSelector" :widget="buttonToggleModel" :widget-data="formatSelectorData(buttonToggleDataMock, buttonToggleModel)" :widget-initial-data="formatSelectorData(buttonToggleDataMock, buttonToggleModel)" :datasets="[]" :dashboard-id="'buttonToggleSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
+        </div>
     </div>
 </template>
 
@@ -81,11 +84,16 @@ export default defineComponent({
             dateDropdownModel: {} as any,
             dateRangeModel: {} as any,
             sliderModel: {} as any,
-            rangeModel: {} as any
+            rangeModel: {} as any,
+            buttonToggleModel: {} as any
         }
     },
     computed: {
-        ...mapState(appStore, { isEnterprise: 'isEnterprise' })
+        ...mapState(appStore, { isEnterprise: 'isEnterprise' }),
+        buttonToggleDataMock(): any {
+            const mock = this.selectorWidgetMock.selectorDataMock
+            return { ...mock, rows: mock.rows.slice(0, 6), results: 6 }
+        }
     },
     watch: {
         selectedThemeProp() {
@@ -145,6 +153,10 @@ export default defineComponent({
             this.rangeModel = deepcopy(this.selectorWidgetMock.selectorModelMock)
             this.rangeModel.settings.style = this.selectedTheme.config.selector.style
             this.rangeModel.settings.configuration.selectorType.modality = 'range'
+
+            this.buttonToggleModel = deepcopy(this.selectorWidgetMock.selectorModelMock)
+            this.buttonToggleModel.settings.style = this.selectedTheme.config.selector.style
+            this.buttonToggleModel.settings.configuration.selectorType.modality = 'buttonToggle'
         },
 
         setEventListeners() {

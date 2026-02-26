@@ -68,6 +68,11 @@
             "imageUrl": "/images/dashboard/selectorTypes/slider.svg",
             "label": "Range",
             "value": "range"
+        },
+        {
+            "imageUrl": "/images/dashboard/selectorTypes/radio.svg",
+            "label": "Button Toggle",
+            "value": "buttonToggle"
         }
     ]
 }

@@ -15,6 +15,8 @@
         <SliderSelector v-if="widgetType === 'slider'" :model-value="selectedValue" :options="sliderOptions" :slider-style="propWidget.settings.style.slider" @update:model-value="sliderSelectorChanged" />
 
         <RangeSelector v-if="widgetType === 'range'" :model-value="selectedRange" :options="sliderOptions" :range-style="propWidget.settings.style.range" @update:model-value="rangeSelectorChanged" />
+
+        <ButtonToggleSelector v-if="widgetType === 'buttonToggle'" :model-value="selectedValue" :options="singleValueOptions" :button-toggle-style="propWidget.settings.style.buttonToggle" @update:model-value="buttonToggleSelectorChanged" />
     </div>
 </template>
 
@@ -32,6 +34,7 @@ import DateSelector from './selectorTypes/DateSelector.vue'
 import DateRangeSelector from './selectorTypes/DateRangeSelector.vue'
 import SliderSelector from './selectorTypes/SliderSelector.vue'
 import RangeSelector from './selectorTypes/RangeSelector.vue'
+import ButtonToggleSelector from './selectorTypes/ButtonToggleSelector.vue'
 import { QRadio, QCheckbox } from 'quasar'
 import store from '../../Dashboard.store'
 import deepcopy from 'deepcopy'
@@ -40,7 +43,7 @@ import dashboardDescriptor from '../../DashboardDescriptor.json'
 
 export default defineComponent({
     name: 'datasets-catalog-datatable',
-    components: { RadioSelector, CheckboxSelector, DropdownSelector, MultiDropdownSelector, DateSelector, DateRangeSelector, SliderSelector, RangeSelector, QRadio, QCheckbox },
+    components: { RadioSelector, CheckboxSelector, DropdownSelector, MultiDropdownSelector, DateSelector, DateRangeSelector, SliderSelector, RangeSelector, ButtonToggleSelector, QRadio, QCheckbox },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         dataToShow: { type: Object as any, required: true },
@@ -194,6 +197,9 @@ export default defineComponent({
                     case 'range':
                         this.loadRangeInitialValues(selection)
                         break
+                    case 'buttonToggle':
+                        this.selectedValue = selection.value[0]
+                        break
                 }
                 return true
             } else return false
@@ -334,6 +340,18 @@ export default defineComponent({
             if (this.editorMode) return
             const selection = this.createNewSelection([value])
             this.emitSelectionChange(selection)
+        },
+        buttonToggleSelectorChanged(value: string | null) {
+            this.selectedValue = value
+            if (this.editorMode) return
+            if (value === null) {
+                // clearable: remove selection
+                const selection = this.createNewSelection([])
+                this.emitSelectionChange(selection)
+            } else {
+                const selection = this.createNewSelection([value])
+                this.emitSelectionChange(selection)
+            }
         },
         rangeSelectorChanged(data: any) {
             if (this.editorMode) return

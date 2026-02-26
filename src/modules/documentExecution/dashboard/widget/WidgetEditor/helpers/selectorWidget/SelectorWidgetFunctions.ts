@@ -29,6 +29,7 @@ export const createNewSelectorWidgetSettings = () => {
             dateRange: selectorWidgetDefaultValues.getDefaultDateRangeStyle(),
             slider: selectorWidgetDefaultValues.getDefaultSliderStyle(),
             range: selectorWidgetDefaultValues.getDefaultRangeStyle(),
+            buttonToggle: selectorWidgetDefaultValues.getDefaultButtonToggleStyle(),
             padding: widgetCommonDefaultValues.getDefaultPaddingStyle(),
             borders: widgetCommonDefaultValues.getDefaultBordersStyle(),
             shadows: widgetCommonDefaultValues.getDefaultShadowsStyle(),
@@ -49,6 +50,7 @@ export const formatSelectorSettings = (widget: IWidget) => {
     formatSelectorWidgetDateRangeStyle(widget.settings.style)
     formatSelectorWidgetSliderStyle(widget.settings.style)
     formatSelectorWidgetRangeStyle(widget.settings.style)
+    formatSelectorWidgetButtonToggleStyle(widget.settings.style)
 }
 
 //TODO - delete label when all selector widgets have been updated
@@ -128,5 +130,11 @@ const formatSelectorWidgetSliderStyle = (widgetStyle: ISelectorWidgetStyle) => {
 const formatSelectorWidgetRangeStyle = (widgetStyle: ISelectorWidgetStyle) => {
     if (!widgetStyle.range) {
         widgetStyle.range = selectorWidgetDefaultValues.getDefaultRangeStyle()
+    }
+}
+
+const formatSelectorWidgetButtonToggleStyle = (widgetStyle: ISelectorWidgetStyle) => {
+    if (!widgetStyle.buttonToggle) {
+        widgetStyle.buttonToggle = selectorWidgetDefaultValues.getDefaultButtonToggleStyle()
     }
 }
