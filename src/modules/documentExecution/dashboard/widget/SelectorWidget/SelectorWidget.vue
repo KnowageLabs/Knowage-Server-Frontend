@@ -1,5 +1,5 @@
 <template>
-    <div v-if="options" class="selector-widget dashboard-scrollbar">
+    <div v-if="options" :class="['selector-widget', 'dashboard-scrollbar', { 'selector-widget--impossible': hasImpossibleSelection }]">
         <RadioSelector v-if="widgetType === 'singleValue'" :model-value="selectedValue" :options="singleValueOptions" :radio-style="propWidget.settings.style.radio" @update:model-value="radioSelectorChanged" />
 
         <CheckboxSelector v-if="widgetType === 'multiValue'" :model-value="selectedValues" :options="multiValueOptions" :checkbox-style="propWidget.settings.style.checkbox" @update:model-value="checkboxSelectorChanged" />
@@ -104,6 +104,16 @@ export default defineComponent({
         },
         sliderOptions(): any[] {
             return this.getFilteredOptionsForDisplay().map((row: any) => ({ ...row }))
+        },
+        hasImpossibleSelection(): boolean {
+            const type = this.widgetType
+            if (['date', 'dateRange', 'slider', 'range'].includes(type)) return false
+            const disabledValues = new Set(this.options.rows.filter((row: any) => row.disabled).map((row: any) => String(row.column_1)))
+            if (disabledValues.size === 0) return false
+            if (['multiValue', 'multiDropdown'].includes(type)) {
+                return this.selectedValues.length > 0 && this.selectedValues.some((v: any) => disabledValues.has(String(v)))
+            }
+            return this.selectedValue !== null && disabledValues.has(String(this.selectedValue))
         }
     },
     watch: {
@@ -133,12 +143,8 @@ export default defineComponent({
     },
     methods: {
         ...mapActions(store, ['setSelections']),
-        getFilteredOptionsForDisplay(): any[] {
-            if (this.showMode === 'hideDisabled') {
-                return this.options.rows.filter((row: any) => !row.disabled)
-            }
-            return this.options.rows
-        },
+
+        //#region ===================== EventListeners ============================================
         setEventListeners() {
             emitter.on('widgetUnlocked', this.onSelectionsDeleted)
             emitter.on('selectionsDeleted', this.onSelectionsDeleted)
@@ -146,6 +152,15 @@ export default defineComponent({
         removeEventListeners() {
             emitter.off('widgetUnlocked', this.onSelectionsDeleted)
             emitter.off('selectionsDeleted', this.onSelectionsDeleted)
+        },
+        //#endregion =============================================================================
+
+        //#region ===================== Options & Data Loading ====================================
+        getFilteredOptionsForDisplay(): any[] {
+            if (this.showMode === 'hideDisabled') {
+                return this.options.rows.filter((row: any) => !row.disabled)
+            }
+            return this.options.rows
         },
         loadInitialValues() {
             this.initialOptions = this.widgetInitialData
@@ -168,6 +183,9 @@ export default defineComponent({
         getBaseDropdownOptions(): any[] {
             return this.showMode === 'hideDisabled' ? this.options.rows.filter((row: any) => !row.disabled) : this.options.rows
         },
+        //#endregion =============================================================================
+
+        //#region ===================== Selections Loading ========================================
         loadActiveSelections() {
             this.activeSelections = this.propActiveSelections
         },
@@ -232,6 +250,9 @@ export default defineComponent({
             this.startDate = minDateAsMilliseconds ? new Date(minDateAsMilliseconds) : this.startDate
             this.endDate = maxDateAsMilliseconds ? new Date(maxDateAsMilliseconds) : this.endDate
         },
+        //#endregion =============================================================================
+
+        //#region ===================== Default Values ============================================
         updateDefaultValues() {
             if (!this.propWidget.settings.configuration.defaultValues.enabled) {
                 this.removeDeafultValues()
@@ -251,6 +272,9 @@ export default defineComponent({
             }
             return ''
         },
+        //#endregion =============================================================================
+
+        //#region ===================== Selection Helpers =========================================
         createNewSelection(value: (string | number)[]) {
             return { datasetId: this.propWidget.dataset as number, datasetLabel: this.getDatasetLabel(this.propWidget.dataset as number), columnName: this.propWidget.columns[0]?.columnName ?? '', value: value, aggregated: false, timestamp: new Date().getTime() } as ISelection
         },
@@ -274,6 +298,9 @@ export default defineComponent({
                 updateStoreSelections(selection, this.activeSelections, this.dashboardId, this.setSelections, this.$http)
             }
         },
+        //#endregion =============================================================================
+
+        //#region ===================== Selector Change Handlers ==================================
         radioSelectorChanged(event: any) {
             this.selectedValue = event
             if (this.editorMode) return
@@ -373,6 +400,7 @@ export default defineComponent({
                 updateStoreSelections(selection, this.activeSelections, this.dashboardId, this.setSelections, this.$http)
             }, 1000)
         }
+        //#endregion =============================================================================
     }
 })
 </script>
@@ -382,5 +410,11 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     height: 100%;
+
+    &--impossible {
+        outline: 2px solid var(--kn-color-warning, #f59e0b);
+        outline-offset: -2px;
+        border-radius: 4px;
+    }
 }
 </style>

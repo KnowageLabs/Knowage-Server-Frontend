@@ -2,11 +2,16 @@
     <div class="selector-widget-container">
         <GridLayout v-model:layout="gridLayout" :cols="4" :row-height="30" :is-draggable="true" :is-resizable="true" :vertical-compact="false" :use-css-transforms="false" :margin="[0, 0]" :responsive="false" :auto-size="false">
             <template #item="{ item }">
-                <div class="selector-column-wrapper" @mouseenter="onColumnMouseEnter(item.columnName)" @mouseleave="onColumnMouseLeave(item.columnName)" @mousemove="onColumnMouseMove(item.columnName)">
+                <div class="selector-column-wrapper" @mouseenter="onColumnMouseEnter(item.columnName)" @mouseleave="onColumnMouseLeave(item.columnName)" @mousemove="onColumnMouseMove(item.columnName)" @scroll.capture="onColumnScroll(item.columnName)" @contextmenu.prevent="onColumnRightClick(item.columnName)">
                     <SelectorWidget :prop-widget="getSingleColumnWidget(getColumnByName(item.columnName))" :data-to-show="getColumnData(item.columnName)" :widget-initial-data="getColumnInitialData(item.columnName)" :prop-active-selections="getColumnSelections(item.columnName)" :editor-mode="false" :dashboard-id="dashboardId" :datasets="datasets" :selection-is-locked="selectionIsLocked" :local-mode="true" @selection-changed="onColumnSelectionChanged" />
                     <transition name="column-overlay-fade">
-                        <div v-if="isColumnOverlayVisible(item.columnName)" class="column-clear-overlay" @mousemove.stop>
-                            <q-btn flat color="info" icon="lock_open" size="lg" @click.stop="clearColumnSelection(item.columnName)" />
+                        <div v-if="isColumnOverlayVisible(item.columnName)" class="column-clear-overlay" @mousemove.stop @click.self="hideOverlay">
+                            <q-btn v-if="getColumnImpossibleValues(item.columnName).length > 0" flat color="warning" icon="warning" size="lg" @click.stop="clearImpossibleColumnValues(item.columnName)">
+                                <q-tooltip>{{ $t('dashboard.selectorWidget.clearImpossibleValues') }}</q-tooltip>
+                            </q-btn>
+                            <q-btn flat color="info" icon="lock_open" size="lg" @click.stop="clearColumnSelection(item.columnName)">
+                                <q-tooltip>{{ $t('dashboard.selectorWidget.clearSelection') }}</q-tooltip>
+                            </q-btn>
                         </div>
                     </transition>
                 </div>
@@ -53,6 +58,7 @@ export default defineComponent({
             debounceTimers: {} as Record<string, ReturnType<typeof setTimeout>>,
             hoverTimers: {} as Record<string, ReturnType<typeof setTimeout>>,
             slowHoverColumn: null as string | null,
+            rightClickColumn: null as string | null,
             ctrlPressed: false,
             loading: false
         }
@@ -101,6 +107,8 @@ export default defineComponent({
     },
     methods: {
         ...mapActions(store, ['setSelections', 'getDashboard']),
+
+        //#region ===================== EventListeners & Keyboard =================================
         setEventListeners() {
             emitter.on('applySelectionsForMultiColumnSelector', this.onPlayClicked)
             window.addEventListener('keydown', this.onCtrlKeyDown)
@@ -117,14 +125,17 @@ export default defineComponent({
         onCtrlKeyUp(e: KeyboardEvent) {
             if (e.key === 'Control') this.ctrlPressed = false
         },
+        //#endregion =============================================================================
+
+        //#region ===================== Overlay Visibility ========================================
         isColumnOverlayVisible(columnName: string): boolean {
             if (!this.localSelections[columnName]) return false
-            return this.ctrlPressed || this.slowHoverColumn === columnName
+            return this.ctrlPressed || this.slowHoverColumn === columnName || this.rightClickColumn === columnName
         },
         onColumnMouseEnter(columnName: string) {
             this.hoverTimers[columnName] = setTimeout(() => {
                 this.slowHoverColumn = columnName
-            }, 1000)
+            }, 500)
         },
         onColumnMouseLeave(columnName: string) {
             if (this.hoverTimers[columnName]) {
@@ -132,6 +143,7 @@ export default defineComponent({
                 delete this.hoverTimers[columnName]
             }
             if (this.slowHoverColumn === columnName) this.slowHoverColumn = null
+            if (this.rightClickColumn === columnName) this.rightClickColumn = null
         },
         onColumnMouseMove(columnName: string) {
             if (this.hoverTimers[columnName]) {
@@ -143,12 +155,54 @@ export default defineComponent({
                 this.slowHoverColumn = columnName
             }, 1000)
         },
+        onColumnScroll(columnName: string) {
+            if (this.hoverTimers[columnName]) {
+                clearTimeout(this.hoverTimers[columnName])
+                delete this.hoverTimers[columnName]
+            }
+            if (this.slowHoverColumn === columnName) this.slowHoverColumn = null
+            if (this.rightClickColumn === columnName) this.rightClickColumn = null
+        },
+        onColumnRightClick(columnName: string) {
+            this.rightClickColumn = columnName
+        },
+        hideOverlay() {
+            this.slowHoverColumn = null
+            this.rightClickColumn = null
+        },
+        //#endregion =============================================================================
+
+        //#region ===================== Column Selection Actions ==================================
         async clearColumnSelection(columnName: string) {
             delete this.localSelections[columnName]
             this.slowHoverColumn = null
+            this.rightClickColumn = null
             this.unlockedColumnName = null
             await this.refreshLocalWidgetData()
         },
+        getColumnImpossibleValues(columnName: string): any[] {
+            const selection = this.localSelections[columnName]
+            if (!selection) return []
+            const availableSet = new Set((this.localWidgetData[columnName]?.rows || []).map((r: any) => String(r.column_1)))
+            return selection.value.filter((v: any) => !availableSet.has(String(v)))
+        },
+        async clearImpossibleColumnValues(columnName: string) {
+            const selection = this.localSelections[columnName]
+            if (!selection) return
+            const availableSet = new Set((this.localWidgetData[columnName]?.rows || []).map((r: any) => String(r.column_1)))
+            const validValues = selection.value.filter((v: any) => availableSet.has(String(v)))
+            if (validValues.length === 0) {
+                delete this.localSelections[columnName]
+            } else {
+                this.localSelections[columnName] = { ...selection, value: validValues }
+            }
+            this.slowHoverColumn = null
+            this.rightClickColumn = null
+            await this.refreshLocalWidgetData()
+        },
+        //#endregion =============================================================================
+
+        //#region ===================== Grid Layout ===============================================
         initializeGridLayout() {
             const savedLayout = this.propWidget.settings?.responsive?.columnLayout ?? {}
             this.gridLayout = this.propWidget.columns.map((col: any, index: number) => {
@@ -164,6 +218,9 @@ export default defineComponent({
                 }
             })
         },
+        //#endregion =============================================================================
+
+        //#region ===================== Column Data Helpers =======================================
         getColumnByName(columnName: string): any {
             return this.propWidget.columns.find((col: any) => col.columnName === columnName)
         },
@@ -201,6 +258,9 @@ export default defineComponent({
                 }
             })
         },
+        //#endregion =============================================================================
+
+        //#region ===================== Selection Changes & Data Refresh ==========================
         async onColumnSelectionChanged(selection: ISelection | any) {
             this.localSelections[selection.columnName] = selection
 
@@ -251,6 +311,7 @@ export default defineComponent({
                 await this.setSelections(this.dashboardId, selectionsArray, this.$http)
             }
         }
+        //#endregion =============================================================================
     }
 })
 </script>

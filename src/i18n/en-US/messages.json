@@ -577,6 +577,10 @@
         "saveCockpit": "Save Cockpit",
         "saveCockpitHint": "Please enter a valid name",
         "selectionsList": "Selections List",
+        "selectorWidget": {
+            "clearImpossibleValues": "Clear Impossible Values",
+            "clearSelection": "Clear Selection"
+        },
         "sheet": "Sheet",
         "sheets": {
             "add": "Add Sheet",
@@ -1399,6 +1403,13 @@
                 "title": "Selector Type"
             },
             "selectorWidget": {
+                "buttonToggle": {
+                    "color": "Inactive Color",
+                    "textColor": "Inactive Text Color",
+                    "title": "Button Toggle Style",
+                    "toggleColor": "Active Color",
+                    "toggleTextColor": "Active Text Color"
+                },
                 "checkbox": {
                     "title": "Checkbox Style"
                 },
@@ -1435,13 +1446,6 @@
                 },
                 "range": {
                     "title": "Range Style"
-                },
-                "buttonToggle": {
-                    "title": "Button Toggle Style",
-                    "color": "Inactive Color",
-                    "textColor": "Inactive Text Color",
-                    "toggleColor": "Active Color",
-                    "toggleTextColor": "Active Text Color"
                 },
                 "slider": {
                     "sliderColor": "Slider Color",
@@ -2646,6 +2650,7 @@
             "styleTypes": {
                 "background": "Background",
                 "borders": "Borders",
+                "buttonToggle": "Button Toggle",
                 "checkbox": "Checkbox",
                 "chips": "Chips",
                 "colors": "Colors",
@@ -2662,7 +2667,6 @@
                 "padding": "Padding",
                 "paginator": "Paginator",
                 "radio": "Radio",
-                "buttonToggle": "Button Toggle",
                 "range": "Range",
                 "rows": "Rows",
                 "shadows": "Shadows",
