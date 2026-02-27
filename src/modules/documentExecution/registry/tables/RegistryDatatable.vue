@@ -533,6 +533,7 @@ function sortingChanged(updatedSortModel: any) {
 
 function clearSelectedRows() {
     selectedRows.value = []
+    gridApi.value?.deselectAll()
 }
 
 function stopGridEditing() {
@@ -564,7 +565,7 @@ watch(
     { deep: true }
 )
 
-context.value = { componentParent: { setRowEdited, onDropdownChange, addColumnOptions } }
+context.value = { componentParent: { setRowEdited, onDropdownChange, addColumnOptions, sortingChanged } }
 setupDatatableOptions()
 
 onMounted(() => {

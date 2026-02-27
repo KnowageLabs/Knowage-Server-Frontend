@@ -144,11 +144,12 @@ function createColumnWidthProperty() {
 }
 
 function loadColumns() {
-    columns.value = []
-    registry.value.registryConfig.columns.map((el: any) => {
+    const newColumns: any[] = []
+    registry.value.registryConfig.columns.forEach((el: any) => {
         if (el.type === 'merge') isPivot.value = true
-        columns.value.push(el)
+        newColumns.push(el)
     })
+    columns.value = newColumns
 }
 
 function loadColumnMap() {
