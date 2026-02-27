@@ -2,8 +2,8 @@
     <div v-show="widgetModel">
         <Message v-if="themePropertyChanged" class="p-p-2 p-m-4" severity="warn" :closable="false">{{ $t('dashboard.widgetEditor.themeChangedWarning') }}</Message>
         <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker>
-        <Accordion v-model:activeIndex="activeIndex" class="widget-editor-accordion">
-            <AccordionTab v-for="(accordion, index) in settings" :key="index">
+        <q-list class="widget-editor-accordion" bordered separator>
+            <q-expansion-item v-for="(accordion, index) in settings" :key="index" :model-value="activeIndex === index" expand-icon-class="col kn-width-full" @update:model-value="(val) => onExpansionChange(val, index)">
                 <template #header>
                     <HTMLWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></HTMLWidgetSettingsAccordionHeader>
                 </template>
@@ -23,8 +23,8 @@
                 <WidgetInteractionsIframe v-else-if="accordion.type === 'IFrameInteraction'" :widget-model="widgetModel" :dashboard-id="dashboardId"></WidgetInteractionsIframe>
                 <CustomDashboardHeaderConfiguration v-else-if="accordion.type === 'CustomDashboardHeaderConfiguration'" :widget-model="widgetModel"></CustomDashboardHeaderConfiguration>
                 <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
-            </AccordionTab>
-        </Accordion>
+            </q-expansion-item>
+        </q-list>
     </div>
 </template>
 
@@ -33,8 +33,6 @@ import { defineComponent, PropType } from 'vue'
 import { IWidget, IDataset, IVariable } from '@/modules/documentExecution/Dashboard/Dashboard'
 import { mapState } from 'pinia'
 import mainStore from '@/App.store'
-import Accordion from 'primevue/accordion'
-import AccordionTab from 'primevue/accordiontab'
 import descriptor from './HTMLWidgetSettingsDescriptor.json'
 import settingsTabDescriptor from '../WidgetEditorSettingsTabDescriptor.json'
 import WidgetMenuConfiguration from '../common/configuration/WidgetMenuConfiguration.vue'
@@ -60,8 +58,6 @@ import WidgetHelpSettings from '../common/help/WidgetHelpSettings.vue'
 export default defineComponent({
     name: 'html-widget-settings-container',
     components: {
-        Accordion,
-        AccordionTab,
         WidgetTitleStyle,
         WidgetBackgroundColorStyle,
         WidgetPaddingStyle,
@@ -122,6 +118,9 @@ export default defineComponent({
             if (!this.settings) return
             if (this.settings.length === 1) this.activeIndex = 0
             else if (this.activeIndex === -1 && this.settings.length === 2 && this.settings[1].type === 'HTML') this.activeIndex = 1
+        },
+        onExpansionChange(expanded: boolean, index: number) {
+            this.activeIndex = expanded ? index : -1
         },
         onStyleChanged() {
             this.styleChangedFlag = !this.styleChangedFlag

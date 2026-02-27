@@ -1,5 +1,5 @@
 <template>
-    <div v-if="widgetModel" class="dashboard-editor-list-card-container p-my-3 p-ml-3">
+    <div v-if="widgetModel">
         <span class="p-float-label p-mx-2 p-mt-4 p-mb-1">
             <Dropdown id="dataset" v-model="selectedDataset" class="kn-material-input kn-width-full" :options="datasetOptions" option-label="label" :show-clear="isTextOrHTMLWidget" @change="onDatasetSelected" @clear="onDatasetCleared"></Dropdown>
             <label for="dataset" class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.selectDataset') }} </label>

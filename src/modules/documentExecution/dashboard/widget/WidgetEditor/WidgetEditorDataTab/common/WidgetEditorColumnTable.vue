@@ -168,11 +168,11 @@ export default defineComponent({
                     this.store.setHighchartsScatterAttributePresent(true)
                 }
             }
-            if (['table', 'html', 'text', 'highcharts', 'chartJS', 'discovery', 'customchart', 'python', 'r'].includes(this.widgetModel.type)) {
+            if (['table', 'html', 'text', 'highcharts', 'chartJS', 'discovery', 'customchart', 'python', 'r', 'selector'].includes(this.widgetModel.type)) {
                 if (['chartJS', 'highcharts'].includes(this.widgetModel.type)) {
                     if (this.axis) tempColumn.axis = this.axis
                     addChartColumnToTable(tempColumn, this.rows, this.chartType, this.settings.attributesOnly, this.settings.measuresOnly, this.widgetModel)
-                } else if (['table', 'python', 'r'].includes(this.widgetModel.type) || !this.checkIfColumnIsAlreadyPresent(tempColumn)) this.rows.push(tempColumn as IWidgetColumn)
+                } else if (['table', 'python', 'r', 'selector'].includes(this.widgetModel.type) || !this.checkIfColumnIsAlreadyPresent(tempColumn)) this.rows.push(tempColumn as IWidgetColumn)
             } else {
                 this.rows = [tempColumn]
             }

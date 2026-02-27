@@ -1,19 +1,19 @@
 <template>
-    <div class="p-d-flex p-flex-row p-ai-center">
-        <InputSwitch v-if="model" v-model="model.enabled" class="p-mr-3" @click.stop="onModelChange"></InputSwitch>
-        <label class="kn-material-input-label">{{ title ? $t(title) : '' }}</label>
-    </div>
+    <q-item-section v-if="model" class="row items-center col-shrink">
+        <q-toggle v-model="model.enabled" :label="title ? $t(title) : ''" @click.stop="onModelChange" dense />
+    </q-item-section>
+    <q-item-section v-else class="col-shrink">
+        <span>{{ title ? $t(title) : '' }}</span>
+    </q-item-section>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
-import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
     name: 'map-settings-accordion-header',
-    components: { InputSwitch },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, title: { type: String }, type: { type: String, required: true } },
     emits: ['styleChanged'],
     data() {

@@ -2,8 +2,8 @@
     <div v-show="widgetModel">
         <Message v-if="themePropertyChanged" class="p-p-2 p-m-4" severity="warn" :closable="false">{{ $t('dashboard.widgetEditor.themeChangedWarning') }}</Message>
         <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker>
-        <Accordion v-model:activeIndex="activeIndex" class="selectorAccordion">
-            <AccordionTab v-for="(accordion, index) in filteredSettings" :key="index" :disabled="accordion.type === 'LabelStyle' && labelStyleAccordionDisabled">
+        <q-list class="selector-expansion-list" bordered separator>
+            <q-expansion-item v-for="(accordion, index) in filteredSettings" :key="index" :model-value="activeIndex === index" :disable="accordion.type === 'LabelStyle' && labelStyleAccordionDisabled" expand-icon-class="col kn-width-full" @update:model-value="(val) => onExpansionChange(val, index)">
                 <template #header>
                     <SelectorWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></SelectorWidgetSettingsAccordionHeader>
                 </template>
@@ -21,18 +21,25 @@
                 <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetShadowsStyle>
                 <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
                 <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
-            </AccordionTab>
-        </Accordion>
+                <SelectorWidgetRadioStyle v-else-if="accordion.type === 'RadioStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetRadioStyle>
+                <SelectorWidgetCheckboxStyle v-else-if="accordion.type === 'CheckboxStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetCheckboxStyle>
+                <SelectorWidgetDropdownStyle v-else-if="accordion.type === 'DropdownStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetDropdownStyle>
+                <SelectorWidgetMultiDropdownStyle v-else-if="accordion.type === 'MultiDropdownStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetMultiDropdownStyle>
+                <SelectorWidgetDateStyle v-else-if="accordion.type === 'DateStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetDateStyle>
+                <SelectorWidgetDateRangeStyle v-else-if="accordion.type === 'DateRangeStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetDateRangeStyle>
+                <SelectorWidgetSliderStyle v-else-if="accordion.type === 'SliderStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetSliderStyle>
+                <SelectorWidgetRangeStyle v-else-if="accordion.type === 'RangeStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetRangeStyle>
+                <SelectorWidgetButtonToggleStyle v-else-if="accordion.type === 'ButtonToggleStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetButtonToggleStyle>
+            </q-expansion-item>
+        </q-list>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget, IDataset, IVariable } from '@/modules/documentExecution/Dashboard/Dashboard'
+import { IWidget, IDataset, IVariable } from '@/modules/documentExecution/dashboard/Dashboard'
 import { mapState } from 'pinia'
 import mainStore from '@/App.store'
-import Accordion from 'primevue/accordion'
-import AccordionTab from 'primevue/accordiontab'
 import descriptor from './SelectorWidgetSettingsDescriptor.json'
 import settingsTabDescriptor from '../WidgetEditorSettingsTabDescriptor.json'
 import SelectorWidgetType from './configuration/SelectorWidgetType.vue'
@@ -41,6 +48,15 @@ import SelectorWidgetValuesManagement from './configuration/SelectorWidgetValues
 import WidgetMenuConfiguration from '../common/configuration/WidgetMenuConfiguration.vue'
 import WidgetTitleStyle from '../common/style/WidgetTitleStyle.vue'
 import SelectorWidgetLabelStyle from './style/SelectorWidgetLabelStyle.vue'
+import SelectorWidgetRadioStyle from './style/SelectorWidgetRadioStyle.vue'
+import SelectorWidgetCheckboxStyle from './style/SelectorWidgetCheckboxStyle.vue'
+import SelectorWidgetDropdownStyle from './style/SelectorWidgetDropdownStyle.vue'
+import SelectorWidgetMultiDropdownStyle from './style/SelectorWidgetMultiDropdownStyle.vue'
+import SelectorWidgetDateStyle from './style/SelectorWidgetDateStyle.vue'
+import SelectorWidgetDateRangeStyle from './style/SelectorWidgetDateRangeStyle.vue'
+import SelectorWidgetSliderStyle from './style/SelectorWidgetSliderStyle.vue'
+import SelectorWidgetRangeStyle from './style/SelectorWidgetRangeStyle.vue'
+import SelectorWidgetButtonToggleStyle from './style/SelectorWidgetButtonToggleStyle.vue'
 import WidgetBackgroundColorStyle from '../common/style/WidgetBackgroundColorStyle.vue'
 import WidgetPaddingStyle from '../common/style/WidgetPaddingStyle.vue'
 import WidgetBordersStyle from '../common/style/WidgetBordersStyle.vue'
@@ -56,13 +72,20 @@ import SelectorWidgetRange from './configuration/SelectorWidgetRange.vue'
 export default defineComponent({
     name: 'selector-widget-settings-container',
     components: {
-        Accordion,
-        AccordionTab,
         SelectorWidgetType,
         SelectorWidgetDefaultValues,
         SelectorWidgetValuesManagement,
         WidgetTitleStyle,
         SelectorWidgetLabelStyle,
+        SelectorWidgetRadioStyle,
+        SelectorWidgetCheckboxStyle,
+        SelectorWidgetDropdownStyle,
+        SelectorWidgetMultiDropdownStyle,
+        SelectorWidgetDateStyle,
+        SelectorWidgetDateRangeStyle,
+        SelectorWidgetSliderStyle,
+        SelectorWidgetRangeStyle,
+        SelectorWidgetButtonToggleStyle,
         WidgetBackgroundColorStyle,
         WidgetPaddingStyle,
         WidgetBordersStyle,
@@ -128,6 +151,9 @@ export default defineComponent({
         setActiveAccordion() {
             if (this.settings?.length === 1) this.activeIndex = 0
         },
+        onExpansionChange(expanded: boolean, index: number) {
+            this.activeIndex = expanded ? index : -1
+        },
         onStyleChanged() {
             this.styleChangedFlag = !this.styleChangedFlag
             if (this.themeId) this.themePropertyChanged = true
@@ -139,14 +165,3 @@ export default defineComponent({
     }
 })
 </script>
-
-<style lang="scss">
-.selectorAccordion {
-    ::v-deep(.p-accordion-tab-active) {
-        margin: 0;
-    }
-    .p-accordion-content {
-        display: flex;
-    }
-}
-</style>

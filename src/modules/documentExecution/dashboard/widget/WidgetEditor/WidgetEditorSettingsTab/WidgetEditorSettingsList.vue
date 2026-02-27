@@ -1,5 +1,5 @@
 <template>
-    <div class="dashboard-editor-list-card-container p-m-3">
+    <div class="dashboard-editor-list-card-container">
         <Listbox v-model="selectedItem" class="kn-list kn-list-no-border-right dashboard-editor-list" :options="options" option-disabled="disabled">
             <template #option="slotProps">
                 <div class="kn-list-item" :style="descriptor.listStyle.listItem" data-test="list-item" @click="itemClicked(slotProps.option)">

@@ -503,6 +503,7 @@ export interface IWidgetResponsive {
     sm: boolean
     md: boolean
     lg: boolean
+    columnLayout?: Record<string, { x: number; y: number; w: number; h: number }>
 }
 
 export interface IWidgetColumn {

@@ -1,7 +1,6 @@
 <template>
     <GridItem :id="`widget${item.id}`" :ref="`widget${item.id}`" :key="item.id" class="p-d-flex widget-grid-item" :x="item.x" :y="item.y" :w="item.w" :h="item.h" :i="item.i" :static="widget?.settings?.locked" drag-allow-from=".drag-handle" :class="{ canEdit: canEditDashboard(document) && !widget?.settings?.locked, 'full-grid-widget': widget?.settings.responsive.fullGrid }" @resized="onWidgetResize">
         <div v-if="initialized" class="drag-handle"></div>
-        <q-spinner-grid v-if="loading || customChartLoading || widgetLoading" color="primary" size="3rem" class="widgetSpinner" />
         <q-skeleton v-if="!initialized" height="100%" width="100%" square />
         <WidgetRenderer
             v-if="!loading && widget"
@@ -23,6 +22,10 @@
         ></WidgetRenderer>
         <WidgetButtonBar v-if="items.filter((i) => i.visible).length > 0 || playSelectionButtonVisible" :document="document" :widget="widget" :play-selection-button-visible="playSelectionButtonVisible" :selection-is-locked="selectionIsLocked" :dashboard-id="dashboardId" :in-focus="inFocus" :menu-items="items" @edit-widget="toggleEditMode" @unlock-selection="unlockSelection" @launch-selection="launchSelection" @change-focus="changeFocus"></WidgetButtonBar>
         <ContextMenu v-if="canEditDashboard(document)" ref="contextMenu" :model="items" />
+
+        <q-inner-loading :showing="loading || customChartLoading || widgetLoading">
+            <q-spinner-grid color="primary" size="3rem" class="widgetSpinner" />
+        </q-inner-loading>
     </GridItem>
 
     <QuickWidgetDialog v-if="showQuickDialog" @close="toggleQuickDialog" @chartTypeSelected="onChartSelectedForQuickWidgetChange" />
@@ -116,9 +119,17 @@ export default defineComponent({
         ...mapState(store, ['dashboards']),
         ...mapState(mainStore, ['user', 'setInfo', 'setLoading']),
         playSelectionButtonVisible(): boolean {
-            const isSelectorWidget = this.widget.type === 'selector' && ['multiValue', 'multiDropdown', 'dateRange'].includes(this.widget.settings.configuration.selectorType.modality) && !this.selectionIsLocked
+            if (!this.widget || !this.widget.settings?.configuration) return false
+
+            // Show play button for multi-column selectors (regardless of type)
+            if (this.widget.type === 'selector' && this.widget.columns && this.widget.columns.length > 1) {
+                return !this.selectionIsLocked
+            }
+
+            // Show play button for specific multi-value selector types
+            if (!this.widget.settings.configuration.selectorType) return false
+            const isSelectorWidget = this.widget.type === 'selector' && ['multiValue', 'multiDropdown', 'dateRange', 'range'].includes(this.widget.settings.configuration.selectorType.modality) && !this.selectionIsLocked
             if (this.document.seeAsFinalUser && isSelectorWidget) return true
-            if (!this.widget || !this.widget.settings.configuration || !this.widget.settings.configuration.selectorType) return false
             return isSelectorWidget
         },
         dashboardSheets() {
@@ -521,8 +532,13 @@ export default defineComponent({
         },
         checkIfSelectionIsLocked() {
             if (this.widgetModel.type !== 'selector' || (this.widgetModel.settings as ISelectorWidgetSettings).configuration.valuesManagement.enableAll) return false
-            const index = this.activeSelections.findIndex((selection: ISelection) => selection.datasetId === this.widgetModel.dataset && selection.columnName === this.widgetModel.columns[0].columnName)
-            this.selectionIsLocked = index !== -1
+
+            // For multi-column selectors, check if ANY column has a selection
+            const hasAnySelection = this.widgetModel.columns.some((column: any) => {
+                return this.activeSelections.some((selection: ISelection) => selection.datasetId === this.widgetModel.dataset && selection.columnName === column.columnName)
+            })
+
+            this.selectionIsLocked = hasAnySelection
         },
         getAssociativeSelectionsFromStoreIfDatasetIsBeingUsedInAssociation() {
             const associativeSelections = this.getAssociations(this.dashboardId)
@@ -572,15 +588,22 @@ export default defineComponent({
         },
 
         launchSelection() {
-            this.setSelections(this.dashboardId, this.activeSelections, this.$http)
+            // For multi-column selectors, emit event for local selection handling
+            if (this.widget?.type === 'selector' && this.widget?.columns?.length > 1) {
+                emitter.emit('applySelectionsForMultiColumnSelector', { widgetId: this.widget.id })
+            } else {
+                // For other widgets or single-column selectors, apply selections from store
+                this.setSelections(this.dashboardId, this.activeSelections, this.$http)
+            }
         },
         unlockSelection() {
-            const payload = {
+            // Create payloads for all columns in the selector widget
+            const payloads = this.widgetModel.columns.map((column: any) => ({
                 datasetId: this.widgetModel.dataset as number,
-                columnName: this.widgetModel.columns[0].columnName
-            }
-            emitter.emit('widgetUnlocked', [payload])
-            this.removeSelections([payload], this.dashboardId, this.$http)
+                columnName: column.columnName
+            }))
+            emitter.emit('widgetUnlocked', payloads)
+            this.removeSelections(payloads, this.dashboardId, this.$http)
         },
 
         onChartSelectedForQuickWidgetChange(chartType: string) {

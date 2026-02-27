@@ -6,16 +6,24 @@ import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.stor
 import moment from 'moment'
 import { DataType } from '../ChartWidget/classes/highcharts/helpers/setData/HighchartsSetDataHelpers'
 
-export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
+export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any, unlockedColumnName?: string) => {
     const dashStore = dashboardStore()
 
     const datasetIndex = datasets.findIndex((dataset: any) => widget.dataset === dataset.id)
     const selectedDataset = datasets[datasetIndex]
 
-    if (selectedDataset) {
-        const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=${!selectedDataset.cache}&useGroupBy=true`
+    if (!selectedDataset) return null
 
-        const postData = formatSelectorWidgetModelForService(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
+    const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=${!selectedDataset.cache}&useGroupBy=true`
+
+    const fetchColumn = async (column: any): Promise<[string, any]> => {
+        const singleColumnWidget = { ...widget, columns: [column] }
+
+        // For the "unlocked" column (the one that just fired its selection), exclude its own selection from the filter so it keeps showing all its available values.
+        // Only applies when there are multiple columns (multi-selector widget) — single-column widgets should always self-filter normally.
+        const effectiveSelections = unlockedColumnName && widget.columns.length > 1 && column.columnName === unlockedColumnName ? selections.filter((s: ISelection) => !(s.datasetId === widget.dataset && s.columnName === unlockedColumnName)) : selections
+
+        const postData = formatSelectorWidgetModelForService(dashboardId, dashboardConfig, singleColumnWidget, selectedDataset, initialCall, effectiveSelections, associativeResponseSelections)
         let tempResponse = null as any
 
         const dataHash = md5(JSON.stringify(postData))
@@ -23,10 +31,8 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
 
         if (dashStore.dataProxyQueue[dataHash]) {
             const response = await dashStore.dataProxyQueue[dataHash]
-            return response.data
-        }
-
-        if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) {
+            tempResponse = response.data
+        } else if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) {
             tempResponse = cachedData.data
             tempResponse.initialCall = initialCall
         } else {
@@ -45,10 +51,15 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
             }
         }
 
-        if (widget.settings?.sortingColumn && tempResponse?.metaData?.fields?.length > 2) tempResponse = formatReponseWithTheExternalSortingColumn(tempResponse, widget.settings.sortingOrder)
+        if (widget.settings?.sortingColumn && tempResponse?.metaData?.fields?.length > 2) {
+            tempResponse = formatReponseWithTheExternalSortingColumn(tempResponse, widget.settings.sortingOrder)
+        }
 
-        return tempResponse
+        return [column.columnName, tempResponse]
     }
+
+    const entries = await Promise.all(widget.columns.map(fetchColumn))
+    return Object.fromEntries(entries)
 }
 
 const formatSelectorWidgetModelForService = (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, dataset: IDashboardDataset, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {

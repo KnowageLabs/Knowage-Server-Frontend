@@ -69,6 +69,15 @@ const addUniqueActiveSelectionsWidgetStyles = (config: ISelectionWidgetStyle) =>
 
 const addUniqueSelectorWidgetStyles = (config: ISelectorWidgetStyle) => {
     config.label = selectorWidgetDefaultValues.getDefaultLabelStyle()
+    config.radio = selectorWidgetDefaultValues.getDefaultRadioStyle()
+    config.checkbox = selectorWidgetDefaultValues.getDefaultCheckboxStyle()
+    config.dropdown = selectorWidgetDefaultValues.getDefaultDropdownStyle()
+    config.multiDropdown = selectorWidgetDefaultValues.getDefaultMultiDropdownStyle()
+    config.date = selectorWidgetDefaultValues.getDefaultDateStyle()
+    config.dateRange = selectorWidgetDefaultValues.getDefaultDateRangeStyle()
+    config.slider = selectorWidgetDefaultValues.getDefaultSliderStyle()
+    config.range = selectorWidgetDefaultValues.getDefaultRangeStyle()
+    config.buttonToggle = selectorWidgetDefaultValues.getDefaultButtonToggleStyle()
 }
 
 const addUniqueChartWidgetStyles = (config: any) => {
@@ -79,5 +88,18 @@ export const themeBackwardsCompatibility = (theme: IDashboardThemeConfig) => {
     if (theme.chart?.style) {
         const chartStyle = theme.chart.style as any
         if (!chartStyle.colors) addUniqueChartWidgetStyles(chartStyle)
+    }
+
+    if (theme.selector?.style) {
+        const selectorStyle = theme.selector.style as ISelectorWidgetStyle
+        if (!selectorStyle.radio) selectorStyle.radio = selectorWidgetDefaultValues.getDefaultRadioStyle()
+        if (!selectorStyle.checkbox) selectorStyle.checkbox = selectorWidgetDefaultValues.getDefaultCheckboxStyle()
+        if (!selectorStyle.dropdown) selectorStyle.dropdown = selectorWidgetDefaultValues.getDefaultDropdownStyle()
+        if (!selectorStyle.multiDropdown) selectorStyle.multiDropdown = selectorWidgetDefaultValues.getDefaultMultiDropdownStyle()
+        if (!selectorStyle.date) selectorStyle.date = selectorWidgetDefaultValues.getDefaultDateStyle()
+        if (!selectorStyle.dateRange) selectorStyle.dateRange = selectorWidgetDefaultValues.getDefaultDateRangeStyle()
+        if (!selectorStyle.slider) selectorStyle.slider = selectorWidgetDefaultValues.getDefaultSliderStyle()
+        if (!selectorStyle.range) selectorStyle.range = selectorWidgetDefaultValues.getDefaultRangeStyle()
+        if (!selectorStyle.buttonToggle) selectorStyle.buttonToggle = selectorWidgetDefaultValues.getDefaultButtonToggleStyle()
     }
 }

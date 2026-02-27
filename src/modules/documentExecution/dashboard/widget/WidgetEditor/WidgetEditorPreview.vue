@@ -8,7 +8,7 @@
 
             <div class="widget-container-renderer" :style="getWidgetPadding()">
                 <TableWidget v-if="propWidget.type == 'table'" :prop-widget="propWidget" :datasets="datasets" :data-to-show="widgetData" :editor-mode="true" :dashboard-id="dashboardId" :prop-active-selections="activeSelections" :prop-variables="variables" @pageChanged="getWidgetData" />
-                <SelectorWidget v-if="propWidget.type == 'selector'" :prop-widget="propWidget" :data-to-show="widgetData" :widget-initial-data="widgetData" :editor-mode="true" :prop-active-selections="activeSelections" :datasets="datasets" :selection-is-locked="false" :dashboard-id="dashboardId" />
+                <SelectorWidget v-if="propWidget.type == 'selector'" :prop-widget="propWidget" :data-to-show="getSingleSelectorData()" :widget-initial-data="getSingleSelectorInitialData()" :editor-mode="true" :prop-active-selections="activeSelections" :datasets="datasets" :selection-is-locked="false" :dashboard-id="dashboardId" />
                 <ActiveSelectionsWidget v-if="propWidget.type == 'selection'" :prop-widget="propWidget" :prop-active-selections="activeSelections" :editor-mode="true" :dashboard-id="dashboardId" />
                 <WebComponentContainer v-if="(propWidget.type == 'html' || propWidget.type == 'text') && !loading" :prop-widget="propWidget" :widget-data="widgetData" :prop-active-selections="activeSelections" :editor-mode="true" :dashboard-id="dashboardId" :variables="variables"></WebComponentContainer>
                 <HighchartsContainer v-if="propWidget.type === 'highcharts' && !loading && isEnterprise" :widget-model="propWidget" :datasets="datasets" :data-to-show="widgetData" :prop-active-selections="activeSelections" :editor-mode="true" :dashboard-id="dashboardId" :prop-variables="variables"></HighchartsContainer>
@@ -104,6 +104,18 @@ export default defineComponent({
         },
         clearWidgetData() {
             this.widgetData = { metaData: {}, rows: [] }
+        },
+        getSingleSelectorData(): any {
+            // For single-column selectors, extract first column data from multi-column format
+            if (!this.propWidget?.columns?.[0]?.columnName) return { rows: [] }
+            const columnName = this.propWidget.columns[0].columnName
+            return this.widgetData?.[columnName] || { rows: [] }
+        },
+        getSingleSelectorInitialData(): any {
+            // For single-column selectors, extract first column initial data
+            if (!this.propWidget?.columns?.[0]?.columnName) return { rows: [] }
+            const columnName = this.propWidget.columns[0].columnName
+            return this.widgetData?.[columnName] || { rows: [] }
         },
         getWidgetTitleStyle() {
             this.widgetTitle = this.propWidget.settings.style.title

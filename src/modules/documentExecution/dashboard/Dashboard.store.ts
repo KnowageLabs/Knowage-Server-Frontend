@@ -20,7 +20,15 @@ const store = defineStore('dashboardStore', {
             allThemes: [] as IDashboardTheme[],
             dataProxyQueue: {},
             pythonEnvironments: [] as iPythonConfiguration[],
-            isHighchartsScatterAttributePresent: false
+            isHighchartsScatterAttributePresent: false,
+            drawerWidths: {
+                left: 300,
+                right: 750
+            },
+            drawerOpenStates: {
+                left: true,
+                right: false
+            }
         }
     },
     actions: {
@@ -230,6 +238,21 @@ const store = defineStore('dashboardStore', {
         },
         getHighchartsScatterAttributePresent() {
             return this.isHighchartsScatterAttributePresent
+        },
+        setDrawerWidth(position: 'left' | 'right', width: number) {
+            this.drawerWidths[position] = width
+        },
+        getDrawerWidth(position: 'left' | 'right') {
+            return this.drawerWidths[position]
+        },
+        getDrawerWidths() {
+            return this.drawerWidths
+        },
+        setDrawerOpenState(position: 'left' | 'right', isOpen: boolean) {
+            this.drawerOpenStates[position] = isOpen
+        },
+        getDrawerOpenState(position: 'left' | 'right') {
+            return this.drawerOpenStates[position]
         }
     }
 })

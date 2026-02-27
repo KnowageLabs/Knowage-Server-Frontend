@@ -1,29 +1,134 @@
 {
-  "defaultLabelStyle": {
-    "enabled": true,
-    "properties": {
-      "background-color": "",
-      "color": "",
-      "font-family": "",
-      "font-size": "",
-      "font-style": "",
-      "font-weight": "",
-      "justify-content": ""
+    "defaultButtonToggleStyle": {
+        "color": "secondary",
+        "dense": false,
+        "rounded": false,
+        "size": "",
+        "spread": false,
+        "textColor": "",
+        "toggleColor": "primary",
+        "toggleTextColor": "",
+        "type": "unelevated"
     },
-    "wrapText": false
-  },
-  "defaultSelectorType": {
-    "alignment": "vertical",
-    "columnSize": "",
-    "modality": "singleValue"
-  },
-  "defaultValues": {
-    "enabled": false,
-    "value": "",
-    "valueType": ""
-  },
-  "defaultValuesManagement": {
-    "enableAll": false,
-    "hideDisabled": false
-  }
+    "defaultCheckboxStyle": {
+        "checkedIcon": "",
+        "color": "",
+        "gridColumns": "2",
+        "icon": "",
+        "keepColor": false,
+        "label": {
+            "background-color": "",
+            "color": "",
+            "font-family": "",
+            "font-size": "",
+            "font-style": "",
+            "font-weight": ""
+        },
+        "layout": "column",
+        "margin": "",
+        "padding": "4px",
+        "size": "md"
+    },
+    "defaultDateRangeStyle": {
+        "bgColor": "",
+        "color": "",
+        "darkMode": false,
+        "dense": false
+    },
+    "defaultDateStyle": {
+        "bgColor": "",
+        "color": "",
+        "darkMode": false,
+        "dense": false
+    },
+    "defaultDropdownStyle": {
+        "bgColor": "",
+        "color": "",
+        "darkMode": false,
+        "dense": false,
+        "denseOptions": false,
+        "shape": "standard",
+        "type": "outlined"
+    },
+    "defaultLabelStyle": {
+        "enabled": true,
+        "properties": {
+            "background-color": "",
+            "color": "",
+            "font-family": "",
+            "font-size": "",
+            "font-style": "",
+            "font-weight": "",
+            "justify-content": ""
+        },
+        "wrapText": false
+    },
+    "defaultMultiDropdownStyle": {
+        "bgColor": "",
+        "chips": false,
+        "color": "",
+        "counter": false,
+        "darkMode": false,
+        "dense": false,
+        "denseOptions": false,
+        "hint": "",
+        "maxValues": 0,
+        "shape": "standard",
+        "type": "outlined"
+    },
+    "defaultRadioStyle": {
+        "checkedIcon": "",
+        "color": "",
+        "gridColumns": "2",
+        "icon": "",
+        "keepColor": false,
+        "label": {
+            "background-color": "",
+            "color": "",
+            "font-family": "",
+            "font-size": "",
+            "font-style": "",
+            "font-weight": ""
+        },
+        "layout": "column",
+        "margin": "",
+        "padding": "4px",
+        "size": "md"
+    },
+    "defaultRangeStyle": {
+        "color": "primary",
+        "darkMode": false,
+        "dense": false,
+        "labelColor": "",
+        "layout": "horizontal",
+        "markerFontSize": "",
+        "switchMarkerLabelsSide": false,
+        "thumbColor": "primary",
+        "trackSize": "4px"
+    },
+    "defaultSelectorType": {
+        "alignment": "vertical",
+        "columnSize": "",
+        "modality": "singleValue"
+    },
+    "defaultSliderStyle": {
+        "color": "primary",
+        "darkMode": false,
+        "dense": false,
+        "labelColor": "",
+        "layout": "horizontal",
+        "markerFontSize": "",
+        "switchMarkerLabelsSide": false,
+        "thumbColor": "primary",
+        "trackSize": "4px"
+    },
+    "defaultValues": {
+        "enabled": false,
+        "value": "",
+        "valueType": ""
+    },
+    "defaultValuesManagement": {
+        "enableAll": false,
+        "hideDisabled": false
+    }
 }

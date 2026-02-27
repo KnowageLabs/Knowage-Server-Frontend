@@ -58,6 +58,21 @@
             "imageUrl": "/images/dashboard/selectorTypes/multiDate.svg",
             "label": "Date Range",
             "value": "dateRange"
+        },
+        {
+            "imageUrl": "/images/dashboard/selectorTypes/slider.svg",
+            "label": "Slider",
+            "value": "slider"
+        },
+        {
+            "imageUrl": "/images/dashboard/selectorTypes/slider.svg",
+            "label": "Range",
+            "value": "range"
+        },
+        {
+            "imageUrl": "/images/dashboard/selectorTypes/radio.svg",
+            "label": "Button Toggle",
+            "value": "buttonToggle"
         }
     ]
 }

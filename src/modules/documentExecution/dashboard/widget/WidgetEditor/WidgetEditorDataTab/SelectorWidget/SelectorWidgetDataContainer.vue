@@ -85,12 +85,9 @@ export default defineComponent({
             this.sortingColumn = selectedColumn ? selectedColumn?.name : ''
         },
         onColumnAdded(payload: { column: IWidgetColumn; rows: IWidgetColumn[] }) {
-            if (this.widget.columns.length > 0) {
-                emitter.emit('columnRemoved', this.widget.columns[0])
-                this.selectedColumn = null
-            }
+            // Allow multiple columns for selector widgets
+            this.widget.columns.push(payload.column)
             this.widget.settings.isDateType = payload.column.type.toLowerCase().includes('date') || payload.column.type.toLowerCase().includes('timestamp')
-            this.widget.columns = [payload.column]
             emitter.emit('columnAdded', payload.column)
             emitter.emit('refreshSelector', this.widget.id)
             emitter.emit('refreshWidgetWithData', this.widget.id)

@@ -154,7 +154,7 @@
                 "selectorType": {
                     "alignment": "vertical",
                     "columnSize": "",
-                    "modality": "multiValue"
+                    "modality": "singleValue"
                 },
                 "valuesManagement": {
                     "enableAll": false,

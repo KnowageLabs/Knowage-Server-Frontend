@@ -2,8 +2,8 @@
     <div v-show="widgetModel">
         <Message v-if="themePropertyChanged" class="p-p-2 p-m-4" severity="warn" :closable="false">{{ $t('dashboard.widgetEditor.themeChangedWarning') }}</Message>
         <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker>
-        <Accordion v-model:activeIndex="activeIndex" class="widget-editor-accordion">
-            <AccordionTab v-for="(accordion, index) in settings" :key="index">
+        <q-list class="widget-editor-accordion" bordered separator>
+            <q-expansion-item v-for="(accordion, index) in settings" :key="index" :model-value="activeIndex === index" expand-icon-class="col kn-width-full" @update:model-value="(val) => onExpansionChange(val, index)">
                 <template #header>
                     <SpacerWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></SpacerWidgetSettingsAccordionHeader>
                 </template>
@@ -13,8 +13,8 @@
                 <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetPaddingStyle>
                 <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetShadowsStyle>
                 <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
-            </AccordionTab>
-        </Accordion>
+            </q-expansion-item>
+        </q-list>
     </div>
 </template>
 
@@ -23,8 +23,6 @@ import { defineComponent, PropType } from 'vue'
 import { IWidget, IDataset, IVariable } from '../../../Dashboard'
 import { mapState } from 'pinia'
 import mainStore from '@/App.store'
-import Accordion from 'primevue/accordion'
-import AccordionTab from 'primevue/accordiontab'
 import descriptor from './SpacerWidgetSettingsDescriptor.json'
 import settingsTabDescriptor from '../WidgetEditorSettingsTabDescriptor.json'
 import WidgetBordersStyle from '../common/style/WidgetBordersStyle.vue'
@@ -40,8 +38,6 @@ import Message from 'primevue/message'
 export default defineComponent({
     name: 'spacer-widget-settings-accordion',
     components: {
-        Accordion,
-        AccordionTab,
         WidgetTitleStyle,
         WidgetBordersStyle,
         WidgetShadowsStyle,
@@ -87,6 +83,9 @@ export default defineComponent({
         this.themeId = this.widgetModel.settings?.style?.themeId ?? null
     },
     methods: {
+        onExpansionChange(expanded: boolean, index: number) {
+            this.activeIndex = expanded ? index : -1
+        },
         onStyleChanged() {
             this.styleChangedFlag = !this.styleChangedFlag
             if (this.themeId) this.themePropertyChanged = true

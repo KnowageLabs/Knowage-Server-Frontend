@@ -1,13 +1,20 @@
 <template>
-    <TabView :active-index="activeIndex">
-        <TabPanel v-if="propWidget && !['selection', 'image', 'spacer'].includes(propWidget.type)" :header="$t(propWidget.type === 'map' ? 'common.layers' : 'common.data')">
+    <q-toolbar>
+        <q-tabs v-model="activeTab" dense inline-label class="text-dark">
+            <q-tab v-if="propWidget && !['selection', 'image', 'spacer'].includes(propWidget.type)" name="data" :label="$t(propWidget.type === 'map' ? 'common.layers' : 'common.data')" />
+            <q-tab name="settings" :label="$t('common.settings')" />
+        </q-tabs>
+    </q-toolbar>
+
+    <q-tab-panels v-model="activeTab" animated>
+        <q-tab-panel v-if="propWidget && !['selection', 'image', 'spacer'].includes(propWidget.type)" name="data" class="q-pa-md">
             <MapWidgetLayersTab v-if="propWidget.type === 'map'" :prop-widget="propWidget" :datasets="datasets" :selected-datasets="selectedDatasets" :layers="layers" :variables="variables" :dashboard-id="dashboardId"></MapWidgetLayersTab>
             <WidgetEditorDataTab v-else :prop-widget="propWidget" :datasets="datasets" :variables="variables" :selected-datasets="selectedDatasets" data-test="data-tab" @datasetSelected="$emit('datasetSelected', $event)"></WidgetEditorDataTab>
-        </TabPanel>
-        <TabPanel :header="$t('common.settings')">
+        </q-tab-panel>
+        <q-tab-panel name="settings" class="q-pa-md">
             <WidgetEditorSettingsTab :prop-widget="propWidget" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId" :layers="layers" @settingChanged="$emit('settingChanged', $event)"></WidgetEditorSettingsTab>
-        </TabPanel>
-    </TabView>
+        </q-tab-panel>
+    </q-tab-panels>
 </template>
 
 <script lang="ts">
@@ -17,8 +24,6 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IDataset, IVariable } from '../../Dashboard'
 import { ILayer } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
-import TabView from 'primevue/tabview'
-import TabPanel from 'primevue/tabpanel'
 import WidgetEditorDataTab from './WidgetEditorDataTab/WidgetEditorDataTab.vue'
 import WidgetEditorSettingsTab from './WidgetEditorSettingsTab/WidgetEditorSettingsTab.vue'
 import MapWidgetLayersTab from './MapWidget/MapWidgetLayersTab.vue'
@@ -26,7 +31,7 @@ import { AxiosResponse } from 'axios'
 
 export default defineComponent({
     name: 'widget-editor-tabs',
-    components: { TabView, TabPanel, WidgetEditorDataTab, WidgetEditorSettingsTab, MapWidgetLayersTab },
+    components: { WidgetEditorDataTab, WidgetEditorSettingsTab, MapWidgetLayersTab },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         datasets: { type: Array as PropType<IDataset[]> },
@@ -37,7 +42,7 @@ export default defineComponent({
     emits: ['datasetSelected', 'settingChanged'],
     data() {
         return {
-            activeIndex: 0,
+            activeTab: 'data',
             layers: [] as ILayer[]
         }
     },
@@ -54,3 +59,24 @@ export default defineComponent({
     }
 })
 </script>
+
+<style lang="scss" scoped>
+.widget-editor-tabs-layout {
+    // :deep(.q-header) {
+    //     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    // }
+
+    // :deep(.q-page-container) {
+    //     height: 100%;
+    // }
+
+    // :deep(.q-tab-panels) {
+    //     height: 100%;
+    // }
+
+    // :deep(.q-tab-panel) {
+    //     height: 100%;
+    //     overflow-y: auto;
+    // }
+}
+</style>
