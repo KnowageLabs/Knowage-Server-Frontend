@@ -19,7 +19,7 @@
                 <q-tooltip :delay="500">{{ $t('common.save') }}</q-tooltip>
             </q-btn>
         </q-toolbar>
-        <ag-grid-vue class="registry-grid ag-theme-balham" style="flex: 1; min-height: 0" :row-data="rows" :grid-options="gridOptions" :context="context" />
+        <ag-grid-vue class="registry-grid ag-theme-balham" style="flex: 1; min-height: 0" :row-data="rows" :grid-options="gridOptions" :context="context" :theme="themeBalham" />
     </div>
 
     <RegistryDatatableWarningDialog :visible="warningVisible" :columns="dependentColumns" @close="onWarningDialogClose"></RegistryDatatableWarningDialog>
@@ -40,6 +40,7 @@ import TooltipRenderer from './registryCellRenderers/RegistryTooltipRenderer.vue
 import mainStore from '../../../../App.store'
 import { AgGridVue } from '@/composables/useAgGrid'
 import { useRegistryColumnOptions } from '../composables/useRegistryColumnOptions'
+import { themeBalham } from 'ag-grid-community'
 
 const appStore = mainStore()
 const $q = useQuasar()
@@ -598,7 +599,7 @@ defineExpose({ stopGridEditing })
     border: none;
 
     // Header coerente con la palette kn-toolbar-default
-    &.ag-theme-balham .ag-header {
+    .ag-header {
         background-color: var(--kn-toolbar-default-background-color);
         color: var(--kn-toolbar-default-color);
         font-weight: 600;
@@ -606,26 +607,25 @@ defineExpose({ stopGridEditing })
         letter-spacing: 0.02em;
     }
 
-    &.ag-theme-balham .ag-header-cell-label {
+    .ag-header-cell-label {
         color: var(--kn-toolbar-default-color);
     }
 
     // Riga zebrata più leggibile
-    &.ag-theme-balham .ag-row-odd {
+    .ag-row-odd {
         background-color: #f8f9fa;
     }
 
     // Riga selezionata
-    &.ag-theme-balham .ag-row-selected {
-        background-color: #dde8f5;
+    .ag-row-selected {
+        background-color: #dde8f5 !important;
     }
-}
 
-// Cella modificata: sfondo + bordo sinistro accent verde
-// Specificità aumentata con il selettore tema per evitare !important
-.ag-theme-balham .edited-cell-color-class {
-    background-color: #edf7e3;
-    border-left: 3px solid #749e43;
-    font-weight: 500;
+    // Cella modificata: sfondo + bordo sinistro accent verde
+    .edited-cell-color-class {
+        background-color: #edf7e3;
+        border-left: 3px solid #749e43;
+        font-weight: 500;
+    }
 }
 </style>
