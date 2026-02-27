@@ -2,8 +2,8 @@
     <div v-show="widgetModel">
         <Message v-if="themePropertyChanged" class="p-p-2 p-m-4" severity="warn" :closable="false">{{ $t('dashboard.widgetEditor.themeChangedWarning') }}</Message>
         <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker>
-        <Accordion v-model:activeIndex="activeIndex" class="selectorAccordion">
-            <AccordionTab v-for="(accordion, index) in filteredSettings" :key="index" :disabled="accordion.type === 'LabelStyle' && labelStyleAccordionDisabled">
+        <q-list class="selector-expansion-list" bordered separator>
+            <q-expansion-item v-for="(accordion, index) in filteredSettings" :key="index" :model-value="activeIndex === index" :disable="accordion.type === 'LabelStyle' && labelStyleAccordionDisabled" expand-icon-class="col kn-width-full" @update:model-value="(val) => onExpansionChange(val, index)">
                 <template #header>
                     <SelectorWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></SelectorWidgetSettingsAccordionHeader>
                 </template>
@@ -30,8 +30,8 @@
                 <SelectorWidgetSliderStyle v-else-if="accordion.type === 'SliderStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetSliderStyle>
                 <SelectorWidgetRangeStyle v-else-if="accordion.type === 'RangeStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetRangeStyle>
                 <SelectorWidgetButtonToggleStyle v-else-if="accordion.type === 'ButtonToggleStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetButtonToggleStyle>
-            </AccordionTab>
-        </Accordion>
+            </q-expansion-item>
+        </q-list>
     </div>
 </template>
 
@@ -40,8 +40,6 @@ import { defineComponent, PropType } from 'vue'
 import { IWidget, IDataset, IVariable } from '@/modules/documentExecution/dashboard/Dashboard'
 import { mapState } from 'pinia'
 import mainStore from '@/App.store'
-import Accordion from 'primevue/accordion'
-import AccordionTab from 'primevue/accordiontab'
 import descriptor from './SelectorWidgetSettingsDescriptor.json'
 import settingsTabDescriptor from '../WidgetEditorSettingsTabDescriptor.json'
 import SelectorWidgetType from './configuration/SelectorWidgetType.vue'
@@ -74,8 +72,6 @@ import SelectorWidgetRange from './configuration/SelectorWidgetRange.vue'
 export default defineComponent({
     name: 'selector-widget-settings-container',
     components: {
-        Accordion,
-        AccordionTab,
         SelectorWidgetType,
         SelectorWidgetDefaultValues,
         SelectorWidgetValuesManagement,
@@ -155,6 +151,9 @@ export default defineComponent({
         setActiveAccordion() {
             if (this.settings?.length === 1) this.activeIndex = 0
         },
+        onExpansionChange(expanded: boolean, index: number) {
+            this.activeIndex = expanded ? index : -1
+        },
         onStyleChanged() {
             this.styleChangedFlag = !this.styleChangedFlag
             if (this.themeId) this.themePropertyChanged = true
@@ -166,14 +165,3 @@ export default defineComponent({
     }
 })
 </script>
-
-<style lang="scss">
-.selectorAccordion {
-    ::v-deep(.p-accordion-tab-active) {
-        margin: 0;
-    }
-    .p-accordion-content {
-        display: flex;
-    }
-}
-</style>
