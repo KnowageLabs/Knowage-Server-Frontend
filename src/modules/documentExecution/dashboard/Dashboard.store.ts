@@ -24,6 +24,10 @@ const store = defineStore('dashboardStore', {
             drawerWidths: {
                 left: 300,
                 right: 750
+            },
+            drawerOpenStates: {
+                left: true,
+                right: false
             }
         }
     },
@@ -243,6 +247,12 @@ const store = defineStore('dashboardStore', {
         },
         getDrawerWidths() {
             return this.drawerWidths
+        },
+        setDrawerOpenState(position: 'left' | 'right', isOpen: boolean) {
+            this.drawerOpenStates[position] = isOpen
+        },
+        getDrawerOpenState(position: 'left' | 'right') {
+            return this.drawerOpenStates[position]
         }
     }
 })

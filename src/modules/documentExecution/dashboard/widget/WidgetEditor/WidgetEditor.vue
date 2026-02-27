@@ -103,8 +103,6 @@ export default defineComponent({
             selectedDatasets: [] as IDataset[],
             chartPickerVisible: false,
             activeTab: 'data',
-            dataListDrawerOpen: true,
-            rightDrawerOpen: false,
             selectedDataset: null as IDataset | null,
             selectedDatasetColumns: [] as IDatasetColumn[],
             listDragActive: false,
@@ -139,6 +137,22 @@ export default defineComponent({
         },
         rightDrawerWidth() {
             return this.dashboardStore.getDrawerWidth('right')
+        },
+        dataListDrawerOpen: {
+            get() {
+                return this.dashboardStore.getDrawerOpenState('left')
+            },
+            set(value: boolean) {
+                this.dashboardStore.setDrawerOpenState('left', value)
+            }
+        },
+        rightDrawerOpen: {
+            get() {
+                return this.dashboardStore.getDrawerOpenState('right')
+            },
+            set(value: boolean) {
+                this.dashboardStore.setDrawerOpenState('right', value)
+            }
         },
         widgetIsInvalid() {
             let invalid = false
