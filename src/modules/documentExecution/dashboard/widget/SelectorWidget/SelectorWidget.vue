@@ -331,7 +331,6 @@ export default defineComponent({
                 this.endDate = endMoment.toDate()
             }
 
-            // Create selection with filtered dates and update store
             const tempSelection = this.createNewSelection(filteredDates)
             this.emitSelectionChange(tempSelection)
         },
@@ -345,7 +344,6 @@ export default defineComponent({
             this.selectedValue = value
             if (this.editorMode) return
             if (value === null) {
-                // clearable: remove selection
                 const selection = this.createNewSelection([])
                 this.emitSelectionChange(selection)
             } else {
@@ -358,11 +356,8 @@ export default defineComponent({
 
             const filteredValues = data?.filteredValues || []
             const ranges = data?.ranges || [0, 0]
-
-            // Update selectedRange
             this.selectedRange = ranges
 
-            // Create selection with filtered values and update store
             const tempSelection = this.createNewSelection(filteredValues) as ISelection
             this.updateActiveSelectionsWithMultivalueSelection(tempSelection)
             if (this.localMode) {
@@ -372,8 +367,6 @@ export default defineComponent({
             }
         },
         debounceMultiValueSelection(selection: ISelection) {
-            // For standalone (non-local) multi-value selectors: wait 1 s after the
-            // last change before pushing to the dashboard store.
             if (this.multiValueDebounceTimer) clearTimeout(this.multiValueDebounceTimer)
             this.multiValueDebounceTimer = setTimeout(() => {
                 this.multiValueDebounceTimer = null

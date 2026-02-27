@@ -65,8 +65,7 @@ export default defineComponent({
     watch: {
         async propActiveSelections() {
             this.loadActiveSelectionsIntoLocal()
-            // Refresh data to reflect store selection changes from other widgets
-            await this.refreshLocalWidgetData()
+            await this.refreshLocalWidgetData() // refresh data to reflect store selection changes from other widgets
         },
         gridLayout: {
             handler(newLayout: any[]) {
@@ -86,7 +85,6 @@ export default defineComponent({
             this.initializeGridLayout()
         },
         dataToShow() {
-            // Update local widget data when external data changes (e.g., from store)
             this.localWidgetData = deepcopy(this.dataToShow)
         }
     },
@@ -196,7 +194,6 @@ export default defineComponent({
             return selection ? [selection] : []
         },
         loadActiveSelectionsIntoLocal() {
-            // Initialize localSelections from propActiveSelections
             this.localSelections = {}
             this.propActiveSelections?.forEach((selection: ISelection) => {
                 if (selection.datasetId === this.propWidget.dataset) {
@@ -216,7 +213,7 @@ export default defineComponent({
                 }
                 this.debounceTimers[selection.columnName] = setTimeout(async () => {
                     delete this.debounceTimers[selection.columnName]
-                    this.unlockedColumnName = selection.columnName // Mark this column as unlocked so it won't self-filter
+                    this.unlockedColumnName = selection.columnName // mark this column as unlocked so it won't self-filter
                     await this.refreshLocalWidgetData()
                 }, 1000)
             } else {
@@ -268,8 +265,6 @@ export default defineComponent({
     overflow-y: auto;
 
     :deep(.vgl-layout) {
-        // background-color: #eee;
-        // min-width: 500px;
         overflow-y: auto;
     }
 

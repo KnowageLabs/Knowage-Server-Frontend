@@ -19,10 +19,8 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
     const fetchColumn = async (column: any): Promise<[string, any]> => {
         const singleColumnWidget = { ...widget, columns: [column] }
 
-        // For the "unlocked" column (the one that just fired its selection), exclude its own
-        // selection from the filter so it keeps showing all its available values.
-        // Only applies when there are multiple columns (multi-selector widget) — single-column
-        // widgets should always self-filter normally.
+        // For the "unlocked" column (the one that just fired its selection), exclude its own selection from the filter so it keeps showing all its available values.
+        // Only applies when there are multiple columns (multi-selector widget) — single-column widgets should always self-filter normally.
         const effectiveSelections = unlockedColumnName && widget.columns.length > 1 && column.columnName === unlockedColumnName ? selections.filter((s: ISelection) => !(s.datasetId === widget.dataset && s.columnName === unlockedColumnName)) : selections
 
         const postData = formatSelectorWidgetModelForService(dashboardId, dashboardConfig, singleColumnWidget, selectedDataset, initialCall, effectiveSelections, associativeResponseSelections)
@@ -60,7 +58,6 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
         return [column.columnName, tempResponse]
     }
 
-    // Fetch all columns in parallel
     const entries = await Promise.all(widget.columns.map(fetchColumn))
     return Object.fromEntries(entries)
 }
