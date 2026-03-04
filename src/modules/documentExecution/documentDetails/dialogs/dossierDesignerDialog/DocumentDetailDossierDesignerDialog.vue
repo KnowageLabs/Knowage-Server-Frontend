@@ -70,6 +70,22 @@
                                 </div>
                             </AccordionTab>
 
+                            <!-- New conditional section: Define sheet -->
+                            <AccordionTab v-if="availableSheetsForPlaceholder(currentSelectedIndex) > 1" :header="$t('documentExecution.dossier.designerDialog.defineSheet')">
+                                <div class="p-grid p-mx-2 p-pb-4 q-gutter-sm">
+                                    <q-select
+                                        v-model="activeTemplate.placeholders[currentSelectedIndex].sheetNumber"
+                                        :options="sheetOptionsForIndex(currentSelectedIndex)"
+                                        :label="$t('documentExecution.dossier.designerDialog.sheetNumber')"
+                                        option-label="label"
+                                        option-value="value"
+                                        emit-value
+                                        map-options
+                                        class="kn-flex"
+                                    />
+                                </div>
+                            </AccordionTab>
+
                             <AccordionTab v-if="docHasDrivers()" :header="$t('common.parameters')" class="accordionTab">
                                 <div>
                                     <Message severity="info" :closable="true" class="p-mx-2 p-message-small">
@@ -191,6 +207,8 @@ export default defineComponent({
             uuid: '',
             uuidv4,
             isToRun: false,
+            // store number of sheets per placeholder index
+            templateSheets: {} as Record<number, number>,
             filters: {
                 global: [filterDefault],
                 typeCode: {
@@ -219,7 +237,21 @@ export default defineComponent({
     computed: {
         ...mapState(mainStore, {
             user: 'user'
-        })
+        }),
+        sheetNumberBinding: {
+            get(): number | null {
+                const idx = (this as any).currentSelectedIndex
+                if (idx == null || idx < 0) return null
+                const ph = (this as any).activeTemplate.placeholders[idx]
+                return ph ? (ph.sheetNumber ?? 1) : null
+            },
+            set(v: number | null) {
+                const idx = (this as any).currentSelectedIndex
+                if (idx == null || idx < 0) return
+                if (!(this as any).activeTemplate.placeholders[idx]) return
+                ;(this as any).activeTemplate.placeholders[idx].sheetNumber = v
+            }
+        },
     },
     watch: {
         selectedDocument() {
@@ -538,6 +570,10 @@ export default defineComponent({
 
             if (!this.isFromWorkspace && !doc.type) await this.loadParameters(doc.DOCUMENT_ID)
             // await this.loadViews(doc.DOCUMENT_ID)
+
+            // load template info (sheets) for this selected document using the requested endpoint
+            const label = doc.documentLabel || doc.DOCUMENT_LABEL || doc.label
+            if (label) await this.loadTemplateSheetsForLabel(label, this.currentSelectedIndex)
         },
         async loadParameters(docId) {
             this.setLoading(true)
@@ -596,7 +632,7 @@ export default defineComponent({
                 this.isToRun = true
             } else {
                 await this.save().then(() => {
-                    this.$router.push(`/dossier/${this.document?.label}`)
+                    (this as any).$router.push(`/dossier/${this.document?.label}`)
                 })
             }
         },
@@ -780,6 +816,9 @@ export default defineComponent({
                 this.activeTemplate.placeholders[this.currentSelectedIndex].source = ''
                 this.activeTemplate.placeholders[this.currentSelectedIndex].parameters = []
                 if (this.activeTemplate.placeholders[this.currentSelectedIndex].viewId) delete this.activeTemplate.placeholders[this.currentSelectedIndex].viewId
+
+                // reset sheet info for this placeholder
+                if (this.templateSheets[this.currentSelectedIndex]) delete this.templateSheets[this.currentSelectedIndex]
             }
         },
         isIconDisabled(option) {
@@ -796,6 +835,50 @@ export default defineComponent({
         },
         typeCheck(driver: any, type: string): boolean {
             return driver.type === type || driver.type?.code === type
+        },
+
+        // load template info (sheets) for a document label using backend endpoint /1.0/documents/{label}/template
+        async loadTemplateSheetsForLabel(label: string, placeholderIndex: number) {
+            if (!label) return
+            try {
+                this.setLoading(true)
+                // encode label for URL
+                const encoded = encodeURIComponent(label)
+                const url = `${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/1.0/documents/${encoded}/template`
+                const response = await this.$http.get(url)
+
+                let sheetsCount = 0
+                if (response && response.data) {
+                   if (Array.isArray(response.data.sheets)) sheetsCount = response.data.sheets.length
+                }
+
+                if (sheetsCount > 0) {
+                    this.templateSheets[placeholderIndex] = sheetsCount
+                    // initialize placeholder.sheetNumber if missing
+                    const ph = this.activeTemplate.placeholders[placeholderIndex]
+                    if (ph && ph.sheetNumber == null) ph.sheetNumber = 1
+                } else {
+                    // ensure at least 1
+                    this.templateSheets[placeholderIndex] = 1
+                }
+            } catch (e) {
+                // ignore errors and assume single sheet
+                this.templateSheets[placeholderIndex] = 1
+            } finally {
+                this.setLoading(false)
+            }
+        },
+
+        availableSheetsForPlaceholder(index: number) {
+            return this.templateSheets[index] || 1
+        },
+
+        sheetOptionsForIndex(index: number) {
+            const count = this.availableSheetsForPlaceholder(index)
+            return Array.from({ length: count }, (_, i) => ({
+                label: `${i + 1}`,
+                value: i + 1
+            }))
         }
     }
 })

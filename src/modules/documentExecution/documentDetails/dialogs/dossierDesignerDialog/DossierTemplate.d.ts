@@ -18,6 +18,7 @@ export interface iPlaceholder {
     sheetHeight: number
     sheetWidth: number
     deviceScaleFactor: number
+    sheetNumber?: number
 }
 
 export interface iViews {
