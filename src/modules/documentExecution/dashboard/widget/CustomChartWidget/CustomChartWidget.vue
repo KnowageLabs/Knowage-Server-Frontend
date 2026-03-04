@@ -223,14 +223,24 @@ export default defineComponent({
             if (this.loadedScriptsCount === this.userScriptsURLs.length) this.createScriptTagFromUsersJSScript()
             else this.loadUserImportScript(this.userScriptsURLs[this.loadedScriptsCount])
         },
+        resolveScriptUrl(scriptURL: string): string {
+            try {
+                // Resolve relative URLs against the origin (e.g. ./knowage/lib → https://host/knowage/lib)
+                // instead of the current route. Absolute URLs are returned unchanged.
+                return new URL(scriptURL, window.location.origin + '/').href
+            } catch {
+                return scriptURL
+            }
+        },
         loadUserImportScript(scriptURL: string) {
-            if (this.isUserScriptAlreadyLoaded(scriptURL)) {
+            const resolvedURL = this.resolveScriptUrl(scriptURL)
+            if (this.isUserScriptAlreadyLoaded(resolvedURL)) {
                 this.onScriptLoaded()
                 return
             }
 
             const userImportScript = document.createElement('script')
-            userImportScript.setAttribute('src', scriptURL)
+            userImportScript.setAttribute('src', resolvedURL)
             userImportScript.async = false
             userImportScript.addEventListener('load', () => this.onScriptLoaded())
             this.setScriptOnErrorListener(userImportScript)
