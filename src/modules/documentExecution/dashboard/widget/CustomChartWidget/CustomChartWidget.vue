@@ -38,6 +38,7 @@ export default defineComponent({
             userScriptsURLs: [] as string[],
             iframeDocument: null as any,
             loadedScriptsCount: 0,
+            loadedScriptUrls: new Set() as Set<string>,
             loading: false
         }
     },
@@ -66,6 +67,7 @@ export default defineComponent({
         this.userScriptsURLs = []
         this.iframeDocument = null
         this.loadedScriptsCount = 0
+        this.loadedScriptUrls = new Set()
     },
     computed: {
         ...mapState(store, ['dashboards'])
@@ -136,6 +138,7 @@ export default defineComponent({
         },
         renderCustomWidget() {
             this.loadedScriptsCount = 0
+            this.loadedScriptUrls = new Set()
             const iframe = this.recreateIframeElement()
             setTimeout(() => this.createIframeContent(iframe), 300)
         },
@@ -232,37 +235,29 @@ export default defineComponent({
                 return scriptURL
             }
         },
-        loadUserImportScript(scriptURL: string) {
+        async loadUserImportScript(scriptURL: string) {
             const resolvedURL = this.resolveScriptUrl(scriptURL)
-            if (this.isUserScriptAlreadyLoaded(resolvedURL)) {
+            if (this.loadedScriptUrls.has(resolvedURL)) {
                 this.onScriptLoaded()
                 return
             }
-
-            const userImportScript = document.createElement('script')
-            userImportScript.setAttribute('src', resolvedURL)
-            userImportScript.async = false
-            userImportScript.addEventListener('load', () => this.onScriptLoaded())
-            this.setScriptOnErrorListener(userImportScript)
-            this.iframeDocument.body.appendChild(userImportScript)
+            try {
+                const response = await fetch(resolvedURL)
+                if (!response.ok) throw new Error(`HTTP ${response.status}`)
+                const scriptText = await response.text()
+                const userImportScript = document.createElement('script')
+                userImportScript.text = scriptText
+                this.iframeDocument.body.appendChild(userImportScript)
+                this.loadedScriptUrls.add(resolvedURL)
+                this.onScriptLoaded()
+            } catch (error: any) {
+                this.setError({ title: this.$t('common.error.generic'), msg: `Failed to load script "${resolvedURL}": ${error?.message ?? ''}` })
+                this.$emit('loading', false)
+            }
         },
         onScriptLoaded() {
             this.loadedScriptsCount++
             this.loadUserImportScripts()
-        },
-        isUserScriptAlreadyLoaded(scriptURL: string) {
-            let loaded = false
-            const loadedScriptElements = this.iframeDocument.getElementsByTagName('script')
-            for (let i = 0; i < loadedScriptElements.length; i++) {
-                if (loadedScriptElements.item(i).attributes?.src?.textContent == scriptURL) {
-                    loaded = true
-                    break
-                }
-            }
-            return loaded
-        },
-        setScriptOnErrorListener(script: any) {
-            script.addEventListener('error', () => this.$emit('loading', false))
         },
         onClickManager(columnName: string, columnValue: string | number, crossNavigationLabel?: string) {
             if (this.editorMode) return
