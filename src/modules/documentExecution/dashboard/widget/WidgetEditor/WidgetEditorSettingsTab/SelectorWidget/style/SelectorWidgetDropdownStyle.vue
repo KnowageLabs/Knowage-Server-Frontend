@@ -24,6 +24,10 @@
                 <q-checkbox v-model="dropdownStyleModel.darkMode" :label="$t('dashboard.widgetEditor.selectorWidget.dropdown.darkMode')" @update:model-value="dropdownStyleChanged" />
             </div>
 
+            <div class="col-12">
+                <q-checkbox v-model="dropdownStyleModel.showLabel" :label="$t('dashboard.widgetEditor.selectorWidget.showLabel')" @update:model-value="dropdownStyleChanged" />
+            </div>
+
             <!-- Coloring Section -->
             <label class="kn-material-input-label section-label col-12">{{ $t('common.color') }}</label>
 

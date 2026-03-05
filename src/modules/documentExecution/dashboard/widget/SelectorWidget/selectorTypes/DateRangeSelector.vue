@@ -1,6 +1,6 @@
 <template>
     <div class="date-range-selector" :class="{ 'has-custom-color': isCustomColor, 'has-custom-bg': isCustomBgColor }" :style="customStyles">
-        <q-input :model-value="formattedRange" :label="$t('dashboard.widgetEditor.selectorWidget.dateRange.title')" filled :dense="dateRangeStyle.dense" readonly :color="computedColor" :bg-color="computedBgColor" :dark="dateRangeStyle.darkMode">
+        <q-input :model-value="formattedRange" :label="columnAlias" filled :dense="dateRangeStyle.dense" readonly :color="computedColor" :bg-color="computedBgColor" :dark="dateRangeStyle.darkMode">
             <template #append>
                 <q-icon name="event" class="cursor-pointer" />
             </template>
@@ -25,7 +25,8 @@ export default defineComponent({
         dateRangeStyle: { type: Object as PropType<ISelectorWidgetDateRangeStyle>, required: true },
         availableDates: { type: Array as PropType<string[]>, default: () => [] },
         minDate: { type: String, default: '' },
-        maxDate: { type: String, default: '' }
+        maxDate: { type: String, default: '' },
+        columnAlias: { type: String, default: '' }
     },
     emits: ['update:modelValue'],
     data() {

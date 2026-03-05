@@ -1634,6 +1634,7 @@
                 "range": {
                     "title": "Range Style"
                 },
+                "showLabel": "Show Label (Alias)",
                 "slider": {
                     "sliderColor": "Slider Color",
                     "thumbColor": "Thumb Color",

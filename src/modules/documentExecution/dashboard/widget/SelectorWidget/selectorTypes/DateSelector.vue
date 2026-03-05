@@ -1,6 +1,6 @@
 <template>
     <div class="date-selector" :class="{ 'has-custom-color': isCustomColor, 'has-custom-bg': isCustomBgColor }" :style="customStyles">
-        <q-input :model-value="formattedValue" :label="label" filled :dense="dateStyle.dense" readonly :color="computedColor" :bg-color="computedBgColor" :dark="dateStyle.darkMode">
+        <q-input :model-value="formattedValue" :label="columnAlias" filled :dense="dateStyle.dense" readonly :color="computedColor" :bg-color="computedBgColor" :dark="dateStyle.darkMode">
             <template #append>
                 <q-icon name="event" class="cursor-pointer" />
             </template>
@@ -23,10 +23,10 @@ export default defineComponent({
     props: {
         modelValue: { type: String, required: true },
         dateStyle: { type: Object as PropType<ISelectorWidgetDateStyle>, required: true },
-        label: { type: String, default: '' },
         availableDates: { type: Array as PropType<string[]>, default: () => [] },
         minDate: { type: String, default: '' },
-        maxDate: { type: String, default: '' }
+        maxDate: { type: String, default: '' },
+        columnAlias: { type: String, default: '' }
     },
     emits: ['update:modelValue'],
     computed: {

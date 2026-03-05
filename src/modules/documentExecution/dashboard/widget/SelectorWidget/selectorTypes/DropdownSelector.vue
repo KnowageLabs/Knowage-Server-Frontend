@@ -5,6 +5,7 @@
             :options="optionsWithDisable"
             option-value="column_1"
             option-label="column_1"
+            :label="dropdownStyle.showLabel && columnAlias ? columnAlias : undefined"
             :disable="baseOptions.length === 0"
             :dense="dropdownStyle.dense"
             :options-dense="dropdownStyle.denseOptions"
@@ -45,7 +46,8 @@ export default defineComponent({
         modelValue: { type: String, required: true },
         baseOptions: { type: Array as PropType<DropdownOption[]>, required: true },
         dropdownStyle: { type: Object as PropType<ISelectorWidgetDropdownStyle>, required: true },
-        showMode: { type: String, default: 'showDisabled' }
+        showMode: { type: String, default: 'showDisabled' },
+        columnAlias: { type: String, default: '' }
     },
     emits: ['update:modelValue', 'filter'],
     data() {

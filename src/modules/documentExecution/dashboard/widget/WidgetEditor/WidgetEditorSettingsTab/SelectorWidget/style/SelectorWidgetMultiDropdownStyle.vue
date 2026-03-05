@@ -27,6 +27,9 @@
             <div class="col-12">
                 <q-checkbox v-model="multiDropdownStyleModel.darkMode" :label="$t('dashboard.widgetEditor.selectorWidget.dropdown.darkMode')" @update:model-value="multiDropdownStyleChanged" />
             </div>
+            <div class="col-12">
+                <q-checkbox v-model="multiDropdownStyleModel.showLabel" :label="$t('dashboard.widgetEditor.selectorWidget.showLabel')" @update:model-value="multiDropdownStyleChanged" />
+            </div>
             <div class="col-6">
                 <q-input v-model.number="multiDropdownStyleModel.maxValues" type="number" min="0" :label="$t('dashboard.widgetEditor.selectorWidget.multiDropdown.max')" outlined dense @update:model-value="multiDropdownStyleChanged" />
             </div>

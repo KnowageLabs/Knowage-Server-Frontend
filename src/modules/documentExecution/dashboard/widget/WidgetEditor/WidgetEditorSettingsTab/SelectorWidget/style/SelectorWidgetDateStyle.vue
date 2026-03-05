@@ -12,6 +12,10 @@
                 <q-checkbox v-model="dateStyleModel.darkMode" label="Dark Mode" @update:model-value="dateStyleChanged" />
             </div>
 
+            <div class="col-12">
+                <q-checkbox v-model="dateStyleModel.showLabel" :label="$t('dashboard.widgetEditor.selectorWidget.showLabel')" @update:model-value="dateStyleChanged" />
+            </div>
+
             <!-- Coloring Section -->
             <label class="kn-material-input-label section-label col-12">{{ $t('common.color') }}</label>
 

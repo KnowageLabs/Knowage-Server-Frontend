@@ -5,6 +5,7 @@
             :options="optionsWithDisable"
             option-value="column_1"
             option-label="column_1"
+            :label="multiDropdownStyle.showLabel && columnAlias ? columnAlias : undefined"
             :disable="baseOptions.length === 0"
             :dense="multiDropdownStyle.dense"
             :options-dense="multiDropdownStyle.denseOptions"
@@ -50,7 +51,8 @@ export default defineComponent({
         modelValue: { type: Array as PropType<string[]>, required: true },
         baseOptions: { type: Array as PropType<MultiDropdownOption[]>, required: true },
         multiDropdownStyle: { type: Object as PropType<ISelectorWidgetMultiDropdownStyle>, required: true },
-        showMode: { type: String, default: 'showDisabled' }
+        showMode: { type: String, default: 'showDisabled' },
+        columnAlias: { type: String, default: '' }
     },
     emits: ['update:modelValue'],
     data() {

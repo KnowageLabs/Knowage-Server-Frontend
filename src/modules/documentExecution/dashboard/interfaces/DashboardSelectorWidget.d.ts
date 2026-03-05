@@ -134,6 +134,7 @@ export interface ISelectorWidgetDropdownStyle {
     color?: string
     bgColor?: string
     darkMode?: boolean
+    showLabel?: boolean
 }
 
 export interface ISelectorWidgetMultiDropdownStyle {
@@ -149,6 +150,7 @@ export interface ISelectorWidgetMultiDropdownStyle {
     counter?: boolean
     hint?: string
     chips?: boolean
+    showLabel?: boolean
 }
 
 export interface ISelectorWidgetDateStyle {
@@ -156,6 +158,7 @@ export interface ISelectorWidgetDateStyle {
     color?: string
     bgColor?: string
     darkMode?: boolean
+    showLabel?: boolean
 }
 
 export interface ISelectorWidgetDateRangeStyle {
@@ -163,6 +166,7 @@ export interface ISelectorWidgetDateRangeStyle {
     color?: string
     bgColor?: string
     darkMode?: boolean
+    showLabel?: boolean
 }
 
 export interface ISelectorWidgetSliderStyle {
