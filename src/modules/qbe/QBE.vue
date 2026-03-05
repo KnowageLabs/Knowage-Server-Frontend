@@ -816,7 +816,7 @@ export default defineComponent({
             item.currentQueryId = 'q1'
             item.ambiguousFieldsPaths = []
             item.ambiguousRoles = []
-            item.pars = this.qbe?.pars
+            item.pars = JSON.stringify(this.qbe?.pars)
 
             const conf = {} as any
             conf.headers = { 'Content-Type': 'application/x-www-form-urlencoded' } as any
