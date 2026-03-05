@@ -17,6 +17,8 @@
         <RangeSelector v-if="widgetType === 'range'" :model-value="selectedRange" :options="sliderOptions" :range-style="propWidget.settings.style.range" @update:model-value="rangeSelectorChanged" />
 
         <ButtonToggleSelector v-if="widgetType === 'buttonToggle'" :model-value="selectedValue" :options="singleValueOptions" :button-toggle-style="propWidget.settings.style.buttonToggle" @update:model-value="buttonToggleSelectorChanged" />
+
+        <TreeSelector v-else-if="widgetType === 'tree'" :model-value="selectedValue" :nodes="treeNodes" :tree-style="propWidget.settings.style.tree" @update:model-value="treeSelectorChanged" />
     </div>
 </template>
 
@@ -35,6 +37,8 @@ import DateRangeSelector from './selectorTypes/DateRangeSelector.vue'
 import SliderSelector from './selectorTypes/SliderSelector.vue'
 import RangeSelector from './selectorTypes/RangeSelector.vue'
 import ButtonToggleSelector from './selectorTypes/ButtonToggleSelector.vue'
+import TreeSelector from './selectorTypes/TreeSelector.vue'
+import type { TreeNodeItem } from './selectorTypes/TreeSelector.vue'
 import { QRadio, QCheckbox } from 'quasar'
 import store from '../../Dashboard.store'
 import deepcopy from 'deepcopy'
@@ -43,7 +47,7 @@ import dashboardDescriptor from '../../DashboardDescriptor.json'
 
 export default defineComponent({
     name: 'datasets-catalog-datatable',
-    components: { RadioSelector, CheckboxSelector, DropdownSelector, MultiDropdownSelector, DateSelector, DateRangeSelector, SliderSelector, RangeSelector, ButtonToggleSelector, QRadio, QCheckbox },
+    components: { RadioSelector, CheckboxSelector, DropdownSelector, MultiDropdownSelector, DateSelector, DateRangeSelector, SliderSelector, RangeSelector, ButtonToggleSelector, TreeSelector, QRadio, QCheckbox },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         dataToShow: { type: Object as any, required: true },
@@ -105,9 +109,14 @@ export default defineComponent({
         sliderOptions(): any[] {
             return this.getFilteredOptionsForDisplay().map((row: any) => ({ ...row }))
         },
+        treeNodes(): TreeNodeItem[] {
+            if (!this.options?.rows?.length) return []
+            const columnCount = Math.max(1, this.propWidget.columns?.length || 1)
+            return this.buildTreeNodes(this.options.rows, columnCount, this.showMode)
+        },
         hasImpossibleSelection(): boolean {
             const type = this.widgetType
-            if (['date', 'dateRange', 'slider', 'range'].includes(type)) return false
+            if (['date', 'dateRange', 'slider', 'range', 'tree'].includes(type)) return false
             const disabledValues = new Set(this.options.rows.filter((row: any) => row.disabled).map((row: any) => String(row.column_1)))
             if (disabledValues.size === 0) return false
             if (['multiValue', 'multiDropdown'].includes(type)) {
@@ -168,8 +177,18 @@ export default defineComponent({
         },
         loadAvailableOptions(dataToShow: any) {
             this.options = { rows: [] }
-
             if (!dataToShow || !dataToShow.rows) return
+
+            // Tree selector: compute disabled per row by full-path comparison with live data
+            if (this.widgetType === 'tree') {
+                const columnCount = Math.max(1, this.propWidget.columns?.length || 1)
+                const dataToShowKeys = new Set(dataToShow.rows.map((row: any) => Array.from({ length: columnCount }, (_, i) => String(row[`column_${i + 1}`] ?? '')).join('|')))
+                this.options.rows = (this.initialOptions?.rows ?? []).map((row: any) => ({
+                    ...row,
+                    disabled: !dataToShowKeys.has(Array.from({ length: columnCount }, (_, i) => String(row[`column_${i + 1}`] ?? '')).join('|'))
+                }))
+                return
+            }
 
             const dataToShowSet = new Set(dataToShow.rows.map((row: any) => String(row.column_1)))
             const newRows =
@@ -183,6 +202,38 @@ export default defineComponent({
         getBaseDropdownOptions(): any[] {
             return this.showMode === 'hideDisabled' ? this.options.rows.filter((row: any) => !row.disabled) : this.options.rows
         },
+        buildTreeNodes(rows: any[], columnCount: number, showMode: string): TreeNodeItem[] {
+            const visibleRows = showMode === 'hideDisabled' ? rows.filter((r: any) => !r.disabled) : rows
+
+            const build = (subset: any[], depth: number, pathParts: string[]): TreeNodeItem[] => {
+                const groups = new Map<string, any[]>()
+                subset.forEach((row: any) => {
+                    const val = String(row[`column_${depth}`] ?? '')
+                    if (val === '') return
+                    if (!groups.has(val)) groups.set(val, [])
+                    groups.get(val)!.push(row)
+                })
+
+                return Array.from(groups.entries()).map(([label, groupRows]) => {
+                    const newPath = [...pathParts, label]
+                    const pathKey = newPath.join('|')
+
+                    if (depth === columnCount) {
+                        const isDisabled = showMode === 'showDisabled' && groupRows.every((r: any) => r.disabled)
+                        return { label, __key: pathKey, ...(isDisabled ? { disabled: true } : {}) }
+                    }
+
+                    const children = build(groupRows, depth + 1, newPath)
+                    if (children.length === 0) {
+                        const isDisabled = showMode === 'showDisabled' && groupRows.every((r: any) => r.disabled)
+                        return { label, __key: pathKey, ...(isDisabled ? { disabled: true } : {}) }
+                    }
+                    return { label, __key: `__br__${pathKey}`, children }
+                })
+            }
+
+            return build(visibleRows, 1, [])
+        },
         //#endregion =============================================================================
 
         //#region ===================== Selections Loading ========================================
@@ -191,6 +242,18 @@ export default defineComponent({
         },
         loadActiveSelectionValue() {
             if (this.editorMode) return false
+
+            // Tree selection is keyed by the leaf (last) column
+            if (this.widgetType === 'tree') {
+                const lastCol = this.propWidget.columns[this.propWidget.columns.length - 1]?.columnName
+                const treeIdx = this.activeSelections.findIndex((s: ISelection) => s.datasetId === this.propWidget.dataset && s.columnName === lastCol)
+                if (treeIdx !== -1) {
+                    this.selectedValue = this.activeSelections[treeIdx].value[0] ?? null
+                    return true
+                }
+                return false
+            }
+
             const index = this.activeSelections.findIndex((selection: ISelection) => selection.datasetId === this.propWidget.dataset && selection.columnName === this.propWidget.columns[0]?.columnName)
             if (index !== -1) {
                 const selection = this.activeSelections[index]
@@ -278,12 +341,17 @@ export default defineComponent({
         createNewSelection(value: (string | number)[]) {
             return { datasetId: this.propWidget.dataset as number, datasetLabel: this.getDatasetLabel(this.propWidget.dataset as number), columnName: this.propWidget.columns[0]?.columnName ?? '', value: value, aggregated: false, timestamp: new Date().getTime() } as ISelection
         },
+        createNewTreeSelection(value: (string | number)[]) {
+            const leafColName = this.propWidget.columns[this.propWidget.columns.length - 1]?.columnName ?? this.propWidget.columns[0]?.columnName ?? ''
+            return { datasetId: this.propWidget.dataset as number, datasetLabel: this.getDatasetLabel(this.propWidget.dataset as number), columnName: leafColName, value: value, aggregated: false, timestamp: new Date().getTime() } as ISelection
+        },
         getDatasetLabel(datasetId: number) {
             const index = this.datasets.findIndex((dataset: IDataset) => dataset.id.dsId == datasetId)
             return index !== -1 ? this.datasets[index].label : ''
         },
         onSelectionsDeleted(selections: any) {
-            const index = selections.findIndex((selection: ISelection) => selection.datasetId === this.propWidget.dataset && selection.columnName === this.propWidget.columns[0]?.columnName)
+            const colName = this.widgetType === 'tree' ? this.propWidget.columns[this.propWidget.columns.length - 1]?.columnName : this.propWidget.columns[0]?.columnName
+            const index = selections.findIndex((selection: ISelection) => selection.datasetId === this.propWidget.dataset && selection.columnName === colName)
             if (index !== -1) this.removeDeafultValues()
         },
         updateActiveSelectionsWithMultivalueSelection(tempSelection: ISelection) {
@@ -377,6 +445,12 @@ export default defineComponent({
                 const selection = this.createNewSelection([value])
                 this.emitSelectionChange(selection)
             }
+        },
+        treeSelectorChanged(leafValue: string | null) {
+            this.selectedValue = leafValue
+            if (this.editorMode) return
+            const selection = this.createNewTreeSelection(leafValue !== null ? [leafValue] : [])
+            this.emitSelectionChange(selection)
         },
         rangeSelectorChanged(data: any) {
             if (this.editorMode) return

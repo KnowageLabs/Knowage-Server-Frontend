@@ -43,6 +43,9 @@
         <div class="p-p-2 p-d-flex" style="height: 100px">
             <WidgetRenderer ref="buttonToggleSelector" :widget="buttonToggleModel" :widget-data="formatSelectorData(buttonToggleDataMock, buttonToggleModel)" :widget-initial-data="formatSelectorData(buttonToggleDataMock, buttonToggleModel)" :datasets="[]" :dashboard-id="'buttonToggleSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
         </div>
+        <div class="p-p-2" style="height: 300px">
+            <WidgetRenderer ref="treeSelector" :widget="treeModel" :widget-data="formatSelectorData(selectorWidgetMock.treeDataMock, treeModel)" :widget-initial-data="formatSelectorData(selectorWidgetMock.treeDataMock, treeModel)" :datasets="[]" :dashboard-id="'treeSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
+        </div>
     </div>
 </template>
 
@@ -85,7 +88,8 @@ export default defineComponent({
             dateRangeModel: {} as any,
             sliderModel: {} as any,
             rangeModel: {} as any,
-            buttonToggleModel: {} as any
+            buttonToggleModel: {} as any,
+            treeModel: {} as any
         }
     },
     computed: {
@@ -157,6 +161,9 @@ export default defineComponent({
             this.buttonToggleModel = deepcopy(this.selectorWidgetMock.selectorModelMock)
             this.buttonToggleModel.settings.style = this.selectedTheme.config.selector.style
             this.buttonToggleModel.settings.configuration.selectorType.modality = 'buttonToggle'
+
+            this.treeModel = deepcopy(this.selectorWidgetMock.treeModelMock)
+            this.treeModel.settings.style = this.selectedTheme.config.selector.style
         },
 
         setEventListeners() {

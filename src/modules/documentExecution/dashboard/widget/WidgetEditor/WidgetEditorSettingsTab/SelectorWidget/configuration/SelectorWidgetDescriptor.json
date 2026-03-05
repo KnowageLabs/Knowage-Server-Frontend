@@ -73,6 +73,11 @@
             "imageUrl": "/images/dashboard/selectorTypes/radio.svg",
             "label": "Button Toggle",
             "value": "buttonToggle"
+        },
+        {
+            "imageUrl": "/images/dashboard/selectorTypes/radio.svg",
+            "label": "Tree",
+            "value": "tree"
         }
     ]
 }

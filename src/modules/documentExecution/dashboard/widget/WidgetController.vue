@@ -121,9 +121,12 @@ export default defineComponent({
         playSelectionButtonVisible(): boolean {
             if (!this.widget || !this.widget.settings?.configuration) return false
 
-            // Show play button for multi-column selectors (regardless of type)
+            // Show play button for multi-column selectors that use the container (non-tree, or tree mixed with non-tree overrides)
             if (this.widget.type === 'selector' && this.widget.columns && this.widget.columns.length > 1) {
-                return !this.selectionIsLocked
+                const modality = this.widget.settings.configuration.selectorType?.modality
+                const columnTypeConfigs: any[] = this.widget.settings.configuration.columnTypeConfigs ?? []
+                const hasMixedOverrides = modality === 'tree' && columnTypeConfigs.some((cfg: any) => cfg.selectorType !== 'tree' && cfg.columns?.some((c: string) => this.widget.columns.some((col: any) => col.columnName === c)))
+                if (modality !== 'tree' || hasMixedOverrides) return !this.selectionIsLocked
             }
 
             // Show play button for specific multi-value selector types
@@ -533,8 +536,12 @@ export default defineComponent({
         checkIfSelectionIsLocked() {
             if (this.widgetModel.type !== 'selector' || (this.widgetModel.settings as ISelectorWidgetSettings).configuration.valuesManagement.enableAll) return false
 
-            // For multi-column selectors, check if ANY column has a selection
-            const hasAnySelection = this.widgetModel.columns.some((column: any) => {
+            const isTree = this.widgetModel.settings?.configuration?.selectorType?.modality === 'tree'
+            const columnsToCheck = isTree
+                ? [this.widgetModel.columns[this.widgetModel.columns.length - 1]] // only leaf column
+                : this.widgetModel.columns
+
+            const hasAnySelection = columnsToCheck.some((column: any) => {
                 return this.activeSelections.some((selection: ISelection) => selection.datasetId === this.widgetModel.dataset && selection.columnName === column.columnName)
             })
 

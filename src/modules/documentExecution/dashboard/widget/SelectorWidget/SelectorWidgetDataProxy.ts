@@ -7,6 +7,77 @@ import moment from 'moment'
 import { DataType } from '../ChartWidget/classes/highcharts/helpers/setData/HighchartsSetDataHelpers'
 
 export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any, unlockedColumnName?: string) => {
+    const modality = widget.settings?.configuration?.selectorType?.modality
+    if (modality === 'tree') {
+        const columnTypeConfigs = widget.settings?.configuration?.columnTypeConfigs ?? []
+
+        // Separate columns: those that remain in the tree vs those overridden to a different type
+        const treeColumns = widget.columns.filter((col: any) => {
+            const match = columnTypeConfigs.find((cfg: any) => cfg.columns?.includes(col.columnName))
+            return !match || match.selectorType === 'tree'
+        })
+        const overrideColumns = widget.columns.filter((col: any) => {
+            const match = columnTypeConfigs.find((cfg: any) => cfg.columns?.includes(col.columnName))
+            return match && match.selectorType !== 'tree'
+        })
+
+        const result: any = {}
+
+        // Fetch combined tree data only when there are enough columns for a hierarchy
+        if (treeColumns.length >= 2) {
+            const treeWidget = { ...widget, columns: treeColumns }
+            const treeData = await getSelectorWidgetTreeData(dashboardId, dashboardConfig, treeWidget, datasets, $http, initialCall, selections, associativeResponseSelections)
+            const treeKey = treeColumns[0].columnName
+            result[treeKey] = treeData?.[treeKey] ?? null
+        }
+
+        // Fetch individual data for non-tree override columns
+        if (overrideColumns.length > 0) {
+            const dashStore = dashboardStore()
+            const datasetIndex = datasets.findIndex((dataset: any) => widget.dataset === dataset.id)
+            const selectedDataset = datasets[datasetIndex]
+
+            if (selectedDataset) {
+                const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=${!selectedDataset.cache}&useGroupBy=true`
+
+                await Promise.all(
+                    overrideColumns.map(async (column: any) => {
+                        const singleColumnWidget = { ...widget, columns: [column] }
+                        const postData = formatSelectorWidgetModelForService(dashboardId, dashboardConfig, singleColumnWidget, selectedDataset, initialCall, selections, associativeResponseSelections)
+                        const dataHash = md5(JSON.stringify(postData))
+                        const cachedData = await indexedDB.widgetData.get(dataHash)
+                        let tempResponse = null as any
+
+                        if (dashStore.dataProxyQueue[dataHash]) {
+                            const response = await dashStore.dataProxyQueue[dataHash]
+                            tempResponse = response.data
+                        } else if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) {
+                            tempResponse = cachedData.data
+                            tempResponse.initialCall = initialCall
+                        } else {
+                            dashStore.dataProxyQueue[dataHash] = $http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+                            try {
+                                const response = await dashStore.dataProxyQueue[dataHash]
+                                tempResponse = response.data
+                                tempResponse.initialCall = initialCall
+                                if (dashboardConfig.menuWidgets?.enableCaching && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) addDataToCache(dataHash, tempResponse)
+                            } catch (error) {
+                                console.error(error)
+                                showGetDataError(error, selectedDataset.dsLabel)
+                            } finally {
+                                delete dashStore.dataProxyQueue[dataHash]
+                            }
+                        }
+
+                        result[column.columnName] = tempResponse
+                    })
+                )
+            }
+        }
+
+        return result
+    }
+
     const dashStore = dashboardStore()
 
     const datasetIndex = datasets.findIndex((dataset: any) => widget.dataset === dataset.id)
@@ -60,6 +131,46 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
 
     const entries = await Promise.all(widget.columns.map(fetchColumn))
     return Object.fromEntries(entries)
+}
+
+const getSelectorWidgetTreeData = async (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
+    const dashStore = dashboardStore()
+    const datasetIndex = datasets.findIndex((dataset: any) => widget.dataset === dataset.id)
+    const selectedDataset = datasets[datasetIndex]
+    if (!selectedDataset) return null
+
+    const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=${!selectedDataset.cache}&useGroupBy=true`
+
+    // Fetch all tree columns in a single request to preserve relational data
+    const postData = formatSelectorWidgetModelForService(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
+
+    const dataHash = md5(JSON.stringify(postData))
+    const cachedData = await indexedDB.widgetData.get(dataHash)
+
+    let tempResponse = null as any
+
+    if (dashStore.dataProxyQueue[dataHash]) {
+        const response = await dashStore.dataProxyQueue[dataHash]
+        tempResponse = response.data
+    } else if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) {
+        tempResponse = cachedData.data
+        tempResponse.initialCall = initialCall
+    } else {
+        dashStore.dataProxyQueue[dataHash] = $http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+        try {
+            const response = await dashStore.dataProxyQueue[dataHash]
+            tempResponse = response.data
+            tempResponse.initialCall = initialCall
+            if (dashboardConfig.menuWidgets?.enableCaching && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) addDataToCache(dataHash, tempResponse)
+        } catch (error) {
+            console.error(error)
+            showGetDataError(error, selectedDataset.dsLabel)
+        } finally {
+            delete dashStore.dataProxyQueue[dataHash]
+        }
+    }
+
+    return { [widget.columns[0].columnName]: tempResponse }
 }
 
 const formatSelectorWidgetModelForService = (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, dataset: IDashboardDataset, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {

@@ -1640,6 +1640,22 @@
                     "title": "Slider Style",
                     "trackSize": "Track Size"
                 },
+                "tree": {
+                    "accordion": "Accordion",
+                    "color": "Node Color",
+                    "controlColor": "Control Color",
+                    "dark": "Dark Mode",
+                    "defaultExpandAll": "Default Expand All",
+                    "dense": "Dense",
+                    "insufficientColumns": "Tree selector requires at least 2 columns. Please add more columns to the widget.",
+                    "mode": "Mode",
+                    "noConnectors": "No Connectors",
+                    "popupMode": "Popup Mode",
+                    "selectedColor": "Selected Node Color",
+                    "showFilter": "Show Filter",
+                    "textColor": "Text Color",
+                    "title": "Tree Style"
+                },
                 "type": "Selector Type",
                 "typeOverrides": "Type Overrides"
             },
@@ -2912,7 +2928,8 @@
                 "subTotals": "SubTotals",
                 "summary": "Summary",
                 "title": "Title",
-                "totals": "Totals"
+                "totals": "Totals",
+                "tree": "Tree"
             },
             "widgetNames": {
                 "activeSelections": "Active Selections",

@@ -1,7 +1,7 @@
 <template>
     <div v-if="model && model.type == 'selector'" class="col q-pa-md kn-width-full">
         <div class="col-12">
-            <q-select v-model="model.settings.configuration.selectorType.modality" :options="selectorTypeOptions" :label="$t('dashboard.widgetEditor.selectorWidget.type')" option-value="value" option-label="label" emit-value map-options dense outlined />
+            <q-select v-model="model.settings.configuration.selectorType.modality" :options="selectorTypeOptions" :label="$t('dashboard.widgetEditor.selectorWidget.type')" option-value="value" option-label="label" option-disable="disable" emit-value map-options dense outlined />
             <div v-if="showAlignment" class="col-12 row">
                 <q-radio v-for="layout in descriptor.layouts" :key="layout.value" v-model="model.settings.configuration.selectorType.alignment" :val="layout.value" :label="layout.name" />
                 <q-input v-if="showGridColumnSize" class="q-ml-md" v-model="model.settings.configuration.selectorType.columnSize" dense :label="$t('dashboard.widgetEditor.valuesManagement.colNumber')" />
@@ -19,7 +19,7 @@
             <div v-for="(config, index) in columnTypeConfigs" :key="config.id" class="column column-type-row q-mb-sm q-pa-sm">
                 <div class="row q-gutter-sm items-start">
                     <q-select v-model="config.columns" :options="columnOptions" option-value="columnName" option-label="alias" emit-value map-options multiple dense outlined class="col" :label="$t('common.columns')" />
-                    <q-select v-model="config.selectorType" :options="selectorTypeOptions" option-value="value" option-label="label" emit-value map-options dense outlined class="col" :label="$t('dashboard.widgetEditor.selectorWidget.type')" />
+                    <q-select v-model="config.selectorType" :options="columnTypeOptions(config)" option-value="value" option-label="label" option-disable="disable" emit-value map-options dense outlined class="col" :label="$t('dashboard.widgetEditor.selectorWidget.type')" />
                     <q-btn class="p-as-center" flat round dense color="primary" icon="delete" @click="removeColumnTypeConfig(index)" />
                 </div>
                 <div v-if="supportsAlignment(config.selectorType)" class="row items-center">
@@ -63,8 +63,8 @@ export default defineComponent({
             const modality = this.model.settings?.configuration?.selectorType?.modality
             return ALIGNMENT_TYPES.includes(modality as SelectorModality)
         },
-        selectorTypeOptions(): { label: string; value: string }[] {
-            return this.descriptor.selectorTypes.map((t) => ({ label: t.label, value: t.value }))
+        selectorTypeOptions(): { label: string; value: string; disable: boolean }[] {
+            return this.descriptor.selectorTypes.map((t) => ({ label: t.label, value: t.value, disable: t.value === 'tree' && this.columnOptions.length < 2 }))
         },
         showGridColumnSize(): boolean {
             const cfg = this.model.settings?.configuration?.selectorType
@@ -101,6 +101,9 @@ export default defineComponent({
         },
         supportsAlignment(selectorType: SelectorModality): boolean {
             return ALIGNMENT_TYPES.includes(selectorType)
+        },
+        columnTypeOptions(config: ISelectorColumnTypeConfig): { label: string; value: string; disable: boolean }[] {
+            return this.descriptor.selectorTypes.map((t) => ({ label: t.label, value: t.value, disable: t.value === 'tree' && config.columns.length < 2 }))
         },
         addColumnTypeConfig() {
             if (!this.model.settings?.configuration) return

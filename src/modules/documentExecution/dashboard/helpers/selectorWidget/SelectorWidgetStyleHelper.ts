@@ -1,5 +1,5 @@
 import { IWidgetBordersStyle, IWidgetPaddingStyle, IWidgetShadowsStyle } from '../../Dashboard'
-import { ISelectorWidgetLabelStyle, ISelectorWidgetRadioStyle, ISelectorWidgetCheckboxStyle, ISelectorWidgetDropdownStyle, ISelectorWidgetMultiDropdownStyle, ISelectorWidgetDateStyle, ISelectorWidgetDateRangeStyle, ISelectorWidgetSliderStyle, ISelectorWidgetButtonToggleStyle, ISelectorWidgetStyle } from '../../interfaces/DashboardSelectorWidget'
+import { ISelectorWidgetLabelStyle, ISelectorWidgetRadioStyle, ISelectorWidgetCheckboxStyle, ISelectorWidgetDropdownStyle, ISelectorWidgetMultiDropdownStyle, ISelectorWidgetDateStyle, ISelectorWidgetDateRangeStyle, ISelectorWidgetSliderStyle, ISelectorWidgetButtonToggleStyle, ISelectorWidgetTreeStyle, ISelectorWidgetStyle } from '../../interfaces/DashboardSelectorWidget'
 import { getFormattedBackgroundStyle, getFormattedTitleStyle } from '../common/WidgetStyleHelper'
 import { hexToRgba } from '../FormattingHelpers'
 import * as widgetCommonDefaultValues from '../../widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
@@ -18,6 +18,7 @@ export const getFormattedStyle = (widget: any) => {
         dateRange: getFormattedDateRangeStyle(widget),
         slider: getFormattedSliderStyle(widget),
         buttonToggle: getFormattedButtonToggleStyle(widget),
+        tree: getFormattedTreeStyle(widget),
         padding: getFormattedPaddingStyle(widget),
         borders: getFormattedBorderStyle(widget),
         shadows: getFormattedShadowsStyle(widget),
@@ -192,6 +193,10 @@ const getFormattedSliderStyle = (widget: any) => {
 
 const getFormattedButtonToggleStyle = (widget: any) => {
     return selectorWidgetDefaultValues.getDefaultButtonToggleStyle() as ISelectorWidgetButtonToggleStyle
+}
+
+const getFormattedTreeStyle = (widget: any) => {
+    return selectorWidgetDefaultValues.getDefaultTreeStyle() as ISelectorWidgetTreeStyle
 }
 
 const getFormattedPaddingStyle = (widget: any) => {

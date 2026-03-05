@@ -3,7 +3,7 @@
         <GridLayout v-model:layout="gridLayout" :cols="4" :row-height="30" :is-draggable="true" :is-resizable="true" :vertical-compact="false" :use-css-transforms="false" :margin="[0, 0]" :responsive="false" :auto-size="false">
             <template #item="{ item }">
                 <div class="selector-column-wrapper" @mouseenter="onColumnMouseEnter(item.columnName)" @mouseleave="onColumnMouseLeave(item.columnName)" @mousemove="onColumnMouseMove(item.columnName)" @scroll.capture="onColumnScroll(item.columnName)" @contextmenu.prevent="onColumnRightClick(item.columnName)">
-                    <SelectorWidget :prop-widget="getSingleColumnWidget(getColumnByName(item.columnName))" :data-to-show="getColumnData(item.columnName)" :widget-initial-data="getColumnInitialData(item.columnName)" :prop-active-selections="getColumnSelections(item.columnName)" :editor-mode="false" :dashboard-id="dashboardId" :datasets="datasets" :selection-is-locked="selectionIsLocked" :local-mode="true" @selection-changed="onColumnSelectionChanged" />
+                    <SelectorWidget :prop-widget="getSingleColumnWidget(item.columnName)" :data-to-show="getColumnData(item.columnName)" :widget-initial-data="getColumnInitialData(item.columnName)" :prop-active-selections="getColumnSelections(item.columnName)" :editor-mode="false" :dashboard-id="dashboardId" :datasets="datasets" :selection-is-locked="selectionIsLocked" :local-mode="true" @selection-changed="onColumnSelectionChanged" />
                     <transition name="column-overlay-fade">
                         <div v-if="isColumnOverlayVisible(item.columnName)" class="column-clear-overlay" @mousemove.stop @click.self="hideOverlay">
                             <q-btn v-if="getColumnImpossibleValues(item.columnName).length > 0" flat color="warning" icon="warning" size="lg" @click.stop="clearImpossibleColumnValues(item.columnName)">
@@ -66,7 +66,36 @@ export default defineComponent({
     computed: {
         ...mapState(dashboardStore, {
             dashboards: 'dashboards'
-        })
+        }),
+        gridItems(): { columnName: string; isTreeGroup: boolean; treeColumns: any[] }[] {
+            const globalModality = this.propWidget.settings?.configuration?.selectorType?.modality
+            const columnTypeConfigs = this.propWidget.settings?.configuration?.columnTypeConfigs ?? []
+
+            if (globalModality === 'tree') {
+                const treeGroupCols: any[] = []
+                const result: { columnName: string; isTreeGroup: boolean; treeColumns: any[] }[] = []
+
+                for (const col of this.propWidget.columns) {
+                    const matchingConfig = columnTypeConfigs.find((cfg: any) => cfg.columns?.includes(col.columnName))
+                    if (matchingConfig && matchingConfig.selectorType !== 'tree') {
+                        result.push({ columnName: col.columnName, isTreeGroup: false, treeColumns: [] })
+                    } else {
+                        treeGroupCols.push(col)
+                    }
+                }
+
+                if (treeGroupCols.length >= 2) {
+                    result.push({ columnName: treeGroupCols[0].columnName, isTreeGroup: true, treeColumns: treeGroupCols })
+                } else if (treeGroupCols.length === 1) {
+                    // Fallback: single remaining column, render as regular (non-tree) single-value
+                    result.push({ columnName: treeGroupCols[0].columnName, isTreeGroup: false, treeColumns: [] })
+                }
+
+                return result
+            }
+
+            return this.propWidget.columns.map((col: any) => ({ columnName: col.columnName, isTreeGroup: false, treeColumns: [] }))
+        }
     },
     watch: {
         async propActiveSelections() {
@@ -129,7 +158,14 @@ export default defineComponent({
 
         //#region ===================== Overlay Visibility ========================================
         isColumnOverlayVisible(columnName: string): boolean {
-            if (!this.localSelections[columnName]) return false
+            const item = this.gridItems.find((i: any) => i.columnName === columnName)
+            if (item?.isTreeGroup) {
+                const treeColNames = new Set(item.treeColumns.map((c: any) => c.columnName))
+                const hasSelection = Object.keys(this.localSelections).some((k) => treeColNames.has(k))
+                if (!hasSelection) return false
+            } else if (!this.localSelections[columnName]) {
+                return false
+            }
             return this.ctrlPressed || this.slowHoverColumn === columnName || this.rightClickColumn === columnName
         },
         onColumnMouseEnter(columnName: string) {
@@ -174,13 +210,22 @@ export default defineComponent({
 
         //#region ===================== Column Selection Actions ==================================
         async clearColumnSelection(columnName: string) {
-            delete this.localSelections[columnName]
+            const item = this.gridItems.find((i: any) => i.columnName === columnName)
+            if (item?.isTreeGroup) {
+                item.treeColumns.forEach((col: any) => delete this.localSelections[col.columnName])
+            } else {
+                delete this.localSelections[columnName]
+            }
             this.slowHoverColumn = null
             this.rightClickColumn = null
             this.unlockedColumnName = null
             await this.refreshLocalWidgetData()
         },
         getColumnImpossibleValues(columnName: string): any[] {
+            const item = this.gridItems.find((i: any) => i.columnName === columnName)
+            if (item?.isTreeGroup) return []
+            const colWidget = this.getSingleColumnWidget(columnName)
+            if (colWidget.settings.configuration.selectorType.modality === 'tree') return []
             const selection = this.localSelections[columnName]
             if (!selection) return []
             const availableSet = new Set((this.localWidgetData[columnName]?.rows || []).map((r: any) => String(r.column_1)))
@@ -205,15 +250,15 @@ export default defineComponent({
         //#region ===================== Grid Layout ===============================================
         initializeGridLayout() {
             const savedLayout = this.propWidget.settings?.responsive?.columnLayout ?? {}
-            this.gridLayout = this.propWidget.columns.map((col: any, index: number) => {
-                const saved = savedLayout[col.columnName]
+            this.gridLayout = this.gridItems.map((item: any, index: number) => {
+                const saved = savedLayout[item.columnName]
                 return {
                     x: saved?.x ?? (index % 2) * 2,
                     y: saved?.y ?? Math.floor(index / 2) * 2,
                     w: saved?.w ?? 2,
                     h: saved?.h ?? 2,
-                    i: col.columnName,
-                    columnName: col.columnName,
+                    i: item.columnName,
+                    columnName: item.columnName,
                     static: false
                 }
             })
@@ -224,8 +269,24 @@ export default defineComponent({
         getColumnByName(columnName: string): any {
             return this.propWidget.columns.find((col: any) => col.columnName === columnName)
         },
-        getSingleColumnWidget(column: any): IWidget {
+        getSingleColumnWidget(columnName: string): IWidget {
             const singleColumnWidget = deepcopy(this.propWidget)
+            const item = this.gridItems.find((i: any) => i.columnName === columnName)
+
+            if (item?.isTreeGroup) {
+                // Tree group: use all tree columns with tree modality
+                singleColumnWidget.columns = item.treeColumns
+                singleColumnWidget.settings.configuration.selectorType = {
+                    modality: 'tree',
+                    alignment: 'vertical',
+                    columnSize: ''
+                }
+                return singleColumnWidget
+            }
+
+            // Single column: apply possible override config
+            const column = this.propWidget.columns.find((c: any) => c.columnName === columnName)
+            if (!column) return singleColumnWidget
             singleColumnWidget.columns = [column]
 
             const configs = this.propWidget.settings?.configuration?.columnTypeConfigs ?? []
@@ -247,6 +308,11 @@ export default defineComponent({
             return this.widgetInitialData[columnName] || { rows: [] }
         },
         getColumnSelections(columnName: string): ISelection[] {
+            const item = this.gridItems.find((i: any) => i.columnName === columnName)
+            if (item?.isTreeGroup) {
+                const treeColNames = new Set(item.treeColumns.map((c: any) => c.columnName))
+                return Object.values(this.localSelections).filter((sel: any) => sel && treeColNames.has(sel.columnName)) as ISelection[]
+            }
             const selection = this.localSelections[columnName]
             return selection ? [selection] : []
         },
@@ -262,9 +328,15 @@ export default defineComponent({
 
         //#region ===================== Selection Changes & Data Refresh ==========================
         async onColumnSelectionChanged(selection: ISelection | any) {
-            this.localSelections[selection.columnName] = selection
+            // Store or remove based on whether any value is selected
+            if (!selection.value || selection.value.length === 0) {
+                delete this.localSelections[selection.columnName]
+            } else {
+                this.localSelections[selection.columnName] = selection
+            }
 
-            const selectorType = this.propWidget.settings?.configuration?.selectorType?.modality?.toLowerCase()
+            const globalModality = this.propWidget.settings?.configuration?.selectorType?.modality
+            const selectorType = globalModality?.toLowerCase()
             const isMultiValueType = ['multivalue', 'multidropdown', 'daterange', 'range'].includes(selectorType)
 
             if (isMultiValueType) {

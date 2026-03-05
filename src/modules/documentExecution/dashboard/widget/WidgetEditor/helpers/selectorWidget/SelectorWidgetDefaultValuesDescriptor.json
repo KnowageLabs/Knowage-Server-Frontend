@@ -122,6 +122,19 @@
         "thumbColor": "primary",
         "trackSize": "4px"
     },
+    "defaultTreeStyle": {
+        "accordion": false,
+        "color": "primary",
+        "controlColor": "",
+        "dark": false,
+        "defaultExpandAll": false,
+        "dense": false,
+        "noConnectors": false,
+        "popupMode": false,
+        "selectedColor": "",
+        "showFilter": false,
+        "textColor": ""
+    },
     "defaultValues": {
         "enabled": false,
         "value": "",

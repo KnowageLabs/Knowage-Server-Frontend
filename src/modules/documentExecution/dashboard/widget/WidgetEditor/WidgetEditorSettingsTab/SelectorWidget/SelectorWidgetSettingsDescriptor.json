@@ -136,6 +136,10 @@
             {
                 "title": "dashboard.widgetEditor.selectorWidget.buttonToggle.title",
                 "type": "ButtonToggleStyle"
+            },
+            {
+                "title": "dashboard.widgetEditor.selectorWidget.tree.title",
+                "type": "TreeStyle"
             }
         ]
     },

@@ -106,13 +106,11 @@ export default defineComponent({
             this.widgetData = { metaData: {}, rows: [] }
         },
         getSingleSelectorData(): any {
-            // For single-column selectors, extract first column data from multi-column format
             if (!this.propWidget?.columns?.[0]?.columnName) return { rows: [] }
             const columnName = this.propWidget.columns[0].columnName
             return this.widgetData?.[columnName] || { rows: [] }
         },
         getSingleSelectorInitialData(): any {
-            // For single-column selectors, extract first column initial data
             if (!this.propWidget?.columns?.[0]?.columnName) return { rows: [] }
             const columnName = this.propWidget.columns[0].columnName
             return this.widgetData?.[columnName] || { rows: [] }

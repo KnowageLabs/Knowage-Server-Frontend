@@ -10,6 +10,7 @@ import {
     ISelectorWidgetSliderStyle,
     ISelectorWidgetRangeStyle,
     ISelectorWidgetButtonToggleStyle,
+    ISelectorWidgetTreeStyle,
     ISelectorWidgetSelectorType,
     ISelectorWidgetValuesManagement
 } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectorWidget'
@@ -66,4 +67,8 @@ export const getDefaultRangeStyle = () => {
 
 export const getDefaultButtonToggleStyle = () => {
     return deepcopy(descriptor.defaultButtonToggleStyle) as ISelectorWidgetButtonToggleStyle
+}
+
+export const getDefaultTreeStyle = () => {
+    return deepcopy(descriptor.defaultTreeStyle) as ISelectorWidgetTreeStyle
 }

@@ -7,7 +7,7 @@
         <div class="widget-container-renderer" :style="getWidgetPadding()">
             <TableWidget v-if="widget.type == 'table'" :prop-widget="widget" :datasets="datasets" :data-to-show="dataToShow" :editor-mode="false" :prop-active-selections="activeSelections" :dashboard-id="dashboardId" :prop-variables="variables" @page-changed="$emit('reloadData')" @sorting-changed="$emit('reloadData')" @launch-selection="$emit('launchSelection', $event)" @dataset-interaction-preview="$emit('datasetInteractionPreview', $event)" />
             <!-- <SelectorWidgetContainer v-if="widget.type == 'selector'" :prop-widget="widget" :data-to-show="dataToShow" :widget-initial-data="widgetInitialData" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" :datasets="datasets" :selection-is-locked="selectionIsLocked" :variables="variables" /> -->
-            <SelectorWidgetContainer v-if="widget.type == 'selector' && widget.columns && widget.columns.length > 1" :prop-widget="widget" :data-to-show="dataToShow" :widget-initial-data="widgetInitialData" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" :datasets="datasets" :selection-is-locked="selectionIsLocked" />
+            <SelectorWidgetContainer v-if="widget.type == 'selector' && selectorNeedsContainer" :prop-widget="widget" :data-to-show="dataToShow" :widget-initial-data="widgetInitialData" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" :datasets="datasets" :selection-is-locked="selectionIsLocked" />
             <SelectorWidget v-else-if="widget.type == 'selector'" :prop-widget="widget" :data-to-show="getSingleSelectorData()" :widget-initial-data="getSingleSelectorInitialData()" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" :datasets="datasets" :selection-is-locked="selectionIsLocked" :local-mode="false" />
             <ActiveSelectionsWidget v-if="widget.type == 'selection'" :prop-widget="widget" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" />
             <WebComponentContainer v-if="!widgetLoading && (widget.type == 'html' || widget.type == 'text')" :prop-widget="widget" :widget-data="dataToShow" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" :variables="variables" @dataset-interaction-preview="$emit('datasetInteractionPreview', $event)"></WebComponentContainer>
@@ -94,6 +94,15 @@ export default defineComponent({
         }),
         shouldOverflowBeVisible() {
             return this.widget?.type === 'map'
+        },
+        selectorNeedsContainer(): boolean {
+            if (!this.widget?.columns || this.widget.columns.length <= 1) return false
+            const modality = this.widget.settings?.configuration?.selectorType?.modality
+            if (modality !== 'tree') return true
+
+            // Tree: only use container when at least one column is overridden to a non-tree type
+            const columnTypeConfigs: any[] = this.widget.settings?.configuration?.columnTypeConfigs ?? []
+            return columnTypeConfigs.some((cfg: any) => cfg.selectorType !== 'tree' && cfg.columns?.some((colName: string) => this.widget.columns.some((c: any) => c.columnName === colName)))
         }
     },
     watch: {
@@ -116,13 +125,11 @@ export default defineComponent({
             this.activeSelections = this.propActiveSelections
         },
         getSingleSelectorData(): any {
-            // For single-column selectors, extract first column data from multi-column format
             if (!this.widget?.columns?.[0]?.columnName) return { rows: [] }
             const columnName = this.widget.columns[0].columnName
             return this.widgetData?.[columnName] || { rows: [] }
         },
         getSingleSelectorInitialData(): any {
-            // For single-column selectors, extract first column initial data
             if (!this.widget?.columns?.[0]?.columnName) return { rows: [] }
             const columnName = this.widget.columns[0].columnName
             return this.widgetInitialData?.[columnName] || { rows: [] }

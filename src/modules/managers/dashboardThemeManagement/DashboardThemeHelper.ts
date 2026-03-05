@@ -78,6 +78,7 @@ const addUniqueSelectorWidgetStyles = (config: ISelectorWidgetStyle) => {
     config.slider = selectorWidgetDefaultValues.getDefaultSliderStyle()
     config.range = selectorWidgetDefaultValues.getDefaultRangeStyle()
     config.buttonToggle = selectorWidgetDefaultValues.getDefaultButtonToggleStyle()
+    config.tree = selectorWidgetDefaultValues.getDefaultTreeStyle()
 }
 
 const addUniqueChartWidgetStyles = (config: any) => {
@@ -101,5 +102,10 @@ export const themeBackwardsCompatibility = (theme: IDashboardThemeConfig) => {
         if (!selectorStyle.slider) selectorStyle.slider = selectorWidgetDefaultValues.getDefaultSliderStyle()
         if (!selectorStyle.range) selectorStyle.range = selectorWidgetDefaultValues.getDefaultRangeStyle()
         if (!selectorStyle.buttonToggle) selectorStyle.buttonToggle = selectorWidgetDefaultValues.getDefaultButtonToggleStyle()
+        if (!selectorStyle.tree) selectorStyle.tree = selectorWidgetDefaultValues.getDefaultTreeStyle()
+        else {
+            const treeDefaults = selectorWidgetDefaultValues.getDefaultTreeStyle()
+            selectorStyle.tree.popupMode = selectorStyle.tree.popupMode ?? treeDefaults.popupMode ?? false
+        }
     }
 }

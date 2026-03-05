@@ -18,7 +18,7 @@ export interface ISelectorWidgetConfiguration {
     columnTypeConfigs?: ISelectorColumnTypeConfig[]
 }
 
-export type SelectorModality = 'singleValue' | 'multiValue' | 'dropdown' | 'multiDropdown' | 'date' | 'dateRange' | 'slider' | 'range' | 'buttonToggle'
+export type SelectorModality = 'singleValue' | 'multiValue' | 'dropdown' | 'multiDropdown' | 'date' | 'dateRange' | 'slider' | 'range' | 'buttonToggle' | 'tree'
 
 export interface ISelectorColumnTypeConfig {
     id: string
@@ -60,6 +60,7 @@ export interface ISelectorWidgetStyle {
     slider: ISelectorWidgetSliderStyle
     range: ISelectorWidgetRangeStyle
     buttonToggle: ISelectorWidgetButtonToggleStyle
+    tree: ISelectorWidgetTreeStyle
     padding: IWidgetPaddingStyle
     borders: IWidgetBordersStyle
     shadows: IWidgetShadowsStyle
@@ -198,4 +199,18 @@ export interface ISelectorWidgetButtonToggleStyle {
     textColor?: string
     toggleColor?: string
     toggleTextColor?: string
+}
+
+export interface ISelectorWidgetTreeStyle {
+    dense?: boolean
+    accordion?: boolean
+    defaultExpandAll?: boolean
+    noConnectors?: boolean
+    dark?: boolean
+    showFilter?: boolean
+    popupMode?: boolean
+    color?: string
+    textColor?: string
+    selectedColor?: string
+    controlColor?: string
 }

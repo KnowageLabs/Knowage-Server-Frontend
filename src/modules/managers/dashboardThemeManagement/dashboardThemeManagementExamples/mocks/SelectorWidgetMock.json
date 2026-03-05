@@ -1,4 +1,164 @@
 {
+    "treeDataMock": {
+        "initialCall": true,
+        "metaData": {
+            "cacheDate": "2023-07-26 11:29:01.301",
+            "fields": [
+                "recNo",
+                {
+                    "dataIndex": "column_1",
+                    "header": "PRODUCT_FAMILY",
+                    "multiValue": false,
+                    "name": "column_1",
+                    "precision": 0,
+                    "scale": 0,
+                    "type": "string"
+                },
+                {
+                    "dataIndex": "column_2",
+                    "header": "QUARTER",
+                    "multiValue": false,
+                    "name": "column_2",
+                    "precision": 0,
+                    "scale": 0,
+                    "type": "string"
+                }
+            ],
+            "id": "id",
+            "root": "rows",
+            "totalProperty": "results"
+        },
+        "results": 12,
+        "rows": [
+            { "id": 1, "column_1": "Food", "column_2": "Q2" },
+            { "id": 2, "column_1": "Food", "column_2": "Q3" },
+            { "id": 3, "column_1": "Food", "column_2": "Q1" },
+            { "id": 4, "column_1": "Food", "column_2": "Q4" },
+            { "id": 5, "column_1": "Drink", "column_2": "Q2" },
+            { "id": 6, "column_1": "Drink", "column_2": "Q1" },
+            { "id": 7, "column_1": "Drink", "column_2": "Q3" },
+            { "id": 8, "column_1": "Non-Consumable", "column_2": "Q1" },
+            { "id": 9, "column_1": "Non-Consumable", "column_2": "Q2" },
+            { "id": 10, "column_1": "Non-Consumable", "column_2": "Q4" },
+            { "id": 11, "column_1": "Non-Consumable", "column_2": "Q3" },
+            { "id": 12, "column_1": "Drink", "column_2": "Q4" }
+        ]
+    },
+    "treeModelMock": {
+        "columns": [
+            {
+                "alias": "PRODUCT_FAMILY",
+                "columnName": "PRODUCT_FAMILY",
+                "fieldType": "ATTRIBUTE",
+                "filter": {},
+                "id": "tree-col-1",
+                "type": "java.lang.String"
+            },
+            {
+                "alias": "QUARTER",
+                "columnName": "QUARTER",
+                "fieldType": "ATTRIBUTE",
+                "filter": {},
+                "id": "tree-col-2",
+                "type": "java.lang.String"
+            }
+        ],
+        "dataset": 193,
+        "id": "tree-widget-mock",
+        "settings": {
+            "clickable": true,
+            "configuration": {
+                "defaultValues": {
+                    "enabled": false,
+                    "value": "",
+                    "valueType": ""
+                },
+                "exports": {
+                    "showExcelExport": true
+                },
+                "selectorType": {
+                    "alignment": "vertical",
+                    "columnSize": "",
+                    "modality": "tree"
+                },
+                "valuesManagement": {
+                    "enableAll": false,
+                    "hideDisabled": false
+                }
+            },
+            "isDateType": false,
+            "responsive": {
+                "lg": true,
+                "md": true,
+                "sm": true,
+                "xl": true,
+                "xs": true
+            },
+            "sortingOrder": "ASC",
+            "style": {
+                "background": {
+                    "enabled": false,
+                    "properties": { "background-color": "" }
+                },
+                "borders": {
+                    "enabled": false,
+                    "properties": {
+                        "border-bottom-left-radius": "",
+                        "border-bottom-right-radius": "",
+                        "border-color": "rgb(212, 212, 212)",
+                        "border-style": "solid",
+                        "border-top-left-radius": "",
+                        "border-top-right-radius": "",
+                        "border-width": "1px"
+                    }
+                },
+                "label": {
+                    "enabled": true,
+                    "properties": {
+                        "background-color": "",
+                        "color": "",
+                        "font-family": "",
+                        "font-size": "",
+                        "font-style": "",
+                        "font-weight": "",
+                        "justify-content": ""
+                    },
+                    "wrapText": false
+                },
+                "padding": {
+                    "enabled": false,
+                    "properties": {
+                        "padding-bottom": "",
+                        "padding-left": "",
+                        "padding-right": "",
+                        "padding-top": "",
+                        "unlinked": false
+                    }
+                },
+                "shadows": {
+                    "enabled": false,
+                    "properties": { "box-shadow": "", "color": "" }
+                },
+                "themeId": null,
+                "title": {
+                    "enabled": false,
+                    "height": 25,
+                    "properties": {
+                        "background-color": "",
+                        "color": "",
+                        "font-family": "",
+                        "font-size": "",
+                        "font-style": "",
+                        "font-weight": "",
+                        "justify-content": ""
+                    },
+                    "text": ""
+                }
+            },
+            "updatable": true
+        },
+        "type": "selector"
+    },
     "selectorDataMock": {
         "initialCall": true,
         "metaData": {
