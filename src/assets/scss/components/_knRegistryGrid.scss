@@ -1,0 +1,228 @@
+// ─── Registry Grid ─────────────────────────────────────────────────────────
+// Griglia tabellare Excel-like per il modulo documentExecution/registry.
+// Tutti i selettori sono scoped sotto .knr-container per evitare conflitti.
+
+.knr-container {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    outline: none; // evita il focus-ring sul div container
+
+    // ── Area di scroll ────────────────────────────────────────────────────
+    .knr-scroll-area {
+        overflow: auto;
+        height: 100%;
+        width: 100%;
+    }
+
+    // ── Tabella ───────────────────────────────────────────────────────────
+    .knr-table {
+        border-collapse: separate; // avoids the 1px sticky-header gap caused by collapsed borders
+        border-spacing: 0;
+        table-layout: fixed;
+        width: max-content; // consente lo scroll orizzontale
+        font-size: 13px;
+        font-family: var(--kn-font-family);
+    }
+
+    // ── Column headers ─────────────────────────────────────────────────────
+    .knr-th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background-color: var(--kn-toolbar-default-background-color);
+        color: var(--kn-toolbar-default-color);
+        // no border-left: the index-col's right border covers the leftmost edge
+        border-top: 1px solid var(--kn-color-borders);
+        border-right: 1px solid var(--kn-color-borders);
+        border-bottom: 1px solid var(--kn-color-borders);
+        padding: 2px 20px 2px 6px; // padding-right extra per il resize handle
+        height: 24px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        user-select: none;
+        text-align: left;
+        cursor: pointer;
+
+        &:hover {
+            filter: brightness(1.1);
+        }
+
+        &.knr-col-selected {
+            background-color: var(--kn-color-selected) !important;
+            color: var(--kn-color-primary);
+        }
+
+        .knr-th-content {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            overflow: hidden;
+
+            .knr-th-label {
+                flex: 1;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .knr-sort-icon {
+                font-size: 10px;
+                flex-shrink: 0;
+            }
+        }
+    }
+
+    // ── Row index column (sticky left) ───────────────────────────────────
+    .knr-index-col {
+        position: sticky;
+        left: 0;
+        z-index: 3;
+        background-color: #f0f0f0;
+        color: #444;
+        width: 40px;
+        min-width: 40px;
+        text-align: center;
+        font-size: 0.75rem;
+        font-weight: 500;
+        cursor: pointer;
+        // always the first column: owns the left outer border
+        border-left: 1px solid var(--kn-color-borders);
+        border-right: 1px solid var(--kn-color-borders);
+        border-bottom: 1px solid var(--kn-color-borders);
+        padding: 2px 4px;
+        user-select: none;
+
+        // top-left corner cell: highest z-index, no pointer cursor
+        &.knr-th {
+            z-index: 4;
+            cursor: default;
+        }
+
+        &.knr-row-header-selected {
+            background-color: var(--kn-color-selected) !important;
+            color: #1a1a1a;
+        }
+    }
+
+    // ── Celle dati ────────────────────────────────────────────────────────
+    .knr-td {
+        // right + bottom only: left border is provided by the left neighbour's right border
+        border-right: 1px solid var(--kn-color-borders);
+        border-bottom: 1px solid var(--kn-color-borders);
+        padding: 2px 6px;
+        height: 22px;
+        white-space: nowrap;
+        overflow: visible;
+        text-overflow: ellipsis;
+        vertical-align: middle;
+        cursor: cell;
+        background-color: #ffffff;
+        position: relative;
+        user-select: none; // prevent native text selection while drag-selecting cells
+
+        // zebratura (righe pari)
+        tr:nth-child(even) & {
+            background-color: #f8f9fa;
+        }
+
+        // ── Varianti di stato ─────────────────────────────────────────────
+
+        // Cella nel range di selezione
+        &.knr-selected {
+            background-color: var(--kn-color-selected) !important;
+            outline: 1px solid var(--kn-color-info);
+            outline-offset: -1px;
+        }
+
+        // Cella ancora: sfondo bianco, bordo blu prominente (come Excel)
+        &.knr-anchor {
+            background-color: #ffffff !important;
+            outline: 2px solid var(--kn-color-info);
+            outline-offset: -1px;
+        }
+
+        // Cella non editabile
+        &.knr-cell-disabled {
+            background-color: rgba(231, 231, 231, 0.8) !important;
+            opacity: 0.7;
+            cursor: default;
+        }
+
+        // Cella modificata dall'utente
+        &.knr-cell-edited {
+            background-color: #edf7e3 !important;
+            border-left: 3px solid var(--kn-color-success);
+        }
+
+        // Cella in modalità edit
+        &.knr-cell-editing {
+            padding: 0;
+            overflow: visible;
+        }
+    }
+
+    // ── Righe con stato speciale ───────────────────────────────────────────
+
+    // Nuova riga aggiunta
+    tr.knr-row-new .knr-td {
+        background-color: #e8f4e8 !important;
+
+        &.knr-selected {
+            background-color: color-mix(in srgb, #e8f4e8 60%, var(--kn-color-selected)) !important;
+        }
+    }
+
+    // ── Input inline (text / number) ──────────────────────────────────────
+    .knr-cell-input {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+        outline: 2px solid var(--kn-color-info);
+        outline-offset: -1px;
+        padding: 2px 6px;
+        font-size: 13px;
+        font-family: var(--kn-font-family);
+        background: #ffffff;
+        box-sizing: border-box;
+        z-index: 1;
+        user-select: text; // restore text selection inside the active input
+    }
+
+    // ── Resize handle sulle intestazioni ──────────────────────────────────
+    .knr-resize-handle {
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 5px;
+        height: 100%;
+        cursor: col-resize;
+        z-index: 1;
+
+        &:hover,
+        &.knr-resize-active {
+            background-color: var(--kn-color-info);
+            opacity: 0.6;
+        }
+    }
+
+    // ── Popup editor (Dropdown / Calendar) ────────────────────────────────
+    .knr-cell-editor-popup {
+        position: fixed;
+        z-index: 9999;
+        background: #ffffff;
+        border: 1px solid var(--kn-color-borders);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+        min-width: 160px;
+    }
+}
+
+// ── Cursore durante il resize (applicato al body) ─────────────────────────────
+body.knr-resizing {
+    cursor: col-resize !important;
+    user-select: none !important;
+}

@@ -1679,6 +1679,7 @@
             "filters": "Filtre",
             "grid": {
                 "addRow": "Pridať riadok",
+                "clearSelection": "Zrušiť výber",
                 "cloneRows": "Klonovať riadky",
                 "deleteRows": "Odstrániť riadky",
                 "rowsSelected": "vybraté riadky"

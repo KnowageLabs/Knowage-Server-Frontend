@@ -1822,8 +1822,23 @@
         "registry": {
             "clearFilters": "pulisci",
             "column": "colonna/e",
+            "copyPasteValidationErrors": {
+                "checkbox": "Impossibile incollare valori di tipo checkbox",
+                "dropdown": "Le opzioni del dropdown non contengono il valore incollato",
+                "notEditable": "Impossibile incollare in una colonna non modificabile",
+                "temporal": "Impossibile incollare valori temporali"
+            },
             "filter": "filtro",
             "filters": "filtri",
+            "grid": {
+                "addRow": "Aggiungi riga",
+                "clearSelection": "Deseleziona tutto",
+                "cloneRows": "Duplica righe",
+                "deleteRows": "Elimina righe",
+                "rowsSelected": " righe selezionate"
+            },
+            "isEditableField": "Colonna modificabile. Clicca su una cella e seleziona/inserisci il nuovo valore",
+            "numberFormatNotSupported": "Formato numerico non supportato.",
             "select": "seleziona",
             "title": "documento registry",
             "warning": "attenzione",
