@@ -29,6 +29,7 @@
                         <TableWidgetSummaryStyle v-else-if="prop.node.key.includes('summary-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.summary" class="no-padding" />
                         <TableWidgetPaginator v-else-if="prop.node.key.includes('paginator-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.paginator" class="no-padding" />
                         <SelectorWidgetLabelStyle v-else-if="prop.node.key.includes('label-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.label" class="no-padding" />
+                        <SelectorWidgetFlexStyle v-else-if="prop.node.key.includes('flex-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.flex" class="no-padding" />
                         <SelectorWidgetRadioStyle v-else-if="prop.node.key.includes('radio-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.radio" class="no-padding" />
                         <SelectorWidgetCheckboxStyle v-else-if="prop.node.key.includes('checkbox-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.checkbox" class="no-padding" />
                         <SelectorWidgetDropdownStyle v-else-if="prop.node.key.includes('dropdown-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.dropdown" class="no-padding" />
@@ -88,6 +89,7 @@ import SelectorWidgetRangeStyle from '@/modules/documentExecution/dashboard/widg
 import SelectorWidgetButtonToggleStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/SelectorWidget/style/SelectorWidgetButtonToggleStyle.vue'
 import SelectorWidgetTreeStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/SelectorWidget/style/SelectorWidgetTreeStyle.vue'
 import SelectorWidgetMultiTreeStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/SelectorWidget/style/SelectorWidgetMultiTreeStyle.vue'
+import SelectorWidgetFlexStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/SelectorWidget/style/SelectorWidgetFlexStyle.vue'
 
 export default defineComponent({
     name: 'dashboard-theme-management-editor',
@@ -115,6 +117,7 @@ export default defineComponent({
         SelectorWidgetButtonToggleStyle,
         SelectorWidgetTreeStyle,
         SelectorWidgetMultiTreeStyle,
+        SelectorWidgetFlexStyle,
         SelectionsWidgetChipsStyle,
         PivotTableTotalsStyle,
         PivotTableFieldsStyle,

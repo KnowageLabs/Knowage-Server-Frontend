@@ -32,6 +32,7 @@ export const createNewSelectorWidgetSettings = () => {
             buttonToggle: selectorWidgetDefaultValues.getDefaultButtonToggleStyle(),
             tree: selectorWidgetDefaultValues.getDefaultTreeStyle(),
             multiTree: selectorWidgetDefaultValues.getDefaultMultiTreeStyle(),
+            flex: selectorWidgetDefaultValues.getDefaultFlexStyle(),
             padding: widgetCommonDefaultValues.getDefaultPaddingStyle(),
             borders: widgetCommonDefaultValues.getDefaultBordersStyle(),
             shadows: widgetCommonDefaultValues.getDefaultShadowsStyle(),
@@ -55,6 +56,7 @@ export const formatSelectorSettings = (widget: IWidget) => {
     formatSelectorWidgetButtonToggleStyle(widget.settings.style)
     formatSelectorWidgetTreeStyle(widget.settings.style)
     formatSelectorWidgetMultiTreeStyle(widget.settings.style)
+    formatSelectorWidgetFlexStyle(widget.settings.style)
 }
 
 //TODO - delete label when all selector widgets have been updated
@@ -152,5 +154,11 @@ const formatSelectorWidgetTreeStyle = (widgetStyle: ISelectorWidgetStyle) => {
 const formatSelectorWidgetMultiTreeStyle = (widgetStyle: ISelectorWidgetStyle) => {
     if (!widgetStyle.multiTree) {
         widgetStyle.multiTree = selectorWidgetDefaultValues.getDefaultMultiTreeStyle()
+    }
+}
+
+const formatSelectorWidgetFlexStyle = (widgetStyle: ISelectorWidgetStyle) => {
+    if (!widgetStyle.flex) {
+        widgetStyle.flex = selectorWidgetDefaultValues.getDefaultFlexStyle()
     }
 }

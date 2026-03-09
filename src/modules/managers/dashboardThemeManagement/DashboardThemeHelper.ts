@@ -69,6 +69,7 @@ const addUniqueActiveSelectionsWidgetStyles = (config: ISelectionWidgetStyle) =>
 
 const addUniqueSelectorWidgetStyles = (config: ISelectorWidgetStyle) => {
     config.label = selectorWidgetDefaultValues.getDefaultLabelStyle()
+    config.flex = selectorWidgetDefaultValues.getDefaultFlexStyle()
     config.radio = selectorWidgetDefaultValues.getDefaultRadioStyle()
     config.checkbox = selectorWidgetDefaultValues.getDefaultCheckboxStyle()
     config.dropdown = selectorWidgetDefaultValues.getDefaultDropdownStyle()
@@ -109,5 +110,6 @@ export const themeBackwardsCompatibility = (theme: IDashboardThemeConfig) => {
             selectorStyle.tree.popupMode = selectorStyle.tree.popupMode ?? treeDefaults.popupMode ?? false
         }
         if (!selectorStyle.multiTree) selectorStyle.multiTree = selectorWidgetDefaultValues.getDefaultMultiTreeStyle()
+        if (!selectorStyle.flex) selectorStyle.flex = selectorWidgetDefaultValues.getDefaultFlexStyle()
     }
 }

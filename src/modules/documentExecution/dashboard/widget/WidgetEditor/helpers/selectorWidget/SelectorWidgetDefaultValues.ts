@@ -1,5 +1,6 @@
 import {
     ISelectorWidgetDefaultValues,
+    ISelectorWidgetFlexStyle,
     ISelectorWidgetLabelStyle,
     ISelectorWidgetRadioStyle,
     ISelectorWidgetCheckboxStyle,
@@ -75,4 +76,8 @@ export const getDefaultTreeStyle = () => {
 
 export const getDefaultMultiTreeStyle = () => {
     return deepcopy(descriptor.defaultMultiTreeStyle) as ISelectorWidgetTreeStyle
+}
+
+export const getDefaultFlexStyle = () => {
+    return deepcopy(descriptor.defaultFlexStyle) as ISelectorWidgetFlexStyle
 }

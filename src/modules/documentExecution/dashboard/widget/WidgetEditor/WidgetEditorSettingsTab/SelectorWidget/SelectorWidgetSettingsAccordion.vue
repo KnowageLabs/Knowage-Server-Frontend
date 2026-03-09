@@ -19,6 +19,7 @@
                 <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetPaddingStyle>
                 <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>
                 <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetShadowsStyle>
+                <SelectorWidgetFlexStyle v-else-if="accordion.type === 'FlexStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetFlexStyle>
                 <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
                 <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
                 <SelectorWidgetRadioStyle v-else-if="accordion.type === 'RadioStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetRadioStyle>
@@ -61,6 +62,7 @@ import SelectorWidgetRangeStyle from './style/SelectorWidgetRangeStyle.vue'
 import SelectorWidgetButtonToggleStyle from './style/SelectorWidgetButtonToggleStyle.vue'
 import SelectorWidgetTreeStyle from './style/SelectorWidgetTreeStyle.vue'
 import SelectorWidgetMultiTreeStyle from './style/SelectorWidgetMultiTreeStyle.vue'
+import SelectorWidgetFlexStyle from './style/SelectorWidgetFlexStyle.vue'
 import WidgetBackgroundColorStyle from '../common/style/WidgetBackgroundColorStyle.vue'
 import WidgetPaddingStyle from '../common/style/WidgetPaddingStyle.vue'
 import WidgetBordersStyle from '../common/style/WidgetBordersStyle.vue'
@@ -92,6 +94,7 @@ export default defineComponent({
         SelectorWidgetButtonToggleStyle,
         SelectorWidgetTreeStyle,
         SelectorWidgetMultiTreeStyle,
+        SelectorWidgetFlexStyle,
         WidgetBackgroundColorStyle,
         WidgetPaddingStyle,
         WidgetBordersStyle,

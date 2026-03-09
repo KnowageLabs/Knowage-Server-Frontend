@@ -1626,6 +1626,18 @@
                 "multiTree": {
                     "title": "Multi Tree Style"
                 },
+                "flex": {
+                    "title": "Flex Layout",
+                    "justifyContent": "Justify Content (Vertical)",
+                    "alignItems": "Align Items (Horizontal)",
+                    "flexStart": "Start",
+                    "center": "Center",
+                    "flexEnd": "End",
+                    "spaceBetween": "Space Between",
+                    "spaceAround": "Space Around",
+                    "spaceEvenly": "Space Evenly",
+                    "stretch": "Stretch"
+                },
                 "radio": {
                     "checkedIcon": "Checked Icon",
                     "icons": "Icons",
@@ -2924,6 +2936,7 @@
                 "label": "Label",
                 "multiDropdown": "Multi Dropdown",
                 "multiTree": "Multi Tree",
+                "flex": "Flex Layout",
                 "padding": "Padding",
                 "paginator": "Paginator",
                 "radio": "Radio",

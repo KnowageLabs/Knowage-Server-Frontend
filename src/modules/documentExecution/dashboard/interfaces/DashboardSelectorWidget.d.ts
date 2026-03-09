@@ -47,6 +47,11 @@ export interface ISelectorWidgetValuesManagement {
     enableAll: boolean
 }
 
+export interface ISelectorWidgetFlexStyle {
+    justifyContent: string
+    alignItems: string
+}
+
 export interface ISelectorWidgetStyle {
     themeId: number | null
     title: IWidgetTitle
@@ -62,6 +67,7 @@ export interface ISelectorWidgetStyle {
     buttonToggle: ISelectorWidgetButtonToggleStyle
     tree: ISelectorWidgetTreeStyle
     multiTree: ISelectorWidgetTreeStyle
+    flex?: ISelectorWidgetFlexStyle
     padding: IWidgetPaddingStyle
     borders: IWidgetBordersStyle
     shadows: IWidgetShadowsStyle

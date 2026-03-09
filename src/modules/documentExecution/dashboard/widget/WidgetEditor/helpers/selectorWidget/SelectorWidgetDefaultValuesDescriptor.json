@@ -1,4 +1,8 @@
 {
+    "defaultFlexStyle": {
+        "justifyContent": "",
+        "alignItems": ""
+    },
     "defaultButtonToggleStyle": {
         "color": "secondary",
         "dense": false,

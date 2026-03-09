@@ -150,7 +150,15 @@ export default defineComponent({
         },
         getWidgetPadding() {
             const styleString = getWidgetStyleByType(this.widget, 'padding')
-            return styleString + `overflow: ${this.shouldOverflowBeVisible ? 'visible' : 'hidden'}`
+            let result = styleString + `overflow: ${this.shouldOverflowBeVisible ? 'visible' : 'hidden'};`
+
+            if (this.widget?.type === 'selector' && !this.selectorNeedsContainer) {
+                const flex = this.widget.settings?.style?.flex
+                if (flex?.justifyContent) result += `justify-content: ${flex.justifyContent};`
+                if (flex?.alignItems) result += `align-items: ${flex.alignItems};`
+            }
+
+            return result
         }
     }
 })
@@ -175,6 +183,7 @@ export default defineComponent({
         flex-direction: column;
         overflow: hidden;
         min-height: 0;
+        height: 100%;
 
         .widget-container.overflow-visible & {
             overflow: visible !important;
