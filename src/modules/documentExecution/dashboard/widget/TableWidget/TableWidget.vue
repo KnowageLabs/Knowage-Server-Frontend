@@ -382,7 +382,21 @@ export default defineComponent({
                                                 tempCol.headerName = ''
                                                 break
                                             case 'setLabel':
-                                                rule.value ? (tempCol.headerName = rule.value) : ''
+                                                if (rule.compareType === 'parameter' && rule.parameter) {
+                                                    const driver = dashboardDrivers.find((d: any) => d.name === rule.parameter)
+                                                    tempCol.headerName = driver?.value || rule.value || ''
+                                                } else if (rule.compareType === 'variable' && rule.variable) {
+                                                    const variable = dashboardVariables.find((v: any) => v.name === rule.variable)
+                                                    if (variable) {
+                                                        if (rule.variableKey && variable.pivotedValues) {
+                                                            tempCol.headerName = variable.pivotedValues[rule.variableKey] || rule.value || ''
+                                                        } else {
+                                                            tempCol.headerName = variable.value || rule.value || ''
+                                                        }
+                                                    }
+                                                } else {
+                                                    rule.value ? (tempCol.headerName = rule.value) : ''
+                                                }
                                                 break
                                         }
                                     }
@@ -557,7 +571,8 @@ export default defineComponent({
                     if (colConditions[0].condition.type === 'always') {
                         columnHidden = colConditions[0][propertyToReturn]
                     } else {
-                        isConditionMet(colConditions[0].condition, colConditions[0].condition.variableValue) ? (columnHidden = colConditions[0][propertyToReturn]) : ''
+                        const dashboardDrivers = this.getDashboardDrivers(this.dashboardId)
+                        isConditionMet(colConditions[0].condition, colConditions[0].condition.variableValue, this.variables, dashboardDrivers) ? (columnHidden = colConditions[0][propertyToReturn]) : ''
                     }
                 }
             }

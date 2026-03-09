@@ -2257,6 +2257,7 @@
             "filters": "Filters",
             "grid": {
                 "addRow": "Add Row",
+                "clearSelection": "Clear selection",
                 "cloneRows": "Clone Rows",
                 "deleteRows": "Delete Rows",
                 "rowsSelected": " rows selected"

@@ -125,6 +125,10 @@ function loadKeyColumnName(fieldsMetadata: any[]) {
 
 function loadRegistryData() {
     if (registry.value) {
+        if (!registry.value.registryConfig) {
+            appStore.setError({ title: t('common.error.generic'), msg: 'Registry configuration not found in server response.' })
+            return
+        }
         loadConfiguration()
         loadEntity()
         loadColumns()
@@ -145,7 +149,7 @@ function createColumnWidthProperty() {
 
 function loadColumns() {
     const newColumns: any[] = []
-    registry.value.registryConfig.columns.forEach((el: any) => {
+    ;(registry.value.registryConfig?.columns ?? []).forEach((el: any) => {
         if (el.type === 'merge') isPivot.value = true
         newColumns.push(el)
     })
@@ -183,11 +187,11 @@ function loadRows(resetRows = false as boolean) {
 }
 
 function loadConfiguration() {
-    configuration.value = registry.value.registryConfig.configurations
+    configuration.value = registry.value.registryConfig?.configurations ?? []
 }
 
 function loadEntity() {
-    entity.value = registry.value.registryConfig.entity
+    entity.value = registry.value.registryConfig?.entity ?? null
 }
 
 function onRowChanged(row: any) {
@@ -260,7 +264,7 @@ async function onRowDeleted(row: any) {
 
 function getFilters() {
     filters.value = []
-    const tempFilters = registry.value.registryConfig.filters
+    const tempFilters = registry.value.registryConfig?.filters ?? []
     for (let i = 0; i < tempFilters.length; i++) {
         const filter = tempFilters[i]
         for (let j = 0; j < columns.value.length; j++) {

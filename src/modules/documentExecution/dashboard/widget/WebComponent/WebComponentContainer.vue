@@ -91,9 +91,16 @@ export default defineComponent({
         },
         onSelect(event: any) {
             if (this.editorMode || !event.detail) return
-            const value = event.detail.selectionValue
+            const rawValue = event.detail.selectionValue
             const selectionColumnName = event.detail.selectionColumn
-            updateStoreSelections(this.createNewSelection([value], selectionColumnName), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
+            let parsedValue: (string | number)[]
+            try {
+                const parsed = JSON.parse(rawValue)
+                parsedValue = Array.isArray(parsed) ? parsed : [rawValue]
+            } catch {
+                parsedValue = [rawValue]
+            }
+            updateStoreSelections(this.createNewSelection(parsedValue, selectionColumnName), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
         },
         getDatasetLabel(datasetId: number) {
             const datasets = this.getAllDatasets()
