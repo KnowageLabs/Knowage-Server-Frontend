@@ -1623,6 +1623,9 @@
                     "title": "Multi Dropdown Style",
                     "variant": "Variant"
                 },
+                "multiTree": {
+                    "title": "Multi Tree Style"
+                },
                 "radio": {
                     "checkedIcon": "Checked Icon",
                     "icons": "Icons",
@@ -2919,6 +2922,7 @@
                 "headers": "Headers",
                 "label": "Label",
                 "multiDropdown": "Multi Dropdown",
+                "multiTree": "Multi Tree",
                 "padding": "Padding",
                 "paginator": "Paginator",
                 "radio": "Radio",

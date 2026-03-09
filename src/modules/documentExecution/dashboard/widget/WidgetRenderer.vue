@@ -98,11 +98,11 @@ export default defineComponent({
         selectorNeedsContainer(): boolean {
             if (!this.widget?.columns || this.widget.columns.length <= 1) return false
             const modality = this.widget.settings?.configuration?.selectorType?.modality
-            if (modality !== 'tree') return true
+            if (modality !== 'tree' && modality !== 'multiTree') return true
 
-            // Tree: only use container when at least one column is overridden to a non-tree type
+            // Tree / MultiTree: only use container when at least one column is overridden to a different type
             const columnTypeConfigs: any[] = this.widget.settings?.configuration?.columnTypeConfigs ?? []
-            return columnTypeConfigs.some((cfg: any) => cfg.selectorType !== 'tree' && cfg.columns?.some((colName: string) => this.widget.columns.some((c: any) => c.columnName === colName)))
+            return columnTypeConfigs.some((cfg: any) => cfg.selectorType !== 'tree' && cfg.selectorType !== 'multiTree' && cfg.columns?.some((colName: string) => this.widget.columns.some((c: any) => c.columnName === colName)))
         }
     },
     watch: {

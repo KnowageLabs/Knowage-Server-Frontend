@@ -18,7 +18,7 @@ export interface ISelectorWidgetConfiguration {
     columnTypeConfigs?: ISelectorColumnTypeConfig[]
 }
 
-export type SelectorModality = 'singleValue' | 'multiValue' | 'dropdown' | 'multiDropdown' | 'date' | 'dateRange' | 'slider' | 'range' | 'buttonToggle' | 'tree'
+export type SelectorModality = 'singleValue' | 'multiValue' | 'dropdown' | 'multiDropdown' | 'date' | 'dateRange' | 'slider' | 'range' | 'buttonToggle' | 'tree' | 'multiTree'
 
 export interface ISelectorColumnTypeConfig {
     id: string
@@ -61,6 +61,7 @@ export interface ISelectorWidgetStyle {
     range: ISelectorWidgetRangeStyle
     buttonToggle: ISelectorWidgetButtonToggleStyle
     tree: ISelectorWidgetTreeStyle
+    multiTree: ISelectorWidgetTreeStyle
     padding: IWidgetPaddingStyle
     borders: IWidgetBordersStyle
     shadows: IWidgetShadowsStyle

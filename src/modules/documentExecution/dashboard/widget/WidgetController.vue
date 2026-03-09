@@ -131,7 +131,7 @@ export default defineComponent({
 
             // Show play button for specific multi-value selector types
             if (!this.widget.settings.configuration.selectorType) return false
-            const isSelectorWidget = this.widget.type === 'selector' && ['multiValue', 'multiDropdown', 'dateRange', 'range'].includes(this.widget.settings.configuration.selectorType.modality) && !this.selectionIsLocked
+            const isSelectorWidget = this.widget.type === 'selector' && ['multiValue', 'multiDropdown', 'dateRange', 'range', 'multiTree'].includes(this.widget.settings.configuration.selectorType.modality) && !this.selectionIsLocked
             if (this.document.seeAsFinalUser && isSelectorWidget) return true
             return isSelectorWidget
         },
@@ -281,12 +281,12 @@ export default defineComponent({
                                     const titleImg = new Image()
                                     titleImg.src = titleCanvas
                                     titleImg.onload = () => {
-                                        ctx.drawImage(titleImg, 0, 0)
-                                        ctx.drawImage(contentImg, 0, titleHeight)
+                                        ctx?.drawImage(titleImg, 0, 0)
+                                        ctx?.drawImage(contentImg, 0, titleHeight)
                                         resolve(null)
                                     }
                                 } else {
-                                    ctx.drawImage(contentImg, 0, 0)
+                                    ctx?.drawImage(contentImg, 0, 0)
                                     resolve(null)
                                 }
                             }
@@ -536,7 +536,7 @@ export default defineComponent({
         checkIfSelectionIsLocked() {
             if (this.widgetModel.type !== 'selector' || (this.widgetModel.settings as ISelectorWidgetSettings).configuration.valuesManagement.enableAll) return false
 
-            const isTree = this.widgetModel.settings?.configuration?.selectorType?.modality === 'tree'
+            const isTree = ['tree', 'multiTree'].includes(this.widgetModel.settings?.configuration?.selectorType?.modality)
             const columnsToCheck = isTree
                 ? [this.widgetModel.columns[this.widgetModel.columns.length - 1]] // only leaf column
                 : this.widgetModel.columns
@@ -595,8 +595,19 @@ export default defineComponent({
         },
 
         launchSelection() {
-            // For multi-column selectors, emit event for local selection handling
-            if (this.widget?.type === 'selector' && this.widget?.columns?.length > 1) {
+            const modality = this.widget?.settings?.configuration?.selectorType?.modality
+
+            if (this.widget?.type === 'selector' && modality === 'multiTree') {
+                // For multiTree: use container path only when at least one column is overridden to a non-tree type (container is rendered)
+                const columnTypeConfigs: any[] = this.widget.settings?.configuration?.columnTypeConfigs ?? []
+                const containerIsUsed = columnTypeConfigs.some((cfg: any) => cfg.selectorType !== 'tree' && cfg.selectorType !== 'multiTree' && cfg.columns?.some((colName: string) => this.widget.columns.some((c: any) => c.columnName === colName)))
+                if (containerIsUsed) {
+                    emitter.emit('applySelectionsForMultiColumnSelector', { widgetId: this.widget.id })
+                } else {
+                    this.setSelections(this.dashboardId, this.activeSelections, this.$http)
+                }
+            } else if (this.widget?.type === 'selector' && this.widget?.columns?.length > 1) {
+                // For other multi-column selectors, emit event for local selection handling
                 emitter.emit('applySelectionsForMultiColumnSelector', { widgetId: this.widget.id })
             } else {
                 // For other widgets or single-column selectors, apply selections from store

@@ -140,6 +140,10 @@
             {
                 "title": "dashboard.widgetEditor.selectorWidget.tree.title",
                 "type": "TreeStyle"
+            },
+            {
+                "title": "dashboard.widgetEditor.selectorWidget.multiTree.title",
+                "type": "MultiTreeStyle"
             }
         ]
     },

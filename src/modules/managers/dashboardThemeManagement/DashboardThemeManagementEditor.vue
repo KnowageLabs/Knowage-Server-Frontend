@@ -39,6 +39,7 @@
                         <SelectorWidgetRangeStyle v-else-if="prop.node.key.includes('range-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.range" class="no-padding" />
                         <SelectorWidgetButtonToggleStyle v-else-if="prop.node.key.includes('buttonToggle-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.buttonToggle" class="no-padding" />
                         <SelectorWidgetTreeStyle v-else-if="prop.node.key.includes('tree-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.tree" class="no-padding" />
+                        <SelectorWidgetMultiTreeStyle v-else-if="prop.node.key.includes('multiTree-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.multiTree" class="no-padding" />
                         <SelectionsWidgetChipsStyle v-else-if="prop.node.key.includes('chips-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.chips" class="no-padding" />
                         <PivotTableTotalsStyle v-else-if="prop.node.key.includes('totals-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.totals" :toolbar-style-settings="pivotDescriptor.columnHeadersToolbarStyleOptions" :total-type="'totals'" class="no-padding" />
                         <PivotTableTotalsStyle v-else-if="prop.node.key.includes('subTotals-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.subTotals" :toolbar-style-settings="pivotDescriptor.columnHeadersToolbarStyleOptions" :total-type="'subTotals'" class="no-padding" />
@@ -86,6 +87,7 @@ import SelectorWidgetSliderStyle from '@/modules/documentExecution/dashboard/wid
 import SelectorWidgetRangeStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/SelectorWidget/style/SelectorWidgetRangeStyle.vue'
 import SelectorWidgetButtonToggleStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/SelectorWidget/style/SelectorWidgetButtonToggleStyle.vue'
 import SelectorWidgetTreeStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/SelectorWidget/style/SelectorWidgetTreeStyle.vue'
+import SelectorWidgetMultiTreeStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/SelectorWidget/style/SelectorWidgetMultiTreeStyle.vue'
 
 export default defineComponent({
     name: 'dashboard-theme-management-editor',
@@ -112,6 +114,7 @@ export default defineComponent({
         SelectorWidgetRangeStyle,
         SelectorWidgetButtonToggleStyle,
         SelectorWidgetTreeStyle,
+        SelectorWidgetMultiTreeStyle,
         SelectionsWidgetChipsStyle,
         PivotTableTotalsStyle,
         PivotTableFieldsStyle,

@@ -8,17 +8,17 @@ import { DataType } from '../ChartWidget/classes/highcharts/helpers/setData/High
 
 export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any, unlockedColumnName?: string) => {
     const modality = widget.settings?.configuration?.selectorType?.modality
-    if (modality === 'tree') {
+    if (modality === 'tree' || modality === 'multiTree') {
         const columnTypeConfigs = widget.settings?.configuration?.columnTypeConfigs ?? []
 
-        // Separate columns: those that remain in the tree vs those overridden to a different type
+        // Separate columns: those that remain in the tree group vs those overridden to a different type
         const treeColumns = widget.columns.filter((col: any) => {
             const match = columnTypeConfigs.find((cfg: any) => cfg.columns?.includes(col.columnName))
-            return !match || match.selectorType === 'tree'
+            return !match || match.selectorType === 'tree' || match.selectorType === 'multiTree'
         })
         const overrideColumns = widget.columns.filter((col: any) => {
             const match = columnTypeConfigs.find((cfg: any) => cfg.columns?.includes(col.columnName))
-            return match && match.selectorType !== 'tree'
+            return match && match.selectorType !== 'tree' && match.selectorType !== 'multiTree'
         })
 
         const result: any = {}

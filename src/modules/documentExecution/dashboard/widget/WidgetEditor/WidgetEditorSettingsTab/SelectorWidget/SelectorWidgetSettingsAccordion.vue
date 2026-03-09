@@ -31,6 +31,7 @@
                 <SelectorWidgetRangeStyle v-else-if="accordion.type === 'RangeStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetRangeStyle>
                 <SelectorWidgetButtonToggleStyle v-else-if="accordion.type === 'ButtonToggleStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetButtonToggleStyle>
                 <SelectorWidgetTreeStyle v-else-if="accordion.type === 'TreeStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetTreeStyle>
+                <SelectorWidgetMultiTreeStyle v-else-if="accordion.type === 'MultiTreeStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetMultiTreeStyle>
             </q-expansion-item>
         </q-list>
     </div>
@@ -59,6 +60,7 @@ import SelectorWidgetSliderStyle from './style/SelectorWidgetSliderStyle.vue'
 import SelectorWidgetRangeStyle from './style/SelectorWidgetRangeStyle.vue'
 import SelectorWidgetButtonToggleStyle from './style/SelectorWidgetButtonToggleStyle.vue'
 import SelectorWidgetTreeStyle from './style/SelectorWidgetTreeStyle.vue'
+import SelectorWidgetMultiTreeStyle from './style/SelectorWidgetMultiTreeStyle.vue'
 import WidgetBackgroundColorStyle from '../common/style/WidgetBackgroundColorStyle.vue'
 import WidgetPaddingStyle from '../common/style/WidgetPaddingStyle.vue'
 import WidgetBordersStyle from '../common/style/WidgetBordersStyle.vue'
@@ -89,6 +91,7 @@ export default defineComponent({
         SelectorWidgetRangeStyle,
         SelectorWidgetButtonToggleStyle,
         SelectorWidgetTreeStyle,
+        SelectorWidgetMultiTreeStyle,
         WidgetBackgroundColorStyle,
         WidgetPaddingStyle,
         WidgetBordersStyle,

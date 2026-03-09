@@ -78,6 +78,11 @@
             "imageUrl": "/images/dashboard/selectorTypes/radio.svg",
             "label": "Tree",
             "value": "tree"
+        },
+        {
+            "imageUrl": "/images/dashboard/selectorTypes/radio.svg",
+            "label": "Multi-Tree",
+            "value": "multiTree"
         }
     ]
 }

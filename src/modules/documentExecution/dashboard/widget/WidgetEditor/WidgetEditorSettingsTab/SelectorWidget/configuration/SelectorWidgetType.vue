@@ -64,7 +64,7 @@ export default defineComponent({
             return ALIGNMENT_TYPES.includes(modality as SelectorModality)
         },
         selectorTypeOptions(): { label: string; value: string; disable: boolean }[] {
-            return this.descriptor.selectorTypes.map((t) => ({ label: t.label, value: t.value, disable: t.value === 'tree' && this.columnOptions.length < 2 }))
+            return this.descriptor.selectorTypes.map((t) => ({ label: t.label, value: t.value, disable: (t.value === 'tree' || t.value === 'multiTree') && this.columnOptions.length < 2 }))
         },
         showGridColumnSize(): boolean {
             const cfg = this.model.settings?.configuration?.selectorType
@@ -103,7 +103,7 @@ export default defineComponent({
             return ALIGNMENT_TYPES.includes(selectorType)
         },
         columnTypeOptions(config: ISelectorColumnTypeConfig): { label: string; value: string; disable: boolean }[] {
-            return this.descriptor.selectorTypes.map((t) => ({ label: t.label, value: t.value, disable: t.value === 'tree' && config.columns.length < 2 }))
+            return this.descriptor.selectorTypes.map((t) => ({ label: t.label, value: t.value, disable: (t.value === 'tree' || t.value === 'multiTree') && config.columns.length < 2 }))
         },
         addColumnTypeConfig() {
             if (!this.model.settings?.configuration) return

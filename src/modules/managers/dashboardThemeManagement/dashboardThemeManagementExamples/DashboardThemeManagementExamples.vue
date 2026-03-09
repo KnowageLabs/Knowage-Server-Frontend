@@ -46,6 +46,9 @@
         <div class="p-p-2" style="height: 300px">
             <WidgetRenderer ref="treeSelector" :widget="treeModel" :widget-data="formatSelectorData(selectorWidgetMock.treeDataMock, treeModel)" :widget-initial-data="formatSelectorData(selectorWidgetMock.treeDataMock, treeModel)" :datasets="[]" :dashboard-id="'treeSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
         </div>
+        <div class="p-p-2" style="height: 300px">
+            <WidgetRenderer ref="multiTreeSelector" :widget="multiTreeModel" :widget-data="formatSelectorData(selectorWidgetMock.treeDataMock, multiTreeModel)" :widget-initial-data="formatSelectorData(selectorWidgetMock.treeDataMock, multiTreeModel)" :datasets="[]" :dashboard-id="'multiTreeSelector'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
+        </div>
     </div>
 </template>
 
@@ -89,7 +92,8 @@ export default defineComponent({
             sliderModel: {} as any,
             rangeModel: {} as any,
             buttonToggleModel: {} as any,
-            treeModel: {} as any
+            treeModel: {} as any,
+            multiTreeModel: {} as any
         }
     },
     computed: {
@@ -164,6 +168,10 @@ export default defineComponent({
 
             this.treeModel = deepcopy(this.selectorWidgetMock.treeModelMock)
             this.treeModel.settings.style = this.selectedTheme.config.selector.style
+
+            this.multiTreeModel = deepcopy(this.selectorWidgetMock.treeModelMock)
+            this.multiTreeModel.settings.configuration.selectorType.modality = 'multiTree'
+            this.multiTreeModel.settings.style = this.selectedTheme.config.selector.style
         },
 
         setEventListeners() {

@@ -79,6 +79,7 @@ const addUniqueSelectorWidgetStyles = (config: ISelectorWidgetStyle) => {
     config.range = selectorWidgetDefaultValues.getDefaultRangeStyle()
     config.buttonToggle = selectorWidgetDefaultValues.getDefaultButtonToggleStyle()
     config.tree = selectorWidgetDefaultValues.getDefaultTreeStyle()
+    config.multiTree = selectorWidgetDefaultValues.getDefaultMultiTreeStyle()
 }
 
 const addUniqueChartWidgetStyles = (config: any) => {
@@ -107,5 +108,6 @@ export const themeBackwardsCompatibility = (theme: IDashboardThemeConfig) => {
             const treeDefaults = selectorWidgetDefaultValues.getDefaultTreeStyle()
             selectorStyle.tree.popupMode = selectorStyle.tree.popupMode ?? treeDefaults.popupMode ?? false
         }
+        if (!selectorStyle.multiTree) selectorStyle.multiTree = selectorWidgetDefaultValues.getDefaultMultiTreeStyle()
     }
 }

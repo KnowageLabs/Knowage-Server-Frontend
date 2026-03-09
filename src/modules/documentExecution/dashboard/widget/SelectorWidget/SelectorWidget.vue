@@ -19,6 +19,8 @@
         <ButtonToggleSelector v-if="widgetType === 'buttonToggle'" :model-value="selectedValue" :options="singleValueOptions" :button-toggle-style="propWidget.settings.style.buttonToggle" @update:model-value="buttonToggleSelectorChanged" />
 
         <TreeSelector v-else-if="widgetType === 'tree'" :model-value="selectedValue" :nodes="treeNodes" :tree-style="propWidget.settings.style.tree" @update:model-value="treeSelectorChanged" />
+
+        <MultiTreeSelector v-else-if="widgetType === 'multiTree'" :model-value="selectedValues" :nodes="treeNodes" :tree-style="propWidget.settings.style.multiTree" @update:model-value="multiTreeSelectorChanged" />
     </div>
 </template>
 
@@ -38,6 +40,7 @@ import SliderSelector from './selectorTypes/SliderSelector.vue'
 import RangeSelector from './selectorTypes/RangeSelector.vue'
 import ButtonToggleSelector from './selectorTypes/ButtonToggleSelector.vue'
 import TreeSelector from './selectorTypes/TreeSelector.vue'
+import MultiTreeSelector from './selectorTypes/MultiTreeSelector.vue'
 import type { TreeNodeItem } from './selectorTypes/TreeSelector.vue'
 import { QRadio, QCheckbox } from 'quasar'
 import store from '../../Dashboard.store'
@@ -47,7 +50,7 @@ import dashboardDescriptor from '../../DashboardDescriptor.json'
 
 export default defineComponent({
     name: 'datasets-catalog-datatable',
-    components: { RadioSelector, CheckboxSelector, DropdownSelector, MultiDropdownSelector, DateSelector, DateRangeSelector, SliderSelector, RangeSelector, ButtonToggleSelector, TreeSelector, QRadio, QCheckbox },
+    components: { RadioSelector, CheckboxSelector, DropdownSelector, MultiDropdownSelector, DateSelector, DateRangeSelector, SliderSelector, RangeSelector, ButtonToggleSelector, TreeSelector, MultiTreeSelector, QRadio, QCheckbox },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         dataToShow: { type: Object as any, required: true },
@@ -119,7 +122,7 @@ export default defineComponent({
         },
         hasImpossibleSelection(): boolean {
             const type = this.widgetType
-            if (['date', 'dateRange', 'slider', 'range', 'tree'].includes(type)) return false
+            if (['date', 'dateRange', 'slider', 'range', 'tree', 'multiTree'].includes(type)) return false
             const disabledValues = new Set(this.options.rows.filter((row: any) => row.disabled).map((row: any) => String(row.column_1)))
             if (disabledValues.size === 0) return false
             if (['multiValue', 'multiDropdown'].includes(type)) {
@@ -182,8 +185,8 @@ export default defineComponent({
             this.options = { rows: [] }
             if (!dataToShow || !dataToShow.rows) return
 
-            // Tree selector: compute disabled per row by full-path comparison with live data
-            if (this.widgetType === 'tree') {
+            // Tree / MultiTree selector: compute disabled per row by full-path comparison with live data
+            if (this.widgetType === 'tree' || this.widgetType === 'multiTree') {
                 const columnCount = Math.max(1, this.propWidget.columns?.length || 1)
                 const dataToShowKeys = new Set(dataToShow.rows.map((row: any) => Array.from({ length: columnCount }, (_, i) => String(row[`column_${i + 1}`] ?? '')).join('|')))
                 this.options.rows = (this.initialOptions?.rows ?? []).map((row: any) => ({
@@ -247,11 +250,15 @@ export default defineComponent({
             if (this.editorMode) return false
 
             // Tree selection is keyed by the leaf (last) column
-            if (this.widgetType === 'tree') {
+            if (this.widgetType === 'tree' || this.widgetType === 'multiTree') {
                 const lastCol = this.propWidget.columns[this.propWidget.columns.length - 1]?.columnName
                 const treeIdx = this.activeSelections.findIndex((s: ISelection) => s.datasetId === this.propWidget.dataset && s.columnName === lastCol)
                 if (treeIdx !== -1) {
-                    this.selectedValue = this.activeSelections[treeIdx].value[0] ?? null
+                    if (this.widgetType === 'tree') {
+                        this.selectedValue = this.activeSelections[treeIdx].value[0] ?? null
+                    } else {
+                        this.selectedValues = this.activeSelections[treeIdx].value as (string | number)[]
+                    }
                     return true
                 }
                 return false
@@ -353,7 +360,7 @@ export default defineComponent({
             return index !== -1 ? this.datasets[index].label : ''
         },
         onSelectionsDeleted(selections: any) {
-            const colName = this.widgetType === 'tree' ? this.propWidget.columns[this.propWidget.columns.length - 1]?.columnName : this.propWidget.columns[0]?.columnName
+            const colName = this.widgetType === 'tree' || this.widgetType === 'multiTree' ? this.propWidget.columns[this.propWidget.columns.length - 1]?.columnName : this.propWidget.columns[0]?.columnName
             const index = selections.findIndex((selection: ISelection) => selection.datasetId === this.propWidget.dataset && selection.columnName === colName)
             if (index !== -1) this.removeDeafultValues()
         },
@@ -454,6 +461,17 @@ export default defineComponent({
             if (this.editorMode) return
             const selection = this.createNewTreeSelection(leafValue !== null ? [leafValue] : [])
             this.emitSelectionChange(selection)
+        },
+        multiTreeSelectorChanged(values: (string | number)[]) {
+            this.selectedValues = values
+            if (this.editorMode) return
+            const tempSelection = this.createNewTreeSelection(this.selectedValues)
+            this.updateActiveSelectionsWithMultivalueSelection(tempSelection)
+            if (this.localMode) {
+                this.$emit('selectionChanged', tempSelection)
+            } else {
+                this.debounceMultiValueSelection(tempSelection)
+            }
         },
         rangeSelectorChanged(data: any) {
             if (this.editorMode) return

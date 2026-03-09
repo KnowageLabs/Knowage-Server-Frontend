@@ -72,3 +72,7 @@ export const getDefaultButtonToggleStyle = () => {
 export const getDefaultTreeStyle = () => {
     return deepcopy(descriptor.defaultTreeStyle) as ISelectorWidgetTreeStyle
 }
+
+export const getDefaultMultiTreeStyle = () => {
+    return deepcopy(descriptor.defaultMultiTreeStyle) as ISelectorWidgetTreeStyle
+}

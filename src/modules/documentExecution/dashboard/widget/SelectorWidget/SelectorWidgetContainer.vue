@@ -71,13 +71,13 @@ export default defineComponent({
             const globalModality = this.propWidget.settings?.configuration?.selectorType?.modality
             const columnTypeConfigs = this.propWidget.settings?.configuration?.columnTypeConfigs ?? []
 
-            if (globalModality === 'tree') {
+            if (globalModality === 'tree' || globalModality === 'multiTree') {
                 const treeGroupCols: any[] = []
                 const result: { columnName: string; isTreeGroup: boolean; treeColumns: any[] }[] = []
 
                 for (const col of this.propWidget.columns) {
                     const matchingConfig = columnTypeConfigs.find((cfg: any) => cfg.columns?.includes(col.columnName))
-                    if (matchingConfig && matchingConfig.selectorType !== 'tree') {
+                    if (matchingConfig && matchingConfig.selectorType !== 'tree' && matchingConfig.selectorType !== 'multiTree') {
                         result.push({ columnName: col.columnName, isTreeGroup: false, treeColumns: [] })
                     } else {
                         treeGroupCols.push(col)
@@ -225,7 +225,7 @@ export default defineComponent({
             const item = this.gridItems.find((i: any) => i.columnName === columnName)
             if (item?.isTreeGroup) return []
             const colWidget = this.getSingleColumnWidget(columnName)
-            if (colWidget.settings.configuration.selectorType.modality === 'tree') return []
+            if (colWidget.settings.configuration.selectorType.modality === 'tree' || colWidget.settings.configuration.selectorType.modality === 'multiTree') return []
             const selection = this.localSelections[columnName]
             if (!selection) return []
             const availableSet = new Set((this.localWidgetData[columnName]?.rows || []).map((r: any) => String(r.column_1)))
@@ -274,10 +274,10 @@ export default defineComponent({
             const item = this.gridItems.find((i: any) => i.columnName === columnName)
 
             if (item?.isTreeGroup) {
-                // Tree group: use all tree columns with tree modality
+                // Tree group: use all tree columns preserving actual modality
                 singleColumnWidget.columns = item.treeColumns
                 singleColumnWidget.settings.configuration.selectorType = {
-                    modality: 'tree',
+                    modality: this.propWidget.settings?.configuration?.selectorType?.modality ?? 'tree',
                     alignment: 'vertical',
                     columnSize: ''
                 }
@@ -337,7 +337,7 @@ export default defineComponent({
 
             const globalModality = this.propWidget.settings?.configuration?.selectorType?.modality
             const selectorType = globalModality?.toLowerCase()
-            const isMultiValueType = ['multivalue', 'multidropdown', 'daterange', 'range'].includes(selectorType)
+            const isMultiValueType = ['multivalue', 'multidropdown', 'daterange', 'range', 'multitree'].includes(selectorType)
 
             if (isMultiValueType) {
                 if (this.debounceTimers[selection.columnName]) {
