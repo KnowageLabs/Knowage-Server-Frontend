@@ -19,6 +19,7 @@
                 <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetPaddingStyle>
                 <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>
                 <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetShadowsStyle>
+                <SelectorWidgetFlexStyle v-else-if="accordion.type === 'FlexStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetFlexStyle>
                 <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
                 <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
             </AccordionTab>
@@ -52,6 +53,7 @@ import Message from 'primevue/message'
 import WidgetSelectionConfiguration from '../common/configuration/WidgetSelectionConfiguration.vue'
 import WidgetHelpSettings from '../common/help/WidgetHelpSettings.vue'
 import SelectorWidgetRange from './configuration/SelectorWidgetRange.vue'
+import SelectorWidgetFlexStyle from './style/SelectorWidgetFlexStyle.vue'
 
 export default defineComponent({
     name: 'selector-widget-settings-container',
@@ -64,6 +66,7 @@ export default defineComponent({
         WidgetTitleStyle,
         SelectorWidgetLabelStyle,
         WidgetBackgroundColorStyle,
+        SelectorWidgetFlexStyle,
         WidgetPaddingStyle,
         WidgetBordersStyle,
         WidgetShadowsStyle,

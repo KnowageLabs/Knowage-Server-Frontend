@@ -892,17 +892,17 @@
                     "xAndZAxesHint": "Click on exactly one measure to define series."
                 },
                 "categoryThreshold": {
-                    "title": "Significant Category Threshold",
-                    "hint": "Configure one or more threshold conditions for categories. The chart is displayed only if the conditions are met.",
-                    "operator": "Logical operator",
-                    "operatorHint": "AND: all conditions must be met. OR: at least one condition must be met",
-                    "conditions": "Conditions",
                     "addCondition": "Add Condition",
                     "category": "Category",
-                    "threshold": "Minimum threshold",
-                    "message": "Message to display",
+                    "conditions": "Conditions",
                     "defaultMessage": "Chart cannot be displayed: insufficient number of categories",
-                    "noConditions": "No conditions configured. Add at least one condition."
+                    "hint": "Configure one or more threshold conditions for categories. The chart is displayed only if the conditions are met.",
+                    "message": "Message to display",
+                    "noConditions": "No conditions configured. Add at least one condition.",
+                    "operator": "Logical operator",
+                    "operatorHint": "AND: all conditions must be met. OR: at least one condition must be met",
+                    "threshold": "Minimum threshold",
+                    "title": "Significant Category Threshold"
                 },
                 "centerText": {
                     "hint": "Center Text Hint",
@@ -1412,6 +1412,22 @@
             "selectedColumns": "Selected Columns",
             "selectorType": {
                 "title": "Selector Type"
+            },
+            "selectorWidget": {
+                "flex": {
+                    "alignItems": "Align Items (Horizontal)",
+                    "center": "Center",
+                    "flexEnd": "End",
+                    "flexStart": "Start",
+                    "justifyContent": "Justify Content (Vertical)",
+                    "spaceAround": "Space Around",
+                    "spaceBetween": "Space Between",
+                    "spaceEvenly": "Space Evenly",
+                    "stretch": "Stretch",
+                    "title": "Flex Layout"
+                },
+                "type": "Selector Type",
+                "typeOverrides": "Type Overrides"
             },
             "series": {
                 "enableColor": "Enable Color",
@@ -2553,6 +2569,7 @@
                 "columns": "Columns",
                 "fieldHeaders": "Field Headers",
                 "fields": "Fields",
+                "flex": "Flex Layout",
                 "headers": "Headers",
                 "label": "Label",
                 "padding": "Padding",

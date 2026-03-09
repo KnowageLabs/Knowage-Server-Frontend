@@ -1,14 +1,14 @@
 <template>
     <div v-if="options" class="selector-widget dashboard-scrollbar">
         <div v-if="widgetType === 'singleValue'" :class="getLayoutStyle()">
-            <div v-for="(value, index) of showMode === 'hideDisabled' ?  options.rows.filter((row: any) => !row.disabled) : options.rows" :key="index" class="multi-select p-p-1" :style="getLabelStyle() + getGridWidth()">
+            <div v-for="(value, index) of showMode === 'hideDisabled' ? options.rows.filter((row: any) => !row.disabled) : options.rows" :key="index" class="multi-select p-p-1" :style="getLabelStyle() + getGridWidth()">
                 <RadioButton v-model="selectedValue" :input-id="`radio-${index}`" class="p-mr-2" :name="value.column_1" :value="value.column_1" :disabled="showMode === 'showDisabled' && value.disabled" @change="singleValueSelectionChanged" />
                 <label :for="`radio-${index}`" class="multi-select-label">{{ value.column_1 }}</label>
             </div>
         </div>
 
         <div v-if="widgetType === 'multiValue'" :class="getLayoutStyle()">
-            <div v-for="(value, index) of showMode === 'hideDisabled' ?  options.rows.filter((row: any) => !row.disabled) : options.rows" :key="index" class="multi-select p-p-1" :style="getLabelStyle() + getGridWidth()">
+            <div v-for="(value, index) of showMode === 'hideDisabled' ? options.rows.filter((row: any) => !row.disabled) : options.rows" :key="index" class="multi-select p-p-1" :style="getLabelStyle() + getGridWidth()">
                 <Checkbox v-model="selectedValues" :input-id="`multi-${index}`" class="p-mr-2" :name="value.column_1" :value="value.column_1" :disabled="showMode === 'showDisabled' && value.disabled" @change="multiValueSelectionChanged" />
                 <label :for="`multi-${index}`" class="multi-select-label">{{ value.column_1 }}</label>
             </div>
@@ -399,3 +399,10 @@ export default defineComponent({
     }
 })
 </script>
+
+<style lang="scss" scoped>
+.selector-widget {
+    display: flex;
+    flex-direction: column;
+}
+</style>

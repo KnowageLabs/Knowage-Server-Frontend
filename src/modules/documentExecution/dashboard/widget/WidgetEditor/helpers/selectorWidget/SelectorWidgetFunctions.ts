@@ -1,4 +1,4 @@
-import { ISelectorWidgetSettings } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectorWidget'
+import { ISelectorWidgetSettings, ISelectorWidgetStyle } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectorWidget'
 import * as selectorWidgetDefaultValues from './SelectorWidgetDefaultValues'
 import * as widgetCommonDefaultValues from '../common/WidgetCommonDefaultValues'
 import { IWidgetHelpSettings } from '@/modules/documentExecution/dashboard/Dashboard'
@@ -24,9 +24,16 @@ export const createNewSelectorWidgetSettings = () => {
             padding: widgetCommonDefaultValues.getDefaultPaddingStyle(),
             borders: widgetCommonDefaultValues.getDefaultBordersStyle(),
             shadows: widgetCommonDefaultValues.getDefaultShadowsStyle(),
-            background: widgetCommonDefaultValues.getDefaultBackgroundStyle()
+            background: widgetCommonDefaultValues.getDefaultBackgroundStyle(),
+            flex: selectorWidgetDefaultValues.getDefaultFlexStyle()
         },
         responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
         help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as ISelectorWidgetSettings
+}
+
+const formatSelectorWidgetFlexStyle = (widgetStyle: ISelectorWidgetStyle) => {
+    if (!widgetStyle.flex) {
+        widgetStyle.flex = selectorWidgetDefaultValues.getDefaultFlexStyle()
+    }
 }
