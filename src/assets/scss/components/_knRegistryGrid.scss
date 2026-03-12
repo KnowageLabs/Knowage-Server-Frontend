@@ -222,6 +222,36 @@
     min-width: 160px;
 }
 
+// ── Native date / time inputs inside the popup ──────────────────────────────
+.knr-date-picker-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px;
+
+    &.knr-datetime-picker-wrap {
+        flex-wrap: nowrap;
+    }
+}
+
+.knr-native-date-input {
+    border: 1px solid var(--kn-color-borders);
+    border-radius: 4px;
+    padding: 4px 6px;
+    font-size: 13px;
+    font-family: var(--kn-font-family);
+    background: #ffffff;
+    color: inherit;
+    outline: none;
+    height: 32px;
+    box-sizing: border-box;
+
+    &:focus {
+        border-color: var(--kn-color-info);
+        box-shadow: 0 0 0 2px rgba(var(--kn-color-info-rgb, 33, 150, 243), 0.2);
+    }
+}
+
 // ── Cursore durante il resize (applicato al body) ─────────────────────────────
 body.knr-resizing {
     cursor: col-resize !important;
