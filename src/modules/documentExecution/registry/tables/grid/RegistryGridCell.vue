@@ -18,13 +18,13 @@
 
         <!-- ── Editing: popup (Dropdown / Calendar) via componente figlio -->
         <template v-else-if="isEditing && (cellType === 'dropdown' || cellType === 'temporal')">
-            <RegistryGridCellEditor :col="col" :row="row" :value="localValue" :combo-column-options="comboColumnOptions" @confirm="onPopupConfirm" @cancel="$emit('edit-cancel')" @dropdown-change="$emit('dropdown-change', $event)" />
+            <RegistryGridCellEditor :col="col" :row="row" :value="localValue" :combo-column-options="comboColumnOptions" :cell-el="cellEl" @confirm="onPopupConfirm" @cancel="$emit('edit-cancel')" @dropdown-change="$emit('dropdown-change', $event)" />
         </template>
     </td>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, getCurrentInstance } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { setInputDataType, getInputStep, formatRegistryNumber } from '@/helpers/commons/tableHelpers'
 import { luxonFormatDate, formatDateWithLocale, localeDate } from '@/helpers/commons/localeHelper'
@@ -55,6 +55,11 @@ const { locale } = useI18n()
 
 const inputRef = ref<HTMLInputElement | null>(null)
 const localValue = ref<any>(null)
+const cellEl = ref<HTMLElement | null>(null)
+
+onMounted(() => {
+    cellEl.value = (getCurrentInstance()?.proxy?.$el as HTMLElement) ?? null
+})
 
 // ── Cell type ────────────────────────────────────────────────────────────
 

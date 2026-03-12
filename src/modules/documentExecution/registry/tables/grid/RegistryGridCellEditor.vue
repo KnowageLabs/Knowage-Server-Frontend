@@ -28,6 +28,7 @@ const props = defineProps<{
     row: any
     value: any
     comboColumnOptions?: any
+    cellEl?: HTMLElement | null
 }>()
 
 const emit = defineEmits<{
@@ -129,8 +130,8 @@ function onClickOutside(e: MouseEvent) {
 // ── Lifecycle ────────────────────────────────────────────────────────────
 
 onMounted(() => {
-    // Find the nearest ancestor td element to use as positioning anchor
-    anchorEl.value = popupRef.value?.parentElement?.closest('td') ?? null
+    // Use the td element passed from the parent cell (DOM traversal fails after Teleport to body)
+    anchorEl.value = props.cellEl ?? null
 
     // Initialize local value
     localValue.value = props.value ?? null
