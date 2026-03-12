@@ -36,9 +36,10 @@ export const createNewDashboardModel = () => {
 export const addNewWidgetToSheets = (dashboardModel: IDashboard, selectedSheetIndex: number, widget: IWidget, originalWidget: IWidget | null = null) => {
     if (!widget.settings.responsive) return
     const SHEET_WIDGET_SIZES = Object.keys(widget.settings.responsive)
-    if (!dashboardModel.sheets[selectedSheetIndex].widgets) dashboardModel.sheets[selectedSheetIndex].widgets = { lg: [], md: [], sm: [], xs: [], xxs: [] }
-    if (SHEET_WIDGET_SIZES.includes('fullGrid')) addNewFullGridWidgetToSheetsWidgetSizeArray(dashboardModel, selectedSheetIndex, widget)
-    else SHEET_WIDGET_SIZES.forEach((size: string) => addNewWidgetToSheetsWidgetSizeArray(dashboardModel, size, selectedSheetIndex, widget, originalWidget))
+    const safeSheetIndex = selectedSheetIndex < dashboardModel.sheets.length ? selectedSheetIndex : 0
+    if (!dashboardModel.sheets[safeSheetIndex].widgets) dashboardModel.sheets[safeSheetIndex].widgets = { lg: [], md: [], sm: [], xs: [], xxs: [] }
+    if (SHEET_WIDGET_SIZES.includes('fullGrid')) addNewFullGridWidgetToSheetsWidgetSizeArray(dashboardModel, safeSheetIndex, widget)
+    else SHEET_WIDGET_SIZES.forEach((size: string) => addNewWidgetToSheetsWidgetSizeArray(dashboardModel, size, safeSheetIndex, widget, originalWidget))
 }
 
 const addNewFullGridWidgetToSheetsWidgetSizeArray = (dashboardModel: IDashboard, selectedSheetIndex: number, widget: IWidget) => {
