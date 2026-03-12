@@ -11,22 +11,26 @@ let hideTimeout: ReturnType<typeof setTimeout> | null = null
 
 watch(
     () => store.loading,
-    (loading) => {
-        if (loading && loading > 0) {
-            // Show immediately and cancel any pending hide
+    (loading, prevLoading) => {
+        const wasActive = prevLoading && prevLoading > 0
+        const isActive = loading && loading > 0
+
+        if (!wasActive && isActive) {
+            // 0 → N: show spinner once, cancel any pending hide
             if (hideTimeout) {
                 clearTimeout(hideTimeout)
                 hideTimeout = null
             }
             $q.loading.show()
-        } else {
-            // Debounce the hide: only hide if loading is still 0 after the delay
+        } else if (wasActive && !isActive) {
+            // N → 0: debounce the hide to avoid flicker between consecutive loadings
             if (hideTimeout) clearTimeout(hideTimeout)
             hideTimeout = setTimeout(() => {
                 if (!store.loading || store.loading <= 0) $q.loading.hide()
                 hideTimeout = null
             }, HIDE_DEBOUNCE_MS)
         }
+        // N → M (both > 0): do nothing, spinner is already showing
     }
 )
 </script>
