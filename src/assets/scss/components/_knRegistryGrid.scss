@@ -209,16 +209,17 @@
             opacity: 0.6;
         }
     }
+}
 
-    // ── Popup editor (Dropdown / Calendar) ────────────────────────────────
-    .knr-cell-editor-popup {
-        position: fixed;
-        z-index: 9999;
-        background: #ffffff;
-        border: 1px solid var(--kn-color-borders);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
-        min-width: 160px;
-    }
+// ── Popup editor (Dropdown / Calendar) ───────────────────────────────────────
+// Must be outside .knr-container because the element is teleported to <body>.
+.knr-cell-editor-popup {
+    position: fixed;
+    z-index: 9999;
+    background: #ffffff;
+    border: 1px solid var(--kn-color-borders);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+    min-width: 160px;
 }
 
 // ── Cursore durante il resize (applicato al body) ─────────────────────────────

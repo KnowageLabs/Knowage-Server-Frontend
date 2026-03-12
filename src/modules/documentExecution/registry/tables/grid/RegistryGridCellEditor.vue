@@ -97,14 +97,15 @@ function positionPopup() {
     if (!anchorEl.value || !popupRef.value) return
     const rect = anchorEl.value.getBoundingClientRect()
     const popH = popupRef.value.offsetHeight || 320
-    const popW = popupRef.value.offsetWidth || 200
+    const popW = popupRef.value.offsetWidth || 260
 
-    let top = rect.bottom + window.scrollY
-    let left = rect.left + window.scrollX
+    // Use viewport coordinates (position: fixed — no scroll offset needed)
+    let top = rect.bottom
+    let left = rect.left
 
     // Avoid vertical overflow
-    if (rect.bottom + popH > window.innerHeight) {
-        top = rect.top + window.scrollY - popH
+    if (top + popH > window.innerHeight) {
+        top = rect.top - popH
     }
     // Avoid horizontal overflow
     if (left + popW > window.innerWidth) {
@@ -112,7 +113,7 @@ function positionPopup() {
     }
 
     popupStyle.value = {
-        position: 'absolute',
+        position: 'fixed',
         top: `${top}px`,
         left: `${left}px`
     }
