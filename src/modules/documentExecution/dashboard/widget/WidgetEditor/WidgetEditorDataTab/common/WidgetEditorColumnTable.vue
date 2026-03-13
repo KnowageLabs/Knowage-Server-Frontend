@@ -105,10 +105,10 @@ export default defineComponent({
         }
     },
     computed: {
-        widgetType(): string | undefined {
+        widgetType(): string {
             return this.widgetModel?.type
         },
-        chartType(): string | undefined {
+        chartType(): string {
             return this.widgetModel?.settings?.chartModel?.model?.chart?.type
         },
         rowReorderEnabled(): boolean {
@@ -202,9 +202,12 @@ export default defineComponent({
             return column.field === 'aggregation' && row.type !== 'pythonFunction' && (row.fieldType === 'MEASURE' || ['Y', 'Z'].includes(row.axis)) && this.widgetType !== 'discovery' && !row.formula
         },
         updateSelectedColumn(selectedColumn: IWidgetColumn) {
+            console.log('Updating selected column:', selectedColumn)
             const index = this.rows.findIndex((tempColumn: IWidgetColumn) => tempColumn.id === selectedColumn.id)
             if (index !== -1) {
-                this.rows[index] = { ...selectedColumn }
+                // this.rows[index] = { ...selectedColumn }
+                Object.assign(this.rows[index], selectedColumn)
+
                 this.$emit('itemUpdated', this.rows[index])
             }
         },
@@ -260,12 +263,13 @@ export default defineComponent({
             const currentOrder = col.orderType ?? null
             const newOrder = next[currentOrder]
 
-            this.widgetModel.columns.forEach((c) => {
+            this.widgetModel.columns.forEach((c: any) => {
                 if (c === col) return
                 if (isMeasure || c.fieldType === 'MEASURE') c.orderType = null
             })
 
             col.orderType = newOrder
+            this.$emit('itemUpdated', col)
         }
     }
 })
