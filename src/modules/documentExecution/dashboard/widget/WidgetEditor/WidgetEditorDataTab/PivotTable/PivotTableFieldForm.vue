@@ -9,13 +9,13 @@
             </div>
             <div class="p-field p-col-6">
                 <span class="p-float-label">
-                    <Dropdown v-model="column.fieldType" class="kn-material-input" :options="descriptor.columnTypeOptions" option-value="value" option-label="label" :disabled="column.formula !== undefined" @change="columnTypeChanged"></Dropdown>
+                    <Dropdown v-model="column.fieldType" class="kn-material-input" :options="descriptor.columnTypeOptions" option-value="value" option-label="label" :disabled="column.formula !== undefined" @change="columnTypeChanged"> </Dropdown>
                     <label class="kn-material-input-label">{{ $t('common.type') }}</label>
                 </span>
             </div>
             <div v-if="!isDataField" class="p-field p-col-12">
                 <span class="p-float-label">
-                    <Dropdown v-model="column.sort" class="kn-material-input" :options="descriptor.sortOptions" option-value="value" option-label="label" @change="onFieldSortChanged"></Dropdown>
+                    <Dropdown v-model="column.sort" class="kn-material-input" :options="descriptor.sortOptions" option-value="value" option-label="label" @change="onFieldSortChanged"> </Dropdown>
                     <label class="kn-material-input-label">{{ $t('common.sort') }}</label>
                 </span>
             </div>
