@@ -158,6 +158,21 @@
                 "type": "text"
             },
             {
+                "key": "--kn-documentation-drawer-level1-color",
+                "label": "Drawer Level 1 Text Color",
+                "type": "color"
+            },
+            {
+                "key": "--kn-documentation-drawer-level1-font-family",
+                "label": "Drawer Level 1 Font Family",
+                "type": "text"
+            },
+            {
+                "key": "--kn-documentation-drawer-level1-font-size",
+                "label": "Drawer Level 1 Font Size",
+                "type": "text"
+            },
+            {
                 "key": "--kn-documentation-content-background",
                 "label": "Content Background",
                 "type": "text"

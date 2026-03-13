@@ -1,6 +1,6 @@
 <template>
     <ul class="documentation-menu-level" :data-level="localLevel">
-        <li v-for="(item, idx) in items || []" :key="idx" @click.stop.prevent="navigate(item.path)" :class="{ active: isActive(item) }">
+        <li v-for="(item, idx) in items || []" :key="idx" @click.stop.prevent="navigate(item.path)" :class="{ active: isActive(item), 'no-path': !item.path }">
             <span>{{ item.label }}</span>
 
             <DocumentationMenuItem v-if="item.content && item.content.length && localLevel < localMaxLevel" :items="item.content" :level="localLevel + 1" :maxLevel="localMaxLevel" />
@@ -51,26 +51,42 @@ function isActive(item: any) {
 .documentation-menu-level > li {
     cursor: pointer;
     padding: 0.25rem 0.5rem;
+    &.no-path {
+        cursor: default;
+        > span {
+            pointer-events: none;
+        }
+    }
 }
 .documentation-menu-level > li.active > span {
     color: var(--kn-documentation-drawer-color-active);
     font-weight: 600;
 }
 
-.documentation-menu-level li:hover:not(:has(li:hover)) > span {
+.documentation-menu-level li:not(.no-path):hover:not(:has(li:hover)) > span {
     color: var(--kn-documentation-drawer-color-active);
 }
 
 .documentation-menu-level[data-level='1'] {
     font-weight: 600;
+    > li > span {
+        color: var(--kn-documentation-drawer-level1-color);
+        font-family: var(--kn-documentation-drawer-level1-font-family);
+        font-size: var(--kn-documentation-drawer-level1-font-size);
+    }
 }
 .documentation-menu-level[data-level='2'] {
     padding-left: 0.5rem;
     font-weight: 400;
+    color: var(--kn-documentation-drawer-color);
+    font-family: var(--kn-documentation-drawer-font-family);
+    font-size: var(--kn-documentation-drawer-font-size);
 }
 .documentation-menu-level[data-level='3'] {
     padding-left: 1rem;
     font-size: 0.95rem;
     font-weight: 400;
+    color: var(--kn-documentation-drawer-color);
+    font-family: var(--kn-documentation-drawer-font-family);
 }
 </style>
