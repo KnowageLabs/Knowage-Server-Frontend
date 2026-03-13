@@ -8,7 +8,7 @@
 
                 <h2 v-if="config?.title">{{ config.title }}</h2>
 
-                <DocumentationMenuItem :items="config?.content" />
+                <DocumentationMenuItem :items="config?.content" :maxLevel="config?.maxLevel ?? 3" />
             </div>
         </q-drawer>
 
@@ -31,7 +31,7 @@ const router = useRouter()
 
 const drawer = ref(true)
 const folderKey = ref<string | null>('')
-const config = ref<any[] | null>(null)
+const config = ref<any | null>(null)
 const logoWide = import.meta.env.VITE_PUBLIC_PATH + '/images/commons/knowage-black.svg'
 
 onMounted(async () => {
