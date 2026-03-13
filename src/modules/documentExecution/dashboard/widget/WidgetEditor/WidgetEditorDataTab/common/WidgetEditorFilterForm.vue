@@ -15,27 +15,49 @@
                 </q-item>
             </template>
         </q-select>
-        <q-input v-if="['=', '<', '>', '<=', '>=', '!=', 'IN', 'like', 'range', 'not IN'].includes(column.filter.operator)" class="col-4 col-grow" :label="column.filter.operator === 'range' ? $t('common.from') : $t('common.value')" v-model="column.filter.value" dense square :disable="!column.filter.enabled" @update:model-value="onFilterOperatorChange" />
-        <q-input v-if="column.filter.operator === 'range'" class="col-4" :label="column.filter.operator === 'range' ? $t('common.from') : $t('common.value')" v-model="column.filter.value2" dense square :disable="!column.filter.enabled" @update:model-value="onFilterOperatorChange" />
+        <q-input v-if="['=', '<', '>', '<=', '>=', '!=', 'like', 'range'].includes(column.filter.operator)" class="col-4 col-grow" :label="column.filter.operator === 'range' ? $t('common.from') : $t('common.value')" v-model="column.filter.value" dense square :disable="!column.filter.enabled" @update:model-value="onFilterOperatorChange" />
+        <span v-if="['IN', 'not IN'].includes(column.filter.operator)" class="col-grow p-float-label kn-material-input">
+            <Chips v-model="inFilterValues" class="kn-width-full" :add-on-blur="true" :disabled="!column.filter.enabled" @add="onInFilterValuesChange" @remove="onInFilterValuesChange" />
+            <label class="kn-material-input-label">{{ $t('common.value') }}</label>
+            <small>{{ $t('common.chipsHint') }}</small>
+        </span>
+        <q-input v-if="column.filter.operator === 'range'" class="col-4" :label="$t('common.to')" v-model="column.filter.value2" dense square :disable="!column.filter.enabled" @update:model-value="onFilterOperatorChange" />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidgetColumn } from '@/modules/documentExecution/Dashboard/Dashboard'
+import { IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '../../../../DashboardHelpers'
 import commonDescriptor from './WidgetCommonDescriptor.json'
 import InputSwitch from 'primevue/inputswitch'
 import Dropdown from 'primevue/dropdown'
+import Chips from 'primevue/chips'
 
 export default defineComponent({
     name: 'widget-editor-filter-form',
-    components: { InputSwitch, Dropdown },
+    components: { InputSwitch, Dropdown, Chips },
     props: { propColumn: { type: Object as PropType<IWidgetColumn | null>, required: true } },
     data() {
         return {
             commonDescriptor,
             column: null as IWidgetColumn | null
+        }
+    },
+    computed: {
+        inFilterValues: {
+            get(): string[] {
+                if (!this.column?.filter?.value) return []
+                return this.column.filter.value
+                    .split(',')
+                    .map((v) => v.trim())
+                    .filter((v) => v.length > 0)
+            },
+            set(values: string[]) {
+                if (this.column?.filter) {
+                    this.column.filter.value = values.join(', ')
+                }
+            }
         }
     },
     watch: {
@@ -58,8 +80,11 @@ export default defineComponent({
         },
         onFilterOperatorChange() {
             if (!this.column || !this.column.filter) return
-            if (!['=', '<', '>', '<=', '>=', '!=', 'IN', 'like', 'range'].includes(this.column.filter.operator)) this.column.filter.value = ''
+            if (!['=', '<', '>', '<=', '>=', '!=', 'IN', 'like', 'range', 'not IN'].includes(this.column.filter.operator)) this.column.filter.value = ''
             if (this.column.filter.operator !== 'range') delete this.column.filter.value2
+            this.selectedColumnUpdated()
+        },
+        onInFilterValuesChange() {
             this.selectedColumnUpdated()
         }
     }

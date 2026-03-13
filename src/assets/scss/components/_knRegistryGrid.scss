@@ -209,15 +209,46 @@
             opacity: 0.6;
         }
     }
+}
 
-    // ── Popup editor (Dropdown / Calendar) ────────────────────────────────
-    .knr-cell-editor-popup {
-        position: fixed;
-        z-index: 9999;
-        background: #ffffff;
-        border: 1px solid var(--kn-color-borders);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
-        min-width: 160px;
+// ── Popup editor (Dropdown / Calendar) ───────────────────────────────────────
+// Must be outside .knr-container because the element is teleported to <body>.
+.knr-cell-editor-popup {
+    position: fixed;
+    z-index: 9999;
+    background: #ffffff;
+    border: 1px solid var(--kn-color-borders);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+    min-width: 160px;
+}
+
+// ── Native date / time inputs inside the popup ──────────────────────────────
+.knr-date-picker-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px;
+
+    &.knr-datetime-picker-wrap {
+        flex-wrap: nowrap;
+    }
+}
+
+.knr-native-date-input {
+    border: 1px solid var(--kn-color-borders);
+    border-radius: 4px;
+    padding: 4px 6px;
+    font-size: 13px;
+    font-family: var(--kn-font-family);
+    background: #ffffff;
+    color: inherit;
+    outline: none;
+    height: 32px;
+    box-sizing: border-box;
+
+    &:focus {
+        border-color: var(--kn-color-info);
+        box-shadow: 0 0 0 2px rgba(var(--kn-color-info-rgb, 33, 150, 243), 0.2);
     }
 }
 

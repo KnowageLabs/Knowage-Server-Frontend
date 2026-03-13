@@ -222,7 +222,17 @@ const getFilters = (propWidget: IWidget, datasetLabel: string) => {
 
     columns.forEach((column) => {
         if (column.filter && column.filter.enabled && column.filter.operator) {
-            const filterData = { filterOperator: column.filter.operator, filterVals: [`('${column.filter.value}')`] }
+            let filterVals: string[]
+            if (['IN', 'not IN'].includes(column.filter.operator)) {
+                filterVals = column.filter.value
+                    .split(',')
+                    .map((v: string) => v.trim())
+                    .filter((v: string) => v.length > 0)
+                    .map((v: string) => `('${v}')`)
+            } else {
+                filterVals = [`('${column.filter.value}')`]
+            }
+            const filterData = { filterOperator: column.filter.operator, filterVals }
             if (column.filter?.value2) filterData.filterVals.push(`('${column.filter.value2}')`)
             createNestedObject(activeFilters, [datasetLabel, column.columnName], filterData)
         }

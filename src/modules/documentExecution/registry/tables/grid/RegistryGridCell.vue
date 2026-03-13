@@ -1,5 +1,5 @@
 <template>
-    <td class="knr-td" :class="cellClasses" :title="!isEditing ? displayValue : undefined" @mousedown.left="onMouseDown" @mouseover="$emit('cell-mouseover', rowIndex, colIndex)" @dblclick="onDblClick">
+    <td ref="tdRef" class="knr-td" :class="cellClasses" :title="!isEditing ? displayValue : undefined" @mousedown.left="onMouseDown" @mouseover="$emit('cell-mouseover', rowIndex, colIndex)" @dblclick="onDblClick">
         <!-- ── Vista (non in editing) ──────────────────────────────────── -->
         <template v-if="!isEditing">
             <i v-if="cellType === 'checkbox'" :class="['fas', modelValue ? 'fa-check' : 'fa-times']" style="font-size: 12px" />
@@ -18,7 +18,7 @@
 
         <!-- ── Editing: popup (Dropdown / Calendar) via componente figlio -->
         <template v-else-if="isEditing && (cellType === 'dropdown' || cellType === 'temporal')">
-            <RegistryGridCellEditor :col="col" :row="row" :value="localValue" :combo-column-options="comboColumnOptions" @confirm="onPopupConfirm" @cancel="$emit('edit-cancel')" @dropdown-change="$emit('dropdown-change', $event)" />
+            <RegistryGridCellEditor :col="col" :row="row" :value="localValue" :combo-column-options="comboColumnOptions" :cell-el="tdRef" @confirm="onPopupConfirm" @cancel="$emit('edit-cancel')" @dropdown-change="$emit('dropdown-change', $event)" />
         </template>
     </td>
 </template>
@@ -55,6 +55,7 @@ const { locale } = useI18n()
 
 const inputRef = ref<HTMLInputElement | null>(null)
 const localValue = ref<any>(null)
+const tdRef = ref<HTMLElement | null>(null)
 
 // ── Cell type ────────────────────────────────────────────────────────────
 
