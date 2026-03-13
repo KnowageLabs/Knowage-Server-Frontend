@@ -38,6 +38,12 @@ export default defineComponent({
         listDragActive: { type: Boolean, default: false }
     },
     emits: [],
+    provide() {
+        return {
+            selectedDatasetColumns: computed(() => this.selectedDatasetColumns),
+            listDragActive: computed(() => this.listDragActive)
+        }
+    },
     data() {
         return {
             widget: {} as IWidget
