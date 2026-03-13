@@ -32,7 +32,7 @@
         "ag-grid-community": "33.0.4",
         "ag-grid-vue3": "33.0.4",
         "animate.css": "^4.1.1",
-        "axios": "1.12.0",
+        "axios": "1.13.6",
         "blockly": "10.4.3",
         "caniuse-lite": "^1.0.30001618",
         "chart.js": "^3.7.0",
@@ -99,7 +99,7 @@
         "sass": "1.83.4",
         "typescript": "5.7.3",
         "vite": "6.4.1",
-        "vite-plugin-pwa": "1.0.1",
+        "vite-plugin-pwa": "1.2.0",
         "vitest": "^3.2.4"
     },
     "exports": {
@@ -135,5 +135,9 @@
     },
     "workspaces": [
         "src/workspaces"
-    ]
+    ],
+    "overrides": {
+        "@rollup/plugin-terser": "1.0.0",
+        "@tootallnate/once": "3.0.1"
+    }
 }
