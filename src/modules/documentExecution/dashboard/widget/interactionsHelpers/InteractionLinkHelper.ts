@@ -195,6 +195,16 @@ const getFormattedJSONParameterUrl = (parameter: IWidgetInteractionParameter, va
 
 const replacePlaceholders = (originalString: string, variables: IVariable[], drivers: IDashboardDriver[]) => {
     originalString = replaceVariablesPlaceholdersByVariableName(originalString, variables)
+    // For multivalue drivers, replace the quoted placeholder (e.g. "$P{name}") with a proper JSON array
+    // before the standard string replacement, to avoid producing an invalid JSON string value
+    if (drivers && drivers.length > 0) {
+        drivers.forEach((driver: IDashboardDriver) => {
+            if (driver.multivalue && driver.value) {
+                const jsonArray = JSON.stringify(driver.value.split(',').map((v: string) => v.trim()))
+                originalString = originalString.replaceAll(`"$P{${driver.urlName}}"`, jsonArray)
+            }
+        })
+    }
     originalString = replaceDriversPlaceholdersByDriverUrlName(originalString, drivers)
     return originalString
 }
