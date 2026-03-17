@@ -236,9 +236,9 @@ function toggleDrawer() {
         padding-left: 4px;
     }
     &.doc-menu-section {
-        color: var(--kn-documentation-drawer-level1-color);
-        font-family: var(--kn-documentation-drawer-level1-font-family);
-        font-size: var(--kn-documentation-drawer-level1-font-size);
+        color: var(--kn-documentation-drawer-header-color);
+        font-family: var(--kn-documentation-drawer-header-font-family);
+        font-size: var(--kn-documentation-drawer-header-font-size);
         font-weight: 600;
     }
 }
