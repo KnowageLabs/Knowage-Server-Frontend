@@ -28,3 +28,19 @@ export function findNodesByLabelPath(items: any[] | undefined, path: string[], i
 
     return result
 }
+
+export function mapToQTreeNodes(items: any[], level = 1): any[] {
+    if (!items) return []
+    return items.map((item) => {
+        const id = crypto.randomUUID()
+        const isSection = level === 1 || item.header === true
+        return {
+            id,
+            label: item.label,
+            path: item.path,
+            level,
+            ...(isSection ? { header: 'section' } : {}),
+            ...(item.content?.length ? { children: mapToQTreeNodes(item.content, level + 1) } : {})
+        }
+    })
+}
