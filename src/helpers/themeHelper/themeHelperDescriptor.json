@@ -158,18 +158,18 @@
                 "type": "text"
             },
             {
-                "key": "--kn-documentation-drawer-level1-color",
-                "label": "Drawer Level 1 Text Color",
+                "key": "--kn-documentation-drawer-header-color",
+                "label": "Drawer Header Color",
                 "type": "color"
             },
             {
-                "key": "--kn-documentation-drawer-level1-font-family",
-                "label": "Drawer Level 1 Font Family",
+                "key": "--kn-documentation-drawer-header-font-family",
+                "label": "Drawer Header Font Family",
                 "type": "text"
             },
             {
-                "key": "--kn-documentation-drawer-level1-font-size",
-                "label": "Drawer Level 1 Font Size",
+                "key": "--kn-documentation-drawer-header-font-size",
+                "label": "Drawer Header Font Size",
                 "type": "text"
             },
             {
