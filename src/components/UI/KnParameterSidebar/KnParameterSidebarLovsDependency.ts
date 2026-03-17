@@ -57,7 +57,7 @@ export function formatParameterAfterDataDependencyCheck(parameter: any) {
         })
 
         if (parameter.data.length === 1) {
-            parameter.parameterValue = [...parameter.data]
+            parameter.parameterValue = [{ ...parameter.data[0] }]
         }
     }
 

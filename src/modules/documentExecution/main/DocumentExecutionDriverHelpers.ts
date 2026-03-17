@@ -140,7 +140,7 @@ const formatDrivers = (filtersData: { filterStatus: iParameter[]; isReadyForExec
             })
 
             if (el.data.length === 1) {
-                el.parameterValue = [...el.data]
+                el.parameterValue = [{ ...el.data[0] }]
             }
         }
         if ((el.selectionType === 'COMBOBOX' || el.selectionType === 'LIST') && el.multivalue && el.mandatory && el.data.length === 1) {
