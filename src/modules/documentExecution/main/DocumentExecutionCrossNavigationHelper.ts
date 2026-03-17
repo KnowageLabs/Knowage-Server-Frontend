@@ -258,7 +258,7 @@ const loadListComboboxMultiInitialValue = (parameter: iParameter, crossNavigatio
 
 const getListComboboxCrossNavigationValue = (parameter: iParameter, crossNavigationValue: any) => {
     const index = parameter.data.findIndex((option: { value: string; description: string }) => option.value == crossNavigationValue)
-    return index !== -1 ? parameter.data[index] : null
+    return index !== -1 ? { ...parameter.data[index] } : null
 }
 
 const loadPopupAndTreeDriverInitialValue = (parameter: iParameter, crossNavigationParameter: ICrossNavigationParameter) => {
