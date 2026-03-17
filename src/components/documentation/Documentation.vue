@@ -5,10 +5,19 @@
                 <div class="full-width flex justify-center">
                     <img v-if="getLogoUrl()" :src="getLogoUrl()" class="logo" @error="onLogoError" />
                 </div>
-
                 <h2 v-if="config?.title">{{ config.title }}</h2>
-
-                <DocumentationMenuItem :items="config?.content" />
+                <q-tree :nodes="treeNodes" :dense="config.dense" node-key="id" no-connectors default-expand-all v-model:selected="selectedKey" no-selection-unset @update:selected="onNodeSelect">
+                    <template #header-section="prop">
+                        <span :class="['doc-menu-node', 'doc-menu-section', { active: selectedKey === prop.node.id, 'no-path': !prop.node.path }]">
+                            {{ prop.node.label }}
+                        </span>
+                    </template>
+                    <template #default-header="prop">
+                        <span :class="['doc-menu-node', { active: selectedKey === prop.node.id, 'no-path': !prop.node.path }]">
+                            {{ prop.node.label }}
+                        </span>
+                    </template>
+                </q-tree>
             </div>
         </q-drawer>
 
@@ -20,19 +29,70 @@
 
 <script setup lang="ts">
 import axios from 'axios'
-import { onMounted, ref } from 'vue'
-import { findFoldersWithLabel } from './DocumentationHelper'
+import { onMounted, ref, watch } from 'vue'
+import { findFoldersWithLabel, mapToQTreeNodes } from './DocumentationHelper'
 import mainStore from '@/App.store'
-import DocumentationMenuItem from './DocumentationMenuItem.vue' // <- import nuovo componente
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const store = mainStore()
 const router = useRouter()
+const route = useRoute()
 
 const drawer = ref(true)
 const folderKey = ref<string | null>('')
-const config = ref<any[] | null>(null)
+const config = ref<any | null>(null)
 const logoWide = import.meta.env.VITE_PUBLIC_PATH + '/images/commons/knowage-black.svg'
+
+const selectedKey = ref<string | null>(null)
+const treeNodes = ref<any[]>([])
+
+watch(
+    [() => route.path, treeNodes],
+    ([path]) => {
+        const docPath = (path as string).replace(/^\/docs/, '') || null
+        if (!docPath || !treeNodes.value.length) {
+            selectedKey.value = null
+            return
+        }
+        const node = findNodeByPath(treeNodes.value, docPath)
+        selectedKey.value = node?.id ?? null
+    },
+    { immediate: true }
+)
+
+function findNodeByKey(nodes: any[], key: string): any | null {
+    for (const node of nodes) {
+        if (node.id === key) return node
+        if (node.children) {
+            const found = findNodeByKey(node.children, key)
+            if (found) return found
+        }
+    }
+    return null
+}
+
+function findNodeByPath(nodes: any[], path: string): any | null {
+    for (const node of nodes) {
+        if (node.path === path) return node
+        if (node.children) {
+            const found = findNodeByPath(node.children, path)
+            if (found) return found
+        }
+    }
+    return null
+}
+
+function onNodeSelect(nodeId: string | null) {
+    if (!nodeId) return
+    const node = findNodeByKey(treeNodes.value, nodeId)
+    if (node?.path) {
+        const target = '/docs' + node.path
+        const query = config.value?.menu === false ? { ...route.query, menu: 'false' } : route.query
+        router.push({ path: target, query })
+    } else {
+        selectedKey.value = null
+    }
+}
 
 onMounted(async () => {
     store.setLoading(true)
@@ -64,7 +124,11 @@ onMounted(async () => {
             }
         )
         .then((response: any) => {
-            const userRole = store.user?.sessionRole || store.user?.defaultRole
+            const user = store.user
+            const sessionRole: string | undefined = user?.sessionRole
+            const defaultRole: string | undefined = user?.defaultRole
+            const userRoles: string[] = user?.roles ?? []
+            const activeRole = sessionRole || defaultRole
 
             function filterNode(node: any): any | null {
                 if (node == null) return null
@@ -73,8 +137,9 @@ onMounted(async () => {
                 }
                 if (typeof node !== 'object') return node
 
-                if (Array.isArray(node.roles) && userRole && !node.roles.includes(userRole)) {
-                    return null
+                if (Array.isArray(node.roles) && node.roles.length > 0) {
+                    const canSee = activeRole ? node.roles.includes(activeRole) : userRoles.some((r) => node.roles.includes(r))
+                    if (!canSee) return null
                 }
 
                 const newNode: any = { ...node }
@@ -84,6 +149,8 @@ onMounted(async () => {
                         newNode.content = filteredContent
                     } else {
                         delete newNode.content
+                        // nasconde solo i gruppi che avevano figli ma tutti filtrati per ruolo
+                        if (node.content.length > 0) return null
                     }
                 }
                 return newNode
@@ -93,6 +160,7 @@ onMounted(async () => {
             if (!filtered) push404()
             else {
                 config.value = filtered
+                treeNodes.value = mapToQTreeNodes(filtered.content ?? [])
             }
         })
         .catch(() => {
@@ -147,5 +215,31 @@ function toggleDrawer() {
     margin-bottom: 1rem;
     display: block;
     text-align: center;
+}
+:deep(.q-tree__node-header) {
+    padding: 2px 4px;
+}
+.doc-menu-node {
+    cursor: pointer;
+    color: var(--kn-documentation-drawer-color);
+    font-family: var(--kn-documentation-drawer-font-family);
+    font-size: var(--kn-documentation-drawer-font-size);
+    font-weight: 400;
+    &.no-path {
+        cursor: default;
+        pointer-events: none;
+    }
+    &.active {
+        color: var(--kn-documentation-drawer-color-active);
+        font-weight: 600;
+        border-left: 4px solid var(--kn-documentation-drawer-color-active);
+        padding-left: 4px;
+    }
+    &.doc-menu-section {
+        color: var(--kn-documentation-drawer-header-color);
+        font-family: var(--kn-documentation-drawer-header-font-family);
+        font-size: var(--kn-documentation-drawer-header-font-size);
+        font-weight: 600;
+    }
 }
 </style>
