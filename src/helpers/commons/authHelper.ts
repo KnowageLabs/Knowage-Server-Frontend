@@ -14,12 +14,14 @@ async function invalidateSession(jsps: string[] = [], redirectURI: string, query
 }
 
 export default {
-    async logout(query): Promise<void> {
+    async logout(unauthorized, query): Promise<void> {
         const store = mainStore(pinia)
         store.setLoading(true)
-        const url = window.location.origin
+        const host = window.location.origin
+        let endpoint = `${host}${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/logout`
+        if (unauthorized) endpoint = `${host}${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/logout/auto`
         await axios
-            .post(`${url}${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/logout`)
+            .post(endpoint)
             .then((response) => {
                 invalidateSession(response.data.urlEnginesInvalidate, response.data.redirectUrl.replace('${id_token}', sessionStorage.getItem('idToken') || ''), query)
             })
@@ -34,6 +36,6 @@ export default {
     handleUnauthorized(): void {
         let search = window.location.search ?? ''
         if (search && search.charAt(0) === '?') search = '&' + search.substring(1)
-        this.logout(search)
+        this.logout(true, search)
     }
 }
