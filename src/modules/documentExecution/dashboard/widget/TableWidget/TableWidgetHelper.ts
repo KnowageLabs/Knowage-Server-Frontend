@@ -167,11 +167,25 @@ const getDatasetLabel = (datasetId: number, datasets: IDataset[]) => {
 }
 
 export const formatRowDataForCrossNavigation = (tableNode: any, dataToShow: any) => {
-    const columnDefs = tableNode.api.getColumnDefs()
-    const rowData = tableNode.node.data
-    if (!columnDefs || !rowData) return {}
-    const formattedRow = { columnName: tableNode.colDef?.columnName ?? '' }
-    columnDefs.forEach((columnDef: any) => (formattedRow[columnDef.columnName] = { value: rowData[columnDef.field], type: getColumnType(columnDef.field, dataToShow) }))
+    const columnDef = tableNode.colDef
+    const rowData = tableNode.data
+
+    if (!columnDef || !rowData) return {}
+
+    const formattedRow = { columnName: columnDef.columnName ?? '' }
+    const propWidget = columnDef.cellRendererParams?.propWidget
+    const columnDataMap = columnDef.cellRendererParams?.columnDataMap
+
+    if (propWidget?.columns && columnDataMap) {
+        propWidget.columns.forEach((col: any) => {
+            const field = columnDataMap[col.id]
+            if (!field) return
+            formattedRow[col.columnName] = { value: rowData[field], type: getColumnType(field, dataToShow) }
+        })
+    } else {
+        formattedRow[columnDef.columnName] = { value: rowData[columnDef.field], type: getColumnType(columnDef.field, dataToShow) }
+    }
+
     return formattedRow
 }
 

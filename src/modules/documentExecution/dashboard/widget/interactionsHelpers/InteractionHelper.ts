@@ -117,7 +117,6 @@ const getDynamicValueAndTypeForTableDynamicOutputParameter = (clickedValue: ICli
         const values = rowField.value.map((v) => (fieldTypeIsDate ? getFormattedDateValue(v, rowField.type) : v))
         return { value: values, type: rowField.type }
     } else {
-        // Single value
         const fieldTypeIsDate = ['date', 'timestamp'].includes(rowField.type)
         const value = fieldTypeIsDate ? getFormattedDateValue(rowField.value, rowField.type) : rowField.value
         return { value: value, type: rowField.type }
