@@ -3,6 +3,7 @@ import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSideba
 import { IDocumentNavigationParameter, ICrossNavigationParameter, ICrossNavigationBreadcrumb, IDocumentNavigationParameterValue } from './DocumentExecution'
 import { getDateStringFromJSDate } from '@/helpers/commons/localeHelper'
 import moment from 'moment'
+import { AxiosResponse } from 'axios'
 
 export const getSelectedCrossNavigation = (crossNavigationName: string | undefined, crossNavigations: IDashboardCrossNavigation[]) => {
     const index = crossNavigations.findIndex((crossNavigation: IDashboardCrossNavigation) => crossNavigation.crossName === crossNavigationName)
@@ -166,11 +167,53 @@ const addSourceDocumentCrossNavigationParameterFromOutputParameter = (documentCr
     if (selectedDocumentCrossNavigationParameter) formattedCrossNavigationParameters.push({ ...selectedDocumentCrossNavigationParameter, targetDriverUrlName: documentCrossNavigationParameter.id })
 }
 
-export const loadNavigationInitialValuesFromDashboard = (document: any, filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }, dateFormat: string) => {
+export const loadNavigationInitialValuesFromDashboard = async (document: any, filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }, dateFormat: string, $http?: any, userRole?: string | null) => {
     document.formattedCrossNavigationParameters.forEach((crossNavigationParameter: ICrossNavigationParameter) => {
         const index = filtersData.filterStatus.findIndex((parameter: iParameter) => parameter.urlName === crossNavigationParameter.targetDriverUrlName)
         if (index !== -1) loadDriverInitialValue(filtersData.filterStatus[index], crossNavigationParameter, dateFormat)
     })
+
+    if ($http) await getLookupDriverDescriptions(filtersData, document.label, userRole ?? null, $http)
+}
+
+const getLookupDriverDescriptions = async (filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }, documentLabel: string, userRole: string | null, $http: any) => {
+    for (const parameter of filtersData.filterStatus) {
+        if (!['LOOKUP', 'TREE'].includes(parameter.selectionType)) continue
+        if (!parameter.parameterValue?.[0]?.value) continue
+        const needsEnrichment = parameter.multivalue ? parameter.parameterValue.some((pv: any) => pv.description === '' + pv.value) : parameter.parameterValue[0].description === '' + parameter.parameterValue[0].value
+        if (!needsEnrichment) continue
+
+        const formattedParams = filtersData.filterStatus.map((p: iParameter) => ({
+            urlName: p.urlName,
+            value: p.multivalue ? p.parameterValue?.map((pv: any) => pv.value) : (p.parameterValue?.[0]?.value ?? ''),
+            description: p.parameterValue?.[0]?.description ?? ''
+        }))
+        const postData = { label: documentLabel, parameters: formattedParams, paramId: parameter.urlName, role: userRole }
+
+        await $http
+            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/documentExeParameters/admissibleValues', postData)
+            .then((response: AxiosResponse<any>) => {
+                const rawData: any[] = response.data?.result?.data ?? []
+                if (!rawData.length) return
+
+                const valueColumn = parameter.metadata?.valueColumn
+                const descriptionColumn = parameter.metadata?.descriptionColumn
+                const colsMap = parameter.metadata?.colsMap ?? {}
+                const valueKey = Object.keys(colsMap).find((k) => colsMap[k] === valueColumn) ?? '_col0'
+                const descKey = Object.keys(colsMap).find((k) => colsMap[k] === descriptionColumn) ?? '_col1'
+
+                if (parameter.multivalue) {
+                    parameter.parameterValue = parameter.parameterValue.map((pv: any) => {
+                        const match = rawData.find((d) => String(d[valueKey]) === String(pv.value))
+                        return match ? { value: pv.value, description: match[descKey] ?? pv.description } : pv
+                    })
+                } else {
+                    const match = rawData.find((d) => String(d[valueKey]) === String(parameter.parameterValue[0].value))
+                    if (match) parameter.parameterValue[0] = { ...parameter.parameterValue[0], description: match[descKey] ?? parameter.parameterValue[0].description }
+                }
+            })
+            .catch((error: any) => console.log('getLookupDriverDescriptions: ', error))
+    }
 }
 
 const loadDriverInitialValue = (parameter: iParameter, crossNavigationParameter: ICrossNavigationParameter, dateFormat: string) => {

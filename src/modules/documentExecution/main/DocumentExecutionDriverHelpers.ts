@@ -27,7 +27,7 @@ export const loadFilters = async (initialLoading: boolean, filtersData: { filter
     formatDrivers(filtersData, dateFormat)
 
     if (document.navigationParams || document.formattedCrossNavigationParameters) {
-        if (document.navigationFromDashboard) loadNavigationInitialValuesFromDashboard(document, filtersData, dateFormat)
+        if (document.navigationFromDashboard) await loadNavigationInitialValuesFromDashboard(document, filtersData, dateFormat, $http, userRole)
         else {
             vueComponenet.filtersData = filtersData
             loadNavigationParamsInitialValue(vueComponenet)
