@@ -6,7 +6,6 @@ import deepcopy from 'deepcopy'
 import moment from 'moment/min/moment-with-locales.js'
 import { getColumnAlias } from '../dataLabels/HighchartsDataLabelsHelpers'
 import { fallbackLocale, formatWithIntl, getLocale } from '@/helpers/commons/localeHelper'
-import { attr } from 'highcharts'
 
 export enum DataType {
     DATE_SHORT = 'DD/MM/YYYY',
