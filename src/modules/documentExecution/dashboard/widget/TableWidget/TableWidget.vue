@@ -16,7 +16,7 @@
             <i class="fas fa-share-alt p-mr-2" />
             {{ $t('dashboard.tableWidget.launchSelection') }}
         </div>
-
+        {{ variables }}
         <ag-grid-vue class="kn-table-widget-grid ag-theme-alpine kn-flex" :grid-options="gridOptions" :context="context" :theme="themeBalham"> </ag-grid-vue>
         <ContextMenu ref="interactionMenu" :model="interactionsMenuItems" />
 
@@ -570,7 +570,7 @@ export default defineComponent({
                         columnHidden = colConditions[0][propertyToReturn]
                     } else {
                         const dashboardDrivers = this.getDashboardDrivers(this.dashboardId)
-                        isConditionMet(colConditions[0].condition, colConditions[0].condition.variableValue, this.variables, dashboardDrivers) ? (columnHidden = colConditions[0][propertyToReturn]) : ''
+                        isConditionMet(colConditions[0].condition, colConditions[0].condition.value, this.variables, dashboardDrivers) ? (columnHidden = colConditions[0][propertyToReturn]) : ''
                     }
                 }
             }
