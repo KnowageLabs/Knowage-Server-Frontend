@@ -572,7 +572,7 @@ export default defineComponent({
                         columnHidden = colConditions[0][propertyToReturn]
                     } else {
                         const dashboardDrivers = this.getDashboardDrivers(this.dashboardId)
-                        isConditionMet(colConditions[0].condition, colConditions[0].condition.variableValue, this.variables, dashboardDrivers) ? (columnHidden = colConditions[0][propertyToReturn]) : ''
+                        isConditionMet(colConditions[0].condition, colConditions[0].condition.value, this.variables, dashboardDrivers) ? (columnHidden = colConditions[0][propertyToReturn]) : ''
                     }
                 }
             }
