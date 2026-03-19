@@ -6,7 +6,6 @@ import deepcopy from 'deepcopy'
 import moment from 'moment/min/moment-with-locales.js'
 import { getColumnAlias } from '../dataLabels/HighchartsDataLabelsHelpers'
 import { fallbackLocale, formatWithIntl, getLocale } from '@/helpers/commons/localeHelper'
-import { attr } from 'highcharts'
 
 export enum DataType {
     DATE_SHORT = 'DD/MM/YYYY',
@@ -34,6 +33,22 @@ export const getFormattedDateCategoryValue = (dateString: string, dateFormat: st
     return formatWithIntl(dateFormat, locale.replace('_', '-'), type === 'date' ? moment(dateString, 'DD/MM/YYYY').toDate() : moment(dateString, 'DD/MM/YYYY HH:mm:ss.SSS').toDate())
 }
 
+const hasOwnProperty = (obj: Record<string, any>, key: string) => Object.prototype.hasOwnProperty.call(obj, key)
+
+const normalizeHighchartsNumericValue = (value: any): number | null => {
+    if (value === null || typeof value === 'undefined') return null
+    if (typeof value === 'number') return Number.isFinite(value) ? value : null
+    if (typeof value === 'string') {
+        const trimmedValue = value.trim()
+        if (!trimmedValue || trimmedValue.toLowerCase() === 'null') return null
+
+        const parsedValue = Number(trimmedValue)
+        return Number.isFinite(parsedValue) ? parsedValue : null
+    }
+
+    return null
+}
+
 export const setRegularData = (model: any, widgetModel: IWidget, data: any, attributeColumns: any[], measureColumns: any[], drilldownEnabled: boolean, dateFormat: string, variables: IVariable[]) => {
     // if (widgetModel?.settings?.sortingColumn && widgetModel?.settings?.sortingOrder && data?.rows && model?.chart?.type !== 'dumbbell') data = formatDataRowsWhenUsingTheExternalSortingColumn(data, widgetModel, measureColumns)
 
@@ -59,7 +74,7 @@ export const setRegularData = (model: any, widgetModel: IWidget, data: any, attr
                 const measureColumnConditionalStyle = getColumnConditionalStyles(widgetModel, column.id, row[metadata.dataIndex], variables)
                 serieElement.data.push({
                     name: serieName,
-                    y: row[metadata.dataIndex],
+                    y: normalizeHighchartsNumericValue(row[metadata.dataIndex]),
                     color: measureColumnConditionalStyle?.color || attributeColumnConditionalStyle?.color,
                     drilldown: drilldownEnabled && attributeColumns.length > 1
                 })
@@ -181,8 +196,8 @@ const setRegularAreaRangeData = (model: any, data: any, attributeColumn: any, ar
         const serieName = dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : row[attributeColumn.metadata.dataIndex]
         serieElement.data.push({
             name: serieName,
-            low: row[lowAreaRangeColumn.metadata.dataIndex],
-            high: row[highAreaRangeColumn.metadata.dataIndex],
+            low: normalizeHighchartsNumericValue(row[lowAreaRangeColumn.metadata.dataIndex]),
+            high: normalizeHighchartsNumericValue(row[highAreaRangeColumn.metadata.dataIndex]),
             drilldown: false
         })
         if (model.xAxis && model.xAxis[0]) model.xAxis[0].categories.push(serieName)
@@ -207,7 +222,7 @@ export const setGroupedCategoriesData = (model: any, data: any, attributeColumns
         const secondAttributeValue = dateFormat && ['date', 'timestamp'].includes(secondAttributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[secondAttributeColumn.metadata.dataIndex], dateFormat, secondAttributeColumn.metadata.type) : row[secondAttributeColumn.metadata.dataIndex]
         serieElement.data.push({
             name: `${firstAttributeValue} - ${secondAttributeValue}`,
-            y: row[measureColumn.metadata.dataIndex],
+            y: normalizeHighchartsNumericValue(row[measureColumn.metadata.dataIndex]),
             drilldown: false
         })
         if (!categoryValuesMap[firstAttributeValue]) categoryValuesMap[firstAttributeValue] = { categories: [] }
@@ -238,14 +253,17 @@ export const setGroupedBySeriesData = (model: any, data: any, attributeColumns: 
     const attributeColumn = attributeColumns[0]
     const firstMeasureColumn = measureColumns[0]
     const secondMeasureColumn = measureColumns[1]
-    const categoryValueMap = {}
+    const categoryValueMap = {} as Record<string, Record<string, number | null>>
     const measureNames = [] as string[]
     data.rows.forEach((row: any) => {
         const attributeValue = row[attributeColumn.metadata.dataIndex]
         const firstMeasureValue = row[firstMeasureColumn.metadata.dataIndex]
-        const secondMeasureValue = row[secondMeasureColumn.metadata.dataIndex]
-        measureNames.push('' + firstMeasureValue)
-        if (!categoryValueMap[attributeValue]) categoryValueMap[attributeValue] = { y: secondMeasureValue, name: '' + firstMeasureValue }
+        const measureName = '' + firstMeasureValue
+        const secondMeasureValue = normalizeHighchartsNumericValue(row[secondMeasureColumn.metadata.dataIndex])
+
+        if (!measureNames.includes(measureName)) measureNames.push(measureName)
+        if (!categoryValueMap[attributeValue]) categoryValueMap[attributeValue] = {}
+        if (!hasOwnProperty(categoryValueMap[attributeValue], measureName) || categoryValueMap[attributeValue][measureName] === null) categoryValueMap[attributeValue][measureName] = secondMeasureValue
     })
 
     addSeriesFromCategoryValuesMapForGroupedBySeriesData(model, categoryValueMap, measureNames)
@@ -255,8 +273,8 @@ const addSeriesFromCategoryValuesMapForGroupedBySeriesData = (model: any, catego
     Object.keys(categoryValueMap).forEach((key: string, index: number) => {
         const serieElement = { id: index, name: key, data: [] as any[], connectNulls: true }
         measureNames.forEach((measureName: string) => {
-            const temp = { name: measureName } as { name: string; y?: number }
-            if (categoryValueMap[key] && categoryValueMap[key].name === measureName) temp.y = categoryValueMap[key].y
+            const temp = { name: measureName } as { name: string; y?: number | null }
+            if (categoryValueMap[key] && hasOwnProperty(categoryValueMap[key], measureName)) temp.y = categoryValueMap[key][measureName]
             serieElement.data.push(temp)
         })
         model.series.push(serieElement)
@@ -275,10 +293,9 @@ export const setGroupedByCategoriesData = (model: any, data: any, attributeColum
         const firstAttributeValue = row[firstAttributeColumn.metadata.dataIndex]
         if (!uniqueCategoryValues.includes(firstAttributeValue)) uniqueCategoryValues.push(firstAttributeValue)
         const secondAttributeValue = row[secondAttributeColumn.metadata.dataIndex]
-        const measureForGroupingValue = row[measureForGrouping.metadata.dataIndex]
+        const measureForGroupingValue = normalizeHighchartsNumericValue(row[measureForGrouping.metadata.dataIndex])
         if (!categoryValueMap[secondAttributeValue]) categoryValueMap[secondAttributeValue] = {}
-        if (!categoryValueMap[secondAttributeValue][firstAttributeValue]) categoryValueMap[secondAttributeValue][firstAttributeValue] = {}
-        if (typeof measureForGroupingValue === 'number') categoryValueMap[secondAttributeValue][firstAttributeValue] = measureForGroupingValue
+        if (!hasOwnProperty(categoryValueMap[secondAttributeValue], firstAttributeValue) || categoryValueMap[secondAttributeValue][firstAttributeValue] === null) categoryValueMap[secondAttributeValue][firstAttributeValue] = measureForGroupingValue
     })
     setUniqueCategoriesValuesFromCategoryValueMap(uniqueCategoryValues, categoryValueMap)
 
@@ -290,7 +307,7 @@ export const setGroupedByCategoriesData = (model: any, data: any, attributeColum
 const setUniqueCategoriesValuesFromCategoryValueMap = (uniqueCategoryValues: string[], categoryValueMap: any) => {
     uniqueCategoryValues.forEach((categoryValue: string) => {
         Object.keys(categoryValueMap).forEach((key: string) => {
-            if (!categoryValueMap[key][categoryValue]) categoryValueMap[key][categoryValue] = null
+            if (!hasOwnProperty(categoryValueMap[key], categoryValue)) categoryValueMap[key][categoryValue] = null
         })
     })
 }
@@ -299,10 +316,8 @@ const createSeriesForGroupedByCategoriesData = (model: any, categoryValueMap: an
     Object.keys(categoryValueMap).forEach((key: string, index: number) => {
         const serieElement = { id: index, name: key, data: [] as any[], connectNulls: true }
         Object.keys(categoryValueMap[key]).forEach((tempKey: string) => {
-            const tempData = { name: tempKey } as { name: string; y?: number }
-            if (categoryValueMap[key][tempKey]) {
-                tempData.y = categoryValueMap[key][tempKey]
-            }
+            const tempData = { name: tempKey } as { name: string; y?: number | null }
+            if (hasOwnProperty(categoryValueMap[key], tempKey)) tempData.y = categoryValueMap[key][tempKey]
             serieElement.data.push(tempData)
 
             if (!measureSerieElementValueMap[tempKey]) measureSerieElementValueMap[tempKey] = 0
