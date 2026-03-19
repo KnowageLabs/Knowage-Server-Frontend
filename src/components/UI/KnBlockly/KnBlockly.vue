@@ -44,7 +44,7 @@
 
             <q-card-actions align="right" class="p-p-2">
                 <q-btn :label="t('knBlockly.cancel')" color="secondary" @click="onCancel" />
-                <q-btn :label="t('knBlockly.save')" color="primary" @click="onSave" />
+                <q-btn :label="isValidating ? t('common.validation.validating') : t('common.apply')" color="primary" :loading="isValidating" :disable="saveButtonDisabled" @click="onSave" />
             </q-card-actions>
         </q-card>
     </q-dialog>
@@ -54,7 +54,9 @@
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch, nextTick } from 'vue'
 import * as Blockly from 'blockly'
 import 'blockly/blocks'
+import axios from 'axios'
 import { useI18n } from 'vue-i18n'
+import mainStore from '@/App.store'
 
 import toolboxJson from '@/components/UI/KnBlockly/toolbox/toolbox.json'
 import { initBlockly } from '@/components/UI/KnBlockly'
@@ -65,6 +67,7 @@ import { safeLoadState } from '@/components/UI/KnBlockly/workspace/safeLoad'
 import { generateDslFromWorkspace, validateWorkspace } from '@/components/UI/KnBlockly/generator/dslFromWorkspace'
 
 const { t } = useI18n()
+const store = mainStore()
 
 type Props = {
     fields: string[]
@@ -76,7 +79,6 @@ type Props = {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    initialState: null,
     fieldName: '',
     showOutputs: true,
     variables: () => []
@@ -112,6 +114,13 @@ const internalVisibility = computed({
 const dsl = ref('')
 const state = ref<any>(null)
 const errors = ref<string[]>([])
+const isValidating = ref(false)
+const isValidFormula = ref(false)
+const formulaValidationTimeout = ref<number | null>(null)
+
+const saveButtonDisabled = computed(() => {
+    return isValidating.value || !fieldName.value?.trim() || !dsl.value?.trim() || errors.value.length > 0 || !isValidFormula.value
+})
 
 // Blocca il toggle modalità se il campo è già stato salvato con una modalità specifica
 const isModeFixed = computed(() => {
@@ -167,7 +176,79 @@ function onTextDslChange() {
     }
 }
 
-function onSave() {
+function clearValidationTimeout() {
+    if (formulaValidationTimeout.value) {
+        window.clearTimeout(formulaValidationTimeout.value)
+        formulaValidationTimeout.value = null
+    }
+}
+
+function replaceFormulaVariables(formula: string): string {
+    return formula.replace(/\$V{([a-zA-Z0-9_\-\s]+)\.?([a-zA-Z0-9_\-\s]*)}/g, (match, variable, key) => {
+        if (!props.variables?.length) return variable
+
+        const matchedVariable = props.variables.find((item: any) => item.name === variable)
+        if (!matchedVariable) return variable
+
+        if (matchedVariable.pivotedValues && key) {
+            return matchedVariable.pivotedValues[key] ?? variable
+        }
+
+        return matchedVariable.value ?? variable
+    })
+}
+
+async function validateFormula(formula: string): Promise<boolean> {
+    const candidateFormula = formula?.trim()
+    if (!candidateFormula) {
+        isValidFormula.value = false
+        isValidating.value = false
+        return false
+    }
+
+    isValidating.value = true
+    isValidFormula.value = false
+
+    const tempFormula = replaceFormulaVariables(candidateFormula)
+    const measuresList = (props.fields || []).map((field) => ({ name: field, alias: field }))
+
+    try {
+        const response = await axios.post(
+            import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/datasets/validateFormula',
+            { formula: tempFormula, measuresList },
+            { headers: { 'X-Disable-Errors': 'true' } }
+        )
+
+        isValidFormula.value = !!response?.data?.msg
+        return isValidFormula.value
+    } catch {
+        store.setError({
+            title: t('common.toast.errorTitle'),
+            msg: t('common.error.validation', { what: 'formula ' })
+        })
+        return false
+    } finally {
+        isValidating.value = false
+    }
+}
+
+function scheduleFormulaValidation() {
+    clearValidationTimeout()
+
+    if (!dsl.value?.trim()) {
+        isValidFormula.value = false
+        isValidating.value = false
+        return
+    }
+
+    isValidating.value = true
+    isValidFormula.value = false
+    formulaValidationTimeout.value = window.setTimeout(() => {
+        validateFormula(dsl.value)
+    }, 1500)
+}
+
+async function onSave() {
     if (!fieldName.value || !fieldName.value.trim()) {
         errors.value = [t('knBlockly.fieldNameRequired')]
         return
@@ -182,6 +263,11 @@ function onSave() {
 
     if (allErrors.length > 0) {
         return
+    }
+
+    if (!isValidFormula.value) {
+        const validated = await validateFormula(dsl.value)
+        if (!validated) return
     }
 
     let savedState: any
@@ -209,7 +295,7 @@ function onCancel() {
 let resizeObserver: ResizeObserver | null = null
 let changeListener: ((e: Blockly.Events.Abstract) => void) | null = null
 
-function centerOnRoot(ws: Blockly.Workspace) {
+function centerOnRoot(ws: Blockly.WorkspaceSvg) {
     const roots = ws.getTopBlocks(false).filter((b) => b.type === 'calc_root')
     if (roots.length > 0) {
         ws.centerOnBlock(roots[0].id)
@@ -275,6 +361,7 @@ function initializeBlockly() {
     let t: number | null = null
     changeListener = (event: Blockly.Events.Abstract) => {
         if (event instanceof Blockly.Events.BlockCreate) {
+            if (!event.blockId) return
             const block = ws.getBlockById(event.blockId)
             if (block?.type === 'agg_field') {
                 console.log('[KnBlockly] Nuovo blocco agg_field creato, aggiorno opzioni')
@@ -335,8 +422,21 @@ watch(internalVisibility, async (isVisible) => {
                 initializeBlockly()
             }, 100)
         }
+    } else {
+        clearValidationTimeout()
+        isValidating.value = false
+        isValidFormula.value = false
     }
 })
+
+watch(
+    [dsl, internalVisibility],
+    ([formula, isVisible], [oldFormula]) => {
+        if (!isVisible) return
+        if (formula === oldFormula) return
+        scheduleFormulaValidation()
+    }
+)
 
 onMounted(async () => {
     editorMode.value = getInitialMode(props.initialState)
@@ -384,6 +484,8 @@ watch(
 )
 
 onBeforeUnmount(() => {
+    clearValidationTimeout()
+
     if (resizeObserver && blocklyDiv.value) resizeObserver.unobserve(blocklyDiv.value)
     resizeObserver = null
 
