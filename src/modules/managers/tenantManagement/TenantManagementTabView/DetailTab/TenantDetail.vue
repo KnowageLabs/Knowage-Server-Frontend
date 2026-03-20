@@ -86,9 +86,34 @@ export default defineComponent({
         }
     },
     watch: {
-        async selectedTenant() {
-            this.tenant = { ...this.selectedTenant } as iTenant
+        selectedTenant: {
+            immediate: true,
+            async handler() {
+                this.syncTenantFromProps()
+                if (this.tenant.TENANT_NAME) {
+                    await this.loadTenantLogos()
+                }
+                this.$refs.tenantName?.resetValidation()
+            }
+        },
+        listOfThemes: {
+            immediate: true,
+            handler() {
+                this.themes = [...((this.listOfThemes as any[]) ?? [])]
+            }
+        }
+    },
+    methods: {
+        ...mapActions(mainStore, ['setError']),
+        syncTenantFromProps() {
+            if (this.selectedTenant && Object.keys(this.selectedTenant).length > 0) {
+                this.tenant = { ...this.selectedTenant } as iTenant
+            } else {
+                this.tenant = { TENANT_THEME: 'sbi_default' } as iTenant
+            }
             if (!this.tenant.TENANT_MFA) this.tenant.TENANT_MFA = false
+        },
+        async loadTenantLogos() {
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/multitenant/${this.tenant.TENANT_NAME}/logo`).then((response: AxiosResponse<any>) => {
                 this.tenant.TENANT_IMAGE = response.data
             })
@@ -96,30 +121,13 @@ export default defineComponent({
                 this.tenant.TENANT_IMAGE_WIDE = response.data
             })
         },
-        listOfThemes() {
-            this.themes = [...(this.listOfThemes as any[])]
-        }
-    },
-    updated() {
-        if (this.selectedTenant && Object.keys(this.selectedTenant).length > 0) {
-            this.tenant = { ...this.selectedTenant } as iTenant
-        } else {
-            this.tenant = {} as iTenant
-            this.tenant.TENANT_THEME = 'sbi_default'
-        }
-        if (!this.tenant.TENANT_MFA) this.tenant.TENANT_MFA = false
-        if (this.listOfThemes) this.themes = [...this.listOfThemes] as any
-        this.$refs.tenantName?.resetValidation()
-    },
-    methods: {
-        ...mapActions(mainStore, ['setError']),
         clear(type) {
             this.tenant[type] = ''
         },
         onFieldChange(fieldName: string, value: any) {
             this.$emit('fieldChanged', { fieldName, value })
         },
-        uploadFile(file, imgType): void {
+        uploadFile(file: File | null, imgType: 'TENANT_IMAGE' | 'TENANT_IMAGE_WIDE'): void {
             const reader = new FileReader()
             reader.addEventListener(
                 'load',
@@ -129,12 +137,14 @@ export default defineComponent({
                 },
                 false
             )
-            if (file && file.size < import.meta.env.VITE_MAX_UPLOAD_IMAGE_SIZE) {
+            if (file && file.size < Number(import.meta.env.VITE_MAX_UPLOAD_IMAGE_SIZE)) {
                 reader.readAsDataURL(file)
-            } else this.setError({ title: this.$t('common.error.uploading'), msg: this.$t('common.error.exceededSize', { size: '(200KB)' }) })
+            } else {
+                this.setError({ title: String(this.$t('common.error.uploading')), msg: String(this.$t('common.error.exceededSize', { size: '(200KB)' })) })
+            }
         },
         triggerUpload(imgRef: string): void {
-            this.$refs[imgRef].pickFiles()
+            ;(this.$refs[imgRef] as { pickFiles: () => void } | undefined)?.pickFiles()
         }
     }
 })
