@@ -168,18 +168,15 @@ export default defineComponent({
                 this.$emit('itemAdded', { column: field, rows: this.rows, settings: this.settings, fieldType: this.fieldType })
             }
         },
-        getColumnSortIcon(column: IWidgetColumn) {
-            switch (column.sort) {
-                case 'ASC':
-                    return 'fa-solid fa-arrow-up-short-wide'
-                case 'DESC':
-                    return 'fa-solid fa-arrow-down-short-wide'
-                default:
-                    return 'fa-solid fa-bars'
-            }
+        getColumnSortIcon(col) {
+            if (col.sort === 'ASC') return 'fas fa-arrow-up-short-wide'
+            if (col.sort === 'DESC') return 'fas fa-arrow-down-wide-short'
+            return 'fas fa-arrows-up-down' // default/no sort
         },
         changeColumnSort(column: IWidgetColumn) {
-            column.sort = column.sort === 'ASC' ? 'DESC' : 'ASC'
+            const next: Record<string, string | undefined> = { null: 'ASC', ASC: 'DESC', DESC: undefined }
+            const currentOrder = String(column.sort ?? null)
+            column.sort = next[currentOrder]
             this.$emit('itemUpdated', column)
         },
         onFunctionsColumnAdded(functionColumn: any) {
