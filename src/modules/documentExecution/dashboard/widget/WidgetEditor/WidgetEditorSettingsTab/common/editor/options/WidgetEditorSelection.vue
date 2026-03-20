@@ -1,49 +1,79 @@
 <template>
-    <Message v-if="!widgetModel.dataset" class="p-mb-2" severity="warn" :closable="false" :style="descriptor.hintStyle">
-        {{ $t(`managers.functionsCatalog.noDatasetSelected`) }}
-    </Message>
-    <div v-else class="p-fluid p-formgrid p-grid">
-        <div class="p-field p-col-6">
-            <span class="p-float-label">
-                <Dropdown v-model="selectedColumnName" class="kn-material-input" :options="widgetModel.columns" option-value="columnName" option-label="columnName" @change="onColumnChanged"> </Dropdown>
-                <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
-            </span>
-        </div>
-        <div class="p-field p-col-6">
-            <span class="p-float-label">
-                <InputText v-model="selectionValue" class="kn-material-input" @change="onColumnChanged" />
-                <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.editorTags.selectionVal') }}</label>
-            </span>
-        </div>
+    <div v-if="!widgetModel.dataset" class="q-mb-sm q-pa-sm row items-center text-warning">
+        <q-icon name="warning" class="q-mr-sm" />
+        {{ $t('managers.functionsCatalog.noDatasetSelected') }}
+    </div>
+    <div v-else class="p-fluid p-formgrid p-grid q-pb-lg q-mx-sm">
+            <q-select
+                v-model="selectedColumnName"
+                class="p-col-4"
+                dense
+                emit-value
+                map-options
+                :options="widgetModel.columns"
+                option-value="columnName"
+                option-label="columnName"
+                :label="$t('common.column')"
+                @update:model-value="onColumnChanged"
+            />
+            <q-toggle v-model="multipleValues" color="black" :label="$t('dashboard.widgetEditor.editorTags.multipleValues')" @update:model-value="onModeChanged" />
+            <q-input v-if="!multipleValues" class="p-col" v-model="selectionValue" dense :label="$t('dashboard.widgetEditor.editorTags.selectionVal')" @update:model-value="onColumnChanged" />
+            <q-select
+                v-else
+                class="p-col"
+                v-model="selectionValues"
+                dense
+                multiple
+                use-chips
+                use-input
+                new-value-mode="add-unique"
+                input-debounce="0"
+                :options="[]"
+                :label="$t('dashboard.widgetEditor.editorTags.selectionValues')"
+                :hint="$t('dashboard.widgetEditor.editorTags.selectionValuesHint')"
+                @update:model-value="onColumnChanged"
+            />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
-import Dropdown from 'primevue/dropdown'
 import descriptor from '../WidgetTagsDialogDescriptor.json'
-import Message from 'primevue/message'
 
 export default defineComponent({
     name: 'widget-editor-selections',
-    components: { Dropdown, Message },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     emits: ['insertChanged'],
     data() {
         return {
             descriptor,
             selectedColumnName: '',
-            selectionValue: ''
+            selectionValue: '',
+            selectionValues: [] as string[],
+            multipleValues: false
         }
     },
-    created() {},
+    watch: {
+        selectionValues(newVals: string[]) {
+            const trimmed = newVals.map((v) => v.trim()).filter((v) => v.length > 0)
+            if (JSON.stringify(trimmed) !== JSON.stringify(newVals)) {
+                this.selectionValues = trimmed
+            }
+        }
+    },
     methods: {
+        onModeChanged() {
+            this.selectionValue = ''
+            this.selectionValues = []
+            this.onColumnChanged()
+        },
         onColumnChanged() {
+            const valueStr = this.multipleValues ? '[' + this.selectionValues.map((v) => `'${v}'`).join(', ') + ']' : this.selectionValue
             const forInsert =
                 this.widgetModel.type === 'html'
-                    ? `<div kn-selection-column="${this.selectedColumnName}" kn-selection-value="${this.selectionValue}"></div>`
-                    : `<span class="selection" kn-selection-column="${this.selectedColumnName}" kn-selection-value="${this.selectionValue}">[kn-column='${this.selectedColumnName}']</span>`
+                    ? `<div kn-selection-column="${this.selectedColumnName}" kn-selection-value="${valueStr}"></div>`
+                    : `<span class="selection" kn-selection-column="${this.selectedColumnName}" kn-selection-value="${valueStr}">[kn-column='${this.selectedColumnName}']</span>`
             this.$emit('insertChanged', forInsert)
         }
     }

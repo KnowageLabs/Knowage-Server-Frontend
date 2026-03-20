@@ -652,6 +652,9 @@
                 "repeater": "Repeater",
                 "selection": "Selection",
                 "selectionVal": "Selection Value",
+                "selectionValues": "Valori di selezione",
+                "selectionValuesHint": "Premi Invio per confermare ogni valore.",
+                "multipleValues": "Valori multipli",
                 "toLocale": "Format to locale",
                 "variables": "Variables"
             },
