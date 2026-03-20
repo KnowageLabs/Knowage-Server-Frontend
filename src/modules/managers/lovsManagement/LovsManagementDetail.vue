@@ -125,7 +125,9 @@ export default defineComponent({
         },
         async loadLov() {
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/lovs/${this.id}`).then((response: AxiosResponse<any>) => (this.selectedLov = response.data))
-            this.selectedLov.lovProviderJSON = JSON.parse(this.selectedLov.lovProviderJSON)
+            if (typeof this.selectedLov.lovProviderJSON === 'string') {
+                this.selectedLov.lovProviderJSON = JSON.parse(this.selectedLov.lovProviderJSON)
+            }
             this.decode()
             this.formatLov()
         },
@@ -246,7 +248,9 @@ export default defineComponent({
                     label: '',
                     name: ''
                 }
-                this.selectedLov.lovProviderJSON = JSON.parse(this.selectedLov.lovProviderJSON)
+                if (typeof this.selectedLov.lovProviderJSON === 'string') {
+                    this.selectedLov.lovProviderJSON = JSON.parse(this.selectedLov.lovProviderJSON)
+                }
                 this.decode()
                 this.formatLov()
             })
