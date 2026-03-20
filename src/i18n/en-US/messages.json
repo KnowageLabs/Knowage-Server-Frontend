@@ -1736,6 +1736,7 @@
             "designerDialog": {
                 "closeConfirm": "Are you sure you want to close the designer? All changes will be lost.",
                 "closeTitle": "Close Designer",
+                "defineSheet": "Choose a sheet",
                 "deviceScaleFactor": "Device scale factor",
                 "documentDriver": "Document driver: {driver}",
                 "dossierDriverName": "Dossier driver name",
@@ -1760,6 +1761,7 @@
                 "resetPlaceholder": "Reset placeholder",
                 "saveAndRun": "Save and run",
                 "sheetHeight": "Sheet Height (px)",
+                "sheetNumber": "Sheet Number",
                 "sheetWidth": "Sheet width (px)",
                 "step0": {
                     "info": "Upload the template for the dossier and set the prefix to use to search for images within",
