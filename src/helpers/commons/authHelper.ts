@@ -23,7 +23,7 @@ export default {
         await axios
             .post(endpoint)
             .then((response) => {
-                invalidateSession(response.data.urlEnginesInvalidate, response.data.redirectUrl.replace('${id_token}', sessionStorage.getItem('idToken') || ''), query)
+                invalidateSession(response.data.urlEnginesInvalidate, response.data.redirectUrl?.replace('${id_token}', sessionStorage.getItem('idToken') || ''), query)
             })
             .finally(() => {
                 localStorage.clear()
