@@ -99,6 +99,7 @@ const setPropertyValueToChartModel = (modelToRender: any, propertySettings: IHig
 
     for (let i = 0; i < properties.length; i++) {
         const property = properties[i];
+        const currentValueIsObject = typeof currentModelToRender === 'object' && currentModelToRender !== null
 
         if (Array.isArray(currentModelToRender) && /^\d+$/.test(property)) {
             const index = parseInt(property, 10);
@@ -108,10 +109,13 @@ const setPropertyValueToChartModel = (modelToRender: any, propertySettings: IHig
             }
         }
 
-        if (property in currentModelToRender) {
+        if (currentValueIsObject && property in currentModelToRender) {
             if (i === properties.length - 1) {
                 currentModelToRender[property] = getFormattedPropertyValue(propertySettings.propertyValue);
             } else {
+                if (currentModelToRender[property] === undefined || currentModelToRender[property] === null) {
+                    currentModelToRender[property] = /^\d+$/.test(properties[i + 1]) ? [] : {};
+                }
                 currentModelToRender = currentModelToRender[property];
             }
         } else {

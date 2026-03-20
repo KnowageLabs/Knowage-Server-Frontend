@@ -110,7 +110,7 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
             allowDrillToNode: !interactionsEnabled,
             showInLegend: false,
             animationLimit: 1000,
-            dataLabels: currentSeriesOptions?.dataLabels ? deepcopy(currentSeriesOptions.dataLabels) : undefined,
+            ...(currentSeriesOptions?.dataLabels ? { dataLabels: deepcopy(currentSeriesOptions.dataLabels) } : {}),
             levels: [
                 {
                     level: 1,
