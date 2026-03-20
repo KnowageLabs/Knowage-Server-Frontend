@@ -311,6 +311,21 @@ export default defineComponent({
             }
             modelToRender.chart.backgroundColor = null
             applyAdvancedSettingsToModelForRender(modelToRender, this.widgetModel.settings.advancedSettings)
+
+            // Sunburst: per-point dataLabels override series/levels settings in Highcharts.
+            // After advanced settings are applied, sync the enabled state down to the root (center) data point.
+            if (modelToRender.chart.type === 'sunburst') {
+                const sunburstSeries = modelToRender.series?.[0]
+                if (sunburstSeries) {
+                    const seriesEnabled = sunburstSeries.dataLabels?.enabled !== false
+                    const levelOneEnabled = sunburstSeries.levels?.find((l: any) => l.level === 1)?.dataLabels?.enabled !== false
+                    const rootPoint = sunburstSeries.data?.find((d: any) => d.id === 'root')
+                    if (rootPoint?.dataLabels) {
+                        rootPoint.dataLabels.enabled = seriesEnabled && levelOneEnabled
+                    }
+                }
+            }
+
             formatChartAnnotations(modelToRender, this.variables, this.getDashboardDrivers(this.dashboardId))
 
             try {
