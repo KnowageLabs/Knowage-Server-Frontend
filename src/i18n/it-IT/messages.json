@@ -1564,6 +1564,7 @@
             "designerDialog": {
                 "closeConfirm": "Sei sicuro di voler chiudere il designer? Tutte le modifiche saranno annullate.",
                 "closeTitle": "Chiudi Designer",
+                "defineSheet": "Scegli un foglio",
                 "deviceScaleFactor": "Fattore di scala del dispositivo",
                 "documentDriver": "Driver: {driver}",
                 "dossierDriverName": "Nome Driver del dossier",
@@ -1588,6 +1589,7 @@
                 "resetPlaceholder": "Resetta il placeholder",
                 "saveAndRun": "Salva ed esegui",
                 "sheetHeight": "Altezza Foglio (px)",
+                "sheetNumber": "Numero Foglio",
                 "sheetWidth": "Larghezza Foglio (px)",
                 "step0": {
                     "info": "Carica il template per il dossier e seleziona il prefisso da usare per la ricerca di immagini al suo interno",
