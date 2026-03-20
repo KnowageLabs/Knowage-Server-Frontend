@@ -98,7 +98,14 @@ export default defineComponent({
                 const parsed = JSON.parse(rawValue)
                 parsedValue = Array.isArray(parsed) ? parsed : [rawValue]
             } catch {
-                parsedValue = [rawValue]
+                try {
+                    // Handle JS array notation with single quotes: ['val1','val2']
+                    const jsonCompatible = rawValue?.replace(/'/g, '"')
+                    const parsed = JSON.parse(jsonCompatible)
+                    parsedValue = Array.isArray(parsed) ? parsed : [rawValue]
+                } catch {
+                    parsedValue = [rawValue]
+                }
             }
             updateStoreSelections(this.createNewSelection(parsedValue, selectionColumnName), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
         },
