@@ -188,6 +188,7 @@ export default defineComponent({
         }
     },
     async mounted() {
+        this.setSelectedSheetIndex(0)
         this.setEventListeners()
         if (this.isEnterprise) {
             await this.loadDashboardThemes()
