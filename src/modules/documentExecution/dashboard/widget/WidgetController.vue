@@ -22,7 +22,6 @@
         ></WidgetRenderer>
         <WidgetButtonBar v-if="items.filter((i) => i.visible).length > 0 || playSelectionButtonVisible" :document="document" :widget="widget" :play-selection-button-visible="playSelectionButtonVisible" :selection-is-locked="selectionIsLocked" :dashboard-id="dashboardId" :in-focus="inFocus" :menu-items="items" @edit-widget="toggleEditMode" @unlock-selection="unlockSelection" @launch-selection="launchSelection" @change-focus="changeFocus"></WidgetButtonBar>
         <ContextMenu v-if="canEditDashboard(document)" ref="contextMenu" :model="items" />
-
         <q-inner-loading :showing="loading || customChartLoading || widgetLoading">
             <q-spinner-grid color="primary" size="3rem" class="widgetSpinner" />
         </q-inner-loading>
@@ -496,11 +495,11 @@ export default defineComponent({
             return widgetUsesSelection
         },
         async reloadWidgetData(associativeResponseSelections: any, resetPagination?: boolean) {
+            if (this.widgetModel.type === 'selection') return
             this.widgetLoading = true
             let associativeSelectionsFromStore = null
             if (!associativeResponseSelections) {
                 this.getSelectionsFromStore()
-                if (this.widgetModel.type === 'selection') return
                 associativeSelectionsFromStore = this.getAssociativeSelectionsFromStoreIfDatasetIsBeingUsedInAssociation()
             }
             this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, false, this.activeSelections, this.search, this.dashboards[this.dashboardId].configuration, associativeResponseSelections ?? associativeSelectionsFromStore, resetPagination)
