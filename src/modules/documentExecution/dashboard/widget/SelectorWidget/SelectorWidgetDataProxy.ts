@@ -1,4 +1,4 @@
-import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration } from '../../Dashboard'
+import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration, IWidgetColumn } from '../../Dashboard'
 import { addDataToCache, addDriversToData, addParametersToData, addSelectionsToData, showGetDataError } from '../../DashboardDataProxy'
 import { md5 } from 'js-md5'
 import { indexedDB } from '@/idb'
@@ -197,8 +197,7 @@ const formatSelectorWidgetModelForService = (dashboardId: any, dashboardConfig: 
 
     widget.columns.forEach((column) => {
         if (column.fieldType === 'ATTRIBUTE') {
-            const attributeToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, orderColumn: widget.settings?.sortingColumn ?? '', orderType: widget.settings?.sortingOrder ?? '', funct: 'NONE' } as any
-            attributeToPush.orderType = widget.settings.sortingOrder
+            const attributeToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, orderColumn: sortingColumn?.columnName ?? '', orderType: widget.settings?.sortingOrder || '', funct: 'NONE' } as any
 
             dataToSend.aggregations.categories.push(attributeToPush)
         }
@@ -212,8 +211,9 @@ const formatSelectorWidgetModelForService = (dashboardId: any, dashboardConfig: 
 }
 
 const findSortingColumn = (widget: IWidget) => {
-    const sortingColumnName = widget.settings.sortingColumn
-    return { id: sortingColumnName, alias: sortingColumnName, columnName: sortingColumnName, orderColumn: sortingColumnName ?? '', orderType: widget.settings.sortingOrder ?? '' }
+    const sortingColumnId = widget.settings.sortingColumn
+    const matchedColumn = widget.columns?.find((col: any) => col.id === sortingColumnId) as IWidgetColumn
+    return { id: matchedColumn.id, alias: matchedColumn.alias, columnName: matchedColumn.columnName, orderColumn: matchedColumn.columnName ?? '', orderType: widget.settings.sortingOrder || '' }
 }
 
 const formatReponseWithTheExternalSortingColumn = (tempResponse: any, sortingOrder: 'ASC' | 'DESC' = 'ASC') => {
