@@ -14,8 +14,6 @@ export const getPivotData = async (dashboardId: any, dashboardConfig: IDashboard
         const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=${!selectedDataset.cache}`
 
         const postData = formatPivotModelForGet(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
-        console.log('propWidget', widget)
-        console.log('Post data for getting pivot table data: ', postData)
         let tempResponse = null as any
 
         const dataHash = md5(JSON.stringify(postData))
