@@ -16,7 +16,6 @@
             <i class="fas fa-share-alt p-mr-2" />
             {{ $t('dashboard.tableWidget.launchSelection') }}
         </div>
-        {{ variables }}
         <ag-grid-vue class="kn-table-widget-grid ag-theme-alpine kn-flex" :grid-options="gridOptions" :context="context" :theme="themeBalham"> </ag-grid-vue>
         <ContextMenu ref="interactionMenu" :model="interactionsMenuItems" />
 
