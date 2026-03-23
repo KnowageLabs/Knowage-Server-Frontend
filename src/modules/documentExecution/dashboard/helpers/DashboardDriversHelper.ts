@@ -45,6 +45,7 @@ export const getFormattedDashboardDrivers = (driversToFormat: (iParameter | IDas
             name: driver.label,
             type: driver.type,
             multivalue: driver.multivalue,
+            visible: driver.visible,
             value: getFormattedDriverValue(driver),
             urlName: driver.urlName,
             driverLabel: driver.driverLabel,

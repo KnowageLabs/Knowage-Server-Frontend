@@ -39,6 +39,22 @@ export default defineConfig((command, mode) => {
                     navigateFallback: null,
                     runtimeCaching: [
                         {
+                            urlPattern: ({ url }) =>
+                                /^(cdn\.|cdnjs\.|unpkg\.|esm\.)/.test(url.hostname) ||
+                                ['cdnjs.cloudflare.com', 'unpkg.com', 'esm.sh', 'cdn.jsdelivr.net', 'cdn.skypack.dev', 'fonts.googleapis.com', 'fonts.gstatic.com', 'code.highcharts.com'].includes(url.hostname),
+                            handler: 'CacheFirst',
+                            options: {
+                                cacheName: 'cdn-resources',
+                                expiration: {
+                                    maxEntries: 200,
+                                    maxAgeSeconds: 60 * 60 * 24 * 365 // <== 365 days
+                                },
+                                cacheableResponse: {
+                                    statuses: [0, 200]
+                                }
+                            }
+                        },
+                        {
                             urlPattern: ({ request }) => request.destination === 'document',
                             handler: 'NetworkFirst',
                             options: {
