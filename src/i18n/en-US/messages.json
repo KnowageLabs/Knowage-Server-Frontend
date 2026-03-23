@@ -808,6 +808,9 @@
                 "repeater": "Repeater",
                 "selection": "Selection",
                 "selectionVal": "Selection Value",
+                "selectionValues": "Selection Values",
+                "selectionValuesHint": "Press Enter to confirm each value.",
+                "multipleValues": "Multiple Values",
                 "toLocale": "Format to locale",
                 "variables": "Variables"
             },
