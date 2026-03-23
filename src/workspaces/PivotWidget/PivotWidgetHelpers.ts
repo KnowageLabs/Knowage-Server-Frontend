@@ -1,6 +1,10 @@
-import { IDataset, ISelection, IWidget, IWidgetCrossNavigation, IWidgetInteractionParameter } from "../../Dashboard"
+import { IDataset, ISelection, IWidget, IWidgetCrossNavigation, IWidgetInteractionParameter } from '../../Dashboard'
 
-interface ISelectionValue { columnName: string, value: string, columnType: string }
+interface ISelectionValue {
+    columnName: string
+    value: string
+    columnType: string
+}
 
 export const getFormattedClickedValueForCrossNavigation = (cellEvent: any, dataFields: any, crossNavigationOptions: IWidgetCrossNavigation) => {
     if (!cellEvent || cellEvent.area !== 'data') return null
@@ -30,7 +34,6 @@ const getFormattedDynamicOutputParameter = (selectionValues: ISelectionValue[], 
     return outputParameter
 }
 
-
 export const createPivotTableSelection = (cellEvent: any, widgetModel: IWidget, datasets: IDataset[]) => {
     if (!cellEvent || cellEvent.area !== 'data') return null
     const selectionValues = [] as ISelectionValue[]
@@ -43,7 +46,7 @@ const addSelectionValues = (path: string[], columnFields: any[], selectionValues
     path.forEach((pathValue: string, index) => {
         if (columnFields[index]) {
             const column = columnFields[index]
-            selectionValues.push({ columnName: column.caption, value: pathValue, columnType: column.dataType })
+            selectionValues.push({ columnName: column.columnName ?? column.caption, value: pathValue, columnType: column.dataType })
         }
     })
 }

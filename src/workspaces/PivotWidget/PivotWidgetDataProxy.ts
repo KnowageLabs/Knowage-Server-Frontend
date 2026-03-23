@@ -68,7 +68,6 @@ const formatPivotModelForGet = (dashboardId: any, dashboardConfig: IDashboardCon
     for (const fieldsName in propWidget.fields) {
         const fields = propWidget.fields[fieldsName]
         fields.forEach((field) => {
-            console.log('field', field)
             if (field.fieldType === 'MEASURE') {
                 if (field.type === 'pythonFunction') {
                     addFunctionColumnToTheMeasuresForThePostData(dataToSend.aggregations.measures, field as IWidgetFunctionColumn)
