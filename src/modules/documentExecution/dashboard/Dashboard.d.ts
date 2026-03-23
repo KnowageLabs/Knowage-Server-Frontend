@@ -552,6 +552,7 @@ export interface IDashboardDatasetDriver {
     label: string
     driverLabel: string
     multivalue: boolean
+    visible: boolean
     typeCode: string
     selectionType: string
     options?: { value: string; description: string }[]
@@ -782,6 +783,7 @@ export interface IDashboardDriver {
     name: string
     type: string
     multivalue: boolean
+    visible: boolean
     value: string
     urlName: string
     driverLabel: string
