@@ -269,7 +269,7 @@ export default defineComponent({
             // Use cached data if available, otherwise use the original dataToShow
             const dataToUse = this.cachedData || this.dataToShow
 
-            this.widgetModel.settings.chartModel.setData(dataToUse, tempWidgetModel, this.variables)
+            this.widgetModel.settings.chartModel.setData(dataToUse, tempWidgetModel, this.variables, this.drillLevel)
 
             this.widgetModel.settings.chartModel.updateSeriesAccessibilitySettings(tempWidgetModel)
             if (!['heatmap', 'dependencywheel', 'sankey', 'spline'].includes(this.chartModel.chart.type)) this.widgetModel.settings.chartModel.updateSeriesLabelSettings(tempWidgetModel)
@@ -429,7 +429,7 @@ export default defineComponent({
 
                 const tempData = await getWidgetData(this.dashboardId, this.widgetModel, dashboardDatasets, this.$http, false, this.propActiveSelections, { searchText: '', searchColumns: [] }, this.dashboards[this.dashboardId].configuration, null, false, null, this.drillLevel, formattedDrilldown)
                 tempData.initialCall = false
-                const newSeries = this.widgetModel.settings.chartModel.setData(tempData, this.widgetModel)
+                const newSeries = this.widgetModel.settings.chartModel.setData(tempData, this.widgetModel, this.variables, this.drillLevel)
 
                 this.highchartsInstance.hideLoading()
 

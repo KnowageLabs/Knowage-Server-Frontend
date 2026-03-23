@@ -50,7 +50,7 @@ const normalizeHighchartsNumericValue = (value: any): number | null => {
     return null
 }
 
-export const setRegularData = (model: any, widgetModel: IWidget, data: any, attributeColumns: any[], measureColumns: any[], drilldownEnabled: boolean, dateFormat: string, variables: IVariable[]) => {
+export const setRegularData = (model: any, widgetModel: IWidget, data: any, attributeColumns: any[], measureColumns: any[], drilldownEnabled: boolean, dateFormat: string, variables: IVariable[], drillLevel = 0) => {
     // if (widgetModel?.settings?.sortingColumn && widgetModel?.settings?.sortingOrder && data?.rows && model?.chart?.type !== 'dumbbell') data = formatDataRowsWhenUsingTheExternalSortingColumn(data, widgetModel, measureColumns)
 
     const attributeColumn = attributeColumns[0]
@@ -77,7 +77,7 @@ export const setRegularData = (model: any, widgetModel: IWidget, data: any, attr
                     name: serieName,
                     y: normalizeHighchartsNumericValue(row[metadata.dataIndex]),
                     color: measureColumnConditionalStyle?.color || attributeColumnConditionalStyle?.color,
-                    drilldown: drilldownEnabled && attributeColumns.length > 1
+                    drilldown: drilldownEnabled && drillLevel < attributeColumns.length - 1
                 })
                 if (!drilldownEnabled && model.xAxis && model.xAxis[0]) model.xAxis[0].categories.push(serieName)
             })

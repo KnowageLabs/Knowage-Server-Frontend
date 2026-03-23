@@ -51,7 +51,7 @@ export class KnowageHighchartsLineChart extends KnowageHighcharts {
         if (!this.model.sonification) this.model.sonification = highchartsDefaultValues.getDefaultSonificationSettings()
     }
 
-    setData(data: any, widgetModel: IWidget, variables: IVariable[]) {
+    setData(data: any, widgetModel: IWidget, variables: IVariable[], drillLevel = 0) {
         this.model.series = []
 
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
@@ -67,7 +67,7 @@ export class KnowageHighchartsLineChart extends KnowageHighcharts {
             const serieName = widgetModel.settings.configuration.grouping.secondDimension.serie
             setGroupedByCategoriesData(this.model, data, attributeColumns, measureColumns, serieName)
         } else {
-            setRegularData(this.model, widgetModel, data, attributeColumns, measureColumns, drilldownEnabled, dateFormat, variables)
+            setRegularData(this.model, widgetModel, data, attributeColumns, measureColumns, drilldownEnabled, dateFormat, variables, drillLevel)
         }
 
         return this.model.series
