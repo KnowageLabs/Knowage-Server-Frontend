@@ -176,12 +176,20 @@ export const formatRowDataForCrossNavigation = (tableNode: any, dataToShow: any)
     const propWidget = columnDef.cellRendererParams?.propWidget
     const columnDataMap = columnDef.cellRendererParams?.columnDataMap
 
-    if (propWidget?.columns && columnDataMap) {
-        propWidget.columns.forEach((col: any) => {
-            const field = columnDataMap[col.id]
-            if (!field) return
-            formattedRow[col.columnName] = { value: rowData[field], type: getColumnType(field, dataToShow) }
-        })
+    if (propWidget?.columns) {
+        if (columnDataMap) {
+            propWidget.columns.forEach((col: any) => {
+                const field = columnDataMap[col.id]
+                if (!field) return
+                formattedRow[col.columnName] = { value: rowData[field], type: getColumnType(field, dataToShow) }
+            })
+        } else {
+            // Icon column has no columnDataMap; derive fields by position
+            propWidget.columns.forEach((col: any, index: number) => {
+                const field = `column_${index + 1}`
+                formattedRow[col.columnName] = { value: rowData[field], type: getColumnType(field, dataToShow) }
+            })
+        }
     } else {
         formattedRow[columnDef.columnName] = { value: rowData[columnDef.field], type: getColumnType(columnDef.field, dataToShow) }
     }
