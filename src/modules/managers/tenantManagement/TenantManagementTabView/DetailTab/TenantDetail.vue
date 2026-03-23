@@ -121,8 +121,10 @@ export default defineComponent({
                 this.tenant.TENANT_IMAGE_WIDE = response.data
             })
         },
-        clear(type) {
+        clear(type: 'TENANT_IMAGE' | 'TENANT_IMAGE_WIDE') {
+            // Keep preview empty locally, but mark deletion in payload.
             this.tenant[type] = ''
+            this.onFieldChange(type, 'DELETE')
         },
         onFieldChange(fieldName: string, value: any) {
             this.$emit('fieldChanged', { fieldName, value })
