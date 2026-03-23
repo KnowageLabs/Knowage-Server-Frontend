@@ -34,12 +34,12 @@ export class KnowageHighchartsPieChart extends KnowageHighcharts {
         this.setPiePlotOptions()
     }
 
-    setData(data: any, widgetModel: IWidget, variables: IVariable[]) {
+    setData(data: any, widgetModel: IWidget, variables: IVariable[], drillLevel = 0) {
         this.model.series = []
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
         const drilldownEnabled = widgetModel.settings.interactions.drilldown ? widgetModel.settings.interactions.drilldown.enabled : false
-        setRegularData(this.model, widgetModel, data, attributeColumns, measureColumns, drilldownEnabled, '', variables)
+        setRegularData(this.model, widgetModel, data, attributeColumns, measureColumns, drilldownEnabled, '', variables, drillLevel)
 
         return this.model.series
     }
