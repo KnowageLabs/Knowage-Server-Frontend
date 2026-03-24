@@ -116,7 +116,7 @@ export default defineComponent({
     },
     computed: {
         ...mapState(store, ['dashboards']),
-        ...mapState(mainStore, ['user', 'setInfo', 'setLoading']),
+        ...mapState(mainStore, ['user', 'setInfo', 'setLoading', 'locale']),
         playSelectionButtonVisible(): boolean {
             if (!this.widget || !this.widget.settings?.configuration) return false
 
@@ -360,6 +360,7 @@ export default defineComponent({
             }
             body.variables = this.dashboards[this.dashboardId]?.configuration?.variables
             body.creationUser = this.document?.creationUser
+            body.locale = this.locale
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/dashboardExport/${type}`, body, {
                     responseType: 'blob',
