@@ -309,7 +309,9 @@ export default defineComponent({
                 click: this.executeInteractions,
                 checkboxClick: this.onCheckboxClicked
             }
-            modelToRender.chart.backgroundColor = null
+            const widgetBg = this.widgetModel.settings?.style?.background
+            modelToRender.chart.backgroundColor = widgetBg?.enabled && widgetBg?.properties?.['background-color'] ? widgetBg.properties['background-color'] : '#ffffff'
+            this.applyContrastColors(modelToRender)
             applyAdvancedSettingsToModelForRender(modelToRender, this.widgetModel.settings.advancedSettings)
 
             // Sunburst: per-point dataLabels override series/levels settings in Highcharts.
@@ -352,6 +354,14 @@ export default defineComponent({
                     msg: error ? error.message : ''
                 })
             }
+        },
+        applyContrastColors(model: any) {
+            const axes = [...(model.xAxis ?? []), ...(model.yAxis ?? [])]
+            axes.forEach((axis: any) => {
+                if (axis?.labels?.style && !axis.labels.style.color) axis.labels.style.color = 'contrast'
+                if (axis?.title?.style && !axis.title.style.color) axis.title.style.color = 'contrast'
+            })
+            if (model.legend?.itemStyle && !model.legend.itemStyle.color) model.legend.itemStyle.color = 'contrast'
         },
         addAditionalCSSClasses(modelToRender: IHighchartsChartModel) {
             if (!modelToRender.plotOptions?.series?.showCheckbox || !modelToRender.legend) return
