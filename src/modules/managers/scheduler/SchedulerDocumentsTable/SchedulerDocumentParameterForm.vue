@@ -2,40 +2,76 @@
     <div class="parameter-card">
         <div v-if="parameter && !loading">
             <h2>{{ parameter.name }}</h2>
-            <div class="p-grid p-ai-center">
-                <div class="p-m-0 p-col-12 p-md-12 p-lg-4 p-xl-4">
-                    <span>
-                        <label class="kn-material-input-label">{{ $t('managers.scheduler.parameterValueType') }}</label>
-                        <Dropdown v-model="parameter.type" class="kn-material-input" :options="parameter.temporal ? triggerStrategies : triggerStrategies.slice(0, 2)" option-label="label" option-value="value" @change="onParameterTypeChange" />
-                    </span>
+            <div class="row q-col-gutter-md">
+                <div class="col-12 col-md-4">
+                    <q-select
+                        v-model="parameter.type"
+                        dense
+                        filled
+                        :options="parameter.temporal ? triggerStrategies : triggerStrategies.slice(0, 2)"
+                        option-label="label"
+                        option-value="value"
+                        emit-value
+                        map-options
+                        :label="$t('managers.scheduler.parameterValueType')"
+                        @update:model-value="onParameterTypeChange"
+                    />
                 </div>
-                <div v-if="parameter.type === 'fixed'" class="p-m-0 p-col-12 p-md-12 p-lg-4 p-xl-4">
-                    <span v-if="parameterValues.manualInput">
-                        <label class="kn-material-input-label">{{ $t('common.values') }}</label>
-                        <InputText v-model="parameter.value" class="kn-material-input" />
-                    </span>
-                    <span v-else>
-                        <label class="kn-material-input-label">{{ $t('common.values') }}</label>
-                        <MultiSelect v-model="parameter.selectedValues" class="kn-material-input" :options="parameterValues.values" @change="formatSelectedValues" />
-                    </span>
+                <div v-if="parameter.type === 'fixed'" class="col-12 col-md-4">
+                    <q-input v-if="!parameterValues.lov" v-model="parameter.value" dense filled :label="$t('common.values')" />
+                    <q-select
+                        v-else
+                        v-model="parameter.selectedValues"
+                        filled
+                        multiple
+                        use-chips
+                        :options="parameterValues.lov"
+                        option-label="description"
+                        option-value="value"
+                        emit-value
+                        map-options
+                        :label="$t('common.values')"
+                        @update:model-value="formatSelectedValues"
+                    />
                 </div>
-                <div v-else-if="parameter.type === 'loadAtRuntime'" class="p-m-0 p-col-12 p-md-12 p-lg-4 p-xl-4">
-                    <span>
-                        <label class="kn-material-input-label">{{ $t('common.role') }}</label>
-                        <Dropdown v-model="parameter.value" class="kn-material-input" :options="rolesOptions" option-label="role" option-value="userAndRole" />
-                    </span>
+                <div v-else-if="parameter.type === 'loadAtRuntime'" class="col-12 col-md-4">
+                    <q-select
+                        v-model="parameter.value"
+                        dense
+                        filled
+                        :options="rolesOptions"
+                        option-label="role"
+                        option-value="userAndRole"
+                        emit-value
+                        map-options
+                        :label="$t('common.role')"
+                    />
                 </div>
-                <div v-else-if="parameter.type === 'formula'" class="p-m-0 p-col-12 p-md-12 p-lg-4 p-xl-4">
-                    <span>
-                        <label class="kn-material-input-label">{{ $t('managers.scheduler.selectFormula') }}</label>
-                        <Dropdown v-model="parameter.value" class="kn-material-input" :options="formulaOptions" option-label="description" option-value="name" />
-                    </span>
+                <div v-else-if="parameter.type === 'formula'" class="col-12 col-md-4">
+                    <q-select
+                        v-model="parameter.value"
+                        dense
+                        filled
+                        :options="formulaOptions"
+                        option-label="description"
+                        option-value="name"
+                        emit-value
+                        map-options
+                        :label="$t('managers.scheduler.selectFormula')"
+                    />
                 </div>
-                <div class="p-m-0 p-col-12 p-md-12 p-lg-4 p-xl-4">
-                    <span>
-                        <label class="kn-material-input-label">{{ $t('managers.scheduler.iterations') }}</label>
-                        <Dropdown v-model="parameter.iterative" class="kn-material-input" :options="triggerIterations" option-label="label" option-value="value" />
-                    </span>
+                <div class="col-12 col-md-4">
+                    <q-select
+                        v-model="parameter.iterative"
+                        dense
+                        filled
+                        :options="triggerIterations"
+                        option-label="label"
+                        option-value="value"
+                        emit-value
+                        map-options
+                        :label="$t('managers.scheduler.iterations')"
+                    />
                 </div>
             </div>
         </div>
@@ -45,12 +81,10 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import axios from 'axios'
-import Dropdown from 'primevue/dropdown'
-import MultiSelect from 'primevue/multiselect'
 
 export default defineComponent({
     name: 'scheduler-document-parameter-form',
-    components: { Dropdown, MultiSelect },
+    components: {},
     props: { propParameter: { type: Object }, roles: { type: Array }, formulas: { type: Array }, documentLabel: { type: String } },
     emits: ['loading'],
     data() {
@@ -96,8 +130,7 @@ export default defineComponent({
         async formatParameter() {
             if (this.parameter.type === 'fixed') {
                 await this.loadParameterValues()
-                if (!this.parameterValues?.manualInput && this.parameter.value) {
-                    this.parameter.manualInput = false
+                if (this.parameterValues?.lov && this.parameter.value) {
                     this.parameter.selectedValues = this.parameter.value.split(';').map((el: any) => el.trim())
                 }
             } else if (this.parameter.type === 'loadAtRuntime' && this.parameter.value) {
