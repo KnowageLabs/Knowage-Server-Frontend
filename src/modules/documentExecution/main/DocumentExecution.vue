@@ -693,12 +693,14 @@ export default defineComponent({
         async dashboardExport(format) {
             this.setLoading(true)
             let body = this.hiddenFormData
+            body.set('locale', currentLocale)
             let url = import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + `/api/1.0/pages/execute/${format}`
             if (format.includes('xls')) {
                 format = 'spreadsheet'
                 if (this.document.dashboardId && this.dashboards[this.document.dashboardId]) {
                     const dashboard = deepcopy(this.dashboards[this.document.dashboardId])
                     delete dashboard.currentView
+                    dashboard.locale = currentLocale
                     body = dashboard
                 }
             }
@@ -717,6 +719,7 @@ export default defineComponent({
                             SBI_EXECUTION_ROLE: this.userRole || '',
                             user_id: this.user.userUniqueIdentifier || '',
                             document: this.document.id || '',
+                            locale: currentLocale,
                             outputType: format,
                             parameters: this.filtersData && this.filtersData.filterStatus ? JSON.stringify(this.getStructuredParametersForExport()) : ''
                         },
@@ -742,6 +745,12 @@ export default defineComponent({
                     downloadDirectFromResponse(response)
                 })
                 .finally(() => this.setLoading(false))
+        },
+        getCurrentLocale() {
+            const locale = this.$i18n?.locale
+            if (typeof locale === 'string') return locale
+            if (locale && typeof locale.value === 'string') return locale.value
+            return navigator.language || 'en-US'
         },
         getStructuredParametersForExport() {
             if (!this.filtersData || !this.filtersData.filterStatus) return []

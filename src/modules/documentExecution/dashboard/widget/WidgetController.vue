@@ -114,7 +114,7 @@ export default defineComponent({
     },
     computed: {
         ...mapState(store, ['dashboards']),
-        ...mapState(mainStore, ['user', 'setInfo', 'setLoading']),
+        ...mapState(mainStore, ['user', 'setInfo', 'setLoading', 'locale']),
         playSelectionButtonVisible(): boolean {
             const isSelectorWidget = this.widget.type === 'selector' && ['multiValue', 'multiDropdown', 'dateRange'].includes(this.widget.settings.configuration.selectorType.modality) && !this.selectionIsLocked
             if (this.document.seeAsFinalUser && isSelectorWidget) return true
@@ -347,6 +347,7 @@ export default defineComponent({
             }
             body.variables = this.dashboards[this.dashboardId]?.configuration?.variables
             body.creationUser = this.document?.creationUser
+            body.locale = this.locale
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/dashboardExport/${type}`, body, {
                     responseType: 'blob',
