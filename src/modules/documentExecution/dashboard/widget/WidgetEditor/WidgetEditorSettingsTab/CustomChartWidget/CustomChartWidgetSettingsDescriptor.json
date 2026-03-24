@@ -1,4 +1,4 @@
-{
+﻿{
     "settings": {
         "Configuration": [
             {
@@ -84,37 +84,37 @@
     "settingsListOptions": [
         {
             "disabled": false,
-            "icon": "fa fa-book",
+            "icon": "sym_o_photo_library",
             "label": "dashboard.widgetEditor.gallery",
             "value": "Gallery"
         },
         {
-            "icon": "fa fa-code",
+            "icon": "sym_o_code",
             "label": "dashboard.widgetEditor.editor",
             "value": "Editor"
         },
         {
-            "icon": "fa fa-cogs",
+            "icon": "sym_o_tune",
             "label": "dashboard.widgetEditor.configuration",
             "value": "Configuration"
         },
         {
-            "icon": "fa fa-paint-brush",
+            "icon": "sym_o_brush",
             "label": "common.style",
             "value": "Style"
         },
         {
-            "icon": "fa fa-hand-pointer",
+            "icon": "sym_o_touch_app",
             "label": "dashboard.widgetEditor.interactions.title",
             "value": "Interactions"
         },
         {
-            "icon": "pi pi-tablet",
+            "icon": "sym_o_devices",
             "label": "dashboard.widgetEditor.responsive.title",
             "value": "Responsive"
         },
         {
-            "icon": "pi pi-info-circle",
+            "icon": "sym_o_help",
             "label": "dashboard.widgetEditor.help.title",
             "value": "Help"
         }

@@ -1,4 +1,4 @@
-{
+﻿{
     "aggregationOptions": [
         {
             "label": "SUM",
@@ -298,42 +298,42 @@
     },
     "settingsListOptions": [
         {
-            "icon": "fa fa-cogs",
+            "icon": "sym_o_tune",
             "label": "dashboard.widgetEditor.configuration",
             "value": "Configuration"
         },
         {
-            "icon": "pi pi-eye",
+            "icon": "sym_o_visibility",
             "label": "dashboard.widgetEditor.visualization",
             "value": "Visualization"
         },
         {
-            "icon": "fa fa-paint-brush",
+            "icon": "sym_o_brush",
             "label": "common.style",
             "value": "Style"
         },
         {
-            "icon": "fa fa-toggle-on",
+            "icon": "sym_o_toggle_on",
             "label": "dashboard.widgetEditor.conditionalStyle",
             "value": "ConditionalStyle"
         },
         {
-            "icon": "fa fa-hand-pointer",
+            "icon": "sym_o_touch_app",
             "label": "dashboard.widgetEditor.interactions.title",
             "value": "Interactions"
         },
         {
-            "icon": "fa fa-commenting",
+            "icon": "sym_o_comment",
             "label": "dashboard.widgetEditor.tooltips.title",
             "value": "Tooltips"
         },
         {
-            "icon": "pi pi-tablet",
+            "icon": "sym_o_devices",
             "label": "dashboard.widgetEditor.responsive.title",
             "value": "Responsive"
         },
         {
-            "icon": "pi pi-info-circle",
+            "icon": "sym_o_help",
             "label": "dashboard.widgetEditor.help.title",
             "value": "Help"
         }

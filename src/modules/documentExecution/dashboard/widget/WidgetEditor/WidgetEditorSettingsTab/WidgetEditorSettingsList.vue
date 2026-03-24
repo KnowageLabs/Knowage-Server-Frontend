@@ -3,7 +3,7 @@
         <Listbox v-model="selectedItem" class="kn-list kn-list-no-border-right dashboard-editor-list" :options="options" option-disabled="disabled">
             <template #option="slotProps">
                 <div class="kn-list-item" :style="descriptor.listStyle.listItem" data-test="list-item" @click="itemClicked(slotProps.option)">
-                    <i v-if="slotProps.option.icon" :class="slotProps.option.icon" class="p-mr-2" :style="descriptor.listStyle.listIcon"></i>
+                    <q-icon v-if="slotProps.option.icon" :name="slotProps.option.icon" class="p-mr-2" size="16px" />
                     <div class="kn-list-item-text">
                         <span>{{ $t(slotProps.option.label) }}</span>
                     </div>

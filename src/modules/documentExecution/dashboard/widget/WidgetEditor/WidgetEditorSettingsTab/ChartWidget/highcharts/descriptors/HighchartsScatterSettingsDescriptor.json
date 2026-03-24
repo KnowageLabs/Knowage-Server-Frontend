@@ -1,4 +1,4 @@
-{
+﻿{
     "settings": {
         "Accessibility": [
             {
@@ -181,67 +181,67 @@
     },
     "settingsListOptions": [
         {
-            "icon": "fa fa-cogs",
+            "icon": "sym_o_tune",
             "label": "dashboard.widgetEditor.configuration",
             "value": "Configuration"
         },
         {
-            "icon": "pi pi-table",
+            "icon": "sym_o_accessibility_new",
             "label": "dashboard.widgetEditor.accessibility.title",
             "value": "Accessibility"
         },
         {
-            "icon": "fa fa-paint-brush",
+            "icon": "sym_o_brush",
             "label": "common.style",
             "value": "Style"
         },
         {
-            "icon": "pi pi-table",
+            "icon": "sym_o_legend_toggle",
             "label": "dashboard.widgetEditor.legend.title",
             "value": "Legend"
         },
         {
-            "icon": "fa-solid fa-arrow-up",
+            "icon": "sym_o_arrow_upward",
             "label": "dashboard.widgetEditor.yAxis",
             "value": "YAxis"
         },
         {
-            "icon": "fa-solid fa-arrow-right",
+            "icon": "sym_o_arrow_right_alt",
             "label": "dashboard.widgetEditor.xAxis",
             "value": "XAxis"
         },
         {
-            "icon": "pi pi-table",
+            "icon": "sym_o_live_help",
             "label": "dashboard.widgetEditor.tooltip.title",
             "value": "Tooltip"
         },
         {
-            "icon": "pi pi-table",
+            "icon": "sym_o_stacked_line_chart",
             "label": "dashboard.widgetEditor.series.title",
             "value": "Series"
         },
         {
-            "icon": "pi pi-table",
+            "icon": "sym_o_palette",
             "label": "common.colors",
             "value": "Colors"
         },
         {
-            "icon": "fa fa-hand-pointer",
+            "icon": "sym_o_touch_app",
             "label": "dashboard.widgetEditor.interactions.title",
             "value": "Interactions"
         },
         {
-            "icon": "pi pi-tablet",
+            "icon": "sym_o_devices",
             "label": "dashboard.widgetEditor.responsive.title",
             "value": "Responsive"
         },
         {
-            "icon": "fa-solid fa-ellipsis",
+            "icon": "sym_o_more_horiz",
             "label": "common.advanced",
             "value": "Advanced"
         },
         {
-            "icon": "pi pi-info-circle",
+            "icon": "sym_o_help",
             "label": "dashboard.widgetEditor.help.title",
             "value": "Help"
         }

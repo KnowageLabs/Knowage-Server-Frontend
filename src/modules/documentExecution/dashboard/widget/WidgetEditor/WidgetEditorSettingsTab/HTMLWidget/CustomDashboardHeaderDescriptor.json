@@ -1,4 +1,4 @@
-{
+﻿{
     "settings": {
         "Configuration": [
             {
@@ -21,17 +21,17 @@
     "settingsListOptions": [
         {
             "disabled": false,
-            "icon": "fa fa-book",
+            "icon": "sym_o_photo_library",
             "label": "dashboard.widgetEditor.gallery",
             "value": "Gallery"
         },
         {
-            "icon": "fa fa-code",
+            "icon": "sym_o_code",
             "label": "dashboard.widgetEditor.editor",
             "value": "Editor"
         },
         {
-            "icon": "fa fa-cogs",
+            "icon": "sym_o_tune",
             "label": "dashboard.widgetEditor.configuration",
             "value": "Configuration"
         }

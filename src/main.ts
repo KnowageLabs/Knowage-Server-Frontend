@@ -17,6 +17,7 @@ import 'primeflex/primeflex.css'
 import '@/assets/css/dialects-icons.css'
 import 'material-icons/iconfont/material-icons.css'
 import '@quasar/extras/material-icons/material-icons.css'
+import '@quasar/extras/material-symbols-outlined/material-symbols-outlined.css'
 import 'quasar/dist/quasar.css'
 import '@quasar/extras/roboto-font/roboto-font.css'
 
