@@ -112,6 +112,11 @@ export default defineComponent({
     methods: {
         loadDocuments() {
             this.documents = this.jobDocuments as any[]
+            this.documents?.forEach((document: any) => {
+                if (document.parameters?.length > 0) {
+                    document.description = this.updateCondensedParameters(document.parameters)
+                }
+            })
         },
         checkIfParameterValuesSet(parameters: any[]) {
             let valuesSet = true
