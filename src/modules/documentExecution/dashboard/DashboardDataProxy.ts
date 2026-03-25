@@ -102,7 +102,7 @@ export const addParametersToData = (dataset, dashboardId, dataToSend, associativ
     const dashStore = dashboardStore()
 
     if (dataset.parameters && dataset.parameters.length > 0) {
-        const paramRegex = /[^$P{]+(?=\})/
+        const paramRegex = /\$P\{([^}]+)\}/
         dataset.parameters.forEach((param: any) => {
             const matched = paramRegex.exec(param.value) //check if param is wrapped in $P{}, if it is, grab the value from drivers
             if (matched && matched[0]) {
@@ -129,10 +129,10 @@ export const addParametersToData = (dataset, dashboardId, dataToSend, associativ
                 if (associativeResponseSelections[dataset.dsLabel][paramKey]) {
                     if (Array.isArray(associativeResponseSelections[dataset.dsLabel][paramKey]) && associativeResponseSelections[dataset.dsLabel][paramKey].length > 1) {
                         let cleanValues = [] as any[]
-                        associativeResponseSelections[dataset.dsLabel][paramKey].forEach((value => {
+                        associativeResponseSelections[dataset.dsLabel][paramKey].forEach((value) => {
                             const cleanValue = value.replace(/[()']/g, '')
                             cleanValues.push(cleanValue)
-                        }))
+                        })
                         dataToSend.parameters[param.name] = cleanValues
                     } else {
                         const rawValue = associativeResponseSelections[dataset.dsLabel][paramKey][0]
