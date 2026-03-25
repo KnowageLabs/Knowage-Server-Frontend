@@ -1043,9 +1043,17 @@ export default defineComponent({
             this.updateSmartView()
         },
         smartViewReorder(event) {
-            const temp = this.selectedQuery.fields[event.dragIndex]
-            this.selectedQuery.fields[event.dragIndex] = this.selectedQuery.fields[event.dropIndex]
-            this.selectedQuery.fields[event.dropIndex] = temp
+            const filteredFields = this.selectedQuery.fields.filter((field) => field.visible === true && field.inUse === true)
+            const dragField = filteredFields[event.dragIndex]
+            const dropField = filteredFields[event.dropIndex]
+
+            const actualDragIndex = this.selectedQuery.fields.indexOf(dragField)
+            const actualDropIndex = this.selectedQuery.fields.indexOf(dropField)
+
+            const [removed] = this.selectedQuery.fields.splice(actualDragIndex, 1)
+            const adjustedDropIndex = actualDropIndex > actualDragIndex ? actualDropIndex - 1 : actualDropIndex
+            this.selectedQuery.fields.splice(adjustedDropIndex, 0, removed)
+
             this.updateSmartView()
         },
         closePreview() {
