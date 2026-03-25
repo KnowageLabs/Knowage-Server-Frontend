@@ -23,6 +23,7 @@
                         v-else
                         v-model="parameter.selectedValues"
                         filled
+                        dense
                         multiple
                         use-chips
                         :options="parameterValues.lov"
@@ -132,6 +133,13 @@ export default defineComponent({
                 await this.loadParameterValues()
                 if (this.parameterValues?.lov && this.parameter.value) {
                     this.parameter.selectedValues = this.parameter.value.split(';').map((el: any) => el.trim())
+                    const lovItems = this.parameterValues.lov
+                    this.parameter.description = this.parameter.selectedValues
+                        .map((val: any) => {
+                            const found = lovItems.find((item: any) => item.value === val.trim())
+                            return found ? found.description : val
+                        })
+                        .join('; ')
                 }
             } else if (this.parameter.type === 'loadAtRuntime' && this.parameter.value) {
                 for (let i = 0; i < this.rolesOptions.length; i++) {
@@ -158,12 +166,22 @@ export default defineComponent({
         loadFormulas() {
             this.formulaOptions = this.formulas as any
         },
-        formatSelectedValues() {
+        formatSelectedValues(newValues: any[]) {
+            const selectedValues = newValues || this.parameter.selectedValues || []
+            this.parameter.selectedValues = selectedValues
             this.parameter.value = ''
-            for (let i = 0; i < this.parameter.selectedValues.length; i++) {
-                this.parameter.value += this.parameter.selectedValues[i]
-                this.parameter.value += i === this.parameter.selectedValues.length - 1 ? ' ' : '; '
+            this.parameter.description = ''
+            for (let i = 0; i < selectedValues.length; i++) {
+                this.parameter.value += selectedValues[i]
+                this.parameter.value += i === selectedValues.length - 1 ? ' ' : '; '
             }
+            const lovItems = this.parameterValues?.lov || []
+            this.parameter.description = selectedValues
+                .map((val: any) => {
+                    const found = lovItems.find((item: any) => item.value === val)
+                    return found ? found.description : val
+                })
+                .join('; ')
         },
         async onParameterTypeChange() {
             this.parameter.value = ''

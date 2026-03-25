@@ -79,8 +79,7 @@ export default defineComponent({
       roleOptions: [] as Array<string>,
       jobNameDirty: false,
       operation: 'create',
-      loading: false,
-    }
+      loading: false,      preventJobReload: false    }
   },
   computed: {
     saveDisabled(): any {
@@ -92,6 +91,10 @@ export default defineComponent({
   },
   watch: {
     selectedJob() {
+      if (this.preventJobReload) {
+        this.preventJobReload = false
+        return
+      }
       this.loadJob()
     }
   },
@@ -123,6 +126,12 @@ export default defineComponent({
                 title: this.$t('common.toast.' + this.operation + 'Title'),
                 msg: this.$t('common.toast.success')
               })
+              // Restore fields removed by formatJob so the UI stays consistent
+              if (this.job) this.job.edit = true
+              this.operation = 'update'
+              // Prevent the selectedJob watch from overwriting the current job
+              // (which has the correct parameter values) with the server-reloaded version
+              this.preventJobReload = true
               this.$router.push(`/scheduler/edit-package-schedule?id=${this.job?.jobName}&clone=false`)
               this.$emit('documentSaved', this.job?.jobName)
             }
