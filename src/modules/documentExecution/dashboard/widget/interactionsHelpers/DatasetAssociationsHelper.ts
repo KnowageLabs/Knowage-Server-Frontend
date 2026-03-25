@@ -137,11 +137,11 @@ const getFormattedDatasetParameters = (dataset: IDashboardDataset, dashboardId: 
     if (dataset.parameters && dashboard?.drivers) {
         dataset.parameters.forEach((parameter: IDashboardDatasetParameter) => {
             const matched = paramRegex.exec(parameter.value)
-            if (matched && matched[0]) {
+            if (matched && matched[1]) {
                 const documentDrivers = dashboard?.drivers || []
                 for (let index = 0; index < documentDrivers.length; index++) {
                     const driver = documentDrivers[index]
-                    if (driver.urlName == matched[0]) formattedParameters[parameter.name] = driver.value
+                    if (driver.urlName == matched[1]) formattedParameters[parameter.name] = driver.value
                 }
             } else formattedParameters[parameter.name] = parameter.value
         })

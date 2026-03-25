@@ -103,14 +103,14 @@ const formatWidgetModelForGet = (dashboardId: any, propWidget: IWidget, dataset:
     }
 
     if (dataset.parameters && dataset.parameters.length > 0) {
-        const paramRegex = /[^\$P{]+(?=\})/
+        const paramRegex = /\$P\{([^}]+)\}/
         dataset.parameters.forEach((param: any) => {
             const matched = paramRegex.exec(param.value)
-            if (matched && matched[0]) {
+            if (matched && matched[1]) {
                 const documentDrivers = dashStore.dashboards[dashboardId].drivers
                 for (let index = 0; index < documentDrivers.length; index++) {
                     const driver = documentDrivers[index]
-                    if (driver.urlName == matched[0]) {
+                    if (driver.urlName == matched[1]) {
                         dataToSend.parameters[`${param.name}`] = driver.value
                     }
                 }
@@ -950,11 +950,11 @@ const formatPivotModelForGet = (dashboardId: any, propWidget: IWidget, dataset: 
         const paramRegex = /\$P\{([^}]+)\}/
         dataset.parameters.forEach((param: any) => {
             const matched = paramRegex.exec(param.value)
-            if (matched && matched[0]) {
+            if (matched && matched[1]) {
                 const documentDrivers = dashStore.dashboards[dashboardId].drivers
                 for (let index = 0; index < documentDrivers.length; index++) {
                     const driver = documentDrivers[index]
-                    if (driver.urlName == matched[0]) {
+                    if (driver.urlName == matched[1]) {
                         dataToSend.parameters[`${param.name}`] = driver.value
                     }
                 }

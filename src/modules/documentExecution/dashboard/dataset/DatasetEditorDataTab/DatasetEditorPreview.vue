@@ -111,11 +111,11 @@ export default defineComponent({
                 const paramRegex = /\$P\{([^}]+)\}/
                 this.postData.pars.forEach((param: any) => {
                     const matched = paramRegex.exec(param.value)
-                    if (matched && matched[0]) {
+                    if (matched && matched[1]) {
                         const documentDrivers = this.dashboards[this.dashboardId].drivers
                         for (let index = 0; index < documentDrivers.length; index++) {
                             const driver = documentDrivers[index]
-                            if (driver.urlName == matched[0]) {
+                            if (driver.urlName == matched[1]) {
                                 param.value = driver.value
                             }
                         }
