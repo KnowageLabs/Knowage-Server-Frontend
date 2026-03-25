@@ -129,7 +129,7 @@ const getFormattedModelDatasets = (modelDatasets: IDashboardDataset[], dashboard
 
 const getFormattedDatasetParameters = (dataset: IDashboardDataset, dashboardId: string) => {
     const formattedParameters = {}
-    const paramRegex = /[^$P{]+(?=\})/
+    const paramRegex = /\$P\{([^}]+)\}/
     const dashStore = dashboardStore()
     const dashboards = dashStore.getDashboardsList() as IDashboard[]
     const dashboard = Object.values(dashboards).find((dashboard: IDashboard) => dashboard.configuration.id === dashboardId)

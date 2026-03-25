@@ -108,7 +108,7 @@ export default defineComponent({
 
             if (this.dataset.pars && this.dataset.pars.length > 0) {
                 this.postData.pars = deepcopy(this.dataset.pars)
-                const paramRegex = /[^$P{]+(?=\})/
+                const paramRegex = /\$P\{([^}]+)\}/
                 this.postData.pars.forEach((param: any) => {
                     const matched = paramRegex.exec(param.value)
                     if (matched && matched[0]) {

@@ -947,7 +947,7 @@ const formatPivotModelForGet = (dashboardId: any, propWidget: IWidget, dataset: 
     }
 
     if (dataset.parameters && dataset.parameters.length > 0) {
-        const paramRegex = /[^$P{]+(?=\})/
+        const paramRegex = /\$P\{([^}]+)\}/
         dataset.parameters.forEach((param: any) => {
             const matched = paramRegex.exec(param.value)
             if (matched && matched[0]) {
