@@ -40,8 +40,10 @@
             >
             <Column :header="$t('common.parameters')">
                 <template #body="slotProps">
-                    <span v-if="checkIfParameterValuesSet(slotProps.data.parameters)">{{ slotProps.data.condensedParameters }}</span>
-                    <span v-else v-tooltip.top="$t('managers.scheduler.parametersWarningTooltip')"> <i class="pi pi-exclamation-triangle kn-warning-icon" :data-test="'warning-icon-' + slotProps.data.name"></i></span>
+                    <span v-if="slotProps.data.description">{{ slotProps.data.description }}</span>
+                    <span v-if="slotProps.data.parameters?.length > 0 && !checkIfParameterValuesSet(slotProps.data.parameters)" v-tooltip.top="$t('managers.scheduler.parametersWarningTooltip')">
+                        <i class="pi pi-exclamation-triangle kn-warning-icon" :data-test="'warning-icon-' + slotProps.data.name"></i>
+                    </span>
                     <Button v-if="slotProps.data.parameters?.length > 0" icon="pi pi-pencil" class="p-button-link" @click="openDocumentParameterDialog(slotProps.data)" />
                 </template>
                 ></Column
@@ -165,9 +167,7 @@ export default defineComponent({
             const tempParams = await this.loadSelectedDocumentParameters(label)
             this.updateDocumentParameters(document, tempParams)
 
-            tempDocument.condensedParameters = this.updateCondensedParameters(tempParams)
-
-            this.selectedDocument = { name: label, nameTitle: tempDocument.label, condensedParameters: tempDocument.condensedParameters, parameters: document.parameters }
+            this.selectedDocument = { name: label, nameTitle: tempDocument.label, description: this.updateCondensedParameters(document.parameters ?? tempParams), parameters: document.parameters }
             this.selectedDocument.parameters?.forEach((el: any) => (el.role = this.roles[0]?.role))
             if (pushToTable) this.documents.push(this.selectedDocument)
             this.$emit('loading', false)
@@ -218,7 +218,7 @@ export default defineComponent({
             let condensedParameters = ''
             for (let i = 0; i < parameters.length; i++) {
                 if (parameters[i].type === 'fixed') {
-                    condensedParameters += ' ' + parameters[i].name + ' = ' + parameters[i].value
+                    condensedParameters += ' ' + parameters[i].name + ' = ' + (parameters[i].description || parameters[i].value)
                     condensedParameters += i === parameters.length - 1 ? ' ' : ' | '
                 }
             }
@@ -239,7 +239,7 @@ export default defineComponent({
         },
         onParametersSet(parameters: any[]) {
             this.selectedDocument.parameters = parameters
-            this.selectedDocument.condensedParameters = this.updateCondensedParameters(parameters)
+            this.selectedDocument.description = this.updateCondensedParameters(parameters)
             this.selectedDocument.parametersTouched = true
 
             const index = this.documents.findIndex((el: any) => el.name === this.selectedDocument.name)
