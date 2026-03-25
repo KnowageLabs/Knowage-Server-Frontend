@@ -105,11 +105,11 @@ export const addParametersToData = (dataset, dashboardId, dataToSend, associativ
         const paramRegex = /\$P\{([^}]+)\}/
         dataset.parameters.forEach((param: any) => {
             const matched = paramRegex.exec(param.value) //check if param is wrapped in $P{}, if it is, grab the value from drivers
-            if (matched && matched[0]) {
+            if (matched && matched[1]) {
                 const documentDrivers = dashStore.dashboards[dashboardId].drivers || []
                 for (let index = 0; index < documentDrivers.length; index++) {
                     const driver = documentDrivers[index]
-                    if (driver.urlName == matched[0]) {
+                    if (driver.urlName == matched[1]) {
                         if (driver.type === 'DATE' && driver.value) driver.value = getFormattedDateParameter(driver.value)
                         if (typeof driver.value === 'string' && driver.multivalue) {
                             const values = driver.value.split(',').map((val) => val.trim())
