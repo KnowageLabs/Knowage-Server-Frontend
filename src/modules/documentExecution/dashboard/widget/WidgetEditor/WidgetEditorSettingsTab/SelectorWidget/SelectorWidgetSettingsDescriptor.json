@@ -82,14 +82,6 @@
                 "type": "Title"
             },
             {
-                "title": "common.label",
-                "type": "LabelStyle"
-            },
-            {
-                "title": "dashboard.widgetEditor.selectorWidget.flex.title",
-                "type": "FlexStyle"
-            },
-            {
                 "title": "dashboard.widgetEditor.background",
                 "type": "BackgroundColorStyle"
             },
@@ -104,6 +96,10 @@
             {
                 "title": "dashboard.widgetEditor.shadows.title",
                 "type": "ShadowsStyle"
+            },
+            {
+                "title": "dashboard.widgetEditor.selectorWidget.flex.title",
+                "type": "FlexStyle"
             },
             {
                 "title": "dashboard.widgetEditor.selectorWidget.radio.title",
