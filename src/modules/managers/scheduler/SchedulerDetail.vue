@@ -128,6 +128,8 @@ export default defineComponent({
               })
               // Restore fields removed by formatJob so the UI stays consistent
               if (this.job) this.job.edit = true
+              // Ensure jobGroup is set (new jobs don't have it until the server assigns it)
+              if (this.job && !this.job.jobGroup) this.job.jobGroup = 'BIObjectExecutions'
               this.operation = 'update'
               // Prevent the selectedJob watch from overwriting the current job
               // (which has the correct parameter values) with the server-reloaded version
