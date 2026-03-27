@@ -113,7 +113,10 @@ export default defineComponent({
             return this.dataToShow.rows.map((row: any) => String(row.column_1))
         },
         sliderOptions(): any[] {
-            return this.getFilteredOptionsForDisplay().map((row: any) => ({ ...row }))
+            return this.getFilteredOptionsForDisplay().map((row: any) => ({
+                ...row,
+                disabled: this.showMode === 'showDisabled' && row.disabled
+            }))
         },
         treeNodes(): TreeNodeItem[] {
             if (!this.options?.rows?.length) return []

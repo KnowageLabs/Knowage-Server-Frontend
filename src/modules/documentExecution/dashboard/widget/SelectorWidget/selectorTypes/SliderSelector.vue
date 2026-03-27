@@ -1,6 +1,22 @@
 <template>
     <div class="slider-selector" :class="getPaddingClass()" :style="getSliderWrapperStyle()">
-        <q-slider :model-value="sliderIndexValue" :min="0" :max="maxIndex" :step="1" :vertical="sliderStyle?.layout === 'vertical'" :dense="sliderStyle?.dense || false" :dark="sliderStyle?.darkMode || false" :color="getColorClass()" :thumb-color="getThumbColorClass()" :track-size="sliderStyle?.trackSize || '4px'" :switch-marker-labels-side="sliderStyle?.switchMarkerLabelsSide || false" marker-labels markers @change="onValueChanged">
+        <q-slider
+            :model-value="sliderIndexValue"
+            :min="0"
+            :max="maxIndex"
+            :step="1"
+            :disable="isSliderDisabled"
+            :vertical="sliderStyle?.layout === 'vertical'"
+            :dense="sliderStyle?.dense || false"
+            :dark="sliderStyle?.darkMode || false"
+            :color="getColorClass()"
+            :thumb-color="getThumbColorClass()"
+            :track-size="sliderStyle?.trackSize || '4px'"
+            :switch-marker-labels-side="sliderStyle?.switchMarkerLabelsSide || false"
+            marker-labels
+            markers
+            @change="onValueChanged"
+        >
             <template v-slot:marker-label-group="scope">
                 <div v-for="marker in scope.markerList" :key="marker.index" :class="[marker.classes, { 'marker-disabled': isMarkerDisabled(marker.index) }]" :style="getMarkerStyle(marker)">
                     {{ options[marker.value]?.column_1 }}
@@ -36,6 +52,9 @@ export default defineComponent({
                 if (opt.disabled) disabled.add(index)
             })
             return disabled
+        },
+        isSliderDisabled(): boolean {
+            return this.options.filter((opt: any) => !opt.disabled).length <= 1
         }
     },
     methods: {
