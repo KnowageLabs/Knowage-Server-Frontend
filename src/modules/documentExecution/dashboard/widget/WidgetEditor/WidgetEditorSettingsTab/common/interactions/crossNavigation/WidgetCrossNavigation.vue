@@ -44,7 +44,7 @@
             <div class="p-sm-10 p-md-5 p-d-flex p-flex-row p-ai-center">
                 <div class="p-d-flex p-flex-column kn-flex p-mx-2">
                     <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.interactions.crossNavigationName') }}</label>
-                    <Dropdown v-model="crossNavigationModel.name" class="kn-material-input" :options="crossNavigationOptions" :disabled="crossNavigationDisabled"> </Dropdown>
+                    <Dropdown v-model="crossNavigationModel.name" class="kn-material-input" :options="crossNavigationOptions" option-label="name" option-value="name" :disabled="crossNavigationDisabled" @change="onCrossNavigationSelected"> </Dropdown>
                 </div>
             </div>
             <div v-if="crossNavigationModel.type === 'icon'" class="p-col-2 p-p-4">
@@ -92,7 +92,7 @@ export default defineComponent({
             descriptor,
             widget: null as IWidget | null,
             crossNavigationModel: null as IWidgetCrossNavigation | null,
-            crossNavigationOptions: [] as string[],
+            crossNavigationOptions: [] as { id: number; name: string }[],
             outputParameters: [] as any[],
             parameterList: [] as IWidgetInteractionParameter[],
             selectedDatasetsColumnsMap: {},
@@ -145,7 +145,13 @@ export default defineComponent({
         },
         loadCrossNavigationOptions() {
             const temp = this.store.getCrossNavigations(this.dashboardId)
-            if (temp) this.crossNavigationOptions = temp.map((crossNavigation: any) => crossNavigation.crossName)
+            if (temp) {
+                this.crossNavigationOptions = temp.map((crossNavigation: any) => ({ id: crossNavigation.crossId, name: crossNavigation.crossName }))
+                if (this.crossNavigationModel?.name && !this.crossNavigationModel?.id) {
+                    const match = this.crossNavigationOptions.find((opt: any) => opt.name === this.crossNavigationModel!.name)
+                    if (match) this.crossNavigationModel.id = match.id
+                }
+            }
         },
         onColumnRemoved() {
             this.loadCrossNavigationModel()
@@ -184,6 +190,11 @@ export default defineComponent({
             for (let i = 0; i < dataset.metadata.fieldsMeta.length; i++) {
                 this.selectedDatasetsColumnsMap[dataset.name].push(dataset.metadata.fieldsMeta[i].name)
             }
+        },
+        onCrossNavigationSelected(event: any) {
+            if (!this.crossNavigationModel) return
+            const selected = this.crossNavigationOptions.find((opt: any) => opt.name === event.value)
+            if (selected) this.crossNavigationModel.id = selected.id
         },
         onInteractionTypeChanged() {
             if (this.crossNavigationModel && this.crossNavigationModel.type !== 'icon') delete this.crossNavigationModel.icon
