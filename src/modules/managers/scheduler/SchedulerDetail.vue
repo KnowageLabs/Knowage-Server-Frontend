@@ -108,6 +108,23 @@ export default defineComponent({
       if (this.job && this.job.jobParameters) {
         this.job.role = this.job.jobParameters.find((param: any) => param.name === 'userRoles')?.value
       }
+      this.enrichDocumentCondensedParameters()
+    },
+    enrichDocumentCondensedParameters() {
+      if (!this.job?.jobParameters || !this.job?.documents) return
+      const documentLabelsParam = this.job.jobParameters.find((p: any) => p.name === 'documentLabels')
+      if (!documentLabelsParam?.value) return
+      const docKeys = documentLabelsParam.value.split(',').map((s: string) => s.trim())
+      docKeys.forEach((key: string) => {
+        const docName = key.split('__')[0]
+        const docIndex = this.job?.documents.findIndex((d: any) => d.name === docName)
+        if (docIndex !== undefined && docIndex !== -1) {
+          const descParam = this.job?.jobParameters.find((p: any) => p.name === key + '_description')
+          if (descParam?.value) {
+            this.job!.documents[docIndex].condensedParameters = descParam.value
+          }
+        }
+      })
     },
     setLoading(loading: boolean) {
       this.loading = loading
