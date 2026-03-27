@@ -5,7 +5,11 @@ import { getDateStringFromJSDate } from '@/helpers/commons/localeHelper'
 import moment from 'moment'
 import { AxiosResponse } from 'axios'
 
-export const getSelectedCrossNavigation = (crossNavigationName: string | undefined, crossNavigations: IDashboardCrossNavigation[]) => {
+export const getSelectedCrossNavigation = (crossNavigationName: string | undefined, crossNavigations: IDashboardCrossNavigation[], crossNavigationId?: number) => {
+    if (crossNavigationId) {
+        const index = crossNavigations.findIndex((crossNavigation: IDashboardCrossNavigation) => crossNavigation.crossId === crossNavigationId)
+        if (index !== -1) return crossNavigations[index]
+    }
     const index = crossNavigations.findIndex((crossNavigation: IDashboardCrossNavigation) => crossNavigation.crossName === crossNavigationName)
     if (index !== -1) return crossNavigations[index]
     else if (crossNavigations.length === 1) return crossNavigations[0]

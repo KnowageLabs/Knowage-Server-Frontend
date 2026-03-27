@@ -4,7 +4,7 @@
             <div v-for="(crossNavigationConfig, index) in crossNavigationConfiguration.crossNavigationVizualizationTypes" :key="index" class="p-col-12 p-fluid p-formgrid p-grid">
                 <div class="p-col-12 p-fluid p-formgrid p-grid p-ai-center">
                     <q-select filled dense class="p-sm-12 p-md-4" v-model="crossNavigationConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options options-dense option-label="label" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="crossNavigationDisabled" @update:modelValue="onVizualizationTypeChange(crossNavigationConfig)"></q-select>
-                    <q-select filled dense class="p-col-3 q-ml-sm" v-model="crossNavigationConfig.name" :options="crossNavigationOptions" emit-value map-options option-label="name" options-dense :label="$t('dashboard.widgetEditor.interactions.crossNavigationName')" :disable="crossNavigationDisabled"></q-select>
+                    <q-select filled dense class="p-col-3 q-ml-sm" v-model="crossNavigationConfig.name" :options="crossNavigationOptions" emit-value map-options option-label="name" option-value="name" options-dense :label="$t('dashboard.widgetEditor.interactions.crossNavigationName')" :disable="crossNavigationDisabled" @update:modelValue="onCrossNavigationSelected(crossNavigationConfig, $event)"></q-select>
                     <q-select filled dense class="p-col-3" v-model="crossNavigationConfig.column" :options="availableColumns(crossNavigationConfig.vizualizationType)" emit-value map-options :option-label="getTargetLayerType(crossNavigationConfig) === 'layer' ? 'property' : 'name'" options-dense :label="$t('common.column')" :disable="crossNavigationDisabled"></q-select>
 
                     <Button v-if="index === 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" @click="addCrossNavigationConfiguration" />
@@ -53,7 +53,7 @@ export default defineComponent({
         return {
             crossNavigationConfiguration: null as IMapWidgetCrossNavigation | null,
             visualizationTypeOptions: [] as IMapWidgetVisualizationType[],
-            crossNavigationOptions: [] as string[],
+            crossNavigationOptions: [] as { id: number; name: string }[],
             outputParameters: [] as any[],
             parameterList: {} as Record<string, IWidgetInteractionParameter[]>,
             selectedDatasetsColumnsMap: {},
@@ -98,7 +98,17 @@ export default defineComponent({
         },
         loadCrossNavigationOptions() {
             const temp = this.store.getCrossNavigations(this.dashboardId)
-            if (temp) this.crossNavigationOptions = temp.map((crossNavigation: any) => crossNavigation.crossName)
+            if (temp) {
+                this.crossNavigationOptions = temp.map((crossNavigation: any) => ({ id: crossNavigation.crossId, name: crossNavigation.crossName }))
+                if (this.crossNavigationConfiguration) {
+                    this.crossNavigationConfiguration.crossNavigationVizualizationTypes.forEach((config: IMapWidgetCrossNavigationVisualizationTypeConfig) => {
+                        if (config.name && !config.id) {
+                            const match = this.crossNavigationOptions.find((opt: any) => opt.name === config.name)
+                            if (match) config.id = match.id
+                        }
+                    })
+                }
+            }
         },
         loadOutputParameters() {
             this.outputParameters = this.store.getOutputParameters(this.dashboardId) ?? []
@@ -217,6 +227,10 @@ export default defineComponent({
             if (this.crossNavigationDisabled) return
             if (this.crossNavigationConfiguration) this.crossNavigationConfiguration.crossNavigationVizualizationTypes.push({ vizualizationType: null, column: { name: '', alias: '', type: '' }, name: '', parameters: [] })
             this.loadParameterList()
+        },
+        onCrossNavigationSelected(config: IMapWidgetCrossNavigationVisualizationTypeConfig, selectedName: string) {
+            const match = this.crossNavigationOptions.find((opt: any) => opt.name === selectedName)
+            if (match) config.id = match.id
         },
         removeCrossNavigationConfiguration(index: number) {
             if (this.crossNavigationDisabled) return

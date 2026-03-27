@@ -211,6 +211,7 @@ export interface IWidgetCrossNavigation {
     column: string
     icon?: string
     label?: string
+    id?: number
     name: string
     parameters: IWidgetInteractionParameter[]
     multiselection?: {

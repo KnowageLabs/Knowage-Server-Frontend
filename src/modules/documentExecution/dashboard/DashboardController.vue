@@ -424,7 +424,29 @@ export default defineComponent({
                 .then((response: AxiosResponse<any>) => (this.crossNavigations = response.data))
                 .catch(() => {})
             this.appStore.setLoading(false)
+            this.migrateCrossNavigationIds()
             this.store.setCrossNavigations(this.dashboardId, this.crossNavigations)
+        },
+        migrateCrossNavigationIds() {
+            if (!this.model?.widgets || !this.crossNavigations?.length) return
+            const nameToId = new Map<string, number>()
+            this.crossNavigations.forEach((cn: any) => { if (cn.crossName && cn.crossId) nameToId.set(cn.crossName, cn.crossId) })
+            this.model.widgets.forEach((widget: any) => {
+                const crossNav = widget.settings?.interactions?.crossNavigation
+                if (!crossNav) return
+                // standard widgets
+                if (crossNav.name && !crossNav.id && nameToId.has(crossNav.name)) {
+                    crossNav.id = nameToId.get(crossNav.name)
+                }
+                // map widgets
+                if (Array.isArray(crossNav.crossNavigationVizualizationTypes)) {
+                    crossNav.crossNavigationVizualizationTypes.forEach((config: any) => {
+                        if (config.name && !config.id && nameToId.has(config.name)) {
+                            config.id = nameToId.get(config.name)
+                        }
+                    })
+                }
+            })
         },
         loadOutputParameters() {
             if (this.newDashboardMode) return
