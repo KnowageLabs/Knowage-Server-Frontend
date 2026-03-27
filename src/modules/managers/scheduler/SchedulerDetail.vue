@@ -117,11 +117,11 @@ export default defineComponent({
       const docKeys = documentLabelsParam.value.split(',').map((s: string) => s.trim())
       docKeys.forEach((key: string) => {
         const docName = key.split('__')[0]
-        const doc = this.job?.documents.find((d: any) => d.name === docName)
-        if (doc) {
+        const docIndex = this.job?.documents.findIndex((d: any) => d.name === docName)
+        if (docIndex !== undefined && docIndex !== -1) {
           const descParam = this.job?.jobParameters.find((p: any) => p.name === key + '_description')
           if (descParam?.value) {
-            doc.condensedParameters = descParam.value
+            this.job!.documents[docIndex].condensedParameters = descParam.value
           }
         }
       })
