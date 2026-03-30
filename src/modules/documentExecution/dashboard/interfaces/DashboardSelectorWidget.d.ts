@@ -12,10 +12,21 @@ export interface ISelectorWidgetSettings {
 
 export interface ISelectorWidgetConfiguration {
     selectorType: ISelectorWidgetSelectorType
-    defaultValues: ISelectorWidgetDefaultValues
+    defaultValues: ISelectorWidgetDefaultValuesConfig
     valuesManagement: ISelectorWidgetValuesManagement
     exports: IWidgetExports
     columnTypeConfigs?: ISelectorColumnTypeConfig[]
+}
+
+export interface ISelectorWidgetDefaultValuesConfig {
+    enabled: boolean
+    columns: ISelectorWidgetColumnDefaultValue[]
+}
+
+export interface ISelectorWidgetColumnDefaultValue {
+    columnName: string
+    valueType: '' | 'STATIC' | 'FIRST' | 'LAST'
+    value: string
 }
 
 export type SelectorModality = 'singleValue' | 'multiValue' | 'dropdown' | 'multiDropdown' | 'date' | 'dateRange' | 'slider' | 'range' | 'buttonToggle' | 'tree' | 'multiTree'

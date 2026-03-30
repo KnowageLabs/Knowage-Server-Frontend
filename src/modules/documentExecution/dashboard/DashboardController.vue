@@ -36,6 +36,7 @@
  * ! this component will be in charge of creating the dashboard instance and to get initializing informations needed like the theme or the datasets.
  */
 import { defineComponent, PropType, toRef } from 'vue'
+import { useRoute } from 'vue-router'
 import { AxiosResponse } from 'axios'
 import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
 import { IDashboardDataset, ISelection, IGalleryItem, IDataset, IDashboardView, IVariable, SelectorDataMap, WidgetData } from './Dashboard'
@@ -104,7 +105,8 @@ export default defineComponent({
     setup() {
         const store = dashboardStore()
         const appStore = mainStore()
-        return { store, appStore }
+        const route = useRoute()
+        return { store, appStore, route }
     },
     data() {
         return {
@@ -285,31 +287,44 @@ export default defineComponent({
         },
         async fetchAllSelectorDefaultValues() {
             const selectorWidgets = this.model.widgets.filter((widget) => widget.type === 'selector' && widget.settings.configuration?.defaultValues?.enabled === true)
-            const promises = selectorWidgets.map(async (widget) => {
-                const selectorDefaultValues = widget.settings.configuration?.defaultValues
+
+            // default values will be loaded in the order widgets are in the model, widgets that got created first, go first etc...
+            for (const widget of selectorWidgets) {
+                const defaultValuesConfig = widget.settings.configuration?.defaultValues
+                const hasAnyColumnConfig = widget.columns.some((col: any) => defaultValuesConfig?.columns?.find((c: any) => c.columnName === col.columnName && c.valueType))
+                if (!hasAnyColumnConfig) continue
 
                 this.initializeWidgetData(widget)
 
-                //Initial Data
+                // initial data, all available selector values
                 this.selectorWidgetsData[widget.id].initialData = await this.fetchInitialWidgetData(widget)
+                // baseline
+                this.selectorWidgetsData[widget.id].widgetData = this.selectorWidgetsData[widget.id].initialData
 
-                //Static Selections, get before selecting default value
-                if (widget.settings?.configuration?.updateFromSelections) {
-                    this.selectorWidgetsData[widget.id].widgetData = await this.fetchWidgetDataWithStaticSelections(widget)
+                // apply all currently active selections (from previous widgets in cascade) before picking defaults
+                if (widget.settings?.configuration?.updateFromSelections) this.selectorWidgetsData[widget.id].widgetData = await this.fetchWidgetDataWithDynamicSelections(widget)
+
+                // column order determines the order default values are applied
+                for (const col of widget.columns) {
+                    const columnConfig = defaultValuesConfig?.columns?.find((c: any) => c.columnName === col.columnName)
+
+                    if (columnConfig?.valueType) {
+                        // get options that are available for this column given current selections
+                        const initialRows = this.selectorWidgetsData[widget.id].initialData?.[col.columnName]?.rows ?? []
+                        const widgetRows = this.selectorWidgetsData[widget.id].widgetData?.[col.columnName]?.rows ?? []
+                        const enabledSet = new Set(widgetRows.map((r: any) => r.column_1))
+                        const enabledOptions = initialRows.filter((r: any) => enabledSet.has(r.column_1))
+
+                        const selectionValue = this.getSelectionValue(columnConfig, enabledOptions)
+                        if (selectionValue) this.createDynamicSelection(widget, selectionValue, columnConfig)
+
+                        // re-fetch so this column's selection narrows the next column's available options
+                        this.selectorWidgetsData[widget.id].widgetData = await this.fetchWidgetDataWithDynamicSelections(widget)
+                    }
                 }
+
                 this.updateSelectorOptions(widget)
-
-                //Create Dynamic Selections
-                const enabledOptions = this.selectorWidgetsData[widget.id].selectorOptions.filter((item) => !item.disabled)
-                const selectionValue = this.getSelectionValue(selectorDefaultValues, enabledOptions)
-                if (selectionValue) this.createDynamicSelection(widget, selectionValue, selectorDefaultValues)
-
-                //Dynamic Selections, get after a dynamic selection has been created, this will return only selected/available options
-                this.selectorWidgetsData[widget.id].widgetData = await this.fetchWidgetDataWithDynamicSelections(widget)
-                this.updateSelectorOptions(widget)
-            })
-
-            await Promise.all(promises)
+            }
         },
         initializeWidgetData(widget: any) {
             this.selectorWidgetsData[widget.id] = {
@@ -331,14 +346,16 @@ export default defineComponent({
             return await getWidgetData(this.dashboardId, widget, this.model?.configuration?.datasets, this.$http, false, this.model.configuration.selections, { searchText: '', searchColumns: [] }, this.model.configuration, null, false)
         },
         updateSelectorOptions(widget: any) {
-            // Use Set for O(1) lookup instead of O(n) findIndex - critical for large datasets (500k+ rows)
-            const widgetDataSet = new Set(this.selectorWidgetsData[widget.id].widgetData?.rows?.map((row: any) => row.column_1) || [])
+            const columnName = widget.columns[0]?.columnName
+            // Selector data is keyed by column name: { [columnName]: { rows: [...] } }
+            const widgetDataRows = this.selectorWidgetsData[widget.id].widgetData?.[columnName]?.rows
+            const initialDataRows = this.selectorWidgetsData[widget.id]?.initialData?.[columnName]?.rows
+            const widgetDataSet = new Set((widgetDataRows || []).map((row: any) => row.column_1))
 
-            this.selectorWidgetsData[widget.id].selectorOptions =
-                this.selectorWidgetsData[widget.id]?.initialData?.rows?.map((initialOption: any) => ({
-                    ...initialOption,
-                    disabled: !widgetDataSet.has(initialOption.column_1)
-                })) || []
+            this.selectorWidgetsData[widget.id].selectorOptions = (initialDataRows || []).map((initialOption: any) => ({
+                ...initialOption,
+                disabled: !widgetDataSet.has(initialOption.column_1)
+            }))
         },
         getSelectionValue(selectorDefaultValues: any, enabledOptions: any[]) {
             let selectionValue = null as any
@@ -362,7 +379,8 @@ export default defineComponent({
             const dynamicSelection = {
                 datasetId: widget.dataset as number,
                 datasetLabel: this.getDatasetLabel(widget.dataset as number),
-                columnName: widget.columns[0]?.columnName ?? '',
+                columnName: selectorDefaultValues.columnName ?? '',
+
                 value: [selectorDefaultValues.valueType === 'STATIC' ? selectionValue : selectionValue?.column_1],
                 aggregated: false,
                 timestamp: new Date().getTime(),
@@ -430,7 +448,9 @@ export default defineComponent({
         migrateCrossNavigationIds() {
             if (!this.model?.widgets || !this.crossNavigations?.length) return
             const nameToId = new Map<string, number>()
-            this.crossNavigations.forEach((cn: any) => { if (cn.crossName && cn.crossId) nameToId.set(cn.crossName, cn.crossId) })
+            this.crossNavigations.forEach((cn: any) => {
+                if (cn.crossName && cn.crossId) nameToId.set(cn.crossName, cn.crossId)
+            })
             this.model.widgets.forEach((widget: any) => {
                 const crossNav = widget.settings?.interactions?.crossNavigation
                 if (!crossNav) return
@@ -555,7 +575,7 @@ export default defineComponent({
         async saveDashboard(document: any) {
             this.appStore.setLoading(true)
             if (!this.document) return
-            const folders = this.newDashboardMode && this.$route.query.folderId ? [this.$route.query.folderId] : []
+            const folders = this.newDashboardMode && this.route.query.folderId ? [this.route.query.folderId] : []
             const postData = {
                 document: {
                     name: document.name,

@@ -1,90 +1,61 @@
-<!-- eslint-disable vue/valid-v-model -->
 <template>
-    <div v-if="defaultValuesModel" class="p-grid p-jc-center p-ai-center kn-flex p-p-4">
-        <div class="p-col-12 p-grid p-ai-center">
-            <div class="p-col-10 p-lg-11 p-grid">
-                <div class="p-col-12 p-lg-7 p-fluid p-d-flex p-flex-column kn-flex">
-                    <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.defaultValues.selectDafaultValue') }}</label>
-                    <Dropdown v-model="defaultValuesModel.valueType" class="kn-material-input" :options="filteredDefaultValuesTypes" option-value="value" :disabled="defaultModelDisabled" @change="onDefaultValuesTypeChanged">
-                        <template #value="slotProps">
-                            <div>
-                                <span>{{ getTranslatedLabel(slotProps.value, descriptor.defaultValuesTypes, $t) }}</span>
-                            </div>
-                        </template>
-                        <template #option="slotProps">
-                            <div>
-                                <span>{{ $t(slotProps.option.label) }}</span>
-                            </div>
-                        </template>
-                    </Dropdown>
-                </div>
-
-                <div v-if="defaultValuesModel.valueType === 'STATIC'" class="p-col-12 p-lg-5 p-d-flex p-flex-column">
-                    <label class="kn-material-input-label p-mr-2" :style="{ color: hasPendingInput ? 'var(--kn-color-warning)' : '' }">{{ $t('common.value') }}</label>
-                    <Calendar v-if="isDateType" v-model="(defaultValuesModel.value as Date)" :disabled="defaultModelDisabled" :manual-input="true" :min-date="getDateRange('startDate')" :max-date="getDateRange('endDate')" @input="defaultValuesChanged" @dateSelect="defaultValuesChanged"></Calendar>
-
-                    <div v-if="!isDateType && (selectorType === 'multiValue' || selectorType === 'multiDropdown')" class="p-d-flex p-flex-column">
-                        <Chips ref="chipsInput" v-model="defaultValuesModel.value" class="kn-material-input kn-flex" :style="{ borderColor: hasPendingInput ? 'var(--kn-color-warning)' : '' }" :disabled="defaultModelDisabled" @change="defaultValuesChanged" @input="checkPendingInput" @blur="checkPendingInput" aria-describedby="chips-help" />
-                        <small id="chips-help">
-                            <b :style="{ color: hasPendingInput ? 'var(--kn-color-warning)' : '' }">{{ $t('common.chipsHint') }}!</b>
-                        </small>
-                    </div>
-
-                    <div v-if="!isDateType && (selectorType === 'singleValue' || selectorType === 'dropdown')">
-                        <InputText v-model="defaultValuesModel.value" class="kn-material-input kn-width-full" />
-                    </div>
-                </div>
-            </div>
-            <div class="p-col-2 p-lg-1 p-d-flex p-jc-center">
-                <i v-tooltip.top="$t('dashboard.widgetEditor.defaultValues.hint')" class="pi pi-question-circle kn-cursor-pointer p-ml-auto p-mr-4"></i>
-            </div>
+    <div class="col q-pa-md kn-width-full">
+        <div v-for="(config, index) in columnDefaultValues" :key="config.columnName" class="row items-center q-gutter-sm q-mb-sm">
+            <q-select class="col" :model-value="config.columnName" :options="columnOptions" option-value="columnName" option-label="alias" emit-value map-options dense outlined disable :label="$t('common.column')" />
+            <q-select class="col" v-model="columnDefaultValues[index].valueType" :options="getDefaultValuesTypesForColumn()" option-value="value" option-label="label" emit-value map-options dense outlined :disable="!defaultValuesEnabled" :label="$t('dashboard.widgetEditor.defaultValues.selectDafaultValue')" @update:model-value="onValueTypeChanged(index)" />
+            <q-input v-if="columnDefaultValues[index].valueType === 'STATIC'" class="col" v-model="columnDefaultValues[index].value" dense outlined :disable="!defaultValuesEnabled" :label="$t('common.value')" @update:model-value="defaultValuesChanged" />
         </div>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget } from '@/modules/documentExecution/Dashboard/Dashboard'
-import { ISelectorWidgetDefaultValues } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectorWidget'
+import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '../../../../../DashboardHelpers'
-import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import descriptor from '../SelectorWidgetSettingsDescriptor.json'
-import Calendar from 'primevue/calendar'
-import Dropdown from 'primevue/dropdown'
-import Chips from 'primevue/chips'
+
+interface IColumnDefaultValue {
+    columnName: string
+    valueType: '' | 'STATIC' | 'FIRST' | 'LAST'
+    value: string
+}
 
 export default defineComponent({
     name: 'selector-widget-default-values',
-    components: { Calendar, Dropdown, Chips },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {
             descriptor,
-            defaultValuesModel: null as ISelectorWidgetDefaultValues | null,
-            getTranslatedLabel,
-            hasPendingInput: false
+            columnDefaultValues: [] as IColumnDefaultValue[]
         }
     },
     computed: {
-        defaultModelDisabled() {
-            return !this.defaultValuesModel || !this.defaultValuesModel.enabled
+        isDateType(): boolean {
+            return !!this.widgetModel?.settings?.isDateType
         },
-        isDateType() {
-            return this.widgetModel?.settings?.isDateType
+        defaultValuesEnabled(): boolean {
+            return !!this.widgetModel?.settings?.configuration?.defaultValues?.enabled
         },
-        filteredDefaultValuesTypes() {
-            if (this.isDateType) {
-                return this.descriptor.defaultValuesTypes.filter((option) => option.value === 'STATIC')
-            }
-            return this.descriptor.defaultValuesTypes
+        columnOptions(): { columnName: string; alias: string }[] {
+            return (this.widgetModel.columns ?? []).map((c: any) => ({ columnName: c.columnName, alias: c.alias }))
         },
-        selectorType() {
-            return this.widgetModel?.settings?.configuration?.selectorType?.modality
+        translatedDefaultValuesTypes(): { label: string; value: string }[] {
+            return this.descriptor.defaultValuesTypes.map((t) => ({
+                label: t.label ? (this.$t(t.label) as string) : '',
+                value: t.value
+            }))
         }
     },
     watch: {
         isDateType() {
-            this.onDefaultValuesTypeChanged()
+            this.columnDefaultValues.forEach((_, i) => {
+                if (this.columnDefaultValues[i].valueType !== 'STATIC') {
+                    this.onValueTypeChanged(i)
+                }
+            })
+        },
+        'widgetModel.columns'() {
+            this.syncColumnDefaultValues()
         }
     },
     created() {
@@ -92,42 +63,47 @@ export default defineComponent({
     },
     methods: {
         loadDefaultValuesModel() {
-            if (this.widgetModel.settings?.configuration?.defaultValues) this.defaultValuesModel = this.widgetModel.settings.configuration.defaultValues
+            const config = this.widgetModel.settings?.configuration?.defaultValues
+            const existingColumns = config?.columns
+            if (Array.isArray(existingColumns)) {
+                this.columnDefaultValues = (this.widgetModel.columns ?? []).map((col: any) => {
+                    const found = existingColumns.find((e: IColumnDefaultValue) => e.columnName === col.columnName)
+                    return found ?? { columnName: col.columnName, valueType: '' as const, value: '' }
+                })
+            } else {
+                this.columnDefaultValues = (this.widgetModel.columns ?? []).map((col: any) => ({
+                    columnName: col.columnName,
+                    valueType: '' as const,
+                    value: ''
+                }))
+            }
+            this.syncToModel()
+        },
+        syncColumnDefaultValues() {
+            const existingMap = new Map(this.columnDefaultValues.map((c) => [c.columnName, c]))
+            this.columnDefaultValues = (this.widgetModel.columns ?? []).map((col: any) => existingMap.get(col.columnName) ?? { columnName: col.columnName, valueType: '' as const, value: '' })
+            this.syncToModel()
+        },
+        syncToModel() {
+            const cfg = this.widgetModel.settings.configuration.defaultValues
+            cfg.columns = this.columnDefaultValues
+        },
+        getDefaultValuesTypesForColumn(): { label: string; value: string }[] {
+            if (this.isDateType) {
+                return this.translatedDefaultValuesTypes.filter((t) => t.value === 'STATIC')
+            }
+            return this.translatedDefaultValuesTypes
         },
         defaultValuesChanged() {
+            this.syncToModel()
             emitter.emit('defaultValuesChanged', this.widgetModel.id)
             emitter.emit('refreshSelector', this.widgetModel.id)
         },
-        onDefaultValuesTypeChanged() {
-            if (!this.defaultValuesModel) return
-            if (this.defaultValuesModel.valueType !== 'STATIC') delete this.defaultValuesModel.value
+        onValueTypeChanged(index: number) {
+            if (this.columnDefaultValues[index].valueType !== 'STATIC') {
+                this.columnDefaultValues[index].value = ''
+            }
             this.defaultValuesChanged()
-        },
-        getDateRange(rangeValue: string) {
-            const dateRange = this.widgetModel.settings.configuration.defaultValues
-            if (dateRange[rangeValue]) return new Date(dateRange[rangeValue])
-            else return undefined
-        },
-        applyValueWhenLosingFocus(event) {
-            // @blur="applyValueWhenLosingFocus"
-            // Simulate Enter key press to add the current input value
-            const chipsComponent = this.$refs.chipsInput as any
-            if (chipsComponent && chipsComponent.$el) {
-                const inputElement = chipsComponent.$el.querySelector('input')
-                if (inputElement && inputElement.value && inputElement.value.trim() !== '') {
-                    const enterEvent = new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true, cancelable: true })
-                    inputElement.dispatchEvent(enterEvent)
-                }
-            }
-        },
-        checkPendingInput() {
-            const chipsComponent = this.$refs.chipsInput as any
-            if (chipsComponent && chipsComponent.$el) {
-                const inputElement = chipsComponent.$el.querySelector('input')
-                this.hasPendingInput = !!(inputElement && inputElement.value && inputElement.value.trim() !== '')
-            } else {
-                this.hasPendingInput = false
-            }
         }
     }
 })

@@ -154,8 +154,7 @@
     },
     "defaultValues": {
         "enabled": false,
-        "value": "",
-        "valueType": ""
+        "columns": []
     },
     "defaultValuesManagement": {
         "enableAll": false,

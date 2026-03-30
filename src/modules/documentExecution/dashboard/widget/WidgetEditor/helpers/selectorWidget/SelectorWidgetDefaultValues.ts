@@ -1,5 +1,6 @@
 import {
-    ISelectorWidgetDefaultValues,
+    ISelectorWidgetColumnDefaultValue,
+    ISelectorWidgetDefaultValuesConfig,
     ISelectorWidgetFlexStyle,
     ISelectorWidgetLabelStyle,
     ISelectorWidgetRadioStyle,
@@ -22,8 +23,8 @@ export const getDefaultSelectorType = () => {
     return deepcopy(descriptor.defaultSelectorType) as ISelectorWidgetSelectorType
 }
 
-export const getDefaultValues = () => {
-    return deepcopy(descriptor.defaultValues) as ISelectorWidgetDefaultValues
+export const getDefaultValues = (): ISelectorWidgetDefaultValuesConfig => {
+    return deepcopy(descriptor.defaultValues) as ISelectorWidgetDefaultValuesConfig
 }
 
 export const getDefaultValuesManagement = () => {

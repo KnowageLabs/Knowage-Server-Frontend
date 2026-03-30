@@ -1,4 +1,4 @@
-import { ISelectorWidgetSettings, ISelectorWidgetStyle } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectorWidget'
+import { ISelectorWidgetSettings, ISelectorWidgetStyle, ISelectorWidgetColumnDefaultValue, ISelectorWidgetDefaultValuesConfig } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectorWidget'
 import * as selectorWidgetDefaultValues from './SelectorWidgetDefaultValues'
 import * as widgetCommonDefaultValues from '../common/WidgetCommonDefaultValues'
 import { IWidget, IWidgetHelpSettings } from '@/modules/documentExecution/dashboard/Dashboard'
@@ -45,6 +45,7 @@ export const createNewSelectorWidgetSettings = () => {
 
 export const formatSelectorSettings = (widget: IWidget) => {
     if (!widget.settings) return
+    formatSelectorWidgetDefaultValues(widget)
     formatSelectorWidgetRadioStyle(widget.settings.style)
     formatSelectorWidgetCheckboxStyle(widget.settings.style)
     formatSelectorWidgetDropdownStyle(widget.settings.style)
@@ -161,4 +162,26 @@ const formatSelectorWidgetFlexStyle = (widgetStyle: ISelectorWidgetStyle) => {
     if (!widgetStyle.flex) {
         widgetStyle.flex = selectorWidgetDefaultValues.getDefaultFlexStyle()
     }
+}
+
+// 9.0 → 9.1: migrate legacy single-object defaultValues to { enabled, columns } wrapper format
+const formatSelectorWidgetDefaultValues = (widget: IWidget) => {
+    const config = widget.settings?.configuration
+    if (!config) return
+    const existing = config.defaultValues as any
+
+    // Already in new format
+    if (existing && typeof existing === 'object' && !Array.isArray(existing) && 'columns' in existing) return
+
+    const legacyValues = existing as { enabled?: boolean; valueType?: string; value?: string } | null | undefined
+    const columns: ISelectorWidgetColumnDefaultValue[] = (widget.columns ?? []).map((col: any, index: number) => ({
+        columnName: col.columnName,
+        valueType: (index === 0 ? (legacyValues?.valueType ?? '') : '') as '' | 'STATIC' | 'FIRST' | 'LAST',
+        value: index === 0 ? (legacyValues?.value ?? '') : ''
+    }))
+    const wrapped: ISelectorWidgetDefaultValuesConfig = {
+        enabled: legacyValues?.enabled ?? false,
+        columns
+    }
+    config.defaultValues = wrapped
 }

@@ -1,5 +1,5 @@
 import { IWidget, IWidgetColumn, IWidgetExports, IWidgetHelpSettings } from '@/modules/documentExecution/dashboard/Dashboard'
-import { ISelectorWidgetDefaultValues, ISelectorWidgetSelectorType, ISelectorWidgetSettings, ISelectorWidgetValuesManagement, ISelectorWidgetConfiguration } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectorWidget'
+import { ISelectorWidgetColumnDefaultValue, ISelectorWidgetDefaultValuesConfig, ISelectorWidgetSelectorType, ISelectorWidgetSettings, ISelectorWidgetValuesManagement, ISelectorWidgetConfiguration } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectorWidget'
 import { getFormattedStyle } from './SelectorWidgetStyleHelper'
 import * as widgetCommonDefaultValues from '../../widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
 import * as selectorWidgetDefaultValues from '../../widget/WidgetEditor/helpers/selectorWidget/SelectorWidgetDefaultValues'
@@ -75,17 +75,16 @@ const getFormattedSelectorType = (widget: any) => {
     return formattedSelectorType
 }
 
-const getFormattedDefaultValues = (widget: any) => {
-    if (!widget.settings) return selectorWidgetDefaultValues.getDefaultValues()
-    const formattedDefaultValues = {
-        enabled: false
-    } as ISelectorWidgetDefaultValues
-    if (widget.settings.defaultValue) formattedDefaultValues.valueType = widget.settings.defaultValue
-    if (widget.settings.staticValues) formattedDefaultValues.value = widget.settings.staticValues
-    if (widget.settings.defaultStartDate) formattedDefaultValues.startDate = new Date(widget.settings.defaultStartDate)
-    if (widget.settings.defaultEndDate) formattedDefaultValues.endDate = new Date(widget.settings.defaultEndDate)
-    if (formattedDefaultValues.valueType || widget.settings.defaultStartDate || widget.settings.defaultEndDate) formattedDefaultValues.enabled = true
-    return formattedDefaultValues
+const getFormattedDefaultValues = (widget: any): ISelectorWidgetDefaultValuesConfig => {
+    const columnName = widget.content?.selectedColumn?.name ?? ''
+    if (!widget.settings || !columnName) return selectorWidgetDefaultValues.getDefaultValues()
+    const hasValue = !!(widget.settings.defaultValue || widget.settings.defaultStartDate || widget.settings.defaultEndDate)
+    const column: ISelectorWidgetColumnDefaultValue = {
+        columnName,
+        valueType: (widget.settings.defaultValue ?? '') as '' | 'STATIC' | 'FIRST' | 'LAST',
+        value: widget.settings.staticValues ?? ''
+    }
+    return { enabled: hasValue, columns: [column] }
 }
 
 const getFormattedWidgetValuesManagement = (widget: any) => {
