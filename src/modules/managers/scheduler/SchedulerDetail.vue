@@ -10,7 +10,6 @@
     </q-btn>
   </q-toolbar>
   <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar"/>
-
   <Card v-if="job" id="scheduler-detail-card" class="p-m-2">
     <template #content>
       <div class="row q-col-gutter-sm q-mx-sm">
@@ -134,7 +133,6 @@ export default defineComponent({
       const originalJob = {...this.job}
 
       this.formatJob()
-
       await this.$http
           .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/scheduleree/saveJob`, this.job)
           .then((response: AxiosResponse<any>) => {
@@ -172,8 +170,9 @@ export default defineComponent({
           }
         })
       } else {
-        let jobParameter = {} as { name: string, value: string }
+        let jobParameter = {} as { name: string, description: string, value: string }
         jobParameter.name = 'userRoles'
+        jobParameter.description = this.job?.jobDescription || ''
         jobParameter.value = this.job?.role || ""
         this.job?.jobParameters.push(jobParameter)
         delete this.job?.role
