@@ -40,7 +40,7 @@
             >
             <Column :header="$t('common.parameters')">
                 <template #body="slotProps">
-                    <span v-if="slotProps.data.description">{{ slotProps.data.description }}</span>
+                    <span v-if="slotProps.data.description">{{ slotProps.data.condensedParameters }}</span>
                     <span v-if="slotProps.data.parameters?.length > 0 && !checkIfParameterValuesSet(slotProps.data.parameters)" v-tooltip.top="$t('managers.scheduler.parametersWarningTooltip')">
                         <i class="pi pi-exclamation-triangle kn-warning-icon" :data-test="'warning-icon-' + slotProps.data.name"></i>
                     </span>
@@ -54,7 +54,6 @@
                 </template>
             </Column>
         </DataTable>
-
         <SchedulerDocumentsSelectionDialog :visible="documentsSelectionDialogVisible" :prop-files="files" @close="documentsSelectionDialogVisible = false" @documentSelected="onDocumentSelected"></SchedulerDocumentsSelectionDialog>
         <SchedulerDocumentParameterDialog
             :visible="documentParameterDialogVisible"
@@ -220,6 +219,7 @@ export default defineComponent({
             return tempParameters
         },
         updateCondensedParameters(parameters: any[]) {
+            debugger;
             let condensedParameters = ''
             for (let i = 0; i < parameters.length; i++) {
                 if (parameters[i].type === 'fixed') {
@@ -243,8 +243,9 @@ export default defineComponent({
             this.documentParameterDialogVisible = false
         },
         onParametersSet(parameters: any[]) {
+            
             this.selectedDocument.parameters = parameters
-            this.selectedDocument.description = this.updateCondensedParameters(parameters)
+            this.selectedDocument.condensedParameters = this.updateCondensedParameters(parameters)
             this.selectedDocument.parametersTouched = true
 
             const index = this.documents.findIndex((el: any) => el.name === this.selectedDocument.name)
