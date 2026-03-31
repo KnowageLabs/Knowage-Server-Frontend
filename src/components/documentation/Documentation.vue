@@ -3,7 +3,7 @@
         <q-drawer v-model="drawer" side="left" bordered class="drawer">
             <div class="q-pa-md">
                 <div class="full-width flex justify-center">
-                    <img v-if="getLogoUrl()" :src="getLogoUrl()" class="logo" @error="onLogoError" />
+                    <img v-if="logoSrc" :src="logoSrc" class="logo" @error="onLogoError" />
                 </div>
                 <h2 v-if="config?.title">{{ config.title }}</h2>
                 <q-tree :nodes="treeNodes" :dense="config.dense" node-key="id" no-connectors default-expand-all v-model:selected="selectedKey" no-selection-unset @update:selected="onNodeSelect">
@@ -29,7 +29,7 @@
 
 <script setup lang="ts">
 import axios from 'axios'
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { findFoldersWithLabel, mapToQTreeNodes } from './DocumentationHelper'
 import mainStore from '@/App.store'
 import { useRoute, useRouter } from 'vue-router'
@@ -42,6 +42,8 @@ const drawer = ref(true)
 const folderKey = ref<string | null>('')
 const config = ref<any | null>(null)
 const logoWide = import.meta.env.VITE_PUBLIC_PATH + '/images/commons/knowage-black.svg'
+const logoSrc = ref<string | false>(false)
+let blobUrl: string | null = null
 
 const selectedKey = ref<string | null>(null)
 const treeNodes = ref<any[]>([])
@@ -161,6 +163,7 @@ onMounted(async () => {
             else {
                 config.value = filtered
                 treeNodes.value = mapToQTreeNodes(filtered.content ?? [])
+                await loadLogo()
             }
         })
         .catch(() => {
@@ -174,28 +177,48 @@ function push404() {
     router.push({ name: '404' })
 }
 
-function getLogoUrl() {
-    if (config.value && config.value.logo) {
-        if (typeof config.value.logo === 'string' && config.value.logo.startsWith('http')) {
-            return config.value.logo
-        } else {
-            try {
-                return import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/multitenant/${store.user.organization}/logo-wide`
-            } catch {
-                return logoWide
-            }
-        }
+async function loadLogo() {
+    if (!config.value) {
+        logoSrc.value = false
+        return
     }
-    return false
+    if (config.value.logo && typeof config.value.logo === 'string' && (config.value.logo.startsWith('http') || config.value.logo.startsWith('data:'))) {
+        logoSrc.value = config.value.logo
+        return
+    }
+    if (config.value.logo) {
+        await fetchTenantLogo()
+        return
+    }
+    logoSrc.value = false
 }
 
-// handler per fallback immagine
+async function fetchTenantLogo() {
+    if (!store.user?.organization) {
+        logoSrc.value = logoWide
+        return
+    }
+    try {
+        const url = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/multitenant/${store.user.organization}/logo-wide`
+        const response = await axios.get(url, { responseType: 'blob' })
+        if (blobUrl) URL.revokeObjectURL(blobUrl)
+        blobUrl = URL.createObjectURL(response.data)
+        logoSrc.value = blobUrl
+    } catch {
+        logoSrc.value = logoWide
+    }
+}
+
+// handler per fallback immagine (per URL http esterne che falliscono)
 function onLogoError(event: Event) {
     const img = event.target as HTMLImageElement | null
     if (!img) return
-    // evita loop: cambia solo se diverso dal fallback
     if (img.src !== logoWide) img.src = logoWide
 }
+
+onUnmounted(() => {
+    if (blobUrl) URL.revokeObjectURL(blobUrl)
+})
 
 function toggleDrawer() {
     drawer.value = !drawer.value

@@ -219,7 +219,6 @@ export default defineComponent({
             return tempParameters
         },
         updateCondensedParameters(parameters: any[]) {
-            debugger;
             let condensedParameters = ''
             for (let i = 0; i < parameters.length; i++) {
                 if (parameters[i].type === 'fixed') {
