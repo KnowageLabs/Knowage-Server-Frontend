@@ -497,7 +497,7 @@ export default defineComponent({
         },
         emptyStoreValues() {
             if (!this.dashboardId) return
-            this.store.removeDashboard(this.dashboardId)
+            this.store.removeDashboard({ id: this.dashboardId })
             this.store.setCrossNavigations(this.dashboardId, [])
             this.store.setOutputParameters(this.dashboardId, [])
             this.store.setSelections(this.dashboardId, [], this.$http)
