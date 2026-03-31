@@ -98,24 +98,24 @@ function onNodeSelect(nodeId: string | null) {
 
 onMounted(async () => {
     store.setLoading(true)
-    await axios
-        .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/2.0/resources/folders`)
-        .then((response: any) => {
-            const root = Array.isArray(response.data.root) ? response.data.root : Array.isArray(response.data) ? response.data : []
-            const folder = findFoldersWithLabel(root, 'docs')[0]
-            folderKey.value = folder ? folder.key : null
-        })
-        .catch(() => {
-            folderKey.value = null
-        })
+
+    try {
+        const foldersResponse = await axios.get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/2.0/resources/folders`)
+        const root = Array.isArray(foldersResponse.data.root) ? foldersResponse.data.root : Array.isArray(foldersResponse.data) ? foldersResponse.data : []
+        const folder = findFoldersWithLabel(root, 'docs')[0]
+        folderKey.value = folder ? folder.key : null
+    } catch {
+        folderKey.value = null
+    }
 
     if (!folderKey.value) {
         store.setLoading(false)
         push404()
         return
     }
-    await axios
-        .post(
+
+    try {
+        const response = await axios.post(
             import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/2.0/resources/files/download`,
             { key: folderKey.value, selectedFilesNames: ['config.json'] },
             {
@@ -125,51 +125,51 @@ onMounted(async () => {
                 }
             }
         )
-        .then(async (response: any) => {
-            const user = store.user
-            const sessionRole: string | undefined = user?.sessionRole
-            const defaultRole: string | undefined = user?.defaultRole
-            const userRoles: string[] = user?.roles ?? []
-            const activeRole = sessionRole || defaultRole
 
-            function filterNode(node: any): any | null {
-                if (node == null) return null
-                if (Array.isArray(node)) {
-                    return node.map(filterNode).filter((n) => n !== null)
-                }
-                if (typeof node !== 'object') return node
+        const user = store.user
+        const sessionRole: string | undefined = user?.sessionRole
+        const defaultRole: string | undefined = user?.defaultRole
+        const userRoles: string[] = user?.roles ?? []
+        const activeRole = sessionRole || defaultRole
 
-                if (Array.isArray(node.roles) && node.roles.length > 0) {
-                    const canSee = activeRole ? node.roles.includes(activeRole) : userRoles.some((r) => node.roles.includes(r))
-                    if (!canSee) return null
-                }
+        function filterNode(node: any): any | null {
+            if (node == null) return null
+            if (Array.isArray(node)) {
+                return node.map(filterNode).filter((n) => n !== null)
+            }
+            if (typeof node !== 'object') return node
 
-                const newNode: any = { ...node }
-                if (Array.isArray(node.content)) {
-                    const filteredContent = node.content.map(filterNode).filter((n) => n !== null)
-                    if (filteredContent.length) {
-                        newNode.content = filteredContent
-                    } else {
-                        delete newNode.content
-                        // nasconde solo i gruppi che avevano figli ma tutti filtrati per ruolo
-                        if (node.content.length > 0) return null
-                    }
-                }
-                return newNode
+            if (Array.isArray(node.roles) && node.roles.length > 0) {
+                const canSee = activeRole ? node.roles.includes(activeRole) : userRoles.some((r) => node.roles.includes(r))
+                if (!canSee) return null
             }
 
-            const filtered = filterNode(response.data)
-            if (!filtered) push404()
-            else {
-                config.value = filtered
-                treeNodes.value = mapToQTreeNodes(filtered.content ?? [])
-                await loadLogo()
+            const newNode: any = { ...node }
+            if (Array.isArray(node.content)) {
+                const filteredContent = node.content.map(filterNode).filter((n) => n !== null)
+                if (filteredContent.length) {
+                    newNode.content = filteredContent
+                } else {
+                    delete newNode.content
+                    // nasconde solo i gruppi che avevano figli ma tutti filtrati per ruolo
+                    if (node.content.length > 0) return null
+                }
             }
-        })
-        .catch(() => {
-            push404()
-        })
-        .finally(() => store.setLoading(false))
+            return newNode
+        }
+
+        const filtered = filterNode(response.data)
+        if (!filtered) push404()
+        else {
+            config.value = filtered
+            treeNodes.value = mapToQTreeNodes(filtered.content ?? [])
+            await loadLogo()
+        }
+    } catch {
+        push404()
+    } finally {
+        store.setLoading(false)
+    }
 })
 
 function push404() {
