@@ -125,7 +125,7 @@ onMounted(async () => {
                 }
             }
         )
-        .then((response: any) => {
+        .then(async (response: any) => {
             const user = store.user
             const sessionRole: string | undefined = user?.sessionRole
             const defaultRole: string | undefined = user?.defaultRole
