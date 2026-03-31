@@ -44,6 +44,7 @@ export interface IMapWidgetCrossNavigation {
 }
 
 export interface IMapWidgetCrossNavigationVisualizationTypeConfig {
+    id?: number
     name: string
     vizualizationType: IMapWidgetVisualizationType | null
     column: IMapNormalisedInteractionColumn

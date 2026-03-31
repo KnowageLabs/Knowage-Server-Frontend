@@ -1435,7 +1435,7 @@ export default defineComponent({
             this.userRole = this.user.sessionRole && this.user.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user.sessionRole : this.document.creationUser
             this.userRole ? await this.loadPage(true) : (this.parameterSidebarVisible = true)
         },
-        async onExecuteCrossNavigation(payload: { documentCrossNavigationOutputParameters: ICrossNavigationParameter[]; crossNavigationName: string | undefined; crossNavigations: IDashboardCrossNavigation[] }) {
+        async onExecuteCrossNavigation(payload: { documentCrossNavigationOutputParameters: ICrossNavigationParameter[]; crossNavigationName: string | undefined; crossNavigationId?: number; crossNavigations: IDashboardCrossNavigation[] }) {
             this.crossNavigationPayload = payload
             if (!payload.crossNavigations || payload.crossNavigations.length === 0) {
                 this.setError({
@@ -1444,7 +1444,7 @@ export default defineComponent({
                 })
                 return
             }
-            const selectedCrossNavigation = getSelectedCrossNavigation(payload.crossNavigationName, payload.crossNavigations)
+            const selectedCrossNavigation = getSelectedCrossNavigation(payload.crossNavigationName, payload.crossNavigations, payload.crossNavigationId)
             if (!selectedCrossNavigation) {
                 this.crossNavigationDocuments = payload.crossNavigations
                 this.destinationSelectDialogVisible = true
