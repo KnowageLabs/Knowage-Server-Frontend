@@ -691,13 +691,11 @@ export default defineComponent({
         },
         async dashboardExport(format) {
             this.setLoading(true)
-            const currentLocale = this.getCurrentLocale()
             let body = new URLSearchParams()
             body.set('DOCUMENT_LABEL', this.document.label)
             body.set('SBI_EXECUTION_ROLE', this.userRole || '')
             body.set('user_id', this.user.userUniqueIdentifier || '')
             body.set('document', this.document.id || '')
-            body.set('locale', currentLocale)
             let url = import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + `/api/1.0/pages/execute/${format}`
             if (format.includes('xls')) {
                 format = 'spreadsheet'
