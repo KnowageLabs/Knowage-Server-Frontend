@@ -507,7 +507,7 @@ export default defineComponent({
 .selector-widget {
     display: flex;
     flex-direction: column;
-    // height: 100%;
+    height: 100%;
 
     &--impossible {
         outline: 2px solid var(--kn-color-warning, #f59e0b);

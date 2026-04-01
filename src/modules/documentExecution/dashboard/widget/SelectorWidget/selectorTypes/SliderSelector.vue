@@ -126,7 +126,6 @@ export default defineComponent({
             .q-slider__selection {
                 background-color: var(--slider-color, inherit);
             }
-
             .q-slider__thumb {
                 svg path {
                     stroke: var(--slider-thumb-color, inherit);
@@ -142,7 +141,12 @@ export default defineComponent({
 }
 
 .slider-selector-vertical {
+    height: 100%;
     padding: 1.2rem 0;
+
+    ::v-deep(.q-slider--v) {
+        height: 100% !important;
+    }
 }
 
 .marker-disabled {
