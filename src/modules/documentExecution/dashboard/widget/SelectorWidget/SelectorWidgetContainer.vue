@@ -259,7 +259,8 @@ export default defineComponent({
                     h: saved?.h ?? 2,
                     i: item.columnName,
                     columnName: item.columnName,
-                    static: false
+                    static: false,
+                    dragIgnoreFrom: '.q-slider__thumb, .q-range__thumb'
                 }
             })
         },
