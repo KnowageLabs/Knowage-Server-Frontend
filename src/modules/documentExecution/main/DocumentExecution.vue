@@ -693,14 +693,12 @@ export default defineComponent({
         async dashboardExport(format) {
             this.setLoading(true)
             let body = this.hiddenFormData
-            body.set('locale', currentLocale)
             let url = import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + `/api/1.0/pages/execute/${format}`
             if (format.includes('xls')) {
                 format = 'spreadsheet'
                 if (this.document.dashboardId && this.dashboards[this.document.dashboardId]) {
                     const dashboard = deepcopy(this.dashboards[this.document.dashboardId])
                     delete dashboard.currentView
-                    dashboard.locale = currentLocale
                     body = dashboard
                 }
             }
