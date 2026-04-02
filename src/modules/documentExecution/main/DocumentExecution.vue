@@ -702,7 +702,6 @@ export default defineComponent({
                 if (this.document.dashboardId && this.dashboards[this.document.dashboardId]) {
                     const dashboard = deepcopy(this.dashboards[this.document.dashboardId])
                     delete dashboard.currentView
-                    dashboard.locale = currentLocale
                     body = dashboard
                 }
             }
