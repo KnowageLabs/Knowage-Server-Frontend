@@ -720,7 +720,6 @@ export default defineComponent({
                             SBI_EXECUTION_ROLE: this.userRole || '',
                             user_id: this.user.userUniqueIdentifier || '',
                             document: this.document.id || '',
-                            locale: currentLocale,
                             outputType: format,
                             parameters: this.filtersData && this.filtersData.filterStatus ? JSON.stringify(this.getStructuredParametersForExport()) : ''
                         },
