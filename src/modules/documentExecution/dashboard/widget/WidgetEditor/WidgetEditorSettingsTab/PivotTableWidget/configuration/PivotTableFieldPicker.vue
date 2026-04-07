@@ -13,7 +13,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget } from '@/modules/documentExecution/Dashboard/Dashboard'
+import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IPivotFieldPicker } from '@/modules/documentExecution/dashboard/interfaces/pivotTable/DashboardPivotTableWidget'
 import descriptor from './PivotTableConfigDescriptor.json'
 import InputNumber from 'primevue/inputnumber'

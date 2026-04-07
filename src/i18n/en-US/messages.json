@@ -1531,6 +1531,12 @@
                     "colsExpanded": "Columns Expanded",
                     "disableExpandAll": "Disable Expand All",
                     "fieldPanel": "Field Panel",
+                    "fieldPanelOptions": {
+                        "disableDragging": "Disable dragging",
+                        "disableFiltering": "Disable filtering",
+                        "disableSorting": "Disable sorting",
+                        "title": "Field Panel Options"
+                    },
                     "fieldPicker": "Field Picker",
                     "grandTotal": "Show Totals",
                     "grandTotalLabel": "Labels for Totals",

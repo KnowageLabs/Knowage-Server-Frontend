@@ -51,7 +51,8 @@
         "enabled": false
     },
     "defaultFieldPanel": {
-        "enabled": false
+        "enabled": false,
+        "fieldDragOverrides": []
     },
     "defaultMenuOverrides": [],
     "defaultFieldPicker": {
