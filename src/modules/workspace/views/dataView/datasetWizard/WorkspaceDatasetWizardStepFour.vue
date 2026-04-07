@@ -15,12 +15,6 @@
                         <label for="description" class="kn-material-input-label"> {{ $t('common.description') }} </label>
                     </span>
                 </div>
-                <Toolbar class="kn-toolbar kn-toolbar--secondary p-mt-1 p-mx-2" :style="dataViewDescriptor.style.maxwidth">
-                    <template #start>
-                        <InputSwitch v-model="dataset.exportToHdfs" class="p-mr-2" @change="$emit('touched')" />
-                        <span>{{ $t('managers.datasetManagement.isPersistedHDFS') }}</span>
-                    </template>
-                </Toolbar>
                 <div class="persistence-container" :style="dataViewDescriptor.style.maxwidth">
                     <Toolbar class="kn-toolbar kn-toolbar--secondary p-mt-3 p-mx-2">
                         <template #start>

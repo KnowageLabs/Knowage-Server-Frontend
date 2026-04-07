@@ -201,6 +201,15 @@ export const formatVariables = (formattedChartModel: IHighchartsChartModel, vari
     formatVariablesForAxis(formattedChartModel, variables, 'yAxis')
 }
 
+export const normalizeTooltipSettings = (formattedChartModel: IHighchartsChartModel) => {
+    const tooltip = formattedChartModel.tooltip as any
+    if (!tooltip) return
+
+    if (!['activitygauge', 'bubble'].includes(formattedChartModel.chart?.type)) delete tooltip.pointFormat
+    if (!tooltip.style) tooltip.style = {}
+    if (!tooltip.style.color) tooltip.style.color = 'contrast'
+}
+
 const formatVariablesForAxis = (formattedChartModel: IHighchartsChartModel, variables: IVariable[], axis: 'xAxis' | 'yAxis') => {
     if (!formattedChartModel[axis]) return
     formattedChartModel[axis].forEach((axisElement: any) => {

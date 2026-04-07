@@ -234,11 +234,6 @@ export default defineComponent({
                 }
             })
                 .then((response: AxiosResponse<any>) => {
-                    if (dsToSend.exportToHdfs) {
-                        this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/hdfs/${response.data.id}`, { headers: { 'X-Disable-Errors': 'true' } }).catch((responseHDFS: any) => {
-                            this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: responseHDFS.data.errors[0].message })
-                        })
-                    }
                     this.$emit('closeDialogAndReload')
                 })
                 .catch(() => {
