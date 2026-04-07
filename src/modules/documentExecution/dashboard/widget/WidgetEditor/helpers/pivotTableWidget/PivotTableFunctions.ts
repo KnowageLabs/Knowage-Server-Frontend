@@ -54,10 +54,15 @@ const removeColumnFromConditionalStyles = (widgetModel: IWidget, column: IWidget
     }
 }
 
-// 9.0 → 9.1 migration: ensure menuOverrides exists on older saved widgets
+// 9.0 → 9.1 migration: ensure menuOverrides and fieldDragOverrides exist on older saved widgets
 export const formatPivotTableSettings = (widget: IWidget) => {
     if (!widget.settings?.configuration) return
     if (!widget.settings.configuration.menuOverrides) {
         widget.settings.configuration.menuOverrides = pivotTableDefaultValues.getDefaultMenuOverrides()
+    }
+    if (!widget.settings.configuration.fieldPanel) {
+        widget.settings.configuration.fieldPanel = pivotTableDefaultValues.getDefaultFieldPanel()
+    } else if (!widget.settings.configuration.fieldPanel.fieldDragOverrides) {
+        widget.settings.configuration.fieldPanel.fieldDragOverrides = pivotTableDefaultValues.getDefaultFieldDragOverrides()
     }
 }

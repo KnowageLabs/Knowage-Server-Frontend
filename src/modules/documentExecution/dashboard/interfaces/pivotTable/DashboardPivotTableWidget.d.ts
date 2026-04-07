@@ -107,8 +107,17 @@ export interface IPivotFieldPicker {
     height: number
 }
 
+export interface IPivotFieldDragOverride {
+    id: string
+    columns: string[]
+    disableDragging: boolean
+    disableSorting?: boolean
+    disableFiltering?: boolean
+}
+
 export interface IPivotFieldPanel {
     enabled: boolean
+    fieldDragOverrides?: IPivotFieldDragOverride[]
 }
 export interface IPivotTooltips {
     target: string | string[]
