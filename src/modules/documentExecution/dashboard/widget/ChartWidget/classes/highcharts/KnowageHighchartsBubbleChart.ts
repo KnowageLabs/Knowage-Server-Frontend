@@ -77,7 +77,7 @@ export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
 
     setSplittedData(data: any, widgetModel: IWidget, serieName: string, attributeColumns: any[], XAxisColumns: any[], YAxisColumns: any[], ZAxisColumns: any[], variables: IVariable[]) {
         const measureForGrouping = YAxisColumns.find((measureColumn: any) => measureColumn.column.columnName === serieName)
-        if (!data || attributeColumns.length < 2 || !measureForGrouping) return
+        if (!data || attributeColumns.length < 2 || !measureForGrouping || !XAxisColumns[0] || !ZAxisColumns[0]) return
         const firstAttributeColumn = attributeColumns[0]
         const secondAttributeColumn = attributeColumns[1]
         const categoryValueMap = {}

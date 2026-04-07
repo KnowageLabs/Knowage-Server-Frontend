@@ -85,7 +85,7 @@ export class KnowageHighchartsScatterChart extends KnowageHighcharts {
         const firstMeasure = measureColumns.find((measureColumn: any) => measureColumn.column.axis === 'X')
         const secondMeasure = measureColumns.find((measureColumn: any) => measureColumn.column.axis === 'Y')
 
-        if (!firstMeasure || !firstMeasure.metadata) return
+        if (!firstMeasure || !firstMeasure.metadata || !secondMeasure || !secondMeasure.metadata) return
         const columnAliases = widgetModel.settings?.series?.aliases ?? []
 
         const column = secondMeasure.column as IWidgetColumn

@@ -12,7 +12,7 @@
             </small>
         </div>
 
-        <div v-if="seriesSettings.showMeasureToggle && datasetMeasures.length > 0" class="p-col-12 p-md-12 p-mt-3">
+        <div v-if="seriesSettings.showMeasureToggle" class="p-col-12 p-md-12 p-mt-3">
             <label class="kn-material-input-label p-mb-2">
                 {{ $t('dashboard.widgetEditor.highcharts.series.availableMeasures') }}
             </label>
@@ -37,7 +37,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
-import { mapActions } from 'pinia'
+import { mapActions, mapState } from 'pinia'
 import InputSwitch from 'primevue/inputswitch'
 import Checkbox from 'primevue/checkbox'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
@@ -54,20 +54,30 @@ export default defineComponent({
             selectedMeasures: [] as string[]
         }
     },
-    mounted() {
-        this.loadModel()
-        this.loadDatasetMeasures()
-    },
     watch: {
         propWidgetModel: {
             handler() {
                 this.loadModel()
+                this.loadDatasetMeasures()
+            },
+            immediate: true
+        },
+        allDatasets: {
+            handler() {
+                this.loadDatasetMeasures()
             },
             deep: true
         }
     },
+    computed: {
+        ...mapState(dashboardStore, ['allDatasets'])
+    },
     methods: {
         ...mapActions(dashboardStore, ['getAllDatasets']),
+        areStringArraysEqual(firstArray: string[], secondArray: string[]) {
+            if (firstArray.length !== secondArray.length) return false
+            return firstArray.every((value: string, index: number) => value === secondArray[index])
+        },
         loadModel() {
             this.widgetModel = this.propWidgetModel
 
@@ -91,26 +101,44 @@ export default defineComponent({
                 this.seriesSettings.availableMeasures = []
             }
             // Load selected measures
-            this.selectedMeasures = [...this.seriesSettings.availableMeasures]
+            const availableMeasures = [...this.seriesSettings.availableMeasures]
+            if (!this.areStringArraysEqual(this.selectedMeasures, availableMeasures)) this.selectedMeasures = availableMeasures
         },
         loadDatasetMeasures() {
-            if (!this.widgetModel?.dataset) return
+            const widgetMeasures = (this.widgetModel?.columns ?? [])
+                .filter((column: any) => (column.fieldType || '').toUpperCase() === 'MEASURE')
+                .map((column: any) => ({ name: column.columnName, alias: column.alias || column.columnName, fieldType: 'MEASURE' }))
+
+            if (!this.widgetModel?.dataset) {
+                this.datasetMeasures = widgetMeasures
+                return
+            }
 
             const allDatasets = this.getAllDatasets()
-            const currentDataset = allDatasets.find((ds: any) => ds.id.dsId === this.widgetModel?.dataset)
+            const currentDataset = allDatasets.find((ds: any) => ds.id?.dsId === this.widgetModel?.dataset || ds.id === this.widgetModel?.dataset)
+            const metadataMeasures = currentDataset?.metadata?.fieldsMeta
+                ? currentDataset.metadata.fieldsMeta.filter((field: any) => (field.fieldType || '').toUpperCase() === 'MEASURE')
+                : []
 
-            if (currentDataset && currentDataset.metadata && currentDataset.metadata.fieldsMeta) {
-                this.datasetMeasures = currentDataset.metadata.fieldsMeta.filter(
-                    (field: any) => field.fieldType === 'MEASURE'
-                )
+            const mergedByName = new Map<string, any>()
+            metadataMeasures.forEach((measure: any) => mergedByName.set(measure.name, measure))
+            widgetMeasures.forEach((measure: any) => {
+                if (!mergedByName.has(measure.name)) mergedByName.set(measure.name, measure)
+            })
 
-                // Don't auto-select all measures - leave it empty by default
-                // User must explicitly select which measures to show in the panel
+            this.datasetMeasures = Array.from(mergedByName.values())
+
+            const validMeasureNames = new Set(this.datasetMeasures.map((measure: any) => measure.name))
+            this.selectedMeasures = this.selectedMeasures.filter((measureName: string) => validMeasureNames.has(measureName))
+            if (this.seriesSettings && !this.areStringArraysEqual(this.seriesSettings.availableMeasures ?? [], this.selectedMeasures)) {
+                this.seriesSettings.availableMeasures = [...this.selectedMeasures]
             }
         },
         onMeasureSelectionChanged() {
             if (this.seriesSettings) {
-                this.seriesSettings.availableMeasures = [...this.selectedMeasures]
+                if (!this.areStringArraysEqual(this.seriesSettings.availableMeasures ?? [], this.selectedMeasures)) {
+                    this.seriesSettings.availableMeasures = [...this.selectedMeasures]
+                }
             }
         }
     }
