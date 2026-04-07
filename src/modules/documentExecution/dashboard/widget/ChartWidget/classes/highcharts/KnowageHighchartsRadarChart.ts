@@ -42,7 +42,7 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
 
         if (widgetModel.settings.configuration?.grouping?.secondDimension.enabled) {
             const serieName = widgetModel.settings.configuration.grouping.secondDimension.serie
-            setGroupedByCategoriesData(this.model, data, attributeColumns, measureColumns, serieName)
+            setGroupedByCategoriesData(this.model, data, attributeColumns, measureColumns, serieName, widgetModel, variables)
         } else {
             setRegularData(this.model, widgetModel, data, attributeColumns, measureColumns, drilldownEnabled, dateFormat, variables, drillLevel)
         }

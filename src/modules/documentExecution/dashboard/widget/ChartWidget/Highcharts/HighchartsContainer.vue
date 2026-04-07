@@ -42,12 +42,23 @@
                         :key="option.column.id || option.column.columnName"
                         class="measure-toggle-panel__item"
                     >
-                        <input
-                            type="checkbox"
-                            :checked="activeMeasureNames.includes(option.seriesName)"
-                            @change="onMeasureToggle(option.seriesName, ($event.target as HTMLInputElement).checked)"
-                        />
-                        <span>{{ option.label }}</span>
+                        <span class="measure-toggle-panel__item-main">
+                            <input
+                                type="checkbox"
+                                :checked="activeMeasureNames.includes(option.seriesName)"
+                                @change="onMeasureToggle(option.seriesName, ($event.target as HTMLInputElement).checked)"
+                            />
+                            <span>{{ option.label }}</span>
+                        </span>
+                        <select
+                            v-if="isAxisAssignableMeasureChart && activeMeasureNames.includes(option.seriesName)"
+                            class="measure-toggle-panel__axis-select"
+                            :value="measureAxisAssignments[option.seriesName]"
+                            @change="onMeasureAxisChange(option.seriesName, ($event.target as HTMLSelectElement).value)"
+                            @mousedown.stop
+                        >
+                            <option v-for="axisOption in axisOptionsForMeasureChart" :key="axisOption" :value="axisOption">{{ axisOption }}</option>
+                        </select>
                     </label>
                 </template>
             </div>
@@ -145,6 +156,7 @@ export default defineComponent({
             originalReflow: null,
             handleMouseUp: null as (() => void) | null,
             measureOptions: [] as { column: IWidgetColumn; seriesName: string; label: string }[],
+            measureAxisAssignments: {} as Record<string, string>,
             activeMeasureNames: [] as string[],
             measureSelectionInitialized: false,
             originalWidgetMeasures: [] as string[], // Track measures that were in the original widget model
@@ -202,6 +214,14 @@ export default defineComponent({
             // Chart types that support only one measure at a time
             const singleMeasureTypes = ['pie', 'gauge', 'solidgauge', 'activitygauge']
             return singleMeasureTypes.includes(this.chartModel?.chart?.type)
+        },
+        isAxisAssignableMeasureChart() {
+            return ['scatter', 'bubble'].includes(this.chartModel?.chart?.type)
+        },
+        axisOptionsForMeasureChart(): string[] {
+            if (this.chartModel?.chart?.type === 'bubble') return ['X', 'Y', 'Z']
+            if (this.chartModel?.chart?.type === 'scatter') return ['X', 'Y']
+            return []
         }
     },
     methods: {
@@ -552,6 +572,41 @@ export default defineComponent({
 
             return formattedChartModel
         },
+        getRequiredAxesForMeasureChart(): string[] {
+            if (this.chartModel?.chart?.type === 'bubble') return ['X', 'Y', 'Z']
+            if (this.chartModel?.chart?.type === 'scatter') return ['X', 'Y']
+            return []
+        },
+        ensureAxisAssignmentsAreValid() {
+            if (!this.isAxisAssignableMeasureChart) return
+            const allowedAxes = new Set(this.axisOptionsForMeasureChart)
+            this.measureOptions.forEach((option) => {
+                const currentAxis = this.measureAxisAssignments[option.seriesName]
+                if (!currentAxis || !allowedAxes.has(currentAxis)) {
+                    this.measureAxisAssignments[option.seriesName] = option.column.axis && allowedAxes.has(option.column.axis) ? option.column.axis : this.axisOptionsForMeasureChart[0]
+                }
+            })
+        },
+        normalizeActiveMeasureAxes() {
+            if (!this.isAxisAssignableMeasureChart || this.activeMeasureNames.length === 0) return
+            const requiredAxes = this.getRequiredAxesForMeasureChart()
+            requiredAxes.forEach((axis) => {
+                const hasAxis = this.activeMeasureNames.some((seriesName) => this.measureAxisAssignments[seriesName] === axis)
+                if (hasAxis) return
+                const fallbackSeriesName = this.activeMeasureNames.find((seriesName) => !requiredAxes.includes(this.measureAxisAssignments[seriesName])) ?? this.activeMeasureNames[0]
+                if (fallbackSeriesName) this.measureAxisAssignments[fallbackSeriesName] = axis
+            })
+        },
+        buildActiveMeasureColumns(measureNames: string[]): IWidgetColumn[] {
+            const selectedOptions = this.measureOptions.filter((option) => measureNames.includes(option.seriesName))
+            if (!this.isAxisAssignableMeasureChart) return selectedOptions.map((option) => option.column)
+
+            return selectedOptions.map((option) => {
+                const columnWithAxis = deepcopy(option.column)
+                columnWithAxis.axis = this.measureAxisAssignments[option.seriesName] || columnWithAxis.axis || this.axisOptionsForMeasureChart[0]
+                return columnWithAxis
+            })
+        },
         getTempWidgetModelWithActiveMeasures() {
             // If measure toggle is explicitly disabled or not initialized, use original model
             if (this.widgetModel.settings?.series?.showMeasureToggle === false || !this.measureSelectionInitialized) {
@@ -564,13 +619,11 @@ export default defineComponent({
             }
 
             // Create a deep copy to avoid modifying the original
-            const tempModel = JSON.parse(JSON.stringify(this.widgetModel))
+            const tempModel = deepcopy(this.widgetModel)
 
             // Get columns that correspond to active measures
             // Even if activeMeasureNames is empty, we want to show NO measures (not fall back to original)
-            const activeColumns = this.measureOptions
-                .filter((option) => this.activeMeasureNames.includes(option.seriesName))
-                .map((option) => option.column)
+            const activeColumns = this.buildActiveMeasureColumns(this.activeMeasureNames)
 
             // Keep all non-measure columns, and add only active measure columns
             const nonMeasureColumns = this.widgetModel.columns.filter((col: IWidgetColumn) => col.fieldType !== 'MEASURE')
@@ -583,14 +636,22 @@ export default defineComponent({
         syncMeasureOptions() {
             const seriesAliases = this.widgetModel.settings?.series?.aliases ?? []
             const availableMeasures = this.widgetModel.settings?.series?.availableMeasures ?? []
+            const selectableWidgetMeasures = this.widgetModel.columns.filter(
+                (column: IWidgetColumn) =>
+                    column.fieldType === 'MEASURE' &&
+                    (this.isAxisAssignableMeasureChart || !column.axis || ['Y', 'start'].includes(column.axis))
+            )
 
             // Get all measures to show based on availableMeasures setting
             let measuresToShow: IWidgetColumn[] = []
 
             if (availableMeasures.length > 0) {
-                // Show ALL measures from availableMeasures (from dataset)
+                // Start from measures already present on widget so panel is never empty while metadata is loading
+                measuresToShow = selectableWidgetMeasures.filter((column: IWidgetColumn) => availableMeasures.includes(column.columnName))
+
+                // Enrich with additional available measures coming from dataset metadata
                 const allDatasets = this.getAllDatasets()
-                const currentDataset = allDatasets.find((ds: any) => ds.id.dsId === this.widgetModel.dataset)
+                const currentDataset = allDatasets.find((ds: any) => ds.id?.dsId === this.widgetModel.dataset || ds.id === this.widgetModel.dataset)
 
                 if (currentDataset && currentDataset.metadata && currentDataset.metadata.fieldsMeta) {
                     // Get dataset measures that are in availableMeasures
@@ -599,7 +660,7 @@ export default defineComponent({
                     )
 
                     // Map to widget column format
-                    measuresToShow = datasetMeasureFields.map((field: any) => {
+                    const datasetMeasures = datasetMeasureFields.map((field: any) => {
                         // Check if measure already exists in widget columns
                         const existingColumn = this.widgetModel.columns.find(
                             (col: IWidgetColumn) => col.columnName === field.name
@@ -624,14 +685,18 @@ export default defineComponent({
                             return tempColumn
                         }
                     })
+
+                    const existingColumnNames = new Set(measuresToShow.map((column: IWidgetColumn) => column.columnName))
+                    datasetMeasures.forEach((column: IWidgetColumn) => {
+                        if (!existingColumnNames.has(column.columnName)) measuresToShow.push(column)
+                    })
                 }
+
+                // Last fallback: keep widget measures if availableMeasures does not match metadata names
+                if (measuresToShow.length === 0) measuresToShow = selectableWidgetMeasures
             } else {
                 // Fallback: show all widget measures if availableMeasures not configured
-                measuresToShow = this.widgetModel.columns.filter(
-                    (column: IWidgetColumn) =>
-                        column.fieldType === 'MEASURE' &&
-                        (!column.axis || ['Y', 'start'].includes(column.axis))
-                )
+                measuresToShow = selectableWidgetMeasures
             }
 
             this.measureOptions = measuresToShow.map((column: IWidgetColumn) => {
@@ -646,6 +711,8 @@ export default defineComponent({
                     label
                 }
             })
+
+            this.ensureAxisAssignmentsAreValid()
 
             if (!this.measureSelectionInitialized) {
 
@@ -672,6 +739,8 @@ export default defineComponent({
                     this.activeMeasureNames = []
                 }
 
+                this.normalizeActiveMeasureAxes()
+
                 this.measureSelectionInitialized = true
                 return
             }
@@ -681,6 +750,7 @@ export default defineComponent({
 
             // Only keep active measures that are still valid
             this.activeMeasureNames = this.activeMeasureNames.filter((name) => validSeries.has(name))
+            this.normalizeActiveMeasureAxes()
         },
         async onMeasureToggle(seriesName: string, isChecked: boolean) {
             this.measureSelectionInitialized = true
@@ -690,6 +760,8 @@ export default defineComponent({
                 if (!this.activeMeasureNames.includes(seriesName)) {
                     this.activeMeasureNames.push(seriesName)
                 }
+                this.ensureAxisAssignmentsAreValid()
+                this.normalizeActiveMeasureAxes()
 
                 // Check if this measure is in the original widget model
                 const isInOriginalModel = this.originalWidgetMeasures.includes(seriesName)
@@ -730,6 +802,13 @@ export default defineComponent({
                 }
             }
 
+            this.normalizeActiveMeasureAxes()
+
+            this.updateChartModel()
+        },
+        onMeasureAxisChange(seriesName: string, axis: string) {
+            this.measureAxisAssignments[seriesName] = axis
+            this.normalizeActiveMeasureAxes()
             this.updateChartModel()
         },
         async onSingleMeasureChange() {
@@ -755,7 +834,7 @@ export default defineComponent({
 
             try {
                 // Create a temporary widget model with all requested measures
-                const tempWidgetModel = JSON.parse(JSON.stringify(this.widgetModel))
+                const tempWidgetModel = deepcopy(this.widgetModel)
 
                 // Get all non-measure columns
                 const nonMeasureColumns = this.widgetModel.columns.filter(
@@ -763,9 +842,7 @@ export default defineComponent({
                 )
 
                 // Get measure columns for the requested measures
-                const measureColumns = this.measureOptions
-                    .filter((option) => measureNames.includes(option.seriesName))
-                    .map((option) => option.column)
+                const measureColumns = this.buildActiveMeasureColumns(measureNames)
 
 
                 // Update temp model columns
@@ -1066,6 +1143,7 @@ export default defineComponent({
 .measure-toggle-panel__item {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 6px;
     font-size: 12px;
     margin-top: 4px;
@@ -1074,5 +1152,20 @@ export default defineComponent({
     input[type="checkbox"] {
         cursor: pointer;
     }
+}
+
+.measure-toggle-panel__item-main {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.measure-toggle-panel__axis-select {
+    width: 52px;
+    padding: 2px 4px;
+    font-size: 11px;
+    border: 1px solid #d0d0d0;
+    border-radius: 3px;
+    background-color: #ffffff;
 }
 </style>
