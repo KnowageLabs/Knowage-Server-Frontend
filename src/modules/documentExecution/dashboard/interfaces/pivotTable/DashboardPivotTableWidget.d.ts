@@ -28,8 +28,8 @@ export interface IPivotTableWidgetVisualizationTypes {
 export interface IPivotTableWidgetVisualizationType {
     target: string | string[]
     prefix: string
-    suffix: string,
-    precision: number,
+    suffix: string
+    precision: number
     type: string
 }
 
@@ -51,12 +51,19 @@ export interface IPivotTableWidgetConditionalStyle {
     }
 }
 
+export interface IPivotMenuOverride {
+    id: string
+    columns: string[]
+    disableExpandAll: boolean
+}
+
 export interface IPivotTableConfiguration {
     rows: IPivotRowsConfiguration
     columns: IPivotColumnsConfiguration
     exports: IWidgetExports
     fieldPicker: IPivotFieldPicker
     fieldPanel: IPivotFieldPanel
+    menuOverrides?: IPivotMenuOverride[]
 }
 
 export interface IPivotTableStyle {
@@ -126,7 +133,6 @@ export interface IPivotTotal {
         'background-color': string
     }
 }
-
 
 export interface IPivotTableColumnStyles {
     enabled: boolean

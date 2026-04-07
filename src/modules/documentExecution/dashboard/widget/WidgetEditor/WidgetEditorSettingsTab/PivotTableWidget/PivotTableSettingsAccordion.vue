@@ -24,6 +24,7 @@
                 <PivotTableRowsConfig v-else-if="accordion.type === 'Rows'" :widgetModel="widgetModel" />
                 <PivotTableColumnsConfig v-else-if="accordion.type === 'Columns'" :widgetModel="widgetModel" />
                 <PivotTableFieldPicker v-else-if="accordion.type === 'FieldPicker'" :widgetModel="widgetModel" />
+                <PivotTableMenuOverrides v-else-if="accordion.type === 'MenuOverrides'" :widgetModel="widgetModel" />
                 <PivotTableTooltips v-else-if="accordion.type === 'Tooltips'" :widgetModel="widgetModel" />
                 <PivotTableTotalsStyle v-else-if="accordion.type === 'Totals'" :widgetModel="widgetModel" :toolbarStyleSettings="descriptor.totalsToolbarStyleOptions" :totalType="accordion.type" :theme-style="null" @styleChanged="onStyleChanged" />
                 <PivotTableTotalsStyle v-else-if="accordion.type === 'SubTotals'" :widgetModel="widgetModel" :toolbarStyleSettings="descriptor.totalsToolbarStyleOptions" :totalType="accordion.type" :theme-style="null" @styleChanged="onStyleChanged" />
@@ -60,6 +61,7 @@ import PivotTableSettingsAccordionHeader from './PivotTableSettingsAccordionHead
 import PivotTableRowsConfig from './configuration/PivotTableRowsConfig.vue'
 import PivotTableColumnsConfig from './configuration/PivotTableColumnsConfig.vue'
 import PivotTableFieldPicker from './configuration/PivotTableFieldPicker.vue'
+import PivotTableMenuOverrides from './configuration/PivotTableMenuOverrides.vue'
 import PivotTableTooltips from './tooltips/PivotTableTooltips.vue'
 import PivotTableTotalsStyle from './style/PivotTableTotalsStyle.vue'
 import PivotTableFieldsStyle from './style/PivotTableFieldsStyle.vue'
@@ -87,6 +89,7 @@ export default defineComponent({
         PivotTableRowsConfig,
         PivotTableColumnsConfig,
         PivotTableFieldPicker,
+        PivotTableMenuOverrides,
         PivotTableTooltips,
         PivotTableTotalsStyle,
         PivotTableFieldsStyle,

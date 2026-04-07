@@ -876,6 +876,7 @@
                 "iframe": "Iframe Message",
                 "internationalization": "Internationalization",
                 "limit": "Limit",
+                "multipleValues": "Multiple Values",
                 "parameters": "Parameters",
                 "preview": "Preview",
                 "repeatIndex": "Repeat Index",
@@ -884,7 +885,6 @@
                 "selectionVal": "Selection Value",
                 "selectionValues": "Selection Values",
                 "selectionValuesHint": "Press Enter to confirm each value.",
-                "multipleValues": "Multiple Values",
                 "toLocale": "Format to locale",
                 "variables": "Variables"
             },
@@ -1529,10 +1529,13 @@
             "pivot": {
                 "configuration": {
                     "colsExpanded": "Columns Expanded",
+                    "disableExpandAll": "Disable Expand All",
                     "fieldPanel": "Field Panel",
                     "fieldPicker": "Field Picker",
                     "grandTotal": "Show Totals",
                     "grandTotalLabel": "Labels for Totals",
+                    "menuOverrides": "Menu Overrides",
+                    "menuOverridesInfo": "Custom overrides for right-click menu.",
                     "rowsExpanded": "Rows Expanded",
                     "showFieldPicker": "Show Integrated Field Picker",
                     "subTotalLabel": "Labels for SubTotals",
@@ -1618,6 +1621,18 @@
                     "title": "Dropdown Style",
                     "type": "Type"
                 },
+                "flex": {
+                    "alignItems": "Align Items (Horizontal)",
+                    "center": "Center",
+                    "flexEnd": "End",
+                    "flexStart": "Start",
+                    "justifyContent": "Justify Content (Vertical)",
+                    "spaceAround": "Space Around",
+                    "spaceBetween": "Space Between",
+                    "spaceEvenly": "Space Evenly",
+                    "stretch": "Stretch",
+                    "title": "Flex Layout"
+                },
                 "multiDropdown": {
                     "chips": "Display as Chips",
                     "counter": "Show counter",
@@ -1628,18 +1643,6 @@
                 },
                 "multiTree": {
                     "title": "Multi Tree Style"
-                },
-                "flex": {
-                    "title": "Flex Layout",
-                    "justifyContent": "Justify Content (Vertical)",
-                    "alignItems": "Align Items (Horizontal)",
-                    "flexStart": "Start",
-                    "center": "Center",
-                    "flexEnd": "End",
-                    "spaceBetween": "Space Between",
-                    "spaceAround": "Space Around",
-                    "spaceEvenly": "Space Evenly",
-                    "stretch": "Stretch"
                 },
                 "radio": {
                     "checkedIcon": "Checked Icon",
@@ -2937,11 +2940,11 @@
                 "dropdown": "Dropdown",
                 "fieldHeaders": "Field Headers",
                 "fields": "Fields",
+                "flex": "Flex Layout",
                 "headers": "Headers",
                 "label": "Label",
                 "multiDropdown": "Multi Dropdown",
                 "multiTree": "Multi Tree",
-                "flex": "Flex Layout",
                 "padding": "Padding",
                 "paginator": "Paginator",
                 "radio": "Radio",

@@ -15,6 +15,7 @@ export const createNewPivotTableWidgetSettings = () => {
             rows: pivotTableDefaultValues.getDefaultTotalValues(),
             fieldPicker: pivotTableDefaultValues.getDefaultFieldPicker(),
             fieldPanel: pivotTableDefaultValues.getDefaultFieldPanel(),
+            menuOverrides: pivotTableDefaultValues.getDefaultMenuOverrides(),
             exports: { showExcelExport: true, showScreenshot: true }
         },
         interactions: {
@@ -50,5 +51,13 @@ const removeColumnFromConditionalStyles = (widgetModel: IWidget, column: IWidget
     const conditionalStyles = widgetModel.settings.conditionalStyles.conditions
     for (let i = conditionalStyles.length - 1; i >= 0; i--) {
         if (conditionalStyles[i].target === column.id) conditionalStyles.splice(i, 1)
+    }
+}
+
+// 9.0 → 9.1 migration: ensure menuOverrides exists on older saved widgets
+export const formatPivotTableSettings = (widget: IWidget) => {
+    if (!widget.settings?.configuration) return
+    if (!widget.settings.configuration.menuOverrides) {
+        widget.settings.configuration.menuOverrides = pivotTableDefaultValues.getDefaultMenuOverrides()
     }
 }

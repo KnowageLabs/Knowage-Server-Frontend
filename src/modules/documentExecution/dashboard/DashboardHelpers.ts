@@ -21,6 +21,7 @@ import i18n from '@/App.i18n'
 import pinia from '@/pinia'
 import { addMissingFilterProperties } from './widget/WidgetEditor/helpers/selectionsWidget/SelectionsWidgetFunctions'
 import { formatSelectorSettings } from './widget/WidgetEditor/helpers/selectorWidget/SelectorWidgetFunctions'
+import { formatPivotTableSettings } from './widget/WidgetEditor/helpers/pivotTableWidget/PivotTableFunctions'
 
 const { t } = i18n.global
 const store = mainStore(pinia)
@@ -318,6 +319,9 @@ const formatWidget = (widget: IWidget, datasets: IDataset[]) => {
             break
         case 'selector':
             formatSelectorSettings(widget)
+            break
+        case 'static-pivot-table':
+            formatPivotTableSettings(widget)
             break
     }
 

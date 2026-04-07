@@ -1,5 +1,4 @@
-
-import { IPivotTableColumnStyles, IPivotColumnsConfiguration, IPivotFieldPanel, IPivotFieldPicker, IPivotTableColumnHeadersStyle, IPivotTableWidgetConditionalStyle, IPivotTableWidgetConditionalStyles, IPivotTableWidgetVisualization, IPivotTooltips, IPivotTotal } from '@/modules/documentExecution/dashboard/interfaces/pivotTable/DashboardPivotTableWidget'
+import { IPivotTableColumnStyles, IPivotColumnsConfiguration, IPivotFieldPanel, IPivotFieldPicker, IPivotMenuOverride, IPivotTableColumnHeadersStyle, IPivotTableWidgetConditionalStyle, IPivotTableWidgetConditionalStyles, IPivotTableWidgetVisualization, IPivotTooltips, IPivotTotal } from '@/modules/documentExecution/dashboard/interfaces/pivotTable/DashboardPivotTableWidget'
 import deepcopy from 'deepcopy'
 import descriptor from './PivotTableDefaultValuesDescriptor.json'
 
@@ -49,4 +48,8 @@ export const getDefaultVisualisationSettings = () => {
 
 export const getDefaultTotalValues = () => {
     return deepcopy(descriptor.defaultTotalValues) as IPivotColumnsConfiguration
+}
+
+export const getDefaultMenuOverrides = () => {
+    return deepcopy(descriptor.defaultMenuOverrides) as IPivotMenuOverride[]
 }
