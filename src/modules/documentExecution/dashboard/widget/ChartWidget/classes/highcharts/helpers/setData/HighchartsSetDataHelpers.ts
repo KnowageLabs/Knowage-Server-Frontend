@@ -206,7 +206,7 @@ const setRegularAreaRangeData = (model: any, data: any, attributeColumn: any, ar
     model.series.push(serieElement)
 }
 
-export const setGroupedCategoriesData = (model: any, data: any, attributeColumns: any[], measureColumns: any[], dateFormat: string, widgetModel: IWidget) => {
+export const setGroupedCategoriesData = (model: any, data: any, attributeColumns: any[], measureColumns: any[], dateFormat: string, widgetModel: IWidget, variables: IVariable[]) => {
     if (!data || !measureColumns[0] || attributeColumns.length < 2) return
     const measureColumn = measureColumns[0]
     const firstAttributeColumn = attributeColumns[0]
@@ -217,6 +217,23 @@ export const setGroupedCategoriesData = (model: any, data: any, attributeColumns
     const serieElement = { id: 0, name: getColumnAlias(measureColumn.column, columnAliases), data: [] as any[], connectNulls: true }
     const categoryValuesMap: Record<string, { categories: string[] }> = {}
 
+        data.rows.forEach((row: any) => {
+            const firstAttributeValue = dateFormat && ['date', 'timestamp'].includes(firstAttributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[firstAttributeColumn.metadata.dataIndex], dateFormat, firstAttributeColumn.metadata.type) : row[firstAttributeColumn.metadata.dataIndex]
+            const secondAttributeValue = dateFormat && ['date', 'timestamp'].includes(secondAttributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[secondAttributeColumn.metadata.dataIndex], dateFormat, secondAttributeColumn.metadata.type) : row[secondAttributeColumn.metadata.dataIndex]
+            const firstAttributeConditionalStyle = getColumnConditionalStyles(widgetModel, firstAttributeColumn.column.id, row[firstAttributeColumn.metadata.dataIndex], variables)
+            const secondAttributeConditionalStyle = getColumnConditionalStyles(widgetModel, secondAttributeColumn.column.id, row[secondAttributeColumn.metadata.dataIndex], variables)
+            const measureConditionalStyle = getColumnConditionalStyles(widgetModel, measureColumn.column.id, row[measureColumn.metadata.dataIndex], variables)
+            serieElement.data.push({
+                name: `${firstAttributeValue} - ${secondAttributeValue}`,
+                y: normalizeHighchartsNumericValue(row[measureColumn.metadata.dataIndex]),
+                color: measureConditionalStyle?.color || secondAttributeConditionalStyle?.color || firstAttributeConditionalStyle?.color,
+                drilldown: false
+            })
+            if (!categoryValuesMap[firstAttributeValue]) categoryValuesMap[firstAttributeValue] = { categories: [] }
+            if (!categoryValuesMap[firstAttributeValue].categories.includes(secondAttributeValue)) {
+                categoryValuesMap[firstAttributeValue].categories.push(secondAttributeValue)
+            }
+        })
     data.rows.forEach((row: any) => {
         const firstAttributeValue = dateFormat && ['date', 'timestamp'].includes(firstAttributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[firstAttributeColumn.metadata.dataIndex], dateFormat, firstAttributeColumn.metadata.type) : row[firstAttributeColumn.metadata.dataIndex]
         const secondAttributeValue = dateFormat && ['date', 'timestamp'].includes(secondAttributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[secondAttributeColumn.metadata.dataIndex], dateFormat, secondAttributeColumn.metadata.type) : row[secondAttributeColumn.metadata.dataIndex]
@@ -281,12 +298,12 @@ const addSeriesFromCategoryValuesMapForGroupedBySeriesData = (model: any, catego
     })
 }
 
-export const setGroupedByCategoriesData = (model: any, data: any, attributeColumns: any[], measureColumns: any[], serieForGroupingName: string) => {
+export const setGroupedByCategoriesData = (model: any, data: any, attributeColumns: any[], measureColumns: any[], serieForGroupingName: string, widgetModel: IWidget, variables: IVariable[]) => {
     const measureForGrouping = measureColumns.find((measureColumn: any) => measureColumn.column.columnName === serieForGroupingName)
     if (!data || attributeColumns.length < 2 || !measureForGrouping) return
     const firstAttributeColumn = attributeColumns[0]
     const secondAttributeColumn = attributeColumns[1]
-    const categoryValueMap = {}
+    const categoryValueMap = {} as Record<string, Record<string, { y: number | null; color?: string }>>
     const uniqueCategoryValues = [] as string[]
 
     data.rows.forEach((row: any) => {
@@ -294,8 +311,15 @@ export const setGroupedByCategoriesData = (model: any, data: any, attributeColum
         if (!uniqueCategoryValues.includes(firstAttributeValue)) uniqueCategoryValues.push(firstAttributeValue)
         const secondAttributeValue = row[secondAttributeColumn.metadata.dataIndex]
         const measureForGroupingValue = normalizeHighchartsNumericValue(row[measureForGrouping.metadata.dataIndex])
+        const firstAttributeConditionalStyle = getColumnConditionalStyles(widgetModel, firstAttributeColumn.column.id, firstAttributeValue, variables)
+        const secondAttributeConditionalStyle = getColumnConditionalStyles(widgetModel, secondAttributeColumn.column.id, secondAttributeValue, variables)
+        const measureConditionalStyle = getColumnConditionalStyles(widgetModel, measureForGrouping.column.id, row[measureForGrouping.metadata.dataIndex], variables)
+        const conditionalColor = measureConditionalStyle?.color || secondAttributeConditionalStyle?.color || firstAttributeConditionalStyle?.color
+
         if (!categoryValueMap[secondAttributeValue]) categoryValueMap[secondAttributeValue] = {}
-        if (!hasOwnProperty(categoryValueMap[secondAttributeValue], firstAttributeValue) || categoryValueMap[secondAttributeValue][firstAttributeValue] === null) categoryValueMap[secondAttributeValue][firstAttributeValue] = measureForGroupingValue
+        if (!hasOwnProperty(categoryValueMap[secondAttributeValue], firstAttributeValue) || categoryValueMap[secondAttributeValue][firstAttributeValue].y === null) {
+            categoryValueMap[secondAttributeValue][firstAttributeValue] = { y: measureForGroupingValue, color: conditionalColor }
+        }
     })
     setUniqueCategoriesValuesFromCategoryValueMap(uniqueCategoryValues, categoryValueMap)
 
@@ -307,7 +331,7 @@ export const setGroupedByCategoriesData = (model: any, data: any, attributeColum
 const setUniqueCategoriesValuesFromCategoryValueMap = (uniqueCategoryValues: string[], categoryValueMap: any) => {
     uniqueCategoryValues.forEach((categoryValue: string) => {
         Object.keys(categoryValueMap).forEach((key: string) => {
-            if (!hasOwnProperty(categoryValueMap[key], categoryValue)) categoryValueMap[key][categoryValue] = null
+            if (!hasOwnProperty(categoryValueMap[key], categoryValue)) categoryValueMap[key][categoryValue] = { y: null }
         })
     })
 }
@@ -316,12 +340,15 @@ const createSeriesForGroupedByCategoriesData = (model: any, categoryValueMap: an
     Object.keys(categoryValueMap).forEach((key: string, index: number) => {
         const serieElement = { id: index, name: key, data: [] as any[], connectNulls: true }
         Object.keys(categoryValueMap[key]).forEach((tempKey: string) => {
-            const tempData = { name: tempKey } as { name: string; y?: number | null }
-            if (hasOwnProperty(categoryValueMap[key], tempKey)) tempData.y = categoryValueMap[key][tempKey]
+            const tempData = { name: tempKey } as { name: string; y?: number | null; color?: string }
+            if (hasOwnProperty(categoryValueMap[key], tempKey)) {
+                tempData.y = categoryValueMap[key][tempKey].y
+                if (categoryValueMap[key][tempKey].color) tempData.color = categoryValueMap[key][tempKey].color
+            }
             serieElement.data.push(tempData)
 
             if (!measureSerieElementValueMap[tempKey]) measureSerieElementValueMap[tempKey] = 0
-            measureSerieElementValueMap[tempKey] += categoryValueMap[key][tempKey] ?? 0
+            measureSerieElementValueMap[tempKey] += categoryValueMap[key][tempKey].y ?? 0
         })
         model.series.push(serieElement)
     })
