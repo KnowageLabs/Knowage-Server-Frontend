@@ -76,11 +76,11 @@
         "startAngle": 0
     },
     "defaultActivityGaugeTooltip": {
-        "backgroundColor": "",
+        "backgroundColor": "rgba(194,194,194, 1)",
         "borderWidth": 0,
         "enabled": true,
         "pointFormat": "{series.name}<br><span style=\"color: {point.color};\">{point.y}</span>",
-        "shadow": false,
+        "shadow": true,
         "style": {
             "fontFamily": "",
             "fontSize": "",
@@ -202,8 +202,9 @@
         }
     },
     "defaultBubbleTooltip": {
-        "backgroundColor": "",
+        "backgroundColor": "rgba(194,194,194, 1)",
         "enabled": true,
+        "shadow": true,
         "pointFormat": "{series.name}<br><span style=\"color: {point.color};\">{point.x}, {point.y}, {point.z}</span>",
         "style": {
             "color": "contrast",
@@ -576,6 +577,7 @@
     "defaultTooltipSettings": {
         "backgroundColor": "rgba(194,194,194, 1)",
         "enabled": true,
+        "shadow": true,
         "style": {
             "color": "contrast",
             "fontFamily": "",
