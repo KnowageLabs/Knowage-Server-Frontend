@@ -19,6 +19,7 @@ import * as widgetCommonDefaultValues from './widget/WidgetEditor/helpers/common
 import { formatMapWidgetAfterDashboardLoading } from './widget/MapWidget/MapWidgetFormattingHelper'
 import i18n from '@/App.i18n'
 import { addMissingFilterProperties } from './widget/WidgetEditor/helpers/selectionsWidget/SelectionsWidgetFunctions'
+import { formatPivotTableSettings } from './widget/WidgetEditor/helpers/pivotTableWidget/PivotTableFunctions'
 
 const { t } = i18n.global
 const store = mainStore()
@@ -315,6 +316,9 @@ const formatWidget = (widget: IWidget, datasets: IDataset[]) => {
             formatMapWidgetAfterDashboardLoading(widget, datasets)
         case 'selection':
             addMissingFilterProperties(widget.settings as any)
+            break
+        case 'static-pivot-table':
+            formatPivotTableSettings(widget)
             break
     }
 

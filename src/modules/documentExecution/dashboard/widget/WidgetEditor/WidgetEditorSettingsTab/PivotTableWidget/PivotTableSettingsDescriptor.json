@@ -87,6 +87,10 @@
                 "type": "FieldPanel"
             },
             {
+                "title": "dashboard.widgetEditor.pivot.configuration.menuOverrides",
+                "type": "MenuOverrides"
+            },
+            {
                 "title": "dashboard.widgetEditor.export.title",
                 "type": "Export"
             }

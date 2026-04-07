@@ -53,6 +53,7 @@
     "defaultFieldPanel": {
         "enabled": false
     },
+    "defaultMenuOverrides": [],
     "defaultFieldPicker": {
         "enabled": true,
         "height": 600,

@@ -802,6 +802,7 @@
                 "iframe": "Iframe Message",
                 "internationalization": "Internationalization",
                 "limit": "Limit",
+                "multipleValues": "Multiple Values",
                 "parameters": "Parameters",
                 "preview": "Preview",
                 "repeatIndex": "Repeat Index",
@@ -810,7 +811,6 @@
                 "selectionVal": "Selection Value",
                 "selectionValues": "Selection Values",
                 "selectionValuesHint": "Press Enter to confirm each value.",
-                "multipleValues": "Multiple Values",
                 "toLocale": "Format to locale",
                 "variables": "Variables"
             },
@@ -1353,10 +1353,13 @@
             "pivot": {
                 "configuration": {
                     "colsExpanded": "Columns Expanded",
+                    "disableExpandAll": "Disable Expand All",
                     "fieldPanel": "Field Panel",
                     "fieldPicker": "Field Picker",
                     "grandTotal": "Show Totals",
                     "grandTotalLabel": "Labels for Totals",
+                    "menuOverrides": "Menu Overrides",
+                    "menuOverridesInfo": "Custom overrides for right-click menu.",
                     "rowsExpanded": "Rows Expanded",
                     "showFieldPicker": "Show Integrated Field Picker",
                     "subTotalLabel": "Labels for SubTotals",
