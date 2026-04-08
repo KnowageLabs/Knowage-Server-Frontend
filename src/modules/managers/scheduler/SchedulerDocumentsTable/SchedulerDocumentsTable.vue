@@ -213,7 +213,7 @@ export default defineComponent({
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documents/${documentLabel}/parameters`).then((response: AxiosResponse<any>) => (tempParameters = response.data))
 
             tempParameters = tempParameters.map((el: any) => {
-                return { id: el.parID, name: el.parameterUrlName, value: '', type: 'fixed', iterative: false, temporal: el.parameter.temporal, documentLabel: documentLabel } as any
+                return { id: el.parID, name: el.parameterUrlName, value: '', type: 'fixed', iterative: false, temporal: el.parameter.temporal, multivalue: el.multivalue, documentLabel: documentLabel } as any
             })
 
             return tempParameters

@@ -24,8 +24,8 @@
                         v-model="parameter.selectedValues"
                         filled
                         dense
-                        multiple
-                        use-chips
+                        :multiple="parameter.multivalue"
+                        :use-chips="parameter.multivalue"
                         :options="parameterValues.lov"
                         option-label="description"
                         option-value="value"
@@ -132,14 +132,20 @@ export default defineComponent({
             if (this.parameter.type === 'fixed') {
                 await this.loadParameterValues()
                 if (this.parameterValues?.lov && this.parameter.value) {
-                    this.parameter.selectedValues = this.parameter.value.split(';').map((el: any) => el.trim())
                     const lovItems = this.parameterValues.lov
-                    this.parameter.description = this.parameter.selectedValues
-                        .map((val: any) => {
-                            const found = lovItems.find((item: any) => item.value === val.trim())
-                            return found ? found.description : val
-                        })
-                        .join('; ')
+                    if (this.parameter.multivalue) {
+                        this.parameter.selectedValues = this.parameter.value.split(';').map((el: any) => el.trim())
+                        this.parameter.description = this.parameter.selectedValues
+                            .map((val: any) => {
+                                const found = lovItems.find((item: any) => item.value === val.trim())
+                                return found ? found.description : val
+                            })
+                            .join('; ')
+                    } else {
+                        this.parameter.selectedValues = this.parameter.value.trim()
+                        const found = lovItems.find((item: any) => item.value === this.parameter.selectedValues)
+                        this.parameter.description = found ? found.description : this.parameter.selectedValues
+                    }
                 }
             } else if (this.parameter.type === 'loadAtRuntime' && this.parameter.value) {
                 for (let i = 0; i < this.rolesOptions.length; i++) {
@@ -166,22 +172,28 @@ export default defineComponent({
         loadFormulas() {
             this.formulaOptions = this.formulas as any
         },
-        formatSelectedValues(newValues: any[]) {
-            const selectedValues = newValues || this.parameter.selectedValues || []
+        formatSelectedValues(newValues: any) {
+            const selectedValues = newValues ?? this.parameter.selectedValues ?? (this.parameter.multivalue ? [] : '')
             this.parameter.selectedValues = selectedValues
             this.parameter.value = ''
             this.parameter.description = ''
-            for (let i = 0; i < selectedValues.length; i++) {
-                this.parameter.value += selectedValues[i]
-                this.parameter.value += i === selectedValues.length - 1 ? ' ' : '; '
-            }
             const lovItems = this.parameterValues?.lov || []
-            this.parameter.description = selectedValues
-                .map((val: any) => {
-                    const found = lovItems.find((item: any) => item.value === val)
-                    return found ? found.description : val
-                })
-                .join('; ')
+            if (Array.isArray(selectedValues)) {
+                for (let i = 0; i < selectedValues.length; i++) {
+                    this.parameter.value += selectedValues[i]
+                    this.parameter.value += i === selectedValues.length - 1 ? ' ' : '; '
+                }
+                this.parameter.description = selectedValues
+                    .map((val: any) => {
+                        const found = lovItems.find((item: any) => item.value === val)
+                        return found ? found.description : val
+                    })
+                    .join('; ')
+            } else {
+                this.parameter.value = selectedValues
+                const found = lovItems.find((item: any) => item.value === selectedValues)
+                this.parameter.description = found ? found.description : selectedValues
+            }
         },
         async onParameterTypeChange() {
             this.parameter.value = ''
