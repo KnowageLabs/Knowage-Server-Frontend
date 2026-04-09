@@ -253,8 +253,27 @@ export default defineComponent({
             if (this.newDashboardMode) {
                 tempModel = createNewDashboardModel()
             } else {
+                const roleFromQuery = Array.isArray(this.route.query.role) ? this.route.query.role[0] : this.route.query.role
+                const parameters: Record<string, string | string[]> = {}
+                if (this.filtersData?.filterStatus?.length) {
+                    this.filtersData.filterStatus.forEach((param: any) => {
+                        if (!param.urlName) return
+                        const values = (param.parameterValue ?? []).map((p: any) => p.value).filter((v: any) => v !== '' && v !== null && v !== undefined)
+                        if (param.multivalue || values.length > 1) {
+                            parameters[param.urlName] = values
+                        } else {
+                            parameters[param.urlName] = values[0] ?? ''
+                        }
+                    })
+                }
+                const payload = {
+                    role: roleFromQuery ?? this.user?.sessionRole ?? '',
+                    label: this.document?.label ?? '',
+                    parameters
+                }
+
                 await this.$http
-                    .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/3.0/documentexecution/` + this.document?.id + '/templates')
+                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/3.0/documentexecution/` + this.document?.id + '/templates', payload)
                     .then((response: AxiosResponse<any>) => (tempModel = response.data))
                     .catch(() => {})
             }
