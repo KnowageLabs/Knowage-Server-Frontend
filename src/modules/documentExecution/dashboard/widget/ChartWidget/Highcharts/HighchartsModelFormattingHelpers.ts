@@ -201,6 +201,54 @@ export const formatVariables = (formattedChartModel: IHighchartsChartModel, vari
     formatVariablesForAxis(formattedChartModel, variables, 'yAxis')
 }
 
+/**
+ * When the left-side axis has `labels.align = 'left'` (with the stored default `x = 0`),
+ * Highcharts anchors the label's LEFT edge on the axis line and renders text to the RIGHT
+ * (into the plot area). No leftward extent → Highcharts calculates zero left margin, unlike
+ * 'right' / 'center' which extend left and cause space to be reserved automatically.
+ *
+ * Which axis is on the LEFT depends on the chart type:
+ *  - bar charts (`chart.type === 'bar'`) and other inverted charts: **xAxis** holds the
+ *    categories and is displayed on the left side.
+ *  - all other chart types: **yAxis** is on the left side.
+ *
+ * Fix strategy:
+ *  1. Set `labels.x = -80` on each affected axis so the label anchor is 80 px to the LEFT of
+ *     the axis line. Highcharts bounding-box calculation then sees 80 px of leftward extent
+ *     and auto-reserves the matching margin — exactly as it does for 'right'/'center'.
+ *  2. Additionally force `chart.marginLeft = 80` as an explicit fallback, in case the
+ *     auto-calculation for 'left' alignment still yields zero.
+ *
+ * Both values are only applied when the user has not already supplied a custom override
+ * (negative x or an explicit marginLeft set via Advanced Settings).
+ */
+export const normalizeYAxisLabelsAlignment = (formattedChartModel: IHighchartsChartModel) => {
+    const chartObj = formattedChartModel.chart as any
+
+    // For bar (and other inverted) charts the left-side labels live on xAxis;
+    // for all other chart types they live on yAxis.
+    const isInverted = chartObj?.type === 'bar' || chartObj?.inverted === true
+    const leftSideAxes: any[] = (isInverted ? formattedChartModel.xAxis : formattedChartModel.yAxis) as any[] ?? []
+
+    if (!leftSideAxes.length) return
+
+    const hasLeftAligned = leftSideAxes.some((axis: any) => axis?.labels?.align === 'left')
+    if (!hasLeftAligned) return
+
+    // Explicit marginLeft fallback – only when not already set by the user.
+    if (chartObj.marginLeft == null) {
+        chartObj.marginLeft = 80
+    }
+
+    // Push the label anchor 80 px to the left of the axis so the text renders in the
+    // reserved margin space and Highcharts auto-calculates the correct left margin.
+    leftSideAxes.forEach((axis: any) => {
+        if (axis?.labels?.align === 'left' && (axis.labels.x == null || axis.labels.x >= 0)) {
+            axis.labels.x = -80
+        }
+    })
+}
+
 export const normalizeTooltipSettings = (formattedChartModel: IHighchartsChartModel) => {
     const tooltip = formattedChartModel.tooltip as any
     if (!tooltip) return
