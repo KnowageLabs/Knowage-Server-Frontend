@@ -11,7 +11,7 @@ import { IHighchartsChartModel } from '../../../interfaces/highcharts/DashboardH
 import { mapActions, mapState } from 'pinia'
 import { updateStoreSelections, executeChartCrossNavigation } from '../../interactionsHelpers/InteractionHelper'
 import { openNewLinkChartWidget } from '../../interactionsHelpers/InteractionLinkHelper'
-import { formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart, formatPictorialChart, formatStreamgraphChart, formatPackedBubble, formatVariables, normalizeTooltipSettings } from './HighchartsModelFormattingHelpers'
+import { formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart, formatPictorialChart, formatStreamgraphChart, formatPackedBubble, formatVariables, normalizeTooltipSettings, normalizeYAxisLabelsAlignment } from './HighchartsModelFormattingHelpers'
 import { applyAdvancedSettingsToModelForRender, formatChartAnnotations, formatForCrossNavigation, getFormattedChartValues } from './HighchartsContainerHelpers'
 import HighchartsSonificationControls from './HighchartsSonificationControls.vue'
 import Highcharts from 'highcharts'
@@ -433,6 +433,7 @@ export default defineComponent({
 
             formatVariables(formattedChartModel, this.variables)
             normalizeTooltipSettings(formattedChartModel)
+            normalizeYAxisLabelsAlignment(formattedChartModel)
 
             if (formattedChartModel.chart.type === 'activitygauge') {
                 formatActivityGauge(formattedChartModel, this.widgetModel)
