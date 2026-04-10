@@ -368,7 +368,7 @@ onMounted(async () => {
 .logo-container {
     display: flex;
     justify-content: center;
-    padding: 20px 0;
+    padding:10px 0;
 }
 
 .logo {
