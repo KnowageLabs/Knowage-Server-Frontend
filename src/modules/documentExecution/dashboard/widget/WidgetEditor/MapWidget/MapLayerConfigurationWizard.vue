@@ -1,5 +1,42 @@
 <template>
     <div v-if="visible" class="layer-wizard-card">
+        <!-- Top Actions Bar -->
+        <div class="wizard-footer wizard-footer--top">
+            <q-btn
+                flat
+                :label="$t('common.cancel')"
+                @click="closeDialog"
+            />
+            <div class="spacer"></div>
+            <div class="footer-actions-right">
+                <q-btn
+                    v-if="currentStep > 1"
+                    flat
+                    :label="$t('common.back')"
+                    @click="currentStep--"
+                />
+                <q-btn
+                    v-if="currentStep < 2"
+                    unelevated
+                    color="primary"
+                    :label="$t('common.next')"
+                    icon-right="arrow_forward"
+                    @click="currentStep++"
+                    :disable="!canProceed"
+                />
+                <q-btn
+                    v-else
+                    unelevated
+                    color="primary"
+                    :label="$t('common.save')"
+                    icon-right="check"
+                    @click="() => saveConfiguration(false)"
+                />
+            </div>
+        </div>
+
+        <div class="wizard-separator"></div>
+
         <!-- Stepper Navigation -->
         <div class="stepper-nav">
             <div class="steps">
@@ -13,7 +50,8 @@
                     <div class="step-divider"></div>
                     <div
                         class="step"
-                        :class="{ active: currentStep === 2 }"
+                        :class="{ active: currentStep === 2, clickable: canProceed }"
+                        @click="canProceed ? currentStep = 2 : null"
                     >
                         <div class="step-number">2</div>
                         <div class="step-label">{{ $t('dashboard.widgetEditor.map.dataConnection') }}</div>
@@ -24,7 +62,7 @@
             <div class="wizard-separator"></div>
 
             <!-- Step Content -->
-            <div class="wizard-content">
+            <div class="wizard-content" :class="{ 'no-scroll': currentStep === 1 }">
                 <!-- Step 1: Visualization Type Selection -->
                 <div v-show="currentStep === 1" class="step-content">
                     <div class="viz-section">
@@ -715,42 +753,6 @@
 
                         </div>
                     </template>
-                </div>
-            </div>
-
-            <!-- Footer Actions -->
-            <div class="wizard-separator"></div>
-            <div class="wizard-footer">
-                <q-btn
-                    flat
-                    :label="$t('common.cancel')"
-                    @click="closeDialog"
-                />
-                <div class="spacer"></div>
-                <div class="footer-actions-right">
-                    <q-btn
-                        v-if="currentStep > 1"
-                        flat
-                        :label="$t('common.back')"
-                        @click="currentStep--"
-                    />
-                    <q-btn
-                        v-if="currentStep < 2"
-                        unelevated
-                        color="primary"
-                        :label="$t('common.next')"
-                        icon-right="arrow_forward"
-                        @click="currentStep++"
-                        :disable="!canProceed"
-                    />
-                    <q-btn
-                        v-else
-                        unelevated
-                        color="primary"
-                        :label="$t('common.save')"
-                        icon-right="check"
-                        @click="() => saveConfiguration(false)"
-                    />
                 </div>
             </div>
     </div>
@@ -1534,7 +1536,34 @@ export default defineComponent({
                 color: var(--kn-color-fab);
             }
         }
+
+        &.clickable {
+            cursor: pointer;
+
+            .step-number {
+                background: color-mix(in srgb, var(--kn-color-fab), transparent 75%);
+                color: var(--kn-color-fab);
+            }
+
+            .step-label {
+                color: var(--kn-color-fab);
+                text-decoration: underline dotted;
+            }
+
+            &:hover {
+                .step-number {
+                    background: color-mix(in srgb, var(--kn-color-fab), transparent 50%);
+                    color: #fff;
+                    transform: scale(1.1);
+                }
+
+                .step-label {
+                    text-decoration: underline solid;
+                }
+            }
+        }
     }
+
 
     .step-divider {
         flex: 1;
@@ -1548,6 +1577,10 @@ export default defineComponent({
     flex: 1;
     overflow-y: auto;
     padding: 32px;
+
+    &.no-scroll {
+        overflow-y: hidden;
+    }
     background: #f8f9fa;
 
     &::-webkit-scrollbar {
@@ -1734,6 +1767,11 @@ export default defineComponent({
     padding: 16px 32px;
     background: #f8f9fa;
     border-top: 1px solid #e9ecef;
+
+    &.wizard-footer--top {
+        border-top: none;
+        border-bottom: 1px solid #e9ecef;
+    }
 
     .q-btn {
         text-transform: none;

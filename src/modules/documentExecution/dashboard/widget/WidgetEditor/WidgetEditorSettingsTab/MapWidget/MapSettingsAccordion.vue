@@ -9,7 +9,7 @@
         </template>
 
         <!-- Standard accordion for other types -->
-        <q-list class="widget-editor-accordion" bordered separator>
+        <q-list v-if="!isVisualizationTypeOnly" class="widget-editor-accordion" bordered separator>
             <q-expansion-item v-for="(accordion, index) in settings" :key="index" :model-value="activeIndex === index" expand-icon-class="col kn-width-full" @update:model-value="(val) => onExpansionChange(val, index)">
                 <template #header>
                     <MapSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></MapSettingsAccordionHeader>
