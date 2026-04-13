@@ -246,6 +246,22 @@ export default defineComponent({
                 this.widgetModel.settings.visualizations = []
             }
 
+            // If the config carries an ID, the wizard may have already live-synced this entry
+            // into the model. Find it and do a final authoritative update, then close.
+            if (config.id) {
+                const existingIdx = this.widgetModel.settings.visualizations.findIndex(
+                    (v: IMapWidgetVisualizationType) => v.id === config.id
+                )
+                if (existingIdx !== -1) {
+                    this.widgetModel.settings.visualizations[existingIdx] = config
+                    this.closeWizard()
+                    this.loadVisualizations()
+                    return
+                }
+            }
+
+            // Fallback: live sync never wrote the entry (e.g. config was always invalid) —
+            // use the original write logic.
             if (this.selectedVisualization) {
                 // Edit existing
                 const index = this.widgetModel.settings.visualizations.findIndex(
@@ -257,7 +273,7 @@ export default defineComponent({
             } else {
                 // Add new
                 const newVisualization = {
-                    id: crypto.randomUUID(),
+                    id: config.id || crypto.randomUUID(),
                     visible: true,
                     ...config
                 }

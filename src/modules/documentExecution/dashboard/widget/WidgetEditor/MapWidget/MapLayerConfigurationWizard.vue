@@ -783,6 +783,7 @@
 import { defineComponent, PropType } from 'vue'
 import { mapActions } from 'pinia'
 import appStore from '@/App.store'
+import deepcopy from 'deepcopy'
 import { IMapWidgetLayer } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { IDataset } from '@/modules/documentExecution/dashboard/Dashboard'
 import { getPropertiesByLayerLabel } from '../../MapWidget/MapWidgetDataProxy'
@@ -856,6 +857,9 @@ export default defineComponent({
             },
             iconPickerVisible: false,
             imagePickerVisible: false,
+            pendingId: null as string | null,
+            originalBackup: null as any,
+            isInitializing: false,
             classificationMethodOptions: [
                 {
                     label: 'dashboard.widgetEditor.map.classesMethodOptions.byEqualIntervals',
@@ -981,44 +985,36 @@ export default defineComponent({
         }
     },
     watch: {
-        visible(newVal, oldVal) {
+        visible(newVal: boolean) {
             if (newVal) {
                 this.loadWizardData()
                 this.hasUnsavedChanges = false
-            } else if (oldVal && !newVal) {
-                // Wizard is closing - auto-save if there are valid changes and user made modifications
-                if (this.selectedVisualization && this.hasUnsavedChanges && this.hasValidConfiguration()) {
-                    this.saveConfiguration(true) // true = silent auto-save
-                }
-                this.hasUnsavedChanges = false
             }
+            // Live sync handles real-time persistence; no auto-save needed on close
         },
         visualizationData: {
             handler() {
-                if (this.visible) {
+                if (this.visible && !this.isInitializing) {
                     this.hasUnsavedChanges = true
+                    this.liveSync()
                 }
             },
             deep: true
         },
         visualizationConfig: {
             handler() {
-                if (this.visible) {
+                if (this.visible && !this.isInitializing) {
                     this.hasUnsavedChanges = true
+                    this.liveSync()
                 }
             },
             deep: true
         },
         selectedVisualizationType() {
-            if (this.visible) {
+            if (this.visible && !this.isInitializing) {
                 this.hasUnsavedChanges = true
+                this.liveSync()
             }
-        },
-        'visualizationData.chartMeasures': {
-            handler(newVal) {
-                console.log('📊 chartMeasures CHANGED:', newVal)
-            },
-            deep: true
         }
     },
     mounted() {
@@ -1029,16 +1025,28 @@ export default defineComponent({
     methods: {
         ...mapActions(appStore, ['setLoading']),
         loadWizardData() {
+            this.isInitializing = true
             this.loadLayersOptions()
 
             // If editing existing visualization, load it
             if (this.selectedVisualization) {
+                this.originalBackup = deepcopy(this.selectedVisualization)
+                this.pendingId = null
                 this.loadExistingVisualization()
             }
             // If layer is provided (from layers tab), set it as target
             else if (this.layer) {
+                this.originalBackup = null
+                this.pendingId = crypto.randomUUID()
                 this.visualizationData.target = this.layer.layerId
+            } else {
+                this.originalBackup = null
+                this.pendingId = crypto.randomUUID()
             }
+
+            this.$nextTick(() => {
+                this.isInitializing = false
+            })
         },
         loadExistingVisualization() {
             if (!this.selectedVisualization) return
@@ -1224,6 +1232,7 @@ export default defineComponent({
             return targetLayer ? targetLayer.type : 'dataset'
         },
         closeDialog() {
+            this.revertChanges()
             this.currentStep = 1
             this.$emit('close')
         },
@@ -1253,9 +1262,7 @@ export default defineComponent({
         handleSaveClick() {
             (this as any).saveConfiguration(false)
         },
-        saveConfiguration(silent?: boolean) {
-            const isSilent = silent === true
-            // Build proper configuration structure based on visualization type
+        buildBaseConfig(): any {
             const baseConfig: any = {
                 ...this.visualizationData,
                 // For charts, use 'pies' as the type for map rendering compatibility
@@ -1268,7 +1275,7 @@ export default defineComponent({
                     method: this.visualizationConfig.classificationMethod,
                     classes: this.visualizationConfig.numberOfClasses,
                     style: {
-                        color: this.visualizationConfig.color,           // main color property
+                        color: this.visualizationConfig.color,
                         toColor: this.visualizationConfig.toColor,
                         borderColor: this.visualizationConfig.borderColor
                     },
@@ -1284,7 +1291,6 @@ export default defineComponent({
                     opacity: this.visualizationConfig.opacity
                 }
 
-                // Add icon/img/url based on marker type
                 if (this.visualizationConfig.markerType === 'icon') {
                     baseConfig.markerConf.icon = {
                         className: this.visualizationConfig.iconClass || 'fa fa-map-marker'
@@ -1300,9 +1306,7 @@ export default defineComponent({
                     measures: this.visualizationData.chartMeasures || [],
                     colors: ['rgba(59, 130, 246, 1)', 'rgba(236, 72, 153, 1)', 'rgba(16, 185, 129, 1)', 'rgba(245, 158, 11, 1)', 'rgba(139, 92, 246, 1)', 'rgba(236, 252, 203, 1)']
                 }
-                // Store chartMeasures at root level for easy access
                 baseConfig.chartMeasures = this.visualizationData.chartMeasures
-                // Also store in targetDatasetMeasures if in join mode for compatibility
                 if (this.visualizationData.connectionType === 'join' && this.visualizationData.targetDataset) {
                     baseConfig.targetDatasetMeasures = this.visualizationData.chartMeasures
                 }
@@ -1330,14 +1334,85 @@ export default defineComponent({
                     }
                 }
             }
+
+            return baseConfig
+        },
+        /**
+         * Writes the current (valid) wizard configuration directly to widgetModel.settings.visualizations.
+         * Called on every user change so the model is always up to date, even if the user saves
+         * the dashboard from the toolbar without first pressing the wizard "Save" button.
+         */
+        liveSync() {
+            if (!this.visible || this.isInitializing) return
+            if (!this.hasValidConfiguration()) return
+
+            const config = this.buildBaseConfig()
+
+            if (!this.widgetModel.settings) this.widgetModel.settings = {}
+            if (!this.widgetModel.settings.visualizations) this.widgetModel.settings.visualizations = []
+
+            if (this.selectedVisualization) {
+                // Edit mode: update the existing entry in place
+                const idx = this.widgetModel.settings.visualizations.findIndex((v: any) => v.id === this.selectedVisualization.id)
+                if (idx !== -1) {
+                    this.widgetModel.settings.visualizations[idx] = { id: this.selectedVisualization.id, ...config }
+                }
+            } else if (this.pendingId) {
+                // New mode: upsert the pending entry
+                const entry = { id: this.pendingId, ...config }
+                const idx = this.widgetModel.settings.visualizations.findIndex((v: any) => v.id === this.pendingId)
+                if (idx !== -1) {
+                    this.widgetModel.settings.visualizations[idx] = entry
+                } else {
+                    this.widgetModel.settings.visualizations.push(entry)
+                }
+            }
+        },
+        /**
+         * Reverts any live-synced changes on wizard cancel.
+         * For edit mode: restores the original entry.
+         * For new mode: removes the pending entry that was added during editing.
+         */
+        revertChanges() {
+            if (!this.widgetModel?.settings?.visualizations) return
+
+            if (this.selectedVisualization && this.originalBackup) {
+                const idx = this.widgetModel.settings.visualizations.findIndex((v: any) => v.id === this.selectedVisualization.id)
+                if (idx !== -1) {
+                    this.widgetModel.settings.visualizations[idx] = this.originalBackup
+                }
+            } else if (this.pendingId) {
+                const idx = this.widgetModel.settings.visualizations.findIndex((v: any) => v.id === this.pendingId)
+                if (idx !== -1) {
+                    this.widgetModel.settings.visualizations.splice(idx, 1)
+                }
+            }
+
+            this.pendingId = null
+            this.originalBackup = null
+        },
+        saveConfiguration(silent?: boolean) {
+            const isSilent = silent === true
+
+            // Build the final config and attach the correct ID so the parent can identify it
+            const baseConfig = this.buildBaseConfig()
+            if (this.selectedVisualization) {
+                baseConfig.id = this.selectedVisualization.id
+            } else if (this.pendingId) {
+                baseConfig.id = this.pendingId
+            }
+
             this.$emit('save', baseConfig)
 
-            // Reset unsaved changes flag
+            // Clear tracking state
             this.hasUnsavedChanges = false
+            this.pendingId = null
+            this.originalBackup = null
 
             // Only close dialog if not in silent auto-save mode
-            if (!silent) {
-                this.closeDialog()
+            if (!isSilent) {
+                this.currentStep = 1
+                this.$emit('close')
             }
         }
     }
