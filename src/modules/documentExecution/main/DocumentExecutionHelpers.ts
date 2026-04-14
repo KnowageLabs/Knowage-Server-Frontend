@@ -1,16 +1,17 @@
 import moment from 'moment'
-import { iExporter } from './DocumentExecution'
+import { iExporter, ICrossNavigationBreadcrumb } from './DocumentExecution'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 import deepcopy from 'deepcopy'
 import { parameterSidebarEmitter } from '@/components/UI/KnParameterSidebar/KnParameterSidebarHelper'
-import { emitter } from '../dashboard/DashboardHelpers'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
 import store from '@/App.store.js'
 
 const mainStore = store()
 
-export function createToolbarMenuItems(document: any, functions: any, exporters: iExporter[] | null, user: any, isOrganizerEnabled: boolean, mode: string | null, $t: any, newDashboardMode: boolean, filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }) {
+export function createToolbarMenuItems(document: any, functions: any, exporters: iExporter[] | null, user: any, isOrganizerEnabled: boolean, mode: string | null, $t: any, newDashboardMode: boolean, filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }, dashboardReady = false) {
     const toolbarMenuItems = [] as any[]
+    const isDashboardDocument = document?.typeCode === 'DASHBOARD'
 
     if (mode === 'dashboard' && user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT)) {
         toolbarMenuItems.push({
@@ -32,13 +33,11 @@ export function createToolbarMenuItems(document: any, functions: any, exporters:
         })
     }
 
-    toolbarMenuItems.push({
-        label: $t('documentExecution.main.views'),
-        items: [
-            { icon: 'fa-solid fa-floppy-disk', label: $t('documentExecution.main.saveCurrentView'), command: () => (document.typeCode === 'DASHBOARD' ? emitter.emit('openSaveCurrentViewDialog', document.dashboardId) : functions.openSaveCurrentViewDialog()) },
-            { icon: 'pi pi-list', label: $t('documentExecution.main.savedViewsList'), command: () => (document.typeCode === 'DASHBOARD' ? emitter.emit('openSavedViewsListDialog', document.dashboardId) : functions.openSavedViewsListDialog()) }
-        ]
-    })
+    const viewMenuItems = [{ icon: 'pi pi-list', label: $t('documentExecution.main.savedViewsList'), command: () => functions.openSavedViewsListDialog() }]
+    if (!isDashboardDocument || dashboardReady) {
+        viewMenuItems.unshift({ icon: 'fa-solid fa-floppy-disk', label: $t('documentExecution.main.saveCurrentView'), command: () => (isDashboardDocument ? emitter.emit('openSaveCurrentViewDialog', document.dashboardId) : functions.openSaveCurrentViewDialog()) })
+    }
+    toolbarMenuItems.push({ label: $t('documentExecution.main.views'), items: viewMenuItems })
 
     if (user.enterprise && !newDashboardMode) {
         const items = [{ icon: 'pi pi-star', label: $t('common.rank'), command: () => functions.openRank() }]
@@ -106,6 +105,17 @@ export function createToolbarMenuItems(document: any, functions: any, exporters:
     removeEmptyToolbarItems(toolbarMenuItems)
 
     return toolbarMenuItems
+}
+
+export const getCurrentDocumentBreadcrumb = (document: any, breadcrumbs: ICrossNavigationBreadcrumb[]) => {
+    const currentDocumentName = document?.name
+    const currentDocumentLabel = document?.label
+    if (!currentDocumentName && !currentDocumentLabel) return null
+    return breadcrumbs.find((breadcrumb: ICrossNavigationBreadcrumb) => breadcrumb.label === currentDocumentName || breadcrumb.document?.label === currentDocumentLabel) ?? null
+}
+
+export const getCurrentDashboardReadyState = (document: any, breadcrumbs: ICrossNavigationBreadcrumb[], fallback = false) => {
+    return getCurrentDocumentBreadcrumb(document, breadcrumbs)?.dashboardReady ?? fallback
 }
 
 const removeEmptyToolbarItems = (toolbarMenuItems: any[]) => {
