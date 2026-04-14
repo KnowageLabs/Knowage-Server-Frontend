@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { iExporter } from '../DocumentExecution'
+import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 
 const { emitMock, mainStoreMock, resetParametersMock } = vi.hoisted(() => {
     const emitMock = vi.fn()
@@ -24,7 +25,7 @@ vi.mock('@/components/UI/KnParameterSidebar/KnParameterSidebarHelper', () => ({
     }
 }))
 
-import { createToolbarMenuItems, getCurrentDashboardReadyState, getCurrentDocumentBreadcrumb } from '../DocumentExecutionHelpers'
+import { canEditDocument, canSeeDashboardEditorActions, createToolbarMenuItems, getCurrentDashboardReadyState, getCurrentDocumentBreadcrumb } from '../DocumentExecutionHelpers'
 
 const t = (key: string) => key
 
@@ -57,6 +58,7 @@ const createDocument = (overrides = {}) => ({
     typeCode: 'DASHBOARD',
     dashboardId: 'dashboard-1',
     seeAsFinalUser: false,
+    engine: 'KnowageDashboardEngine',
     ...overrides
 })
 
@@ -110,6 +112,16 @@ describe('createToolbarMenuItems', () => {
         expect(functions.openSaveCurrentViewDialog).toHaveBeenCalledOnce()
         expect(emitMock).not.toHaveBeenCalled()
     })
+
+    it('hides dashboard settings when editor actions are not allowed yet', () => {
+        const functions = createFunctions()
+        const user = createUser()
+        user.functionalities = [UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT]
+
+        const toolbarMenuItems = createToolbarMenuItems(createDocument(), functions, [] as iExporter[], user, false, 'dashboard', t, false, { filterStatus: [], isReadyForExecution: false }, false, false)
+
+        expect(toolbarMenuItems.find((menuItem: any) => menuItem.label === 'common.settings')).toBeUndefined()
+    })
 })
 
 describe('getCurrentDocumentBreadcrumb', () => {
@@ -136,5 +148,41 @@ describe('getCurrentDashboardReadyState', () => {
     it('falls back to the provided state when no active breadcrumb is found', () => {
         expect(getCurrentDashboardReadyState({ label: 'UNKNOWN' }, [] as any, false)).toBe(false)
         expect(getCurrentDashboardReadyState({ label: 'UNKNOWN' }, [] as any, true)).toBe(true)
+    })
+})
+
+describe('canSeeDashboardEditorActions', () => {
+    it('does not expose editor actions to final users before execution just because dashboardId is missing', () => {
+        const user = createUser()
+        const document = createDocument({ dashboardId: undefined, creationUser: 'different-user' })
+
+        expect(canSeeDashboardEditorActions(user, document, false, false)).toBe(false)
+    })
+
+    it('keeps editor actions available to document owners even before execution', () => {
+        const user = createUser()
+        const document = createDocument({ dashboardId: undefined, creationUser: 'test-user' })
+
+        expect(canSeeDashboardEditorActions(user, document, false, false)).toBe(true)
+    })
+
+    it('hides editor actions in see-as-final-user mode', () => {
+        const user = createUser()
+        user.functionalities = [UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT]
+
+        expect(canSeeDashboardEditorActions(user, createDocument(), true, false)).toBe(false)
+    })
+
+    it('allows editor actions to DEV managers on DEV documents', () => {
+        const user = createUser()
+        user.functionalities = [UserFunctionalitiesConstants.DOCUMENT_DEV_MANAGEMENT]
+
+        expect(canSeeDashboardEditorActions(user, createDocument({ creationUser: 'different-user', stateCode: 'DEV' }), false, false)).toBe(true)
+    })
+})
+
+describe('canEditDocument', () => {
+    it('returns false for unsupported engines', () => {
+        expect(canEditDocument(createUser(), createDocument({ engine: 'QBE' }))).toBe(false)
     })
 })

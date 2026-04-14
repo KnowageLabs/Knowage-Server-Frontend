@@ -98,7 +98,7 @@ import { defineComponent } from 'vue'
 import { AxiosResponse } from 'axios'
 import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
 import { iURLData, iExporter, iSchedulation, ICrossNavigationBreadcrumb, ICrossNavigationParameter } from './DocumentExecution'
-import { createToolbarMenuItems, getCurrentDashboardReadyState, getCurrentDocumentBreadcrumb } from './DocumentExecutionHelpers'
+import { canEditDocument, canSeeDashboardEditorActions, createToolbarMenuItems, getCurrentDashboardReadyState, getCurrentDocumentBreadcrumb } from './DocumentExecutionHelpers'
 import { emitter, formatDashboardForSave } from '../dashboard/DashboardHelpers'
 import { mapState, mapActions } from 'pinia'
 import { getCorrectRolesForExecution } from '../../../helpers/commons/roleHelper'
@@ -293,8 +293,7 @@ export default defineComponent({
             dashboards: 'dashboards'
         }),
         canEditCockpit(): boolean {
-            if (!this.user || !this.document) return false
-            return (this.document.engine?.toLowerCase() === 'knowagecockpitengine' || this.document.engine?.toLowerCase() === 'knowagedashboardengine') && (this.user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) || this.document.creationUser === this.user.userId || (this.document.stateCode === 'DEV' && this.user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_DEV_MANAGEMENT)))
+            return canEditDocument(this.user, this.document)
         },
         sessionRole(): string | null {
             if (!this.user) return null
@@ -471,10 +470,7 @@ export default defineComponent({
             })
         },
         canSeeDashboardFunctions() {
-            if (this.seeAsFinalUser) return false
-            if (!this.user || !this.document) return false
-            if (!this.document.dashboardId && this.document.crossType != 1) return true
-            else return this.user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) || this.document.creationUser === this.user.userId
+            return canSeeDashboardEditorActions(this.user, this.document, this.seeAsFinalUser, this.newDashboardMode)
         },
         ...mapActions(mainStore, ['setInfo', 'setLoading', 'setError', 'setDocumentExecutionEmbed']),
 
@@ -666,7 +662,8 @@ export default defineComponent({
                 this.$t,
                 this.newDashboardMode,
                 this.filtersData,
-                this.isCurrentDashboardReady()
+                this.isCurrentDashboardReady(),
+                this.canSeeDashboardFunctions()
             )
         },
         hiddenExport(type: string) {
