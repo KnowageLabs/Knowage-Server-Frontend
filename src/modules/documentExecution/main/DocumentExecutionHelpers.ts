@@ -9,11 +9,11 @@ import store from '@/App.store.js'
 
 const mainStore = store()
 
-export function createToolbarMenuItems(document: any, functions: any, exporters: iExporter[] | null, user: any, isOrganizerEnabled: boolean, mode: string | null, $t: any, newDashboardMode: boolean, filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }, dashboardReady = false) {
+export function createToolbarMenuItems(document: any, functions: any, exporters: iExporter[] | null, user: any, isOrganizerEnabled: boolean, mode: string | null, $t: any, newDashboardMode: boolean, filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }, dashboardReady = false, showDashboardEditorActions = false) {
     const toolbarMenuItems = [] as any[]
     const isDashboardDocument = document?.typeCode === 'DASHBOARD'
 
-    if (mode === 'dashboard' && user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT)) {
+    if (mode === 'dashboard' && showDashboardEditorActions && user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT)) {
         toolbarMenuItems.push({
             label: $t('common.settings'),
             items: [
@@ -94,7 +94,7 @@ export function createToolbarMenuItems(document: any, functions: any, exporters:
     }
 
     if (filtersData && filtersData.filterStatus?.length > 0) toolbarMenuItems.push({ icon: 'fa fa-eraser', label: $t('documentExecution.main.resetParameters'), command: () => parameterSidebarEmitter.emit('resetAllParameters') })
-    if (mode === 'dashboard' && user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT)) toolbarMenuItems.push({ icon: 'fa-solid fa-users-viewfinder', label: document.seeAsFinalUser ? $t('documentExecution.main.seeAsEditor') : $t('documentExecution.main.seeAsFinalUser'), command: () => functions.toggleFinalUser() })
+    if (mode === 'dashboard' && showDashboardEditorActions && user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT)) toolbarMenuItems.push({ icon: 'fa-solid fa-users-viewfinder', label: document.seeAsFinalUser ? $t('documentExecution.main.seeAsEditor') : $t('documentExecution.main.seeAsFinalUser'), command: () => functions.toggleFinalUser() })
     toolbarMenuItems.push({ icon: 'fa-solid fa-expand', label: 'See in fullscreen', command: () => functions.fullScreen() })
 
     if (mode === 'dashboard') {
@@ -116,6 +116,19 @@ export const getCurrentDocumentBreadcrumb = (document: any, breadcrumbs: ICrossN
 
 export const getCurrentDashboardReadyState = (document: any, breadcrumbs: ICrossNavigationBreadcrumb[], fallback = false) => {
     return getCurrentDocumentBreadcrumb(document, breadcrumbs)?.dashboardReady ?? fallback
+}
+
+export const canEditDocument = (user: any, document: any) => {
+    if (!user || !document) return false
+    const isEditableEngine = document.engine?.toLowerCase() === 'knowagecockpitengine' || document.engine?.toLowerCase() === 'knowagedashboardengine'
+    if (!isEditableEngine) return false
+    return user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) || document.creationUser === user.userId || (document.stateCode === 'DEV' && user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_DEV_MANAGEMENT))
+}
+
+export const canSeeDashboardEditorActions = (user: any, document: any, seeAsFinalUser = false, newDashboardMode = false) => {
+    if (seeAsFinalUser) return false
+    if (newDashboardMode) return true
+    return canEditDocument(user, document)
 }
 
 const removeEmptyToolbarItems = (toolbarMenuItems: any[]) => {
