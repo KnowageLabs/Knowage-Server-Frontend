@@ -28,7 +28,7 @@
                 <Registry v-if="showExecutedDocument && mode === 'registry'" :id="urlData?.sbiExecutionId" :reload-trigger="reloadTrigger"></Registry>
                 <Dossier v-else-if="showExecutedDocument && mode === 'dossier'" :id="document.id" :reload-trigger="reloadTrigger" :filter-data="filtersData" :user-role="userRole"></Dossier>
                 <Olap v-else-if="showExecutedDocument && mode === 'olap'" :id="urlData?.sbiExecutionId" :olap-id="document.id" :olap-name="document.label" :reload-trigger="reloadTrigger" :olap-custom-view-visible="olapCustomViewVisible" :hidden-form-data-prop="hiddenFormData" @closeOlapCustomView="olapCustomViewVisible = false" @applyCustomView="executeOlapCustomView" @executeCrossNavigation="executeOLAPCrossNavigation"></Olap>
-                <DashboardController v-else-if="showExecutedDocument && propMode === 'document-execution-cross-navigation-popup' && document" :visible="filtersData && filtersData.isReadyForExecution && !loading" :document="document" :reload-trigger="reloadTrigger" :mode="'dashboard-popup'" :filters-data="filtersData" :new-dashboard-mode="false"></DashboardController>
+                <DashboardController v-else-if="showExecutedDocument && propMode === 'document-execution-cross-navigation-popup' && document" :visible="filtersData && filtersData.isReadyForExecution && !loading" :document="document" :reload-trigger="reloadTrigger" :mode="'dashboard-popup'" :filters-data="filtersData" :new-dashboard-mode="false" @dashboardReadyStateChanged="onDashboardReadyStateChanged($event)"></DashboardController>
                 <div v-show="mode === 'dashboard' || newDashboardMode" class="p-d-flex p-flex-row" style="height: 100%">
                     <template v-for="(item, index) in breadcrumbs" :key="index">
                         <DashboardController
@@ -43,6 +43,7 @@
                             :filtersLoaded="filtersLoaded"
                             @executeView="executeView"
                             @dashboardIdSet="onSetDashboardId($event, item)"
+                            @dashboardReadyStateChanged="onDashboardReadyStateChanged($event, item)"
                             @newDashboardSaved="onNewDashboardSaved"
                             @executeCrossNavigation="onExecuteCrossNavigation"
                         ></DashboardController>
@@ -97,7 +98,7 @@ import { defineComponent } from 'vue'
 import { AxiosResponse } from 'axios'
 import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
 import { iURLData, iExporter, iSchedulation, ICrossNavigationBreadcrumb, ICrossNavigationParameter } from './DocumentExecution'
-import { createToolbarMenuItems } from './DocumentExecutionHelpers'
+import { createToolbarMenuItems, getCurrentDashboardReadyState, getCurrentDocumentBreadcrumb } from './DocumentExecutionHelpers'
 import { emitter, formatDashboardForSave } from '../dashboard/DashboardHelpers'
 import { mapState, mapActions } from 'pinia'
 import { getCorrectRolesForExecution } from '../../../helpers/commons/roleHelper'
@@ -269,6 +270,7 @@ export default defineComponent({
             currentCockpitView: { label: '', name: '', description: '', drivers: {}, settings: { states: {} }, visibility: 'public', new: true } as IDashboardView,
             selectedCockpitView: null as IDashboardView | null,
             cockpitViewForExecution: null as IDashboardView | null,
+            currentDashboardReady: false,
             dataLoaded: false,
             seeAsFinalUser: false,
             downloadMode: false,
@@ -379,6 +381,26 @@ export default defineComponent({
     },
     methods: {
         ...mapActions(mainStore, ['setDocumentExecutionParametersMap']),
+        getCurrentBreadcrumb() {
+            return getCurrentDocumentBreadcrumb(this.document, this.breadcrumbs)
+        },
+        isCurrentDashboardReady() {
+            return getCurrentDashboardReadyState(this.document, this.breadcrumbs, this.currentDashboardReady)
+        },
+        resetCurrentDashboardReadyState() {
+            this.currentDashboardReady = false
+            const currentBreadcrumb = this.getCurrentBreadcrumb()
+            if (currentBreadcrumb) currentBreadcrumb.dashboardReady = false
+        },
+        onDashboardReadyStateChanged(ready: boolean, breadcrumb?: ICrossNavigationBreadcrumb) {
+            if (breadcrumb) breadcrumb.dashboardReady = ready
+            else {
+                const currentBreadcrumb = this.getCurrentBreadcrumb()
+                if (currentBreadcrumb) currentBreadcrumb.dashboardReady = ready
+            }
+            const currentBreadcrumb = this.getCurrentBreadcrumb()
+            if (!breadcrumb || currentBreadcrumb?.label === breadcrumb.label) this.currentDashboardReady = ready
+        },
         async initialize() {
             this.setEventListeners()
             window.addEventListener('message', this.iframeEventsListener)
@@ -402,7 +424,8 @@ export default defineComponent({
                 if (this.newDashboardMode) {
                     this.breadcrumbs.push({
                         label: 'new-dashboard',
-                        document: this.document
+                        document: this.document,
+                        dashboardReady: false
                     })
                 }
 
@@ -598,6 +621,7 @@ export default defineComponent({
         },
         async refresh() {
             this.parameterSidebarVisible = false
+            if (this.mode === 'dashboard') this.resetCurrentDashboardReadyState()
             await this.loadURL(null)
             this.reloadTrigger = !this.reloadTrigger
         },
@@ -641,7 +665,8 @@ export default defineComponent({
                 this.mode,
                 this.$t,
                 this.newDashboardMode,
-                this.filtersData
+                this.filtersData,
+                this.isCurrentDashboardReady()
             )
         },
         hiddenExport(type: string) {
@@ -894,7 +919,8 @@ export default defineComponent({
                 ? (this.breadcrumbs[index].document = this.document)
                 : this.breadcrumbs.push({
                       label: this.document.name,
-                      document: this.document
+                      document: this.document,
+                      dashboardReady: false
                   })
             if (this.mode === 'iframe' && this.document.typeCode === 'DASHBOARD') this.mode = 'dashboard'
         },
@@ -1282,6 +1308,7 @@ export default defineComponent({
             this.urlData = item.urlData
             this.hiddenFormData = item.hiddenFormData
             this.documentMode = 'VIEW'
+            this.currentDashboardReady = item.dashboardReady ?? false
             this.parameterSidebarVisible = !this.filtersData || this.filtersData.isReadyForExecution === false
             this.updateMode()
         },
@@ -1342,7 +1369,8 @@ export default defineComponent({
                 ? (this.breadcrumbs[index].document = this.document)
                 : this.breadcrumbs.push({
                       label: this.document.name,
-                      document: this.document
+                      document: this.document,
+                      dashboardReady: false
                   })
             await this.loadPage()
             this.reloadTrigger = !this.reloadTrigger
@@ -1471,7 +1499,7 @@ export default defineComponent({
         },
         onSetDashboardId(event: any, breadcrumb: ICrossNavigationBreadcrumb) {
             breadcrumb.document.dashboardId = event
-            this.document.dashboardId = event
+            if (this.document?.name === breadcrumb.label || this.document?.label === breadcrumb.document?.label) this.document.dashboardId = event
         },
         async executeView(view: IDashboardView) {
             this.savedViewsListDialogVisible = false

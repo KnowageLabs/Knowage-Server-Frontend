@@ -94,7 +94,7 @@ export default defineComponent({
         propView: { type: Object as PropType<IDashboardView | null> },
         filtersLoaded: { type: Boolean }
     },
-    emits: ['newDashboardSaved', 'executeCrossNavigation', 'dashboardIdSet', 'executeView'],
+    emits: ['newDashboardSaved', 'executeCrossNavigation', 'dashboardIdSet', 'executeView', 'dashboardReadyStateChanged'],
     provide() {
         return {
             selectorWidgetsInitialData: this.selectorWidgetsData as SelectorDataMap,
@@ -197,6 +197,7 @@ export default defineComponent({
         if (this.newDashboardMode) await this.getData()
     },
     beforeUnmount() {
+        this.$emit('dashboardReadyStateChanged', false)
         this.emptyStoreValues()
         clearAllDatasetIntervals()
     },
@@ -231,20 +232,27 @@ export default defineComponent({
         },
         async getData() {
             this.loading = true
-            if (!this.dashboardId) this.dashboardId = crypto.randomUUID()
-            this.$emit('dashboardIdSet', this.dashboardId)
-            if (this.filtersData) {
-                this.drivers = loadDrivers(this.filtersData, this.model)
-                this.currentView.drivers = this.filtersData
+            let dashboardReady = false
+            this.$emit('dashboardReadyStateChanged', false)
+            try {
+                if (!this.dashboardId) this.dashboardId = crypto.randomUUID()
+                this.$emit('dashboardIdSet', this.dashboardId)
+                if (this.filtersData) {
+                    this.drivers = loadDrivers(this.filtersData, this.model)
+                    this.currentView.drivers = this.filtersData
+                }
+                if (!this.initialDataLoadedMap.profileAttributesLoaded) this.loadProfileAttributes()
+                await this.loadModel()
+                this.setDashboardDrivers(this.dashboardId, this.drivers)
+                this.loadOutputParameters()
+                await this.loadCrossNavigations()
+                this.setCurrentDashboardView(this.dashboardId, this.currentView)
+                this.$watch('model.configuration.datasets', (modelDatasets: IDashboardDataset[]) => setDatasetIntervals(modelDatasets, this.datasets))
+                dashboardReady = true
+            } finally {
+                this.loading = false
+                this.$emit('dashboardReadyStateChanged', dashboardReady)
             }
-            if (!this.initialDataLoadedMap.profileAttributesLoaded) this.loadProfileAttributes()
-            await this.loadModel()
-            this.setDashboardDrivers(this.dashboardId, this.drivers)
-            this.loadOutputParameters()
-            await this.loadCrossNavigations()
-            this.setCurrentDashboardView(this.dashboardId, this.currentView)
-            this.$watch('model.configuration.datasets', (modelDatasets: IDashboardDataset[]) => setDatasetIntervals(modelDatasets, this.datasets))
-            this.loading = false
         },
         async loadModel() {
             let tempModel = null as any
@@ -669,6 +677,7 @@ export default defineComponent({
         onNewDashboardClosed(event: any) {
             if (!this.document || event !== this.dashboardId) return
             this.model = null
+            this.$emit('dashboardReadyStateChanged', false)
             this.emptyStoreValues()
         },
         onSelectionsChanged() {

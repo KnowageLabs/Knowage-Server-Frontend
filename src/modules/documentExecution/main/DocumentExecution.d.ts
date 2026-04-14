@@ -92,7 +92,8 @@ export interface ICrossNavigationBreadcrumb {
     crossBreadcrumb?: string,
     filtersData?: { filterStatus: iParameter[], isReadyForExecution: boolean },
     hiddenFormData?: any,
-    urlData?: any
+    urlData?: any,
+    dashboardReady?: boolean
 }
 
 export interface IURLDriver {
