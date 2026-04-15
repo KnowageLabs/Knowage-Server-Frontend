@@ -645,7 +645,10 @@
         "selectionsList": "Selections List",
         "selectorWidget": {
             "clearImpossibleValues": "Clear Impossible Values",
-            "clearSelection": "Clear Selection"
+            "clearSelection": "Clear Selection",
+            "enableDescriptionColumn": "Enable Description Column",
+            "descriptionColumn": "Description Column",
+            "showValueWithDescription": "Show Value Alongside Description"
         },
         "sheet": "Sheet",
         "sheets": {
