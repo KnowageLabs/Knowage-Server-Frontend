@@ -2755,6 +2755,44 @@
                 "word": "Word"
             }
         },
+        "homeManagement": {
+            "defaultDescription": "Verra mostrata la home predefinita configurata per la piattaforma.",
+            "defaultRole": "Ruolo predefinito",
+            "document": "Documento",
+            "hint": "La gestione della home permette di configurare la pagina iniziale mostrata agli utenti in base al ruolo. Puoi usare la home predefinita, una pagina statica, un documento, un'immagine o un template dinamico.",
+            "homeType": "Tipo home",
+            "imageUrl": "URL immagine",
+            "imageUrlPlaceholder": "Inserisci l'URL di un'immagine",
+            "menuPicker": {
+                "title": "Seleziona le voci di menu"
+            },
+            "preview": "Anteprima",
+            "resetToDefault": "Ripristina predefinita",
+            "role": "Ruolo",
+            "saveSuccess": "Configurazione della home salvata correttamente.",
+            "saveTitle": "Home salvata",
+            "selectDocument": "Seleziona documento",
+            "selectStaticPage": "Seleziona una pagina statica",
+            "staticPage": "Pagina statica",
+            "title": "Gestione home",
+            "types": {
+                "default": "Predefinita",
+                "document": "Documento",
+                "dynamic": "Dinamica",
+                "image": "Immagine",
+                "static": "Pagina statica"
+            },
+            "dynamic": {
+                "insertPlaceholder": "Inserisci placeholder di menu",
+                "itemsSelected": "{n} elementi selezionati",
+                "loadFromGallery": "Carica dalla galleria",
+                "placeholder": "Placeholder {n}",
+                "placeholderCount": "Placeholder menu: {n}",
+                "preview": "Anteprima",
+                "selectFromGallery": "Seleziona dalla galleria",
+                "viewAs": "Visualizza come"
+            }
+        },
         "hierarchyManagement": {
             "afterDate": "After Date",
             "backup": "Backup",
