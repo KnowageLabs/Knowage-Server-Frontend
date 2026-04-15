@@ -4,9 +4,9 @@
 
         <CheckboxSelector v-if="widgetType === 'multiValue'" :model-value="selectedValues" :options="multiValueOptions" :checkbox-style="propWidget.settings.style.checkbox" @update:model-value="checkboxSelectorChanged" />
 
-        <DropdownSelector v-if="widgetType === 'dropdown'" :model-value="selectedValue" :base-options="getBaseDropdownOptions()" :show-mode="showMode" :dropdown-style="propWidget.settings.style.dropdown" :column-alias="columnAlias" :date-format="dashboardDescriptor.selectionsDateFormat" @update:model-value="dropdownSelectorChanged" />
+        <DropdownSelector v-if="widgetType === 'dropdown'" :model-value="selectedValue" :base-options="getBaseDropdownOptions()" :label-key="descriptionLabelKey" :show-mode="showMode" :dropdown-style="propWidget.settings.style.dropdown" :column-alias="columnAlias" :date-format="dashboardDescriptor.selectionsDateFormat" @update:model-value="dropdownSelectorChanged" />
 
-        <MultiDropdownSelector v-if="widgetType === 'multiDropdown'" :model-value="selectedValues" :base-options="getBaseDropdownOptions()" :show-mode="showMode" :multi-dropdown-style="propWidget.settings.style.multiDropdown" :column-alias="columnAlias" @update:model-value="multiDropdownSelectorChanged" />
+        <MultiDropdownSelector v-if="widgetType === 'multiDropdown'" :model-value="selectedValues" :base-options="getBaseDropdownOptions()" :label-key="descriptionLabelKey" :show-mode="showMode" :multi-dropdown-style="propWidget.settings.style.multiDropdown" :column-alias="columnAlias" @update:model-value="multiDropdownSelectorChanged" />
 
         <DateSelector v-if="widgetType === 'date'" :model-value="selectedDate" :date-style="propWidget.settings.style.date" :column-alias="columnAlias" :available-dates="availableDateOptions" :min-date="getDateRangeFormatted('startDate')" :max-date="getDateRangeFormatted('endDate')" @update:model-value="dateSelectionChanged" />
 
@@ -27,6 +27,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IDataset, ISelection, IWidget } from '../../Dashboard'
+import { IDescriptionColumnConfig } from '../../interfaces/DashboardSelectorWidget'
 import { mapActions } from 'pinia'
 import { updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
 import { emitter } from '../../DashboardHelpers'
@@ -94,16 +95,24 @@ export default defineComponent({
         columnAlias(): string {
             return this.propWidget.columns?.[0]?.alias || ''
         },
+        descriptionConfig(): IDescriptionColumnConfig | null {
+            const valueColName = this.propWidget.columns[0]?.columnName
+            if (!valueColName) return null
+            return this.propWidget.settings?.configuration?.descriptionColumnConfigs?.find((c: IDescriptionColumnConfig) => c.valueColumnName === valueColName) ?? null
+        },
+        descriptionLabelKey(): string {
+            return this.descriptionConfig ? 'column_label' : 'column_1'
+        },
         singleValueOptions(): any[] {
             return this.getFilteredOptionsForDisplay().map((row: any) => ({
-                label: row.column_1,
+                label: this.descriptionConfig ? this.buildDescriptionLabel(row) : row.column_1,
                 value: row.column_1,
                 disable: this.showMode === 'showDisabled' && row.disabled
             }))
         },
         multiValueOptions(): any[] {
             return this.getFilteredOptionsForDisplay().map((row: any) => ({
-                label: row.column_1,
+                label: this.descriptionConfig ? this.buildDescriptionLabel(row) : row.column_1,
                 value: row.column_1,
                 disable: this.showMode === 'showDisabled' && row.disabled
             }))
@@ -115,7 +124,8 @@ export default defineComponent({
         sliderOptions(): any[] {
             return this.getFilteredOptionsForDisplay().map((row: any) => ({
                 ...row,
-                disabled: this.showMode === 'showDisabled' && row.disabled
+                disabled: this.showMode === 'showDisabled' && row.disabled,
+                ...(this.descriptionConfig ? { displayLabel: this.buildDescriptionLabel(row) } : {})
             }))
         },
         treeNodes(): TreeNodeItem[] {
@@ -209,7 +219,14 @@ export default defineComponent({
             this.options.rows = newRows
         },
         getBaseDropdownOptions(): any[] {
-            return this.showMode === 'hideDisabled' ? this.options.rows.filter((row: any) => !row.disabled) : this.options.rows
+            const rows = this.showMode === 'hideDisabled' ? this.options.rows.filter((row: any) => !row.disabled) : this.options.rows
+            if (!this.descriptionConfig) return rows
+            return rows.map((row: any) => ({ ...row, column_label: this.buildDescriptionLabel(row) }))
+        },
+        buildDescriptionLabel(row: any): string {
+            const desc = row.column_2 != null ? String(row.column_2) : String(row.column_1)
+            if (this.descriptionConfig?.showValueWithDescription) return `${desc} (${row.column_1})`
+            return desc
         },
         buildTreeNodes(rows: any[], columnCount: number, showMode: string): TreeNodeItem[] {
             const visibleRows = showMode === 'hideDisabled' ? rows.filter((r: any) => !r.disabled) : rows

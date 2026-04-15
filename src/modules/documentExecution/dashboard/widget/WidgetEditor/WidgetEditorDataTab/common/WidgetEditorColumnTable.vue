@@ -37,6 +37,7 @@
                     </Column>
                     <template #expansion="slotProps">
                         <ChartWidgetColumnForm v-if="widgetType === 'highcharts' || widgetType === 'chartjs'" :widget-model="widgetModel" :selected-column="slotProps.data" :chart-type="chartType"></ChartWidgetColumnForm>
+                        <SelectorDataForm v-else-if="widgetType === 'selector'" :prop-column="slotProps.data" :widget-model="widgetModel" />
                         <TableWidgetColumnForm v-else :widget-model="widgetModel" :selected-column="slotProps.data"></TableWidgetColumnForm>
                     </template>
                 </DataTable>
@@ -60,10 +61,11 @@ import InlineMessage from 'primevue/inlinemessage'
 import ChartWidgetColumnForm from '../ChartWidget/common/ChartWidgetColumnForm.vue'
 import TableWidgetColumnForm from '../TableWidget/TableWidgetColumnForm.vue'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
+import SelectorDataForm from '../SelectorWidget/SelectorDataForm.vue'
 
 export default defineComponent({
     name: 'widget-editor-column-table',
-    components: { Column, DataTable, Dropdown, InlineMessage, ChartWidgetColumnForm, TableWidgetColumnForm },
+    components: { Column, DataTable, Dropdown, InlineMessage, ChartWidgetColumnForm, TableWidgetColumnForm, SelectorDataForm },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, items: { type: Array, required: true }, settings: { type: Object, required: true }, chartType: { type: String }, axis: { type: String }, error: { type: Boolean } },
     emits: ['rowReorder', 'itemUpdated', 'itemDeleted', 'itemAdded', 'singleItemReplaced'],
     setup() {

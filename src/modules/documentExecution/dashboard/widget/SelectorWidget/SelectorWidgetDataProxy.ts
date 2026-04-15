@@ -88,7 +88,15 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
     const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=${!selectedDataset.cache}&useGroupBy=true`
 
     const fetchColumn = async (column: any): Promise<[string, any]> => {
-        const singleColumnWidget = { ...widget, columns: [column] }
+        // If this column has a description column configured, include the description column in the request
+        // so the API returns it as column_2 alongside the value as column_1.
+        const descConfig = widget.settings?.configuration?.descriptionColumnConfigs?.find((c: any) => c.valueColumnName === column.columnName)
+        let columnsToFetch = [column]
+        if (descConfig) {
+            const descCol = widget.columns.find((c: any) => c.columnName === descConfig.descriptionColumnName)
+            if (descCol) columnsToFetch = [column, descCol]
+        }
+        const singleColumnWidget = { ...widget, columns: columnsToFetch }
 
         // For the "unlocked" column (the one that just fired its selection), exclude its own selection from the filter so it keeps showing all its available values.
         // Only applies when there are multiple columns (multi-selector widget) — single-column widgets should always self-filter normally.

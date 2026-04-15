@@ -15,7 +15,8 @@ export const createNewSelectorWidgetSettings = () => {
             selectorType: selectorWidgetDefaultValues.getDefaultSelectorType(),
             defaultValues: selectorWidgetDefaultValues.getDefaultValues(),
             valuesManagement: selectorWidgetDefaultValues.getDefaultValuesManagement(),
-            exports: { showExcelExport: true }
+            exports: { showExcelExport: true },
+            descriptionColumnConfigs: []
         },
         style: {
             themeId: null,
