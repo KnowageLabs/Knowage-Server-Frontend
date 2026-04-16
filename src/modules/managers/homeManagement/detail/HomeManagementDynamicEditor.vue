@@ -95,6 +95,7 @@
             v-if="pickerVisible"
             :visible="pickerVisible"
             :selected-ids="menuPlaceholders[activePlaceholderIdx]?.menuIds ?? []"
+            :role-id="props.currentRoleId"
             @update:visible="pickerVisible = $event"
             @confirm="onPickerConfirm"
         />
@@ -121,7 +122,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 
-const PLACEHOLDER_SNIPPET = `<a data-kn-menu href="#">Menu Item</a>`
+const PLACEHOLDER_SNIPPET = `<a data-kn-menu>Menu Item</a>`
 
 const localHtml = ref(props.modelValue?.html ?? '')
 const localCss = ref(props.modelValue?.css ?? '')
@@ -165,26 +166,14 @@ function resolveUrl(node: IMenuNode): string {
     return '#'
 }
 
-/** Filter flat node list to only those visible for the given role. */
-function filterNodesByRole(nodes: IMenuNode[], roleId: number | null): IMenuNode[] {
-    if (roleId === null) return nodes
-    return nodes.filter((n) => {
-        const roles = (n as any).roles as { id: number | null; name: string }[] | undefined
-        // No role restriction → visible to everyone
-        if (!roles || roles.length === 0) return true
-        return roles.some((r) => r.id === roleId)
-    })
-}
-
 async function loadMenuAndFilter(roleId: number | null) {
     previewLoading.value = true
     try {
-        if (!menuLoaded.value) {
-            const res = await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/menu')
-            allMenuNodes.value = res.data
-            menuLoaded.value = true
-        }
-        visibleMenuNodes.value = filterNodesByRole(flattenNodes(allMenuNodes.value), roleId)
+        const roleSegment = roleId ?? 'default'
+        const res = await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/menu/preview/' + roleSegment)
+        allMenuNodes.value = res.data
+        menuLoaded.value = true
+        visibleMenuNodes.value = flattenNodes(allMenuNodes.value)
     } catch { /* no-op */ }
     finally {
         previewLoading.value = false
@@ -201,11 +190,7 @@ const previewSrc = computed(() => {
         phIdx++
 
         if (!allFlat.length) {
-            const demos = [1, 2, 3].map((i) => {
-                const o = openFull.replace(/\sdata-kn-menu(\s|=|>)/, ' ').replace(/href="[^"]*"/, 'href="#"')
-                return `${o}Menu Item ${i}${close}`
-            })
-            return demos.join('\n')
+            return ''
         }
 
         const selectedNodes = allFlat.filter((n) => ph?.menuIds?.includes(n.menuId))

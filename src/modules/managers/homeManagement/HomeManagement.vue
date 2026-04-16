@@ -165,6 +165,7 @@ import mainStore from '@/App.store'
 import HomeManagementDynamicEditor from './detail/HomeManagementDynamicEditor.vue'
 import { IHomeConfig, IDynamicHomeTemplate } from './HomeManagement'
 import deepcopy from 'deepcopy'
+import { useRouter } from 'vue-router'
 
 const { t } = useI18n()
 const store = mainStore()
@@ -183,6 +184,7 @@ const documents = ref<any[]>([])
 const docsLoading = ref(false)
 const documentDialogVisible = ref(false)
 const docFilter = ref('')
+const router = useRouter();
 
 const homeTypeOptions = computed(() => [
     { label: t('managers.homeManagement.types.default'), value: 'default' },
@@ -217,7 +219,7 @@ const staticPagePreviewUrl = computed(() => {
 
 const documentPreviewUrl = computed(() => {
     if (!config.value.documentLabel) return ''
-    return import.meta.env.VITE_KNOWAGE_CONTEXT + '/servlet/AdapterHTTP?ACTION_NAME=EXECUTE_DOCUMENT_ACTION&OBJECT_LABEL=' + encodeURIComponent(config.value.documentLabel)
+    return import.meta.env.VITE_KNOWAGE_VUE_CONTEXT + '/dashboard/' + encodeURIComponent(config.value.documentLabel) + "&menu=false"
 })
 
 async function loadRoles() {
@@ -235,9 +237,13 @@ async function loadConfig(roleId: number | null) {
     dirty.value = false
     try {
         const id = roleId === null ? 'default' : roleId
-        const res = await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/api/user-home/' + id)
+        const res = await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/homepage/' + id)
         config.value = { ...deepcopy(EMPTY_CONFIG), ...res.data }
         if (!config.value.template) config.value.template = deepcopy(EMPTY_TEMPLATE)
+        else if (config.value.template.html) {
+            // Re-add href="#" to data-kn-menu anchors stripped before saving
+            config.value.template.html = config.value.template.html.replace(/(<[a-zA-Z][a-zA-Z0-9]*\s[^>]*data-kn-menu(?![^>]*\shref=)[^>]*)>/g, '$1 href="#">')
+        }
     } catch {
         config.value = deepcopy(EMPTY_CONFIG)
         config.value.roleId = roleId
@@ -259,8 +265,8 @@ async function loadStaticPages() {
 async function loadDocuments() {
     docsLoading.value = true
     try {
-        const res = await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/documents')
-        documents.value = res.data
+        const res = await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/documents/listDocument')
+        documents.value = res.data?.item ?? []
     } finally {
         docsLoading.value = false
     }
@@ -280,7 +286,16 @@ function onDocumentSelect(_evt: any, row: any) {
 async function save() {
     try {
         config.value.roleId = selectedRoleId.value
-        await axios.post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/api/user-home', config.value)
+        const payload = deepcopy(config.value)
+        if (payload.type !== 'dynamic') delete payload.template
+        else if (payload.template?.html) {
+            // Strip href from data-kn-menu anchors to avoid backend XSS URL validation
+            payload.template.html = payload.template.html.replace(/(<[a-zA-Z][a-zA-Z0-9]*\s[^>]*data-kn-menu[^>]*)\shref="[^"]*"/g, '$1')
+        }
+        if (payload.type !== 'static') delete payload.staticPage
+        if (payload.type !== 'document') { delete payload.documentId; delete payload.documentLabel }
+        if (payload.type !== 'image') delete payload.imageUrl
+        await axios.post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/homepage', payload)
         store.setInfo({ title: t('managers.homeManagement.saveTitle'), msg: t('managers.homeManagement.saveSuccess') })
         dirty.value = false
     } catch {

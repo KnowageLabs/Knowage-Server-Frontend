@@ -40,6 +40,7 @@ import { IMenuNode } from '../HomeManagement'
 const props = defineProps<{
     visible: boolean
     selectedIds: number[]
+    roleId: number | null
 }>()
 
 const emit = defineEmits<{
@@ -91,10 +92,11 @@ function buildTreeFromFlat(flat: IMenuNode[]): any[] {
 const treeNodes = computed(() => buildTreeFromFlat(menuNodes.value))
 
 async function loadMenu() {
-    if (menuNodes.value.length > 0) return
     loading.value = true
+    menuNodes.value = []
     try {
-        const res = await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/menu')
+        const roleSegment = props.roleId ?? 'default'
+        const res = await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/menu/preview/' + roleSegment)
         menuNodes.value = res.data
     } finally {
         loading.value = false
