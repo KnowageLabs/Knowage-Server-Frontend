@@ -25,6 +25,24 @@
                 }
             ]
         },
+        "businessModels": {
+            "column": [
+                {
+                    "align": "left",
+                    "field": "label",
+                    "label": "common.label",
+                    "name": "label",
+                    "sortable": true
+                },
+                {
+                    "align": "left",
+                    "field": "name",
+                    "label": "common.name",
+                    "name": "name",
+                    "sortable": true
+                }
+            ]
+        },
         "catalogFunction": {
             "column": [
                 {
@@ -120,31 +138,13 @@
                 }
             ]
         },
-        "businessModels": {
+        "kpis": {
             "column": [
                 {
                     "align": "left",
-                    "field": "label",
-                    "label": "common.label",
-                    "name": "label",
-                    "sortable": true
-                },
-                {
-                    "align": "left",
-                    "field": "name",
-                    "label": "common.name",
-                    "name": "name",
-                    "sortable": true
-                }
-            ]
-        },
-        "mondrianSchemas": {
-            "column": [
-                {
-                    "align": "left",
-                    "field": "label",
-                    "label": "common.label",
-                    "name": "label",
+                    "field": "author",
+                    "label": "importExport.kpis.column.author",
+                    "name": "author",
                     "sortable": true
                 },
                 {
@@ -174,13 +174,14 @@
                 }
             ]
         },
-        "kpis": {
+        "menu": {},
+        "mondrianSchemas": {
             "column": [
                 {
                     "align": "left",
-                    "field": "author",
-                    "label": "importExport.kpis.column.author",
-                    "name": "author",
+                    "field": "label",
+                    "label": "common.label",
+                    "name": "label",
                     "sortable": true
                 },
                 {
@@ -192,7 +193,6 @@
                 }
             ]
         },
-        "menu": {},
         "users": {
             "column": [
                 {
@@ -222,14 +222,16 @@
     "functionalities": [
         {
             "description": "importExport.gallery.description",
-            "icon": "fas fa-paint-brush",
+            "icon": "palette",
+            "iconType": "material-outlined",
             "label": "importExport.gallery.label",
             "route": "/import-export/gallery",
             "type": "gallery"
         },
         {
             "description": "importExport.catalogFunction.description",
-            "icon": "fa fa-cubes",
+            "icon": "category",
+            "iconType": "material-outlined",
             "label": "importExport.catalogFunction.label",
             "requiredFunctionality": "FunctionsCatalogManagement",
             "requiredLicense": "KnowageSI",
@@ -238,7 +240,8 @@
         },
         {
             "description": "importExport.users.description",
-            "icon": "fas fa-users",
+            "icon": "group",
+            "iconType": "material-outlined",
             "label": "importExport.users.label",
             "requiredFunctionality": "ImpExpUsers",
             "route": "/import-export/users",
@@ -246,7 +249,8 @@
         },
         {
             "description": "importExport.glossary.description",
-            "icon": "fas fa-book",
+            "icon": "menu_book",
+            "iconType": "material-outlined",
             "label": "importExport.glossary.label",
             "requiredFunctionality": "ImpExpGlossary",
             "route": "/import-export/glossary",
@@ -254,7 +258,8 @@
         },
         {
             "description": "importExport.datasets.description",
-            "icon": "fas fa-database",
+            "icon": "storage",
+            "iconType": "material-outlined",
             "label": "importExport.datasets.label",
             "requiredFunctionality": "ImpExpCatalog",
             "route": "/import-export/datasets",
@@ -262,7 +267,8 @@
         },
         {
             "description": "importExport.businessModels.description",
-            "icon": "fas fa-project-diagram",
+            "icon": "account_tree",
+            "iconType": "material-outlined",
             "label": "importExport.businessModels.label",
             "requiredFunctionality": "ImpExpCatalog",
             "route": "/import-export/businessmodels",
@@ -270,7 +276,8 @@
         },
         {
             "description": "importExport.mondrianSchemas.description",
-            "icon": "fas fa-cube",
+            "icon": "schema",
+            "iconType": "material-outlined",
             "label": "importExport.mondrianSchemas.label",
             "requiredFunctionality": "ImpExpCatalog",
             "route": "/import-export/mondrianschemas",
@@ -278,7 +285,8 @@
         },
         {
             "description": "importExport.layers.description",
-            "icon": "fas fa-layer-group",
+            "icon": "layers",
+            "iconType": "material-outlined",
             "label": "importExport.layers.label",
             "requiredFunctionality": "ImpExpCatalog",
             "route": "/import-export/layers",
@@ -286,7 +294,8 @@
         },
         {
             "description": "importExport.kpis.description",
-            "icon": "fas fa-bullseye",
+            "icon": "speed",
+            "iconType": "material-outlined",
             "label": "importExport.kpis.label",
             "requiredFunctionality": "ImpExpKpis",
             "route": "/import-export/kpi",
@@ -294,7 +303,8 @@
         },
         {
             "description": "importExport.analyticalDrivers.description",
-            "icon": "fas fa-sliders-h",
+            "icon": "tune",
+            "iconType": "material-outlined",
             "label": "importExport.analyticalDrivers.label",
             "requiredFunctionality": "ImpExpAnalyticalDrivers",
             "route": "/import-export/drivers",
@@ -302,19 +312,12 @@
         },
         {
             "description": "importExport.menu.description",
-            "icon": "fas fa-bars",
+            "icon": "menu",
+            "iconType": "material-outlined",
             "label": "importExport.menu.label",
             "requiredFunctionality": "ImpExpMenu",
             "route": "/import-export/menu",
             "type": "menu"
-        },
-        {
-            "description": "importExport.documents.description",
-            "icon": "fas fa-file-alt",
-            "label": "importExport.documents.label",
-            "requiredFunctionality": "DocumentAdminManagement",
-            "route": "/import-export/documents",
-            "type": "documents"
         }
     ],
     "iconTypesMap": {
@@ -349,24 +352,6 @@
             }
         }
     },
-    "oldImportFunctionalities": [
-        {
-            "description": "importExport.gallery.description",
-            "icon": "fas fa-paint-brush",
-            "label": "importExport.gallery.label",
-            "route": "/import-export/gallery",
-            "type": "gallery"
-        },
-        {
-            "description": "importExport.catalogFunction.description",
-            "icon": "fa fa-cubes",
-            "label": "importExport.catalogFunction.label",
-            "requiredFunctionality": "FunctionsCatalogManagement",
-            "requiredLicense": "KnowageSI",
-            "route": "/import-export/catalogfunction",
-            "type": "catalogFunction"
-        }
-    ],
     "import": {
         "catalogFunction": {
             "column": [
@@ -468,42 +453,78 @@
                     "id": "9c964338-9970-4499-aac1-e0348da63af4",
                     "label": "label 1",
                     "name": "dfsdf",
-                    "tags": ["df", "sdfsd", "fsdf", "sd", "2323"],
+                    "tags": [
+                        "df",
+                        "sdfsd",
+                        "fsdf",
+                        "sd",
+                        "2323"
+                    ],
                     "type": "Machine Learning"
                 },
                 {
                     "id": "9c964338-9970-4499-aac1-e0348AAAAAAA",
                     "label": "label 2",
                     "name": "dfsdf",
-                    "tags": ["5", "sdfsd", "3", "6", "2323"],
+                    "tags": [
+                        "5",
+                        "sdfsd",
+                        "3",
+                        "6",
+                        "2323"
+                    ],
                     "type": "Machine Learning"
                 },
                 {
                     "id": "9c964338-9970-4499-aac1-e0348BBBBBBB",
                     "label": "label 2",
                     "name": "dfsdf",
-                    "tags": ["5", "sdfsd", "3", "6", "2323"],
+                    "tags": [
+                        "5",
+                        "sdfsd",
+                        "3",
+                        "6",
+                        "2323"
+                    ],
                     "type": "Machine Learning"
                 },
                 {
                     "id": "9c964338-9970-4499-aac1-e0348CCCCCCC",
                     "label": "label 2",
                     "name": "dfsdf",
-                    "tags": ["5", "sdfsd", "3", "6", "2323"],
+                    "tags": [
+                        "5",
+                        "sdfsd",
+                        "3",
+                        "6",
+                        "2323"
+                    ],
                     "type": "Machine Learning"
                 },
                 {
                     "id": "9c964338-9970-4499-aac1-e0348DDDDDDDD",
                     "label": "label 2",
                     "name": "dfsdf",
-                    "tags": ["5", "sdfsd", "3", "6", "2323"],
+                    "tags": [
+                        "5",
+                        "sdfsd",
+                        "3",
+                        "6",
+                        "2323"
+                    ],
                     "type": "Machine Learning"
                 },
                 {
                     "id": "9c964338-9970-4499-aac1-e0348EEEEEEE",
                     "label": "label 2",
                     "name": "dfsdf",
-                    "tags": ["5", "sdfsd", "3", "6", "2323"],
+                    "tags": [
+                        "5",
+                        "sdfsd",
+                        "3",
+                        "6",
+                        "2323"
+                    ],
                     "type": "Machine Learning"
                 }
             ],
@@ -548,7 +569,10 @@
                     },
                     "id": "01ebc22b-7a87-1460-ac86-d330aa75a0b3",
                     "name": "Card24",
-                    "tags": ["card", "html"],
+                    "tags": [
+                        "card",
+                        "html"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -562,7 +586,11 @@
                     },
                     "id": "01ebc231-6050-1668-a84a-968c9dbffd0c",
                     "name": "Card25",
-                    "tags": ["card", "html", "icon"],
+                    "tags": [
+                        "card",
+                        "html",
+                        "icon"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -576,7 +604,10 @@
                     },
                     "id": "01ebc232-7c08-13c8-9602-33a7192b55a9",
                     "name": "Card26",
-                    "tags": ["card", "html"],
+                    "tags": [
+                        "card",
+                        "html"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -590,7 +621,11 @@
                     },
                     "id": "01ebc226-ff23-1958-944f-f61e8e51d9f1",
                     "name": "Card29",
-                    "tags": ["card", "html", "icon"],
+                    "tags": [
+                        "card",
+                        "html",
+                        "icon"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -620,7 +655,10 @@
                     "description": "Card with rounded area",
                     "id": "01ebc54b-64d7-1908-b283-0f94a7ad1f53",
                     "name": "Card33",
-                    "tags": ["card", "roundedarea"],
+                    "tags": [
+                        "card",
+                        "roundedarea"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -634,7 +672,11 @@
                     },
                     "id": "01ebc547-538c-1850-b94b-8dde2852bbeb",
                     "name": "GeneralText15",
-                    "tags": ["backgroundimage", "generaltext", "header"],
+                    "tags": [
+                        "backgroundimage",
+                        "generaltext",
+                        "header"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -648,7 +690,10 @@
                     },
                     "id": "01ebc54c-9866-1ea8-8288-652577511b93",
                     "name": "GeneralText16",
-                    "tags": ["backgroundimage", "generaltext"],
+                    "tags": [
+                        "backgroundimage",
+                        "generaltext"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -663,7 +708,10 @@
                     "description": "Radar Chart with percentage value",
                     "id": "01ebc781-625e-17c0-b228-ed56cbd56503",
                     "name": "ComplexChart1",
-                    "tags": ["complexchart", "radarchart"],
+                    "tags": [
+                        "complexchart",
+                        "radarchart"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -678,7 +726,10 @@
                     "description": "Pyramid chart with name and column value",
                     "id": "01ebc788-51fd-1cf8-adb9-3185ce7f5fb7",
                     "name": "ComplexChart2",
-                    "tags": ["complexchart", "pyramidchart"],
+                    "tags": [
+                        "complexchart",
+                        "pyramidchart"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -692,7 +743,9 @@
                     },
                     "id": "01ebc796-dbb4-1998-805f-659d80f8a2c0",
                     "name": "ComplexChart4",
-                    "tags": ["complexchart"],
+                    "tags": [
+                        "complexchart"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -707,7 +760,12 @@
                     "description": "Card with donut chart, icon, title and percentage of progress",
                     "id": "01ebc226-d1d6-1e78-8c40-079fa4f8f7ce",
                     "name": "Card17",
-                    "tags": ["card", "donutchart", "html", "percentage"],
+                    "tags": [
+                        "card",
+                        "donutchart",
+                        "html",
+                        "percentage"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -721,7 +779,11 @@
                     },
                     "id": "01ebc226-5aa1-1538-9ecd-fce57eb2c43a",
                     "name": "Card32",
-                    "tags": ["card", "html", "icon"],
+                    "tags": [
+                        "card",
+                        "html",
+                        "icon"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -736,7 +798,11 @@
                     "description": "General Text with gradient background and icon",
                     "id": "01ebc550-d070-12c8-982f-fe6650659663",
                     "name": "GeneralText11",
-                    "tags": ["background", "generaltext", "icon"],
+                    "tags": [
+                        "background",
+                        "generaltext",
+                        "icon"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -750,7 +816,11 @@
                     },
                     "id": "01ebc54d-820d-15e8-960a-ce824b9e5a21",
                     "name": "GeneralText12",
-                    "tags": ["background", "generaltext", "roundedcorner"],
+                    "tags": [
+                        "background",
+                        "generaltext",
+                        "roundedcorner"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -765,7 +835,11 @@
                     "description": "Progress bar chart",
                     "id": "01ebc798-4a46-1270-b868-ad25ac787972",
                     "name": "ComplexChart5",
-                    "tags": ["complexchart", "html", "progressbar"],
+                    "tags": [
+                        "complexchart",
+                        "html",
+                        "progressbar"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -780,7 +854,12 @@
                     "description": "Progress bar chart with icons",
                     "id": "01ebc792-2253-1c50-a921-f2ef9bf8abb1",
                     "name": "ComplexChart6",
-                    "tags": ["complexchart", "html", "icon", "progressbar"],
+                    "tags": [
+                        "complexchart",
+                        "html",
+                        "icon",
+                        "progressbar"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -795,7 +874,12 @@
                     "description": "Progress bar chart with target line",
                     "id": "01ebc792-7f4f-17b0-aa48-b1d2603202f0",
                     "name": "ComplexChart7",
-                    "tags": ["complexchart", "html", "progressbar", "targetline"],
+                    "tags": [
+                        "complexchart",
+                        "html",
+                        "progressbar",
+                        "targetline"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -810,7 +894,10 @@
                     "description": "Table with check and cross icons",
                     "id": "01ebc79e-8715-11c8-a3a3-c86274bf5572",
                     "name": "Table1",
-                    "tags": ["html", "table"],
+                    "tags": [
+                        "html",
+                        "table"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -824,7 +911,11 @@
                     },
                     "id": "01ebc79d-c263-11b8-a095-37a3e5e405ac",
                     "name": "Table2",
-                    "tags": ["complexchart", "html", "table"],
+                    "tags": [
+                        "complexchart",
+                        "html",
+                        "table"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -839,7 +930,10 @@
                     "description": "Legend with title",
                     "id": "01ebc7a7-a6fd-10e0-8ce8-8f42987fc488",
                     "name": "Legend1",
-                    "tags": ["html", "legend"],
+                    "tags": [
+                        "html",
+                        "legend"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -854,7 +948,12 @@
                     "description": "Double Axis bar char",
                     "id": "01ebbf09-1271-1f08-91ec-ff22d2196bea",
                     "name": "FixedColumnChart",
-                    "tags": ["Column", "DoubleAxis", "FixedColumn", "highcharts"],
+                    "tags": [
+                        "Column",
+                        "DoubleAxis",
+                        "FixedColumn",
+                        "highcharts"
+                    ],
                     "type": "chart",
                     "usageCounter": 0
                 },
@@ -869,7 +968,9 @@
                     "description": "Card with an image/logo, 2 values and columns name.",
                     "id": "01ebbf0f-f0c8-1378-93ce-747518f43cd6",
                     "name": "Card2",
-                    "tags": ["card"],
+                    "tags": [
+                        "card"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -898,7 +999,11 @@
                     },
                     "id": "01ebbf0c-f40d-1f40-9f9f-bdca48754fc2",
                     "name": "FunnelChart",
-                    "tags": ["Chart", "Funnel", "Highcharts"],
+                    "tags": [
+                        "Chart",
+                        "Funnel",
+                        "Highcharts"
+                    ],
                     "type": "chart",
                     "usageCounter": 0
                 },
@@ -912,7 +1017,13 @@
                     },
                     "id": "01ebbf09-c116-1310-a700-e37cc9cfccb1",
                     "name": "Organization",
-                    "tags": ["Chart", "Highcharts", "Levels", "Organization", "test"],
+                    "tags": [
+                        "Chart",
+                        "Highcharts",
+                        "Levels",
+                        "Organization",
+                        "test"
+                    ],
                     "type": "chart",
                     "usageCounter": 0
                 },
@@ -927,7 +1038,12 @@
                     "description": "Bar chart with not all series stacked and drilldown",
                     "id": "01ebbf9e-3502-1190-8816-0d0927ce2eb5",
                     "name": "NotAllStackedDrillChart",
-                    "tags": ["barchart", "chart", "customchart", "stacked"],
+                    "tags": [
+                        "barchart",
+                        "chart",
+                        "customchart",
+                        "stacked"
+                    ],
                     "type": "chart",
                     "usageCounter": 0
                 },
@@ -942,7 +1058,13 @@
                     "description": "Stached and Grouped column",
                     "id": "01ebbfa7-210e-1e50-ab66-5194104a136e",
                     "name": "StackedGroupedChart",
-                    "tags": ["barchart", "chart", "customchart", "grouped", "stacked"],
+                    "tags": [
+                        "barchart",
+                        "chart",
+                        "customchart",
+                        "grouped",
+                        "stacked"
+                    ],
                     "type": "chart",
                     "usageCounter": 0
                 },
@@ -957,7 +1079,13 @@
                     "description": "Text to print parameters values",
                     "id": "01ebbf9d-95dd-1218-b21d-41d01162f78d",
                     "name": "GeneralText1",
-                    "tags": ["GeneralText", "Parameters", "Print", "Text", "html"],
+                    "tags": [
+                        "GeneralText",
+                        "Parameters",
+                        "Print",
+                        "Text",
+                        "html"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -972,7 +1100,12 @@
                     "description": "Text to print parameters values",
                     "id": "01ebbfcb-765c-1ed8-aba4-01017305ed4f",
                     "name": "GeneralText2",
-                    "tags": ["GeneralText", "Print", "Text", "html"],
+                    "tags": [
+                        "GeneralText",
+                        "Print",
+                        "Text",
+                        "html"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -987,7 +1120,12 @@
                     "description": "General text to use as local header",
                     "id": "01ebbfca-a657-1c10-b580-d160bca8c26f",
                     "name": "GeneralText3",
-                    "tags": ["General", "GeneralText", "Text", "html"],
+                    "tags": [
+                        "General",
+                        "GeneralText",
+                        "Text",
+                        "html"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1002,7 +1140,12 @@
                     "description": "General Text html card to use as local header",
                     "id": "01ebbfcb-2da5-1348-b98c-df9c6fe8c766",
                     "name": "GeneralText6",
-                    "tags": ["GeneralText", "Header", "Html", "Text"],
+                    "tags": [
+                        "GeneralText",
+                        "Header",
+                        "Html",
+                        "Text"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1017,7 +1160,11 @@
                     "description": "Header with title and parameters printed on left side",
                     "id": "01ebbe05-727f-16e8-a57d-437d3982ff10",
                     "name": "Header1",
-                    "tags": ["header", "html", "leftside"],
+                    "tags": [
+                        "header",
+                        "html",
+                        "leftside"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1032,7 +1179,11 @@
                     "description": "Header with title on left and logo on righ side",
                     "id": "01ebbe1e-da8e-17e8-b845-69b37dc8efac",
                     "name": "Header3",
-                    "tags": ["header", "html", "title"],
+                    "tags": [
+                        "header",
+                        "html",
+                        "title"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1077,7 +1228,12 @@
                     "description": "General Text html card to use as local header",
                     "id": "01ebbfc0-9b98-12e8-887f-5ee8718f9e0a",
                     "name": "GeneralText5",
-                    "tags": ["GeneralText", "Header", "Html", "Text"],
+                    "tags": [
+                        "GeneralText",
+                        "Header",
+                        "Html",
+                        "Text"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1092,7 +1248,10 @@
                     "description": "Card with background icon and 2 values",
                     "id": "01ebc208-ed32-1fa0-beb8-c46b8599ac33",
                     "name": "Card13",
-                    "tags": ["card", "html"],
+                    "tags": [
+                        "card",
+                        "html"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1107,7 +1266,10 @@
                     "description": "Card with background color, value and icon",
                     "id": "01ebc1fd-3120-1020-a761-992013e43525",
                     "name": "Card14",
-                    "tags": ["card", "html"],
+                    "tags": [
+                        "card",
+                        "html"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1122,7 +1284,11 @@
                     "description": "Header with logo and title on left side and parameters printed on right",
                     "id": "01ebbe1f-525c-1a90-bf90-5ff0a79569bd",
                     "name": "Header2",
-                    "tags": ["header", "html", "parameters"],
+                    "tags": [
+                        "header",
+                        "html",
+                        "parameters"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1137,7 +1303,13 @@
                     "description": "Header with title in the middle, logo on left and parameters printed on right side",
                     "id": "01ebbe0d-757e-15d0-ba71-8119bd51b102",
                     "name": "Header4",
-                    "tags": ["header", "html", "logo", "parameters", "title"],
+                    "tags": [
+                        "header",
+                        "html",
+                        "logo",
+                        "parameters",
+                        "title"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1152,7 +1324,9 @@
                     "description": "Card with backgroun image, 2 values and one icon.",
                     "id": "01ebbf13-49e5-19a8-90f7-99c5ddae6dd9",
                     "name": "Card6",
-                    "tags": ["card"],
+                    "tags": [
+                        "card"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1182,7 +1356,14 @@
                     "description": "Line Drill with multi series",
                     "id": "01ebbf09-20c0-10c8-8899-06b00a63361a",
                     "name": "LineDrillChart",
-                    "tags": ["Chart", "Drill", "HighCharts", "Line", "Multi", "Series"],
+                    "tags": [
+                        "Chart",
+                        "Drill",
+                        "HighCharts",
+                        "Line",
+                        "Multi",
+                        "Series"
+                    ],
                     "type": "chart",
                     "usageCounter": 0
                 },
@@ -1197,7 +1378,13 @@
                     "description": "Simple header with title in the middle and logo image on the right side",
                     "id": "01ebbe2c-593d-1e88-af8a-cdbfc4b73d9e",
                     "name": "Header5",
-                    "tags": ["header", "html", "logo", "middle", "title"],
+                    "tags": [
+                        "header",
+                        "html",
+                        "logo",
+                        "middle",
+                        "title"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1211,7 +1398,13 @@
                     },
                     "id": "01ebbf0b-bf4d-16d0-9cd5-5a5b4bdf0465",
                     "name": "BarChartRace",
-                    "tags": ["BarChartRace", "bar", "chart", "highcharts", "race"],
+                    "tags": [
+                        "BarChartRace",
+                        "bar",
+                        "chart",
+                        "highcharts",
+                        "race"
+                    ],
                     "type": "chart",
                     "usageCounter": 0
                 },
@@ -1226,7 +1419,10 @@
                     "description": "Card with background image, title and one value.",
                     "id": "01ebbf01-e0a9-15b8-a14b-2f532ce6bc06",
                     "name": "Card1",
-                    "tags": ["background", "card"],
+                    "tags": [
+                        "background",
+                        "card"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1241,7 +1437,11 @@
                     "description": "Highchart Pyramid Chart",
                     "id": "01ebbf98-ec94-12c8-9541-de7f5423fa83",
                     "name": "PyramidChart",
-                    "tags": ["chart", "customchart", "pyramidchart"],
+                    "tags": [
+                        "chart",
+                        "customchart",
+                        "pyramidchart"
+                    ],
                     "type": "chart",
                     "usageCounter": 0
                 },
@@ -1256,7 +1456,12 @@
                     "description": "Bar chart with all series stacked and drilldown",
                     "id": "01ebbfa2-f622-1920-9ec7-ea6405589ed4",
                     "name": "AllStackedDrillChart",
-                    "tags": ["barchart", "chart", "customchart", "stacked"],
+                    "tags": [
+                        "barchart",
+                        "chart",
+                        "customchart",
+                        "stacked"
+                    ],
                     "type": "chart",
                     "usageCounter": 0
                 },
@@ -1271,7 +1476,11 @@
                     "description": "Temporal Series Line Highchart",
                     "id": "01ebbf9e-071c-1d48-b7cf-9678b5562250",
                     "name": "TemporalLineChart",
-                    "tags": ["customchart", "linechart", "temporal"],
+                    "tags": [
+                        "customchart",
+                        "linechart",
+                        "temporal"
+                    ],
                     "type": "chart",
                     "usageCounter": 0
                 },
@@ -1286,7 +1495,12 @@
                     "description": "General text to use as local header",
                     "id": "01ebbfc2-3776-16a0-b44e-02d02adf3d11",
                     "name": "GeneralText4",
-                    "tags": ["GeneralText", "Text", "header", "hmtl"],
+                    "tags": [
+                        "GeneralText",
+                        "Text",
+                        "header",
+                        "hmtl"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1301,7 +1515,11 @@
                     "description": "Card with backgroud image, title and 2 values",
                     "id": "01ebbfd5-d953-1820-8574-1931a98aa212",
                     "name": "Card9",
-                    "tags": ["background", "card", "html"],
+                    "tags": [
+                        "background",
+                        "card",
+                        "html"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1331,7 +1549,10 @@
                     "description": "Card with 3 column values",
                     "id": "01ebbfd0-f9cd-10d8-b755-07ddab9c841a",
                     "name": "Card11",
-                    "tags": ["card", "html"],
+                    "tags": [
+                        "card",
+                        "html"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1361,7 +1582,11 @@
                     "description": "Highchart Network chart",
                     "id": "01ebbe27-3826-1c90-85a9-a7e6303e3197",
                     "name": "NetworkChart",
-                    "tags": ["chart", "highchart", "network"],
+                    "tags": [
+                        "chart",
+                        "highchart",
+                        "network"
+                    ],
                     "type": "chart",
                     "usageCounter": 0
                 },
@@ -1390,7 +1615,11 @@
                     },
                     "id": "01ebbfa5-3daa-11d8-af22-92f35ee4cff3",
                     "name": "SankeyChart",
-                    "tags": ["chart", "customchart", "sankey"],
+                    "tags": [
+                        "chart",
+                        "customchart",
+                        "sankey"
+                    ],
                     "type": "chart",
                     "usageCounter": 0
                 },
@@ -1405,7 +1634,12 @@
                     "description": "Simple bar chart with python",
                     "id": "01ebbfa4-e0ae-1678-bec0-dffcc85b5f5c",
                     "name": "PythonBarChart",
-                    "tags": ["Bar", "Chart", "python", "simple"],
+                    "tags": [
+                        "Bar",
+                        "Chart",
+                        "python",
+                        "simple"
+                    ],
                     "type": "python",
                     "usageCounter": 0
                 },
@@ -1435,7 +1669,12 @@
                     "description": "General Text html card to use as local header",
                     "id": "01ebbfc3-8c66-1b00-ac18-530070e8b796",
                     "name": "GeneralText7",
-                    "tags": ["GeneralText", "Header", "Text", "html"],
+                    "tags": [
+                        "GeneralText",
+                        "Header",
+                        "Text",
+                        "html"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1449,7 +1688,10 @@
                     },
                     "id": "01ebc225-faaa-1ad0-af76-35494b911393",
                     "name": "Card18",
-                    "tags": ["card", "html"],
+                    "tags": [
+                        "card",
+                        "html"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1463,7 +1705,12 @@
                     },
                     "id": "01ebc220-c385-1cd0-a71c-492352a43432",
                     "name": "Card19",
-                    "tags": ["card", "donutchart", "html", "percentage"],
+                    "tags": [
+                        "card",
+                        "donutchart",
+                        "html",
+                        "percentage"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1477,7 +1724,10 @@
                     },
                     "id": "01ebc227-6b9e-1948-905e-28b7c7b21541",
                     "name": "Card20",
-                    "tags": ["card", "html"],
+                    "tags": [
+                        "card",
+                        "html"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1505,7 +1755,10 @@
                     },
                     "id": "01ebc232-96da-1b10-b563-af39d3822f6d",
                     "name": "Card22",
-                    "tags": ["card", "html"],
+                    "tags": [
+                        "card",
+                        "html"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1519,7 +1772,11 @@
                     },
                     "id": "01ebc225-748e-1668-9544-0ff3ff9e03e3",
                     "name": "Card23",
-                    "tags": ["card", "html", "icon"],
+                    "tags": [
+                        "card",
+                        "html",
+                        "icon"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1548,7 +1805,12 @@
                     },
                     "id": "01ebc22f-65ac-1b18-bf1a-5d98a9880acf",
                     "name": "Card28",
-                    "tags": ["card", "donutchart", "html", "percentage"],
+                    "tags": [
+                        "card",
+                        "donutchart",
+                        "html",
+                        "percentage"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1562,7 +1824,11 @@
                     },
                     "id": "01ebc228-0d25-1e60-98e3-9aa9bcef73ba",
                     "name": "Card30",
-                    "tags": ["card", "html", "icon"],
+                    "tags": [
+                        "card",
+                        "html",
+                        "icon"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1576,7 +1842,11 @@
                     },
                     "id": "01ebc232-2895-1ee8-bc3f-163f4a50512d",
                     "name": "Card31",
-                    "tags": ["card", "header", "html"],
+                    "tags": [
+                        "card",
+                        "header",
+                        "html"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1591,7 +1861,10 @@
                     "description": "General text with icon",
                     "id": "01ebc51d-0eeb-1f40-8fc0-9c0662352c63",
                     "name": "GeneralText8",
-                    "tags": ["generaltext", "icon"],
+                    "tags": [
+                        "generaltext",
+                        "icon"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1606,7 +1879,10 @@
                     "description": "GeneralText with icon on top",
                     "id": "01ebc540-9bf4-1748-8ad3-f37440b5b5c3",
                     "name": "GeneralText9",
-                    "tags": ["generaltext", "icon"],
+                    "tags": [
+                        "generaltext",
+                        "icon"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1621,7 +1897,11 @@
                     "description": "GeneralText with header background image and title and subtitle below",
                     "id": "01ebc547-9ea6-1980-bf25-d864854a9ebf",
                     "name": "GeneralText13",
-                    "tags": ["generaltext", "header", "title"],
+                    "tags": [
+                        "generaltext",
+                        "header",
+                        "title"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1636,7 +1916,10 @@
                     "description": "Hyerarchy chart",
                     "id": "01ebc78a-97bb-1978-9c22-ab9de440fd3c",
                     "name": "ComplexChart3",
-                    "tags": ["complexchart", "hyerarchychart"],
+                    "tags": [
+                        "complexchart",
+                        "hyerarchychart"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1650,7 +1933,10 @@
                     },
                     "id": "01ebc79a-53d0-18e8-86a6-0fb8ef097262",
                     "name": "Video",
-                    "tags": ["html", "video"],
+                    "tags": [
+                        "html",
+                        "video"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 },
@@ -1665,7 +1951,10 @@
                     "description": "Template to test the python template inside a cockpit",
                     "id": "01ebd36a-15c2-1958-b4fe-5d10e0471830",
                     "name": "KNOWAGE_2412_CONFIDENCE_BANDS",
-                    "tags": ["confidence_band", "python"],
+                    "tags": [
+                        "confidence_band",
+                        "python"
+                    ],
                     "type": "python",
                     "usageCounter": 0
                 },
@@ -1680,7 +1969,11 @@
                     "description": "Legend with icon",
                     "id": "01ebc7a9-6c94-1708-993f-748722c8bd91",
                     "name": "Legend2",
-                    "tags": ["html", "icon", "legend"],
+                    "tags": [
+                        "html",
+                        "icon",
+                        "legend"
+                    ],
                     "type": "html",
                     "usageCounter": 0
                 }
@@ -1688,6 +1981,24 @@
         },
         "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJiaWFkbWluIiwiaXNzIjoia25vd2FnZS1pbXBvcnQiLCJkaXIiOiJEOlxcVGVtcFxca25vd2FnZS1pbXBvcnQ1NDcxMjQ1NzY1NDIxMDIxNDIyIn0.gRJtD85YnkQuhj_GQrYD3jQiY084cc7aEAT2e1PYitbUkNeAaEMdJBcvUi4W1RBvHb8WJG-qk1_4JQP0irrDTztCacR-2zRTLO1vspHTbUnQFLqWfcrg4ObZP_LKPEV4_nA4MmzllOlmyR4RoDm_DRuKOeSTxCQTDTMu5ownbJ59Op9hB39EXCwIFMjJIBQYy5QygMkC_QDQpvIaX03j8TTxIXHtq-YplVP-RA-8F9UHVM5gtTXFbHsLiVqN4zZ6VmGZ-5c71hyg2NpwWv6j62tPApTB2P7fEG2wbpG7r0aUegGw1kxlCdQ4XxVXLXL9DFoZh4qOvXx2uB_iBT5jOg"
     },
+    "oldImportFunctionalities": [
+        {
+            "description": "importExport.gallery.description",
+            "icon": "fas fa-paint-brush",
+            "label": "importExport.gallery.label",
+            "route": "/import-export/gallery",
+            "type": "gallery"
+        },
+        {
+            "description": "importExport.catalogFunction.description",
+            "icon": "fa fa-cubes",
+            "label": "importExport.catalogFunction.label",
+            "requiredFunctionality": "FunctionsCatalogManagement",
+            "requiredLicense": "KnowageSI",
+            "route": "/import-export/catalogfunction",
+            "type": "catalogFunction"
+        }
+    ],
     "templates": [
         {
             "author": "biadmin",
@@ -1704,7 +2015,9 @@
             "organization": "DEFAULT_TENANT",
             "outputType": "",
             "sbiversion": null,
-            "tags": ["temp1"],
+            "tags": [
+                "temp1"
+            ],
             "template": null,
             "timestamp": null,
             "type": "html",
@@ -1770,7 +2083,17 @@
             "organization": "DEFAULT_TENANT",
             "outputType": "",
             "sbiversion": null,
-            "tags": ["tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tag10", "tag11"],
+            "tags": [
+                "tag3",
+                "tag4",
+                "tag5",
+                "tag6",
+                "tag7",
+                "tag8",
+                "tag9",
+                "tag10",
+                "tag11"
+            ],
             "template": null,
             "timestamp": null,
             "type": "html",
@@ -1814,7 +2137,21 @@
             "organization": "DEFAULT_TENANT",
             "outputType": "bokeh",
             "sbiversion": null,
-            "tags": ["python", "tag", "tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tag10", "tag11"],
+            "tags": [
+                "python",
+                "tag",
+                "tag1",
+                "tag2",
+                "tag3",
+                "tag4",
+                "tag5",
+                "tag6",
+                "tag7",
+                "tag8",
+                "tag9",
+                "tag10",
+                "tag11"
+            ],
             "template": null,
             "timestamp": null,
             "type": "python",
