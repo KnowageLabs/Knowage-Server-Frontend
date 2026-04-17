@@ -70,7 +70,7 @@ export default defineComponent({
         gridItems(): { columnName: string; isTreeGroup: boolean; treeColumns: any[] }[] {
             const globalModality = this.propWidget.settings?.configuration?.selectorType?.modality
             const columnTypeConfigs = this.propWidget.settings?.configuration?.columnTypeConfigs ?? []
-            const descColNames = new Set<string>((this.propWidget.settings?.configuration?.descriptionColumnConfigs ?? []).map((c: any) => c.descriptionColumnName))
+            const descColNames = new Set<string>(this.propWidget.columns.filter((c: any) => c.descriptionColumn).map((c: any) => c.descriptionColumn))
 
             if (globalModality === 'tree' || globalModality === 'multiTree') {
                 const treeGroupCols: any[] = []

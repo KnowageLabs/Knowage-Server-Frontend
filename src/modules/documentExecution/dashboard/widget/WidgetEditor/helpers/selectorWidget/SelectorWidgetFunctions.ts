@@ -1,7 +1,7 @@
 import { ISelectorWidgetSettings, ISelectorWidgetStyle, ISelectorWidgetColumnDefaultValue, ISelectorWidgetDefaultValuesConfig } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectorWidget'
+import { IWidget, IWidgetHelpSettings } from '@/modules/documentExecution/dashboard/Dashboard'
 import * as selectorWidgetDefaultValues from './SelectorWidgetDefaultValues'
 import * as widgetCommonDefaultValues from '../common/WidgetCommonDefaultValues'
-import { IWidget, IWidgetHelpSettings } from '@/modules/documentExecution/dashboard/Dashboard'
 
 export const createNewSelectorWidgetSettings = () => {
     return {
@@ -15,8 +15,7 @@ export const createNewSelectorWidgetSettings = () => {
             selectorType: selectorWidgetDefaultValues.getDefaultSelectorType(),
             defaultValues: selectorWidgetDefaultValues.getDefaultValues(),
             valuesManagement: selectorWidgetDefaultValues.getDefaultValuesManagement(),
-            exports: { showExcelExport: true },
-            descriptionColumnConfigs: []
+            exports: { showExcelExport: true }
         },
         style: {
             themeId: null,

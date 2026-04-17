@@ -1,5 +1,4 @@
 <template>
-    tests
     <div v-if="column" class="row q-col-gutter-xs">
         <q-toolbar class="kn-toolbar kn-toolbar--secondary">
             <q-toolbar-title>

@@ -10,19 +10,12 @@ export interface ISelectorWidgetSettings {
     responsive: IWidgetResponsive
 }
 
-export interface IDescriptionColumnConfig {
-    valueColumnName: string
-    descriptionColumnName: string
-    showValueWithDescription: boolean
-}
-
 export interface ISelectorWidgetConfiguration {
     selectorType: ISelectorWidgetSelectorType
     defaultValues: ISelectorWidgetDefaultValuesConfig
     valuesManagement: ISelectorWidgetValuesManagement
     exports: IWidgetExports
     columnTypeConfigs?: ISelectorColumnTypeConfig[]
-    descriptionColumnConfigs?: IDescriptionColumnConfig[]
 }
 
 export interface ISelectorWidgetDefaultValuesConfig {

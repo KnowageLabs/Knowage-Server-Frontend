@@ -528,6 +528,8 @@ export interface IWidgetColumn {
     serieType?: string
     axis?: string
     scatterAttributeAsMeasure?: boolean
+    descriptionColumn?: string
+    showValueWithDescription?: boolean
 }
 
 export interface IWidgetColumnFilter {

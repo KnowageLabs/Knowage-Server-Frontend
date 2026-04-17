@@ -118,7 +118,7 @@ export default defineComponent({
         },
         showSortButton(): boolean {
             if (this.widgetType === 'highcharts' && this.chartType === 'bubble') return this.axis === 'dimensions'
-            return this.widgetType === 'highcharts' || this.widgetType === 'chartjs'
+            return this.widgetType === 'highcharts' || this.widgetType === 'chartjs' || this.widgetType === 'selector'
         }
     },
     watch: {

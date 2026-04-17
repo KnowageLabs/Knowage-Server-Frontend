@@ -27,7 +27,6 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IDataset, ISelection, IWidget } from '../../Dashboard'
-import { IDescriptionColumnConfig } from '../../interfaces/DashboardSelectorWidget'
 import { mapActions } from 'pinia'
 import { updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
 import { emitter } from '../../DashboardHelpers'
@@ -95,10 +94,10 @@ export default defineComponent({
         columnAlias(): string {
             return this.propWidget.columns?.[0]?.alias || ''
         },
-        descriptionConfig(): IDescriptionColumnConfig | null {
-            const valueColName = this.propWidget.columns[0]?.columnName
-            if (!valueColName) return null
-            return this.propWidget.settings?.configuration?.descriptionColumnConfigs?.find((c: IDescriptionColumnConfig) => c.valueColumnName === valueColName) ?? null
+        descriptionConfig(): { descriptionColumn: string; showValueWithDescription: boolean } | null {
+            const col = this.propWidget.columns[0]
+            if (!col?.descriptionColumn) return null
+            return { descriptionColumn: col.descriptionColumn, showValueWithDescription: col.showValueWithDescription ?? false }
         },
         descriptionLabelKey(): string {
             return this.descriptionConfig ? 'column_label' : 'column_1'
