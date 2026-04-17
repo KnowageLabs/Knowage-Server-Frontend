@@ -94,7 +94,7 @@ export function createToolbarMenuItems(document: any, functions: any, exporters:
     }
 
     if (filtersData && filtersData.filterStatus?.length > 0) toolbarMenuItems.push({ icon: 'fa fa-eraser', label: $t('documentExecution.main.resetParameters'), command: () => parameterSidebarEmitter.emit('resetAllParameters') })
-    if (mode === 'dashboard' && showDashboardEditorActions && user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT)) toolbarMenuItems.push({ icon: 'fa-solid fa-users-viewfinder', label: document.seeAsFinalUser ? $t('documentExecution.main.seeAsEditor') : $t('documentExecution.main.seeAsFinalUser'), command: () => functions.toggleFinalUser() })
+    if (mode === 'dashboard' && user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) && (showDashboardEditorActions || document?.seeAsFinalUser)) toolbarMenuItems.push({ icon: 'fa-solid fa-users-viewfinder', label: document.seeAsFinalUser ? $t('documentExecution.main.seeAsEditor') : $t('documentExecution.main.seeAsFinalUser'), command: () => functions.toggleFinalUser() })
     toolbarMenuItems.push({ icon: 'fa-solid fa-expand', label: 'See in fullscreen', command: () => functions.fullScreen() })
 
     if (mode === 'dashboard') {
