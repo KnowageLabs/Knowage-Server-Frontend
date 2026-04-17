@@ -27,7 +27,7 @@ export default defineComponent({
     },
     computed: {
         descriptionPairs(): { valueColumnName: string; descriptionColumnName: string }[] {
-            return this.widget?.settings?.configuration?.descriptionColumnConfigs ?? []
+            return (this.widget?.columns ?? []).filter((c: IWidgetColumn) => c.descriptionColumn).map((c: IWidgetColumn) => ({ valueColumnName: c.columnName, descriptionColumnName: c.descriptionColumn! }))
         }
     },
 
@@ -66,9 +66,13 @@ export default defineComponent({
         },
         onColumnDelete(column: IWidgetColumn) {
             this.widget.columns = this.widget.columns.filter((c: IWidgetColumn) => c.id !== column.id)
-            if (this.widget.settings?.configuration?.descriptionColumnConfigs) {
-                this.widget.settings.configuration.descriptionColumnConfigs = this.widget.settings.configuration.descriptionColumnConfigs.filter((cfg: any) => cfg.valueColumnName !== column.columnName && cfg.descriptionColumnName !== column.columnName)
-            }
+            // Clear descriptionColumn on any column that referenced the deleted column
+            this.widget.columns.forEach((c: IWidgetColumn) => {
+                if (c.descriptionColumn === column.columnName) {
+                    delete c.descriptionColumn
+                    delete c.showValueWithDescription
+                }
+            })
             emitter.emit('columnRemoved', column)
             emitter.emit('refreshSelector', this.widget.id)
             if (this.widget.columns.length === 0) emitter.emit('clearWidgetData', this.widget.id)

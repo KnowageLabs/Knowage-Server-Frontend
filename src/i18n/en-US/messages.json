@@ -648,7 +648,8 @@
             "clearSelection": "Clear Selection",
             "enableDescriptionColumn": "Enable Description Column",
             "descriptionColumn": "Description Column",
-            "showValueWithDescription": "Show Value Alongside Description"
+            "showValueWithDescription": "Show Value Alongside Description",
+            "descriptionColumnHint": "Pair a display-label column with the value column. The description column is shown as the label while the value column is stored as the selection."
         },
         "sheet": "Sheet",
         "sheets": {

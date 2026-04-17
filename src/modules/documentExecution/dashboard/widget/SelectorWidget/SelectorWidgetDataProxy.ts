@@ -88,12 +88,11 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
     const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=${!selectedDataset.cache}&useGroupBy=true`
 
     const fetchColumn = async (column: any): Promise<[string, any]> => {
-        // If this column has a description column configured, include the description column in the request
+        // If this column has a description column configured, include it in the request
         // so the API returns it as column_2 alongside the value as column_1.
-        const descConfig = widget.settings?.configuration?.descriptionColumnConfigs?.find((c: any) => c.valueColumnName === column.columnName)
         let columnsToFetch = [column]
-        if (descConfig) {
-            const descCol = widget.columns.find((c: any) => c.columnName === descConfig.descriptionColumnName)
+        if (column.descriptionColumn) {
+            const descCol = widget.columns.find((c: any) => c.columnName === column.descriptionColumn)
             if (descCol) columnsToFetch = [column, descCol]
         }
         const singleColumnWidget = { ...widget, columns: columnsToFetch }
@@ -130,14 +129,15 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
             }
         }
 
-        if (widget.settings?.sortingColumn && tempResponse?.metaData?.fields?.length > 2) {
-            tempResponse = formatReponseWithTheExternalSortingColumn(tempResponse, widget.settings.sortingOrder)
+        if (column.orderColumn && column.orderColumn !== column.columnName && tempResponse?.metaData?.fields?.length > 2) {
+            tempResponse = formatReponseWithTheExternalSortingColumn(tempResponse, column.orderType)
         }
 
         return [column.columnName, tempResponse]
     }
 
-    const entries = await Promise.all(widget.columns.map(fetchColumn))
+    const descriptionColNames = new Set(widget.columns.filter((c: any) => c.descriptionColumn).map((c: any) => c.descriptionColumn))
+    const entries = await Promise.all(widget.columns.filter((col: any) => !descriptionColNames.has(col.columnName)).map(fetchColumn))
     return Object.fromEntries(entries)
 }
 
@@ -200,28 +200,14 @@ const formatSelectorWidgetModelForService = (dashboardId: any, dashboardConfig: 
     addDriversToData(dataset, dataToSend)
     addParametersToData(dataset, dashboardId, dataToSend, associativeResponseSelections)
 
-    let sortingColumn = null as any
-    if (widget.settings?.sortingColumn) sortingColumn = findSortingColumn(widget)
-
     widget.columns.forEach((column) => {
         if (column.fieldType === 'ATTRIBUTE') {
-            const attributeToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, orderColumn: sortingColumn?.columnName ?? '', orderType: widget.settings?.sortingOrder || '', funct: 'NONE' } as any
-
+            const attributeToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, orderColumn: column.orderColumn ?? '', orderType: column.orderType ?? '', funct: 'NONE' } as any
             dataToSend.aggregations.categories.push(attributeToPush)
         }
     })
 
-    if (sortingColumn && !dataToSend.aggregations.categories.some((column) => column.id === sortingColumn.id || column.columnName === sortingColumn.columnName)) {
-        dataToSend.aggregations.categories.push(sortingColumn)
-    }
-
     return dataToSend
-}
-
-const findSortingColumn = (widget: IWidget) => {
-    const sortingColumnId = widget.settings.sortingColumn
-    const matchedColumn = widget.columns?.find((col: any) => col.id === sortingColumnId) as IWidgetColumn
-    return { id: matchedColumn.id, alias: matchedColumn.alias, columnName: matchedColumn.columnName, orderColumn: matchedColumn.columnName ?? '', orderType: widget.settings.sortingOrder || '' }
 }
 
 const formatReponseWithTheExternalSortingColumn = (tempResponse: any, sortingOrder: 'ASC' | 'DESC' = 'ASC') => {
