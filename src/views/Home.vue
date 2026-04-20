@@ -131,8 +131,8 @@ export default defineComponent({
             const normalizedUrl = url?.trim() ?? ''
             return normalizedTo || normalizedUrl ? `${normalizedTo}|${normalizedUrl}` : ''
         },
-        getDynamicHomeSignature(label: string | null | undefined, to: string | null | undefined, url: string | null | undefined, path: string[]): string {
-            return [...path, (label ?? '').trim().toLowerCase()].join('>') + '|' + this.getDynamicHomeRouteKey(to, url)
+        getDynamicHomeSignature(label: string | null | undefined, path: string[]): string {
+            return [...path, (label ?? '').trim().toLowerCase()].join('>')
         },
         registerDynamicHomeLookupValue(lookup: Map<string, number | null>, key: string, menuId: number) {
             if (!key) return
@@ -154,7 +154,7 @@ export default defineComponent({
                 nodes.forEach((node) => {
                     const label = (node.descr || node.name || '').trim()
                     this.registerDynamicHomeLookupValue(lookup.byRoute, this.getDynamicHomeRouteKey(node.to, node.url), node.menuId)
-                    this.registerDynamicHomeLookupValue(lookup.bySignature, this.getDynamicHomeSignature(label, node.to, node.url, path), node.menuId)
+                    this.registerDynamicHomeLookupValue(lookup.bySignature, this.getDynamicHomeSignature(label, path), node.menuId)
                     const children = node.lstChildren?.length ? node.lstChildren : (node.children ?? [])
                     visit(children, label ? [...path, label.toLowerCase()] : path)
                 })
@@ -170,10 +170,10 @@ export default defineComponent({
         },
         resolveDynamicHomeMenuId(menuItem: IEndUserMenuItem, lookup: IDynamicHomeMenuLookup, path: string[]): number {
             const explicitMenuId = Number(menuItem.menuId)
-            if (Number.isInteger(explicitMenuId)) return explicitMenuId
+            if (Number.isInteger(explicitMenuId) && explicitMenuId > 0) return explicitMenuId
 
             const label = menuItem.descr || menuItem.label || ''
-            const signatureMatch = lookup.bySignature.get(this.getDynamicHomeSignature(label, menuItem.to, menuItem.url, path))
+            const signatureMatch = lookup.bySignature.get(this.getDynamicHomeSignature(label, path))
             if (signatureMatch !== undefined && signatureMatch !== null) return signatureMatch
 
             const routeMatch = lookup.byRoute.get(this.getDynamicHomeRouteKey(menuItem.to, menuItem.url))
