@@ -169,10 +169,7 @@
 
                 <div class="hm-preview-content">
                     <!-- default -->
-                    <div v-if="config.type === 'default'" class="hm-preview-empty column items-center justify-center text-grey-5">
-                        <q-icon name="home" size="72px" />
-                        <div class="q-mt-sm text-body2">{{ $t('managers.homeManagement.types.default') }}</div>
-                    </div>
+                    <img v-if="config.type === 'default'" :src="defaultImage()" alt="Default Home Preview" class="hm-preview-img" />
 
                     <!-- static: preview -->
                     <iframe v-else-if="config.type === 'static' && staticPagePreviewUrl" :src="staticPagePreviewUrl" class="hm-preview-iframe" />
@@ -266,6 +263,10 @@ const homeTypeIcons: Record<string, string> = {
 function selectType(value: string) {
     config.value.type = value as any
     dirty.value = true
+}
+
+function defaultImage(){
+    return import.meta.env.VITE_PUBLIC_PATH + '/images/commons/knowage-homepage-default.png'
 }
 
 const homeTypeOptions = computed(() => [
