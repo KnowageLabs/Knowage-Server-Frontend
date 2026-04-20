@@ -1,7 +1,7 @@
 <template>
     <div v-if="widget" class="p-m-3">
         <WidgetEditorColumnTable :widget-model="widget" :items="columnTableItems" :settings="descriptor.columnTableSettings" @rowReorder="onColumnsReorder" @itemAdded="onColumnAdded" @itemUpdated="onColumnItemUpdate" @itemDeleted="onColumnDelete" />
-        <div v-if="descriptionPairs.length > 0" class="q-px-sm q-pt-sm q-pb-xs q-gutter-xs row">
+        <div v-if="descriptionPairs.length > 0" class="q-pt-sm q-pb-xs q-gutter-xs row">
             <q-badge v-for="pair in descriptionPairs" :key="pair.valueColumnName" color="accent" outline class="q-pa-xs"> {{ getColumnAlias(pair.valueColumnName) }} &#8594; {{ getColumnAlias(pair.descriptionColumnName) }} </q-badge>
         </div>
     </div>
