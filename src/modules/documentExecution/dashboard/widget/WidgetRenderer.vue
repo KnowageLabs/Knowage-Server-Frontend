@@ -97,6 +97,12 @@ export default defineComponent({
         },
         selectorNeedsContainer(): boolean {
             if (!this.widget?.columns || this.widget.columns.length <= 1) return false
+
+            // Strip description columns — they are bundled with their value column, not rendered standalone
+            const descColNames = new Set<string>(this.widget.columns.filter((c: any) => c.descriptionColumn).map((c: any) => c.descriptionColumn as string))
+            const effectiveColumns = this.widget.columns.filter((c: any) => !descColNames.has(c.columnName))
+            if (effectiveColumns.length <= 1) return false
+
             const modality = this.widget.settings?.configuration?.selectorType?.modality
             if (modality !== 'tree' && modality !== 'multiTree') return true
 

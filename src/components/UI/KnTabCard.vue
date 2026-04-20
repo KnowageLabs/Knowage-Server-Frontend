@@ -3,7 +3,8 @@
         <template #content>
             <span class="heading">{{ $t(element.label) }} <Badge v-if="badge && badge > 0" :value="badge"></Badge></span>
             <span v-if="element.description" class="subheading">{{ $t(element.description) }}</span>
-            <i :class="['icon', element.icon]"></i>
+            <span v-if="element.iconType === 'material-outlined'" class="icon material-symbols-outlined">{{ element.icon }}</span>
+            <i v-else :class="['icon', element.icon]"></i>
         </template>
     </Card>
 </template>

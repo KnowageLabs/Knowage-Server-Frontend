@@ -7,7 +7,7 @@
         <q-card-section class="p-p-0">
             <div @drop.stop="onDropComplete($event)" @dragover.prevent @dragenter.prevent @dragleave.prevent>
                 <InlineMessage v-if="settings.dropIsActive && rows.length === 0" class="p-d-flex p-flex-row p-jc-center p-ai-center p-m-1 p-p-5" severity="info" closable="false">{{ $t(settings.dragColumnsHint) }}</InlineMessage>
-                <DataTable v-else :value="rows" v-model:expandedRows="expandedRows" class="kn-table p-datatable-sm editor-col-table" :data-key="settings.dataKey" collapsedRowIcon="fas fa-cog" expandedRowIcon="fas fa-cog" responsiveLayout="scroll" breakpoint="940px" @rowReorder="onRowReorder">
+                <DataTable v-else :value="rows" v-model:expandedRows="expandedRows" class="kn-table p-datatable-sm editor-col-table" :data-key="settings.dataKey" :row-class="getRowClass" collapsedRowIcon="fas fa-cog" expandedRowIcon="fas fa-cog" responsiveLayout="scroll" breakpoint="940px" @rowReorder="onRowReorder">
                     <Column v-if="rowReorderEnabled" :row-reorder="rowReorderEnabled" style="padding-top: 5px" :style="settings.rowReorder.rowReorderColumnStyle" />
                     <Column v-if="widgetModel.type !== 'highcharts' && widgetModel.type !== 'chartJS'" :style="settings.rowReorder.rowReorderColumnStyle">
                         <template #body="slotProps">
@@ -37,6 +37,7 @@
                     </Column>
                     <template #expansion="slotProps">
                         <ChartWidgetColumnForm v-if="widgetType === 'highcharts' || widgetType === 'chartjs'" :widget-model="widgetModel" :selected-column="slotProps.data" :chart-type="chartType"></ChartWidgetColumnForm>
+                        <SelectorDataForm v-else-if="widgetType === 'selector'" :prop-column="slotProps.data" :widget-model="widgetModel" />
                         <TableWidgetColumnForm v-else :widget-model="widgetModel" :selected-column="slotProps.data"></TableWidgetColumnForm>
                     </template>
                 </DataTable>
@@ -60,10 +61,11 @@ import InlineMessage from 'primevue/inlinemessage'
 import ChartWidgetColumnForm from '../ChartWidget/common/ChartWidgetColumnForm.vue'
 import TableWidgetColumnForm from '../TableWidget/TableWidgetColumnForm.vue'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
+import SelectorDataForm from '../SelectorWidget/SelectorDataForm.vue'
 
 export default defineComponent({
     name: 'widget-editor-column-table',
-    components: { Column, DataTable, Dropdown, InlineMessage, ChartWidgetColumnForm, TableWidgetColumnForm },
+    components: { Column, DataTable, Dropdown, InlineMessage, ChartWidgetColumnForm, TableWidgetColumnForm, SelectorDataForm },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, items: { type: Array, required: true }, settings: { type: Object, required: true }, chartType: { type: String }, axis: { type: String }, error: { type: Boolean } },
     emits: ['rowReorder', 'itemUpdated', 'itemDeleted', 'itemAdded', 'singleItemReplaced'],
     setup() {
@@ -116,7 +118,15 @@ export default defineComponent({
         },
         showSortButton(): boolean {
             if (this.widgetType === 'highcharts' && this.chartType === 'bubble') return this.axis === 'dimensions'
-            return this.widgetType === 'highcharts' || this.widgetType === 'chartjs'
+            return this.widgetType === 'highcharts' || this.widgetType === 'chartjs' || this.widgetType === 'selector'
+        },
+        descriptorColumnNames(): Set<string> {
+            if (this.widgetType !== 'selector') return new Set()
+            const names = new Set<string>()
+            this.widgetModel.columns.forEach((col: IWidgetColumn) => {
+                if ((col as any).descriptionColumn) names.add((col as any).descriptionColumn)
+            })
+            return names
         }
     },
     watch: {
@@ -252,6 +262,9 @@ export default defineComponent({
             this.deleteItem(functionColumn, -1)
             this.onFunctionsColumnAdded(functionColumn)
         },
+        getRowClass(rowData: IWidgetColumn) {
+            return this.descriptorColumnNames.has(rowData.columnName) ? 'col-is-descriptor' : ''
+        },
         sortIcon(orderType) {
             if (orderType === 'ASC') return 'fas fa-arrow-up-short-wide'
             if (orderType === 'DESC') return 'fas fa-arrow-down-wide-short'
@@ -282,6 +295,18 @@ export default defineComponent({
     }
     :deep(.p-datatable-row-expansion > td) {
         padding: 0px !important;
+    }
+    :deep(tr.col-is-descriptor) {
+        background-color: rgba(99, 102, 241, 0.04);
+
+        > td:first-child {
+            border-left: 3px solid var(--kn-color-fab);
+        }
+
+        button {
+            visibility: hidden;
+            pointer-events: none;
+        }
     }
 }
 

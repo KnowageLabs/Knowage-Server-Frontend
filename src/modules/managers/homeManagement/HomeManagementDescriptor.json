@@ -1,0 +1,36 @@
+{
+    "homeTypes": [
+        { "label": "managers.homeManagement.types.default", "value": "default" },
+        { "label": "managers.homeManagement.types.static", "value": "static" },
+        { "label": "managers.homeManagement.types.document", "value": "document" },
+        { "label": "managers.homeManagement.types.image", "value": "image" },
+        { "label": "managers.homeManagement.types.dynamic", "value": "dynamic" }
+    ],
+    "knListSettings": {
+        "avatar": {
+            "property": "type",
+            "values": {
+                "default": {
+                    "icon": "fas fa-user",
+                    "style": { "background-color": "#607d8b", "color": "white" }
+                }
+            }
+        },
+        "buttons": [
+            {
+                "emits": "delete",
+                "icon": "fas fa-trash-alt",
+                "label": "common.delete"
+            }
+        ],
+        "defaultSortField": "roleName",
+        "filterFields": ["roleName", "type"],
+        "interaction": {
+            "parameterLabel": "roleId",
+            "parameterValue": "roleId",
+            "path": "home-management-detail",
+            "type": "router"
+        },
+        "sortFields": ["roleName", "type"]
+    }
+}

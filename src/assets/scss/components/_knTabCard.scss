@@ -1,9 +1,11 @@
 .kn-tab-card {
     position: relative;
-    height: 60px;
+    height: 72px;
     margin-bottom: 8px;
+    border-left: 3px solid transparent;
+    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
     .p-card-body {
-        padding: 0 0 0 16px;
+        padding: 0 0 0 14px;
         height: 100%;
         .p-card-content {
             height: 100%;
@@ -15,30 +17,60 @@
     }
 
     .heading {
-        font-size: 1rem;
+        font-size: 0.85rem;
+        font-weight: 600;
         text-transform: uppercase;
+        letter-spacing: 0.04em;
+        line-height: 1.2;
     }
     .subheading {
-        font-size: 0.8rem;
+        font-size: 0.72rem;
         color: var(--kn-color-default);
+        margin-top: 3px;
+        line-height: 1.3;
     }
     &--icon {
         @extend .kn-tab-card;
         overflow: hidden;
-        i {
+        i,
+        span.icon {
             position: absolute;
-            top: 0;
-            right: -0.5rem;
-            font-size: 3rem;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            font-size: 2.4rem;
             color: var(--kn-color-primary);
+            opacity: 0.3;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            line-height: 1;
         }
     }
     &.selectable {
         cursor: pointer;
-        transition: background-color 0.3s ease-in;
-        &:hover,
+        &:hover {
+            background-color: var(--kn-color-secondary);
+            border-left-color: var(--kn-color-primary);
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
+            i,
+            span.icon {
+                opacity: 0.4;
+                transform: translateY(-50%) scale(1.1);
+            }
+            .subheading {
+                color: var(--kn-color-primary);
+            }
+        }
         &.selected {
             background-color: var(--kn-color-secondary);
+            border-left-color: var(--kn-color-primary);
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
+            i,
+            span.icon {
+                opacity: 0.5;
+            }
+            .heading {
+                color: var(--kn-color-primary);
+            }
             .subheading {
                 color: var(--kn-color-primary);
             }

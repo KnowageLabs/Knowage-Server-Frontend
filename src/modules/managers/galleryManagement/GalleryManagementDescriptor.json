@@ -1,8 +1,21 @@
 {
     "allowedEditors": {
-        "chart": ["html", "javascript", "css"],
-        "html": ["html", "css"],
-        "python": ["python"]
+        "chart": [
+            "html",
+            "javascript",
+            "css"
+        ],
+        "home": [
+            "html",
+            "css"
+        ],
+        "html": [
+            "html",
+            "css"
+        ],
+        "python": [
+            "python"
+        ]
     },
     "editor": {
         "css": {
@@ -23,6 +36,13 @@
             "className": "fab fa-js-square",
             "style": {
                 "background-color": "#ffc107",
+                "color": "white"
+            }
+        },
+        "home": {
+            "className": "fas fa-home",
+            "style": {
+                "background-color": "#2196f3",
                 "color": "white"
             }
         },
@@ -52,6 +72,13 @@
                         "color": "white"
                     }
                 },
+                "home": {
+                    "icon": "fas fa-home",
+                    "style": {
+                        "background-color": "#2196f3",
+                        "color": "white"
+                    }
+                },
                 "html": {
                     "icon": "fab fa-html5",
                     "style": {
@@ -76,14 +103,23 @@
             }
         ],
         "defaultSortField": "label",
-        "filterFields": ["label", "name", "type", "tags"],
+        "filterFields": [
+            "label",
+            "name",
+            "type",
+            "tags"
+        ],
         "interaction": {
             "parameterLabel": "id",
             "parameterValue": "id",
             "path": "gallery-detail",
             "type": "router"
         },
-        "sortFields": ["label", "name", "type"]
+        "sortFields": [
+            "label",
+            "name",
+            "type"
+        ]
     },
     "options": {
         "css": {
@@ -141,6 +177,10 @@
         {
             "name": "Python",
             "value": "python"
+        },
+        {
+            "name": "Home",
+            "value": "home"
         }
     ],
     "validations": {

@@ -645,7 +645,11 @@
         "selectionsList": "Selections List",
         "selectorWidget": {
             "clearImpossibleValues": "Clear Impossible Values",
-            "clearSelection": "Clear Selection"
+            "clearSelection": "Clear Selection",
+            "enableDescriptionColumn": "Enable Description Column",
+            "descriptionColumn": "Description Column",
+            "showValueWithDescription": "Show Value Alongside Description",
+            "descriptionColumnHint": "Pair a display-label column with the value column. The description column is shown as the label while the value column is stored as the selection."
         },
         "sheet": "Sheet",
         "sheets": {
@@ -3335,6 +3339,45 @@
                 "tables": "Tables",
                 "title": "Glossary",
                 "word": "Word"
+            }
+        },
+        "homeManagement": {
+            "defaultDescription": "The default home configured for the platform will be shown.",
+            "defaultRole": "Default role (applies to all unspecified roles)",
+            "configuration": "Configuration",
+            "document": "Document",
+            "hint": "Home management allows you to configure the home page shown to users by role. You can use the default home, a static page, a document, an image or a dynamic template.",
+            "homeType": "Home type",
+            "imageUrl": "Image URL or external URL",
+            "imageUrlPlaceholder": "Enter an image URL",
+            "menuPicker": {
+                "title": "Select menu items"
+            },
+            "preview": "Preview",
+            "resetToDefault": "Reset to default",
+            "role": "Role",
+            "saveSuccess": "Home configuration saved successfully.",
+            "saveTitle": "Home saved",
+            "selectDocument": "Select document",
+            "selectStaticPage": "Select a static page",
+            "staticPage": "Static page",
+            "title": "Home Management",
+            "types": {
+                "default": "Default",
+                "document": "Document",
+                "dynamic": "Dynamic",
+                "image": "Image/URL",
+                "static": "Static page"
+            },
+            "dynamic": {
+                "insertPlaceholder": "Insert menu placeholder",
+                "itemsSelected": "{n} selected items",
+                "loadFromGallery": "Load from gallery",
+                "placeholder": "Placeholder {n}",
+                "placeholderCount": "Menu placeholders: {n}",
+                "preview": "Preview",
+                "selectFromGallery": "Select from gallery",
+                "viewAs": "View as"
             }
         },
         "hierarchyManagement": {

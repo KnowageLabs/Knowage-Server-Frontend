@@ -347,7 +347,8 @@ export const updateBreadcrumbForCrossNavigation = (breadcrumbs: ICrossNavigation
         breadcrumbs.push({
             label: document.name,
             document: document,
-            crossBreadcrumb: document.crossBreadCrumb ?? document.name
+            crossBreadcrumb: document.crossBreadCrumb ?? document.name,
+            dashboardReady: false
         })
     }
 }

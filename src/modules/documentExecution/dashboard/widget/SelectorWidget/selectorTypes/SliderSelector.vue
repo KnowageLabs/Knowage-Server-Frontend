@@ -19,7 +19,7 @@
         >
             <template v-slot:marker-label-group="scope">
                 <div v-for="marker in scope.markerList" :key="marker.index" :class="[marker.classes, { 'marker-disabled': isMarkerDisabled(marker.index) }]" :style="getMarkerStyle(marker)">
-                    {{ options[marker.value]?.column_1 }}
+                    {{ options[marker.value]?.displayLabel ?? options[marker.value]?.column_1 }}
                 </div>
             </template>
         </q-slider>

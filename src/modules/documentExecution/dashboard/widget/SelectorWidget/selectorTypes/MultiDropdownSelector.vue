@@ -4,7 +4,7 @@
             v-model="internalValues"
             :options="optionsWithDisable"
             option-value="column_1"
-            option-label="column_1"
+            :option-label="labelKey"
             :label="multiDropdownStyle.showLabel && columnAlias ? columnAlias : undefined"
             :disable="baseOptions.length === 0"
             :dense="multiDropdownStyle.dense"
@@ -41,8 +41,10 @@ import { ISelectorWidgetMultiDropdownStyle } from '@/modules/documentExecution/d
 
 interface MultiDropdownOption {
     column_1: string
+    column_label?: string
     disabled?: boolean
     disable?: boolean
+    [key: string]: any
 }
 
 export default defineComponent({
@@ -52,7 +54,8 @@ export default defineComponent({
         baseOptions: { type: Array as PropType<MultiDropdownOption[]>, required: true },
         multiDropdownStyle: { type: Object as PropType<ISelectorWidgetMultiDropdownStyle>, required: true },
         showMode: { type: String, default: 'showDisabled' },
-        columnAlias: { type: String, default: '' }
+        columnAlias: { type: String, default: '' },
+        labelKey: { type: String, default: 'column_1' }
     },
     emits: ['update:modelValue'],
     data() {
@@ -171,7 +174,11 @@ export default defineComponent({
 
             update(() => {
                 const input = val.toLowerCase()
-                const filtered = this.baseOptions.filter((opt: MultiDropdownOption) => String(opt.column_1).toLowerCase().includes(input))
+                const filtered = this.baseOptions.filter((opt: MultiDropdownOption) =>
+                    String(opt[this.labelKey] ?? opt.column_1)
+                        .toLowerCase()
+                        .includes(input)
+                )
 
                 const selectedOptions: MultiDropdownOption[] = []
                 if (this.internalValues && this.internalValues.length > 0) {

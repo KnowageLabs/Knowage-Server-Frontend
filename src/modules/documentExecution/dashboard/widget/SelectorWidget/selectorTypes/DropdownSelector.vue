@@ -4,7 +4,7 @@
             v-model="internalValue"
             :options="optionsWithDisable"
             option-value="column_1"
-            option-label="column_1"
+            :option-label="labelKey"
             :label="dropdownStyle.showLabel && columnAlias ? columnAlias : undefined"
             :disable="baseOptions.length === 0"
             :dense="dropdownStyle.dense"
@@ -36,8 +36,10 @@ import { ISelectorWidgetDropdownStyle } from '@/modules/documentExecution/dashbo
 
 interface DropdownOption {
     column_1: string
+    column_label?: string
     disabled?: boolean
     disable?: boolean
+    [key: string]: any
 }
 
 export default defineComponent({
@@ -47,7 +49,8 @@ export default defineComponent({
         baseOptions: { type: Array as PropType<DropdownOption[]>, required: true },
         dropdownStyle: { type: Object as PropType<ISelectorWidgetDropdownStyle>, required: true },
         showMode: { type: String, default: 'showDisabled' },
-        columnAlias: { type: String, default: '' }
+        columnAlias: { type: String, default: '' },
+        labelKey: { type: String, default: 'column_1' }
     },
     emits: ['update:modelValue', 'filter'],
     data() {
@@ -148,7 +151,11 @@ export default defineComponent({
 
             update(() => {
                 const input = val.toLowerCase()
-                const filtered = this.baseOptions.filter((opt: DropdownOption) => String(opt.column_1).toLowerCase().includes(input))
+                const filtered = this.baseOptions.filter((opt: DropdownOption) =>
+                    String(opt[this.labelKey] ?? opt.column_1)
+                        .toLowerCase()
+                        .includes(input)
+                )
 
                 if (this.internalValue && !filtered.find((opt: DropdownOption) => String(opt.column_1) === this.internalValue)) {
                     const selectedOpt = this.baseOptions.find((opt: DropdownOption) => String(opt.column_1) === this.internalValue)

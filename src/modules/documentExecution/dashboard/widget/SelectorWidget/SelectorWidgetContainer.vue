@@ -74,6 +74,7 @@ export default defineComponent({
         gridItems(): { columnName: string; isTreeGroup: boolean; treeColumns: any[] }[] {
             const globalModality = this.propWidget.settings?.configuration?.selectorType?.modality
             const columnTypeConfigs = this.propWidget.settings?.configuration?.columnTypeConfigs ?? []
+            const descColNames = new Set<string>(this.propWidget.columns.filter((c: any) => c.descriptionColumn).map((c: any) => c.descriptionColumn))
 
             if (globalModality === 'tree' || globalModality === 'multiTree') {
                 const treeGroupCols: any[] = []
@@ -95,10 +96,10 @@ export default defineComponent({
                     result.push({ columnName: treeGroupCols[0].columnName, isTreeGroup: false, treeColumns: [] })
                 }
 
-                return result
+                return result.filter((item: any) => !descColNames.has(item.columnName))
             }
 
-            return this.propWidget.columns.map((col: any) => ({ columnName: col.columnName, isTreeGroup: false, treeColumns: [] }))
+            return this.propWidget.columns.map((col: any) => ({ columnName: col.columnName, isTreeGroup: false, treeColumns: [] })).filter((item: any) => !descColNames.has(item.columnName))
         }
     },
     watch: {

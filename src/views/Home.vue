@@ -1,6 +1,7 @@
 <template>
-    <iframe v-if="!homePage.loading && homePage.label && completeUrl" :src="`${completeUrl}`"></iframe>
-    <div v-if="!homePage.loading" class="homeContainer">
+    <iframe v-if="!homePage.loading && homePage.type === 'dynamic' && dynamicSrcdoc" ref="dynamicHomeFrame" :srcdoc="dynamicSrcdoc" style="border:0;width:100%;height:100%;" @load="bindDynamicHomeFrameInteractions"></iframe>
+    <iframe v-else-if="!homePage.loading && homePage.label && completeUrl" :src="`${completeUrl}`"></iframe>
+    <div v-if="!homePage.loading && homePage.type !== 'dynamic'" class="homeContainer">
         <div class="upperSection p-d-flex">
             <div class="p-d-flex p-flex-column kn-flex">
                 <div class="logo">
@@ -20,35 +21,273 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { mapState } from 'pinia'
+import { mapState, mapActions } from 'pinia'
 import mainStore from '../App.store.js'
 import logo from '/images/commons/logo_knowage_white.svg'
+import axios from '@/axios.js'
+import { DYNAMIC_HOME_NAVIGATION_SELECTOR, renderDynamicHomeSrcdoc } from '@/helpers/commons/dynamicHomeHelper'
+import { normalizeMenuLocale, normalizeMenuRoute } from '@/helpers/commons/menuHelper'
+import type { IMenuNode } from '@/modules/managers/homeManagement/HomeManagement'
+
+interface IEndUserMenuItem {
+    menuId?: number | string | null
+    label?: string | null
+    descr?: string | null
+    url?: string | null
+    to?: string | null
+    items?: IEndUserMenuItem[]
+}
+
+interface IDynamicHomeMenuLookup {
+    byRoute: Map<string, number | null>
+    bySignature: Map<string, number | null>
+}
 
 export default defineComponent({
     name: 'home',
     data() {
         return {
-            completeUrl: false,
-            logo: logo
+            completeUrl: false as string | false,
+            logo: logo,
+            dynamicSrcdoc: '' as string,
+            dynamicMenuNodes: [] as IMenuNode[],
+            dynamicHomeFrameDocument: null as Document | null,
+            dynamicHomeSyntheticMenuId: -1 as number
         }
     },
     mounted() {
-        if (!this.homePage.loading) {
-            this.setCompleteUrl()
-        }
+        this.loadHomePage()
+    },
+    unmounted() {
+        this.unbindDynamicHomeFrameInteractions()
     },
     methods: {
-        setCompleteUrl() {
+        ...mapActions(mainStore, ['setHomePage']),
+        bindDynamicHomeFrameInteractions() {
+            this.unbindDynamicHomeFrameInteractions()
+            const dynamicHomeFrame = this.$refs.dynamicHomeFrame as HTMLIFrameElement | undefined
+            const dynamicHomeFrameDocument = dynamicHomeFrame?.contentDocument
+            if (!dynamicHomeFrameDocument) return
+
+            dynamicHomeFrameDocument.addEventListener('click', this.onDynamicHomeDocumentClick)
+            dynamicHomeFrameDocument.addEventListener('keydown', this.onDynamicHomeDocumentKeydown)
+            this.dynamicHomeFrameDocument = dynamicHomeFrameDocument
+        },
+        unbindDynamicHomeFrameInteractions() {
+            if (!this.dynamicHomeFrameDocument) return
+
+            this.dynamicHomeFrameDocument.removeEventListener('click', this.onDynamicHomeDocumentClick)
+            this.dynamicHomeFrameDocument.removeEventListener('keydown', this.onDynamicHomeDocumentKeydown)
+            this.dynamicHomeFrameDocument = null
+        },
+        onDynamicHomeDocumentClick(event: MouseEvent) {
+            const navigationElement = this.getDynamicHomeNavigationElement(event.target)
+            if (!navigationElement) return
+
+            event.preventDefault()
+            this.navigateDynamicHomeElement(navigationElement)
+        },
+        onDynamicHomeDocumentKeydown(event: KeyboardEvent) {
+            if (event.key !== 'Enter' && event.key !== ' ') return
+
+            const navigationElement = this.getDynamicHomeNavigationElement(event.target)
+            if (!navigationElement) return
+
+            event.preventDefault()
+            this.navigateDynamicHomeElement(navigationElement)
+        },
+        getDynamicHomeNavigationElement(target: EventTarget | null): Element | null {
+            if (!(target instanceof Element)) return null
+            return target.closest(DYNAMIC_HOME_NAVIGATION_SELECTOR)
+        },
+        navigateDynamicHomeElement(element: Element) {
+            const navigationType = element.getAttribute('data-kn-menu-navigation-type')
+            const navigationTarget = element.getAttribute('data-kn-menu-navigation')
+            if (!navigationType || !navigationTarget) return
+
+            if (navigationType === 'to') {
+                this.$router.push(normalizeMenuRoute(navigationTarget))
+                return
+            }
+
+            if (navigationType === 'url') {
+                this.$router.push({ name: 'externalUrl', params: { url: navigationTarget } })
+            }
+        },
+        resolveRoleName(): string | null {
+            if (this.user.defaultRole) return this.user.defaultRole
+            const raw: string = this.user.attributes?.roles ?? ''
+            // format may be "'role1','role2'" — strip quotes and split
+            const first = raw.split(',')[0]?.replace(/'/g, '').trim()
+            return first || null
+        },
+        resolveMenuLocale(): string {
+            const fallbackLocale = this.$i18n.fallbackLocale.toString()
+            const currentLocale = localStorage.getItem('locale') || this.locale || fallbackLocale
+            return normalizeMenuLocale(currentLocale, fallbackLocale)
+        },
+        getDynamicHomeRouteKey(to: string | null | undefined, url: string | null | undefined): string {
+            const normalizedTo = normalizeMenuRoute(to)
+            const normalizedUrl = url?.trim() ?? ''
+            return normalizedTo || normalizedUrl ? `${normalizedTo}|${normalizedUrl}` : ''
+        },
+        getDynamicHomeSignature(label: string | null | undefined, to: string | null | undefined, url: string | null | undefined, path: string[]): string {
+            return [...path, (label ?? '').trim().toLowerCase()].join('>') + '|' + this.getDynamicHomeRouteKey(to, url)
+        },
+        registerDynamicHomeLookupValue(lookup: Map<string, number | null>, key: string, menuId: number) {
+            if (!key) return
+
+            if (!lookup.has(key)) {
+                lookup.set(key, menuId)
+                return
+            }
+
+            if (lookup.get(key) !== menuId) lookup.set(key, null)
+        },
+        buildDynamicHomePreviewLookup(previewNodes: IMenuNode[]): IDynamicHomeMenuLookup {
+            const lookup: IDynamicHomeMenuLookup = {
+                byRoute: new Map<string, number | null>(),
+                bySignature: new Map<string, number | null>()
+            }
+
+            const visit = (nodes: IMenuNode[], path: string[] = []) => {
+                nodes.forEach((node) => {
+                    const label = (node.descr || node.name || '').trim()
+                    this.registerDynamicHomeLookupValue(lookup.byRoute, this.getDynamicHomeRouteKey(node.to, node.url), node.menuId)
+                    this.registerDynamicHomeLookupValue(lookup.bySignature, this.getDynamicHomeSignature(label, node.to, node.url, path), node.menuId)
+                    const children = node.lstChildren?.length ? node.lstChildren : (node.children ?? [])
+                    visit(children, label ? [...path, label.toLowerCase()] : path)
+                })
+            }
+
+            visit(previewNodes)
+            return lookup
+        },
+        getNextDynamicHomeSyntheticMenuId(): number {
+            const nextId = this.dynamicHomeSyntheticMenuId
+            this.dynamicHomeSyntheticMenuId--
+            return nextId
+        },
+        resolveDynamicHomeMenuId(menuItem: IEndUserMenuItem, lookup: IDynamicHomeMenuLookup, path: string[]): number {
+            const explicitMenuId = Number(menuItem.menuId)
+            if (Number.isInteger(explicitMenuId)) return explicitMenuId
+
+            const label = menuItem.descr || menuItem.label || ''
+            const signatureMatch = lookup.bySignature.get(this.getDynamicHomeSignature(label, menuItem.to, menuItem.url, path))
+            if (signatureMatch !== undefined && signatureMatch !== null) return signatureMatch
+
+            const routeMatch = lookup.byRoute.get(this.getDynamicHomeRouteKey(menuItem.to, menuItem.url))
+            if (routeMatch !== undefined && routeMatch !== null) return routeMatch
+
+            return this.getNextDynamicHomeSyntheticMenuId()
+        },
+        buildDynamicHomeMenuNodes(menuItems: IEndUserMenuItem[] = [], lookup: IDynamicHomeMenuLookup, path: string[] = []): IMenuNode[] {
+            return menuItems.map((menuItem) => {
+                const label = (menuItem.label || menuItem.descr || '').trim()
+                const nextPath = label ? [...path, label.toLowerCase()] : path
+
+                return {
+                    menuId: this.resolveDynamicHomeMenuId(menuItem, lookup, path),
+                    name: label,
+                    descr: menuItem.descr ?? (label || null),
+                    url: menuItem.url ?? null,
+                    to: menuItem.to ?? null,
+                    linkType: null,
+                    children: this.buildDynamicHomeMenuNodes(menuItem.items ?? [], lookup, nextPath)
+                }
+            })
+        },
+        async loadHomePage() {
+            // Resolve numeric roleId from role name
+            let roleId: number | null = null
+            try {
+                const roleName = this.resolveRoleName()
+                const rolesRes = await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/roles')
+                const matched = rolesRes.data.find((r: any) => r.name === roleName)
+                if (matched) roleId = matched.id
+            } catch (e) {
+                // ignore, fall back to default
+            }
+
+            const fetchConfig = async (id: number | string) => {
+                const res = await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/homepage/' + id, { headers: { 'X-Disable-Errors': 'true' } })
+                return res.data
+            }
+
+            let config: any = null
+            try {
+                config = await fetchConfig(roleId ?? 'default')
+            } catch (e) {
+                if (roleId !== null) {
+                    try { config = await fetchConfig('default') } catch (e2) { /* ignore */ }
+                }
+            }
+
+            const homePage: any = { loading: false }
+            if (config && config.type && config.type !== 'default') {
+                homePage.roleId = roleId
+                switch (config.type) {
+                    case 'document':
+                        homePage.label = config.documentLabel
+                        homePage.to = '/document-composite/execute?label=' + config.documentLabel
+                        break
+                    case 'static':
+                        homePage.label = config.staticPage
+                        homePage.url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/menu/htmls/' + config.staticPage
+                        break
+                    case 'image':
+                        homePage.label = config.imageUrl
+                        homePage.url = config.imageUrl
+                        break
+                    case 'dynamic':
+                        homePage.label = 'dynamic'
+                        homePage.type = 'dynamic'
+                        homePage.template = config.template
+                        break
+                }
+            }
+
+            this.setHomePage(homePage)
+        },
+        async setCompleteUrl() {
+            if (this.homePage?.type === 'dynamic') {
+                await this.buildDynamicSrcdoc()
+                return
+            }
+            this.unbindDynamicHomeFrameInteractions()
+            this.dynamicSrcdoc = ''
+            this.dynamicMenuNodes = []
             if (this.homePage?.url || this.homePage?.to) {
                 this.completeUrl = this.homePage.url
                 if (this.homePage.to) {
-                    const to = this.homePage.to?.replaceAll('\\/', '/')
+                    const to = normalizeMenuRoute(this.homePage.to)
+                    // @ts-ignore
                     if (this.isFunctionality(to) || this.isADocument(to) || this.isHTML(to)) this.$router.push(to)
                     else this.completeUrl = import.meta.env.VITE_HOST_URL + this.homePage.to.replaceAll('\\/', '/')
                 }
             } else {
                 this.completeUrl = false
             }
+        },
+        async buildDynamicSrcdoc() {
+            const template = this.homePage.template
+            if (!template) {
+                this.dynamicSrcdoc = ''
+                this.dynamicMenuNodes = []
+                return
+            }
+
+            this.unbindDynamicHomeFrameInteractions()
+            const roleSegment = this.homePage.roleId ?? 'default'
+            const [endUserRes, previewRes] = await Promise.all([
+                axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/3.0/menu/enduser?locale=' + encodeURIComponent(this.resolveMenuLocale())),
+                axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/menu/preview/' + roleSegment)
+            ])
+
+            const lookup = this.buildDynamicHomePreviewLookup(Array.isArray(previewRes.data) ? previewRes.data : [])
+            this.dynamicHomeSyntheticMenuId = -1
+            this.dynamicMenuNodes = this.buildDynamicHomeMenuNodes(endUserRes.data?.dynamicUserFunctionalities ?? [], lookup)
+            this.dynamicSrcdoc = renderDynamicHomeSrcdoc(template, this.dynamicMenuNodes, import.meta.env.VITE_PUBLIC_PATH || '')
         },
         isHTML(to: string): boolean {
             return to.startsWith('/html')
@@ -63,12 +302,12 @@ export default defineComponent({
     computed: {
         ...mapState(mainStore, {
             homePage: 'homePage',
-            user: 'user'
+            user: 'user',
+            locale: 'locale'
         })
     },
     watch: {
         'homePage.loading'(newLoading, oldLoading) {
-            // Quando la homepage finisce di caricare, imposta l'URL
             if (oldLoading === true && newLoading === false) {
                 this.setCompleteUrl()
             }

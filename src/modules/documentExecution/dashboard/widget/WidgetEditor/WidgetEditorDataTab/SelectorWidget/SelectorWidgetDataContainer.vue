@@ -1,121 +1,82 @@
 <template>
-    <div v-if="widget">
-        <div class="p-d-flex p-flex-row p-ai-center p-mt-2">
-            <div class="p-d-flex p-flex-column kn-flex-2 p-m-2">
-                <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.sortingColumn') }}</label>
-                <Dropdown v-model="sortingColumn" class="kn-material-input" :options="selectedDatasetColumns" option-value="name" option-label="alias" show-clear @change="sortingChanged"> </Dropdown>
-            </div>
-            <div class="p-d-flex p-flex-column kn-flex p-m-2">
-                <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.sortingOrder') }}</label>
-                <Dropdown v-model="sortingOrder" class="kn-material-input" :options="commonDescriptor.sortingOrderOptions" option-value="value" showClear @change="sortingChanged">
-                    <template #value="slotProps">
-                        <div>
-                            <span>{{ slotProps.value }}</span>
-                        </div>
-                    </template>
-                    <template #option="slotProps">
-                        <div>
-                            <span>{{ $t(slotProps.option.label) }}</span>
-                        </div>
-                    </template>
-                </Dropdown>
-            </div>
+    <div v-if="widget" class="p-m-3">
+        <WidgetEditorColumnTable :widget-model="widget" :items="columnTableItems" :settings="descriptor.columnTableSettings" @rowReorder="onColumnsReorder" @itemAdded="onColumnAdded" @itemUpdated="onColumnItemUpdate" @itemDeleted="onColumnDelete" />
+        <div v-if="descriptionPairs.length > 0" class="q-pt-sm q-pb-xs q-gutter-xs row">
+            <q-badge v-for="pair in descriptionPairs" :key="pair.valueColumnName" color="accent" outline class="q-pa-xs"> {{ getColumnAlias(pair.valueColumnName) }} &#8594; {{ getColumnAlias(pair.descriptionColumnName) }} </q-badge>
         </div>
-        <WidgetEditorColumnTable class="p-m-2" :widget-model="widget" :items="columnTableItems" :settings="commonDescriptor.columnTableSettings" @itemAdded="onColumnAdded" @itemUpdated="onColumnItemUpdate" @itemSelected="setSelectedColumn" @itemDeleted="onColumnDelete"></WidgetEditorColumnTable>
-        <WidgetEditorFilterForm v-if="selectedColumn" :prop-column="selectedColumn"></WidgetEditorFilterForm>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IDataset, IWidget, IWidgetColumn, IDatasetColumn } from '@/modules/documentExecution/Dashboard/Dashboard'
+import { IDataset, IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '../../../../DashboardHelpers'
-import descriptor from '../TableWidget/TableWidgetDataDescriptor.json'
-import Dropdown from 'primevue/dropdown'
-import commonDescriptor from '../common/WidgetCommonDescriptor.json'
+import descriptor from '../common/WidgetCommonDescriptor.json'
 import WidgetEditorColumnTable from '../common/WidgetEditorColumnTable.vue'
-import WidgetEditorFilterForm from '../common/WidgetEditorFilterForm.vue'
 
 export default defineComponent({
     name: 'selector-widget-data-container',
-    components: { Dropdown, WidgetEditorColumnTable, WidgetEditorFilterForm },
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, selectedDataset: { type: Object as PropType<IDataset | null> }, selectedDatasetColumns: { type: Array as PropType<IDatasetColumn[]>, required: true } },
+    components: { WidgetEditorColumnTable },
+    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, selectedDataset: { type: Object as PropType<IDataset | null> } },
     data() {
         return {
             descriptor,
-            commonDescriptor,
             widget: {} as IWidget,
-            columnTableItems: [] as IWidgetColumn[],
-            selectedColumn: null as IWidgetColumn | null,
-            sortingColumn: '',
-            sortingOrder: '',
-            datasetColumns: [] as IDatasetColumn[]
+            columnTableItems: [] as IWidgetColumn[]
         }
     },
-    watch: {
-        selectedDataset() {
-            this.selectedColumn = null
+    computed: {
+        descriptionPairs(): { valueColumnName: string; descriptionColumnName: string }[] {
+            return (this.widget?.columns ?? []).filter((c: IWidgetColumn) => c.descriptionColumn).map((c: IWidgetColumn) => ({ valueColumnName: c.columnName, descriptionColumnName: c.descriptionColumn! }))
         }
     },
+
     async created() {
-        this.loadWidget()
-        this.loadSortingSettings()
-        this.loadSelectedDatasetColumns()
+        this.widget = this.widgetModel
         this.$watch('widget.columns', () => this.loadColumnTableItems())
         this.loadColumnTableItems()
     },
     methods: {
-        loadWidget() {
-            this.widget = this.widgetModel
-        },
         loadColumnTableItems() {
             this.columnTableItems = this.widget.columns ?? []
         },
-        loadSortingSettings() {
-            if (this.widget?.settings?.sortingColumn) this.sortingColumn = this.widget.settings.sortingColumn
-            if (this.widget?.settings?.sortingOrder) this.sortingOrder = this.widget.settings.sortingOrder
-        },
-        loadSelectedDatasetColumns() {
-            this.datasetColumns = this.selectedDatasetColumns
-            this.setSelectedColumnAsSortingColumn()
-        },
-        setSelectedColumnAsSortingColumn() {
-            if (this.sortingColumn !== '' || !this.datasetColumns || this.datasetColumns.length === 0 || this.widget?.columns.length === 0) return
-            const selectedColumn = this.datasetColumns.find((column: IDatasetColumn) => column.name === this.widget.columns[0]?.columnName)
-            this.sortingColumn = selectedColumn ? selectedColumn?.name : ''
+        onColumnsReorder(columns: IWidgetColumn[]) {
+            this.widget.columns = columns
+            emitter.emit('columnsReordered', this.widget.columns)
+            emitter.emit('refreshWidgetWithData', this.widget.id)
         },
         onColumnAdded(payload: { column: IWidgetColumn; rows: IWidgetColumn[] }) {
-            // Allow multiple columns for selector widgets
-            this.widget.columns.push(payload.column)
+            this.widget.columns = payload.rows
             this.widget.settings.isDateType = payload.column.type.toLowerCase().includes('date') || payload.column.type.toLowerCase().includes('timestamp')
             emitter.emit('columnAdded', payload.column)
             emitter.emit('refreshSelector', this.widget.id)
             emitter.emit('refreshWidgetWithData', this.widget.id)
         },
         onColumnItemUpdate(column: IWidgetColumn) {
-            this.widget.columns[0] = { ...column }
-            emitter.emit('collumnUpdated', { column: this.widget.columns[0], columnIndex: 0 })
+            const index = this.widget.columns.findIndex((c: IWidgetColumn) => c.id === column.id)
+            if (index !== -1) {
+                this.widget.columns[index] = { ...column }
+                emitter.emit('collumnUpdated', { column: this.widget.columns[index], columnIndex: index })
+            }
             emitter.emit('refreshSelector', this.widget.id)
-            if (this.widget.columns[0].id === this.selectedColumn?.id) this.selectedColumn = { ...this.widget.columns[0] }
             emitter.emit('refreshWidgetWithData', this.widget.id)
         },
-        setSelectedColumn(column: IWidgetColumn) {
-            this.selectedColumn = { ...column }
+        getColumnAlias(columnName: string): string {
+            return this.widget.columns?.find((c: IWidgetColumn) => c.columnName === columnName)?.alias ?? columnName
         },
         onColumnDelete(column: IWidgetColumn) {
-            this.widget.columns = []
-            if (column.id === this.selectedColumn?.id) this.selectedColumn = null
+            this.widget.columns = this.widget.columns.filter((c: IWidgetColumn) => c.id !== column.id)
+            // Clear descriptionColumn on any column that referenced the deleted column
+            this.widget.columns.forEach((c: IWidgetColumn) => {
+                if (c.descriptionColumn === column.columnName) {
+                    delete c.descriptionColumn
+                    delete c.showValueWithDescription
+                }
+            })
             emitter.emit('columnRemoved', column)
             emitter.emit('refreshSelector', this.widget.id)
-            if (this.widget.columns.length == 0) emitter.emit('clearWidgetData', this.widget.id)
+            if (this.widget.columns.length === 0) emitter.emit('clearWidgetData', this.widget.id)
             else emitter.emit('refreshWidgetWithData', this.widget.id)
-        },
-        sortingChanged() {
-            if (!this.widget.settings) return
-            this.widget.settings.sortingColumn = this.sortingColumn
-            this.widget.settings.sortingOrder = this.sortingOrder
-            if (this.widget.columns.length > 0) emitter.emit('refreshWidgetWithData', this.widget.id)
-            emitter.emit('refreshSelector', this.widget.id)
         }
     }
 })
