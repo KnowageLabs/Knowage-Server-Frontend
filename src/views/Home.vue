@@ -81,20 +81,20 @@ export default defineComponent({
             this.dynamicHomeFrameDocument = null
         },
         onDynamicHomeDocumentClick(event: MouseEvent) {
-            const navigationElement = this.getDynamicHomeNavigationElement(event.target)
-            if (!navigationElement) return
+            const target = event.target as Element | null
+            if (!target || target.nodeType !== 1 || !target.hasAttribute('data-kn-menu-navigation')) return
 
             event.preventDefault()
-            this.navigateDynamicHomeElement(navigationElement)
+            this.navigateDynamicHomeElement(target)
         },
         onDynamicHomeDocumentKeydown(event: KeyboardEvent) {
             if (event.key !== 'Enter' && event.key !== ' ') return
 
-            const navigationElement = this.getDynamicHomeNavigationElement(event.target)
-            if (!navigationElement) return
+            const target = event.target as Element | null
+            if (!target || target.nodeType !== 1 || !target.hasAttribute('data-kn-menu-navigation')) return
 
             event.preventDefault()
-            this.navigateDynamicHomeElement(navigationElement)
+            this.navigateDynamicHomeElement(target)
         },
         getDynamicHomeNavigationElement(target: EventTarget | null): Element | null {
             if (!(target instanceof Element)) return null
