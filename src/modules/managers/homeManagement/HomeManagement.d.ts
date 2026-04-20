@@ -1,7 +1,7 @@
 export type HomeType = 'default' | 'static' | 'document' | 'image' | 'dynamic'
 
 export interface IMenuPlaceholderConfig {
-    /** Index of this placeholder among all data-kn-menu elements in the template */
+    /** Unique 1-based placeholder identifier stored in data-kn-menu="N" */
     index: number
     /** IDs of the menu nodes to show for this placeholder */
     menuIds: number[]
@@ -10,7 +10,7 @@ export interface IMenuPlaceholderConfig {
 export interface IDynamicHomeTemplate {
     html: string
     css: string
-    /** One entry per data-kn-menu element in the HTML */
+    /** One entry per data-kn-menu element, ordered by current HTML occurrence */
     menuPlaceholders: IMenuPlaceholderConfig[]
 }
 

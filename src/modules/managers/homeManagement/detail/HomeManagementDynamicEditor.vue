@@ -43,16 +43,16 @@
                     <div class="de-placeholders row items-center q-px-md q-py-sm">
                         <transition-group name="ph-fade" tag="div" class="row items-center q-gutter-xs">
                             <q-chip
-                                v-for="(ph, idx) in menuPlaceholders"
-                                :key="idx"
+                                v-for="ph in menuPlaceholders"
+                                :key="ph.index"
                                 dense removable
                                 color="primary"
                                 text-color="white"
                                 icon="menu"
-                                @remove="removePlaceholder(idx)"
-                                @click="openPicker(idx)"
+                                @remove="removePlaceholder(ph.index)"
+                                @click="openPicker(ph.index)"
                             >
-                                {{ $t('managers.homeManagement.dynamic.placeholder', { n: idx + 1 }) }}
+                                {{ $t('managers.homeManagement.dynamic.placeholder', { n: ph.index }) }}
                                 <q-tooltip>{{ $t('managers.homeManagement.dynamic.itemsSelected', { n: ph.menuIds.length }) }}</q-tooltip>
                             </q-chip>
                             <span v-if="!menuPlaceholders.length" key="none" class="text-caption text-grey-5">
@@ -158,7 +158,7 @@
         <HomeManagementMenuPickerDialog
             v-if="pickerVisible"
             :visible="pickerVisible"
-            :selected-ids="menuPlaceholders[activePlaceholderIdx]?.menuIds ?? []"
+            :selected-ids="activePlaceholderIndex !== null ? (getDynamicHomePlaceholderConfig(menuPlaceholders, activePlaceholderIndex)?.menuIds ?? []) : []"
             :role-id="props.currentRoleId"
             @update:visible="pickerVisible = $event"
             @confirm="onPickerConfirm"
@@ -171,7 +171,7 @@ import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import axios from '@/axios.js'
 import knMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
-import { renderDynamicHomeSrcdoc } from '@/helpers/commons/dynamicHomeHelper'
+import { getDynamicHomePlaceholderConfig, getNextDynamicHomePlaceholderIndex, normalizeDynamicHomeTemplate, removeDynamicHomePlaceholderFromHtml, renderDynamicHomeSrcdoc } from '@/helpers/commons/dynamicHomeHelper'
 import HomeManagementMenuPickerDialog from './HomeManagementMenuPickerDialog.vue'
 import { IDynamicHomeTemplate, IMenuPlaceholderConfig, IMenuNode } from '../HomeManagement'
 
@@ -187,17 +187,18 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 
-const PLACEHOLDER_SNIPPET = `<a data-kn-menu>Menu Item</a>`
+const EMPTY_TEMPLATE: IDynamicHomeTemplate = { html: '', css: '', menuPlaceholders: [] }
+const initialTemplate = normalizeDynamicHomeTemplate(props.modelValue ?? EMPTY_TEMPLATE, { rewriteHtml: true })
 
-const localHtml = ref(props.modelValue?.html ?? '')
-const localCss = ref(props.modelValue?.css ?? '')
-const menuPlaceholders = ref<IMenuPlaceholderConfig[]>(props.modelValue?.menuPlaceholders ?? [])
+const localHtml = ref(initialTemplate.html)
+const localCss = ref(initialTemplate.css)
+const menuPlaceholders = ref<IMenuPlaceholderConfig[]>(initialTemplate.menuPlaceholders)
 
 const galleryVisible = ref(false)
 const galleryLoading = ref(false)
 const galleryTemplates = ref<any[]>([])
 const pickerVisible = ref(false)
-const activePlaceholderIdx = ref(0)
+const activePlaceholderIndex = ref<number | null>(null)
 const viewAsRoleId = ref<number | null>(props.currentRoleId)
 const editorsExpanded = ref(true)
 
@@ -208,6 +209,37 @@ const roleOptions = computed(() => [
     { label: t('managers.homeManagement.defaultRole'), value: null },
     ...props.roles.map((r) => ({ label: r.name, value: r.id }))
 ])
+
+const selectedPlaceholderSignature = computed(() =>
+    menuPlaceholders.value
+        .filter((placeholder) => placeholder.menuIds.length > 0)
+        .map((placeholder) => `${placeholder.index}:${placeholder.menuIds.join(',')}`)
+        .join('|')
+)
+
+function syncTemplateState(rewriteHtml = false): IDynamicHomeTemplate {
+    const normalizedTemplate = normalizeDynamicHomeTemplate(
+        {
+            html: localHtml.value,
+            css: localCss.value,
+            menuPlaceholders: menuPlaceholders.value
+        },
+        { rewriteHtml }
+    )
+
+    if (rewriteHtml) localHtml.value = normalizedTemplate.html
+    localCss.value = normalizedTemplate.css
+    menuPlaceholders.value = normalizedTemplate.menuPlaceholders
+
+    return normalizedTemplate
+}
+
+function applyIncomingTemplate(template?: IDynamicHomeTemplate) {
+    const normalizedTemplate = normalizeDynamicHomeTemplate(template ?? EMPTY_TEMPLATE, { rewriteHtml: true })
+    localHtml.value = normalizedTemplate.html
+    localCss.value = normalizedTemplate.css
+    menuPlaceholders.value = normalizedTemplate.menuPlaceholders
+}
 
 async function loadMenuAndFilter(roleId: number | null) {
     previewLoading.value = true
@@ -227,48 +259,55 @@ const previewSrc = computed(() => renderDynamicHomeSrcdoc({
     menuPlaceholders: menuPlaceholders.value
 }, allMenuNodes.value, import.meta.env.VITE_PUBLIC_PATH || ''))
 
-function emitChange() {
-    emit('update:modelValue', {
-        html: localHtml.value,
-        css: localCss.value,
-        menuPlaceholders: menuPlaceholders.value
-    })
+function emitChange(rewriteHtml = false) {
+    emit('update:modelValue', syncTemplateState(rewriteHtml))
 }
 
 const htmlEditorRef = ref<any>(null)
 
 function insertMenuPlaceholder() {
+    const nextPlaceholderIndex = getNextDynamicHomePlaceholderIndex(syncTemplateState().menuPlaceholders)
+    const placeholderSnippet = `<a data-kn-menu="${nextPlaceholderIndex}" href="#">Menu Item</a>`
     const editor = htmlEditorRef.value?.editor
     if (editor) {
         const pos = editor.getPosition()
-        editor.executeEdits('', [{ range: { startLineNumber: pos.lineNumber, startColumn: pos.column, endLineNumber: pos.lineNumber, endColumn: pos.column }, text: PLACEHOLDER_SNIPPET }])
+        editor.executeEdits('', [{ range: { startLineNumber: pos.lineNumber, startColumn: pos.column, endLineNumber: pos.lineNumber, endColumn: pos.column }, text: placeholderSnippet }])
         localHtml.value = editor.getValue()
     } else {
-        localHtml.value += '\n' + PLACEHOLDER_SNIPPET
+        localHtml.value += '\n' + placeholderSnippet
     }
-    const idx = menuPlaceholders.value.length
-    menuPlaceholders.value = [...menuPlaceholders.value, { index: idx, menuIds: [] }]
-    activePlaceholderIdx.value = idx
+    menuPlaceholders.value = [...menuPlaceholders.value, { index: nextPlaceholderIndex, menuIds: [] }]
+    activePlaceholderIndex.value = nextPlaceholderIndex
     pickerVisible.value = true
-    emitChange()
+    emitChange(true)
 }
 
-function openPicker(idx: number) {
-    activePlaceholderIdx.value = idx
+function openPicker(index: number) {
+    activePlaceholderIndex.value = index
     pickerVisible.value = true
 }
 
 function onPickerConfirm(ids: number[]) {
-    const phs = [...menuPlaceholders.value]
-    phs[activePlaceholderIdx.value] = { ...phs[activePlaceholderIdx.value], menuIds: ids }
-    menuPlaceholders.value = phs
+    if (activePlaceholderIndex.value === null) return
+
+    const selectedPlaceholder = getDynamicHomePlaceholderConfig(menuPlaceholders.value, activePlaceholderIndex.value)
+    menuPlaceholders.value = selectedPlaceholder
+        ? menuPlaceholders.value.map((placeholder) => (placeholder.index === activePlaceholderIndex.value ? { ...placeholder, menuIds: ids } : placeholder))
+        : [...menuPlaceholders.value, { index: activePlaceholderIndex.value, menuIds: ids }]
     emitChange()
     loadMenuAndFilter(viewAsRoleId.value)
 }
 
-function removePlaceholder(idx: number) {
-    menuPlaceholders.value = menuPlaceholders.value.filter((_, i) => i !== idx).map((ph, i) => ({ ...ph, index: i }))
-    emitChange()
+function removePlaceholder(index: number) {
+    const normalizedTemplate = syncTemplateState(true)
+    localHtml.value = removeDynamicHomePlaceholderFromHtml(normalizedTemplate.html, index)
+    menuPlaceholders.value = normalizedTemplate.menuPlaceholders.filter((placeholder) => placeholder.index !== index)
+    if (activePlaceholderIndex.value === index) activePlaceholderIndex.value = null
+    emit('update:modelValue', {
+        html: localHtml.value,
+        css: localCss.value,
+        menuPlaceholders: menuPlaceholders.value
+    })
 }
 
 async function openGallery() {
@@ -292,7 +331,7 @@ async function applyGalleryTemplate(tpl: any) {
         localHtml.value = full.code?.html ?? ''
         localCss.value = full.code?.css ?? ''
         galleryVisible.value = false
-        emitChange()
+        emitChange(true)
     } finally {
         galleryLoading.value = false
     }
@@ -307,19 +346,15 @@ watch(viewAsRoleId, (roleId) => {
 watch(
     () => props.modelValue,
     (val) => {
-        if (val) {
-            localHtml.value = val.html ?? ''
-            localCss.value = val.css ?? ''
-            menuPlaceholders.value = val.menuPlaceholders ?? []
-        }
+        applyIncomingTemplate(val)
     }
 )
 
 // Load menu lazily when placeholders have selected items
 watch(
-    menuPlaceholders,
-    (phs) => {
-        if (phs.some((p) => p.menuIds.length > 0)) loadMenuAndFilter(viewAsRoleId.value)
+    selectedPlaceholderSignature,
+    (signature) => {
+        if (signature) loadMenuAndFilter(viewAsRoleId.value)
     },
     { immediate: true }
 )

@@ -232,10 +232,10 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import axios from '@/axios.js'
 import mainStore from '@/App.store'
+import { addDefaultHrefToDynamicHomePlaceholders, normalizeDynamicHomeTemplate, stripHrefFromDynamicHomePlaceholders } from '@/helpers/commons/dynamicHomeHelper'
 import HomeManagementDynamicEditor from './detail/HomeManagementDynamicEditor.vue'
 import { IHomeConfig, IDynamicHomeTemplate } from './HomeManagement'
 import deepcopy from 'deepcopy'
-import { useRouter } from 'vue-router'
 
 const { t } = useI18n()
 const store = mainStore()
@@ -254,7 +254,6 @@ const documents = ref<any[]>([])
 const docsLoading = ref(false)
 const documentDialogVisible = ref(false)
 const docFilter = ref('')
-const router = useRouter();
 
 const homeTypeIcons: Record<string, string> = {
     default: 'home',
@@ -323,9 +322,12 @@ async function loadConfig(roleId: number | null) {
         const res = await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/homepage/' + id)
         config.value = { ...deepcopy(EMPTY_CONFIG), ...res.data }
         if (!config.value.template) config.value.template = deepcopy(EMPTY_TEMPLATE)
-        else if (config.value.template.html) {
-            // Re-add href="#" to data-kn-menu anchors stripped before saving
-            config.value.template.html = config.value.template.html.replace(/(<[a-zA-Z][a-zA-Z0-9]*\s[^>]*data-kn-menu(?![^>]*\shref=)[^>]*)>/g, '$1 href="#">')
+        else {
+            config.value.template = normalizeDynamicHomeTemplate(config.value.template, { rewriteHtml: true })
+            if (config.value.template.html) {
+                // Re-add href="#" to data-kn-menu anchors stripped before saving
+                config.value.template.html = addDefaultHrefToDynamicHomePlaceholders(config.value.template.html)
+            }
         }
     } catch {
         config.value = deepcopy(EMPTY_CONFIG)
@@ -355,11 +357,6 @@ async function loadDocuments() {
     }
 }
 
-const safeTemplate = computed<IDynamicHomeTemplate>({
-    get: () => config.value.template ?? deepcopy(EMPTY_TEMPLATE),
-    set: (val) => { config.value.template = val }
-})
-
 function onRoleChange(val: number | null) {
     loadConfig(val)
 }
@@ -376,9 +373,12 @@ async function save() {
         config.value.roleId = selectedRoleId.value
         const payload = deepcopy(config.value)
         if (payload.type !== 'dynamic') delete payload.template
-        else if (payload.template?.html) {
-            // Strip href from data-kn-menu anchors to avoid backend XSS URL validation
-            payload.template.html = payload.template.html.replace(/(<[a-zA-Z][a-zA-Z0-9]*\s[^>]*data-kn-menu[^>]*)\shref="[^"]*"/g, '$1')
+        else if (payload.template) {
+            payload.template = normalizeDynamicHomeTemplate(payload.template, { rewriteHtml: true })
+            if (payload.template.html) {
+                // Strip href from data-kn-menu anchors to avoid backend XSS URL validation
+                payload.template.html = stripHrefFromDynamicHomePlaceholders(payload.template.html)
+            }
         }
         if (payload.type !== 'static') delete payload.staticPage
         if (payload.type !== 'document') { delete payload.documentId; delete payload.documentLabel }
