@@ -171,6 +171,7 @@ import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import axios from '@/axios.js'
 import knMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
+import { renderDynamicHomeSrcdoc } from '@/helpers/commons/dynamicHomeHelper'
 import HomeManagementMenuPickerDialog from './HomeManagementMenuPickerDialog.vue'
 import { IDynamicHomeTemplate, IMenuPlaceholderConfig, IMenuNode } from '../HomeManagement'
 
@@ -200,36 +201,13 @@ const activePlaceholderIdx = ref(0)
 const viewAsRoleId = ref<number | null>(props.currentRoleId)
 const editorsExpanded = ref(true)
 
-// Full menu tree loaded once; per-role visible flat list computed on demand
 const allMenuNodes = ref<IMenuNode[]>([])
-const menuLoaded = ref(false)
 const previewLoading = ref(false)
-// Flat list filtered for the currently selected "view as" role
-const visibleMenuNodes = ref<IMenuNode[]>([])
 
 const roleOptions = computed(() => [
     { label: t('managers.homeManagement.defaultRole'), value: null },
     ...props.roles.map((r) => ({ label: r.name, value: r.id }))
 ])
-
-function flattenNodes(nodes: IMenuNode[]): IMenuNode[] {
-    const result: IMenuNode[] = []
-    const walk = (items: IMenuNode[]) => {
-        for (const n of items) {
-            result.push(n)
-            const children = n.lstChildren?.length ? n.lstChildren : (n.children ?? [])
-            if (children.length) walk(children)
-        }
-    }
-    walk(nodes)
-    return result
-}
-
-function resolveUrl(node: IMenuNode): string {
-    if (node.to) return (import.meta.env.VITE_PUBLIC_PATH || '') + node.to.replace(/\\\//g, '/')
-    if (node.url) return node.url
-    return '#'
-}
 
 async function loadMenuAndFilter(roleId: number | null) {
     previewLoading.value = true
@@ -237,47 +215,17 @@ async function loadMenuAndFilter(roleId: number | null) {
         const roleSegment = roleId ?? 'default'
         const res = await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/menu/preview/' + roleSegment)
         allMenuNodes.value = res.data
-        menuLoaded.value = true
-        visibleMenuNodes.value = flattenNodes(allMenuNodes.value)
     } catch { /* no-op */ }
     finally {
         previewLoading.value = false
     }
 }
 
-const previewSrc = computed(() => {
-    const allFlat = flattenNodes(allMenuNodes.value)
-
-    let html = localHtml.value
-    let phIdx = 0
-    html = html.replace(/(<([a-zA-Z][a-zA-Z0-9]*)(\s[^>]*)?\sdata-kn-menu(\s[^>]*)?>)([\s\S]*?)(<\/\2>)/g, (_m, openFull, _tag, _pre, _post, inner, close) => {
-        const ph = menuPlaceholders.value[phIdx]
-        phIdx++
-
-        if (!allFlat.length) {
-            return ''
-        }
-
-        const selectedNodes = allFlat.filter((n) => ph?.menuIds?.includes(n.menuId))
-        // Intersect selected with what this role can see
-        const displayNodes = visibleMenuNodes.value.length
-            ? selectedNodes.filter((n) => visibleMenuNodes.value.some((v) => v.menuId === n.menuId))
-            : selectedNodes
-
-        if (!displayNodes.length) return ''
-        return displayNodes
-            .map((node) => {
-                let cloneOpen = openFull.replace(/\sdata-kn-menu(\s|=|>)/, ' ')
-                cloneOpen = cloneOpen.replace(/href="[^"]*"/, `href="${resolveUrl(node)}"`)
-                let cloneInner = inner.replace(/data-kn-label[^<]*/, `data-kn-label>${node.descr || node.name}`)
-                if (!cloneInner.includes('data-kn-label') && cloneInner.trim()) cloneInner = node.descr || node.name || ''
-                return `${cloneOpen}${cloneInner}${close}`
-            })
-            .join('\n')
-    })
-
-    return `<style>${localCss.value}</style>\n${html}`
-})
+const previewSrc = computed(() => renderDynamicHomeSrcdoc({
+    html: localHtml.value,
+    css: localCss.value,
+    menuPlaceholders: menuPlaceholders.value
+}, allMenuNodes.value, import.meta.env.VITE_PUBLIC_PATH || ''))
 
 function emitChange() {
     emit('update:modelValue', {

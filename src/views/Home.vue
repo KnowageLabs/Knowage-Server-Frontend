@@ -25,6 +25,8 @@ import { mapState, mapActions } from 'pinia'
 import mainStore from '../App.store.js'
 import logo from '/images/commons/logo_knowage_white.svg'
 import axios from '@/axios.js'
+import { renderDynamicHomeSrcdoc } from '@/helpers/commons/dynamicHomeHelper'
+import type { IMenuNode } from '@/modules/managers/homeManagement/HomeManagement'
 
 export default defineComponent({
     name: 'home',
@@ -33,7 +35,7 @@ export default defineComponent({
             completeUrl: false as string | false,
             logo: logo,
             dynamicSrcdoc: '' as string,
-            dynamicMenuNodes: [] as any[]
+            dynamicMenuNodes: [] as IMenuNode[]
         }
     },
     mounted() {
@@ -127,44 +129,7 @@ export default defineComponent({
             } catch (e) {
                 this.dynamicMenuNodes = []
             }
-            this.dynamicSrcdoc = this.computeDynamicSrcdoc(template)
-        },
-        computeDynamicSrcdoc(template: any): string {
-            const allFlat = this.flattenNodes(this.dynamicMenuNodes)
-            let html = template.html || ''
-            let phIdx = 0
-            html = html.replace(/(<([a-zA-Z][a-zA-Z0-9]*)(\s[^>]*)?\sdata-kn-menu(\s[^>]*)?>)([\s\S]*?)(<\/\2>)/g, (_m: string, openFull: string, _tag: string, _pre: string, _post: string, inner: string, close: string) => {
-                const ph = template.menuPlaceholders?.[phIdx]
-                phIdx++
-                if (!allFlat.length) return ''
-                const selectedNodes = allFlat.filter((n: any) => ph?.menuIds?.includes(n.menuId))
-                if (!selectedNodes.length) return ''
-                return selectedNodes.map((node: any) => {
-                    let cloneOpen = openFull.replace(/\sdata-kn-menu(\s|=|>)/, ' ')
-                    cloneOpen = cloneOpen.replace(/href="[^"]*"/, `href="${this.resolveNodeUrl(node)}"`)
-                    let cloneInner = inner.replace(/data-kn-label[^<]*/, `data-kn-label>${node.descr || node.name}`)
-                    if (!cloneInner.includes('data-kn-label') && cloneInner.trim()) cloneInner = node.descr || node.name || ''
-                    return `${cloneOpen}${cloneInner}${close}`
-                }).join('\n')
-            })
-            return `<style>${template.css || ''}</style>\n${html}`
-        },
-        flattenNodes(nodes: any[]): any[] {
-            const result: any[] = []
-            const walk = (items: any[]) => {
-                for (const n of items) {
-                    result.push(n)
-                    const children = n.lstChildren?.length ? n.lstChildren : (n.children ?? [])
-                    if (children.length) walk(children)
-                }
-            }
-            walk(nodes)
-            return result
-        },
-        resolveNodeUrl(node: any): string {
-            if (node.to) return (import.meta.env.VITE_PUBLIC_PATH || '') + node.to.replace(/\\\//g, '/')
-            if (node.url) return node.url
-            return '#'
+            this.dynamicSrcdoc = renderDynamicHomeSrcdoc(template, this.dynamicMenuNodes, import.meta.env.VITE_PUBLIC_PATH || '')
         },
         isHTML(to: string): boolean {
             return to.startsWith('/html')
