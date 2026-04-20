@@ -1,4 +1,5 @@
 import type { IDynamicHomeTemplate, IMenuNode, IMenuPlaceholderConfig } from '@/modules/managers/homeManagement/HomeManagement'
+import { normalizeMenuRoute } from '@/helpers/commons/menuHelper'
 
 interface IDynamicHomePlaceholderMatch {
     openTag: string
@@ -15,9 +16,19 @@ interface IStringReplacement {
 
 const MENU_PLACEHOLDER_SELECTOR = '[data-kn-menu]'
 const MENU_LABEL_SELECTOR = '[data-kn-label]'
+const MENU_NAVIGATION_ATTRIBUTE = 'data-kn-menu-navigation'
+const MENU_NAVIGATION_TYPE_ATTRIBUTE = 'data-kn-menu-navigation-type'
 const MENU_PLACEHOLDER_BLOCK_PATTERN = /(<([a-zA-Z][a-zA-Z0-9]*)(?:\s[^>]*)?\sdata-kn-menu(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?(?:\s[^>]*)?>)([\s\S]*?)(<\/\2>)/g
 const MENU_PLACEHOLDER_ATTRIBUTE_PATTERN = /\sdata-kn-menu(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+)))?/i
 const HREF_ATTRIBUTE_PATTERN = /\shref=(?:"[^"]*"|'[^']*'|[^\s>]+)/i
+
+export const DYNAMIC_HOME_NAVIGATION_SELECTOR = `[${MENU_NAVIGATION_ATTRIBUTE}]`
+
+export interface IDynamicHomeNodeNavigation {
+    type: 'to' | 'url'
+    value: string
+    href: string
+}
 
 function sanitizeDynamicHomeMenuIds(menuIds?: number[]): number[] {
     if (!Array.isArray(menuIds)) return []
@@ -122,6 +133,21 @@ function applyNodeLabel(node: Element, label: string) {
     }
 
     if (node.textContent?.trim()) node.textContent = label
+}
+
+function applyNodeNavigation(node: Element, navigation: IDynamicHomeNodeNavigation | null) {
+    if (!navigation) return
+
+    node.setAttribute(MENU_NAVIGATION_ATTRIBUTE, navigation.value)
+    node.setAttribute(MENU_NAVIGATION_TYPE_ATTRIBUTE, navigation.type)
+
+    if (node.tagName.toLowerCase() === 'a') {
+        node.setAttribute('href', navigation.href)
+        return
+    }
+
+    if (!node.hasAttribute('role')) node.setAttribute('role', 'link')
+    if (!node.hasAttribute('tabindex')) node.setAttribute('tabindex', '0')
 }
 
 export function getDynamicHomePlaceholderConfig(menuPlaceholders: IMenuPlaceholderConfig[] = [], index: number): IMenuPlaceholderConfig | undefined {
@@ -235,6 +261,25 @@ export function resolveDynamicHomeNodeUrl(node: IMenuNode | null | undefined, pu
     return '#'
 }
 
+export function getDynamicHomeNodeNavigation(node: IMenuNode | null | undefined, publicPath = ''): IDynamicHomeNodeNavigation | null {
+    if (!node) return null
+    if (node.to) {
+        return {
+            type: 'to',
+            value: normalizeMenuRoute(node.to),
+            href: resolveDynamicHomeNodeUrl(node, publicPath)
+        }
+    }
+    if (node.url) {
+        return {
+            type: 'url',
+            value: node.url,
+            href: resolveDynamicHomeNodeUrl(node, publicPath)
+        }
+    }
+    return null
+}
+
 export function renderDynamicHomeSrcdoc(template: IDynamicHomeTemplate | null | undefined, menuNodes: IMenuNode[] = [], publicPath = ''): string {
     if (!template) return ''
 
@@ -259,7 +304,7 @@ export function renderDynamicHomeSrcdoc(template: IDynamicHomeTemplate | null | 
         const generatedNodes = selectedNodes.map((node) => {
             const clone = placeholder.cloneNode(true) as Element
             clone.removeAttribute('data-kn-menu')
-            clone.setAttribute('href', resolveDynamicHomeNodeUrl(node, publicPath))
+            applyNodeNavigation(clone, getDynamicHomeNodeNavigation(node, publicPath))
             applyNodeLabel(clone, node.descr || node.name || '')
             return clone
         })

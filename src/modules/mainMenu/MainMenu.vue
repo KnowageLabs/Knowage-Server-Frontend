@@ -67,6 +67,7 @@ import DownloadsDialog from '@/modules/mainMenu/dialogs/DownloadsDialog/Download
 import { IMenuItem } from '@/modules/mainMenu/MainMenu'
 import MainMenuTieredMenu from '@/modules/mainMenu/MainMenuTieredMenu.vue'
 import ScrollPanel from 'primevue/scrollpanel'
+import { normalizeMenuLocale } from '@/helpers/commons/menuHelper'
 import mainStore from '../../App.store'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 import AdvancedMenuItem from '@/modules/mainMenu/AdvancedMenuItem.vue'
@@ -274,19 +275,11 @@ export default defineComponent({
         },
         async loadMenu(recursive = false) {
             this.setLoading(true)
-            let localObject = { locale: this.$i18n.fallbackLocale.toString() }
-            if (Object.keys(this.locale).length !== 0) localObject = { locale: this.locale }
-            if (localStorage.getItem('locale')) {
-                localObject = { locale: localStorage.getItem('locale') || this.$i18n.fallbackLocale.toString() }
-            }
-            localObject.locale = localObject.locale.replaceAll('_', '-')
-            // script handling
-            const splittedLocale = localObject.locale.split('-')
-            if (splittedLocale.length > 2) {
-                localObject.locale = splittedLocale[0] + '-' + splittedLocale[2].replaceAll('#', '') + '-' + splittedLocale[1]
-            }
+            const fallbackLocale = this.$i18n.fallbackLocale.toString()
+            const currentLocale = localStorage.getItem('locale') || this.locale || fallbackLocale
+            const normalizedLocale = normalizeMenuLocale(currentLocale, fallbackLocale)
             await this.$http
-                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/3.0/menu/enduser?locale=' + encodeURIComponent(localObject.locale))
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/3.0/menu/enduser?locale=' + encodeURIComponent(normalizedLocale))
                 .then((response: AxiosResponse<any>) => {
                     this.technicalUserFunctionalities = response.data.technicalUserFunctionalities
                     this.setConditionedVisibility(response.data.allowedUserFunctionalities)
