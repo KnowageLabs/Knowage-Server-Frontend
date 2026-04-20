@@ -1,6 +1,6 @@
 <template>
     <div class="selector-widget-container">
-        <GridLayout v-model:layout="gridLayout" :cols="4" :row-height="30" :is-draggable="true" :is-resizable="true" :vertical-compact="false" :use-css-transforms="false" :margin="[0, 0]" :responsive="false" :auto-size="false">
+        <GridLayout v-model:layout="gridLayout" :cols="4" :row-height="30" :is-draggable="!isFinalUser" :is-resizable="!isFinalUser" :vertical-compact="false" :use-css-transforms="false" :margin="[0, 0]" :responsive="false" :auto-size="false">
             <template #item="{ item }">
                 <div class="selector-column-wrapper" @mouseenter="onColumnMouseEnter(item.columnName)" @mouseleave="onColumnMouseLeave(item.columnName)" @mousemove="onColumnMouseMove(item.columnName)" @scroll.capture="onColumnScroll(item.columnName)" @contextmenu.prevent="onColumnRightClick(item.columnName)">
                     <SelectorWidget :prop-widget="getSingleColumnWidget(item.columnName)" :data-to-show="getColumnData(item.columnName)" :widget-initial-data="getColumnInitialData(item.columnName)" :prop-active-selections="getColumnSelections(item.columnName)" :editor-mode="false" :dashboard-id="dashboardId" :datasets="datasets" :selection-is-locked="selectionIsLocked" :local-mode="true" @selection-changed="onColumnSelectionChanged" />
@@ -39,6 +39,7 @@ import { emitter } from '../../DashboardHelpers'
 export default defineComponent({
     name: 'selector-widget-container',
     components: { SelectorWidget },
+    inject: ['document'],
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         dataToShow: { type: Object as any, required: true },
@@ -67,6 +68,9 @@ export default defineComponent({
         ...mapState(dashboardStore, {
             dashboards: 'dashboards'
         }),
+        isFinalUser(): boolean {
+            return !!(this.document as any)?.seeAsFinalUser
+        },
         gridItems(): { columnName: string; isTreeGroup: boolean; treeColumns: any[] }[] {
             const globalModality = this.propWidget.settings?.configuration?.selectorType?.modality
             const columnTypeConfigs = this.propWidget.settings?.configuration?.columnTypeConfigs ?? []

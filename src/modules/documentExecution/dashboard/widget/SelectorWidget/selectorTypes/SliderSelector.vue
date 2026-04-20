@@ -137,7 +137,7 @@ export default defineComponent({
 }
 
 .slider-selector-horizontal {
-    padding: 1.2rem;
+    padding: 0 2.5rem;
 }
 
 .slider-selector-vertical {
