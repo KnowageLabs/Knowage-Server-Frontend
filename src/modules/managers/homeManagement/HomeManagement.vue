@@ -1,154 +1,224 @@
 <template>
-    <div class="kn-page">
+    <div class="kn-page hm-page">
+        <!-- ── Toolbar ─────────────────────────────────────────────────── -->
         <q-toolbar class="kn-toolbar kn-toolbar--primary">
             <q-toolbar-title>{{ $t('managers.homeManagement.title') }}</q-toolbar-title>
-            <q-btn v-if="!isDefaultRole" flat dense round icon="fas fa-undo" :title="$t('managers.homeManagement.resetToDefault')" class="q-mr-sm" @click="resetToDefault" />
-            <q-btn flat dense round icon="save" :disable="!dirty" :title="$t('common.save')" @click="save" />
+            <q-btn
+                v-if="!isDefaultRole"
+                flat dense round
+                icon="fas fa-undo"
+                :title="$t('managers.homeManagement.resetToDefault')"
+                class="q-mr-sm"
+                @click="resetToDefault"
+            />
+            <q-btn
+                flat dense round
+                icon="save"
+                :disable="!dirty"
+                :title="$t('common.save')"
+                @click="save"
+            />
         </q-toolbar>
 
         <q-linear-progress v-if="loading" indeterminate color="primary" />
 
-        <div class="q-pa-md">
-            <!-- Row 1: Role + Type -->
-            <div class="row q-col-gutter-md q-mb-md">
-                <div class="col-6">
-                    <q-select
-                        v-model="selectedRoleId"
-                        :options="roleOptions"
-                        :label="$t('managers.homeManagement.role')"
-                        emit-value
-                        map-options
-                        filled
-                        @update:model-value="onRoleChange"
-                    />
-                </div>
-                <div class="col-6">
-                    <q-select
-                        v-model="config.type"
-                        :options="homeTypeOptions"
-                        :label="$t('managers.homeManagement.homeType')"
-                        emit-value
-                        map-options
-                        filled
-                        @update:model-value="dirty = true"
-                    />
-                </div>
-            </div>
+        <div class="q-pa-lg hm-body">
 
-            <!-- Row 2: Type-specific config + preview -->
-            <div v-if="config.type !== 'dynamic'" class="row q-col-gutter-md">
-                <!-- Config panel -->
-                <div class="col-6">
-                    <!-- default: nothing to configure -->
-                    <div v-if="config.type === 'default'" class="text-grey-6 q-pa-md">
-                        {{ $t('managers.homeManagement.defaultDescription') }}
+            <!-- ── Settings card ──────────────────────────────────────── -->
+            <q-card flat bordered class="hm-settings-card q-mb-lg">
+                <q-card-section class="hm-settings-card__header row items-center q-pb-sm">
+                    <q-icon name="tune" size="20px" color="primary" class="q-mr-sm" />
+                    <span class="text-subtitle1 text-weight-medium">{{ $t('managers.homeManagement.configuration') }}</span>
+                    <q-chip
+                        v-if="dirty"
+                        dense
+                        color="orange-2"
+                        text-color="orange-9"
+                        icon="edit"
+                        class="q-ml-md"
+                        style="font-size:11px"
+                    >
+                        {{ $t('common.toast.unsavedChangesHeader') }}
+                    </q-chip>
+                </q-card-section>
+
+                <q-separator />
+
+                <q-card-section>
+                    <div class="row q-col-gutter-md">
+                        <!-- Role selector -->
+                        <div class="col-12 col-sm-6">
+                            <q-select
+                                v-model="selectedRoleId"
+                                :options="roleOptions"
+                                :label="$t('managers.homeManagement.role')"
+                                emit-value map-options
+                                outlined dense
+                                options-dense
+                                :loading="loading"
+                                @update:model-value="onRoleChange"
+                            >
+                                <template #prepend><q-icon name="person" color="grey-6" /></template>
+                            </q-select>
+                        </div>
+
+                        <!-- Home type selector (chips) -->
+                        <div class="col-12 col-sm-6">
+                            <div class="text-caption text-grey-6 q-mb-xs">{{ $t('managers.homeManagement.homeType') }}</div>
+                            <div class="row q-gutter-sm">
+                                <q-chip
+                                    v-for="opt in homeTypeOptions"
+                                    :key="opt.value"
+                                    clickable
+                                    :selected="config.type === opt.value"
+                                    :color="config.type === opt.value ? 'primary' : 'grey-3'"
+                                    :text-color="config.type === opt.value ? 'white' : 'grey-8'"
+                                    :icon="homeTypeIcons[opt.value]"
+                                    dense
+                                    @click="selectType(opt.value)"
+                                >
+                                    {{ opt.label }}
+                                </q-chip>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- static page -->
-                    <q-select
-                        v-if="config.type === 'static'"
-                        v-model="config.staticPage"
-                        :options="staticPages"
-                        :loading="staticPagesLoading"
-                        option-label="name"
-                        option-value="name"
-                        emit-value
-                        map-options
-                        :label="$t('managers.homeManagement.staticPage')"
-                        filled
-                        @update:model-value="dirty = true"
-                    />
+                    <!-- Type-specific inputs -->
+                    <transition name="fade-slide" mode="out-in">
+                        <div :key="config.type" class="q-mt-md">
+                            <!-- default -->
+                            <q-banner v-if="config.type === 'default'" rounded class="bg-blue-1 text-blue-9 q-mt-xs">
+                                <template #avatar><q-icon name="info" color="primary" /></template>
+                                {{ $t('managers.homeManagement.defaultDescription') }}
+                            </q-banner>
 
-                    <!-- document -->
-                    <div v-if="config.type === 'document'" class="row items-center q-col-gutter-sm">
-                        <div class="col">
+                            <!-- static -->
+                            <q-select
+                                v-else-if="config.type === 'static'"
+                                v-model="config.staticPage"
+                                :options="staticPages"
+                                :loading="staticPagesLoading"
+                                option-label="name"
+                                option-value="name"
+                                emit-value map-options
+                                :label="$t('managers.homeManagement.staticPage')"
+                                outlined dense
+                                options-dense
+                                @update:model-value="dirty = true"
+                            >
+                                <template #prepend><q-icon name="article" color="grey-6" /></template>
+                            </q-select>
+
+                            <!-- document -->
+                            <div v-else-if="config.type === 'document'" class="row items-center q-col-gutter-sm">
+                                <div class="col">
+                                    <q-input
+                                        v-model="config.documentLabel"
+                                        :label="$t('managers.homeManagement.document')"
+                                        outlined dense readonly
+                                        :placeholder="$t('managers.homeManagement.selectDocument')"
+                                    >
+                                        <template #prepend><q-icon name="description" color="grey-6" /></template>
+                                    </q-input>
+                                </div>
+                                <div class="col-auto">
+                                    <q-btn
+                                        unelevated color="primary"
+                                        icon="search"
+                                        :label="$t('common.search')"
+                                        dense
+                                        @click="documentDialogVisible = true"
+                                    />
+                                </div>
+                            </div>
+
+                            <!-- image -->
                             <q-input
-                                v-model="config.documentLabel"
-                                :label="$t('managers.homeManagement.document')"
-                                filled
-                                readonly
-                                :placeholder="$t('managers.homeManagement.selectDocument')"
-                            />
+                                v-else-if="config.type === 'image'"
+                                v-model="config.imageUrl"
+                                :label="$t('managers.homeManagement.imageUrl')"
+                                :placeholder="$t('managers.homeManagement.imageUrlPlaceholder')"
+                                outlined dense clearable
+                                @update:model-value="dirty = true"
+                            >
+                                <template #prepend><q-icon name="image" color="grey-6" /></template>
+                            </q-input>
                         </div>
-                        <div class="col-auto">
-                            <q-btn flat round dense icon="search" @click="documentDialogVisible = true" />
-                        </div>
-                    </div>
+                    </transition>
+                </q-card-section>
+            </q-card>
 
-                    <!-- image -->
-                    <q-input
-                        v-if="config.type === 'image'"
-                        v-model="config.imageUrl"
-                        :label="$t('managers.homeManagement.imageUrl')"
-                        :placeholder="$t('managers.homeManagement.imageUrlPlaceholder')"
-                        filled
-                        clearable
-                        @update:model-value="dirty = true"
-                    />
-                </div>
-
-                <!-- Preview panel -->
-                <div class="col-6">
-                    <div class="preview-panel">
-                        <div class="preview-panel__header text-caption text-uppercase text-grey-7 q-mb-sm">
-                            {{ $t('managers.homeManagement.preview') }}
-                        </div>
-                        <div class="preview-panel__content">
-                            <div v-if="config.type === 'default'" class="preview-default column items-center justify-center text-grey-5">
-                                <q-icon name="home" size="64px" />
-                                <div>{{ $t('managers.homeManagement.types.default') }}</div>
-                            </div>
-                            <iframe v-else-if="config.type === 'static' && staticPagePreviewUrl" :src="staticPagePreviewUrl" class="preview-iframe" />
-                            <div v-else-if="config.type === 'static'" class="preview-empty column items-center justify-center text-grey-5">
-                                <q-icon name="article" size="48px" />
-                                <div>{{ $t('managers.homeManagement.selectStaticPage') }}</div>
-                            </div>
-                            <img v-else-if="config.type === 'image' && config.imageUrl" :src="config.imageUrl" class="preview-image" />
-                            <div v-else-if="config.type === 'image'" class="preview-empty column items-center justify-center text-grey-5">
-                                <q-icon name="image" size="48px" />
-                                <div>{{ $t('managers.homeManagement.imageUrlPlaceholder') }}</div>
-                            </div>
-                            <iframe v-else-if="config.type === 'document' && documentPreviewUrl" :src="documentPreviewUrl" class="preview-iframe" />
-                            <div v-else-if="config.type === 'document'" class="preview-empty column items-center justify-center text-grey-5">
-                                <q-icon name="description" size="48px" />
-                                <div>{{ $t('managers.homeManagement.selectDocument') }}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Dynamic editor (full width) -->
+            <!-- ── Dynamic editor (full width) ───────────────────────── -->
             <HomeManagementDynamicEditor
                 v-if="config.type === 'dynamic'"
-                v-model="config.template"
+                :model-value="config.template ?? EMPTY_TEMPLATE"
                 :roles="roles"
                 :current-role-id="selectedRoleId"
-                @update:model-value="dirty = true"
+                @update:model-value="(val) => { config.template = val; dirty = true }"
             />
+
+            <!-- ── Preview (full width) ───────────────────────────────── -->
+            <q-card v-if="config.type !== 'dynamic'" flat bordered class="hm-preview-card">
+                <q-card-section class="row items-center q-py-sm">
+                    <q-icon name="visibility" size="18px" color="primary" class="q-mr-sm" />
+                    <span class="text-subtitle2 text-weight-medium">{{ $t('managers.homeManagement.preview') }}</span>
+                    <q-space />
+                    <q-badge v-if="config.type !== 'default'" color="primary" outline :label="config.type" />
+                </q-card-section>
+                <q-separator />
+
+                <div class="hm-preview-content">
+                    <!-- default -->
+                    <div v-if="config.type === 'default'" class="hm-preview-empty column items-center justify-center text-grey-5">
+                        <q-icon name="home" size="72px" />
+                        <div class="q-mt-sm text-body2">{{ $t('managers.homeManagement.types.default') }}</div>
+                    </div>
+
+                    <!-- static: preview -->
+                    <iframe v-else-if="config.type === 'static' && staticPagePreviewUrl" :src="staticPagePreviewUrl" class="hm-preview-iframe" />
+                    <div v-else-if="config.type === 'static'" class="hm-preview-empty column items-center justify-center text-grey-5">
+                        <q-icon name="article" size="56px" />
+                        <div class="q-mt-sm text-body2">{{ $t('managers.homeManagement.selectStaticPage') }}</div>
+                    </div>
+
+                    <!-- image: preview -->
+                    <img v-else-if="config.type === 'image' && config.imageUrl" :src="config.imageUrl" class="hm-preview-img" />
+                    <div v-else-if="config.type === 'image'" class="hm-preview-empty column items-center justify-center text-grey-5">
+                        <q-icon name="image" size="56px" />
+                        <div class="q-mt-sm text-body2">{{ $t('managers.homeManagement.imageUrlPlaceholder') }}</div>
+                    </div>
+
+                    <!-- document: preview -->
+                    <iframe v-else-if="config.type === 'document' && documentPreviewUrl" :src="documentPreviewUrl" class="hm-preview-iframe" />
+                    <div v-else-if="config.type === 'document'" class="hm-preview-empty column items-center justify-center text-grey-5">
+                        <q-icon name="description" size="56px" />
+                        <div class="q-mt-sm text-body2">{{ $t('managers.homeManagement.selectDocument') }}</div>
+                    </div>
+                </div>
+            </q-card>
         </div>
 
-        <!-- Document picker dialog -->
+        <!-- ── Document picker dialog ─────────────────────────────────── -->
         <q-dialog v-model="documentDialogVisible" persistent>
-            <q-card style="min-width: 700px; max-width: 90vw">
-                <q-card-section class="row items-center q-pb-none">
-                    <div class="text-h6">{{ $t('managers.homeManagement.selectDocument') }}</div>
+            <q-card style="min-width: 720px; max-width: 92vw">
+                <q-bar class="bg-primary text-white">
+                    <q-icon name="description" class="q-mr-sm" />
+                    <span class="text-subtitle1">{{ $t('managers.homeManagement.selectDocument') }}</span>
                     <q-space />
-                    <q-btn icon="close" flat round dense v-close-popup />
-                </q-card-section>
+                    <q-btn flat dense round icon="close" v-close-popup />
+                </q-bar>
                 <q-card-section>
                     <q-linear-progress v-if="docsLoading" indeterminate color="primary" class="q-mb-sm" />
-                    <q-input v-model="docFilter" :label="$t('common.search')" filled clearable class="q-mb-sm">
+                    <q-input v-model="docFilter" :label="$t('common.search')" outlined dense clearable class="q-mb-md">
                         <template #prepend><q-icon name="search" /></template>
                     </q-input>
                     <q-table
                         :rows="filteredDocuments"
                         :columns="docColumns"
                         row-key="DOCUMENT_ID"
-                        dense
-                        flat
-                        bordered
+                        dense flat bordered
                         :rows-per-page-options="[15, 30, 0]"
+                        class="hm-doc-table"
                         @row-click="onDocumentSelect"
                     />
                 </q-card-section>
@@ -185,6 +255,19 @@ const docsLoading = ref(false)
 const documentDialogVisible = ref(false)
 const docFilter = ref('')
 const router = useRouter();
+
+const homeTypeIcons: Record<string, string> = {
+    default: 'home',
+    static: 'article',
+    document: 'description',
+    image: 'image',
+    dynamic: 'code'
+}
+
+function selectType(value: string) {
+    config.value.type = value as any
+    dirty.value = true
+}
 
 const homeTypeOptions = computed(() => [
     { label: t('managers.homeManagement.types.default'), value: 'default' },
@@ -272,6 +355,11 @@ async function loadDocuments() {
     }
 }
 
+const safeTemplate = computed<IDynamicHomeTemplate>({
+    get: () => config.value.template ?? deepcopy(EMPTY_TEMPLATE),
+    set: (val) => { config.value.template = val }
+})
+
 function onRoleChange(val: number | null) {
     loadConfig(val)
 }
@@ -325,30 +413,76 @@ onMounted(async () => {
 </script>
 
 <style lang="scss" scoped>
-.preview-panel {
+.hm-page {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.hm-body {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* Settings card */
+.hm-settings-card {
+    border-radius: 0;
+
     &__header {
-        font-weight: 600;
+        background: linear-gradient(135deg, #f5f7ff 0%, #eef1fb 100%);
     }
-    &__content {
-        border: 1px solid #e0e0e0;
-        border-radius: 4px;
-        height: 380px;
-        overflow: hidden;
-        background: #fafafa;
-    }
-    .preview-iframe {
-        width: 100%;
-        height: 100%;
-        border: 0;
-    }
-    .preview-image {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-    }
-    .preview-default,
-    .preview-empty {
-        height: 100%;
+}
+
+/* Type-chip transition */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+    opacity: 0;
+    transform: translateY(6px);
+}
+
+/* Preview card */
+.hm-preview-card {
+    border-radius: 0;
+}
+
+.hm-preview-content {
+    height: 480px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #f9f9f9 0%, #f0f0f0 100%);
+    position: relative;
+}
+
+.hm-preview-iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+}
+
+.hm-preview-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.hm-preview-empty {
+    height: 100%;
+    gap: 8px;
+    opacity: 0.5;
+}
+
+/* Document table hover */
+.hm-doc-table :deep(tbody tr) {
+    cursor: pointer;
+
+    &:hover td {
+        background: rgba(33, 150, 243, 0.06);
     }
 }
 </style>

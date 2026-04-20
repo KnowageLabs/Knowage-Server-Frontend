@@ -3339,11 +3339,12 @@
         },
         "homeManagement": {
             "defaultDescription": "The default home configured for the platform will be shown.",
-            "defaultRole": "Default role",
+            "defaultRole": "Default role (applies to all unspecified roles)",
+            "configuration": "Configuration",
             "document": "Document",
             "hint": "Home management allows you to configure the home page shown to users by role. You can use the default home, a static page, a document, an image or a dynamic template.",
             "homeType": "Home type",
-            "imageUrl": "Image URL",
+            "imageUrl": "Image URL or external URL",
             "imageUrlPlaceholder": "Enter an image URL",
             "menuPicker": {
                 "title": "Select menu items"
@@ -3361,7 +3362,7 @@
                 "default": "Default",
                 "document": "Document",
                 "dynamic": "Dynamic",
-                "image": "Image",
+                "image": "Image/URL",
                 "static": "Static page"
             },
             "dynamic": {

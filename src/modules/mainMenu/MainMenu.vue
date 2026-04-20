@@ -165,7 +165,7 @@ export default defineComponent({
         window.removeEventListener('resize', this.updateWindowWidth)
     },
     methods: {
-        ...mapActions(mainStore, ['setHomePage', 'setLoading', 'getConfigurations', 'toggleMenuOpened']),
+        ...mapActions(mainStore, ['setLoading', 'getConfigurations', 'toggleMenuOpened']),
         accountManagement() {
             this.accountDisplay = !this.accountDisplay
         },
@@ -253,19 +253,6 @@ export default defineComponent({
             }
             return 0
         },
-        findHomePage(dynMenu) {
-            for (const item of dynMenu) {
-                const hasUrl = 'to' in item || 'url' in item
-
-                if (hasUrl) return item
-
-                if (item.items?.length) {
-                    const found = this.findHomePage(item.items)
-                    if (found) return found
-                }
-            }
-            return null
-        },
         toggleMenu(event, item) {
             this.hideItemMenu()
 
@@ -306,14 +293,6 @@ export default defineComponent({
                     this.dynamicUserFunctionalities = response.data.dynamicUserFunctionalities.sort((el1, el2) => {
                         return el1.prog - el2.prog
                     })
-                    if (this.dynamicUserFunctionalities.length > 0) {
-                        const homePage = this.findHomePage(this.dynamicUserFunctionalities) || {}
-                        if (homePage && Object.keys(homePage).length !== 0) {
-                            if (!this.stateHomePage.label) {
-                                this.setHomePage({ ...homePage, loading: false })
-                            }
-                        } else this.setHomePage({ loading: false })
-                    } else this.setHomePage({ loading: false })
                     this.commonUserFunctionalities = []
                     const responseCommonUserFunctionalities = response.data.commonUserFunctionalities
                     for (const index in responseCommonUserFunctionalities) {

@@ -1,96 +1,160 @@
 <template>
-    <div class="dynamic-editor">
-        <!-- Toolbar -->
-        <div class="dynamic-editor__bar row items-center q-pa-sm q-col-gutter-sm">
-            <div class="col-auto">
-                <q-btn flat dense icon="fas fa-list" :title="$t('managers.homeManagement.dynamic.insertPlaceholder')" @click="insertMenuPlaceholder" />
-                <q-btn flat dense icon="fas fa-images" :title="$t('managers.homeManagement.dynamic.loadFromGallery')" @click="openGallery" />
-            </div>
-            <q-space />
-            <div class="col-auto text-caption text-grey-6">
-                {{ $t('managers.homeManagement.dynamic.placeholderCount', { n: menuPlaceholders.length }) }}
-            </div>
-        </div>
+    <div class="de-root">
 
-        <!-- Placeholder list -->
-        <div v-if="menuPlaceholders.length" class="q-px-md q-pb-sm">
-            <div v-for="(ph, idx) in menuPlaceholders" :key="idx" class="row items-center q-col-gutter-sm q-mb-xs">
-                <div class="col-auto text-caption text-grey-7">{{ $t('managers.homeManagement.dynamic.placeholder', { n: idx + 1 }) }}</div>
-                <div class="col-auto">
-                    <q-chip dense color="primary" text-color="white" :label="$t('managers.homeManagement.dynamic.itemsSelected', { n: ph.menuIds.length })" />
-                </div>
-                <div class="col-auto">
-                    <q-btn flat dense round icon="edit" size="sm" @click="openPicker(idx)" />
-                    <q-btn flat dense round icon="delete" size="sm" color="negative" @click="removePlaceholder(idx)" />
-                </div>
-            </div>
-        </div>
+        <!-- ── Toolbar + Editors (single expander) ──────────────────── -->
+        <q-card flat bordered class="de-editors-outer-card q-mb-md">
 
-        <!-- Editors + Preview (3 columns) -->
-        <div class="dynamic-editor__content row">
-            <!-- HTML editor -->
-            <div class="col-3 dynamic-editor__col">
-                <div class="editor-header">HTML</div>
-                <knMonaco ref="htmlEditorRef" v-model="localHtml" language="html" :options="{ theme: 'vs-dark' }" class="editor-monaco" @change="emitChange" />
-            </div>
-            <!-- CSS editor -->
-            <div class="col-3 dynamic-editor__col">
-                <div class="editor-header">CSS</div>
-                <knMonaco v-model="localCss" language="css" :options="{ theme: 'vs-dark' }" class="editor-monaco" @change="emitChange" />
-            </div>
-            <!-- Preview (wider) -->
-            <div class="col-6 dynamic-editor__col">
-                <div class="editor-header row items-center">
-                    <span>{{ $t('managers.homeManagement.dynamic.preview') }}</span>
-                    <q-space />
-                    <q-select
-                        v-model="viewAsRoleId"
-                        :options="roleOptions"
-                        :label="$t('managers.homeManagement.dynamic.viewAs')"
-                        emit-value
-                        map-options
-                        dense
-                        borderless
-                        style="min-width: 160px; color: #aaaebc"
-                        dark
-                    />
-                </div>
-                <div class="preview-wrapper">
-                    <q-linear-progress v-if="previewLoading" indeterminate color="primary" class="preview-loader" />
-                    <iframe class="preview-iframe" :srcdoc="previewSrc" />
-                </div>
-            </div>
-        </div>
+            <!-- Header (always visible) -->
+            <q-card-section
+                class="de-editors-outer-header row items-center q-py-sm q-px-md cursor-pointer"
+                @click="editorsExpanded = !editorsExpanded"
+            >
+                <q-icon name="code" size="18px" color="primary" class="q-mr-sm" />
+                <span class="text-subtitle2 text-weight-medium">{{ $t('managers.homeManagement.types.dynamic') }}</span>
+                <q-space />
 
-        <!-- Gallery dialog -->
-        <q-dialog v-model="galleryVisible">
-            <q-card style="min-width: 640px; max-width: 90vw">
-                <q-card-section class="row items-center">
-                    <div class="text-h6">{{ $t('managers.homeManagement.dynamic.selectFromGallery') }}</div>
-                    <q-space />
-                    <q-btn icon="close" flat round dense v-close-popup />
-                </q-card-section>
-                <q-card-section>
-                    <q-linear-progress v-if="galleryLoading" indeterminate color="primary" />
-                    <div class="row q-col-gutter-md">
-                        <div v-for="tpl in galleryTemplates" :key="tpl.id" class="col-4">
-                            <q-card bordered flat class="gallery-card cursor-pointer" @click="applyGalleryTemplate(tpl)">
-                                <q-img v-if="tpl.image" :src="tpl.image" height="80px" fit="cover" />
-                                <div v-else class="row items-center justify-center bg-grey-2" style="height: 80px">
-                                    <q-icon name="home" size="40px" color="grey-5" />
+                <!-- Action buttons (stop propagation so they don't toggle the expander) -->
+                <q-btn
+                    unelevated dense
+                    color="primary"
+                    icon="fas fa-list"
+                    :label="$t('managers.homeManagement.dynamic.insertPlaceholder')"
+                    size="sm"
+                    class="q-mr-sm"
+                    @click.stop="insertMenuPlaceholder"
+                />
+                <q-btn
+                    unelevated dense
+                    color="secondary"
+                    icon="fas fa-images"
+                    :label="$t('managers.homeManagement.dynamic.loadFromGallery')"
+                    size="sm"
+                    class="q-mr-md"
+                    @click.stop="openGallery"
+                />
+
+                <q-icon :name="editorsExpanded ? 'expand_less' : 'expand_more'" color="grey-6" />
+            </q-card-section>
+
+            <!-- Collapsible body: placeholders + editors -->
+            <q-slide-transition>
+                <div v-show="editorsExpanded">
+                    <!-- Placeholder chips -->
+                    <div class="de-placeholders row items-center q-px-md q-py-sm">
+                        <transition-group name="ph-fade" tag="div" class="row items-center q-gutter-xs">
+                            <q-chip
+                                v-for="(ph, idx) in menuPlaceholders"
+                                :key="idx"
+                                dense removable
+                                color="primary"
+                                text-color="white"
+                                icon="menu"
+                                @remove="removePlaceholder(idx)"
+                                @click="openPicker(idx)"
+                            >
+                                {{ $t('managers.homeManagement.dynamic.placeholder', { n: idx + 1 }) }}
+                                <q-tooltip>{{ $t('managers.homeManagement.dynamic.itemsSelected', { n: ph.menuIds.length }) }}</q-tooltip>
+                            </q-chip>
+                            <span v-if="!menuPlaceholders.length" key="none" class="text-caption text-grey-5">
+                                {{ $t('managers.homeManagement.dynamic.placeholderCount', { n: 0 }) }}
+                            </span>
+                        </transition-group>
+                    </div>
+
+                    <q-separator />
+
+                    <!-- HTML + CSS editors -->
+                    <div class="de-editors-row row q-col-gutter-none">
+                        <div class="col-6">
+                            <q-card flat class="de-editor-card">
+                                <div class="de-editor-header row items-center">
+                                    <q-icon name="o_code" size="16px" class="q-mr-xs" />
+                                    <span>HTML</span>
                                 </div>
-                                <q-card-section class="q-pa-sm text-caption">{{ tpl.label || tpl.name }}</q-card-section>
+                                <knMonaco
+                                    ref="htmlEditorRef"
+                                    v-model="localHtml"
+                                    language="html"
+                                    :options="{ theme: 'vs-dark', minimap: { enabled: false }, breadcrumbs: { enabled: false } }"
+                                    class="de-monaco"
+                                    @change="emitChange"
+                                />
                             </q-card>
                         </div>
-                        <div v-if="!galleryLoading && !galleryTemplates.length" class="col-12 text-grey-5 text-center q-pa-md">
-                            {{ $t('common.info.noDataFound') }}
+                        <div class="col-6">
+                            <q-card flat class="de-editor-card de-editor-card--right">
+                                <div class="de-editor-header row items-center">
+                                    <q-icon name="o_style" size="16px" class="q-mr-xs" />
+                                    <span>CSS</span>
+                                </div>
+                                <knMonaco
+                                    v-model="localCss"
+                                    language="css"
+                                    :options="{ theme: 'vs-dark', minimap: { enabled: false }, breadcrumbs: { enabled: false } }"
+                                    class="de-monaco"
+                                    @change="emitChange"
+                                />
+                            </q-card>
+                        </div>
+                    </div>
+                </div>
+            </q-slide-transition>
+        </q-card>
+
+        <!-- ── Preview (full width) ──────────────────────────────────── -->
+        <q-card flat bordered class="de-preview-card">
+            <q-card-section class="de-preview-header row items-center q-py-sm q-px-md">
+                <q-icon name="visibility" size="18px" color="primary" class="q-mr-sm" />
+                <span class="text-subtitle2 text-weight-medium">{{ $t('managers.homeManagement.dynamic.preview') }}</span>
+                <q-space />
+                <q-select
+                    v-model="viewAsRoleId"
+                    :options="roleOptions"
+                    :label="$t('managers.homeManagement.dynamic.viewAs')"
+                    emit-value map-options
+                    dense outlined
+                    options-dense
+                    style="min-width: 200px"
+                />
+            </q-card-section>
+            <q-separator />
+            <div class="de-preview-body">
+                <q-linear-progress v-if="previewLoading" indeterminate color="primary" class="de-preview-loader" />
+                <iframe class="de-preview-iframe" :srcdoc="previewSrc" />
+            </div>
+        </q-card>
+
+        <!-- ── Gallery dialog ────────────────────────────────────────── -->
+        <q-dialog v-model="galleryVisible">
+            <q-card style="min-width: 680px; max-width: 92vw">
+                <q-bar class="bg-secondary text-white">
+                    <q-icon name="photo_library" class="q-mr-sm" />
+                    <span class="text-subtitle1">{{ $t('managers.homeManagement.dynamic.selectFromGallery') }}</span>
+                    <q-space />
+                    <q-btn flat dense round icon="close" v-close-popup />
+                </q-bar>
+                <q-card-section>
+                    <q-linear-progress v-if="galleryLoading" indeterminate color="secondary" class="q-mb-sm" />
+                    <div class="row q-col-gutter-md">
+                        <div v-for="tpl in galleryTemplates" :key="tpl.id" class="col-4">
+                            <q-card bordered flat class="de-gallery-card cursor-pointer" @click="applyGalleryTemplate(tpl)">
+                                <q-img v-if="tpl.image" :src="tpl.image" height="90px" fit="cover" />
+                                <div v-else class="row items-center justify-center bg-grey-2" style="height: 90px">
+                                    <q-icon name="home" size="44px" color="grey-5" />
+                                </div>
+                                <q-card-section class="q-pa-sm text-caption text-weight-medium">{{ tpl.label || tpl.name }}</q-card-section>
+                            </q-card>
+                        </div>
+                        <div v-if="!galleryLoading && !galleryTemplates.length" class="col-12 text-grey-5 text-center q-pa-lg">
+                            <q-icon name="search_off" size="40px" class="q-mb-sm" />
+                            <div>{{ $t('common.info.noDataFound') }}</div>
                         </div>
                     </div>
                 </q-card-section>
             </q-card>
         </q-dialog>
 
-        <!-- Menu picker dialog -->
+        <!-- ── Menu picker dialog ────────────────────────────────────── -->
         <HomeManagementMenuPickerDialog
             v-if="pickerVisible"
             :visible="pickerVisible"
@@ -134,6 +198,7 @@ const galleryTemplates = ref<any[]>([])
 const pickerVisible = ref(false)
 const activePlaceholderIdx = ref(0)
 const viewAsRoleId = ref<number | null>(props.currentRoleId)
+const editorsExpanded = ref(true)
 
 // Full menu tree loaded once; per-role visible flat list computed on demand
 const allMenuNodes = ref<IMenuNode[]>([])
@@ -313,81 +378,102 @@ watch(
 </script>
 
 <style lang="scss" scoped>
-.dynamic-editor {
+.de-root {
     display: flex;
     flex-direction: column;
-    height: 600px;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
+}
+
+/* ── Placeholder chip transition */
+.ph-fade-enter-active,
+.ph-fade-leave-active {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.ph-fade-enter-from,
+.ph-fade-leave-to {
+    opacity: 0;
+    transform: scale(0.85);
+}
+
+/* ── Editor cards ─────────────────────────────────────────────── */
+.de-editors-row {
+    min-height: 0;
+}
+
+.de-editor-card {
+    border-radius: 0;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 380px;
+}
 
-    &__bar {
-        background: #f5f5f5;
-        border-bottom: 1px solid #e0e0e0;
-        flex-shrink: 0;
+.de-editor-header {
+    background: #1e1e1e;
+    color: #9cdcfe;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 5px 10px;
+    flex-shrink: 0;
+    gap: 4px;
+
+    .q-icon {
+        color: #9cdcfe;
     }
+}
 
-    &__content {
-        flex: 1;
-        min-height: 0;
-        display: flex;
-    }
+.de-editor-icon {
+    font-size: 16px;
+    color: #9cdcfe;
+    margin-right: 6px;
+    line-height: 1;
+}
 
-    &__col {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        border-right: 1px solid #333;
+.de-monaco {
+    flex: 1;
+    min-height: 0;
+}
 
-        &:last-child {
-            border-right: 0;
-        }
-    }
+/* ── Preview card ─────────────────────────────────────────────── */
+.de-preview-card {
+    border-radius: 0;
+    overflow: hidden;
+}
 
-    .editor-header {
-        background: #1a1b1f;
-        color: #aaaebc;
-        font-weight: 600;
-        padding: 4px 10px;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        flex-shrink: 0;
-    }
+.de-preview-header {
+    background: linear-gradient(135deg, #f5f7ff 0%, #eef1fb 100%);
+}
 
-    .editor-monaco {
-        flex: 1;
-        min-height: 0;
-    }
+.de-preview-body {
+    position: relative;
+    height: 500px;
+    background: #fff;
+}
 
-    .preview-wrapper {
-        flex: 1;
-        min-height: 0;
-        display: flex;
-        flex-direction: column;
-        position: relative;
+.de-preview-loader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1;
+}
 
-        .preview-loader {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1;
-        }
-    }
+.de-preview-iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+}
 
-    .preview-iframe {
-        flex: 1;
-        border: 0;
-        width: 100%;
-        background: white;
-        min-height: 0;
-    }
+/* ── Gallery ──────────────────────────────────────────────────── */
+.de-gallery-card {
+    border-radius: 0;
+    transition: box-shadow 0.2s, transform 0.15s;
 
-    .gallery-card {
-        transition: box-shadow 0.2s;
-        &:hover {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
+    &:hover {
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+        transform: translateY(-2px);
     }
 }
 </style>
