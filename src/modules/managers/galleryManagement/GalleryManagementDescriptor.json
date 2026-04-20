@@ -72,6 +72,13 @@
                         "color": "white"
                     }
                 },
+                "home": {
+                    "icon": "fas fa-home",
+                    "style": {
+                        "background-color": "#2196f3",
+                        "color": "white"
+                    }
+                },
                 "html": {
                     "icon": "fab fa-html5",
                     "style": {
@@ -170,6 +177,10 @@
         {
             "name": "Python",
             "value": "python"
+        },
+        {
+            "name": "Home",
+            "value": "home"
         }
     ],
     "validations": {
