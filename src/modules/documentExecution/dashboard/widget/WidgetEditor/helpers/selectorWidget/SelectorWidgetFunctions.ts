@@ -58,6 +58,7 @@ export const formatSelectorSettings = (widget: IWidget) => {
     formatSelectorWidgetTreeStyle(widget.settings.style)
     formatSelectorWidgetMultiTreeStyle(widget.settings.style)
     formatSelectorWidgetFlexStyle(widget.settings.style)
+    migrateSelectorWidgetSorting(widget)
 }
 
 //TODO - delete label when all selector widgets have been updated
@@ -162,6 +163,25 @@ const formatSelectorWidgetFlexStyle = (widgetStyle: ISelectorWidgetStyle) => {
     if (!widgetStyle.flex) {
         widgetStyle.flex = selectorWidgetDefaultValues.getDefaultFlexStyle()
     }
+}
+
+// 9.0 → current: migrate global sortingColumn + sortingOrder to per-column orderType on the matched column
+const migrateSelectorWidgetSorting = (widget: IWidget) => {
+    const settings = widget.settings as any
+    const sortingColumnName: string | null = settings?.sortingColumn ?? null
+    const sortingOrder: string = settings?.sortingOrder ?? ''
+
+    // Nothing to migrate — new-format widget or already cleaned up
+    if (!sortingColumnName && !sortingOrder) return
+
+    if (sortingColumnName && sortingOrder) {
+        const targetCol = widget.columns?.find((col: any) => col.columnName === sortingColumnName)
+        if (targetCol) (targetCol as any).orderType = sortingOrder
+    }
+
+    // Clear old global fields — prevents re-running and avoids conflicts with current sorting logic
+    settings.sortingColumn = null
+    settings.sortingOrder = ''
 }
 
 // 9.0 → 9.1: migrate legacy single-object defaultValues to { enabled, columns } wrapper format
