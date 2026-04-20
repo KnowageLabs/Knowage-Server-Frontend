@@ -259,7 +259,7 @@ export default defineComponent({
             if (this.newDashboardMode) {
                 tempModel = createNewDashboardModel()
             } else {
-                const roleFromQuery = Array.isArray(this.route.query.role) ? this.route.query.role[0] : this.route.query.role
+                const roleFromQuery = Array.isArray(this.$route.query.role) ? this.$route.query.role[0] : this.$route.query.role
                 const parameters: Record<string, string | string[]> = {}
                 if (this.filtersData?.filterStatus?.length) {
                     this.filtersData.filterStatus.forEach((param: any) => {
