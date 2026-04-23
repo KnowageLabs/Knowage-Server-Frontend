@@ -58,7 +58,6 @@ export const setRegularData = (model: any, widgetModel: IWidget, data: any, attr
     const columnAliases = widgetModel.settings?.series?.aliases ?? []
     const areaRangeColumns = [] as any[]
 
-
     measureColumns.forEach((measureColumn: any, index: number) => {
         const column = measureColumn.column as IWidgetColumn
         const metadata = measureColumn.metadata as any
@@ -217,23 +216,23 @@ export const setGroupedCategoriesData = (model: any, data: any, attributeColumns
     const serieElement = { id: 0, name: getColumnAlias(measureColumn.column, columnAliases), data: [] as any[], connectNulls: true }
     const categoryValuesMap: Record<string, { categories: string[] }> = {}
 
-        data.rows.forEach((row: any) => {
-            const firstAttributeValue = dateFormat && ['date', 'timestamp'].includes(firstAttributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[firstAttributeColumn.metadata.dataIndex], dateFormat, firstAttributeColumn.metadata.type) : row[firstAttributeColumn.metadata.dataIndex]
-            const secondAttributeValue = dateFormat && ['date', 'timestamp'].includes(secondAttributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[secondAttributeColumn.metadata.dataIndex], dateFormat, secondAttributeColumn.metadata.type) : row[secondAttributeColumn.metadata.dataIndex]
-            const firstAttributeConditionalStyle = getColumnConditionalStyles(widgetModel, firstAttributeColumn.column.id, row[firstAttributeColumn.metadata.dataIndex], variables)
-            const secondAttributeConditionalStyle = getColumnConditionalStyles(widgetModel, secondAttributeColumn.column.id, row[secondAttributeColumn.metadata.dataIndex], variables)
-            const measureConditionalStyle = getColumnConditionalStyles(widgetModel, measureColumn.column.id, row[measureColumn.metadata.dataIndex], variables)
-            serieElement.data.push({
-                name: `${firstAttributeValue} - ${secondAttributeValue}`,
-                y: normalizeHighchartsNumericValue(row[measureColumn.metadata.dataIndex]),
-                color: measureConditionalStyle?.color || secondAttributeConditionalStyle?.color || firstAttributeConditionalStyle?.color,
-                drilldown: false
-            })
-            if (!categoryValuesMap[firstAttributeValue]) categoryValuesMap[firstAttributeValue] = { categories: [] }
-            if (!categoryValuesMap[firstAttributeValue].categories.includes(secondAttributeValue)) {
-                categoryValuesMap[firstAttributeValue].categories.push(secondAttributeValue)
-            }
+    data.rows.forEach((row: any) => {
+        const firstAttributeValue = dateFormat && ['date', 'timestamp'].includes(firstAttributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[firstAttributeColumn.metadata.dataIndex], dateFormat, firstAttributeColumn.metadata.type) : row[firstAttributeColumn.metadata.dataIndex]
+        const secondAttributeValue = dateFormat && ['date', 'timestamp'].includes(secondAttributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[secondAttributeColumn.metadata.dataIndex], dateFormat, secondAttributeColumn.metadata.type) : row[secondAttributeColumn.metadata.dataIndex]
+        const firstAttributeConditionalStyle = getColumnConditionalStyles(widgetModel, firstAttributeColumn.column.id, row[firstAttributeColumn.metadata.dataIndex], variables)
+        const secondAttributeConditionalStyle = getColumnConditionalStyles(widgetModel, secondAttributeColumn.column.id, row[secondAttributeColumn.metadata.dataIndex], variables)
+        const measureConditionalStyle = getColumnConditionalStyles(widgetModel, measureColumn.column.id, row[measureColumn.metadata.dataIndex], variables)
+        serieElement.data.push({
+            name: `${firstAttributeValue} - ${secondAttributeValue}`,
+            y: normalizeHighchartsNumericValue(row[measureColumn.metadata.dataIndex]),
+            color: measureConditionalStyle?.color || secondAttributeConditionalStyle?.color || firstAttributeConditionalStyle?.color,
+            drilldown: false
         })
+        if (!categoryValuesMap[firstAttributeValue]) categoryValuesMap[firstAttributeValue] = { categories: [] }
+        if (!categoryValuesMap[firstAttributeValue].categories.includes(secondAttributeValue)) {
+            categoryValuesMap[firstAttributeValue].categories.push(secondAttributeValue)
+        }
+    })
     data.rows.forEach((row: any) => {
         const firstAttributeValue = dateFormat && ['date', 'timestamp'].includes(firstAttributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[firstAttributeColumn.metadata.dataIndex], dateFormat, firstAttributeColumn.metadata.type) : row[firstAttributeColumn.metadata.dataIndex]
         const secondAttributeValue = dateFormat && ['date', 'timestamp'].includes(secondAttributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[secondAttributeColumn.metadata.dataIndex], dateFormat, secondAttributeColumn.metadata.type) : row[secondAttributeColumn.metadata.dataIndex]
@@ -321,6 +320,23 @@ export const setGroupedByCategoriesData = (model: any, data: any, attributeColum
             categoryValueMap[secondAttributeValue][firstAttributeValue] = { y: measureForGroupingValue, color: conditionalColor }
         }
     })
+
+    const orderType = measureForGrouping.column.orderType
+    if (orderType === 'ASC' || orderType === 'DESC') {
+        const categoryTotals = {} as Record<string, number>
+        uniqueCategoryValues.forEach((cat: string) => {
+            categoryTotals[cat] = Object.values(categoryValueMap).reduce((sum, seriesMap) => sum + (seriesMap[cat]?.y ?? 0), 0)
+        })
+        uniqueCategoryValues.sort((a: string, b: string) => (orderType === 'DESC' ? categoryTotals[b] - categoryTotals[a] : categoryTotals[a] - categoryTotals[b]))
+        Object.keys(categoryValueMap).forEach((seriesKey: string) => {
+            const ordered = {} as Record<string, { y: number | null; color?: string }>
+            uniqueCategoryValues.forEach((cat: string) => {
+                if (hasOwnProperty(categoryValueMap[seriesKey], cat)) ordered[cat] = categoryValueMap[seriesKey][cat]
+            })
+            categoryValueMap[seriesKey] = ordered
+        })
+    }
+
     setUniqueCategoriesValuesFromCategoryValueMap(uniqueCategoryValues, categoryValueMap)
 
     const measureSerieElementValueMap = {} as any
