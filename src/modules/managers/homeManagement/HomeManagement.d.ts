@@ -10,7 +10,7 @@ export interface IMenuPlaceholderConfig {
 export interface IDynamicHomeTemplate {
     html: string
     css: string
-    /** One entry per data-kn-menu element, ordered by current HTML occurrence */
+    /** Persisted placeholder configs keyed by stable data-kn-menu IDs until explicitly removed by the user */
     menuPlaceholders: IMenuPlaceholderConfig[]
 }
 

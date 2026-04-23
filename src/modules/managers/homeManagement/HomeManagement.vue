@@ -324,7 +324,7 @@ async function loadConfig(roleId: number | null) {
         config.value = { ...deepcopy(EMPTY_CONFIG), ...res.data }
         if (!config.value.template) config.value.template = deepcopy(EMPTY_TEMPLATE)
         else {
-            config.value.template = normalizeDynamicHomeTemplate(config.value.template, { rewriteHtml: true })
+            config.value.template = normalizeDynamicHomeTemplate(config.value.template)
             if (config.value.template.html) {
                 // Re-add href="#" to data-kn-menu anchors stripped before saving
                 config.value.template.html = addDefaultHrefToDynamicHomePlaceholders(config.value.template.html)
@@ -375,7 +375,7 @@ async function save() {
         const payload = deepcopy(config.value)
         if (payload.type !== 'dynamic') delete payload.template
         else if (payload.template) {
-            payload.template = normalizeDynamicHomeTemplate(payload.template, { rewriteHtml: true })
+            payload.template = normalizeDynamicHomeTemplate(payload.template)
             if (payload.template.html) {
                 // Strip href from data-kn-menu anchors to avoid backend XSS URL validation
                 payload.template.html = stripHrefFromDynamicHomePlaceholders(payload.template.html)

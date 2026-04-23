@@ -98,7 +98,7 @@ describe('getDynamicHomeNodeNavigation', () => {
 })
 
 describe('normalizeDynamicHomeTemplate', () => {
-    it('normalizes legacy placeholders to explicit 1-based bindings preserving current behavior', () => {
+    it('preserves legacy placeholders without rewriting the template html', () => {
         const template: IDynamicHomeTemplate = {
             html: '<div><a data-kn-menu>First</a><a data-kn-menu>Second</a></div>',
             css: '',
@@ -110,15 +110,14 @@ describe('normalizeDynamicHomeTemplate', () => {
 
         const normalized = normalizeDynamicHomeTemplate(template, { rewriteHtml: true })
 
-        expect(normalized.html).toContain('data-kn-menu="1"')
-        expect(normalized.html).toContain('data-kn-menu="2"')
+        expect(normalized.html).toBe(template.html)
         expect(normalized.menuPlaceholders).toEqual([
-            { index: 1, menuIds: [1] },
-            { index: 2, menuIds: [3] }
+            { index: 1, menuIds: [3] },
+            { index: 0, menuIds: [1] }
         ])
     })
 
-    it('binds explicit placeholder ids to legacy 0-based configurations after normalization', () => {
+    it('keeps explicit placeholder ids stable instead of reordering stored configs', () => {
         const template: IDynamicHomeTemplate = {
             html: '<div><a data-kn-menu="2">Second</a><a data-kn-menu="1">First</a></div>',
             css: '',
@@ -131,12 +130,12 @@ describe('normalizeDynamicHomeTemplate', () => {
         const normalized = normalizeDynamicHomeTemplate(template)
 
         expect(normalized.menuPlaceholders).toEqual([
-            { index: 2, menuIds: [3] },
-            { index: 1, menuIds: [1] }
+            { index: 0, menuIds: [1] },
+            { index: 1, menuIds: [3] }
         ])
     })
 
-    it('keeps stable ids and assigns new ones without reusing holes', () => {
+    it('does not inject or rewrite placeholder ids while preserving next generated id', () => {
         const template: IDynamicHomeTemplate = {
             html: '<div><a data-kn-menu="1">One</a><a data-kn-menu="4">Four</a><a data-kn-menu>New</a></div>',
             css: '',
@@ -148,10 +147,39 @@ describe('normalizeDynamicHomeTemplate', () => {
 
         const normalized = normalizeDynamicHomeTemplate(template, { rewriteHtml: true })
 
-        expect(normalized.html).toContain('data-kn-menu="1"')
-        expect(normalized.html).toContain('data-kn-menu="4"')
-        expect(normalized.html).toContain('data-kn-menu="5"')
-        expect(getNextDynamicHomePlaceholderIndex(normalized.menuPlaceholders)).toBe(6)
+        expect(normalized.html).toBe(template.html)
+        expect(getNextDynamicHomePlaceholderIndex(normalized.menuPlaceholders)).toBe(5)
+    })
+
+    it('preserves placeholder configurations that are temporarily missing from the html', () => {
+        const template: IDynamicHomeTemplate = {
+            html: '<div><a data-kn-menu="1">One</a></div>',
+            css: '',
+            menuPlaceholders: [
+                { index: 1, menuIds: [1] },
+                { index: 4, menuIds: [3] }
+            ]
+        }
+
+        const normalized = normalizeDynamicHomeTemplate(template, { rewriteHtml: true })
+
+        expect(normalized.html).toBe('<div><a data-kn-menu="1">One</a></div>')
+        expect(normalized.menuPlaceholders).toEqual([
+            { index: 1, menuIds: [1] },
+            { index: 4, menuIds: [3] }
+        ])
+    })
+
+    it('keeps detached placeholders available even when the template has no menu bindings', () => {
+        const template: IDynamicHomeTemplate = {
+            html: '<div><p>Static only</p></div>',
+            css: '',
+            menuPlaceholders: [{ index: 2, menuIds: [3] }]
+        }
+
+        const normalized = normalizeDynamicHomeTemplate(template)
+
+        expect(normalized.menuPlaceholders).toEqual([{ index: 2, menuIds: [3] }])
     })
 })
 
@@ -205,6 +233,25 @@ describe('renderDynamicHomeSrcdoc', () => {
         expect(links).toHaveLength(2)
         expect(links[0].textContent).toBe('External')
         expect(links[0].getAttribute('href')).toBe('https://example.com')
+        expect(links[1].textContent).toBe('Dashboard')
+    })
+
+    it('maps explicit placeholder ids to legacy stored configs without rewriting them', () => {
+        const template: IDynamicHomeTemplate = {
+            html: '<div><a data-kn-menu="2">Second</a><a data-kn-menu="1">First</a></div>',
+            css: '',
+            menuPlaceholders: [
+                { index: 0, menuIds: [1] },
+                { index: 1, menuIds: [3] }
+            ]
+        }
+
+        const srcdoc = renderDynamicHomeSrcdoc(template, menuNodes, '/knowage-vue')
+        const doc = new DOMParser().parseFromString(srcdoc, 'text/html')
+        const links = Array.from(doc.querySelectorAll('a'))
+
+        expect(links).toHaveLength(2)
+        expect(links[0].textContent).toBe('External')
         expect(links[1].textContent).toBe('Dashboard')
     })
 

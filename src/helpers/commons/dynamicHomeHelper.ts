@@ -101,10 +101,6 @@ function applyStringReplacements(text: string, replacements: IStringReplacement[
     return nextText
 }
 
-function setDynamicHomePlaceholderIndex(openTag: string, index: number): string {
-    return openTag.replace(MENU_PLACEHOLDER_ATTRIBUTE_PATTERN, ` data-kn-menu="${index}"`)
-}
-
 function rewriteDynamicHomePlaceholderOpenTags(html: string, rewrite: (openTag: string) => string): string {
     const matches = getDynamicHomePlaceholderMatches(html)
     if (!matches.length) return html
@@ -154,6 +150,14 @@ export function getDynamicHomePlaceholderConfig(menuPlaceholders: IMenuPlacehold
     return menuPlaceholders.find((placeholder) => placeholder.index === index)
 }
 
+function getDynamicHomeResolvedPlaceholderConfig(menuPlaceholders: IMenuPlaceholderConfig[] = [], explicitIndex: number | null, position: number): IMenuPlaceholderConfig | undefined {
+    const sanitizedPlaceholders = sanitizeDynamicHomePlaceholders(menuPlaceholders)
+    const hasLegacyIndexes = hasLegacyDynamicHomePlaceholderIndexes(sanitizedPlaceholders)
+
+    if (explicitIndex !== null) return getExplicitDynamicHomePlaceholderConfig(sanitizedPlaceholders, explicitIndex, hasLegacyIndexes)
+    return getLegacyDynamicHomePlaceholderConfig(sanitizedPlaceholders, position)
+}
+
 export function getNextDynamicHomePlaceholderIndex(menuPlaceholders: IMenuPlaceholderConfig[] = []): number {
     return menuPlaceholders.reduce((maxIndex, placeholder) => (placeholder.index > maxIndex ? placeholder.index : maxIndex), 0) + 1
 }
@@ -180,63 +184,11 @@ export function removeDynamicHomePlaceholderFromHtml(html: string, index: number
     return html.slice(0, target.start) + html.slice(target.end)
 }
 
-export function normalizeDynamicHomeTemplate(template: IDynamicHomeTemplate | null | undefined, options: { rewriteHtml?: boolean } = {}): IDynamicHomeTemplate {
-    const html = template?.html ?? ''
-    const css = template?.css ?? ''
-    const sanitizedPlaceholders = sanitizeDynamicHomePlaceholders(template?.menuPlaceholders)
-    const matches = getDynamicHomePlaceholderMatches(html)
-
-    if (!matches.length) return { html, css, menuPlaceholders: [] }
-
-    const hasLegacyIndexes = hasLegacyDynamicHomePlaceholderIndexes(sanitizedPlaceholders)
-    const hasAnyExplicitBinding = matches.some((match) => match.explicitIndex !== null)
-    let nextGeneratedIndex = hasAnyExplicitBinding
-        ? Math.max(0, ...matches.map((match) => match.explicitIndex ?? 0), ...sanitizedPlaceholders.map((placeholder) => placeholder.index > 0 ? placeholder.index : 0)) + 1
-        : 1
-
-    const usedIndexes = new Set<number>()
-    const replacements: IStringReplacement[] = []
-    const normalizedPlaceholders: IMenuPlaceholderConfig[] = []
-
-    matches.forEach((match, position) => {
-        let normalizedIndex = match.explicitIndex
-        let sourcePlaceholder: IMenuPlaceholderConfig | undefined
-
-        if (normalizedIndex !== null && !usedIndexes.has(normalizedIndex)) {
-            sourcePlaceholder = getExplicitDynamicHomePlaceholderConfig(sanitizedPlaceholders, normalizedIndex, hasLegacyIndexes)
-        } else {
-            if (!hasAnyExplicitBinding) normalizedIndex = position + 1
-            else {
-                while (usedIndexes.has(nextGeneratedIndex)) nextGeneratedIndex++
-                normalizedIndex = nextGeneratedIndex
-                nextGeneratedIndex++
-            }
-
-            sourcePlaceholder = getLegacyDynamicHomePlaceholderConfig(sanitizedPlaceholders, position)
-        }
-
-        usedIndexes.add(normalizedIndex)
-        normalizedPlaceholders.push({
-            index: normalizedIndex,
-            menuIds: sanitizeDynamicHomeMenuIds(sourcePlaceholder?.menuIds)
-        })
-
-        if (options.rewriteHtml) {
-            const nextOpenTag = setDynamicHomePlaceholderIndex(match.openTag, normalizedIndex)
-            if (nextOpenTag !== match.openTag) {
-                replacements.push({
-                    start: match.start,
-                    end: match.start + match.openTag.length,
-                    text: nextOpenTag
-                })
-            }
-        }
-    })
-
+export function normalizeDynamicHomeTemplate(template: IDynamicHomeTemplate | null | undefined, _options: { rewriteHtml?: boolean } = {}): IDynamicHomeTemplate {
     return {
-        html: options.rewriteHtml && replacements.length ? applyStringReplacements(html, replacements) : html,
-        css,
-        menuPlaceholders: normalizedPlaceholders
+        html: template?.html ?? '',
+        css: template?.css ?? '',
+        menuPlaceholders: sanitizeDynamicHomePlaceholders(template?.menuPlaceholders)
     }
 }
 
@@ -283,17 +235,19 @@ export function getDynamicHomeNodeNavigation(node: IMenuNode | null | undefined,
 export function renderDynamicHomeSrcdoc(template: IDynamicHomeTemplate | null | undefined, menuNodes: IMenuNode[] = [], publicPath = ''): string {
     if (!template) return ''
 
-    const normalizedTemplate = normalizeDynamicHomeTemplate(template, { rewriteHtml: true })
+    const normalizedTemplate = normalizeDynamicHomeTemplate(template)
     const parser = new DOMParser()
     const doc = parser.parseFromString(normalizedTemplate.html ?? '', 'text/html')
     const flatNodes = flattenDynamicHomeMenuNodes(menuNodes)
     const placeholders = Array.from(doc.body.querySelectorAll(MENU_PLACEHOLDER_SELECTOR))
 
-    placeholders.forEach((placeholder) => {
+    placeholders.forEach((placeholder, position) => {
         const placeholderIndex = Number(placeholder.getAttribute('data-kn-menu'))
-        const selectedMenuIds = Number.isInteger(placeholderIndex) && placeholderIndex > 0
-            ? getDynamicHomePlaceholderConfig(normalizedTemplate.menuPlaceholders, placeholderIndex)?.menuIds ?? []
-            : []
+        const selectedMenuIds = getDynamicHomeResolvedPlaceholderConfig(
+            normalizedTemplate.menuPlaceholders,
+            Number.isInteger(placeholderIndex) && placeholderIndex > 0 ? placeholderIndex : null,
+            position
+        )?.menuIds ?? []
         const selectedNodes = flatNodes.filter((node) => selectedMenuIds.includes(node.menuId))
 
         if (!selectedNodes.length) {

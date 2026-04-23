@@ -45,12 +45,13 @@
                             <q-chip
                                 v-for="ph in menuPlaceholders"
                                 :key="ph.index"
+                                clickable
                                 dense removable
                                 color="primary"
                                 text-color="white"
                                 icon="menu"
                                 @remove="removePlaceholder(ph.index)"
-                                @click="openPicker(ph.index)"
+                                @click.stop="openPicker(ph.index)"
                             >
                                 {{ $t('managers.homeManagement.dynamic.placeholder', { n: ph.index }) }}
                                 <q-tooltip>{{ $t('managers.homeManagement.dynamic.itemsSelected', { n: ph.menuIds.length }) }}</q-tooltip>
@@ -188,7 +189,7 @@ const emit = defineEmits<{
 const { t } = useI18n()
 
 const EMPTY_TEMPLATE: IDynamicHomeTemplate = { html: '', css: '', menuPlaceholders: [] }
-const initialTemplate = normalizeDynamicHomeTemplate(props.modelValue ?? EMPTY_TEMPLATE, { rewriteHtml: true })
+const initialTemplate = normalizeDynamicHomeTemplate(props.modelValue ?? EMPTY_TEMPLATE)
 
 const localHtml = ref(initialTemplate.html)
 const localCss = ref(initialTemplate.css)
@@ -217,25 +218,19 @@ const selectedPlaceholderSignature = computed(() =>
         .join('|')
 )
 
-function syncTemplateState(rewriteHtml = false): IDynamicHomeTemplate {
-    const normalizedTemplate = normalizeDynamicHomeTemplate(
-        {
-            html: localHtml.value,
-            css: localCss.value,
-            menuPlaceholders: menuPlaceholders.value
-        },
-        { rewriteHtml }
-    )
+function syncTemplateState(): IDynamicHomeTemplate {
+    const normalizedTemplate = normalizeDynamicHomeTemplate({
+        html: localHtml.value,
+        css: localCss.value,
+        menuPlaceholders: menuPlaceholders.value
+    })
 
-    if (rewriteHtml) localHtml.value = normalizedTemplate.html
-    localCss.value = normalizedTemplate.css
     menuPlaceholders.value = normalizedTemplate.menuPlaceholders
-
     return normalizedTemplate
 }
 
 function applyIncomingTemplate(template?: IDynamicHomeTemplate) {
-    const normalizedTemplate = normalizeDynamicHomeTemplate(template ?? EMPTY_TEMPLATE, { rewriteHtml: true })
+    const normalizedTemplate = normalizeDynamicHomeTemplate(template ?? EMPTY_TEMPLATE)
     localHtml.value = normalizedTemplate.html
     localCss.value = normalizedTemplate.css
     menuPlaceholders.value = normalizedTemplate.menuPlaceholders
@@ -259,14 +254,14 @@ const previewSrc = computed(() => renderDynamicHomeSrcdoc({
     menuPlaceholders: menuPlaceholders.value
 }, allMenuNodes.value, import.meta.env.VITE_PUBLIC_PATH || ''))
 
-function emitChange(rewriteHtml = false) {
-    emit('update:modelValue', syncTemplateState(rewriteHtml))
+function emitChange() {
+    emit('update:modelValue', syncTemplateState())
 }
 
 const htmlEditorRef = ref<any>(null)
 
 function insertMenuPlaceholder() {
-    const nextPlaceholderIndex = getNextDynamicHomePlaceholderIndex(syncTemplateState().menuPlaceholders)
+    const nextPlaceholderIndex = getNextDynamicHomePlaceholderIndex(menuPlaceholders.value)
     const placeholderSnippet = `<a data-kn-menu="${nextPlaceholderIndex}" href="#">Menu Item</a>`
     const editor = htmlEditorRef.value?.editor
     if (editor) {
@@ -279,7 +274,7 @@ function insertMenuPlaceholder() {
     menuPlaceholders.value = [...menuPlaceholders.value, { index: nextPlaceholderIndex, menuIds: [] }]
     activePlaceholderIndex.value = nextPlaceholderIndex
     pickerVisible.value = true
-    emitChange(true)
+    emitChange()
 }
 
 function openPicker(index: number) {
@@ -299,9 +294,8 @@ function onPickerConfirm(ids: number[]) {
 }
 
 function removePlaceholder(index: number) {
-    const normalizedTemplate = syncTemplateState(true)
-    localHtml.value = removeDynamicHomePlaceholderFromHtml(normalizedTemplate.html, index)
-    menuPlaceholders.value = normalizedTemplate.menuPlaceholders.filter((placeholder) => placeholder.index !== index)
+    localHtml.value = removeDynamicHomePlaceholderFromHtml(localHtml.value, index)
+    menuPlaceholders.value = menuPlaceholders.value.filter((placeholder) => placeholder.index !== index)
     if (activePlaceholderIndex.value === index) activePlaceholderIndex.value = null
     emit('update:modelValue', {
         html: localHtml.value,
@@ -315,7 +309,7 @@ async function openGallery() {
     if (galleryTemplates.value.length > 0) return
     galleryLoading.value = true
     try {
-        const res = await axios.get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + '/api/1.0/widgetgallery?type=home')
+        const res = await axios.get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + '/api/1.0/widgetgallery/widgets/home')
         galleryTemplates.value = res.data
     } finally {
         galleryLoading.value = false
@@ -325,13 +319,12 @@ async function openGallery() {
 async function applyGalleryTemplate(tpl: any) {
     galleryLoading.value = true
     try {
-        // List endpoint returns metadata only — fetch full template to get code
         const res = await axios.get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + '/api/1.0/widgetgallery/' + tpl.id)
         const full = res.data
         localHtml.value = full.code?.html ?? ''
         localCss.value = full.code?.css ?? ''
         galleryVisible.value = false
-        emitChange(true)
+        emitChange()
     } finally {
         galleryLoading.value = false
     }
