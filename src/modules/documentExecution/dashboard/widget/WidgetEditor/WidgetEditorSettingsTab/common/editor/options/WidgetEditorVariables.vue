@@ -23,7 +23,9 @@ import Dropdown from 'primevue/dropdown'
 export default defineComponent({
     name: 'widget-editor-active-selections',
     components: { Dropdown },
-    props: { variables: { type: Array as PropType<IVariable[]>, required: true } },
+    props: {
+        variables: { type: Array as PropType<IVariable[]>, required: true }
+    },
     emits: ['insertChanged'],
     data() {
         return {

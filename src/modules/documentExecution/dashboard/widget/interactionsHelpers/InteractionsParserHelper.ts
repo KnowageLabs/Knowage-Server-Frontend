@@ -13,11 +13,20 @@ export const replaceVariablesPlaceholdersByVariableName = (originalValue: string
     }
 
     originalValue = originalValue.replace(variableTextCompatibilityRegex, (match: string, variableName: string) => {
-        if (variables && variables.length > 0) {
-            const dashboardVariable = variables.find((variable: IVariable) => variable.name === variableName)
-            if (dashboardVariable) return dashboardVariable.value ?? ''
-        }
-        return ''
+        if (!variables?.length) return ''
+
+        const dashboardVariable = variables.find((variable: IVariable) => variable.name === variableName)
+        if (dashboardVariable) return dashboardVariable.value ?? ''
+
+        const separatorIndex = variableName.indexOf('.')
+        if (separatorIndex === -1) return ''
+
+        const variableKey = variableName.substring(separatorIndex + 1)
+        const selectedVariableName = variableName.substring(0, separatorIndex)
+        const pivotedVariable = variables.find((variable: IVariable) => variable.name === selectedVariableName)
+        if (!pivotedVariable?.pivotedValues) return ''
+
+        return pivotedVariable.pivotedValues[variableKey] ?? ''
     })
     return originalValue
 }
@@ -46,6 +55,14 @@ export const replaceDriversPlaceholdersByDriverName = (originalString: string, d
         return ''
     })
     return originalString
+}
+
+export const replaceVariablesAndDriversPlaceholders = (originalString: string, variables: IVariable[], drivers: IDashboardDriver[]) => {
+    if (!originalString) return originalString
+
+    let formattedString = replaceVariablesPlaceholdersByVariableName(originalString, variables)
+    formattedString = replaceDriversPlaceholdersByDriverUrlName(formattedString, drivers)
+    return formattedString
 }
 
 export const replaceFieldPlaceholdersByColumnName = (originalString: string, formattedRow: any) => {

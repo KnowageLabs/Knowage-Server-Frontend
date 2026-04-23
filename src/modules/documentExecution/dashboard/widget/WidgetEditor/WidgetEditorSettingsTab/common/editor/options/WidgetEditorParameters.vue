@@ -17,7 +17,9 @@ import Dropdown from 'primevue/dropdown'
 export default defineComponent({
     name: 'widget-editor-parameters',
     components: { Dropdown },
-    props: { dashboardId: { type: String, required: true } },
+    props: {
+        dashboardId: { type: String, required: true }
+    },
     emits: ['insertChanged'],
     data() {
         return {

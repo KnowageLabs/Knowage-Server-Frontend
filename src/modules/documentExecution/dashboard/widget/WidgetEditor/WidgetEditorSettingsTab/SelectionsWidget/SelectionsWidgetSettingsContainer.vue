@@ -1,6 +1,6 @@
 <template>
     <div v-show="widgetModel">
-        <SelectionsWidgetSettingsAccordion v-show="selectedSetting" :widget-model="widgetModel" :settings="descriptor.settings[selectedSetting]" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables"></SelectionsWidgetSettingsAccordion>
+        <SelectionsWidgetSettingsAccordion v-show="selectedSetting" :widget-model="widgetModel" :settings="descriptor.settings[selectedSetting]" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId"></SelectionsWidgetSettingsAccordion>
     </div>
 </template>
 
@@ -18,7 +18,8 @@ export default defineComponent({
         selectedSetting: { type: String, required: true },
         datasets: { type: Array as PropType<IDataset[]> },
         selectedDatasets: { type: Array as PropType<IDataset[]> },
-        variables: { type: Array as PropType<IVariable[]> }
+        variables: { type: Array as PropType<IVariable[]> },
+        dashboardId: { type: String, required: true }
     },
     data() {
         return {
