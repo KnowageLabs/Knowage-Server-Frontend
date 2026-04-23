@@ -3,11 +3,11 @@
         <q-card class="col-12 q-ml-none">
             <q-toolbar class="kn-toolbar kn-toolbar--secondary">
                 <q-toolbar-title>{{ $t('common.details') }}</q-toolbar-title>
-                <q-btn v-if="templateOptionEnabled('uploadable') || templateOptionEnabled('downloadable')" flat round dense icon="more_vert">
+                <q-btn v-if="hasTemplateOptions" flat round dense icon="more_vert">
                     <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.more') }}</q-tooltip>
-                    <q-menu auto-close v-if="menuButtons">
+                    <q-menu auto-close v-if="visibleMenuButtons.length">
                         <q-list dense>
-                            <q-item v-for="button in menuButtons" clickable v-close-popup>
+                            <q-item v-for="button in visibleMenuButtons" :key="button.key" clickable v-close-popup>
                                 <q-item-section avatar>
                                     <q-icon color="primary" :name="button.icon" />
                                 </q-item-section>
@@ -78,7 +78,6 @@ export default defineComponent({
             uploading: false,
             interval: null as any,
             dossierActivities: [] as any,
-            menuButtons: [] as any,
             jsonTemplate: {} as any,
             filters: {
                 global: [filterDefault]
@@ -102,6 +101,18 @@ export default defineComponent({
             })
             if (startedActivity && this.timeDifference(startedActivity)) return true
             else return false
+        },
+        menuButtons(): any[] {
+            return [
+                { key: '1', visible: this.templateOptionEnabled('uploadable'), icon: 'upload', label: this.$t('documentExecution.dossier.uploadTemplate'), command: () => this.setUploadType() },
+                { key: '2', visible: this.templateOptionEnabled('downloadable'), icon: 'download', label: this.$t('documentExecution.dossier.downloadTemplate'), command: () => this.downloadTemplate() }
+            ]
+        },
+        visibleMenuButtons(): any[] {
+            return this.menuButtons.filter((button) => button.visible)
+        },
+        hasTemplateOptions(): boolean {
+            return this.visibleMenuButtons.length > 0
         }
     },
     watch: {
@@ -160,7 +171,6 @@ export default defineComponent({
         ]
         this.getDossierTemplate()
         this.getDossierActivities()
-        this.createMenuItems()
         this.interval = setInterval(() => {
             this.getDossierActivities()
         }, 10000)
@@ -201,6 +211,7 @@ export default defineComponent({
         },
         async getDossierTemplate() {
             this.loading = true
+            this.jsonTemplate = {}
             const url = `${import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT}/api/start/dossierTemplate?documentId=${this.id}`
             const filters = this.filterData ? this.filterData : {}
             filters.filterStatus?.forEach((filter: iParameter) => {
@@ -215,7 +226,9 @@ export default defineComponent({
                 .then((response: AxiosResponse<any>) => {
                     this.jsonTemplate = { ...response.data }
                 })
-                .catch((err) => console.log(err))
+                .catch((error) => {
+                    if (error) this.setError({ title: this.$t('common.error.generic'), msg: error.message })
+                })
                 .finally(() => {
                     this.loading = false
                 })
@@ -345,23 +358,12 @@ export default defineComponent({
             window.open(link)
         },
 
-        createMenuItems() {
-            this.menuButtons = [
-                { key: '1', visible: this.templateOptionEnabled('uploadable'), icon: 'upload', label: this.$t('documentExecution.dossier.uploadTemplate'), command: () => this.setUploadType() },
-                { key: '2', visible: this.templateOptionEnabled('downloadable'), icon: 'download', label: this.$t('documentExecution.dossier.downloadTemplate'), command: () => this.downloadTemplate() }
-            ]
-        },
         templateOptionEnabled(optionName: string) {
-            let isEnabled = false
+            const optionValue = this.jsonTemplate?.PPT_TEMPLATE?.[optionName] ?? this.jsonTemplate?.PPT_TEMPLATE_V2?.[optionName] ?? this.jsonTemplate?.DOC_TEMPLATE?.[optionName]
 
-            if (this.jsonTemplate && this.jsonTemplate?.PPT_TEMPLATE) {
-                isEnabled = this.jsonTemplate?.PPT_TEMPLATE?.[optionName]
-            } else if (this.jsonTemplate && this.jsonTemplate?.PPT_TEMPLATE_V2) {
-                isEnabled = this.jsonTemplate?.PPT_TEMPLATE_V2?.[optionName]
-            } else if (this.jsonTemplate && this.jsonTemplate?.DOC_TEMPLATE) {
-                isEnabled = this.jsonTemplate?.DOC_TEMPLATE?.[optionName]
-            }
-            return isEnabled
+            if (typeof optionValue === 'boolean') return optionValue
+
+            return String(optionValue).toLowerCase() === 'true'
         },
         async downloadTemplate() {
             if (this.jsonTemplate.PPT_TEMPLATE == null) {
