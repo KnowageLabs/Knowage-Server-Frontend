@@ -60,6 +60,7 @@ import { downloadDirectFromResponse } from '@/helpers/commons/fileHelper'
 import DatasetEditorPreview from '../dataset/DatasetEditorDataTab/DatasetEditorPreview.vue'
 import { formatParameterForPreview } from '@/modules/documentExecution/dashboard/widget/interactionsHelpers/PreviewHelper'
 import { quickWidgetCreateChartFromTable, quickWidgetCreateTableFromChart } from './WidgetControllerHelpers'
+import { createWidgetExportBody } from '../helpers/DashboardExportHelper'
 
 export default defineComponent({
     name: 'widget-manager',
@@ -338,16 +339,7 @@ export default defineComponent({
         },
         async widgetExport(type: string) {
             this.setLoading(true)
-            const dataset = this.dashboards[this.dashboardId].configuration.datasets.find((i) => i.id === this.widgetModel.dataset)
-            const parameters = dataset ? dataset.parameters : []
-
-            let body = { ...this.widgetModel, parameters: parameters, selections: this.dashStore.$state.dashboards[this.dashboardId].selections, drivers: this.dashStore.$state.dashboards[this.dashboardId].drivers }
-            if (dataset && dataset.drivers) {
-                body.datasetDrivers = dataset.drivers
-            }
-            body.variables = this.dashboards[this.dashboardId]?.configuration?.variables
-            body.creationUser = this.document?.creationUser
-            body.locale = this.locale
+            const body = createWidgetExportBody(type, this.widgetModel, this.dashStore.$state.dashboards[this.dashboardId], this.document?.creationUser, this.locale)
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/dashboardExport/${type}`, body, {
                     responseType: 'blob',

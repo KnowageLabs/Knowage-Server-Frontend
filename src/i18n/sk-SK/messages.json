@@ -412,6 +412,7 @@
             "menuWidgets": {
                 "enableChartChange": "Povoliť zmenu grafu",
                 "showExcelExport": "Zobraziť funkciu exportu excel na Widgetoch",
+                "enableXlsxStyle": "Enable XLSX style",
                 "showScreenshot": "Povoliť funkciu snímok obrazovky na Widgetoch",
                 "showSelectionButton": "Vždy zobraziť tlačidlo výberu",
                 "title": "Menu a Widgety"
