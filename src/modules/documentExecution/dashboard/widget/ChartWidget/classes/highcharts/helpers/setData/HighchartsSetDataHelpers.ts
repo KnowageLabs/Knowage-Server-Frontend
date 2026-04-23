@@ -309,6 +309,23 @@ export const setGroupedByCategoriesData = (model: any, data: any, attributeColum
             categoryValueMap[secondAttributeValue][firstAttributeValue] = { y: measureForGroupingValue, color: conditionalColor }
         }
     })
+
+    const orderType = measureForGrouping.column.orderType
+    if (orderType === 'ASC' || orderType === 'DESC') {
+        const categoryTotals = {} as Record<string, number>
+        uniqueCategoryValues.forEach((cat: string) => {
+            categoryTotals[cat] = Object.values(categoryValueMap).reduce((sum, seriesMap) => sum + (seriesMap[cat]?.y ?? 0), 0)
+        })
+        uniqueCategoryValues.sort((a: string, b: string) => orderType === 'DESC' ? categoryTotals[b] - categoryTotals[a] : categoryTotals[a] - categoryTotals[b])
+        Object.keys(categoryValueMap).forEach((seriesKey: string) => {
+            const ordered = {} as Record<string, { y: number | null; color?: string }>
+            uniqueCategoryValues.forEach((cat: string) => {
+                if (hasOwnProperty(categoryValueMap[seriesKey], cat)) ordered[cat] = categoryValueMap[seriesKey][cat]
+            })
+            categoryValueMap[seriesKey] = ordered
+        })
+    }
+
     setUniqueCategoriesValuesFromCategoryValueMap(uniqueCategoryValues, categoryValueMap)
 
     const measureSerieElementValueMap = {} as any
