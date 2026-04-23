@@ -687,6 +687,7 @@ interface IBackground {
 
 interface IMenuAndWidgets {
     showExcelExport: boolean
+    xlsxStyleEnabled: boolean
     showScreenshot: boolean
     showSelectionButton: boolean
     enableChartChange: boolean

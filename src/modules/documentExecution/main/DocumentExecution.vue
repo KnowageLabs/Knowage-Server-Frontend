@@ -135,6 +135,7 @@ import EnginesConstants from '@/EnginesConstants.json'
 import DashboardSaveViewDialog from '../dashboard/DashboardViews/DashboardSaveViewDialog/DashboardSaveViewDialog.vue'
 import DashboardSavedViewsDialog from '../dashboard/DashboardViews/DashboardSavedViewsDialog/DashboardSavedViewsDialog.vue'
 import DatasetEditorPreview from '../dashboard/dataset/DatasetEditorDataTab/DatasetEditorPreview.vue'
+import { createDashboardSpreadsheetExportBody } from '../dashboard/helpers/DashboardExportHelper'
 
 let seeAsFinalUserWarning
 // @ts-ignore
@@ -722,9 +723,7 @@ export default defineComponent({
             if (format.includes('xls')) {
                 format = 'spreadsheet'
                 if (this.document.dashboardId && this.dashboards[this.document.dashboardId]) {
-                    const dashboard = deepcopy(this.dashboards[this.document.dashboardId])
-                    delete dashboard.currentView
-                    body = dashboard
+                    body = createDashboardSpreadsheetExportBody(this.dashboards[this.document.dashboardId])
                 }
             }
 

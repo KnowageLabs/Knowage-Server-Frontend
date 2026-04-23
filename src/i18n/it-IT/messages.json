@@ -493,6 +493,7 @@
             "css": "Editor CSS",
             "menuWidgets": {
                 "showExcelExport": "Abilita la funzionalità 'Esporta in Excel' nei widget",
+                "enableXlsxStyle": "Abilita stile XLSX",
                 "showScreenshot": "Abilita la funzionalità screenshot nei widget",
                 "showSelectionButton": "Mostra sempre il pulsante selezioni",
                 "title": "Menu & Widget"

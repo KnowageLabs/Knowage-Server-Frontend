@@ -287,8 +287,9 @@ const addDefaultThemeToTheDashboardModel = (dashboard: IDashboard, themes: IDash
 }
 
 export const addMissingMenuWidgetsConfiguration = (dashboard: IDashboard) => {
-    if (!dashboard.configuration.menuWidgets) dashboard.configuration.menuWidgets = { showExcelExport: true, showScreenshot: true, showSelectionButton: true, enableWidgetMenu: true, enableChartChange: true, enableCaching: true, enableCustomHeader: false }
+    if (!dashboard.configuration.menuWidgets) dashboard.configuration.menuWidgets = { showExcelExport: true, xlsxStyleEnabled: false, showScreenshot: true, showSelectionButton: true, enableWidgetMenu: true, enableChartChange: true, enableCaching: true, enableCustomHeader: false }
     if (dashboard.configuration.menuWidgets.showSelectionButton === undefined) dashboard.configuration.menuWidgets.showSelectionButton = true
+    if (dashboard.configuration.menuWidgets.xlsxStyleEnabled === undefined) dashboard.configuration.menuWidgets.xlsxStyleEnabled = false
     if (dashboard.configuration.menuWidgets.enableCaching === undefined) dashboard.configuration.menuWidgets.enableCaching = true
     if (dashboard.configuration.menuWidgets.enableCustomHeader === undefined) dashboard.configuration.menuWidgets.enableCustomHeader = false
     if (dashboard.configuration.menuWidgets.enableWidgetMenu === undefined) dashboard.configuration.menuWidgets.enableWidgetMenu = true

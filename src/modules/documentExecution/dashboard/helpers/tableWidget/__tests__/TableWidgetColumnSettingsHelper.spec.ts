@@ -53,6 +53,7 @@ const makeDashboard = (variables: any[] = []): IDashboard =>
             background: { imageBackgroundSize: '', imageBackgroundUrl: '', sheetsBackgroundColor: '', showGrid: true },
             menuWidgets: {
                 showExcelExport: true,
+                xlsxStyleEnabled: false,
                 showScreenshot: true,
                 showSelectionButton: true,
                 enableWidgetMenu: true,

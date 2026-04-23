@@ -98,6 +98,7 @@ const makeDashboard = (id = 'dash1') => ({
         background: { imageBackgroundSize: '', imageBackgroundUrl: '', sheetsBackgroundColor: '', showGrid: true },
         menuWidgets: {
             showExcelExport: true,
+            xlsxStyleEnabled: false,
             showScreenshot: true,
             showSelectionButton: true,
             enableWidgetMenu: true,

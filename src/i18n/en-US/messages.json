@@ -594,6 +594,7 @@
                 "enableCustomHeader": "Enable custom header",
                 "enableWidgetMenu": "Enable widget menu",
                 "showExcelExport": "Show excel export functionality on widgets",
+                "enableXlsxStyle": "Enable XLSX style",
                 "showScreenshot": "Enable screenshot functionality on widgets",
                 "showSelectionButton": "Always show selection button",
                 "title": "Menu & Widgets"

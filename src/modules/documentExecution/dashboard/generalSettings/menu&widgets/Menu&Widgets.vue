@@ -8,6 +8,10 @@
                 <label class="kn-material-input-label p-ml-3">{{ $t('dashboard.generalSettings.menuWidgets.showExcelExport') }}</label>
             </span>
             <span class="p-field p-col-12">
+                <InputSwitch v-model="menuWidgetsConfig.xlsxStyleEnabled" />
+                <label class="kn-material-input-label p-ml-3">{{ $t('dashboard.generalSettings.menuWidgets.enableXlsxStyle') }}</label>
+            </span>
+            <span class="p-field p-col-12">
                 <InputSwitch v-model="menuWidgetsConfig.showScreenshot" />
                 <label class="kn-material-input-label p-ml-3">{{ $t('dashboard.generalSettings.menuWidgets.showScreenshot') }}</label>
             </span>
