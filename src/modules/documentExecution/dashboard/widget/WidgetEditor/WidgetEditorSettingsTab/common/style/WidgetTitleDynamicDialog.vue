@@ -10,17 +10,13 @@
                     {{ t(`dashboard.widgetEditor.editorTags.hint.${mode}`) }}
                 </q-banner>
 
-                <div v-if="mode === 'parameters'" class="p-field p-m-4">
-                    <q-select v-model="selectedDriver" class="kn-material-input" :label="t('common.parameter')" :options="drivers" option-value="urlName" option-label="name" emit-value map-options dense outlined />
+                <div v-if="mode === 'parameters'" class="q-ma-md">
+                    <q-select  v-model="selectedDriver" class="fit" :label="t('common.parameter')" :options="drivers" option-value="urlName" option-label="name" emit-value map-options filled />
                 </div>
 
-                <div v-else class="p-fluid p-formgrid p-grid p-m-4">
-                    <div class="p-field kn-flex">
-                        <q-select v-model="selectedVariable" class="kn-material-input" :label="t('common.variable')" :options="variables" option-label="name" dense outlined />
-                    </div>
-                    <div v-if="variableKeys.length > 0" class="p-field kn-flex p-ml-3">
-                        <q-select v-model="variableKey" class="kn-material-input" :label="t('common.key')" :options="variableKeys" dense outlined />
-                    </div>
+                <div v-else class="q-ma-md">
+                        <q-select v-model="selectedVariable" class="fit" :label="t('common.variable')" :options="variables" option-label="name" filled  />
+                        <q-select v-if="variableKeys.length > 0" class="fit" v-model="variableKey"  :label="t('common.key')" :options="variableKeys" filled  />
                 </div>
             </q-card-section>
 
