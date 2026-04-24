@@ -1,5 +1,6 @@
 <template>
-    <div ref="widgetPreviewContainer" class="widget-editor-preview-container p-d-flex p-flex-column p-ai-stretch p-jc-center kn-overflow">
+    <div :id="widgetEditorPreviewId" ref="widgetPreviewContainer" class="widget-editor-preview-container p-d-flex p-flex-column p-ai-stretch p-jc-center kn-overflow">
+        <div v-if="previewDashboardCssTag" class="widget-editor-preview-style" v-html="previewDashboardCssTag" />
         <ProgressBar v-if="loading || customChartLoading" class="p-mx-2" mode="indeterminate" />
         <div class="widget-container p-mx-2" :style="getWidgetContainerStyle()">
             <div v-if="widgetTitle && widgetTitle.enabled" class="p-d-flex p-ai-center" style="border-radius: 0px" :style="getWidgetTitleStyle()">
@@ -48,6 +49,7 @@ import DiscoveryWidget from '../DiscoveryWidget/DiscoveryWidget.vue'
 import PythonWidgetContainer from '../PythonWidget/PythonWidgetContainer.vue'
 import CEPivotWidget from '../cePivotWidget/cePivotWidget.vue'
 import { replaceVariablesAndDriversPlaceholders } from '../interactionsHelpers/InteractionsParserHelper'
+import { scopeDashboardCssToContainer } from '../../helpers/common/DashboardCssHelper'
 
 export default defineComponent({
     name: 'widget-editor-preview',
@@ -61,6 +63,7 @@ export default defineComponent({
     data() {
         return {
             descriptor,
+            widgetEditorPreviewId: `widget-editor-preview-${crypto.randomUUID()}`,
             widgetTitle: null as any,
             widgetData: {} as any,
             loading: false,
@@ -75,7 +78,12 @@ export default defineComponent({
         ...mapState(mainStore, {
             isEnterprise: 'isEnterprise'
         }),
-        ...mapState(store, ['dashboards'])
+        ...mapState(store, ['dashboards']),
+        previewDashboardCssTag(): string {
+            const dashboardCss = this.dashboards[this.dashboardId]?.configuration?.cssToRender ?? ''
+            const scopedCss = scopeDashboardCssToContainer(dashboardCss, `#${this.widgetEditorPreviewId}`)
+            return scopedCss ? `<style>${scopedCss}</style>` : ''
+        }
     },
     created() {
         this.getWidgetData()
