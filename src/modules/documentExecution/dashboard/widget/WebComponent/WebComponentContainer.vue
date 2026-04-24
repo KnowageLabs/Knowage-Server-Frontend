@@ -13,6 +13,7 @@ import { IWidget } from '../../Dashboard'
 import { parseHtml, parseText } from '../WidgetEditor/helpers/htmlParser/ParserHelper'
 import { executeHTMLandTextWidgetCrossNavigation, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
 import { startHTMLAndCustomChartIFrameInteractions } from '../interactionsHelpers/IFrameInteractionHelper'
+import { composeCssWithHoistedImports } from '../../helpers/common/DashboardCssHelper'
 
 export default defineComponent({
     name: 'widget-component-container',
@@ -74,10 +75,11 @@ export default defineComponent({
             if (this.propWidget.type === 'html') {
                 temp = parseHtml(this.propWidget, this.drivers, this.variables, this.activeSelections, this.getInternationalization(), this.dataToShow, this.$toast)
                 this.htmlContent = temp.html
-                if (this.dashboards[this.dashboardId]) this.webComponentCss = temp.css + this.dashboards[this.dashboardId].configuration?.cssToRender
-                this.webComponentCss += temp.css
+                const dashboardCss = this.dashboards[this.dashboardId]?.configuration?.cssToRender ?? ''
+                this.webComponentCss = composeCssWithHoistedImports(dashboardCss, temp.css ?? '')
             } else {
                 this.htmlContent = parseText(this.propWidget, this.drivers, this.variables, this.activeSelections, this.getInternationalization(), this.dataToShow, this.$toast)
+                this.webComponentCss = ''
             }
 
             if (!this.webComponentRef) return

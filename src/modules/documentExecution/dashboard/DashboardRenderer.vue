@@ -37,6 +37,7 @@ import KnDashboardTabsPanel from '@/components/UI/KnDashboardTabs/KnDashboardTab
 import dashboardStore from './Dashboard.store'
 import mainStore from '@/App.store'
 import poweredBy from '/images/commons/knowage_poweredby.svg'
+import { scopeDashboardCssToContainer } from './helpers/common/DashboardCssHelper'
 
 export default defineComponent({
     name: 'dashboard-manager',
@@ -82,7 +83,12 @@ export default defineComponent({
             return backgroundStyle
         },
         dashboardCss(): any {
-            return `<style>${this.dashboardModel?.configuration?.cssToRender}</style>`
+            const scopedCss = scopeDashboardCssToContainer(this.dashboardModel?.configuration?.cssToRender ?? '', this.dashboardCssScopeSelector)
+            return scopedCss ? `<style>${scopedCss}</style>` : ''
+        },
+        dashboardCssScopeSelector(): string {
+            const dashboardConfigurationId = this.dashboardModel?.configuration?.id ?? this.dashboardId
+            return `#dashboard_${dashboardConfigurationId} .dashboard-renderer-container`
         },
         getCurrentScreenSizeIcon() {
             if (['xs', 'xxs'].includes(this.currentScreenSize)) return 'smartphone'
