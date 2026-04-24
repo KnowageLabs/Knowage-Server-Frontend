@@ -593,8 +593,8 @@
                 "enableChartChange": "Enable chart changing",
                 "enableCustomHeader": "Enable custom header",
                 "enableWidgetMenu": "Enable widget menu",
-                "showExcelExport": "Show excel export functionality on widgets",
                 "enableXlsxStyle": "Enable XLSX style",
+                "showExcelExport": "Show excel export functionality on widgets",
                 "showScreenshot": "Enable screenshot functionality on widgets",
                 "showSelectionButton": "Always show selection button",
                 "title": "Menu & Widgets"
@@ -647,10 +647,10 @@
         "selectorWidget": {
             "clearImpossibleValues": "Clear Impossible Values",
             "clearSelection": "Clear Selection",
-            "enableDescriptionColumn": "Enable Description Column",
             "descriptionColumn": "Description Column",
-            "showValueWithDescription": "Show Value Alongside Description",
-            "descriptionColumnHint": "Pair a display-label column with the value column. The description column is shown as the label while the value column is stored as the selection."
+            "descriptionColumnHint": "Pair a display-label column with the value column. The description column is shown as the label while the value column is stored as the selection.",
+            "enableDescriptionColumn": "Enable Description Column",
+            "showValueWithDescription": "Show Value Alongside Description"
         },
         "sheet": "Sheet",
         "sheets": {
@@ -1601,6 +1601,8 @@
                 "showIndexesColumn": "Show indexes column",
                 "title": "Rows"
             },
+            "searchInTableWidget": "Search in table widget",
+            "searchInTableWidgetHint": "Select columns and type a value to search in the table widget.",
             "selectDataset": "Select Dataset",
             "selectedColumns": "Selected Columns",
             "selectorType": {
@@ -3342,45 +3344,6 @@
                 "word": "Word"
             }
         },
-        "homeManagement": {
-            "defaultDescription": "The default home configured for the platform will be shown.",
-            "defaultRole": "Default role (applies to all unspecified roles)",
-            "configuration": "Configuration",
-            "document": "Document",
-            "hint": "Home management allows you to configure the home page shown to users by role. You can use the default home, a static page, a document, an image or a dynamic template.",
-            "homeType": "Home type",
-            "imageUrl": "Image URL or external URL",
-            "imageUrlPlaceholder": "Enter an image URL",
-            "menuPicker": {
-                "title": "Select menu items"
-            },
-            "preview": "Preview",
-            "resetToDefault": "Reset to default",
-            "role": "Role",
-            "saveSuccess": "Home configuration saved successfully.",
-            "saveTitle": "Home saved",
-            "selectDocument": "Select document",
-            "selectStaticPage": "Select a static page",
-            "staticPage": "Static page",
-            "title": "Home Management",
-            "types": {
-                "default": "Default",
-                "document": "Document",
-                "dynamic": "Dynamic",
-                "image": "Image/URL",
-                "static": "Static page"
-            },
-            "dynamic": {
-                "insertPlaceholder": "Insert menu placeholder",
-                "itemsSelected": "{n} selected items",
-                "loadFromGallery": "Load from gallery",
-                "placeholder": "Placeholder {n}",
-                "placeholderCount": "Menu placeholders: {n}",
-                "preview": "Preview",
-                "selectFromGallery": "Select from gallery",
-                "viewAs": "View as"
-            }
-        },
         "hierarchyManagement": {
             "afterDate": "After Date",
             "backup": "Backup",
@@ -3410,6 +3373,45 @@
             "synchronizationSuccess": "Successful synchronization",
             "synchronize": "Synchronize",
             "technical": "Technical"
+        },
+        "homeManagement": {
+            "configuration": "Configuration",
+            "defaultDescription": "The default home configured for the platform will be shown.",
+            "defaultRole": "Default role (applies to all unspecified roles)",
+            "document": "Document",
+            "dynamic": {
+                "insertPlaceholder": "Insert menu placeholder",
+                "itemsSelected": "{n} selected items",
+                "loadFromGallery": "Load from gallery",
+                "placeholder": "Placeholder {n}",
+                "placeholderCount": "Menu placeholders: {n}",
+                "preview": "Preview",
+                "selectFromGallery": "Select from gallery",
+                "viewAs": "View as"
+            },
+            "hint": "Home management allows you to configure the home page shown to users by role. You can use the default home, a static page, a document, an image or a dynamic template.",
+            "homeType": "Home type",
+            "imageUrl": "Image URL or external URL",
+            "imageUrlPlaceholder": "Enter an image URL",
+            "menuPicker": {
+                "title": "Select menu items"
+            },
+            "preview": "Preview",
+            "resetToDefault": "Reset to default",
+            "role": "Role",
+            "saveSuccess": "Home configuration saved successfully.",
+            "saveTitle": "Home saved",
+            "selectDocument": "Select document",
+            "selectStaticPage": "Select a static page",
+            "staticPage": "Static page",
+            "title": "Home Management",
+            "types": {
+                "default": "Default",
+                "document": "Document",
+                "dynamic": "Dynamic",
+                "image": "Image/URL",
+                "static": "Static page"
+            }
         },
         "importExportDocs": {
             "date": "Filter after Date",
