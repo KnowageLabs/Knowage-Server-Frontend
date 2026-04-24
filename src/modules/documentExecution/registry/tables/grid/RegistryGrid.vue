@@ -235,12 +235,15 @@ function onScroll(event: Event) {
     scrollTimeout.value = setTimeout(() => {
         const el = event.target as HTMLElement
         const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight
-        if (distanceFromBottom < 50 && props.pagination) {
-            const newStart = (props.pagination.start ?? 0) + registryDescriptor.paginationNumberOfItems
+        if (distanceFromBottom < 50 && props.pagination && !props.pagination.enabled && (props.pagination.size ?? 0) > registryDescriptor.paginationLimit) {
+            const pageSize = props.pagination.limit ?? registryDescriptor.paginationNumberOfItems
+            const newStart = (props.pagination.start ?? 0) + pageSize
+            if (newStart >= (props.pagination.size ?? 0)) return
             emit('page-changed', {
                 paginationStart: newStart,
-                paginationLimit: registryDescriptor.paginationLimit,
-                size: props.pagination.size
+                paginationLimit: pageSize,
+                size: props.pagination.size,
+                enabled: false
             })
         }
     }, 300)

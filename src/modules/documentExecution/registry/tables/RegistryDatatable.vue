@@ -31,6 +31,27 @@
 
         <!-- ── Griglia Excel-like ──────────────────────────────────────────── -->
         <RegistryGrid ref="registryGridRef" class="kn-flex" style="min-height: 0" :columns="columns" :rows="rows" :combo-column-options="comboColumnOptions" :sort-model="sortModel" :data-loading="props.dataLoading" :pagination="lazyParams" :key-column-name="props.keyColumnName" @row-changed="onRowChanged" @row-deleted="onRowsDeletedFromGrid" @page-changed="onPageChanged" @sorting-changed="onSortingChanged" @dropdown-change="onDropdownChange" />
+        <div v-if="paginatorEnabled" class="registry-pagination row items-center justify-start q-gutter-sm q-px-sm q-py-xs">
+            <span class="registry-pagination__report">
+                {{ paginationReport }}
+            </span>
+            <QPagination
+                data-test="registry-paginator"
+                :model-value="currentPage"
+                :max="maxPages"
+                size="sm"
+                color="primary"
+                active-color="primary"
+                flat
+                unelevated
+                :max-pages="5"
+                :boundary-links="false"
+                :boundary-numbers="false"
+                :direction-links="true"
+                :ellipses="true"
+                @update:model-value="onPageChangeByPage"
+            />
+        </div>
     </div>
 
     <RegistryDatatableWarningDialog :visible="warningVisible" :columns="dependentColumns" @close="onWarningDialogClose" />
@@ -38,12 +59,13 @@
 
 <script lang="ts" setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { useQuasar } from 'quasar'
+import { QPagination, useQuasar } from 'quasar'
 import { useI18n } from 'vue-i18n'
 import { emitter } from './RegistryDatatableHelper'
 import RegistryDatatableWarningDialog from './RegistryDatatableWarningDialog.vue'
 import RegistryGrid from './grid/RegistryGrid.vue'
 import { useRegistryColumnOptions } from '../composables/useRegistryColumnOptions'
+import registryDescriptor from '../RegistryDescriptor.json'
 
 const $q = useQuasar()
 const { t } = useI18n()
@@ -104,6 +126,27 @@ const addButtonEnabled = computed<boolean>(() => {
 })
 
 const selectedRowCount = computed(() => registryGridRef.value?.getSelectedRows().length ?? 0)
+const paginatorEnabled = computed<boolean>(() => Boolean(lazyParams.value?.enabled))
+const rowsPerPage = computed<number>(() => lazyParams.value?.limit ?? registryDescriptor.paginationNumberOfItems)
+const currentPage = computed<number>(() => {
+    const pageSize = rowsPerPage.value
+    if (!pageSize) return 1
+    return Math.floor((lazyParams.value?.start ?? 0) / pageSize) + 1
+})
+const maxPages = computed<number>(() => {
+    const totalRows = lazyParams.value?.size ?? 0
+    const pageSize = rowsPerPage.value
+    if (!pageSize) return 1
+    return Math.max(1, Math.ceil(totalRows / pageSize))
+})
+const paginationReport = computed<string>(() => {
+    const totalRows = lazyParams.value?.size ?? 0
+    const start = lazyParams.value?.start ?? 0
+    const pageSize = rowsPerPage.value
+    const firstRow = totalRows > 0 ? start + 1 : 0
+    const lastRow = totalRows > 0 ? Math.min(start + pageSize, totalRows) : 0
+    return t('common.table.footer.paginated', { first: firstRow, last: lastRow, totalRecords: totalRows })
+})
 
 // ── Load column definitions ──────────────────────────────────────────────
 async function loadColumnDefinitions() {
@@ -253,8 +296,30 @@ function clearDependentColumnsValues() {
 
 // ── Pagination ───────────────────────────────────────────────────────────
 function onPageChanged(params: any) {
-    lazyParams.value = params
-    emit('pageChanged', params)
+    lazyParams.value = {
+        ...lazyParams.value,
+        start: params.paginationStart ?? lazyParams.value.start ?? 0,
+        limit: params.paginationLimit ?? lazyParams.value.limit ?? registryDescriptor.paginationNumberOfItems,
+        size: params.size ?? lazyParams.value.size,
+        enabled: params.enabled ?? lazyParams.value.enabled ?? false
+    }
+    emit('pageChanged', {
+        paginationStart: lazyParams.value.start,
+        paginationLimit: lazyParams.value.limit,
+        paginationEnd: lazyParams.value.start + lazyParams.value.limit,
+        size: lazyParams.value.size,
+        enabled: lazyParams.value.enabled
+    })
+}
+
+function onPageChangeByPage(page: number) {
+    onPageChanged({
+        paginationStart: (page - 1) * rowsPerPage.value,
+        paginationLimit: rowsPerPage.value,
+        paginationEnd: page * rowsPerPage.value,
+        size: lazyParams.value.size,
+        enabled: lazyParams.value.enabled
+    })
 }
 
 // ── Sorting ──────────────────────────────────────────────────────────────
@@ -300,3 +365,16 @@ onUnmounted(() => {
 
 defineExpose({ stopGridEditing })
 </script>
+
+<style scoped lang="scss">
+.registry-pagination {
+    border-top: 1px solid rgb(0 0 0 / 8%);
+    justify-content: flex-start;
+    min-height: 40px;
+}
+
+.registry-pagination__report {
+    color: rgb(0 0 0 / 60%);
+    font-size: 0.875rem;
+}
+</style>

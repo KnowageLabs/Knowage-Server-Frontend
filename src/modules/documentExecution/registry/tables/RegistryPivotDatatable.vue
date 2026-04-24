@@ -1,5 +1,5 @@
 <template>
-    <KnPivotTable :id="id" :columns="filteredColumns" :rows="tempRows" :prop-configuration="propConfiguration" :entity="entity" :pagination="pagination" :combo-column-options="comboColumnOptions" :number-of-rows="registryDescriptor.paginationNumberOfItems" @rowChanged="onRowChanged" @pageChanged="onPageChange" @dropdownOpened="addColumnOptions"></KnPivotTable>
+    <KnPivotTable :id="id" :columns="filteredColumns" :rows="tempRows" :prop-configuration="propConfiguration" :entity="entity" :pagination="pagination" :combo-column-options="comboColumnOptions" :number-of-rows="pagination.limit ?? registryDescriptor.paginationNumberOfItems" @rowChanged="onRowChanged" @pageChanged="onPageChange" @dropdownOpened="addColumnOptions"></KnPivotTable>
 </template>
 
 <script lang="ts" setup>
@@ -40,14 +40,16 @@ function getFilteredColumns() {
 
 function loadRows() {
     tempRows.value = props.rows ?? []
-    if (tempRows.value.length <= registryDescriptor.paginationLimit) {
+    lazy.value = Boolean(props.propPagination?.enabled)
+    if (!lazy.value && tempRows.value.length <= registryDescriptor.paginationLimit) {
         lazy.value = false
-        tempRows.value = tempRows.value.slice(0, registryDescriptor.paginationNumberOfItems)
+        tempRows.value = tempRows.value.slice(0, pagination.value.limit ?? registryDescriptor.paginationNumberOfItems)
     }
 }
 
 function loadPagination() {
-    pagination.value = props.propPagination
+    pagination.value = { ...(props.propPagination ?? {}) }
+    lazy.value = Boolean(pagination.value?.enabled)
 }
 
 function onRowChanged(row: any) {
@@ -58,7 +60,7 @@ function onPageChange(event: any) {
     if (lazy.value) {
         emit('pageChanged', event)
     } else {
-        tempRows.value = (props.rows ?? []).slice(event.paginationStart, event.paginationStart + registryDescriptor.paginationNumberOfItems)
+        tempRows.value = (props.rows ?? []).slice(event.paginationStart, event.paginationStart + (event.paginationLimit ?? pagination.value.limit ?? registryDescriptor.paginationNumberOfItems))
         emit('resetRows')
     }
 }

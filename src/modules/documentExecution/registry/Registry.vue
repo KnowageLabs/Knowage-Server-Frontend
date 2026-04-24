@@ -46,7 +46,8 @@
 import { ref, watch, onMounted, defineAsyncComponent } from 'vue'
 import type { AxiosResponse } from 'axios'
 import axios from '@/axios.js'
-import registryDescriptor from './RegistryDescriptor.json'
+import { getRegistryRenderedRowLimit, normalizeRegistryPaginationState, shouldUseServerPagination } from './RegistryPaginationHelper'
+import type { IRegistryPaginationState } from './RegistryPaginationHelper'
 import { formatDate } from '@/helpers/commons/localeHelper'
 import mainStore from '../../../App.store'
 import { emitter } from './tables/RegistryDatatableHelper'
@@ -70,7 +71,7 @@ const configuration = ref<any[]>([])
 const columns = ref<any[]>([])
 const rows = ref<any[]>([])
 const columnMap = ref<any>({})
-const pagination = ref<any>({ start: 0, limit: 15 })
+const pagination = ref<IRegistryPaginationState>(normalizeRegistryPaginationState(null))
 const updatedRows = ref<any[]>([])
 const filters = ref<any[]>([])
 const selectedFilters = ref<any[]>([])
@@ -93,15 +94,12 @@ async function loadPage() {
 async function loadRegistry() {
     const postData = new URLSearchParams()
 
-    if (pagination.value.size > registryDescriptor.paginationLimit) {
-        postData.append('limit', '' + registryDescriptor.paginationNumberOfItems)
-    }
-
     selectedFilters.value.forEach((el: any) => {
         if (el.filterValue) postData.append(el.field, el.filterValue)
     })
 
     postData.append('start', '' + pagination.value.start)
+    if (shouldUseServerPagination(pagination.value)) postData.append('limit', '' + pagination.value.limit)
 
     if (sortModel.value && sortModel.value.fieldName && sortModel.value.orderType) {
         postData.append('fieldName', '' + sortModel.value.fieldName)
@@ -111,11 +109,15 @@ async function loadRegistry() {
     await axios
         .post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=LOAD_REGISTRY_ACTION&SBI_EXECUTION_ID=${props.id}`, postData)
         .then((response: AxiosResponse<any>) => {
-            pagination.value.size = response.data.results
             registry.value = response.data
+            loadPagination(response.data)
             loadKeyColumnName(response.data.metaData.fields)
         })
         .catch(() => {})
+}
+
+function loadPagination(data: any) {
+    pagination.value = normalizeRegistryPaginationState(data.registryConfig?.pagination, pagination.value, data.results)
 }
 
 function loadKeyColumnName(fieldsMetadata: any[]) {
@@ -171,7 +173,7 @@ function loadColumnsInfo() {
 
 function loadRows(resetRows = false as boolean) {
     if (resetRows) rows.value = []
-    const limit = pagination.value.size <= registryDescriptor.paginationLimit ? registry.value.rows.length : registryDescriptor.paginationNumberOfItems
+    const limit = getRegistryRenderedRowLimit(pagination.value, registry.value.rows.length)
     for (let i = 0; i < limit; i++) {
         const tempRow: any = {}
         if (!registry.value.rows[i]) break
@@ -229,7 +231,7 @@ async function saveRegistry() {
         .post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=UPDATE_RECORDS_ACTION&SBI_EXECUTION_ID=${props.id}`, postData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
         .then(() => {
             appStore.setInfo({ title: t('common.toast.updateTitle'), msg: t('common.toast.updateSuccess') })
-            pagination.value.start = 0
+            pagination.value = { ...pagination.value, start: 0 }
             loadPage()
         })
         .finally(() => (updatedRows.value = []))
@@ -253,7 +255,7 @@ async function onRowDeleted(row: any) {
                     pagination.value.size--
                 }
             } else {
-                pagination.value.start = 0
+                pagination.value = { ...pagination.value, start: 0 }
                 await reloadRegistryData(true)
             }
         })
@@ -279,16 +281,20 @@ function getFilters() {
 
 async function filterRegistry(filterList: any[]) {
     selectedFilters.value = [...filterList]
-    pagination.value.start = 0
-    pagination.value.size = 0
+    pagination.value = { ...pagination.value, start: 0, size: 0 }
     await reloadRegistryData(true)
 }
 
 async function updatePagination(lazyParams: any) {
-    pagination.value = { start: lazyParams.paginationStart, limit: lazyParams.paginationLimit, size: lazyParams.size }
-    if (pagination.value.size > registryDescriptor.paginationLimit) {
+    pagination.value = {
+        ...pagination.value,
+        start: lazyParams.paginationStart ?? pagination.value.start,
+        limit: lazyParams.paginationLimit ?? pagination.value.limit,
+        size: lazyParams.size ?? pagination.value.size
+    }
+    if (shouldUseServerPagination(pagination.value)) {
         updatedRows.value = []
-        await reloadRegistryData()
+        await reloadRegistryData(pagination.value.enabled)
     }
 }
 
@@ -310,8 +316,7 @@ async function reloadRegistryData(resetRows = false as boolean) {
 }
 
 async function onSortingChanged(sm: any) {
-    pagination.value.start = 0
-    pagination.value.size = 0
+    pagination.value = { ...pagination.value, start: 0, size: 0 }
     sortModel.value = sm
     await reloadRegistryData(true)
 }
@@ -331,7 +336,7 @@ watch(
 watch(
     () => props.reloadTrigger,
     async () => {
-        pagination.value.start = 0
+        pagination.value = { ...pagination.value, start: 0 }
         await loadPage()
         stopWarningsState.value = []
     }
