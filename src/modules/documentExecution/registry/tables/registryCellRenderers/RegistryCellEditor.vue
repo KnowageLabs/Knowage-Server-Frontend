@@ -3,7 +3,7 @@
         <Checkbox v-if="getCellType(column) === 'checkbox'" ref="input" v-model="value" class="p-ml-2" :binary="true" />
         <Textarea v-if="getCellType(column) === 'text'" ref="input" v-model="value" class="kn-material-input kn-width-full" rows="4" :step="getStep(column.columnInfo?.type)" maxlength="250" @input="onRowChanged(row)" />
         <InputNumber v-if="getCellType(column) === 'number'" ref="input" v-model="value" class="kn-material-input p-inputtext-sm kn-width-full kn-height-full" :use-grouping="useGrouping" :locale="locale" :min-fraction-digits="minFractionDigits" :max-fraction-digits="maxFractionDigits" :disabled="!column.isEditable" @blur="onInputNumberChange" />
-        <Dropdown v-else-if="getCellType(column) === 'dropdown'" ref="input" v-model="value" class="kn-material-input kn-width-full" :options="getOptions(column, row)" option-value="column_1" option-label="column_1" :filter="true" @change="onDropdownChange({ row: row, column: column })" @before-show="addColumnOptions({ row: row, column: column })" />
+        <Dropdown v-else-if="getCellType(column) === 'dropdown'" ref="input" v-model="value" class="kn-material-input kn-width-full" :options="getOptions(column, row)" option-value="value" option-label="label" :filter="true" @change="onDropdownChange({ row: row, column: column })" @before-show="addColumnOptions({ row: row, column: column })" />
         <Calendar
             v-else-if="getCellType(column) === 'temporal'"
             ref="input"
@@ -97,6 +97,23 @@ export default defineComponent({
         this.formatNumberConfiguration()
     },
     methods: {
+        normalizeDropdownOptions(options: any[]) {
+            const uniqueOptions = new Map<string, { label: string; value: any }>()
+
+            ;(options ?? []).forEach((option: any) => {
+                const value = option?.column_1
+                const dedupeKey = `${typeof value}:${value === null ? 'null' : String(value)}`
+
+                if (!uniqueOptions.has(dedupeKey)) {
+                    uniqueOptions.set(dedupeKey, {
+                        value,
+                        label: value === 0 ? '0' : value === null || value === undefined ? '' : String(value)
+                    })
+                }
+            })
+
+            return [...uniqueOptions.values()]
+        },
         loadRow() {
             this.row = this.params.data
         },
@@ -133,7 +150,7 @@ export default defineComponent({
         getOptions(column: any, row: any) {
             let options = this.columnOptions && this.columnOptions[column.field] ? this.columnOptions[column.field][row[column.dependences]] : []
             if (!options || options.length === 0) options = this.columnOptions[column.field]['All']
-            return options ?? []
+            return this.normalizeDropdownOptions(options ?? [])
         },
         getValue() {
             if (this.column.columnInfo?.type === 'date' || this.column.columnInfo?.type === 'timestamp') return this.returnDateValues()

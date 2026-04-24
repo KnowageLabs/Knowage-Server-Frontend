@@ -57,7 +57,7 @@ import CustomChartWidget from '../widget/CustomChartWidget/CustomChartWidget.vue
 import DiscoveryWidget from '../widget/DiscoveryWidget/DiscoveryWidget.vue'
 import MapWidget from '../widget/MapWidget/MapWidget.vue'
 import PythonWidgetContainer from '../widget/PythonWidget/PythonWidgetContainer.vue'
-import { mapState } from 'pinia'
+import { mapActions, mapState } from 'pinia'
 import mainStore from '@/App.store'
 import dashboardStore from '../Dashboard.store'
 import { replaceVariablesAndDriversPlaceholders } from './interactionsHelpers/InteractionsParserHelper'
