@@ -33,8 +33,8 @@
             </Dropdown>
         </div>
         <div class="p-col-10 p-md-3 p-px-2 p-pt-4">
-            <WidgetEditorColorPicker v-if="type === 'major'" :initial-value="axisModel.gridLineColor" :label="$t('dashboard.widgetEditor.highcharts.lines.lineColor')" @change="onSelectionColorChanged"></WidgetEditorColorPicker>
-            <WidgetEditorColorPicker v-else :initial-value="axisModel.minorGridLineColor" :label="$t('dashboard.widgetEditor.highcharts.lines.lineColor')" @change="onSelectionColorChanged"></WidgetEditorColorPicker>
+            <WidgetEditorColorPicker v-if="type === 'major'" :initial-value="getDisplayedGridLineColor('major')" :label="$t('dashboard.widgetEditor.highcharts.lines.lineColor')" @change="onSelectionColorChanged"></WidgetEditorColorPicker>
+            <WidgetEditorColorPicker v-else :initial-value="getDisplayedGridLineColor('minor')" :label="$t('dashboard.widgetEditor.highcharts.lines.lineColor')" @change="onSelectionColorChanged"></WidgetEditorColorPicker>
         </div>
 
         <div class="p-col-2 p-text-right p-mt-3">
@@ -63,6 +63,11 @@ export default defineComponent({
             getTranslatedLabel
         }
     },
+    computed: {
+        chartType() {
+            return this.widgetModel.settings.chartModel?.model?.chart?.type
+        }
+    },
     watch: {
         propAxisModel() {
             this.loadModel()
@@ -73,12 +78,12 @@ export default defineComponent({
     },
     methods: {
         loadModel() {
+            if (!this.widgetModel.settings.chartModel || !this.widgetModel.settings.chartModel.model) return
             this.axisModel = (this.axis === 'x' && this.chartType !== 'bar') || (this.chartType === 'bar' && this.axis === 'y') ? this.widgetModel.settings.chartModel.model.xAxis[0] : this.widgetModel.settings.chartModel.model.yAxis[0]
-            if (this.type === 'major' && this.axisModel.gridLineColor === '') {
-                this.axisModel.gridLineColor = '#000000'
-            } else if (this.type === 'minor' && this.axisModel.minorGridLineColor === '') {
-                this.axisModel.minorGridLineColor = '#000000'
-            }
+        },
+        getDisplayedGridLineColor(type: 'major' | 'minor') {
+            if (!this.axisModel) return '#000000'
+            return type === 'major' ? this.axisModel.gridLineColor || '#000000' : this.axisModel.minorGridLineColor || '#000000'
         },
         onSelectionColorChanged(event: string | null) {
             if (!event || !this.axisModel) return
