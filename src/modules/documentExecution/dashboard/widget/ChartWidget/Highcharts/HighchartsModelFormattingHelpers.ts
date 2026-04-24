@@ -201,11 +201,31 @@ export const formatVariables = (formattedChartModel: IHighchartsChartModel, vari
     formatVariablesForAxis(formattedChartModel, variables, 'yAxis')
 }
 
+const DEFAULT_LEFT_AXIS_LABEL_GAP = 12
+
+const getAxisLabelFontSize = (axis: any) => {
+    const parsedFontSize = Number.parseInt(`${axis?.labels?.style?.fontSize ?? ''}`, 10)
+    return Number.isFinite(parsedFontSize) ? parsedFontSize : 12
+}
+
+const getEstimatedLeftAlignedAxisMargin = (axes: any[]) => {
+    const estimatedMargin = axes.reduce((maxMargin: number, axis: any) => {
+        const categories = Array.isArray(axis?.categories) ? axis.categories : []
+        const longestLabelLength = categories.reduce((maxLength: number, category: any) => Math.max(maxLength, `${category ?? ''}`.length), 0)
+        if (!longestLabelLength) return maxMargin
+
+        const estimatedLabelWidth = Math.ceil((longestLabelLength * getAxisLabelFontSize(axis) * 11) / 20)
+        return Math.max(maxMargin, estimatedLabelWidth + DEFAULT_LEFT_AXIS_LABEL_GAP)
+    }, 0)
+
+    return Math.max(estimatedMargin, DEFAULT_LEFT_AXIS_LABEL_GAP * 2)
+}
+
 /**
- * When the left-side axis has `labels.align = 'left'` (with the stored default `x = 0`),
- * Highcharts anchors the label's LEFT edge on the axis line and renders text to the RIGHT
- * (into the plot area). No leftward extent → Highcharts calculates zero left margin, unlike
- * 'right' / 'center' which extend left and cause space to be reserved automatically.
+ * For left-side axes, the default bar-label offset `x = -12` is correct as long as labels use
+ * the default alignment. The problem appears only when the user explicitly sets `labels.align = 'left'`:
+ * in that case Highcharts anchors the LEFT edge of the text at `x`, so the default `-12` offset
+ * leaves part of the label inside the plot area.
  *
  * Which axis is on the LEFT depends on the chart type:
  *  - bar charts (`chart.type === 'bar'`) and other inverted charts: **xAxis** holds the
@@ -213,14 +233,12 @@ export const formatVariables = (formattedChartModel: IHighchartsChartModel, vari
  *  - all other chart types: **yAxis** is on the left side.
  *
  * Fix strategy:
- *  1. Set `labels.x = -80` on each affected axis so the label anchor is 80 px to the LEFT of
- *     the axis line. Highcharts bounding-box calculation then sees 80 px of leftward extent
- *     and auto-reserves the matching margin — exactly as it does for 'right'/'center'.
- *  2. Additionally force `chart.marginLeft = 80` as an explicit fallback, in case the
- *     auto-calculation for 'left' alignment still yields zero.
- *
- * Both values are only applied when the user has not already supplied a custom override
- * (negative x or an explicit marginLeft set via Advanced Settings).
+ *  1. Restore the standard `-12` gap for older saved models that still have the previous
+ *     zero/empty default on the left-side axis.
+ *  2. Keep the default `-12` offset untouched unless the axis is explicitly left-aligned.
+ *  3. For explicit `align: 'left'`, estimate the longest label width from the axis categories
+ *     and move the label anchor left by `estimatedWidth + 12`, preserving the usual 12 px gap.
+ *  4. Apply the same value to `chart.marginLeft` only when the chart does not already define it.
  */
 export const normalizeYAxisLabelsAlignment = (formattedChartModel: IHighchartsChartModel) => {
     const chartObj = formattedChartModel.chart as any
@@ -232,20 +250,24 @@ export const normalizeYAxisLabelsAlignment = (formattedChartModel: IHighchartsCh
 
     if (!leftSideAxes.length) return
 
-    const hasLeftAligned = leftSideAxes.some((axis: any) => axis?.labels?.align === 'left')
-    if (!hasLeftAligned) return
+    const axesToRestoreDefaultGap = leftSideAxes.filter((axis: any) => axis?.labels && (axis.labels.align == null || axis.labels.align === '') && (axis.labels.x == null || Number(axis.labels.x) === 0))
+    axesToRestoreDefaultGap.forEach((axis: any) => {
+        axis.labels.x = -DEFAULT_LEFT_AXIS_LABEL_GAP
+    })
 
-    // Explicit marginLeft fallback – only when not already set by the user.
+    const axesToAutoNormalize = leftSideAxes.filter(
+        (axis: any) => axis?.labels?.align === 'left' && (axis.labels.x == null || axis.labels.x >= 0 || Number(axis.labels.x) === -DEFAULT_LEFT_AXIS_LABEL_GAP)
+    )
+    if (!axesToAutoNormalize.length) return
+
+    const requiredLeftMargin = getEstimatedLeftAlignedAxisMargin(axesToAutoNormalize)
+
     if (chartObj.marginLeft == null) {
-        chartObj.marginLeft = 80
+        chartObj.marginLeft = requiredLeftMargin
     }
 
-    // Push the label anchor 80 px to the left of the axis so the text renders in the
-    // reserved margin space and Highcharts auto-calculates the correct left margin.
-    leftSideAxes.forEach((axis: any) => {
-        if (axis?.labels?.align === 'left' && (axis.labels.x == null || axis.labels.x >= 0)) {
-            axis.labels.x = -80
-        }
+    axesToAutoNormalize.forEach((axis: any) => {
+        axis.labels.x = -requiredLeftMargin
     })
 }
 
