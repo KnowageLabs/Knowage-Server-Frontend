@@ -1,9 +1,10 @@
 <template>
-    <div ref="widgetPreviewContainer" class="widget-editor-preview-container p-d-flex p-flex-column p-ai-stretch p-jc-center kn-overflow">
+    <div :id="widgetEditorPreviewId" ref="widgetPreviewContainer" class="widget-editor-preview-container p-d-flex p-flex-column p-ai-stretch p-jc-center kn-overflow">
+        <div v-if="previewDashboardCssTag" class="widget-editor-preview-style" v-html="previewDashboardCssTag" />
         <ProgressBar v-if="loading || customChartLoading" class="p-mx-2" mode="indeterminate" />
         <div class="widget-container p-mx-2" :style="getWidgetContainerStyle()">
             <div v-if="widgetTitle && widgetTitle.enabled" class="p-d-flex p-ai-center" style="border-radius: 0px" :style="getWidgetTitleStyle()">
-                {{ widgetTitle?.text }}
+                {{ getWidgetTitleText() }}
             </div>
 
             <div class="widget-container-renderer" :style="getWidgetPadding()">
@@ -47,6 +48,8 @@ import CustomChartWidget from '../CustomChartWidget/CustomChartWidget.vue'
 import DiscoveryWidget from '../DiscoveryWidget/DiscoveryWidget.vue'
 import PythonWidgetContainer from '../PythonWidget/PythonWidgetContainer.vue'
 import CEPivotWidget from '../cePivotWidget/cePivotWidget.vue'
+import { replaceVariablesAndDriversPlaceholders } from '../interactionsHelpers/InteractionsParserHelper'
+import { scopeDashboardCssToContainer } from '../../helpers/common/DashboardCssHelper'
 
 export default defineComponent({
     name: 'widget-editor-preview',
@@ -60,6 +63,7 @@ export default defineComponent({
     data() {
         return {
             descriptor,
+            widgetEditorPreviewId: `widget-editor-preview-${crypto.randomUUID()}`,
             widgetTitle: null as any,
             widgetData: {} as any,
             loading: false,
@@ -74,7 +78,12 @@ export default defineComponent({
         ...mapState(mainStore, {
             isEnterprise: 'isEnterprise'
         }),
-        ...mapState(store, ['dashboards'])
+        ...mapState(store, ['dashboards']),
+        previewDashboardCssTag(): string {
+            const dashboardCss = this.dashboards[this.dashboardId]?.configuration?.cssToRender ?? ''
+            const scopedCss = scopeDashboardCssToContainer(dashboardCss, `#${this.widgetEditorPreviewId}`)
+            return scopedCss ? `<style>${scopedCss}</style>` : ''
+        }
     },
     created() {
         this.getWidgetData()
@@ -86,7 +95,7 @@ export default defineComponent({
         this.unsetEventListeners()
     },
     methods: {
-        ...mapActions(store, ['getDashboard', 'getSelections']),
+        ...mapActions(store, ['getDashboard', 'getSelections', 'getDashboardDrivers']),
         setEventListeners() {
             emitter.on('clearWidgetData', this.clearWidgetData)
             emitter.on('refreshWidgetWithData', this.getWidgetData)
@@ -109,6 +118,10 @@ export default defineComponent({
             this.widgetTitle = this.propWidget.settings.style.title
             const styleString = getWidgetStyleByType(this.propWidget, 'title')
             return styleString + `height: ${this.widgetTitle.height ?? 25}px;`
+        },
+        getWidgetTitleText() {
+            if (!this.widgetTitle) return ''
+            return replaceVariablesAndDriversPlaceholders(this.widgetTitle.text ?? '', this.variables, this.getDashboardDrivers(this.dashboardId) ?? [])
         },
         getWidgetContainerStyle() {
             const styleString = getWidgetStyleByType(this.propWidget, 'borders') + getWidgetStyleByType(this.propWidget, 'shadows') + getWidgetStyleByType(this.propWidget, 'background')

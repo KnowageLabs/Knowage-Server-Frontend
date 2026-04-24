@@ -10,6 +10,25 @@
             <Button icon="fas fa-save" class="p-button-text p-button-rounded p-button-plain kn-button-light" @click="$emit('saveRegistry')" />
         </div>
         <ag-grid-vue class="registry-grid ag-theme-alpine kn-height-full" :row-data="rows" :grid-options="gridOptions" :context="context" />
+        <div v-if="paginatorEnabled" class="registry-pagination">
+            <span class="registry-pagination__report">{{ paginationReport }}</span>
+            <QPagination
+                data-test="registry-paginator"
+                :model-value="currentPage"
+                :max="maxPages"
+                size="sm"
+                color="primary"
+                active-color="primary"
+                flat
+                unelevated
+                :max-pages="5"
+                :boundary-links="false"
+                :boundary-numbers="false"
+                :direction-links="true"
+                :ellipses="true"
+                @update:model-value="onPageChangeByPage"
+            />
+        </div>
     </div>
 
     <RegistryDatatableWarningDialog :visible="warningVisible" :columns="dependentColumns" @close="onWarningDialogClose"></RegistryDatatableWarningDialog>
@@ -17,6 +36,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
+import { QPagination } from 'quasar'
 import { luxonFormatDate, formatDateWithLocale, localeDate, primeVueDate, getLocale, formatNumberWithLocale } from '@/helpers/commons/localeHelper'
 import { setInputDataType, formatRegistryNumber } from '@/helpers/commons/tableHelpers'
 import { AxiosResponse } from 'axios'
@@ -32,6 +52,7 @@ export default defineComponent({
     name: 'registry-datatable',
     components: {
         RegistryDatatableWarningDialog,
+        QPagination,
         // eslint-disable-next-line vue/no-unused-components
         HeaderRenderer,
         // eslint-disable-next-line vue/no-unused-components
@@ -65,7 +86,6 @@ export default defineComponent({
             stopWarnings: [] as any[],
             flagShown: 'flag-shown',
             flagHidden: 'flag-hidden',
-            first: 0,
             loading: false,
             multiSortMeta: [],
             gridApi: null as any,
@@ -94,6 +114,27 @@ export default defineComponent({
             const enableAddRecords = Object.prototype.hasOwnProperty.call(this.buttons, 'enableAddRecords')
             if (enableAddRecords) return this.buttons.enableAddRecords
             else return this.buttons.enableButtons
+        },
+        paginatorEnabled(): boolean {
+            return Boolean(this.lazyParams?.enabled)
+        },
+        rowsPerPage(): number {
+            return this.lazyParams?.limit ?? this.registryDescriptor.paginationNumberOfItems
+        },
+        currentPage(): number {
+            if (!this.rowsPerPage) return 1
+            return Math.floor((this.lazyParams?.start ?? 0) / this.rowsPerPage) + 1
+        },
+        maxPages(): number {
+            if (!this.rowsPerPage) return 1
+            return Math.max(1, Math.ceil((this.lazyParams?.size ?? 0) / this.rowsPerPage))
+        },
+        paginationReport(): string {
+            const totalRows = this.lazyParams?.size ?? 0
+            const start = this.lazyParams?.start ?? 0
+            const firstRow = totalRows > 0 ? start + 1 : 0
+            const lastRow = totalRows > 0 ? Math.min(start + this.rowsPerPage, totalRows) : 0
+            return this.$t('common.table.footer.paginated', { first: firstRow, last: lastRow, totalRecords: totalRows }) as string
         }
     },
     watch: {
@@ -112,7 +153,6 @@ export default defineComponent({
         pagination: {
             handler() {
                 this.loadPagination()
-                this.first = this.pagination?.start
             },
             deep: true
         }
@@ -349,6 +389,19 @@ export default defineComponent({
             }
             this.$emit('pageChanged', this.lazyParams)
         },
+        onPageChangeByPage(page: number) {
+            const start = (page - 1) * this.rowsPerPage
+            this.lazyParams = {
+                ...this.lazyParams,
+                start: start,
+                limit: this.rowsPerPage,
+                paginationStart: start,
+                paginationLimit: this.rowsPerPage,
+                paginationEnd: start + this.rowsPerPage,
+                enabled: this.lazyParams.enabled
+            }
+            this.$emit('pageChanged', this.lazyParams)
+        },
         rowsDeleteConfirm() {
             this.$confirm.require({
                 message: this.$t('common.toast.deleteMessage'),
@@ -385,9 +438,6 @@ export default defineComponent({
                 }
             })
             this.addRowToFirstPosition(newRow)
-            if (this.lazyParams.size <= registryDescriptor.paginationLimit) {
-                this.first = 0
-            }
             this.$emit('rowChanged', newRow)
         },
         cloneRows() {
@@ -459,16 +509,20 @@ export default defineComponent({
             this.selectedRows = this.gridApi.getSelectedRows()
         },
         onBodyScroll() {
+            if (this.lazyParams?.enabled || this.lazyParams?.size <= this.registryDescriptor.paginationLimit) return
             if (this.timeout) clearTimeout(this.timeout)
             this.timeout = setTimeout(() => {
                 const bottom_px = this.gridApi.getVerticalPixelRange().bottom
                 const grid_height = this.gridApi.getDisplayedRowCount() * this.gridApi.getSizesForCurrentTheme().rowHeight
                 if (bottom_px >= grid_height) {
-                    const newPaginationStart = this.lazyParams.start + this.registryDescriptor.paginationNumberOfItems
+                    const pageSize = this.lazyParams.limit ?? this.registryDescriptor.paginationNumberOfItems
+                    const newPaginationStart = (this.lazyParams.start ?? 0) + pageSize
+                    if (newPaginationStart >= (this.lazyParams.size ?? 0)) return
                     this.lazyParams = {
                         paginationStart: newPaginationStart,
-                        paginationLimit: this.registryDescriptor.paginationLimit,
-                        size: this.lazyParams.size
+                        paginationLimit: pageSize,
+                        size: this.lazyParams.size,
+                        enabled: false
                     }
                     this.$emit('pageChanged', this.lazyParams)
                 }
@@ -619,6 +673,21 @@ export default defineComponent({
 
 .flag-hidden {
     opacity: 0;
+}
+
+.registry-pagination {
+    align-items: center;
+    border-top: 1px solid rgb(0 0 0 / 8%);
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-start;
+    min-height: 40px;
+    padding: 0.5rem 0.75rem;
+}
+
+.registry-pagination__report {
+    color: rgb(0 0 0 / 60%);
+    font-size: 0.875rem;
 }
 
 .registry-grid {

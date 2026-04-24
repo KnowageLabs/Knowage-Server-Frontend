@@ -2,7 +2,7 @@
     <div class="widget-container" :style="getWidgetContainerStyle()">
         <ProgressSpinner v-if="widget.type == 'static-pivot-table' && widgetLoading" class="kn-progress-spinner" />
         <div v-if="widget.settings.style.title && widget.settings.style.title.enabled" class="p-d-flex p-ai-center" style="border-radius: 0px" :style="getWidgetTitleStyle()">
-            {{ widget.settings?.style.title.text }}
+            {{ getWidgetTitleText() }}
         </div>
         <div class="widget-container-renderer" :style="getWidgetPadding()">
             <TableWidget v-if="widget.type == 'table'" :prop-widget="widget" :datasets="datasets" :data-to-show="dataToShow" :editor-mode="false" :prop-active-selections="activeSelections" :dashboard-id="dashboardId" :prop-variables="variables" @page-changed="$emit('reloadData')" @sorting-changed="$emit('reloadData')" @launch-selection="$emit('launchSelection', $event)" @dataset-interaction-preview="$emit('datasetInteractionPreview', $event)" />
@@ -57,8 +57,10 @@ import CustomChartWidget from '../widget/CustomChartWidget/CustomChartWidget.vue
 import DiscoveryWidget from '../widget/DiscoveryWidget/DiscoveryWidget.vue'
 import MapWidget from '../widget/MapWidget/MapWidget.vue'
 import PythonWidgetContainer from '../widget/PythonWidget/PythonWidgetContainer.vue'
-import { mapState } from 'pinia'
+import { mapActions, mapState } from 'pinia'
 import mainStore from '@/App.store'
+import dashboardStore from '../Dashboard.store'
+import { replaceVariablesAndDriversPlaceholders } from './interactionsHelpers/InteractionsParserHelper'
 
 export default defineComponent({
     name: 'widget-renderer',
@@ -104,6 +106,7 @@ export default defineComponent({
         this.loadDataToShow()
     },
     methods: {
+        ...mapActions(dashboardStore, ['getDashboardDrivers']),
         async loadDataToShow() {
             this.dataToShow = this.widgetData
         },
@@ -119,6 +122,9 @@ export default defineComponent({
                 heightValue = /^\d+$/.test(height) ? `${height}px` : height
             }
             return styleString + `height: ${heightValue};`
+        },
+        getWidgetTitleText() {
+            return replaceVariablesAndDriversPlaceholders(this.widget.settings?.style?.title?.text ?? '', this.variables, this.getDashboardDrivers(this.dashboardId) ?? [])
         },
         getWidgetContainerStyle() {
             const styleString = getWidgetStyleByType(this.widget, 'borders') + getWidgetStyleByType(this.widget, 'shadows') + getWidgetStyleByType(this.widget, 'background')

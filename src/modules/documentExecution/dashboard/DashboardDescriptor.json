@@ -21,6 +21,7 @@
                 "enableCustomHeader": false,
                 "enableWidgetMenu": true,
                 "showExcelExport": true,
+                "xlsxStyleEnabled": false,
                 "showScreenshot": true,
                 "showSelectionButton": false
             },

@@ -13,6 +13,7 @@ import { formatForCrossNavigation } from './CustomChartWidgetHelpers'
 import store from '../../Dashboard.store'
 import appStore from '../../../../../App.store'
 import { startHTMLAndCustomChartIFrameInteractions } from '../interactionsHelpers/IFrameInteractionHelper'
+import { composeCssWithHoistedImports } from '../../helpers/common/DashboardCssHelper'
 
 export default defineComponent({
     name: 'custom-chart-widget',
@@ -125,12 +126,8 @@ export default defineComponent({
 
             this.htmlContent = this.propWidget.settings.editor.html
             const resetCss = 'body { margin: 0; padding: 0; box-sizing: border-box; }'
-            const dashboardCss = this.dashboards[this.dashboardId]?.configuration?.css || ''
-            const userCss = this.propWidget.settings.editor.css || '' + dashboardCss
-            const importMatches = userCss.match(/@import[^;]+;/g) || []
-            const imports = importMatches.join('\n')
-            const userCssWithoutImports = userCss.replace(/@import[^;]+;/g, '')
-            this.webComponentCss = imports + '\n' + resetCss + '\n' + userCssWithoutImports
+            const dashboardCss = this.dashboards[this.dashboardId]?.configuration?.cssToRender ?? ''
+            this.webComponentCss = composeCssWithHoistedImports(resetCss, dashboardCss, this.propWidget.settings.editor.css ?? '')
             this.webComponentJs = this.propWidget.settings.editor.js
 
             this.renderCustomWidget()

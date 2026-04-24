@@ -526,6 +526,7 @@
                 "enableWidgetMenu": "Enable widget menu",
                 "enableXlsxStyle": "Enable XLSX style",
                 "showExcelExport": "Show excel export functionality on widgets",
+                "enableXlsxStyle": "Enable XLSX style",
                 "showScreenshot": "Enable screenshot functionality on widgets",
                 "showSelectionButton": "Always show selection button",
                 "title": "Menu & Widgets"
