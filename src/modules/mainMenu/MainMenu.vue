@@ -121,7 +121,6 @@ export default defineComponent({
             downloads: 'downloads',
             locale: 'locale',
             news: 'news',
-            stateHomePage: 'homePage',
             isEnterprise: 'isEnterprise',
             isEnterpriseValid: 'isEnterpriseValid',
             licenses: 'licenses',
@@ -208,12 +207,22 @@ export default defineComponent({
         licenseSelection() {
             this.licenseDisplay = !this.licenseDisplay
         },
+        isHomeMenuItem(item: IMenuItem) {
+            return item?.label === 'Home'
+        },
+        normalizeHomeMenuItem(item: IMenuItem & { target?: string }) {
+            if (!this.isHomeMenuItem(item)) return item
+
+            item.to = '/'
+            item.url = undefined
+            item.target = undefined
+            return item
+        },
         itemClick(event) {
             const item = event.item ? event.item : event
-            if (item.label === 'Home' && this.user?.configuration && this.user.configuration['home.button.url']) {
-                location.replace(this.user?.configuration['home.button.url'])
-            }
-            if (item.command) {
+            if (this.isHomeMenuItem(item)) {
+                this.$router.push({ name: 'home' })
+            } else if (item.command) {
                 this[item.command]()
             } else if (item.to) {
                 if (event.navigate) event.navigate(event.originalEvent)
@@ -289,9 +298,8 @@ export default defineComponent({
                     this.commonUserFunctionalities = []
                     const responseCommonUserFunctionalities = response.data.commonUserFunctionalities
                     for (const index in responseCommonUserFunctionalities) {
-                        const item = responseCommonUserFunctionalities[index]
+                        const item = this.normalizeHomeMenuItem(responseCommonUserFunctionalities[index])
                         item.visible = this.isItemToDisplay(item)
-                        if (parseInt(index) == 0 && this.stateHomePage?.to) item.to = this.stateHomePage.to.replaceAll('\\/', '/')
                         this.commonUserFunctionalities.push(item)
                     }
 

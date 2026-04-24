@@ -4,7 +4,9 @@
         square
         size="sm"
         class="menu-btn"
-        :to="link"
+        :to="routerLink"
+        :href="hrefLink"
+        :target="hrefTarget"
         :class="{ 'router-link-active': isActive(props.item) }"
         :data-tour-id="tourId"
         @click="onClick($event, props.item)"
@@ -50,16 +52,18 @@ const route = useRoute()
 const store = useMainStore()
 const publicPath = import.meta.env.VITE_PUBLIC_PATH
 
-const link = computed(() => {
-    return cleanUrl(props.item)
-})
+const link = computed(() => cleanUrl(props.item))
+const shouldOpenInsideKnowage = computed(() => !!props.item.url && (!props.item.target || props.item.target === 'insideKnowage'))
+const routerLink = computed(() => (props.item.to ? link.value : undefined))
+const hrefLink = computed(() => (props.item.url && !shouldOpenInsideKnowage.value ? link.value : undefined))
+const hrefTarget = computed(() => (hrefLink.value ? props.item.target : undefined))
 
 function isActive(item): boolean {
     return route.path === item.to
 }
 
 function onClick(event, item): void {
-    if (item.command || item.to) {
+    if (item.command || item.to || shouldOpenInsideKnowage.value) {
         emit('click', {
             originalEvent: event,
             item: item
