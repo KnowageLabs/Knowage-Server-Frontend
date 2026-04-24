@@ -99,7 +99,8 @@ export default defineComponent({
     provide() {
         return {
             selectorWidgetsInitialData: this.selectorWidgetsData as SelectorDataMap,
-            dashboardId: toRef(this, 'dashboardId')
+            dashboardId: toRef(this, 'dashboardId'),
+            document: toRef(this, 'document')
         }
     },
     setup() {

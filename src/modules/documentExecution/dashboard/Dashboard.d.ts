@@ -505,6 +505,7 @@ export interface IWidgetResponsive {
     md: boolean
     lg: boolean
     columnLayout?: Record<string, { x: number; y: number; w: number; h: number }>
+    columnLayouts?: Partial<Record<'lg' | 'md' | 'sm' | 'xs' | 'xxs', Record<string, { x: number; y: number; w: number; h: number }>>>
 }
 
 export interface IWidgetColumn {

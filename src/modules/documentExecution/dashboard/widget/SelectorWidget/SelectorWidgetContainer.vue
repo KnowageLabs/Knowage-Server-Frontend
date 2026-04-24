@@ -1,6 +1,6 @@
 <template>
     <div class="selector-widget-container">
-        <GridLayout v-model:layout="gridLayout" :cols="4" :row-height="30" :is-draggable="!isFinalUser" :is-resizable="!isFinalUser" :vertical-compact="false" :use-css-transforms="false" :margin="[0, 0]" :responsive="false" :auto-size="false">
+        <GridLayout :key="gridLayoutKey" v-model:layout="responsiveLayouts[currentScreenSize]" :responsive-layouts="responsiveLayouts" :cols="colSizes" :row-height="30" :is-draggable="!isFinalUser" :is-resizable="!isFinalUser" :vertical-compact="false" :use-css-transforms="false" :margin="[0, 0]" :responsive="true" :auto-size="false" @breakpoint-changed="onBreakpointChanged" @layout-updated="onLayoutUpdated">
             <template #item="{ item }">
                 <div class="selector-column-wrapper" @mouseenter="onColumnMouseEnter(item.columnName)" @mouseleave="onColumnMouseLeave(item.columnName)" @mousemove="onColumnMouseMove(item.columnName)" @scroll.capture="onColumnScroll(item.columnName)" @contextmenu.prevent="onColumnRightClick(item.columnName)">
                     <SelectorWidget :prop-widget="getSingleColumnWidget(item.columnName)" :data-to-show="getColumnData(item.columnName)" :widget-initial-data="getColumnInitialData(item.columnName)" :prop-active-selections="getColumnSelections(item.columnName)" :editor-mode="false" :dashboard-id="dashboardId" :datasets="datasets" :selection-is-locked="selectionIsLocked" :local-mode="true" @selection-changed="onColumnSelectionChanged" />
@@ -53,7 +53,10 @@ export default defineComponent({
     data() {
         return {
             localSelections: {} as any,
-            gridLayout: [] as any[],
+            responsiveLayouts: { lg: [], md: [], sm: [], xs: [], xxs: [] } as any,
+            currentScreenSize: 'lg' as string,
+            colSizes: { lg: 120, md: 100, sm: 70, xs: 40, xxs: 20 } as any,
+            gridLayoutKey: 0,
             localWidgetData: {} as any,
             unlockedColumnName: null as string | null,
             debounceTimers: {} as Record<string, ReturnType<typeof setTimeout>>,
@@ -107,22 +110,9 @@ export default defineComponent({
             this.loadActiveSelectionsIntoLocal()
             await this.refreshLocalWidgetData() // refresh data to reflect store selection changes from other widgets
         },
-        gridLayout: {
-            handler(newLayout: any[]) {
-                const dashboard = this.getDashboard(this.dashboardId)
-                if (!dashboard) return
-                const widget = dashboard.widgets.find((w: any) => w.id === this.propWidget.id)
-                if (!widget?.settings?.responsive) return
-                const columnLayout: Record<string, { x: number; y: number; w: number; h: number }> = {}
-                newLayout.forEach((item: any) => {
-                    columnLayout[item.columnName] = { x: item.x, y: item.y, w: item.w, h: item.h }
-                })
-                widget.settings.responsive.columnLayout = columnLayout
-            },
-            deep: true
-        },
         propWidget() {
             this.initializeGridLayout()
+            this.gridLayoutKey++
         },
         dataToShow() {
             this.localWidgetData = deepcopy(this.dataToShow)
@@ -131,6 +121,7 @@ export default defineComponent({
     created() {
         this.setEventListeners()
         this.loadActiveSelectionsIntoLocal()
+        this.currentScreenSize = this.getBreakpointFromWidth(window.innerWidth)
         this.initializeGridLayout()
         this.localWidgetData = deepcopy(this.dataToShow)
     },
@@ -140,7 +131,7 @@ export default defineComponent({
         Object.values(this.hoverTimers).forEach((timer) => clearTimeout(timer))
     },
     methods: {
-        ...mapActions(store, ['setSelections', 'getDashboard']),
+        ...mapActions(store, ['setSelections']),
 
         //#region ===================== EventListeners & Keyboard =================================
         setEventListeners() {
@@ -253,20 +244,51 @@ export default defineComponent({
         //#endregion =============================================================================
 
         //#region ===================== Grid Layout ===============================================
-        initializeGridLayout() {
-            const savedLayout = this.propWidget.settings?.responsive?.columnLayout ?? {}
-            this.gridLayout = this.gridItems.map((item: any, index: number) => {
-                const saved = savedLayout[item.columnName]
-                return {
-                    x: saved?.x ?? (index % 2) * 2,
-                    y: saved?.y ?? Math.floor(index / 2) * 2,
-                    w: saved?.w ?? 2,
-                    h: saved?.h ?? 2,
-                    i: item.columnName,
-                    columnName: item.columnName,
-                    static: false,
-                    dragIgnoreFrom: '.q-slider__thumb, .q-range__thumb'
+        getBreakpointFromWidth(width: number): string {
+            if (width >= 1200) return 'lg'
+            else if (width >= 996) return 'md'
+            else if (width >= 768) return 'sm'
+            else if (width >= 480) return 'xs'
+            else return 'xxs'
+        },
+        onBreakpointChanged(breakpoint: string) {
+            this.currentScreenSize = breakpoint
+        },
+        onLayoutUpdated(newLayout: any[]) {
+            if (!this.propWidget.settings?.responsive) return
+            if (!this.propWidget.settings.responsive.columnLayouts) {
+                this.propWidget.settings.responsive.columnLayouts = {}
+            }
+            const columnLayout: Record<string, { x: number; y: number; w: number; h: number }> = {}
+            newLayout.forEach((item: any) => {
+                if (item.columnName) {
+                    columnLayout[item.columnName] = { x: item.x, y: item.y, w: item.w, h: item.h }
                 }
+            })
+            this.propWidget.settings.responsive.columnLayouts[this.currentScreenSize] = columnLayout
+        },
+        initializeGridLayout() {
+            const breakpoints = ['lg', 'md', 'sm', 'xs', 'xxs'] as const
+            const hasColumnLayouts = !!this.propWidget.settings?.responsive?.columnLayouts
+            const legacyLayout = hasColumnLayouts ? null : (this.propWidget.settings?.responsive?.columnLayout ?? null)
+
+            breakpoints.forEach((bp) => {
+                const savedLayout = hasColumnLayouts ? (this.propWidget.settings?.responsive?.columnLayouts?.[bp] ?? null) : bp === 'lg' ? legacyLayout : null
+                const halfCols = Math.floor(this.colSizes[bp] / 2)
+
+                this.responsiveLayouts[bp] = this.gridItems.map((item: any, index: number) => {
+                    const saved = savedLayout?.[item.columnName]
+                    return {
+                        x: saved?.x ?? (index % 2) * halfCols,
+                        y: saved?.y ?? Math.floor(index / 2) * 2,
+                        w: saved?.w ?? halfCols,
+                        h: saved?.h ?? 2,
+                        i: item.columnName,
+                        columnName: item.columnName,
+                        static: false,
+                        dragIgnoreFrom: '.q-slider__thumb, .q-range__thumb'
+                    }
+                })
             })
         },
         //#endregion =============================================================================
