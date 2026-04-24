@@ -230,6 +230,7 @@ import { useI18n } from 'vue-i18n'
 import axios from '@/axios.js'
 import mainStore from '@/App.store'
 import { addDefaultHrefToDynamicHomePlaceholders, normalizeDynamicHomeTemplate, stripHrefFromDynamicHomePlaceholders } from '@/helpers/commons/dynamicHomeHelper'
+import { getRouteDocumentType } from '@/helpers/commons/documentRouteHelper'
 import HomeManagementDynamicEditor from './detail/HomeManagementDynamicEditor.vue'
 import { IHomeConfig, IDynamicHomeTemplate } from './HomeManagement'
 import deepcopy from 'deepcopy'
@@ -249,6 +250,7 @@ const staticPages = ref<{ id: number; name: string }[]>([])
 const staticPagesLoading = ref(false)
 const documents = ref<any[]>([])
 const docsLoading = ref(false)
+const documentRouteType = ref('')
 const documentDialogVisible = ref(false)
 const docFilter = ref('')
 
@@ -301,8 +303,8 @@ const staticPagePreviewUrl = computed(() => {
 })
 
 const documentPreviewUrl = computed(() => {
-    if (!config.value.documentLabel) return ''
-    return import.meta.env.VITE_KNOWAGE_VUE_CONTEXT + '/dashboard/' + encodeURIComponent(config.value.documentLabel) + "&menu=false"
+    if (!config.value.documentLabel || !documentRouteType.value) return ''
+    return import.meta.env.VITE_KNOWAGE_VUE_CONTEXT + '/' + documentRouteType.value + '/' + encodeURIComponent(config.value.documentLabel) + '?menu=false'
 })
 
 async function loadRoles() {
@@ -358,13 +360,37 @@ async function loadDocuments() {
     }
 }
 
+async function resolveDocumentRouteType() {
+    const persistedRouteType = getRouteDocumentType(config.value)
+    if (persistedRouteType) {
+        documentRouteType.value = persistedRouteType
+        config.value.documentRouteType = persistedRouteType
+        return
+    }
+
+    documentRouteType.value = ''
+    const documentIdentifier = config.value.documentId ?? config.value.documentLabel
+    if (!documentIdentifier) return
+
+    try {
+        const res = await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/documents/' + documentIdentifier, { headers: { 'X-Disable-Errors': 'true' } })
+        const resolvedRouteType = getRouteDocumentType(res.data)
+        documentRouteType.value = resolvedRouteType
+        if (resolvedRouteType) config.value.documentRouteType = resolvedRouteType
+    } catch {
+        documentRouteType.value = ''
+    }
+}
+
 function onRoleChange(val: number | null) {
     loadConfig(val)
 }
 
-function onDocumentSelect(_evt: any, row: any) {
+async function onDocumentSelect(_evt: any, row: any) {
     config.value.documentId = row.DOCUMENT_ID
     config.value.documentLabel = row.DOCUMENT_LABEL || row.DOCUMENT_NAME
+    config.value.documentRouteType = ''
+    await resolveDocumentRouteType()
     documentDialogVisible.value = false
     dirty.value = true
 }
@@ -382,7 +408,7 @@ async function save() {
             }
         }
         if (payload.type !== 'static') delete payload.staticPage
-        if (payload.type !== 'document') { delete payload.documentId; delete payload.documentLabel }
+        if (payload.type !== 'document') { delete payload.documentId; delete payload.documentLabel; delete payload.documentRouteType }
         if (payload.type !== 'image') delete payload.imageUrl
         await axios.post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/homepage', payload)
         store.setInfo({ title: t('managers.homeManagement.saveTitle'), msg: t('managers.homeManagement.saveSuccess') })
@@ -404,6 +430,18 @@ watch(
     (newType) => {
         if (newType === 'static' && staticPages.value.length === 0) loadStaticPages()
         if (newType === 'document' && documents.value.length === 0) loadDocuments()
+    }
+)
+
+watch(
+    () => [config.value.type, config.value.documentId, config.value.documentLabel, config.value.documentRouteType],
+    ([type, documentId, documentLabel, persistedRouteType]) => {
+        if (type !== 'document' || (!documentId && !documentLabel && !persistedRouteType)) {
+            documentRouteType.value = ''
+            return
+        }
+
+        void resolveDocumentRouteType()
     }
 )
 

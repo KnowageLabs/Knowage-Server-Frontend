@@ -24,6 +24,7 @@ export interface IHomeConfig {
     /** document: Knowage document ID */
     documentId?: number
     documentLabel?: string
+    documentRouteType?: string
     /** image: public URL of the image */
     imageUrl?: string
     /** dynamic: HTML/CSS template with menu placeholders */
