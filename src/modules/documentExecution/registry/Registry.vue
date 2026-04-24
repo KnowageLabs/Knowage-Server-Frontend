@@ -49,6 +49,7 @@
 import { defineComponent } from 'vue'
 import { AxiosResponse } from 'axios'
 import registryDescriptor from './RegistryDescriptor.json'
+import { getRegistryRenderedRowLimit, normalizeRegistryPaginationState, shouldUseServerPagination } from './RegistryPaginationHelper'
 import RegistryDatatable from './tables/RegistryDatatable.vue'
 import RegistryPivotDatatable from './tables/RegistryPivotDatatable.vue'
 import RegistryFiltersCard from './RegistryFiltersCard.vue'
@@ -73,7 +74,7 @@ export default defineComponent({
             columns: [] as any[],
             rows: [] as any[],
             columnMap: {} as any,
-            pagination: { start: 0, limit: 15 } as any,
+            pagination: normalizeRegistryPaginationState(null) as any,
             updatedRows: [] as any,
             filters: [] as any[],
             selectedFilters: [] as any[],
@@ -112,10 +113,6 @@ export default defineComponent({
         async loadRegistry() {
             const postData = new URLSearchParams()
 
-            if (this.pagination.size > registryDescriptor.paginationLimit) {
-                postData.append('limit', '' + registryDescriptor.paginationNumberOfItems)
-            }
-
             this.selectedFilters.forEach((el: any) => {
                 if (el.filterValue) {
                     postData.append(el.field, el.filterValue)
@@ -123,6 +120,9 @@ export default defineComponent({
             })
 
             postData.append('start', '' + this.pagination.start)
+            if (shouldUseServerPagination(this.pagination)) {
+                postData.append('limit', '' + this.pagination.limit)
+            }
 
             if (this.sortModel && this.sortModel.fieldName && this.sortModel.orderType) {
                 postData.append('fieldName', '' + this.sortModel.fieldName)
@@ -132,11 +132,14 @@ export default defineComponent({
             await this.$http
                 .post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=LOAD_REGISTRY_ACTION&SBI_EXECUTION_ID=${this.id}`, postData)
                 .then((response: AxiosResponse<any>) => {
-                    this.pagination.size = response.data.results
                     this.registry = response.data
+                    this.loadPagination(response.data)
                     this.loadKeyColumnName(response.data.metaData.fields)
                 })
                 .catch(() => {})
+        },
+        loadPagination(data: any) {
+            this.pagination = normalizeRegistryPaginationState(data.registryConfig?.pagination, this.pagination, data.results)
         },
         loadKeyColumnName(fieldsMetadata) {
             const keyColumn = fieldsMetadata.find((field) => field.keyColumn === true)
@@ -182,7 +185,7 @@ export default defineComponent({
         },
         loadRows(resetRows = false as boolean) {
             if (resetRows) this.rows = []
-            const limit = this.pagination.size <= registryDescriptor.paginationLimit ? this.registry.rows.length : registryDescriptor.paginationNumberOfItems
+            const limit = getRegistryRenderedRowLimit(this.pagination, this.registry.rows.length)
             for (let i = 0; i < limit; i++) {
                 const tempRow = {} as any
                 if (!this.registry.rows[i]) break
@@ -314,14 +317,16 @@ export default defineComponent({
         },
         async updatePagination(lazyParams: any) {
             this.pagination = {
-                start: lazyParams.paginationStart,
-                limit: lazyParams.paginationLimit,
-                size: lazyParams.size
+                ...this.pagination,
+                start: lazyParams.paginationStart ?? this.pagination.start,
+                limit: lazyParams.paginationLimit ?? this.pagination.limit,
+                size: lazyParams.size ?? this.pagination.size,
+                enabled: lazyParams.enabled ?? this.pagination.enabled
             }
 
-            if (this.pagination.size > registryDescriptor.paginationLimit) {
+            if (shouldUseServerPagination(this.pagination)) {
                 this.updatedRows = []
-                await this.reloadRegistryData()
+                await this.reloadRegistryData(this.pagination.enabled)
             }
         },
         formatPivotRows(row: any) {

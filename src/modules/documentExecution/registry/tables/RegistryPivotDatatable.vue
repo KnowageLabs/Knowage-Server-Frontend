@@ -7,7 +7,7 @@
         :entity="entity"
         :pagination="pagination"
         :combo-column-options="comboColumnOptions"
-        :number-of-rows="registryDescriptor.paginationNumberOfItems"
+        :number-of-rows="pagination.limit ?? registryDescriptor.paginationNumberOfItems"
         @rowChanged="onRowChanged"
         @pageChanged="onPageChange"
         @dropdownOpened="addColumnOptions"
@@ -70,23 +70,25 @@ export default defineComponent({
         },
         loadRows() {
             this.tempRows = this.rows
+            this.lazy = Boolean(this.propPagination?.enabled)
 
-            if (this.tempRows.length <= registryDescriptor.paginationLimit) {
+            if (!this.lazy && this.tempRows.length <= registryDescriptor.paginationLimit) {
                 this.lazy = false
-                this.tempRows = this.tempRows.slice(0, registryDescriptor.paginationNumberOfItems)
+                this.tempRows = this.tempRows.slice(0, this.pagination.limit ?? registryDescriptor.paginationNumberOfItems)
             }
         },
         onRowChanged(row: any) {
             this.$emit('rowChanged', row)
         },
         loadPagination() {
-            this.pagination = this.propPagination
+            this.pagination = { ...(this.propPagination ?? {}) }
+            this.lazy = Boolean(this.pagination?.enabled)
         },
         onPageChange(event: any) {
             if (this.lazy) {
                 this.$emit('pageChanged', event)
             } else {
-                this.tempRows = this.rows.slice(event.paginationStart, event.paginationStart + registryDescriptor.paginationNumberOfItems)
+                this.tempRows = this.rows.slice(event.paginationStart, event.paginationStart + (event.paginationLimit ?? this.pagination.limit ?? registryDescriptor.paginationNumberOfItems))
                 this.$emit('resetRows')
             }
         },

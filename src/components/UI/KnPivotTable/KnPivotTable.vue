@@ -35,32 +35,36 @@
             </table>
         </div>
 
-        <Paginator
-            v-if="paginatorEnabled"
-            v-model:first="first"
-            :rows="numberOfRows"
-            :total-records="lazyParams.size"
-            :current-page-report-template="
-                $t('common.table.footer.paginated', {
-                    first: '{first}',
-                    last: '{last}',
-                    totalRecords: '{totalRecords}'
-                })
-            "
-            paginator-template="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
-            @page="onPage($event)"
-        ></Paginator>
+        <div v-if="paginatorEnabled" class="pivot-pagination">
+            <span class="pivot-pagination__report">{{ paginationReport }}</span>
+            <QPagination
+                data-test="pivot-paginator"
+                :model-value="currentPage"
+                :max="maxPages"
+                size="sm"
+                color="primary"
+                active-color="primary"
+                flat
+                unelevated
+                :max-pages="5"
+                :boundary-links="false"
+                :boundary-numbers="false"
+                :direction-links="true"
+                :ellipses="true"
+                @update:model-value="onPageChange"
+            />
+        </div>
         <RegistryDatatableWarningDialog :visible="warningVisible" :columns="dependentColumns" @close="onWarningDialogClose"></RegistryDatatableWarningDialog>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
+import { QPagination } from 'quasar'
 import { formatNumberWithLocale, primeVueDate, localeDate } from '@/helpers/commons/localeHelper'
 import { luxonFormatDate, formatDateWithLocale } from '@/helpers/commons/localeHelper'
 import Checkbox from 'primevue/checkbox'
 import KnPivotTableEditableField from './KnPivotTableEditableField.vue'
-import Paginator from 'primevue/paginator'
 import RegistryDatatableWarningDialog from '@/modules/documentExecution/registry/tables/RegistryDatatableWarningDialog.vue'
 import descriptor from '@/modules/documentExecution/registry/tables/RegistryDatatableDescriptor.json'
 
@@ -68,7 +72,7 @@ import descriptor from '@/modules/documentExecution/registry/tables/RegistryData
 
 export default defineComponent({
     name: 'kn-pivot-table',
-    components: { Checkbox, KnPivotTableEditableField, Paginator, RegistryDatatableWarningDialog },
+    components: { Checkbox, KnPivotTableEditableField, QPagination, RegistryDatatableWarningDialog },
     props: {
         columns: [] as any,
         rows: [] as any,
@@ -92,13 +96,30 @@ export default defineComponent({
             warningVisible: false,
             stopWarnings: [] as any[],
             lazyParams: {} as any,
-            first: 0,
             paginatorEnabled: false
         }
     },
     computed: {
         getCurrentLocaleDefaultDateFormat() {
             return (column) => (column.isEditable ? column.format || primeVueDate() : localeDate())
+        },
+        rowsPerPage() {
+            return this.lazyParams?.limit || this.numberOfRows
+        },
+        currentPage() {
+            if (!this.rowsPerPage) return 1
+            return Math.floor((this.lazyParams?.start ?? 0) / this.rowsPerPage) + 1
+        },
+        maxPages() {
+            if (!this.rowsPerPage) return 1
+            return Math.max(1, Math.ceil((this.lazyParams?.size ?? 0) / this.rowsPerPage))
+        },
+        paginationReport() {
+            const totalRows = this.lazyParams?.size ?? 0
+            const start = this.lazyParams?.start ?? 0
+            const firstRow = totalRows > 0 ? start + 1 : 0
+            const lastRow = totalRows > 0 ? Math.min(start + this.rowsPerPage, totalRows) : 0
+            return this.$t('common.table.footer.paginated', { first: firstRow, last: lastRow, totalRecords: totalRows })
         }
     },
     watch: {
@@ -112,7 +133,6 @@ export default defineComponent({
         pagination: {
             handler() {
                 this.loadPagination()
-                this.first = this.pagination?.start
             },
             deep: true
         },
@@ -174,13 +194,17 @@ export default defineComponent({
         },
         loadPagination() {
             this.lazyParams = { ...this.pagination } as any
+            this.paginatorEnabled = Boolean(this.lazyParams?.enabled)
         },
-        onPage(event: any) {
+        onPageChange(page: number) {
+            const pageSize = this.rowsPerPage
+            const start = (page - 1) * pageSize
             this.lazyParams = {
-                paginationStart: event.first,
-                paginationLimit: event.rows,
-                paginationEnd: event.first + event.rows,
-                size: this.lazyParams.size
+                paginationStart: start,
+                paginationLimit: pageSize,
+                paginationEnd: start + pageSize,
+                size: this.lazyParams.size,
+                enabled: this.lazyParams.enabled
             }
             this.$emit('pageChanged', this.lazyParams)
         },
@@ -267,5 +291,20 @@ export default defineComponent({
 
 .pivot-table .summary-row {
     font-weight: bold;
+}
+
+.pivot-pagination {
+    align-items: center;
+    border-top: 1px solid rgb(0 0 0 / 8%);
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-start;
+    min-height: 40px;
+    padding: 0.5rem 0.75rem;
+}
+
+.pivot-pagination__report {
+    color: rgb(0 0 0 / 60%);
+    font-size: 0.875rem;
 }
 </style>
