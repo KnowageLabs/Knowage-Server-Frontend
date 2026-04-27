@@ -4,7 +4,7 @@
             <div v-for="(crossNavigationConfig, index) in crossNavigationConfiguration.crossNavigationVizualizationTypes" :key="index" class="p-col-12 p-fluid p-formgrid p-grid">
                 <div class="p-col-12 p-fluid p-formgrid p-grid p-ai-center">
                     <q-select filled dense class="p-sm-12 p-md-4" v-model="crossNavigationConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options options-dense option-label="label" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="crossNavigationDisabled" @update:modelValue="onVizualizationTypeChange(crossNavigationConfig)"></q-select>
-                    <q-select filled dense class="p-col-3 q-ml-sm" v-model="crossNavigationConfig.name" :options="crossNavigationOptions" emit-value map-options option-label="name" option-value="name" options-dense :label="$t('dashboard.widgetEditor.interactions.crossNavigationName')" :disable="crossNavigationDisabled" @update:modelValue="onCrossNavigationSelected(crossNavigationConfig, $event)"></q-select>
+                    <q-select filled dense class="p-col-3 q-ml-sm" v-model="crossNavigationConfig.id" :options="crossNavigationOptions" emit-value map-options option-label="name" option-value="id" options-dense :label="$t('dashboard.widgetEditor.interactions.crossNavigationName')" :disable="crossNavigationDisabled" @update:modelValue="onCrossNavigationSelected(crossNavigationConfig, $event)"></q-select>
                     <q-select filled dense class="p-col-3" v-model="crossNavigationConfig.column" :options="availableColumns(crossNavigationConfig.vizualizationType)" emit-value map-options :option-label="getTargetLayerType(crossNavigationConfig) === 'layer' ? 'property' : 'name'" options-dense :label="$t('common.column')" :disable="crossNavigationDisabled"></q-select>
 
                     <Button v-if="index === 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" @click="addCrossNavigationConfiguration" />
@@ -103,8 +103,13 @@ export default defineComponent({
                 if (this.crossNavigationConfiguration) {
                     this.crossNavigationConfiguration.crossNavigationVizualizationTypes.forEach((config: IMapWidgetCrossNavigationVisualizationTypeConfig) => {
                         if (config.name && !config.id) {
+                            // backward-compat: old models only stored name, no id — fill the id from the server list
                             const match = this.crossNavigationOptions.find((opt: any) => opt.name === config.name)
                             if (match) config.id = match.id
+                        } else if (config.id) {
+                            // refresh the name in case the cross-navigation was renamed on the server
+                            const match = this.crossNavigationOptions.find((opt: any) => opt.id === config.id)
+                            if (match) config.name = match.name
                         }
                     })
                 }
@@ -209,7 +214,7 @@ export default defineComponent({
             ;(this as any).setLoading?.(true)
             const rawProperties = await getPropertiesByLayerLabel(targetLayer.label, this.dashboardId)
             ;(this as any).setLoading?.(false)
-            const properties = (rawProperties || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.name ?? p.property ?? p), alias: String(p.alias ?? p.name ?? p.property ?? p) } as IMapWidgetLayerProperty))
+            const properties = (rawProperties || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.name ?? p.property ?? p), alias: String(p.alias ?? p.name ?? p.property ?? p) }) as IMapWidgetLayerProperty)
             ;(this as any).propertiesCache?.set(targetLayer.layerId, properties)
             visualization.properties = properties
         },
@@ -217,7 +222,7 @@ export default defineComponent({
             this.setLoading(true)
             const raw = await getPropertiesByLayerLabel(targetLayer.label, this.dashboardId)
             this.setLoading(false)
-            const properties = (raw || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.name ?? p.property ?? p), alias: String(p.alias ?? p.name ?? p.property ?? p) } as IMapWidgetLayerProperty))
+            const properties = (raw || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.name ?? p.property ?? p), alias: String(p.alias ?? p.name ?? p.property ?? p) }) as IMapWidgetLayerProperty)
             this.propertiesCache.set(targetLayer.layerId, properties)
             visualization.properties = properties
 
@@ -228,9 +233,12 @@ export default defineComponent({
             if (this.crossNavigationConfiguration) this.crossNavigationConfiguration.crossNavigationVizualizationTypes.push({ vizualizationType: null, column: { name: '', alias: '', type: '' }, name: '', parameters: [] })
             this.loadParameterList()
         },
-        onCrossNavigationSelected(config: IMapWidgetCrossNavigationVisualizationTypeConfig, selectedName: string) {
-            const match = this.crossNavigationOptions.find((opt: any) => opt.name === selectedName)
-            if (match) config.id = match.id
+        onCrossNavigationSelected(config: IMapWidgetCrossNavigationVisualizationTypeConfig, selectedId: number) {
+            const match = this.crossNavigationOptions.find((opt: any) => opt.id === selectedId)
+            if (match) {
+                config.id = match.id
+                config.name = match.name
+            }
         },
         removeCrossNavigationConfiguration(index: number) {
             if (this.crossNavigationDisabled) return
@@ -241,7 +249,7 @@ export default defineComponent({
 
             const selectedLabels = this.crossNavigationConfiguration.crossNavigationVizualizationTypes
                 .map((crossNavigationConfig: IMapWidgetCrossNavigationVisualizationTypeConfig, index: number) => {
-                    return index !== currentIndex ? crossNavigationConfig.vizualizationType?.label ?? null : null
+                    return index !== currentIndex ? (crossNavigationConfig.vizualizationType?.label ?? null) : null
                 })
                 .filter((t): t is string => !!t)
 
