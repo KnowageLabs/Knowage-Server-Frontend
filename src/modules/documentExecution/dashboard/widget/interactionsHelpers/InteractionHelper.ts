@@ -233,7 +233,7 @@ const getFormattedImageWidgetOutputParameters = (crossNavigationModel: IWidgetCr
 
 export const executePivotTableWidgetCrossNavigation = (outputParameters: IWidgetInteractionParameter[], crossNavigationModel: IWidgetCrossNavigation, dashboardId: string) => {
     const formattedOutputParameters = getFormattedPivotTableOutputParameters(outputParameters, crossNavigationModel, dashboardId)
-    executeCrossNavigation(formattedOutputParameters, crossNavigationModel.name, dashboardId)
+    executeCrossNavigation(formattedOutputParameters, crossNavigationModel.name, dashboardId, crossNavigationModel.id)
 }
 
 const getFormattedPivotTableOutputParameters = (outputParameters: IWidgetInteractionParameter[], crossNavigationModel: IWidgetCrossNavigation, dashboardId: string) => {

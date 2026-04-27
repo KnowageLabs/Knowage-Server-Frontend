@@ -44,7 +44,7 @@
             <div class="p-sm-10 p-md-5 p-d-flex p-flex-row p-ai-center">
                 <div class="p-d-flex p-flex-column kn-flex p-mx-2">
                     <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.interactions.crossNavigationName') }}</label>
-                    <Dropdown v-model="crossNavigationModel.name" class="kn-material-input" :options="crossNavigationOptions" option-label="name" option-value="name" :disabled="crossNavigationDisabled" @change="onCrossNavigationSelected"> </Dropdown>
+                    <Dropdown v-model="crossNavigationModel.id" class="kn-material-input" :options="crossNavigationOptions" option-label="name" option-value="id" :disabled="crossNavigationDisabled" @change="onCrossNavigationSelected"> </Dropdown>
                 </div>
             </div>
             <div v-if="crossNavigationModel.type === 'icon'" class="p-col-2 p-p-4">
@@ -148,8 +148,13 @@ export default defineComponent({
             if (temp) {
                 this.crossNavigationOptions = temp.map((crossNavigation: any) => ({ id: crossNavigation.crossId, name: crossNavigation.crossName }))
                 if (this.crossNavigationModel?.name && !this.crossNavigationModel?.id) {
+                    // backward-compat: old models only stored name, no id — fill the id from the server list
                     const match = this.crossNavigationOptions.find((opt: any) => opt.name === this.crossNavigationModel!.name)
                     if (match) this.crossNavigationModel.id = match.id
+                } else if (this.crossNavigationModel?.id) {
+                    // refresh the name in case the cross-navigation was renamed on the server
+                    const match = this.crossNavigationOptions.find((opt: any) => opt.id === this.crossNavigationModel!.id)
+                    if (match) this.crossNavigationModel.name = match.name
                 }
             }
         },
@@ -193,8 +198,11 @@ export default defineComponent({
         },
         onCrossNavigationSelected(event: any) {
             if (!this.crossNavigationModel) return
-            const selected = this.crossNavigationOptions.find((opt: any) => opt.name === event.value)
-            if (selected) this.crossNavigationModel.id = selected.id
+            const selected = this.crossNavigationOptions.find((opt: any) => opt.id === event.value)
+            if (selected) {
+                this.crossNavigationModel.id = selected.id
+                this.crossNavigationModel.name = selected.name
+            }
         },
         onInteractionTypeChanged() {
             if (this.crossNavigationModel && this.crossNavigationModel.type !== 'icon') delete this.crossNavigationModel.icon

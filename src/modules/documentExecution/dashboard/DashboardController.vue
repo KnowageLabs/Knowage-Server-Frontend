@@ -457,19 +457,31 @@ export default defineComponent({
         migrateCrossNavigationIds() {
             if (!this.model?.widgets || !this.crossNavigations?.length) return
             const nameToId = new Map<string, number>()
-            this.crossNavigations.forEach((cn: any) => { if (cn.crossName && cn.crossId) nameToId.set(cn.crossName, cn.crossId) })
+            const idToName = new Map<number, string>()
+            this.crossNavigations.forEach((cn: any) => {
+                if (cn.crossName && cn.crossId) {
+                    nameToId.set(cn.crossName, cn.crossId)
+                    idToName.set(cn.crossId, cn.crossName)
+                }
+            })
             this.model.widgets.forEach((widget: any) => {
                 const crossNav = widget.settings?.interactions?.crossNavigation
                 if (!crossNav) return
                 // standard widgets
                 if (crossNav.name && !crossNav.id && nameToId.has(crossNav.name)) {
+                    // backward-compat: old model only stored name — fill id from server list
                     crossNav.id = nameToId.get(crossNav.name)
+                } else if (crossNav.id && idToName.has(crossNav.id)) {
+                    // refresh stale name in case the cross-navigation was renamed on the server
+                    crossNav.name = idToName.get(crossNav.id)
                 }
                 // map widgets
                 if (Array.isArray(crossNav.crossNavigationVizualizationTypes)) {
                     crossNav.crossNavigationVizualizationTypes.forEach((config: any) => {
                         if (config.name && !config.id && nameToId.has(config.name)) {
                             config.id = nameToId.get(config.name)
+                        } else if (config.id && idToName.has(config.id)) {
+                            config.name = idToName.get(config.id)
                         }
                     })
                 }
