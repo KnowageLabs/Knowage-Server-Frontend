@@ -32,10 +32,17 @@ describe('Home dynamic navigation', () => {
                 }
             },
             locale: 'it_IT',
+            user: {
+                defaultRole: null,
+                attributes: {
+                    roles: ''
+                }
+            },
             dynamicMenuNodes: [],
             dynamicSrcdoc: '',
             dynamicHomeSyntheticMenuId: -1,
             dynamicHomeFrameDocument: null,
+            setHomePage: vi.fn(),
             $i18n: {
                 fallbackLocale: {
                     toString: () => 'en-US'
@@ -138,5 +145,49 @@ describe('Home dynamic navigation', () => {
 
         expect(preventDefault).toHaveBeenCalled()
         expect(context.$router.push).toHaveBeenCalledWith('/workspace')
+    })
+
+    it('builds homepage document routes using the resolved document type', async () => {
+        mockAxiosGet
+            .mockResolvedValueOnce({ data: [] })
+            .mockResolvedValueOnce({
+                data: {
+                    type: 'document',
+                    documentId: 42,
+                    documentLabel: 'Sales'
+                }
+            })
+            .mockResolvedValueOnce({
+                data: {
+                    label: 'Sales',
+                    typeCode: 'DASHBOARD'
+                }
+            })
+
+        const setHomePage = vi.fn()
+        const context = createContext({ setHomePage })
+
+        await methods.loadHomePage.call(context)
+
+        expect(mockAxiosGet).toHaveBeenNthCalledWith(3, '/knowage/restful-services/2.0/documents/42', { headers: { 'X-Disable-Errors': 'true' } })
+        expect(setHomePage).toHaveBeenCalledWith(
+            expect.objectContaining({
+                label: 'Sales',
+                to: '/dashboard/Sales',
+                documentRouteType: 'dashboard'
+            })
+        )
+    })
+
+    it('routes supported homepage document paths through the Vue router', async () => {
+        const context = createContext({
+            homePage: {
+                to: '/dashboard/Sales'
+            }
+        })
+
+        await methods.setCompleteUrl.call(context)
+
+        expect(context.$router.push).toHaveBeenCalledWith('/dashboard/Sales')
     })
 })

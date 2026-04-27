@@ -6,16 +6,6 @@ import deepcopy from 'deepcopy'
 import { getAllColumnsOfSpecificTypeFromDataResponse, setRegularData, setGroupedCategoriesData, setGroupedBySeriesData, setGroupedByCategoriesData } from './helpers/setData/HighchartsSetDataHelpers'
 import { updateSeriesLabelSettingsWhenAllOptionIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 
-const removeLegacyDefaultBarAxisOffset = (model: any) => {
-    const xAxes = Array.isArray(model?.xAxis) ? model.xAxis : model?.xAxis ? [model.xAxis] : []
-
-    xAxes.forEach((axis: any) => {
-        // Older saved bar-family models can still persist the temporary default `labels.x = -12`.
-        // Removing only that exact legacy value lets current defaults and render-time normalization take over.
-        if (axis?.labels?.x === -12) delete axis.labels.x
-    })
-}
-
 export class KnowageHighchartsBarChart extends KnowageHighcharts {
     constructor(model: any, type: 'area' | 'bar' | 'column', isStacked: boolean) {
         super()
@@ -23,7 +13,6 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
         if (model && model.CHART) this.updateModel(deepcopy(model))
         else if (model && model.plotOptions) {
             this.model = deepcopy(model)
-            removeLegacyDefaultBarAxisOffset(this.model)
             if (!['area', 'bar', 'column'].includes(model.chart.type)) this.setSpecificOptionsDefaultValues()
         }
         if (isStacked && this.model.plotOptions) this.model.plotOptions.series.stacking = this.model.plotOptions.series.stacking ?? 'normal'

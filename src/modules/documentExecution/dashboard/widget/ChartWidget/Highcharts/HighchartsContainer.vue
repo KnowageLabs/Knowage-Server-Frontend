@@ -104,6 +104,7 @@ import HighchartsWordcloud from 'highcharts/modules/wordcloud'
 import HighchartsAnnotations from 'highcharts/modules/annotations'
 import { getWidgetData } from '../../../DashboardDataProxy'
 import { getColumnAlias } from '../classes/highcharts/helpers/dataLabels/HighchartsDataLabelsHelpers'
+import { getDrilldownDataLabelColor } from './HighchartsDrilldownHelpers'
 
 HighchartsMore(Highcharts)
 HighchartsSolidGauge(Highcharts)
@@ -264,11 +265,13 @@ export default defineComponent({
             this.highchartsInstance.reflow = function () {}
             window.addEventListener('mouseup', () => {
                 this.highchartsInstance?.reflow()
+                this.scheduleDrilldownPresentationNormalization()
             })
             const handleMouseUp = () => {
                 if (this.highchartsInstance && this.originalReflow) {
                     this.originalReflow.call(this.highchartsInstance)
                 }
+                this.scheduleDrilldownPresentationNormalization()
             }
 
             window.addEventListener('mouseup', handleMouseUp)
@@ -368,6 +371,7 @@ export default defineComponent({
                 if (this.highchartsInstance && typeof this.highchartsInstance.reflow === 'function') {
                     this.highchartsInstance.reflow()
                 }
+                this.normalizeDrilldownPresentation()
             } catch (error: any) {
                 this.setError({
                     title: this.$t('common.toast.errorTitle'),
@@ -394,6 +398,136 @@ export default defineComponent({
                     el.classList.remove(horizontalAlignment ? 'custom-checkbox-style-vertical' : 'custom-checkbox-style-horizontal')
                 })
             }, 100)
+        },
+        normalizeDrilldownPresentation() {
+            this.normalizeDrilldownDataLabels()
+            this.normalizeDrilldownAxisLabels()
+        },
+        scheduleDrilldownPresentationNormalization() {
+            setTimeout(() => this.normalizeDrilldownPresentation(), 0)
+        },
+        normalizeDrilldownDataLabels() {
+            if (!this.highchartsInstance?.series || !this.highchartsInstance?.renderer?.getContrast) return
+            const chartBackgroundColor = this.getResolvedChartBackgroundColor()
+            const getContrast = this.highchartsInstance.renderer.getContrast.bind(this.highchartsInstance.renderer)
+
+            this.highchartsInstance.series.forEach((serie: any) => {
+                serie.points?.forEach((point: any) => {
+                    if (!point?.drilldown || !point.dataLabel) return
+
+                    const configuredDataLabels = point.options?.dataLabels ?? serie.options?.dataLabels ?? {}
+                    const configuredStyle = {
+                        ...(serie.options?.dataLabels?.style ?? {}),
+                        ...(configuredDataLabels?.style ?? {})
+                    }
+
+                    point.dataLabel.removeClass?.('highcharts-drilldown-data-label')
+                    point.dataLabel.css({
+                        color: getDrilldownDataLabelColor({
+                            chartBackgroundColor,
+                            configuredColor: configuredStyle.color,
+                            configuredDataLabels,
+                            getContrast,
+                            point
+                        }),
+                        fontWeight: configuredStyle.fontWeight ?? 'normal',
+                        textDecoration: 'underline'
+                    })
+                })
+            })
+        },
+        normalizeDrilldownAxisLabels() {
+            if (this.normalizeDrilldownAxisLayout()) {
+                this.scheduleDrilldownPresentationNormalization()
+                return
+            }
+
+            const axes = [...(this.highchartsInstance?.xAxis ?? []), ...(this.highchartsInstance?.yAxis ?? [])]
+            const chartBackgroundColor = this.getResolvedChartBackgroundColor()
+
+            axes.forEach((axis: any) => {
+                Object.values(axis.ticks ?? {}).forEach((tick: any) => {
+                    const label = tick?.label
+                    if (!label?.drillable) return
+                    const configuredStyle = {
+                        ...(label.basicStyles ?? {}),
+                        ...(axis.options?.labels?.style ?? {})
+                    }
+
+                    label.removeClass?.('highcharts-drilldown-axis-label')
+                    label.css({
+                        ...configuredStyle,
+                        color: this.getResolvedTextColor(configuredStyle.color, chartBackgroundColor),
+                        fontWeight: configuredStyle.fontWeight ?? 'normal',
+                        textDecoration: 'none'
+                    })
+                })
+            })
+        },
+        normalizeDrilldownAxisLayout() {
+            if (!this.highchartsInstance?.options?.chart || this.drillLevel < 1 || !this.widgetModel.settings.interactions.drilldown?.enabled) return false
+
+            const defaultLeftAxisLabelGap = 12
+            const isInverted = this.highchartsInstance.options.chart.type === 'bar' || this.highchartsInstance.options.chart.inverted === true
+            const runtimeAxes = (isInverted ? this.highchartsInstance.xAxis : this.highchartsInstance.yAxis) ?? []
+            const sourceAxes = (isInverted ? this.chartModel?.xAxis : this.chartModel?.yAxis) ?? []
+
+            const axesToAutoNormalize = runtimeAxes.filter((runtimeAxis: any, index: number) => {
+                const sourceAxis = sourceAxes[index]
+                return (
+                    runtimeAxis?.options?.labels &&
+                    sourceAxis?.labels?.align === 'left' &&
+                    (sourceAxis.labels.x == null || sourceAxis.labels.x >= 0 || Number(sourceAxis.labels.x) === -defaultLeftAxisLabelGap)
+                )
+            })
+            if (!axesToAutoNormalize.length) return false
+
+            const requiredLeftMargin = Math.max(
+                axesToAutoNormalize.reduce((maxMargin: number, axis: any) => Math.max(maxMargin, this.getRenderedAxisLabelWidth(axis) + defaultLeftAxisLabelGap), 0),
+                defaultLeftAxisLabelGap * 2
+            )
+
+            let layoutChanged = false
+
+            axesToAutoNormalize.forEach((axis: any) => {
+                if (axis.options.labels.x !== -requiredLeftMargin) {
+                    axis.update({ labels: { ...axis.options.labels, x: -requiredLeftMargin } }, false)
+                    layoutChanged = true
+                }
+            })
+
+            if (this.chartModel?.chart?.marginLeft == null && this.highchartsInstance.options.chart.marginLeft !== requiredLeftMargin) {
+                this.highchartsInstance.update({ chart: { marginLeft: requiredLeftMargin } }, false)
+                layoutChanged = true
+            }
+
+            if (layoutChanged) {
+                this.highchartsInstance.redraw(false)
+            }
+
+            return layoutChanged
+        },
+        getRenderedAxisLabelWidth(axis: any) {
+            return Object.values(axis?.ticks ?? {}).reduce((maxWidth: number, tick: any) => {
+                const renderedWidth = tick?.label?.getBBox?.().width
+                if (typeof renderedWidth === 'number' && renderedWidth > 0) return Math.max(maxWidth, Math.ceil(renderedWidth))
+
+                const labelText = `${tick?.label?.textStr ?? tick?.label?.element?.textContent ?? ''}`
+                if (!labelText) return maxWidth
+
+                const parsedFontSize = Number.parseInt(`${axis?.options?.labels?.style?.fontSize ?? ''}`, 10)
+                const fontSize = Number.isFinite(parsedFontSize) ? parsedFontSize : 12
+                const estimatedWidth = Math.ceil((labelText.length * fontSize * 11) / 20)
+                return Math.max(maxWidth, estimatedWidth)
+            }, 0)
+        },
+        getResolvedTextColor(color: string | undefined, backgroundColor: string) {
+            if (!color || color === 'contrast') return this.highchartsInstance.renderer.getContrast(backgroundColor)
+            return color
+        },
+        getResolvedChartBackgroundColor() {
+            const backgroundColor = this.highchartsInstance?.options?.chart?.backgroundColor
+            return typeof backgroundColor === 'string' && backgroundColor.trim() ? backgroundColor : '#ffffff'
         },
         updateLegendSettings() {
             if (this.chartModel.plotOptions.pie) this.chartModel.plotOptions.pie.showInLegend = true
@@ -438,6 +572,7 @@ export default defineComponent({
             this.drillLevel = event.seriesOptions._levelNumber
             this.drilldown = this.drilldown.slice(0, this.drillLevel)
             this.setSeriesEvents()
+            setTimeout(() => this.normalizeDrilldownPresentation(), 0)
         },
         async executeInteractions(event: any) {
             if (this.editorMode) return
@@ -481,6 +616,7 @@ export default defineComponent({
                 // })
                 if (!['heatmap', 'dependencywheel', 'sankey', 'spline'].includes(this.chartModel.chart.type)) this.widgetModel.settings.chartModel.updateSeriesLabelSettings(this.widgetModel)
                 this.setSeriesEvents()
+                this.scheduleDrilldownPresentationNormalization()
             } else if (this.widgetModel.settings.interactions.crossNavigation.enabled) {
                 if (!event.point) return
                 const formattedOutputParameters = formatForCrossNavigation(event, this.widgetModel.settings.interactions.crossNavigation, this.dataToShow, this.chartModel.chart.type)
@@ -545,6 +681,11 @@ export default defineComponent({
                     }
                 })
             })
+
+            if (typeof this.highchartsInstance.reflow === 'function') {
+                this.highchartsInstance.reflow()
+            }
+            this.scheduleDrilldownPresentationNormalization()
         },
         getModelForRender() {
             const formattedChartModel = deepcopy(this.chartModel)

@@ -26,6 +26,7 @@ import mainStore from '../App.store.js'
 import logo from '/images/commons/logo_knowage_white.svg'
 import axios from '@/axios.js'
 import { DYNAMIC_HOME_NAVIGATION_SELECTOR, renderDynamicHomeSrcdoc } from '@/helpers/commons/dynamicHomeHelper'
+import { getRouteDocumentType } from '@/helpers/commons/documentRouteHelper'
 import { normalizeMenuLocale, normalizeMenuRoute } from '@/helpers/commons/menuHelper'
 import type { IMenuNode } from '@/modules/managers/homeManagement/HomeManagement'
 
@@ -41,6 +42,11 @@ interface IEndUserMenuItem {
 interface IDynamicHomeMenuLookup {
     byRoute: Map<string, number | null>
     bySignature: Map<string, number | null>
+}
+
+interface IHomepageDocumentNavigation {
+    label: string
+    routeType: string
 }
 
 export default defineComponent({
@@ -81,8 +87,8 @@ export default defineComponent({
             this.dynamicHomeFrameDocument = null
         },
         onDynamicHomeDocumentClick(event: MouseEvent) {
-            const target = event.target as Element | null
-            if (!target || target.nodeType !== 1 || !target.hasAttribute('data-kn-menu-navigation')) return
+            const target = this.getDynamicHomeNavigationElement(event.target)
+            if (!target) return
 
             event.preventDefault()
             this.navigateDynamicHomeElement(target)
@@ -90,8 +96,8 @@ export default defineComponent({
         onDynamicHomeDocumentKeydown(event: KeyboardEvent) {
             if (event.key !== 'Enter' && event.key !== ' ') return
 
-            const target = event.target as Element | null
-            if (!target || target.nodeType !== 1 || !target.hasAttribute('data-kn-menu-navigation')) return
+            const target = this.getDynamicHomeNavigationElement(event.target)
+            if (!target) return
 
             event.preventDefault()
             this.navigateDynamicHomeElement(target)
@@ -197,6 +203,25 @@ export default defineComponent({
                 }
             })
         },
+        async resolveHomepageDocumentNavigation(config: any): Promise<IHomepageDocumentNavigation | null> {
+            const configLabel = (config?.documentLabel ?? '').trim()
+            const persistedRouteType = getRouteDocumentType(config)
+            if (configLabel && persistedRouteType) return { label: configLabel, routeType: persistedRouteType }
+
+            const documentIdentifier = config?.documentId ?? configLabel
+            if (!documentIdentifier) return null
+
+            try {
+                const response = await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/documents/' + documentIdentifier, { headers: { 'X-Disable-Errors': 'true' } })
+                const routeType = getRouteDocumentType(response.data)
+                const label = response.data?.label ?? configLabel
+                if (!label || !routeType) return null
+
+                return { label, routeType }
+            } catch {
+                return null
+            }
+        },
         async loadHomePage() {
             // Resolve numeric roleId from role name
             let roleId: number | null = null
@@ -227,10 +252,15 @@ export default defineComponent({
             if (config && config.type && config.type !== 'default') {
                 homePage.roleId = roleId
                 switch (config.type) {
-                    case 'document':
-                        homePage.label = config.documentLabel
-                        homePage.to = '/document-composite/execute?label=' + config.documentLabel
+                    case 'document': {
+                        const documentNavigation = await this.resolveHomepageDocumentNavigation(config)
+                        if (documentNavigation) {
+                            homePage.label = documentNavigation.label
+                            homePage.to = `/${documentNavigation.routeType}/${documentNavigation.label}`
+                            homePage.documentRouteType = documentNavigation.routeType
+                        } else if (config.documentLabel) homePage.label = config.documentLabel
                         break
+                    }
                     case 'static':
                         homePage.label = config.staticPage
                         homePage.url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/menu/htmls/' + config.staticPage
@@ -296,7 +326,18 @@ export default defineComponent({
             return to.startsWith('/document-browser') || to.startsWith('/workspace')
         },
         isADocument(to: string): boolean {
-            return to.startsWith('/dossier/') || to.startsWith('/map/') || to.startsWith('/kpi/') || to.startsWith('/office-doc/') || to.startsWith('/document-composite/')
+            return (
+                to.startsWith('/registry/') ||
+                to.startsWith('/dashboard/') ||
+                to.startsWith('/dossier/') ||
+                to.startsWith('/map/') ||
+                to.startsWith('/kpi/') ||
+                to.startsWith('/office-doc/') ||
+                to.startsWith('/document-composite/') ||
+                to.startsWith('/report/') ||
+                to.startsWith('/olap/') ||
+                to.startsWith('/etl/')
+            )
         }
     },
     computed: {

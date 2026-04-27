@@ -144,7 +144,8 @@
                 "fontSize": "",
                 "fontWeight": "",
                 "textOutline": "none"
-            }
+            },
+            "x": -12
         },
         "plotBands": [],
         "plotLines": [],

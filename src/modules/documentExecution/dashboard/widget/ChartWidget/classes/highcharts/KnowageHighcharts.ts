@@ -14,6 +14,7 @@ export class KnowageHighcharts {
     }
 
     getModel() {
+        this.ensureDrilldownStyles()
         return this.model
     }
 
@@ -44,11 +45,45 @@ export class KnowageHighcharts {
                     }
                 }
             },
+            drilldown: {
+                activeAxisLabelStyle: {
+                    fontWeight: 'normal',
+                    textDecoration: 'none'
+                },
+                activeDataLabelStyle: {
+                    cursor: 'pointer',
+                    fontWeight: 'normal',
+                    textDecoration: 'underline'
+                }
+            },
             legend: highchartsDefaultValues.getDefaultLegendSettings(),
             tooltip: highchartsDefaultValues.getDefaultTooltipSettings(),
             colors: [...chartColorSettingsDescriptor.defaultColors],
             annotations: highchartsDefaultValues.getDefaultAnnotations(),
             credits: { enabled: false }
+        }
+    }
+
+    ensureDrilldownStyles() {
+        const axisLabelStyle = { ...this.model.drilldown?.activeAxisLabelStyle }
+        const dataLabelStyle = { ...this.model.drilldown?.activeDataLabelStyle }
+        delete axisLabelStyle.color
+        delete axisLabelStyle.fontWeight
+        delete dataLabelStyle.color
+        delete dataLabelStyle.fontWeight
+        this.model.drilldown = {
+            ...this.model.drilldown,
+            activeAxisLabelStyle: {
+                ...axisLabelStyle,
+                fontWeight: 'normal',
+                textDecoration: 'none'
+            },
+            activeDataLabelStyle: {
+                ...dataLabelStyle,
+                cursor: 'pointer',
+                fontWeight: 'normal',
+                textDecoration: 'underline'
+            }
         }
     }
 
@@ -127,6 +162,7 @@ export class KnowageHighcharts {
     }
 
     updateChartColorSettings(widgetModel: IWidget) {
+        this.ensureDrilldownStyles()
         if (!this.model.plotOptions || !this.model.chart.type) return
         this.model.colors = [...widgetModel.settings.chart.colors]
     }

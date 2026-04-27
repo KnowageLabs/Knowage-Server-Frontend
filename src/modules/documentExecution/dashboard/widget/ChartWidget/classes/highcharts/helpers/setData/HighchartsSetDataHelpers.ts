@@ -50,6 +50,11 @@ const normalizeHighchartsNumericValue = (value: any): number | null => {
     return null
 }
 
+const getTotalAttributeColumns = (widgetModel: IWidget, attributeColumns: any[]) => {
+    const widgetAttributeColumns = widgetModel.columns?.filter((column: IWidgetColumn) => column.fieldType === 'ATTRIBUTE') ?? []
+    return widgetAttributeColumns.length > 0 ? widgetAttributeColumns.length : attributeColumns.length
+}
+
 export const setRegularData = (model: any, widgetModel: IWidget, data: any, attributeColumns: any[], measureColumns: any[], drilldownEnabled: boolean, dateFormat: string, variables: IVariable[], drillLevel = 0) => {
     // if (widgetModel?.settings?.sortingColumn && widgetModel?.settings?.sortingOrder && data?.rows && model?.chart?.type !== 'dumbbell') data = formatDataRowsWhenUsingTheExternalSortingColumn(data, widgetModel, measureColumns)
 
@@ -58,6 +63,7 @@ export const setRegularData = (model: any, widgetModel: IWidget, data: any, attr
 
     const columnAliases = widgetModel.settings?.series?.aliases ?? []
     const areaRangeColumns = [] as any[]
+    const totalAttributeColumns = getTotalAttributeColumns(widgetModel, attributeColumns)
 
 
     measureColumns.forEach((measureColumn: any, index: number) => {
@@ -77,7 +83,7 @@ export const setRegularData = (model: any, widgetModel: IWidget, data: any, attr
                     name: serieName,
                     y: normalizeHighchartsNumericValue(row[metadata.dataIndex]),
                     color: measureColumnConditionalStyle?.color || attributeColumnConditionalStyle?.color,
-                    drilldown: drilldownEnabled && drillLevel < attributeColumns.length - 1
+                    drilldown: drilldownEnabled && drillLevel < totalAttributeColumns - 1
                 })
                 if (!drilldownEnabled && model.xAxis && model.xAxis[0]) model.xAxis[0].categories.push(serieName)
             })
