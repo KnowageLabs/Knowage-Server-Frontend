@@ -125,6 +125,19 @@ export interface IHighchartsChartModel {
     legend: any
     tooltip: any
     colors: string[]
+    drilldown?: {
+        activeAxisLabelStyle?: {
+            color?: string
+            fontWeight?: string
+            textDecoration?: string
+        }
+        activeDataLabelStyle?: {
+            color?: string
+            cursor?: string
+            fontWeight?: string
+            textDecoration?: string
+        }
+    }
     credits: {
         enabled: boolean
     }

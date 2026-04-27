@@ -2,36 +2,69 @@ import { describe, expect, it } from 'vitest'
 import { KnowageHighchartsBarChart } from '../KnowageHighchartsBarChart'
 import { normalizeYAxisLabelsAlignment } from '../../../Highcharts/HighchartsModelFormattingHelpers'
 
+const createLegacyBarChartTemplate = () => ({
+    CHART: {
+        type: 'BAR',
+        orientation: 'horizontal',
+        AXES_LIST: {
+            AXIS: [{ style: { align: 'right' } }, { style: { align: 'left' } }]
+        },
+        VALUES: { SERIE: [] }
+    }
+})
+
 describe('KnowageHighchartsBarChart backward compatibility', () => {
-    it.each(['area', 'bar', 'column'] as const)('removes the legacy -12 x-axis offset when rehydrating saved %s models', (type) => {
-        const savedModel = new KnowageHighchartsBarChart(null, type, false).getModel()
-        savedModel.xAxis[0].labels.x = -12
-
-        const rehydratedModel = new KnowageHighchartsBarChart(savedModel, type, false).getModel()
-
-        expect(rehydratedModel.xAxis[0].labels.x).toBeUndefined()
-    })
-
-    it('lets saved bar charts pick up the current left-alignment normalization once the legacy offset is removed', () => {
+    it('preserves the standard -12 gap when bar models are rehydrated', () => {
         const savedModel = new KnowageHighchartsBarChart(null, 'bar', false).getModel()
-        savedModel.xAxis[0].labels.align = 'left'
         savedModel.xAxis[0].labels.x = -12
 
         const rehydratedModel = new KnowageHighchartsBarChart(savedModel, 'bar', false).getModel()
-        normalizeYAxisLabelsAlignment(rehydratedModel)
 
-        expect(rehydratedModel.xAxis[0].labels.x).toBe(-80)
-        expect((rehydratedModel.chart as any).marginLeft).toBe(80)
+        expect(rehydratedModel.xAxis[0].labels.x).toBe(-12)
     })
 
-    it('preserves custom negative offsets that do not match the legacy default', () => {
+    it('restores the standard gap for saved bar models that still have the old zero offset', () => {
+        const savedModel = new KnowageHighchartsBarChart(null, 'bar', false).getModel()
+        savedModel.xAxis[0].labels.x = 0
+
+        normalizeYAxisLabelsAlignment(savedModel)
+
+        expect(savedModel.xAxis[0].labels.x).toBe(-12)
+        expect((savedModel.chart as any).marginLeft).toBeUndefined()
+    })
+
+    it('applies a wider computed offset only when bar labels are explicitly left-aligned', () => {
+        const savedModel = new KnowageHighchartsBarChart(null, 'bar', false).getModel()
+        savedModel.xAxis[0].labels.align = 'left'
+        savedModel.xAxis[0].labels.style.fontSize = '10px'
+        savedModel.xAxis[0].categories = ['12345678901234567890']
+        savedModel.xAxis[0].labels.x = -12
+
+        normalizeYAxisLabelsAlignment(savedModel)
+
+        expect(savedModel.xAxis[0].labels.x).toBe(-122)
+        expect((savedModel.chart as any).marginLeft).toBe(122)
+    })
+
+    it('preserves custom negative offsets for explicit left alignment', () => {
         const savedModel = new KnowageHighchartsBarChart(null, 'bar', false).getModel()
         savedModel.xAxis[0].labels.align = 'left'
         savedModel.xAxis[0].labels.x = -20
 
-        const rehydratedModel = new KnowageHighchartsBarChart(savedModel, 'bar', false).getModel()
+        normalizeYAxisLabelsAlignment(savedModel)
+
+        expect(savedModel.xAxis[0].labels.x).toBe(-20)
+    })
+
+    it('applies the same computed left alignment offset to legacy CHART migrations', () => {
+        const rehydratedModel = new KnowageHighchartsBarChart(createLegacyBarChartTemplate(), 'bar', false).getModel()
+        rehydratedModel.xAxis[0].labels.style.fontSize = '10px'
+        rehydratedModel.xAxis[0].categories = ['12345678901234567890']
+
         normalizeYAxisLabelsAlignment(rehydratedModel)
 
-        expect(rehydratedModel.xAxis[0].labels.x).toBe(-20)
+        expect(rehydratedModel.xAxis[0].labels.align).toBe('left')
+        expect(rehydratedModel.xAxis[0].labels.x).toBe(-122)
+        expect((rehydratedModel.chart as any).marginLeft).toBe(122)
     })
 })
