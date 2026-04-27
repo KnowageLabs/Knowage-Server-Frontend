@@ -27,7 +27,7 @@ const baseRoutes = [
         path: '/externalUrl/',
         name: 'externalUrl',
         component: IframeRenderer,
-        props: (route) => ({ url: route.params.url, externalLink: true })
+        props: (route) => ({ url: route.query.url, externalLink: true })
     },
     {
         path: `${import.meta.env.VITE_KNOWAGE_CONTEXT}/servlet/:catchAll(.*)`,

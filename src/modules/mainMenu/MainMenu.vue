@@ -215,7 +215,7 @@ export default defineComponent({
                 this[item.command]()
             } else if (item.to) {
                 if (event.navigate) event.navigate(event.originalEvent)
-            } else if (item.url && (!item.target || item.target === 'insideKnowage')) this.$router.push({ name: 'externalUrl', params: { url: item.url } })
+            } else if (item.url && (!item.target || item.target === 'insideKnowage')) this.$router.push({ name: 'externalUrl', query: { url: item.url } })
             if (this.adminMenuOpened) this.adminMenuOpened = false
             this.hideItemMenu()
         },
