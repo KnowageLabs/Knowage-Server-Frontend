@@ -39,6 +39,7 @@ import HighchartsStreamgraph from 'highcharts/modules/streamgraph'
 import HighchartsWordcloud from 'highcharts/modules/wordcloud'
 import HighchartsAnnotations from 'highcharts/modules/annotations'
 import { getWidgetData } from '../../../DashboardDataProxy'
+import { getDrilldownDataLabelColor } from './HighchartsDrilldownHelpers'
 
 HighchartsMore(Highcharts)
 HighchartsSolidGauge(Highcharts)
@@ -153,11 +154,13 @@ export default defineComponent({
             this.highchartsInstance.reflow = function () {}
             window.addEventListener('mouseup', () => {
                 this.highchartsInstance?.reflow()
+                this.scheduleDrilldownPresentationNormalization()
             })
             const handleMouseUp = () => {
                 if (this.highchartsInstance && this.originalReflow) {
                     this.originalReflow.call(this.highchartsInstance)
                 }
+                this.scheduleDrilldownPresentationNormalization()
             }
 
             window.addEventListener('mouseup', handleMouseUp)
@@ -250,12 +253,81 @@ export default defineComponent({
                 if (this.highchartsInstance && typeof this.highchartsInstance.reflow === 'function') {
                     this.highchartsInstance.reflow()
                 }
+                this.normalizeDrilldownPresentation()
             } catch (error: any) {
                 this.setError({
                     title: this.$t('common.toast.errorTitle'),
                     msg: error ? error.message : ''
                 })
             }
+        },
+        normalizeDrilldownPresentation() {
+            this.normalizeDrilldownDataLabels()
+            this.normalizeDrilldownAxisLabels()
+        },
+        scheduleDrilldownPresentationNormalization() {
+            setTimeout(() => this.normalizeDrilldownPresentation(), 0)
+        },
+        normalizeDrilldownDataLabels() {
+            if (!this.highchartsInstance?.series || !this.highchartsInstance?.renderer?.getContrast) return
+            const chartBackgroundColor = this.getResolvedChartBackgroundColor()
+            const getContrast = this.highchartsInstance.renderer.getContrast.bind(this.highchartsInstance.renderer)
+
+            this.highchartsInstance.series.forEach((serie: any) => {
+                serie.points?.forEach((point: any) => {
+                    if (!point?.drilldown || !point.dataLabel) return
+
+                    const configuredDataLabels = point.options?.dataLabels ?? serie.options?.dataLabels ?? {}
+                    const configuredStyle = {
+                        ...(serie.options?.dataLabels?.style ?? {}),
+                        ...(configuredDataLabels?.style ?? {})
+                    }
+
+                    point.dataLabel.removeClass?.('highcharts-drilldown-data-label')
+                    point.dataLabel.css({
+                        color: getDrilldownDataLabelColor({
+                            chartBackgroundColor,
+                            configuredColor: configuredStyle.color,
+                            configuredDataLabels,
+                            getContrast,
+                            point
+                        }),
+                        fontWeight: configuredStyle.fontWeight ?? 'normal',
+                        textDecoration: 'underline'
+                    })
+                })
+            })
+        },
+        normalizeDrilldownAxisLabels() {
+            const axes = [...(this.highchartsInstance?.xAxis ?? []), ...(this.highchartsInstance?.yAxis ?? [])]
+            const chartBackgroundColor = this.getResolvedChartBackgroundColor()
+
+            axes.forEach((axis: any) => {
+                Object.values(axis.ticks ?? {}).forEach((tick: any) => {
+                    const label = tick?.label
+                    if (!label?.drillable) return
+                    const configuredStyle = {
+                        ...(label.basicStyles ?? {}),
+                        ...(axis.options?.labels?.style ?? {})
+                    }
+
+                    label.removeClass?.('highcharts-drilldown-axis-label')
+                    label.css({
+                        ...configuredStyle,
+                        color: this.getResolvedTextColor(configuredStyle.color, chartBackgroundColor),
+                        fontWeight: configuredStyle.fontWeight ?? 'normal',
+                        textDecoration: 'none'
+                    })
+                })
+            })
+        },
+        getResolvedTextColor(color: string | undefined, backgroundColor: string) {
+            if (!color || color === 'contrast') return this.highchartsInstance.renderer.getContrast(backgroundColor)
+            return color
+        },
+        getResolvedChartBackgroundColor() {
+            const backgroundColor = this.highchartsInstance?.options?.chart?.backgroundColor
+            return typeof backgroundColor === 'string' && backgroundColor.trim() ? backgroundColor : '#ffffff'
         },
         applyContrastColors(model: any) {
             const axes = [...(model.xAxis ?? []), ...(model.yAxis ?? [])]
@@ -320,6 +392,7 @@ export default defineComponent({
             this.drillLevel = event.seriesOptions._levelNumber
             this.drilldown = this.drilldown.slice(0, this.drillLevel)
             this.setSeriesEvents()
+            setTimeout(() => this.normalizeDrilldownPresentation(), 0)
         },
         async executeInteractions(event: any) {
             if (this.editorMode) return
@@ -363,6 +436,7 @@ export default defineComponent({
                 // })
                 if (!['heatmap', 'dependencywheel', 'sankey', 'spline'].includes(this.chartModel.chart.type)) this.widgetModel.settings.chartModel.updateSeriesLabelSettings(this.widgetModel)
                 this.setSeriesEvents()
+                this.normalizeDrilldownPresentation()
             } else if (this.widgetModel.settings.interactions.crossNavigation.enabled) {
                 if (!event.point) return
                 const formattedOutputParameters = formatForCrossNavigation(event, this.widgetModel.settings.interactions.crossNavigation, this.dataToShow, this.chartModel.chart.type)
@@ -427,6 +501,12 @@ export default defineComponent({
                     }
                 })
             })
+
+            if (typeof this.highchartsInstance.reflow === 'function') {
+                this.highchartsInstance.reflow()
+            }
+            this.scheduleDrilldownPresentationNormalization()
+
         },
         getModelForRender() {
             const formattedChartModel = deepcopy(this.chartModel)
