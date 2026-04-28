@@ -119,13 +119,13 @@
         text-overflow: ellipsis;
         vertical-align: middle;
         cursor: cell;
-        background-color: #ffffff;
+        background-color: var(--knr-col-color, #ffffff);
         position: relative;
         user-select: none; // prevent native text selection while drag-selecting cells
 
         // zebratura (righe pari)
         tr:nth-child(even) & {
-            background-color: #f8f9fa;
+            background-color: var(--knr-col-color, #f8f9fa);
         }
 
         // ── Varianti di stato ─────────────────────────────────────────────
@@ -146,14 +146,14 @@
 
         // Cella non editabile
         &.knr-cell-disabled {
-            background-color: rgba(231, 231, 231, 0.8) !important;
+            background-color: var(--knr-col-color, rgba(231, 231, 231, 0.8)) !important;
             opacity: 0.7;
             cursor: default;
         }
 
         // Cella modificata dall'utente
         &.knr-cell-edited {
-            background-color: #edf7e3 !important;
+            background-color: var(--knr-col-color, #edf7e3) !important;
             border-left: 3px solid var(--kn-color-success);
         }
 
