@@ -1849,7 +1849,8 @@
             "title": "documento registry",
             "warning": "attenzione",
             "warningCheckbox": "non mostrare di nuovo",
-            "warningDependences": "dipendono da questo valore. Si prega di controllarli e impostare i valori corretti!"
+            "warningDependences": "dipendono da questo valore. Si prega di controllarli e impostare i valori corretti!",
+            "dependsFromWarning": "La colonna '{column}' dipende dalla colonna '{dependsFrom}', si prega di controllarli ed impostare i valori corretti."
         }
     },
     "downloadsDialog": {

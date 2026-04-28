@@ -45,7 +45,7 @@
                 flat
                 unelevated
                 :max-pages="5"
-                :boundary-links="false"
+                :boundary-links="true"
                 :boundary-numbers="false"
                 :direction-links="true"
                 :ellipses="true"
@@ -55,6 +55,7 @@
     </div>
 
     <RegistryDatatableWarningDialog :visible="warningVisible" :columns="dependentColumns" @close="onWarningDialogClose" />
+    <RegistryDependsFromWarningDialog :visible="dependsFromWarningVisible" :column-title="dependsFromWarningColumn" :depends-from-title="dependsFromWarningSource" @close="onDependsFromWarningClose" />
 </template>
 
 <script lang="ts" setup>
@@ -63,6 +64,7 @@ import { QPagination, useQuasar } from 'quasar'
 import { useI18n } from 'vue-i18n'
 import { emitter } from './RegistryDatatableHelper'
 import RegistryDatatableWarningDialog from './RegistryDatatableWarningDialog.vue'
+import RegistryDependsFromWarningDialog from './RegistryDependsFromWarningDialog.vue'
 import RegistryGrid from './grid/RegistryGrid.vue'
 import { useRegistryColumnOptions } from '../composables/useRegistryColumnOptions'
 import registryDescriptor from '../RegistryDescriptor.json'
@@ -104,6 +106,11 @@ const dependentColumns = ref<any[]>([])
 const selectedRow = ref<any>(null)
 const warningVisible = ref(false)
 const stopWarnings = ref<any[]>([])
+const dependsFromWarningVisible = ref(false)
+const dependsFromWarningColumn = ref('')
+const dependsFromWarningSource = ref('')
+const dependsFromCurrentField = ref('')
+const dependsFromSuppressed = ref<Record<string, boolean>>({})
 const loading = ref(false)
 const sortModel = ref<any>({ fieldName: '', orderType: 'NONE' })
 
@@ -173,7 +180,8 @@ function loadRows() {
 
 // ── Load button configuration ────────────────────────────────────────────
 function loadConfiguration() {
-    configuration.value = props.propConfiguration ?? []
+    const rawConfig = props.propConfiguration
+    configuration.value = Array.isArray(rawConfig) ? rawConfig : (rawConfig?.configurations ?? [])
     for (const item of configuration.value) {
         if (item.name === 'enableButtons') buttons.value.enableButtons = item.value === 'true'
         else if (item.name === 'enableDeleteRecords') buttons.value.enableDeleteRecords = item.value === 'true'
@@ -241,8 +249,23 @@ function onRowsDeletedFromGrid(rowsToDelete: any[]) {
 }
 
 // ── Cell edit ────────────────────────────────────────────────────────────
-function onRowChanged(row: any) {
+function onRowChanged(row: any, field?: string) {
+    if (field) {
+        const col = columns.value.find((c: any) => c.field === field)
+        if (col?.dependsFrom && !dependsFromSuppressed.value[field]) {
+            const sourceCol = columns.value.find((c: any) => c.field === col.dependsFrom)
+            dependsFromCurrentField.value = field
+            dependsFromWarningColumn.value = col.title ?? col.field
+            dependsFromWarningSource.value = sourceCol?.title ?? col.dependsFrom
+            dependsFromWarningVisible.value = true
+        }
+    }
     emit('rowChanged', row)
+}
+
+function onDependsFromWarningClose(payload: { dontShowAgain: boolean }) {
+    if (payload.dontShowAgain && dependsFromCurrentField.value) dependsFromSuppressed.value[dependsFromCurrentField.value] = true
+    dependsFromWarningVisible.value = false
 }
 
 // ── Dropdown with dependent columns ─────────────────────────────────────

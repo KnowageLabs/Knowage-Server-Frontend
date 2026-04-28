@@ -12,7 +12,7 @@
                     </tr>
                 </thead>
 
-                <tr v-for="(row, index) of mappedRows" :key="index" :class="{ 'summary-row': isSummaryRow(row) }" :style="isSummaryRow(row) ? { backgroundColor: propConfiguration?.summaryColor || '#00AAAA' } : {}">
+                <tr v-for="(row, index) of mappedRows" :key="index" :class="{ 'summary-row': isSummaryRow(row) }" :style="isSummaryRow(row) && (propConfiguration?.summaryColor || propConfiguration?.summarycolor) ? { backgroundColor: propConfiguration?.summaryColor || propConfiguration?.summarycolor } : {}">
                     <template v-for="(column, i) of columns.slice(1).filter((col) => col.isVisible !== false)" :key="i">
                         <td v-if="row[column.field].rowSpan > 0" class="pivot-data" :rowspan="row[column.field].rowSpan" :style="{ ...descriptor.pivotStyles.row, width: column.size ? `${column.size}px` : undefined }">
                             <KnPivotTableEditableField v-if="column.isEditable && column.type !== 'merge' && !isSummaryRow(row)" :column="column" :prop-row="row" :combo-column-options="columnOptions" @rowChanged="setRowEdited(row)" @dropdownChanged="onDropdownChange" @dropdownOpened="$emit('dropdownOpened', $event)"></KnPivotTableEditableField>
