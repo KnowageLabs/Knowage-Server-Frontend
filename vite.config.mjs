@@ -104,7 +104,6 @@ export default defineConfig((command, mode) => {
                         }
                     ]
                 },
-                useCredentials: true,
                 manifest: {
                     name: 'Knowage',
                     short_name: 'Knowage',
