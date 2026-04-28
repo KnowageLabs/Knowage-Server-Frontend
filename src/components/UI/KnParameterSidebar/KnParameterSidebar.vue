@@ -127,6 +127,8 @@
                 </div>
                 <div v-if="parameter.selectionType === 'LOOKUP' && parameter.showOnPanel === 'true' && parameter.visible" class="p-field p-my-1 p-p-2">
                     <div class="p-d-flex">
+                        <i class="pi pi-external-link kn-cursor-pointer p-as-center p-mr-2" @click="openPopupDialog(parameter)"></i>
+
                         <label
                             class="kn-material-input-label"
                             :class="{
@@ -138,13 +140,16 @@
                         </label>
                         <i v-tooltip.left="$t('documentExecution.main.parameterClearTooltip')" class="fa fa-eraser parameter-clear-icon kn-cursor-pointer" @click="resetParameterValue(parameter)"></i>
                     </div>
-                    <div class="p-d-flex p-flex-row kn-overflow">
-                        <i class="pi pi-external-link kn-cursor-pointer p-mr-2" @click="openPopupDialog(parameter)"></i>
-                        <Chip v-for="(parameterValue, index) in parameter.parameterValue" :key="index" class="parameterValueChip">{{ parameterValue.description ?? parameterValue.value }}</Chip>
+                    <div class="parameter-chips-area" :class="{ 'parameter-chips-area--expanded': expandedChips[parameter.id] }">
+                        <Chip v-for="(parameterValue, index) in getVisibleChips(parameter)" :key="index" class="parameterValueChip">{{ parameterValue.description ?? parameterValue.value }}</Chip>
                     </div>
+                    <span v-if="parameter.parameterValue && parameter.parameterValue.length > chipsThreshold" class="parameter-chips-toggle" @click="toggleChips(parameter.id)">
+                        {{ expandedChips[parameter.id] ? $t('common.showLess') : $t('common.showMore', { count: parameter.parameterValue.length - chipsThreshold }) }}
+                    </span>
                 </div>
-                <div v-if="parameter.selectionType === 'TREE' && parameter.showOnPanel === 'true' && parameter.visible" class="p-field p-my-1 p-p-2">
+                <div v-if="parameter.selectionType === 'TREE' && parameter.showOnPanel == 'true' && parameter.visible" class="p-field p-my-1 p-p-2">
                     <div class="p-d-flex">
+                        <i class="pi pi-external-link kn-cursor-pointer p-as-center p-mr-2" @click="openTreeDialog(parameter)"></i>
                         <label
                             class="kn-material-input-label"
                             :class="{
@@ -156,12 +161,12 @@
                         </label>
                         <i v-tooltip.left="$t('documentExecution.main.parameterClearTooltip')" class="fa fa-eraser parameter-clear-icon kn-cursor-pointer" @click="resetParameterValue(parameter)"></i>
                     </div>
-                    <div class="p-d-flex p-flex-row">
-                        <i class="pi pi-external-link kn-cursor-pointer p-mr-2" @click="openTreeDialog(parameter)"></i>
-                        <div>
-                            <Chip v-for="(parameterValue, index) in parameter.parameterValue" :key="index">{{ parameterValue.description ?? parameterValue.value }}</Chip>
-                        </div>
+                    <div class="parameter-chips-area" :class="{ 'parameter-chips-area--expanded': expandedChips[parameter.id] }">
+                        <Chip v-for="(parameterValue, index) in getVisibleChips(parameter)" :key="index" class="parameterValueChip">{{ parameterValue.description ?? parameterValue.value }}</Chip>
                     </div>
+                    <span v-if="parameter.parameterValue && parameter.parameterValue.length > chipsThreshold" class="parameter-chips-toggle" @click="toggleChips(parameter.id)">
+                        {{ expandedChips[parameter.id] ? $t('common.showLess') : $t('common.showMore', { count: parameter.parameterValue.length - chipsThreshold }) }}
+                    </span>
                 </div>
             </template>
         </div>
@@ -239,7 +244,9 @@ export default defineComponent({
             qbeParameters: [] as any,
             primary: true,
             userDateFormat: '' as string,
-            availableRolesForExecution: [] as any
+            availableRolesForExecution: [] as any,
+            expandedChips: {} as Record<string, boolean>,
+            chipsThreshold: 4
         }
     },
     computed: {
@@ -621,6 +628,13 @@ export default defineComponent({
             const index = this.viewpoints.findIndex((el: any) => el.vpId === viewpoint.vpId)
             if (index !== -1) this.viewpoints.splice(index, 1)
         },
+        getVisibleChips(parameter: any): any[] {
+            if (this.expandedChips[parameter.id]) return parameter.parameterValue
+            return parameter.parameterValue.slice(0, this.chipsThreshold)
+        },
+        toggleChips(parameterId: string) {
+            this.expandedChips[parameterId] = !this.expandedChips[parameterId]
+        },
         loadMode() {
             this.mode = this.propMode ? this.propMode : 'execution'
         },
@@ -850,6 +864,38 @@ export default defineComponent({
     .parameterValueChip {
         font-size: 0.9rem;
         margin: 2px;
+        max-width: 100%;
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    .parameter-chips-icon-row {
+        padding: 4px 0;
+    }
+
+    .parameter-chips-area {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-top: 4px;
+
+        &--expanded {
+            max-height: 180px;
+            overflow-y: auto;
+        }
+    }
+
+    .parameter-chips-toggle {
+        display: inline-block;
+        margin-top: 6px;
+        font-size: 0.8rem;
+        color: var(--kn-color-primary, #1d73b8);
+        cursor: pointer;
+        user-select: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
     }
 }
 </style>

@@ -274,6 +274,8 @@
         "share": "Share",
         "shortcuts": "Shortcuts",
         "show": "Show",
+        "showLess": "Show less",
+        "showMore": "Show more",
         "size": "Size {format}",
         "small": "Small",
         "snapshot": "Snapshot",
@@ -2045,6 +2047,7 @@
                 "notEditable": "Cannot paste in not editable column",
                 "temporal": "Cannot paste temporal values"
             },
+            "dependsFromWarning": "Column '{column}' depends on column '{dependsFrom}'. Please check and set the correct values.",
             "filter": "Filter",
             "filters": "Filters",
             "grid": {
