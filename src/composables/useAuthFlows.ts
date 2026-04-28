@@ -43,13 +43,14 @@ export const useAuthFlows = () => {
     }
 
     // Login principale
-    const completeLogin = async (token: string) => {
+    const completeLogin = async (token: string, requiresPasswordChange: boolean) => {
         // Salva il token JWT in localStorage
         localStorage.setItem('token', token)
 
         // Chiama l'endpoint /currentuser per ottenere le informazioni complete dell'utente
         const userResponse = await axios.get(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/2.0/currentuser`)
         const currentUser = userResponse.data
+        if(requiresPasswordChange) currentUser.requiresPasswordChange = true
 
         // Gestisci il session role
         if (localStorage.getItem('sessionRole')) {
@@ -100,7 +101,7 @@ export const useAuthFlows = () => {
             }
             // Verifica che ci sia il token nella risposta
             else if (loginResponse.data && loginResponse.data.token) {
-                await completeLogin(loginResponse.data.token)
+                await completeLogin(loginResponse.data.token,loginResponse.data.requiresPasswordChange)
             } else {
                 error.value = t('common.loginPage.loginError')
             }
