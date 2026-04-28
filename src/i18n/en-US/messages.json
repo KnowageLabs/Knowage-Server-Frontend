@@ -340,6 +340,8 @@
         "share": "Share",
         "shortcuts": "Shortcuts",
         "show": "Show",
+        "showLess": "Show less",
+        "showMore": "Show more",
         "size": "Size {format}",
         "small": "Small",
         "snapshot": "Snapshot",
@@ -2286,6 +2288,7 @@
                 "notEditable": "Cannot paste in not editable column",
                 "temporal": "Cannot paste temporal values"
             },
+            "dependsFromWarning": "Column '{column}' depends on column '{dependsFrom}'. Please check and set the correct values.",
             "filter": "Filter",
             "filters": "Filters",
             "grid": {
@@ -2301,8 +2304,7 @@
             "title": "Registry Document",
             "warning": "Warning",
             "warningCheckbox": "Don't Warn Me Again",
-            "warningDependences": "depend/s from this value. Please check them and set correct values!",
-            "dependsFromWarning": "Column '{column}' depends on column '{dependsFrom}'. Please check and set the correct values."
+            "warningDependences": "depend/s from this value. Please check them and set correct values!"
         }
     },
     "downloadsDialog": {
