@@ -31,7 +31,7 @@
 
         <!-- ── Griglia Excel-like ──────────────────────────────────────────── -->
         <RegistryGrid ref="registryGridRef" class="kn-flex" style="min-height: 0" :columns="columns" :rows="rows" :combo-column-options="comboColumnOptions" :sort-model="sortModel" :data-loading="props.dataLoading" :pagination="lazyParams" :key-column-name="props.keyColumnName" @row-changed="onRowChanged" @row-deleted="onRowsDeletedFromGrid" @page-changed="onPageChanged" @sorting-changed="onSortingChanged" @dropdown-change="onDropdownChange" />
-        <div v-if="paginatorEnabled" class="registry-pagination row items-center justify-start q-gutter-sm q-px-sm q-py-xs">
+        <div v-if="paginatorEnabled" class="registry-pagination row items-center q-gutter-sm q-px-sm q-py-xs">
             <span class="registry-pagination__report">
                 {{ paginationReport }}
             </span>
@@ -392,7 +392,7 @@ defineExpose({ stopGridEditing })
 <style scoped lang="scss">
 .registry-pagination {
     border-top: 1px solid rgb(0 0 0 / 8%);
-    justify-content: flex-start;
+    justify-content: space-between;
     min-height: 40px;
 }
 
