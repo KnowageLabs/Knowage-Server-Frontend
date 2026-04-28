@@ -3,10 +3,9 @@
         <!-- ── Toolbar ─────────────────────────────────────────────────────── -->
         <q-toolbar dense class="registry-toolbar">
             <template v-if="selectedRowCount > 0">
-                <q-chip dense color="primary" text-color="white" icon="checklist" class="q-ml-xs"> {{ selectedRowCount }} {{ $t('documentExecution.registry.grid.rowsSelected') }} </q-chip>
-                <q-btn flat round dense icon="close" size="xs" class="q-ml-xs" @click="registryGridRef?.clearSelectedRows()">
-                    <q-tooltip :delay="500">{{ $t('documentExecution.registry.grid.clearSelection') }}</q-tooltip>
-                </q-btn>
+                <q-chip dense removable color="primary" text-color="white" icon="o_select_all" class="q-ml-xs q-pa-sm items-center" @remove="registryGridRef?.clearSelectedRows()">
+                    {{ selectedRowCount }} {{ $t('documentExecution.registry.grid.rowsSelected') }}
+                </q-chip>
             </template>
             <q-space />
             <div class="row no-wrap">
