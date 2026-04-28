@@ -1,12 +1,22 @@
 <template>
-    <q-dialog v-model="props.visible">
-        <q-card>
+    <q-dialog v-model="props.visible" :persistent="requiresPasswordChange" :style="{ zIndex: 10000 }">
+        <q-card style="min-width: 400px">
+            <q-card-section class="column items-center q-pb-none">
+                <img v-if="store.user.organizationImageb64Wide" :src="store.user.organizationImageb64" alt="Tenant" class="tenant-image" />
+                <img v-else :src="`${publicPath}/images/commons/knowage-black.svg`" alt="Knowage" class="account-logo" />
+            </q-card-section>
+
             <q-card-section>
-                <img class="tenant-image" v-if="store.user.organizationImageb64Wide" :src="store.user.organizationImageb64" />
-                <img class="tenant-image-knowage" v-else :src="publicPath + 'images/commons/knowage.svg'" />
                 <div class="text-h6">{{ $t('account.title') }}</div>
                 <div class="text-subtitle2">{{ $t('account.subtitle') }}</div>
             </q-card-section>
+
+            <q-banner v-if="requiresPasswordChange" inline-actions class="bg-warning text-black q-mx-md q-mt-md" rounded>
+                <template #avatar>
+                    <q-icon name="warning" />
+                </template>
+                {{ $t('account.requiresPasswordChange') }}
+            </q-banner>
 
             <q-card-section>
                 <q-input type="text" class="q-mb-sm" filled v-model="account.username" :label="$t('common.user')" disable />
@@ -38,9 +48,9 @@
             <q-separator dark />
 
             <q-card-actions class="row justify-end">
-                <q-btn unelevated color="negative" @click="deleteAccount">{{ $t('common.delete') }}</q-btn>
+                <q-btn v-if="!requiresPasswordChange" unelevated color="negative" @click="deleteAccount">{{ $t('common.delete') }}</q-btn>
                 <div class="kn-flex"></div>
-                <q-btn unelevated @click="closeDialog">{{ $t('common.close') }}</q-btn>
+                <q-btn v-if="!requiresPasswordChange" unelevated @click="closeDialog">{{ $t('common.close') }}</q-btn>
                 <q-btn unelevated color="primary" :disable="!canModify" @click="saveChanges">{{ $t('common.modify') }}</q-btn>
             </q-card-actions>
         </q-card>
@@ -77,6 +87,8 @@ store.$subscribe(
     },
     { deep: true }
 )
+const requiresPasswordChange = computed(() => !!store.user?.requiresPasswordChange)
+
 const canModify = computed(() => {
     return account.password && account.password === account.confirmPassword && account.password.match(/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\-_|#$])[A-Za-z\d\-_|#$]{8,}/)
 })
@@ -128,6 +140,10 @@ function saveChanges(): void {
                     type: 'info',
                     message: t('account.info.updated')
                 })
+                if (store.user?.requiresPasswordChange) {
+                    store.user.requiresPasswordChange = false
+                    emits('closed')
+                }
             }
         })
         .catch((error) =>
@@ -144,6 +160,11 @@ function saveChanges(): void {
 }
 </script>
 <style lang="scss">
+.account-logo {
+    width: 180px;
+    display: block;
+    margin: 0 auto;
+}
 .tenant-image {
     width: 100%;
 }

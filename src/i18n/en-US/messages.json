@@ -18,7 +18,8 @@
             "uppercase": "At least 1 uppercase character"
         },
         "subtitle": "Here you can change your personal informations",
-        "title": "Account Management"
+        "title": "Account Management",
+        "requiresPasswordChange": "Password change required. Please set a new password to continue."
     },
     "ai": {
         "dashboardLink": "Dashboard Link",

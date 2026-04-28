@@ -159,6 +159,9 @@ export default defineComponent({
         this.$nextTick(() => {
             window.addEventListener('resize', this.updateWindowWidth)
         })
+        if (this.user?.requiresPasswordChange) {
+            this.accountDisplay = true
+        }
     },
 
     beforeDestroy() {

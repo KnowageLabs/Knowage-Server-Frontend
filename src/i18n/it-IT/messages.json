@@ -17,6 +17,7 @@
             "special": "Almeno un carattere speciale (_{'|'}-#$)",
             "uppercase": "Almeno un carattere maiuscolo"
         },
+        "requiresPasswordChange": "Cambio password necessario. Imposta una nuova password per continuare.",
         "subtitle": "In questa schermata è possibile cambiare le informazioni personali",
         "title": "Gestione account"
     },
