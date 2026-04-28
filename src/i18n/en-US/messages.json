@@ -2301,7 +2301,8 @@
             "title": "Registry Document",
             "warning": "Warning",
             "warningCheckbox": "Don't Warn Me Again",
-            "warningDependences": "depend/s from this value. Please check them and set correct values!"
+            "warningDependences": "depend/s from this value. Please check them and set correct values!",
+            "dependsFromWarning": "Column '{column}' depends on column '{dependsFrom}'. Please check and set the correct values."
         }
     },
     "downloadsDialog": {

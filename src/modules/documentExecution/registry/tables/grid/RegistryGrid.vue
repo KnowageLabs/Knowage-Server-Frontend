@@ -76,7 +76,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (e: 'row-changed', row: any): void
+    (e: 'row-changed', row: any, field?: string): void
     (e: 'row-deleted', rows: any[]): void
     (e: 'page-changed', params: any): void
     (e: 'sorting-changed', sortModel: any): void
@@ -215,7 +215,7 @@ function applyEditConfirm(ri: number, ci: number, value: any) {
     } else {
         row.isEdited = [col.field]
     }
-    emit('row-changed', row)
+    emit('row-changed', row, col.field)
 }
 
 function applyDeleteCell(ri: number, ci: number) {

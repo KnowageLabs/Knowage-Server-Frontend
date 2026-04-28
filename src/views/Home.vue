@@ -117,7 +117,7 @@ export default defineComponent({
             }
 
             if (navigationType === 'url') {
-                this.$router.push({ name: 'externalUrl', params: { url: navigationTarget } })
+                this.$router.push({ name: 'externalUrl', query: { url: navigationTarget } })
             }
         },
         resolveRoleName(): string | null {

@@ -1,5 +1,5 @@
 <template>
-    <td ref="tdRef" class="knr-td" :class="cellClasses" :title="!isEditing ? displayValue : undefined" @mousedown.left="onMouseDown" @mouseover="$emit('cell-mouseover', rowIndex, colIndex)" @dblclick="onDblClick">
+    <td ref="tdRef" class="knr-td" :class="cellClasses" :style="col.color ? { backgroundColor: col.color } : undefined" :title="!isEditing ? displayValue : undefined" @mousedown.left="onMouseDown" @mouseover="$emit('cell-mouseover', rowIndex, colIndex)" @dblclick="onDblClick">
         <!-- ── Vista (non in editing) ──────────────────────────────────── -->
         <template v-if="!isEditing">
             <i v-if="cellType === 'checkbox'" :class="['fas', modelValue ? 'fa-check' : 'fa-times']" style="font-size: 12px" />

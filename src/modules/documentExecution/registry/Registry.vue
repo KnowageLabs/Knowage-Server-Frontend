@@ -67,7 +67,7 @@ const { t } = useI18n()
 const registryDatatableRef = ref<any>(null)
 
 const registry = ref<any>({})
-const configuration = ref<any[]>([])
+const configuration = ref<any>({})
 const columns = ref<any[]>([])
 const rows = ref<any[]>([])
 const columnMap = ref<any>({})
@@ -189,7 +189,11 @@ function loadRows(resetRows = false as boolean) {
 }
 
 function loadConfiguration() {
-    configuration.value = registry.value.registryConfig?.configurations ?? []
+    const rc = registry.value.registryConfig
+    configuration.value = {
+        configurations: rc?.configurations ?? [],
+        summaryColor: rc?.summarycolor ?? rc?.summaryColor ?? undefined
+    }
 }
 
 function loadEntity() {
