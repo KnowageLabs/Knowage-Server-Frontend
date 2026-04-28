@@ -138,7 +138,7 @@
                         </label>
                         <i v-tooltip.left="$t('documentExecution.main.parameterClearTooltip')" class="fa fa-eraser parameter-clear-icon kn-cursor-pointer" @click="resetParameterValue(parameter)"></i>
                     </div>
-                    <div class="p-d-flex p-flex-row">
+                    <div class="p-d-flex p-flex-row kn-overflow">
                         <i class="pi pi-external-link kn-cursor-pointer p-mr-2" @click="openPopupDialog(parameter)"></i>
                         <Chip v-for="(parameterValue, index) in parameter.parameterValue" :key="index" class="parameterValueChip">{{ parameterValue.description ?? parameterValue.value }}</Chip>
                     </div>
