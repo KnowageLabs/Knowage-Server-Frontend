@@ -140,12 +140,18 @@
                         </label>
                         <i v-tooltip.left="$t('documentExecution.main.parameterClearTooltip')" class="fa fa-eraser parameter-clear-icon kn-cursor-pointer" @click="resetParameterValue(parameter)"></i>
                     </div>
-                    <div class="parameter-chips-area" :class="{ 'parameter-chips-area--expanded': expandedChips[parameter.id] }">
+                    <div v-if="!expandedChips[parameter.id]" class="parameter-chips-area">
                         <Chip v-for="(parameterValue, index) in getVisibleChips(parameter)" :key="index" class="parameterValueChip">{{ parameterValue.description ?? parameterValue.value }}</Chip>
+                        <Chip v-if="parameter.parameterValue && parameter.parameterValue.length > chipsThreshold" class="parameterValueChip parameter-chips-more" @click="toggleChips(parameter.id)">···</Chip>
                     </div>
-                    <span v-if="parameter.parameterValue && parameter.parameterValue.length > chipsThreshold" class="parameter-chips-toggle" @click="toggleChips(parameter.id)">
-                        {{ expandedChips[parameter.id] ? $t('common.showLess') : $t('common.showMore', { count: parameter.parameterValue.length - chipsThreshold }) }}
-                    </span>
+                    <template v-else>
+                        <q-scroll-area class="parameter-chips-scroll">
+                            <div class="parameter-chips-wrap">
+                                <Chip v-for="(parameterValue, index) in parameter.parameterValue" :key="index" class="parameterValueChip">{{ parameterValue.description ?? parameterValue.value }}</Chip>
+                            </div>
+                        </q-scroll-area>
+                        <span class="parameter-chips-toggle" @click="toggleChips(parameter.id)">{{ $t('common.showLess') }}</span>
+                    </template>
                 </div>
                 <div v-if="parameter.selectionType === 'TREE' && parameter.showOnPanel == 'true' && parameter.visible" class="p-field p-my-1 p-p-2">
                     <div class="p-d-flex">
@@ -161,12 +167,18 @@
                         </label>
                         <i v-tooltip.left="$t('documentExecution.main.parameterClearTooltip')" class="fa fa-eraser parameter-clear-icon kn-cursor-pointer" @click="resetParameterValue(parameter)"></i>
                     </div>
-                    <div class="parameter-chips-area" :class="{ 'parameter-chips-area--expanded': expandedChips[parameter.id] }">
+                    <div v-if="!expandedChips[parameter.id]" class="parameter-chips-area">
                         <Chip v-for="(parameterValue, index) in getVisibleChips(parameter)" :key="index" class="parameterValueChip">{{ parameterValue.description ?? parameterValue.value }}</Chip>
+                        <Chip v-if="parameter.parameterValue && parameter.parameterValue.length > chipsThreshold" class="parameterValueChip parameter-chips-more" @click="toggleChips(parameter.id)">···</Chip>
                     </div>
-                    <span v-if="parameter.parameterValue && parameter.parameterValue.length > chipsThreshold" class="parameter-chips-toggle" @click="toggleChips(parameter.id)">
-                        {{ expandedChips[parameter.id] ? $t('common.showLess') : $t('common.showMore', { count: parameter.parameterValue.length - chipsThreshold }) }}
-                    </span>
+                    <template v-else>
+                        <q-scroll-area class="parameter-chips-scroll">
+                            <div class="parameter-chips-wrap">
+                                <Chip v-for="(parameterValue, index) in parameter.parameterValue" :key="index" class="parameterValueChip">{{ parameterValue.description ?? parameterValue.value }}</Chip>
+                            </div>
+                        </q-scroll-area>
+                        <span class="parameter-chips-toggle" @click="toggleChips(parameter.id)">{{ $t('common.showLess') }}</span>
+                    </template>
                 </div>
             </template>
         </div>
@@ -246,7 +258,7 @@ export default defineComponent({
             userDateFormat: '' as string,
             availableRolesForExecution: [] as any,
             expandedChips: {} as Record<string, boolean>,
-            chipsThreshold: 4
+            chipsThreshold: 3
         }
     },
     computed: {
@@ -878,11 +890,29 @@ export default defineComponent({
         flex-wrap: wrap;
         gap: 4px;
         margin-top: 4px;
+    }
 
-        &--expanded {
-            max-height: 180px;
-            overflow-y: auto;
+    .parameter-chips-more {
+        cursor: pointer;
+        letter-spacing: 2px;
+        opacity: 0.65;
+
+        &:hover {
+            opacity: 1;
         }
+    }
+
+    .parameter-chips-scroll {
+        width: 100%;
+        height: 160px;
+        margin-top: 4px;
+    }
+
+    .parameter-chips-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        padding: 4px 8px 4px 0;
     }
 
     .parameter-chips-toggle {
