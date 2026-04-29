@@ -233,27 +233,7 @@ export default defineComponent({
             }
         },
         isExternalLibraryScript(scriptURL: string) {
-            return scriptURL.startsWith('/knowage-api/api/2.0/resources/external-libraries?libraryName=')
-        },
-        getKnowageAuthorizationHeader() {
-            const token = localStorage.getItem('token')
-            if (!token) return null
-            return token.startsWith('Bearer ') ? token : `Bearer ${token}`
-        },
-        getUserImportScriptRequestConfig(scriptURL: string) {
-            const requestConfig: Record<string, any> = { responseType: 'text' }
-            if (!this.isExternalLibraryScript(scriptURL)) return requestConfig
-
-            requestConfig.withCredentials = true
-            requestConfig.headers = { Accept: 'application/json, text/plain, */*' }
-
-            const csrfToken = localStorage.getItem('X-CSRF-TOKEN')
-            if (csrfToken) requestConfig.headers['X-CSRF-TOKEN'] = csrfToken
-
-            const authorizationHeader = this.getKnowageAuthorizationHeader()
-            if (authorizationHeader) requestConfig.headers['X-KN-AUTHORIZATION'] = authorizationHeader
-
-            return requestConfig
+            return scriptURL.includes('/knowage-api/api/2.0/resources/external-libraries?libraryName=')
         },
         async loadUserImportScript(scriptURL: string) {
             const resolvedURL = this.resolveScriptUrl(scriptURL)
@@ -262,8 +242,15 @@ export default defineComponent({
                 return
             }
             try {
-                const response = await this.$http.get(resolvedURL, this.getUserImportScriptRequestConfig(scriptURL))
-                const scriptText = response.data
+                let scriptText = ''
+                if (this.isExternalLibraryScript(scriptURL)) {
+                    const response = await this.$http.get(resolvedURL, { responseType: 'text' })
+                    scriptText = response.data
+                } else {
+                    const response = await fetch(resolvedURL)
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+                    scriptText = await response.text()
+                }
                 const userImportScript = document.createElement('script')
                 userImportScript.text = scriptText
                 this.iframeDocument.body.appendChild(userImportScript)
