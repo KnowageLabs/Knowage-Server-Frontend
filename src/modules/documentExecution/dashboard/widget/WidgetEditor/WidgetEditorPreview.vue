@@ -81,6 +81,9 @@ export default defineComponent({
         ...mapState(store, ['dashboards']),
         previewDashboardCssTag(): string {
             const dashboardCss = this.dashboards[this.dashboardId]?.configuration?.cssToRender ?? ''
+
+            // Keep imported dashboard styles out of the widget editor light DOM,
+            // otherwise they leak into the settings panel and break editor icons.
             const scopedCss = scopeDashboardCssToContainer(dashboardCss, `#${this.widgetEditorPreviewId}`)
             return scopedCss ? `<style>${scopedCss}</style>` : ''
         }
