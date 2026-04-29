@@ -207,15 +207,19 @@ export default defineComponent({
             this.licenseDisplay = !this.licenseDisplay
         },
         itemClick(event) {
+            const router = (this as any).$router
             const item = event.item ? event.item : event
             if (item.label === 'Home' && this.user?.configuration && this.user.configuration['home.button.url']) {
-                location.replace(this.user?.configuration['home.button.url'])
+                router.push({ name: 'home' })
+                if (this.adminMenuOpened) this.adminMenuOpened = false
+                this.hideItemMenu()
+                return
             }
             if (item.command) {
                 this[item.command]()
             } else if (item.to) {
                 if (event.navigate) event.navigate(event.originalEvent)
-            } else if (item.url && (!item.target || item.target === 'insideKnowage')) this.$router.push({ name: 'externalUrl', query: { url: item.url } })
+            } else if (item.url && (!item.target || item.target === 'insideKnowage')) router.push({ name: 'externalUrl', query: { url: item.url } })
             if (this.adminMenuOpened) this.adminMenuOpened = false
             this.hideItemMenu()
         },

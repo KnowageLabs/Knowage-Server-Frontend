@@ -1,6 +1,6 @@
 <template>
-    <iframe v-if="!homePage.loading && homePage.label && completeUrl" :src="`${completeUrl}`"></iframe>
-    <div v-if="!homePage.loading" class="homeContainer">
+    <iframe v-if="showIframe" v-show="iframeLoaded" :src="`${completeUrl}`" @load="onIframeLoad"></iframe>
+    <div v-if="showDefaultHome" class="homeContainer">
         <div class="upperSection p-d-flex">
             <div class="p-d-flex p-flex-column kn-flex">
                 <div class="logo">
@@ -20,7 +20,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { mapState } from 'pinia'
+import { mapActions, mapState } from 'pinia'
 import mainStore from '../App.store.js'
 import logo from '/images/commons/logo_knowage_white.svg'
 
@@ -28,24 +28,66 @@ export default defineComponent({
     name: 'home',
     data() {
         return {
-            completeUrl: false,
+            completeUrl: '',
+            iframeLoaded: false,
+            isManagingGlobalLoading: false,
             logo: logo
         }
     },
     beforeMounted() {
-        this.setCompleteUrl()
+        this.resolveHomeTarget()
+    },
+    beforeUnmount() {
+        this.stopGlobalLoading()
     },
     methods: {
-        setCompleteUrl() {
-            if (this.homePage?.url || this.homePage?.to) {
-                this.completeUrl = this.homePage.url
-                if (this.homePage.to) {
-                    const to = this.homePage.to?.replaceAll('\\/', '/')
-                    if (this.isFunctionality(to) || this.isADocument(to)) this.$router.push(to)
-                    else this.completeUrl = import.meta.env.VITE_HOST_URL + this.homePage.to.replaceAll('\\/', '/')
+        ...mapActions(mainStore, ['setLoading']),
+        async resolveHomeTarget() {
+            const router = (this as any).$router
+            this.completeUrl = ''
+            this.iframeLoaded = false
+            this.stopGlobalLoading()
+
+            if (this.homePage?.loading) return
+
+            const homeButtonUrl = this.user?.configuration?.['home.button.url']
+            if (homeButtonUrl) {
+                this.startGlobalLoading()
+                location.replace(homeButtonUrl)
+                return
+            }
+
+            if (!this.hasConfiguredHomeTarget) return
+
+            this.startGlobalLoading()
+
+            if (this.homePage?.to) {
+                const to = this.homePage.to.replaceAll('\\/', '/')
+                if (this.isFunctionality(to) || this.isADocument(to)) {
+                    await router.replace(to)
+                    this.stopGlobalLoading()
+                    return
                 }
+
+                this.completeUrl = import.meta.env.VITE_HOST_URL + to
             } else {
-                this.completeUrl = false
+                this.completeUrl = this.homePage.url
+            }
+        },
+        onIframeLoad() {
+            this.iframeLoaded = true
+            this.stopGlobalLoading()
+        },
+        startGlobalLoading() {
+            if (!this.isManagingGlobalLoading) {
+                this.setLoading(true)
+                this.isManagingGlobalLoading = true
+            }
+        },
+        stopGlobalLoading() {
+            if (this.isManagingGlobalLoading) {
+                this.setLoading(false)
+                this.isManagingGlobalLoading = false
             }
         },
         isFunctionality(to: string): boolean {
@@ -59,11 +101,29 @@ export default defineComponent({
         ...mapState(mainStore, {
             homePage: 'homePage',
             user: 'user'
-        })
+        }),
+        hasConfiguredHomeTarget(): boolean {
+            return !!(this.homePage?.url || this.homePage?.to)
+        },
+        showDefaultHome(): boolean {
+            return this.homePage?.loading === false && !this.hasConfiguredHomeTarget && !this.user?.configuration?.['home.button.url']
+        },
+        showIframe(): boolean {
+            return this.homePage?.loading === false && !!this.completeUrl
+        }
     },
     watch: {
-        homePage(oldHomePage, newHomePage) {
-            if (oldHomePage !== newHomePage) this.setCompleteUrl()
+        homePage: {
+            handler() {
+                this.resolveHomeTarget()
+            },
+            deep: true
+        },
+        user: {
+            handler() {
+                this.resolveHomeTarget()
+            },
+            deep: true
         }
     }
 })
