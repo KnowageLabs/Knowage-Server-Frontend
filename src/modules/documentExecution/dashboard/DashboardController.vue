@@ -6,7 +6,7 @@
             <DashboardHeaderWidget v-if="!loading && showDashboard && model?.configuration?.customHeader && customHeaderVisible && model.configuration.menuWidgets.enableCustomHeader" :dashboard-id="dashboardId" :prop-widget="model?.configuration?.customHeader" :datasets="model.configuration.datasets" :document-drivers="drivers" :variables="model ? model.configuration.variables : []" :custom-chart-gallery-prop="customChartGallery"></DashboardHeaderWidget>
 
             <div class="dashboard-renderer-core">
-                <DashboardRenderer v-if="!loading && visible && showDashboard" :document="document" :model="model" :datasets="datasets" :dashboard-id="dashboardId" :document-drivers="drivers" :variables="model ? model.configuration.variables : []" @sheetDeleted="onSheetDeleted"></DashboardRenderer>
+                <DashboardRenderer v-if="!loading && visible && showDashboard" :document="document" :model="model" :datasets="datasets" :dashboard-id="dashboardId" :document-drivers="drivers" :variables="model ? model.configuration.variables : []" :disable-imports="widgetEditorVisible || generalSettingsVisible" @sheetDeleted="onSheetDeleted"></DashboardRenderer>
             </div>
         </div>
 

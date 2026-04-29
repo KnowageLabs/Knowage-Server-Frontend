@@ -1,6 +1,7 @@
 <template>
     <KnDashboardTabsPanel v-if="dashboardModel.sheets" v-model:sheets="dashboardModel.sheets" :active-dashboard-sheet="activeDashboardSheet" :style="backgroundStyle" :current-screen-size="currentScreenSize" class="test" label-position="bottom" :edit="canEditDashboard(document)" @sheet-change="sheetChange($event)" @sheetDeleted="onSheetDeleted" @sheet-cloned="onSheetCloned">
-        <div id="dashboard-css" v-html="dashboardCss" />
+        <div v-if="dashboardCssImportsTag" class="dashboard-css-imports" v-html="dashboardCssImportsTag" />
+        <div v-if="dashboardCssTag" class="dashboard-css" v-html="dashboardCssTag" />
         <div v-if="activeDashboardSheet" class="sheet-container">
             <GridLayout v-model:layout="activeDashboardSheet.widgets[currentScreenSize]" :responsive-layouts="activeDashboardSheet.widgets" :responsive="true" :cols="colSizes" :row-height="30" :is-draggable="canEditDashboard(document)" :is-resizable="canEditDashboard(document)" :vertical-compact="false" :use-css-transforms="false" :margin="[0, 0]" :style="getGridStyle" @breakpoint-changed="breakpointChangedEvent">
                 <WidgetController v-for="item in activeDashboardSheet.widgets[currentScreenSize]" :key="item.i" :active-sheet="activeDashboardSheet" :document="document" :widget="currentWidget(item.id)" :item="item" :datasets="datasets" :dashboard-id="dashboardId" :variables="variables" :model="model"></WidgetController>
@@ -37,7 +38,7 @@ import KnDashboardTabsPanel from '@/components/UI/KnDashboardTabs/KnDashboardTab
 import dashboardStore from './Dashboard.store'
 import mainStore from '@/App.store'
 import poweredBy from '/images/commons/knowage_poweredby.svg'
-import { scopeDashboardCssToContainer } from './helpers/common/DashboardCssHelper'
+import { splitDashboardCssForContainer } from './helpers/common/DashboardCssHelper'
 
 export default defineComponent({
     name: 'dashboard-manager',
@@ -47,7 +48,8 @@ export default defineComponent({
         document: { type: Object },
         datasets: { type: Array as PropType<IDataset[]>, required: true },
         dashboardId: { type: String, required: true },
-        variables: { type: Array as PropType<IVariable[]>, required: true }
+        variables: { type: Array as PropType<IVariable[]>, required: true },
+        disableImports: { type: Boolean, default: false }
     },
     emits: ['sheetDeleted'],
     data() {
@@ -82,9 +84,15 @@ export default defineComponent({
 
             return backgroundStyle
         },
-        dashboardCss(): any {
-            const scopedCss = scopeDashboardCssToContainer(this.dashboardModel?.configuration?.cssToRender ?? '', this.dashboardCssScopeSelector)
-            return scopedCss ? `<style>${scopedCss}</style>` : ''
+        dashboardCssParts(): { imports: string; scopedCss: string } {
+            return splitDashboardCssForContainer(this.dashboardModel?.configuration?.cssToRender ?? '', this.dashboardCssScopeSelector)
+        },
+        dashboardCssImportsTag(): string {
+            if (this.disableImports) return ''
+            return this.dashboardCssParts.imports ? `<style>${this.dashboardCssParts.imports}</style>` : ''
+        },
+        dashboardCssTag(): string {
+            return this.dashboardCssParts.scopedCss ? `<style>${this.dashboardCssParts.scopedCss}</style>` : ''
         },
         dashboardCssScopeSelector(): string {
             const dashboardConfigurationId = this.dashboardModel?.configuration?.id ?? this.dashboardId

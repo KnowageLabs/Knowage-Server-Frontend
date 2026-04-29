@@ -289,11 +289,21 @@ export const composeCssWithHoistedImports = (...cssBlocks: string[]): string => 
     return joinCssBlocks([...imports, ...bodies])
 }
 
+export const splitDashboardCssForContainer = (dashboardCss: string, scopeSelectorValue: string): { imports: string; scopedCss: string } => {
+    const trimmedCss = dashboardCss?.trim() ?? ''
+    if (!trimmedCss) return { imports: '', scopedCss: '' }
+
+    const { imports, body } = extractCssImports(trimmedCss)
+    const trimmedScopeSelector = scopeSelectorValue?.trim()
+
+    return {
+        imports: joinCssBlocks(imports),
+        scopedCss: trimmedScopeSelector ? scopeCssBody(body, trimmedScopeSelector) : body.trim()
+    }
+}
+
 export const scopeDashboardCssToContainer = (dashboardCss: string, scopeSelectorValue: string): string => {
     if (!dashboardCss?.trim() || !scopeSelectorValue?.trim()) return dashboardCss?.trim() ?? ''
 
-    // Imported stylesheets stay global even when the host <style> is scoped by selector rewriting,
-    // so keep @import rules out of light-DOM dashboard/editor containers.
-    const { body } = extractCssImports(dashboardCss)
-    return scopeCssBody(body, scopeSelectorValue.trim())
+    return splitDashboardCssForContainer(dashboardCss, scopeSelectorValue).scopedCss
 }
