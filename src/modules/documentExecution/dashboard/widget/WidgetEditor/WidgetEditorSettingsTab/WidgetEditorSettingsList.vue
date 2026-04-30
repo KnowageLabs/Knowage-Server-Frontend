@@ -1,6 +1,6 @@
 <template>
     <div class="dashboard-editor-list-card-container">
-        <q-input v-model="inputText" :placeholder="$t('common.search')" dense outlined clearable class="q-px-sm q-pt-sm" @update:model-value="onInputChanged">
+        <q-input v-model="inputText" :placeholder="$t('common.search')" dense borderless clearable class="settings-search q-px-sm" @update:model-value="onInputChanged">
             <template #prepend>
                 <q-icon name="search" size="16px" />
             </template>
@@ -9,11 +9,10 @@
             <template #option="slotProps">
                 <div class="kn-list-item" :style="descriptor.listStyle.listItem" data-test="list-item" @click="itemClicked(slotProps.option)">
                     <q-icon v-if="slotProps.option.icon" :name="slotProps.option.icon" class="p-mr-2" size="16px" />
-                    <div class="kn-list-item-text">
-                        <span>
-                            {{ $t(slotProps.option.label) }}<template v-if="isSearchActive"> ({{ matchCounts[slotProps.option.value] ?? 0 }})</template>
-                        </span>
-                    </div>
+                    <div class="kn-list-item-text">{{ $t(slotProps.option.label) }}</div>
+                    <q-chip v-if="isSearchActive" dense class="q-ml-auto search-count-chip" :color="(matchCounts[slotProps.option.value] ?? 0) > 0 ? 'primary' : 'grey-3'" :text-color="(matchCounts[slotProps.option.value] ?? 0) > 0 ? 'white' : 'grey-6'" size="sm">
+                        {{ matchCounts[slotProps.option.value] ?? 0 }}
+                    </q-chip>
                 </div>
             </template>
         </Listbox>
@@ -104,3 +103,9 @@ export default defineComponent({
     }
 })
 </script>
+
+<style lang="scss" scoped>
+.settings-search {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+</style>
