@@ -112,6 +112,19 @@ export default defineComponent({
         },
         showThemePicker() {
             return !this.isSearchActive && this.isEnterprise && this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
+        },
+        filteredSettings(): { title: string; type: string }[] {
+            if (!this.settings) return []
+            const search = (this.widgetSettingsSearch as any) ?? ''
+            let result = [...this.settings]
+            if (search.length >= 3) {
+                const lc = search.toLowerCase()
+                result = result.filter((s: { title: string; type: string }) => this.$t(s.title).toLowerCase().includes(lc))
+            }
+            return result
+        },
+        isSearchActive(): boolean {
+            return ((this.widgetSettingsSearch as any) ?? '').length >= 3
         }
     },
     watch: {
