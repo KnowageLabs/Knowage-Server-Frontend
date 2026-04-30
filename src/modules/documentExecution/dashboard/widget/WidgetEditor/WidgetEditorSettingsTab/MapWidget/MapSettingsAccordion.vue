@@ -10,7 +10,7 @@
 
         <!-- Standard accordion for other types -->
         <q-list v-if="!isVisualizationTypeOnly" class="widget-editor-accordion" bordered separator>
-            <q-expansion-item v-for="(accordion, index) in settings" :key="index" :model-value="activeIndex === index" expand-icon-class="col kn-width-full" @update:model-value="(val) => onExpansionChange(val, index)">
+            <q-expansion-item v-for="(accordion, index) in filteredSettings" :key="index" :model-value="activeIndex === index" expand-icon-class="col kn-width-full" @update:model-value="(val) => onExpansionChange(val, index)">
                 <template #header>
                     <MapSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></MapSettingsAccordionHeader>
                 </template>
@@ -36,6 +36,9 @@
                 <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
             </q-expansion-item>
         </q-list>
+        <q-item v-if="isSearchActive && filteredSettings.length === 0" class="q-pa-md">
+            <q-item-section class="text-grey-6">{{ $t('common.info.noAvailableItems') }}</q-item-section>
+        </q-item>
     </div>
 </template>
 
@@ -108,6 +111,9 @@ export default defineComponent({
         layers: { type: Array as PropType<ILayer[]>, required: true }
     },
 
+    inject: {
+        widgetSettingsSearch: { from: 'widgetSettingsSearch', default: null }
+    },
     data() {
         return {
             settingsTabDescriptor,
@@ -126,6 +132,18 @@ export default defineComponent({
         },
         isVisualizationTypeOnly() {
             return this.settings && this.settings.length === 1 && this.settings[0].type === 'VisualizationType'
+        },
+        isSearchActive(): boolean {
+            return ((this.widgetSettingsSearch as any) ?? '').length >= 3
+        },
+        filteredSettings(): { title: string; type: string }[] {
+            if (!this.settings) return []
+            const search = (this.widgetSettingsSearch as any) ?? ''
+            if (search.length >= 3) {
+                const lc = search.toLowerCase()
+                return this.settings.filter((s: { title: string; type: string }) => this.$t(s.title).toLowerCase().includes(lc))
+            }
+            return [...this.settings]
         }
     },
     watch: {

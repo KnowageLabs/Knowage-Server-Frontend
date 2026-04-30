@@ -70,6 +70,9 @@
                 <HighchartsMeasureToggleSettings v-else-if="accordion.type === 'MeasureToggleSettings'" :prop-widget-model="widgetModel"></HighchartsMeasureToggleSettings>
             </q-expansion-item>
         </q-list>
+        <q-item v-if="isSearchActive && filteredSettings.length === 0" class="q-pa-md">
+            <q-item-section class="text-grey-6">{{ $t('common.info.noAvailableItems') }}</q-item-section>
+        </q-item>
     </div>
 </template>
 
@@ -205,6 +208,9 @@ export default defineComponent({
         dashboardId: { type: String, required: true },
         descriptor: { type: Object as PropType<any>, required: true }
     },
+    inject: {
+        widgetSettingsSearch: { from: 'widgetSettingsSearch', default: null }
+    },
     data() {
         return {
             settingsTabDescriptor,
@@ -229,6 +235,9 @@ export default defineComponent({
         isJittered() {
             if (this.widgetModel?.settings.chartModel?.model?.plotOptions?.scatter?.jitter) return true
             return false
+        },
+        isSearchActive(): boolean {
+            return ((this.widgetSettingsSearch as any) ?? '').length >= 3
         }
     },
     watch: {
@@ -238,6 +247,12 @@ export default defineComponent({
         },
         isStacked() {
             this.loadSettings()
+        },
+        widgetSettingsSearch: {
+            deep: true,
+            handler() {
+                this.loadSettings()
+            }
         }
     },
     created() {
@@ -247,6 +262,11 @@ export default defineComponent({
         loadSettings() {
             this.filteredSettings = this.settings ? [...this.settings] : []
             if (!this.isStacked) this.removeStackedFromOptions()
+            const search = (this.widgetSettingsSearch as any) ?? ''
+            if (search.length >= 3) {
+                const lc = search.toLowerCase()
+                this.filteredSettings = this.filteredSettings.filter((s: { title: string; type: string }) => this.$t(s.title).toLowerCase().includes(lc))
+            }
             this.setActiveAccordion()
         },
         removeStackedFromOptions() {

@@ -35,6 +35,9 @@
                 <SelectorWidgetMultiTreeStyle v-else-if="accordion.type === 'MultiTreeStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectorWidgetMultiTreeStyle>
             </q-expansion-item>
         </q-list>
+        <q-item v-if="isSearchActive && filteredSettings.length === 0" class="q-pa-md">
+            <q-item-section class="text-grey-6">{{ $t('common.info.noAvailableItems') }}</q-item-section>
+        </q-item>
     </div>
 </template>
 
@@ -116,6 +119,9 @@ export default defineComponent({
         variables: { type: Array as PropType<IVariable[]> },
         dashboardId: { type: String, required: true }
     },
+    inject: {
+        widgetSettingsSearch: { from: 'widgetSettingsSearch', default: null }
+    },
     data() {
         return {
             descriptor,
@@ -141,11 +147,19 @@ export default defineComponent({
         },
         filteredSettings(): { title: string; type: string }[] {
             if (!this.settings) return []
-
-            return this.settings.filter((setting) => {
+            const search = (this.widgetSettingsSearch as any) ?? ''
+            let result = this.settings.filter((setting) => {
                 if (setting.type === 'DateRange' && !this.isDateType) return false
                 return true
             })
+            if (search.length >= 3) {
+                const lc = search.toLowerCase()
+                result = result.filter((s: { title: string; type: string }) => this.$t(s.title).toLowerCase().includes(lc))
+            }
+            return result
+        },
+        isSearchActive(): boolean {
+            return ((this.widgetSettingsSearch as any) ?? '').length >= 3
         }
     },
     watch: {
