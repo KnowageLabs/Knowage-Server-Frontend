@@ -151,6 +151,7 @@ import Divider from 'primevue/divider'
 import DashboardControllerSaveDialog from '@/modules/documentExecution/dashboard/DashboardControllerSaveDialog.vue'
 import { formatDateWithLocale } from '@/helpers/commons/localeHelper'
 import { v4 as uuidv4 } from 'uuid'
+import { getDossierDriverParameterUrlName, mergeDossierPlaceholderParameters, normalizeDossierTemplate, serializeDossierDriver } from '@/modules/documentExecution/documentDetails/dialogs/dossierDesignerDialog/DossierDesignerDriversHelper'
 
 export default defineComponent({
     name: 'document-detail-dossier-designer-dialog',
@@ -336,7 +337,7 @@ export default defineComponent({
                             return
                         }
                         if (response.data.name) {
-                            this.activeTemplate = response.data
+                            this.activeTemplate = normalizeDossierTemplate(response.data)
                             this.uploadedFile.name = this.activeTemplate.name
                             this.activeTemplate.type = this.getDossierType(this.activeTemplate.name)
                             this.activeTemplate.placeholders?.forEach((x: any) => {
@@ -580,21 +581,15 @@ export default defineComponent({
             await this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${docId}/drivers`)
                 .then((response: AxiosResponse<any>) => {
+                    const selectedPlaceholder = this.activeTemplate.placeholders[this.currentSelectedIndex]
+                    if (!selectedPlaceholder) return
+
                     if (response.data.length > 0) {
-                        response.data.forEach((par) => {
-                            const existing = this.activeTemplate.placeholders[this.currentSelectedIndex]?.parameters?.filter((x) => x.urlName == par.parameterUrlName)
-                            if (existing?.length > 0) {
-                                return
-                            }
-
-                            if (!this.activeTemplate.placeholders[this.currentSelectedIndex]?.parameters) this.activeTemplate.placeholders[this.currentSelectedIndex].parameters = []
-                            this.activeTemplate.placeholders[this.currentSelectedIndex].parameters.push(par)
-                        })
-
-                        this.activeTemplate.placeholders[this.currentSelectedIndex].source = 'DRIVERS'
+                        selectedPlaceholder.parameters = mergeDossierPlaceholderParameters(selectedPlaceholder.parameters, response.data)
+                        selectedPlaceholder.source = 'DRIVERS'
                     } else {
-                        if (this.activeTemplate.placeholders[this.currentSelectedIndex].parameters) {
-                            this.activeTemplate.placeholders[this.currentSelectedIndex].parameters = []
+                        if (selectedPlaceholder.parameters) {
+                            selectedPlaceholder.parameters = []
                         }
                     }
                 })
@@ -653,6 +648,7 @@ export default defineComponent({
             this.activeTemplate.type = this.getDossierType(this.activeTemplate.name)
 
             const templateToSave = await this.handleDrivers()
+            if (!templateToSave) return
 
             const objToSend = { template: templateToSave } as any
             const docId = this.getDocument()?.id
@@ -678,7 +674,7 @@ export default defineComponent({
                 .finally(() => this.setLoading(false))
         },
         async handleDrivers() {
-            const objToSave = JSON.parse(JSON.stringify(this.activeTemplate))
+            const objToSave = normalizeDossierTemplate(this.activeTemplate)
             objToSave.placeholders = objToSave.placeholders.filter((x) => x.label)
             const tempDrivers = objToSave.placeholders.filter((x) => x.label)
             for (let i = 0; i < tempDrivers.length; i++) {
@@ -692,21 +688,23 @@ export default defineComponent({
                 } else {
                     delete placeholder.views
                     for (let j = 0; j < placeholder.parameters?.length; j++) {
-                        if (this.typeCheck(placeholder.parameters[j], 'static')) {
-                            placeholder.parameters[j] = {
-                                urlName: placeholder.parameters[j].parameterUrlName,
-                                type: 'static',
-                                value: placeholder.parameters[j].value
+                        const parameterUrlName = getDossierDriverParameterUrlName(placeholder.parameters[j])
+                        if (this.typeCheck(placeholder.parameters[j], 'static') || this.typeCheck(placeholder.parameters[j], 'dynamic')) {
+                            const serializedDriver = serializeDossierDriver(placeholder.parameters[j])
+                            if (!serializedDriver) {
+                                this.setError({
+                                    title: this.$t('common.error.generic'),
+                                    msg: this.$t('documentExecution.dossier.designerDialog.driverNotHandled', {
+                                        driverName: placeholder.parameters[j].label,
+                                        placeholderName: placeholder.imageName
+                                    })
+                                })
+                                return
                             }
-                        } else if (this.typeCheck(placeholder.parameters[j], 'dynamic')) {
-                            placeholder.parameters[j] = {
-                                urlName: placeholder.parameters[j].parameterUrlName,
-                                type: 'dynamic',
-                                dossierUrlName: placeholder.parameters[j].dossierUrlName?.parameterUrlName
-                            }
+                            placeholder.parameters[j] = serializedDriver
                         } else if (this.typeCheck(placeholder.parameters[j], 'inherit')) {
                             this.inheritedDrivers = true
-                            const existing = this.document?.drivers?.filter((x) => x.parameterUrlName === placeholder.parameters[j].parameterUrlName)
+                            const existing = this.document?.drivers?.filter((x) => x.parameterUrlName === parameterUrlName)
 
                             if (existing?.length > 0) {
                                 placeholder.parameters[j] = {
@@ -716,6 +714,7 @@ export default defineComponent({
                                 }
                             } else {
                                 const newDriver = { ...placeholder.parameters[j] }
+                                newDriver.parameterUrlName = parameterUrlName
                                 newDriver.modifiable = 0
                                 delete newDriver.id
                                 newDriver.biObjectID = this.getDocument()?.id
