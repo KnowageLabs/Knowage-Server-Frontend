@@ -107,7 +107,7 @@ export default defineComponent({
             isEnterprise: 'isEnterprise'
         }),
         showThemePicker() {
-            return this.isEnterprise && this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
+            return !this.isSearchActive && this.isEnterprise && this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
         },
         isSearchActive(): boolean {
             return ((this.widgetSettingsSearch as any) ?? '').length >= 3

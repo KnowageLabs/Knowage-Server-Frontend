@@ -128,7 +128,7 @@ export default defineComponent({
             isEnterprise: 'isEnterprise'
         }),
         showThemePicker() {
-            return this.isEnterprise && this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
+            return !this.isSearchActive && this.isEnterprise && this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
         },
         isVisualizationTypeOnly() {
             return this.settings && this.settings.length === 1 && this.settings[0].type === 'VisualizationType'

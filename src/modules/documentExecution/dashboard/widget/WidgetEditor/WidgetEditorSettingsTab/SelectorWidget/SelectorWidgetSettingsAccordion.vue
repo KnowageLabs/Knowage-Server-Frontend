@@ -140,7 +140,7 @@ export default defineComponent({
             return !this.widgetModel || this.widgetModel.settings?.isDateType
         },
         showThemePicker() {
-            return this.isEnterprise && this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
+            return !this.isSearchActive && this.isEnterprise && this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
         },
         isDateType() {
             return this.widgetModel?.settings?.isDateType
