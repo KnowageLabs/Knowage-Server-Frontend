@@ -1,16 +1,10 @@
 <template>
-    <div class="p-fluid p-formgrid p-grid p-m-4">
-        <div class="p-field kn-flex">
-            <span class="p-float-label">
-                <Dropdown v-model="selectedVariable" class="kn-material-input" :options="variables" option-label="name" @change="onVariableChange"> </Dropdown>
-                <label class="kn-material-input-label"> {{ $t('common.variable') }}</label>
-            </span>
+    <div class="row q-col-gutter-sm">
+        <div :class="selectedVariable && selectedVariable.pivotedValues ? 'col-6' : 'col-12'">
+            <q-select v-model="selectedVariable" outlined dense :options="variables" option-label="name" :label="$t('common.variable')" @update:model-value="onVariableChange" />
         </div>
-        <div v-if="selectedVariable && selectedVariable.pivotedValues" class="p-field kn-flex p-ml-3">
-            <span class="p-float-label">
-                <Dropdown v-model="variableKey" class="kn-material-input" :options="selectedVariable.pivotedValues ? Object.keys(selectedVariable.pivotedValues) : []" @change="onVariableKeyChange"> </Dropdown>
-                <label class="kn-material-input-label"> {{ $t('common.key') }}</label>
-            </span>
+        <div v-if="selectedVariable && selectedVariable.pivotedValues" class="col-6">
+            <q-select v-model="variableKey" outlined dense :options="selectedVariable.pivotedValues ? Object.keys(selectedVariable.pivotedValues) : []" :label="$t('common.key')" @update:model-value="onVariableKeyChange" />
         </div>
     </div>
 </template>
@@ -18,15 +12,13 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IVariable } from '@/modules/documentExecution/dashboard/Dashboard'
-import Dropdown from 'primevue/dropdown'
 
 export default defineComponent({
-    name: 'widget-editor-active-selections',
-    components: { Dropdown },
+    name: 'widget-editor-variables',
+    components: {},
     props: {
         variables: { type: Array as PropType<IVariable[]>, required: true }
     },
-    emits: ['insertChanged'],
     data() {
         return {
             selectedVariable: null as IVariable | null,

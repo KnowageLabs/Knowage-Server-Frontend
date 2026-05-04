@@ -1,6 +1,6 @@
 <template>
     <div v-if="widget?.settings?.style" class="q-pb-md kn-width-full">
-        <q-select v-model="widget.settings.style.themeId" :options="themes" :label="$t('dashboard.widgetEditor.widgetTheme')" option-label="themeName" option-value="id" emit-value map-options clearable outlined dense @update:model-value="onThemeSelected" />
+        <q-select v-model="widget.settings.style.themeId" :options="themes" :label="$t('dashboard.widgetEditor.widgetTheme')" option-label="themeName" option-value="id" emit-value map-options clearable outlined @update:model-value="onThemeSelected" />
     </div>
 </template>
 

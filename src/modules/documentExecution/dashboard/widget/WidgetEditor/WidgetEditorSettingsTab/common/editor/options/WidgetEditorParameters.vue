@@ -1,10 +1,5 @@
 <template>
-    <div class="p-field">
-        <span class="p-float-label">
-            <Dropdown v-model="selectedDriver" class="kn-material-input" :options="drivers" option-value="urlName" option-label="name" @change="onDriverValueChanged"> </Dropdown>
-            <label class="kn-material-input-label"> {{ $t('common.parameter') }}</label>
-        </span>
-    </div>
+    <q-select v-model="selectedDriver" outlined dense :options="drivers" option-value="urlName" option-label="name" emit-value map-options :label="$t('common.parameter')" @update:model-value="onDriverValueChanged" />
 </template>
 
 <script lang="ts">
@@ -12,11 +7,10 @@ import { defineComponent } from 'vue'
 import { IDashboardDriver } from '@/modules/documentExecution/dashboard/Dashboard'
 import { mapActions } from 'pinia'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
-import Dropdown from 'primevue/dropdown'
 
 export default defineComponent({
     name: 'widget-editor-parameters',
-    components: { Dropdown },
+    components: {},
     props: {
         dashboardId: { type: String, required: true }
     },

@@ -1,36 +1,28 @@
 <template>
-    <Message v-if="selectedDatasets?.length == 0" class="p-mb-2" severity="warn" :closable="false" :style="descriptor.hintStyle">
-        {{ $t(`managers.functionsCatalog.noDatasetSelected`) }}
-    </Message>
-    <div v-else class="p-field">
-        <span class="p-float-label">
-            <Dropdown v-model="selectedDatasetName" class="kn-material-input" :options="selectedDatasets" option-value="name" option-label="name" @change="onColumnChanged"> </Dropdown>
-            <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
-        </span>
+    <div v-if="!selectedDatasets?.length" class="row items-center text-warning q-mb-sm">
+        <q-icon name="warning" class="q-mr-sm" />
+        {{ $t('managers.functionsCatalog.noDatasetSelected') }}
     </div>
+    <q-select v-else v-model="selectedDatasetName" outlined dense :options="selectedDatasets" option-value="name" option-label="name" emit-value map-options :label="$t('common.dataset')" @update:model-value="onColumnChanged" />
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IDataset, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
-import Dropdown from 'primevue/dropdown'
-import descriptor from '../WidgetTagsDialogDescriptor.json'
-import Message from 'primevue/message'
 
 export default defineComponent({
-    name: 'widget-editor-active-selections',
-    components: { Dropdown, Message },
+    name: 'widget-editor-preview',
+    components: {},
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, selectedDatasets: { type: Array as PropType<IDataset[]> } },
     emits: ['insertChanged'],
     data() {
         return {
-            descriptor,
             selectedDatasetName: ''
         }
     },
     methods: {
         onColumnChanged() {
-            const forInsert = this.widgetModel.type === 'html' ? `<div kn-preview="${this.selectedDatasetName}"></div>` : `<span class="preview" kn-preview="${this.selectedDatasetName}">${this.selectedDatasetName}</div>`
+            const forInsert = this.widgetModel.type === 'html' ? `<div kn-preview="${this.selectedDatasetName}"></div>` : `<span class="preview" kn-preview="${this.selectedDatasetName}">${this.selectedDatasetName}</span>`
             this.$emit('insertChanged', forInsert)
         }
     }

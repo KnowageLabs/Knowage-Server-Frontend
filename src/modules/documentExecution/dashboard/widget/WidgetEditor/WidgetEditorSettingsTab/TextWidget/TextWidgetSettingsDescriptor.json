@@ -7,6 +7,7 @@
             },
             {
                 "title": "dashboard.widgetEditor.menuConfiguration",
+                "toggleOnly": true,
                 "type": "MenuConfiguration"
             }
         ],
@@ -40,6 +41,7 @@
         ],
         "Style": [
             {
+                "startGroup": true,
                 "title": "dashboard.widgetEditor.titles.title",
                 "type": "Title"
             },

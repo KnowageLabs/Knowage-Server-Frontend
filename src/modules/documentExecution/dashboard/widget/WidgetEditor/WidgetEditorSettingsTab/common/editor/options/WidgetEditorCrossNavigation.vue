@@ -1,33 +1,21 @@
 <template>
-    <div class="p-fluid p-formgrid p-grid">
-        <div class="p-field p-col-12 p-p-2">
-            <span class="p-float-label">
-                <Dropdown v-model="selectedColumnName" class="kn-material-input" :options="widgetModel.columns" option-value="columnName" option-label="columnName" @change="onColumnChanged"> </Dropdown>
-                <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
-            </span>
-        </div>
-    </div>
+    <q-select v-model="selectedColumnName" outlined dense :options="widgetModel.columns" option-value="columnName" option-label="columnName" emit-value map-options :label="$t('common.column')" @update:model-value="onColumnChanged" />
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
-import Dropdown from 'primevue/dropdown'
-import descriptor from '../WidgetTagsDialogDescriptor.json'
 
 export default defineComponent({
     name: 'widget-editor-cross-navigation',
-    components: { Dropdown },
+    components: {},
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     emits: ['insertChanged'],
     data() {
         return {
-            descriptor,
-            selectedColumnName: '',
-            selectionValue: ''
+            selectedColumnName: ''
         }
     },
-    created() {},
     methods: {
         onColumnChanged() {
             const forInsert = this.widgetModel.type === 'html' ? `<div kn-cross>[kn-column='${this.selectedColumnName}']</div>` : `<span class='crossNavigation' kn-cross="">[kn-column='${this.selectedColumnName}' row='0']</span>`

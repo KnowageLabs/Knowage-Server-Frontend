@@ -1,20 +1,14 @@
 <template>
-    <div v-if="widgetModel" class="p-field">
-        <span class="p-float-label">
-            <Dropdown v-model="selectedColumnName" class="kn-material-input" :options="widgetModel.columns" option-value="columnName" option-label="columnName" @change="onColumnChanged"> </Dropdown>
-            <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
-        </span>
-    </div>
+    <q-select v-model="selectedColumnName" outlined dense :options="widgetModel.columns" option-value="columnName" option-label="columnName" emit-value map-options :label="$t('common.column')" @update:model-value="onColumnChanged" />
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
-import Dropdown from 'primevue/dropdown'
 
 export default defineComponent({
     name: 'widget-editor-active-selections',
-    components: { Dropdown },
+    components: {},
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     emits: ['insertChanged'],
     data() {
