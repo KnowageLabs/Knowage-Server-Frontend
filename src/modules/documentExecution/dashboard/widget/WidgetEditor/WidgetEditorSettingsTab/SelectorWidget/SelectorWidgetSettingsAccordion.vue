@@ -2,7 +2,7 @@
     <div v-show="widgetModel">
         <Message v-if="themePropertyChanged" class="p-p-2 p-m-4" severity="warn" :closable="false">{{ $t('dashboard.widgetEditor.themeChangedWarning') }}</Message>
         <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker>
-        <q-list class="selector-expansion-list" bordered separator>
+        <q-list class="selector-expansion-list rounded-borders" bordered separator>
             <q-expansion-item v-for="(accordion, index) in filteredSettings" :key="index" :model-value="activeIndex === index" :disable="accordion.type === 'LabelStyle' && labelStyleAccordionDisabled" expand-icon-class="col kn-width-full" @update:model-value="(val) => onExpansionChange(val, index)">
                 <template #header>
                     <SelectorWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></SelectorWidgetSettingsAccordionHeader>

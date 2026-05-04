@@ -2,10 +2,10 @@
     <div v-if="model && model.type == 'selector'" class="col q-pa-md kn-width-full">
         <div class="col-12">
             <q-select v-model="model.settings.configuration.selectorType.modality" :options="selectorTypeOptions" :label="$t('dashboard.widgetEditor.selectorWidget.type')" option-value="value" option-label="label" option-disable="disable" emit-value map-options dense outlined />
-            <div v-if="showAlignment" class="col-12 row">
+            <!-- <div v-if="showAlignment" class="col-12 row">
                 <q-radio v-for="layout in descriptor.layouts" :key="layout.value" v-model="model.settings.configuration.selectorType.alignment" :val="layout.value" :label="layout.name" />
                 <q-input v-if="showGridColumnSize" class="q-ml-md" v-model="model.settings.configuration.selectorType.columnSize" dense :label="$t('dashboard.widgetEditor.valuesManagement.colNumber')" />
-            </div>
+            </div> -->
         </div>
 
         <template v-if="columnOptions.length > 1">

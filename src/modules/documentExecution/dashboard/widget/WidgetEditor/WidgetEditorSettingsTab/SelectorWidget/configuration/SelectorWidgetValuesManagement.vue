@@ -1,36 +1,30 @@
 <template>
-    <div v-if="valuesManagementModel" class="p-grid p-jc-center p-ai-center kn-flex p-p-4">
-        <div class="p-col-12 p-grid p-d-flex p-flex-row p-jc-start p-p-4">
-            <div class="p-sm-12 p-md-2">
-                <InputSwitch v-model="valuesManagementModel.hideDisabled" @change="onHideDisabledChanged"></InputSwitch>
-            </div>
-            <div class="p-sm-12 p-md-10 p-d-flex">
-                <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.valuesManagement.hideDisabledValues') }}</label>
-                <i v-tooltip.top="$t('dashboard.widgetEditor.valuesManagement.hideDisabledValuesHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-auto p-mr-4"></i>
-            </div>
-
-            <div class="p-sm-12 p-md-2">
-                <InputSwitch v-model="valuesManagementModel.enableAll" @change="onEnableAllChange"></InputSwitch>
-            </div>
-            <div class="p-sm-12 p-md-10 p-d-flex">
-                <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.valuesManagement.alwaysEnableValues') }}</label>
-                <i v-tooltip.top="$t('dashboard.widgetEditor.valuesManagement.alwaysEnableValuesHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-auto p-mr-4"></i>
-            </div>
-        </div>
+    <div v-if="valuesManagementModel" class="q-pa-sm column">
+        <span class="row items-center">
+            <q-toggle v-model="valuesManagementModel.hideDisabled" :label="$t('dashboard.widgetEditor.valuesManagement.hideDisabledValues')" @update:model-value="onHideDisabledChanged" />
+            <q-icon name="help_outline" class="cursor-pointer q-ml-auto q-mr-sm" size="xs">
+                <q-tooltip>{{ $t('dashboard.widgetEditor.valuesManagement.hideDisabledValuesHint') }}</q-tooltip>
+            </q-icon>
+        </span>
+        <span class="row items-center">
+            <q-toggle v-model="valuesManagementModel.enableAll" :label="$t('dashboard.widgetEditor.valuesManagement.alwaysEnableValues')" @update:model-value="onEnableAllChange" />
+            <q-icon name="help_outline" class="cursor-pointer q-ml-auto q-mr-sm" size="xs">
+                <q-tooltip>{{ $t('dashboard.widgetEditor.valuesManagement.alwaysEnableValuesHint') }}</q-tooltip>
+            </q-icon>
+        </span>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget } from '@/modules/documentExecution/Dashboard/Dashboard'
+import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { ISelectorWidgetValuesManagement } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectorWidget'
 import { emitter } from '../../../../../DashboardHelpers'
 import descriptor from '../SelectorWidgetSettingsDescriptor.json'
-import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
     name: 'selector-widget-values-management',
-    components: { InputSwitch },
+    components: {},
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {
