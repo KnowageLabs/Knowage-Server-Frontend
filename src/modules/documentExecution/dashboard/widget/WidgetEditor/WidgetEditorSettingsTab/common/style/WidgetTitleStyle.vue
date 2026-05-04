@@ -1,42 +1,43 @@
 <template>
-    <div v-if="titleStyleModel" class="p-ai-center kn-flex p-p-4">
-        <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2">
-            {{ $t('common.enabled') }}
-            <q-toggle v-model="titleStyleModel.enabled" color="black" />
-        </span>
+    <div v-if="titleStyleModel" class="q-px-md q-pb-md kn-width-full">
+        <div class="row q-col-gutter-sm">
+            <div v-if="themeStyle" class="col-12">
+                <q-toggle v-model="titleStyleModel.enabled" :label="$t('common.enabled')" @update:model-value="titleStyleChanged" />
+            </div>
 
-        <form class="p-fluid p-formgrid p-grid p-mb-2">
-            <q-input v-if="!themeStyle" v-model="titleStyleModel.text" class="p-col-12 p-lg-6" outlined dense :label="$t('common.text')" :disabled="titleStyleDisabled" @change="titleStyleChanged(true)">
-                <template #append>
-                    <q-btn v-if="hasDynamicTitleOptions" flat round dense icon="data_object" :disable="titleStyleDisabled" :title="dynamicTitleButtonTitle">
-                        <q-menu auto-close>
-                            <q-list dense>
-                                <q-item v-if="hasDashboardParameters" clickable @click="openTagsDialog('parameters')">
-                                    <q-item-section>{{ $t('dashboard.widgetEditor.editorTags.parameters') }}</q-item-section>
-                                </q-item>
-                                <q-item v-if="hasDashboardVariables" clickable @click="openTagsDialog('variables')">
-                                    <q-item-section>{{ $t('dashboard.widgetEditor.editorTags.variables') }}</q-item-section>
-                                </q-item>
-                            </q-list>
-                        </q-menu>
-                    </q-btn>
-                </template>
-            </q-input>
-            <q-input v-model="titleStyleModel.height" type="number" class="p-col-12 p-lg-2" outlined dense :label="$t('common.height')" :disabled="titleStyleDisabled" @change="titleStyleChanged" />
-            <q-input v-model="titleStyleModel.properties['padding-left']" class="p-col-12 p-lg-2" outlined dense :label="$t('dashboard.widgetEditor.padding.paddingLeft')" :title="$t('dashboard.widgetEditor.borders.bordersThicknessHint')" :disabled="titleStyleDisabled" @change="titleStyleChanged" />
-            <q-input
-                v-model="titleStyleModel.properties['padding-right']"
-                class="p-col-12 p-lg-2"
-                outlined
-                dense
-                :label="$t('dashboard.widgetEditor.padding.paddingRight')"
-                :title="$t('dashboard.widgetEditor.borders.bordersThicknessHint')"
-                :disabled="titleStyleDisabled"
-                @change="titleStyleChanged"
-            />
-        </form>
+            <div v-if="!themeStyle" class="col-12">
+                <q-input v-model="titleStyleModel.text" outlined dense :label="$t('common.text')" :disable="titleStyleDisabled" @change="titleStyleChanged(true)">
+                    <template #append>
+                        <q-btn v-if="hasDynamicTitleOptions" flat round dense icon="data_object" :disable="titleStyleDisabled" :title="dynamicTitleButtonTitle">
+                            <q-menu auto-close>
+                                <q-list dense>
+                                    <q-item v-if="hasDashboardParameters" clickable @click="openTagsDialog('parameters')">
+                                        <q-item-section>{{ $t('dashboard.widgetEditor.editorTags.parameters') }}</q-item-section>
+                                    </q-item>
+                                    <q-item v-if="hasDashboardVariables" clickable @click="openTagsDialog('variables')">
+                                        <q-item-section>{{ $t('dashboard.widgetEditor.editorTags.variables') }}</q-item-section>
+                                    </q-item>
+                                </q-list>
+                            </q-menu>
+                        </q-btn>
+                    </template>
+                </q-input>
+            </div>
 
-        <WidgetEditorStyleToolbar :options="toolbarStyleSettings" :prop-model="titleStyleModel.properties" :disabled="titleStyleDisabled" @change="onStyleToolbarChange"></WidgetEditorStyleToolbar>
+            <div class="col-4">
+                <q-input v-model="titleStyleModel.height" type="number" outlined dense :label="$t('common.height')" :disable="titleStyleDisabled" @change="titleStyleChanged" />
+            </div>
+            <div class="col-4">
+                <q-input v-model="titleStyleModel.properties['padding-left']" outlined dense :label="$t('dashboard.widgetEditor.padding.paddingLeft')" :disable="titleStyleDisabled" @change="titleStyleChanged" />
+            </div>
+            <div class="col-4">
+                <q-input v-model="titleStyleModel.properties['padding-right']" outlined dense :label="$t('dashboard.widgetEditor.padding.paddingRight')" :disable="titleStyleDisabled" @change="titleStyleChanged" />
+            </div>
+
+            <div class="col-12">
+                <WidgetEditorStyleToolbar :options="toolbarStyleSettings" :prop-model="titleStyleModel.properties" :disabled="titleStyleDisabled" @change="onStyleToolbarChange" />
+            </div>
+        </div>
     </div>
 
     <WidgetTitleDynamicDialog v-if="widgetModel" :visible="dynamicDialogVisible" :mode="dynamicDialogMode" :variables="dashboardVariables" :dashboard-id="dashboardId" @close="closeDynamicDialog" @insert="onDynamicTitleInsert" />
@@ -45,7 +46,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { mapState } from 'pinia'
-import { IVariable, IWidget, IWidgetStyleToolbarModel, IWidgetTitle } from '@/modules/documentExecution/Dashboard/Dashboard'
+import { IVariable, IWidget, IWidgetStyleToolbarModel, IWidgetTitle } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import WidgetTitleDynamicDialog from './WidgetTitleDynamicDialog.vue'
@@ -65,7 +66,7 @@ export default defineComponent({
         return {
             titleStyleModel: null as IWidgetTitle | null,
             dynamicDialogVisible: false,
-            dynamicDialogMode: ''
+            dynamicDialogMode: 'parameters' as 'parameters' | 'variables'
         }
     },
     computed: {
@@ -110,7 +111,7 @@ export default defineComponent({
             if (this.widgetModel?.settings?.style?.title) this.titleStyleModel = this.widgetModel.settings.style.title
             else if (this.themeStyle) this.titleStyleModel = this.themeStyle
         },
-        openTagsDialog(mode: string) {
+        openTagsDialog(mode: 'parameters' | 'variables') {
             if ((mode === 'parameters' && !this.hasDashboardParameters) || (mode === 'variables' && !this.hasDashboardVariables)) return
             this.dynamicDialogMode = mode
             this.dynamicDialogVisible = true
@@ -144,9 +145,3 @@ export default defineComponent({
     }
 })
 </script>
-
-<style lang="scss" scoped>
-#height-input-container {
-    max-width: 200px;
-}
-</style>

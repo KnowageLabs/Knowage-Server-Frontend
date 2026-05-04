@@ -5,7 +5,7 @@
                 <q-toggle v-model="backgroundStyleModel.enabled" :label="$t('common.enabled')" @update:model-value="backgroundColorStyleChanged" />
             </div>
             <div class="col-6">
-                <WidgetEditorColorPicker :initial-value="backgroundStyleModel.properties['background-color']" :label="$t('dashboard.widgetEditor.iconTooltips.backgroundColor')" @change="backgroundColorStyleChanged"></WidgetEditorColorPicker>
+                <WidgetEditorColorPicker :initial-value="backgroundStyleModel.properties['background-color']" :label="$t('dashboard.widgetEditor.iconTooltips.backgroundColor')" :disabled="!backgroundStyleModel.enabled" @change="backgroundColorStyleChanged"></WidgetEditorColorPicker>
             </div>
         </div>
     </div>
