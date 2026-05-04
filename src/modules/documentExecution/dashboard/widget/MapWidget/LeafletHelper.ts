@@ -31,8 +31,6 @@ export enum LEGEND_DATA_TYPE {
     CHOROPLETH_RANGES = ' CHOROPLETH_RANGES'
 }
 
-const legendData = {} as Record<string, any>
-
 // Used in the Map Visualization Helper to determine which of the three use cases is selected in the settings.
 // There is no explicit model property.
 export enum VisualizationDataType {
@@ -185,6 +183,7 @@ export const getParsedInput = (input: string) => {
 export async function initializeLayers(map: L.Map, model: IWidget, data: any, dashboardId: string, variables: IVariable[], activeSelections: ISelection[]) {
     const dashStore = dashboardStore()
     const dashboardConfig = dashStore.dashboards[dashboardId]?.configuration
+    const legendData = {} as Record<string, any>
 
     try {
         const markerBounds = [] as any

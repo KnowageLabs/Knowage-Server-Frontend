@@ -8,6 +8,7 @@ import { indexedDB } from '@/idb'
 import { md5 } from 'js-md5'
 import deepcopy from 'deepcopy'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
+import { getMapCategoryColumnsForService } from './MapWidgetAggregationHelper'
 
 export const getMapWidgetData = async (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const tempResponse = {} as Record<string | number, any>
@@ -78,6 +79,10 @@ const formatMapModelForService = (dashboardId: any, dashboardConfig: IDashboardC
     addParametersToData(dataset, dashboardId, dataToSend, associativeResponseSelections)
 
     const datasetWithColumns = widget.layers.find((layer: IMapWidgetLayer) => layer.label === dataset.dsLabel)
+    if (!datasetWithColumns?.columns) return dataToSend
+
+    const categoryColumns = getMapCategoryColumnsForService(widget, datasetWithColumns)
+
     for (let i = 0; i < datasetWithColumns.columns.length; i++) {
         const column = datasetWithColumns.columns[i]
 
@@ -92,12 +97,15 @@ const formatMapModelForService = (dashboardId: any, dashboardConfig: IDashboardC
             if (column.formula) measureToPush.formula = addVariablesToFormula(column, dashboardConfig)
 
             dataToSend.aggregations.measures.push(measureToPush)
-        } else {
-            const attributeToPush = { id: column.alias, alias: column.alias, columnName: column.name, orderType: '', funct: 'NONE' } as any
-            column.id === widget.settings.sortingColumn ? (attributeToPush.orderType = widget.settings.sortingOrder) : ''
-
-            dataToSend.aggregations.categories.push(attributeToPush)
         }
+    }
+
+    for (let i = 0; i < categoryColumns.length; i++) {
+        const column = categoryColumns[i]
+        const attributeToPush = { id: column.alias, alias: column.alias, columnName: column.name, orderType: '', funct: 'NONE' } as any
+        column.id === widget.settings.sortingColumn ? (attributeToPush.orderType = widget.settings.sortingOrder) : ''
+
+        dataToSend.aggregations.categories.push(attributeToPush)
     }
 
     return dataToSend

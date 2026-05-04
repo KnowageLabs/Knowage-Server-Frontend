@@ -11,7 +11,7 @@
                 <div class="row items-center q-mb-sm">
                     <i class="pi pi-th-large kn-cursor-pointer"></i>
                     <q-select class="col-6" filled dense :model-value="tool.label" :disable="tooltipsDisabled" :options="getFilteredVisualizationTypeOptions(index)" option-label="label" option-value="label" emit-value map-options option-dense :label="$t('dashboard.widgetEditor.visualizationType.title')" @update:model-value="(val) => onVisualizationSelected(val, tool)"></q-select>
-                    <MultiSelect class="col-5 q-ml-sm" v-model="tool.columns" :disabled="tooltipsDisabled" :options="getColumnOptionsFromLayer(tool)" option-label="alias" display="chip" />
+                    <MultiSelect class="col-5 q-ml-sm" v-model="tool.columns" :disabled="tooltipsDisabled" :options="getColumnOptionsFromLayer(tool)" option-label="alias" option-value="name" display="chip" />
                 </div>
                 <div class="q-col-gutter" style="gap: 0.5em; margin-left: auto">
                     <i v-if="index === 0" class="pi pi-plus-circle kn-cursor-pointer" data-test="new-button" @click="addTooltip()"></i>
@@ -44,6 +44,7 @@ import defaultsDescriptor from '../../../helpers/mapWidget/MapWidgetDefaultValue
 import { getPropertiesByLayerLabel } from '../../../../MapWidget/MapWidgetDataProxy'
 import * as mapWidgetDefaultValues from '../../../helpers/mapWidget/MapWidgetDefaultValues'
 import { resolveLayerByTarget } from '../../../../MapWidget/LeafletHelper'
+import { normalizeMapInfoSettings } from '../../../../MapWidget/MapWidgetInfoSettingsHelper'
 
 export default defineComponent({
     name: 'map-tooltips',
@@ -64,6 +65,12 @@ export default defineComponent({
             return !this.widgetModel || !this.widgetModel.settings.tooltips.enabled
         }
     },
+    watch: {
+        async widgetModel() {
+            this.loadTooltips()
+            await this.loadPropertiesForTooltips()
+        }
+    },
     async mounted() {
         this.loadTooltips()
         await this.loadPropertiesForTooltips()
@@ -71,7 +78,7 @@ export default defineComponent({
     methods: {
         ...mapActions(appStore, ['setLoading']),
         loadTooltips() {
-            if (this.widgetModel?.settings?.tooltips) this.tooltip = this.widgetModel.settings.tooltips
+            if (this.widgetModel?.settings?.tooltips) this.tooltip = normalizeMapInfoSettings(this.widgetModel.settings.tooltips)
             this.loadVisualizations()
         },
         async loadPropertiesForTooltips() {
@@ -92,7 +99,7 @@ export default defineComponent({
             const entry = {
                 name: (defaultVisualization as any).name ?? (defaultVisualization as any).label ?? '',
                 label: defaultVisualization.label ?? '',
-                columns: Array.isArray(defaultVisualization.columns) ? defaultVisualization.columns.map((c: any) => (typeof c === 'string' ? c : c?.name ?? c?.property ?? String(c))) : [],
+                columns: [],
                 prefix: defaultVisualization.prefix ?? '',
                 suffix: defaultVisualization.suffix ?? '',
                 precision: defaultVisualization.precision ?? 0

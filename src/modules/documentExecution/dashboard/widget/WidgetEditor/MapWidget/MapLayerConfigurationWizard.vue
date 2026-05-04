@@ -792,6 +792,42 @@ import { getPropertiesByLayerLabel } from '../../MapWidget/MapWidgetDataProxy'
 import WidgetEditorColorPicker from '../WidgetEditorSettingsTab/common/WidgetEditorColorPicker.vue'
 import WidgetEditorStyleIconPickerDialog from '../WidgetEditorSettingsTab/common/styleToolbar/WidgetEditorStyleIconPickerDialog.vue'
 import MapVisualizationImagePickerDialog from '../WidgetEditorSettingsTab/MapWidget/visualization/markers/MapVisualizationImagePickerDialog.vue'
+import { normalizeMapWidgetBalloonsConfiguration, normalizeMapWidgetChoroplethConfiguration } from '../helpers/mapWidget/MapWidgetVisualizationConfigurationHelper'
+
+const getDefaultVisualizationData = () => ({
+    label: '',
+    target: '',
+    connectionType: 'single' as 'single' | 'join',
+    visible: true,
+    targetType: 'column' as 'column' | 'property',
+    targetDataset: undefined as string | undefined,
+    targetMeasure: undefined as string | undefined,
+    targetProperty: null as string | null,
+    targetDatasetForeignKeyColumn: undefined as string | undefined,
+    targetDatasetMeasures: [] as string[],
+    chartMeasures: [] as string[],
+    properties: [] as any[]
+})
+
+const getDefaultVisualizationConfig = () => ({
+    classificationMethod: 'CLASSIFY_BY_EQUAL_INTERVALS',
+    numberOfClasses: 5,
+    color: 'rgba(59, 130, 246, 1)',
+    toColor: 'rgba(236, 72, 153, 1)',
+    borderColor: 'rgba(255, 255, 255, 1)',
+    borderWidth: 1,
+    chartType: 'pies' as 'pies' | 'bar',
+    markerType: 'default',
+    markerSize: 20,
+    clusterRadius: 40,
+    opacity: 75,
+    heatmapRadius: 25,
+    heatmapBlur: 15,
+    heatmapMaxZoom: 18,
+    iconClass: 'fa fa-map-marker',
+    iconUrl: '',
+    iconImg: ''
+})
 
 export default defineComponent({
     name: 'map-layer-configuration-wizard',
@@ -814,20 +850,7 @@ export default defineComponent({
             hasUnsavedChanges: false,
             availableLayersOptions: [] as { layerId: string | null; name: string }[],
             propertiesCache: new Map<string, any[]>(),
-            visualizationData: {
-                label: '',
-                target: '',
-                connectionType: 'single' as 'single' | 'join',
-                visible: true,
-                targetType: 'column' as 'column' | 'property',
-                targetDataset: undefined as string | undefined,
-                targetMeasure: undefined as string | undefined,
-                targetProperty: null as string | null,
-                targetDatasetForeignKeyColumn: undefined as string | undefined,
-                targetDatasetMeasures: [] as string[],
-                chartMeasures: [] as string[],
-                properties: [] as any[]
-            },
+            visualizationData: getDefaultVisualizationData(),
             layerConfig: {
                 name: '',
                 sourceType: '',
@@ -838,25 +861,7 @@ export default defineComponent({
                 latitudeColumn: ''
             },
             selectedVisualizationType: 'choropleth',
-            visualizationConfig: {
-                classificationMethod: 'CLASSIFY_BY_EQUAL_INTERVALS',
-                numberOfClasses: 5,
-                color: 'rgba(59, 130, 246, 1)',
-                toColor: 'rgba(236, 72, 153, 1)',
-                borderColor: 'rgba(255, 255, 255, 1)',
-                borderWidth: 1,
-                chartType: 'pies' as 'pies' | 'bar',
-                markerType: 'default',
-                markerSize: 20,
-                clusterRadius: 40,
-                opacity: 75,
-                heatmapRadius: 25,
-                heatmapBlur: 15,
-                heatmapMaxZoom: 18,
-                iconClass: 'fa fa-map-marker',
-                iconUrl: '',
-                iconImg: ''
-            },
+            visualizationConfig: getDefaultVisualizationConfig(),
             iconPickerVisible: false,
             imagePickerVisible: false,
             pendingId: null as string | null,
@@ -1026,8 +1031,15 @@ export default defineComponent({
     },
     methods: {
         ...mapActions(appStore, ['setLoading']),
+        resetWizardState() {
+            this.visualizationData = getDefaultVisualizationData()
+            this.visualizationConfig = getDefaultVisualizationConfig()
+            this.selectedVisualizationType = 'choropleth'
+            this.currentStep = 1
+        },
         loadWizardData() {
             this.isInitializing = true
+            this.resetWizardState()
             this.loadLayersOptions()
 
             // If editing existing visualization, load it
@@ -1055,8 +1067,18 @@ export default defineComponent({
 
             // Load base data
             Object.assign(this.visualizationData, {
-                ...this.selectedVisualization,
-                connectionType: this.selectedVisualization.targetDataset ? 'join' : 'single'
+                label: this.selectedVisualization.label ?? '',
+                target: this.selectedVisualization.target ?? '',
+                connectionType: this.selectedVisualization.targetDataset ? 'join' : 'single',
+                visible: this.selectedVisualization.visible ?? true,
+                targetDataset: this.selectedVisualization.targetDataset,
+                targetMeasure: this.selectedVisualization.targetMeasure,
+                targetProperty: this.selectedVisualization.targetProperty ?? null,
+                targetDatasetForeignKeyColumn: this.selectedVisualization.targetDatasetForeignKeyColumn,
+                targetDatasetMeasures: this.selectedVisualization.targetDatasetMeasures ?? [],
+                chartMeasures: this.selectedVisualization.chartMeasures ?? [],
+                properties: this.selectedVisualization.properties ?? [],
+                filter: this.selectedVisualization.filter
             })
 
             // Load visualization type
@@ -1066,74 +1088,59 @@ export default defineComponent({
             }
 
             // Load type-specific configuration
-            if (this.selectedVisualization.analysisConf) {
-                const conf = this.selectedVisualization.analysisConf
-                this.visualizationConfig.classificationMethod = conf.method || 'CLASSIFY_BY_EQUAL_INTERVALS'
-                this.visualizationConfig.numberOfClasses = conf.classes || 5
-                if (conf.style) {
-                    // style.color is the main property
-                    this.visualizationConfig.color = conf.style.color || 'rgba(59, 130, 246, 1)'
-                    this.visualizationConfig.toColor = conf.style.toColor || 'rgba(236, 72, 153, 1)'
-                    this.visualizationConfig.borderColor = conf.style.borderColor || 'rgba(255, 255, 255, 1)'
+            switch (this.selectedVisualizationType) {
+                case 'choropleth': {
+                    const conf = normalizeMapWidgetChoroplethConfiguration(this.selectedVisualization.analysisConf)
+                    this.visualizationConfig.classificationMethod = conf.method
+                    this.visualizationConfig.numberOfClasses = conf.classes
+                    this.visualizationConfig.color = conf.style.color ?? this.visualizationConfig.color
+                    this.visualizationConfig.toColor = conf.style.toColor ?? this.visualizationConfig.toColor
+                    this.visualizationConfig.borderColor = conf.style.borderColor ?? this.visualizationConfig.borderColor
+                    this.visualizationConfig.borderWidth = conf.style.borderWidth ?? this.visualizationConfig.borderWidth
+                    break
                 }
-                this.visualizationConfig.borderWidth = conf.borderWidth || 1
-            }
+                case 'markers': {
+                    if (!this.selectedVisualization.markerConf) break
+                    const conf = this.selectedVisualization.markerConf
+                    const normalizedType = conf.type === 'circle' ? 'default' : conf.type === 'image' ? 'img' : conf.type
+                    this.visualizationConfig.markerType = normalizedType ?? 'default'
+                    this.visualizationConfig.markerSize = conf.size ?? 20
+                    this.visualizationConfig.opacity = conf.opacity ?? 75
 
-            if (this.selectedVisualization.markerConf) {
-                const conf = this.selectedVisualization.markerConf
-                const normalizedType = conf.type === 'circle' ? 'default' : conf.type === 'image' ? 'img' : conf.type
-                this.visualizationConfig.markerType = normalizedType || 'default'
-                this.visualizationConfig.markerSize = conf.size || 20
-                this.visualizationConfig.opacity = conf.opacity || 75
-
-                // Load icon/img/url based on type
-                if (conf.icon?.className) {
-                    this.visualizationConfig.iconClass = conf.icon.className
+                    if (conf.icon?.className) this.visualizationConfig.iconClass = conf.icon.className
+                    if (conf.img) this.visualizationConfig.iconImg = conf.img
+                    if (conf.url) this.visualizationConfig.iconUrl = conf.url
+                    if (conf.style?.color) this.visualizationConfig.color = conf.style.color
+                    break
                 }
-                if (conf.img) {
-                    this.visualizationConfig.iconImg = conf.img
+                case 'charts': {
+                    if (!this.selectedVisualization.pieConf) break
+                    const conf = this.selectedVisualization.pieConf
+                    this.visualizationConfig.chartType = conf.type === 'pie' ? 'pies' : 'bar'
+                    if (this.selectedVisualization.chartMeasures) this.visualizationData.chartMeasures = this.selectedVisualization.chartMeasures
+                    else if (conf.measures) this.visualizationData.chartMeasures = conf.measures
+                    break
                 }
-                if (conf.url) {
-                    this.visualizationConfig.iconUrl = conf.url
+                case 'balloons': {
+                    const conf = normalizeMapWidgetBalloonsConfiguration(this.selectedVisualization.balloonConf)
+                    this.visualizationConfig.classificationMethod = conf.method
+                    this.visualizationConfig.numberOfClasses = conf.classes
+                    this.visualizationConfig.color = conf.style.color ?? this.visualizationConfig.color
+                    break
                 }
-
-                if (conf.style) {
-                    this.visualizationConfig.color = conf.style.color || 'rgba(59, 130, 246, 1)'
+                case 'heatmap': {
+                    if (!this.selectedVisualization.heatmapConf) break
+                    const conf = this.selectedVisualization.heatmapConf
+                    this.visualizationConfig.heatmapRadius = conf.radius ?? 25
+                    this.visualizationConfig.heatmapBlur = conf.blur ?? 15
+                    this.visualizationConfig.heatmapMaxZoom = conf.maxZoom ?? 1
+                    break
                 }
-            }
-
-            if (this.selectedVisualization.pieConf) {
-                const conf = this.selectedVisualization.pieConf
-                // Convert 'pie' → 'pies' for UI consistency
-                this.visualizationConfig.chartType = conf.type === 'pie' ? 'pies' : 'bar'
-                // Load chartMeasures if available
-                if (this.selectedVisualization.chartMeasures) {
-                    this.visualizationData.chartMeasures = this.selectedVisualization.chartMeasures
-                } else if (conf.measures) {
-                    this.visualizationData.chartMeasures = conf.measures
-                }
-            }
-
-            if (this.selectedVisualization.balloonConf) {
-                const conf = this.selectedVisualization.balloonConf
-                this.visualizationConfig.classificationMethod = conf.method || 'CLASSIFY_BY_EQUAL_INTERVALS'
-                this.visualizationConfig.numberOfClasses = conf.classes || 5
-                if (conf.style) {
-                    this.visualizationConfig.color = conf.style.color || 'rgba(59, 130, 246, 1)'
-                }
-            }
-
-            if (this.selectedVisualization.heatmapConf) {
-                const conf = this.selectedVisualization.heatmapConf
-                this.visualizationConfig.heatmapRadius = conf.radius || 25
-                this.visualizationConfig.heatmapBlur = conf.blur || 15
-                this.visualizationConfig.heatmapMaxZoom = conf.maxZoom || 1
-            }
-
-            if (this.selectedVisualization.clusterConf) {
-                this.visualizationConfig.clusterRadius = this.selectedVisualization.clusterConf.clusterRadius || 40
-                if (this.selectedVisualization.clusterConf.style) {
-                    this.visualizationConfig.color = this.selectedVisualization.clusterConf.style.color || 'rgba(59, 130, 246, 1)'
+                case 'clusters': {
+                    if (!this.selectedVisualization.clusterConf) break
+                    this.visualizationConfig.clusterRadius = this.selectedVisualization.clusterConf.clusterRadius ?? 40
+                    if (this.selectedVisualization.clusterConf.style?.color) this.visualizationConfig.color = this.selectedVisualization.clusterConf.style.color
+                    break
                 }
             }
         },
@@ -1265,23 +1272,29 @@ export default defineComponent({
             (this as any).saveConfiguration(false)
         },
         buildBaseConfig(): any {
+            const { analysisConf, markerConf, balloonConf, pieConf, clusterConf, heatmapConf, ...baseVisualizationData } = deepcopy(this.visualizationData) as any
             const baseConfig: any = {
-                ...this.visualizationData,
+                ...baseVisualizationData,
                 // For charts, use 'pies' as the type for map rendering compatibility
                 type: this.selectedVisualizationType === 'charts' ? 'pies' : this.selectedVisualizationType
             }
 
             // Add type-specific configuration
             if (this.selectedVisualizationType === 'choropleth') {
+                const existingConfiguration = normalizeMapWidgetChoroplethConfiguration(this.selectedVisualization?.analysisConf)
                 baseConfig.analysisConf = {
+                    ...existingConfiguration,
                     method: this.visualizationConfig.classificationMethod,
                     classes: this.visualizationConfig.numberOfClasses,
+                    borderColor: this.visualizationConfig.borderColor,
+                    properties: existingConfiguration.properties,
                     style: {
+                        ...existingConfiguration.style,
                         color: this.visualizationConfig.color,
                         toColor: this.visualizationConfig.toColor,
-                        borderColor: this.visualizationConfig.borderColor
-                    },
-                    borderWidth: this.visualizationConfig.borderWidth
+                        borderColor: this.visualizationConfig.borderColor,
+                        borderWidth: this.visualizationConfig.borderWidth
+                    }
                 }
             } else if (this.selectedVisualizationType === 'markers') {
                 baseConfig.markerConf = {
@@ -1313,12 +1326,13 @@ export default defineComponent({
                     baseConfig.targetDatasetMeasures = this.visualizationData.chartMeasures
                 }
             } else if (this.selectedVisualizationType === 'balloons') {
+                const existingConfiguration = normalizeMapWidgetBalloonsConfiguration(this.selectedVisualization?.balloonConf)
                 baseConfig.balloonConf = {
-                    method: this.visualizationConfig.classificationMethod || 'CLASSIFY_BY_EQUAL_INTERVALS',
-                    classes: this.visualizationConfig.numberOfClasses || 5,
-                    minSize: 10,
-                    maxSize: 40,
+                    ...existingConfiguration,
+                    method: this.visualizationConfig.classificationMethod || existingConfiguration.method,
+                    classes: this.visualizationConfig.numberOfClasses || existingConfiguration.classes,
                     style: {
+                        ...existingConfiguration.style,
                         color: this.visualizationConfig.color
                     }
                 }

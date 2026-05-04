@@ -14,7 +14,7 @@
                 <div class="row items-center q-mb-sm">
                     <i class="pi pi-th-large kn-cursor-pointer"></i>
                     <q-select class="col-6" filled dense :model-value="dialogProperty.label" :disable="dialogSettingsDisabled" :options="getFilteredVisualizationTypeOptions(index)" option-label="label" option-value="label" emit-value map-options options-dense :label="$t('dashboard.widgetEditor.visualizationType.title')" @update:model-value="(val) => onVisualizationSelected(val, dialogProperty)"></q-select>
-                    <MultiSelect class="col-5 q-ml-sm" v-model="dialogProperty.columns" :disabled="dialogSettingsDisabled" :options="getColumnOptionsFromLayer(dialogProperty)" option-label="alias" display="chip" />
+                    <MultiSelect class="col-5 q-ml-sm" v-model="dialogProperty.columns" :disabled="dialogSettingsDisabled" :options="getColumnOptionsFromLayer(dialogProperty)" option-label="alias" option-value="name" display="chip" />
                 </div>
                 <div class="q-col-gutter" style="gap: 0.5em; margin-left: auto">
                     <i v-if="index === 0" class="pi pi-plus-circle kn-cursor-pointer" data-test="new-button" @click="addDialog()"></i>
@@ -48,6 +48,7 @@ import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyl
 import * as mapWidgetDefaultValues from '../../../helpers/mapWidget/MapWidgetDefaultValues'
 import { getPropertiesByLayerLabel } from '../../../../MapWidget/MapWidgetDataProxy'
 import { resolveLayerByTarget } from '../../../../MapWidget/LeafletHelper'
+import { normalizeMapInfoSettings } from '../../../../MapWidget/MapWidgetInfoSettingsHelper'
 
 export default defineComponent({
     name: 'map-dialog-settings',
@@ -68,6 +69,12 @@ export default defineComponent({
             return !this.widgetModel || !this.widgetModel.settings.dialog.enabled
         }
     },
+    watch: {
+        async widgetModel() {
+            this.loadDialogSettings()
+            await this.loadPropertiesForDialogSettings()
+        }
+    },
     async mounted() {
         this.loadDialogSettings()
         await this.loadPropertiesForDialogSettings()
@@ -75,7 +82,7 @@ export default defineComponent({
     methods: {
         ...mapActions(appStore, ['setLoading']),
         loadDialogSettings() {
-            if (this.widgetModel?.settings?.dialog) this.dialogSettings = this.widgetModel.settings.dialog
+            if (this.widgetModel?.settings?.dialog) this.dialogSettings = normalizeMapInfoSettings(this.widgetModel.settings.dialog)
             this.loadVisualizations()
         },
         async loadPropertiesForDialogSettings() {
@@ -96,7 +103,7 @@ export default defineComponent({
             const entry = {
                 name: (defaultVisualization as any).name ?? (defaultVisualization as any).label ?? '',
                 label: defaultVisualization.label ?? '',
-                columns: Array.isArray(defaultVisualization.columns) ? defaultVisualization.columns.map((c: any) => (typeof c === 'string' ? c : c?.name ?? c?.property ?? String(c))) : [],
+                columns: [],
                 prefix: defaultVisualization.prefix ?? '',
                 suffix: defaultVisualization.suffix ?? '',
                 precision: defaultVisualization.precision ?? 0

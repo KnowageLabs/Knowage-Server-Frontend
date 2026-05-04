@@ -1,7 +1,7 @@
 <template>
     <div v-if="legendVizualizationSettings?.visualizationType && legendVizualizationSettings.visualizationType.type === 'choropleth' && legendVizualizationSettings.visualizationType.analysisConf && layerLegendData">
         <div v-if="layerLegendData.type === LEGEND_DATA_TYPE.CHOROPLETH_INTERVALS" class="choropleth-legend-table">
-            <div class="choropleth-legend-header">{{ $t('common.measure') }}: {{ legendVizualizationSettings.visualizationType.targetProperty ?? legendVizualizationSettings.visualizationType.targetMeasure }}</div>
+            <div class="choropleth-legend-header">{{ $t('common.measure') }}: {{ getMeasureLabel() }}</div>
             <div class="choropleth-legend-row choropleth-legend-title-row">
                 <span>{{ $t('dashboard.widgetEditor.map.legend.minValue') }}</span>
                 <span>{{ $t('dashboard.widgetEditor.map.legend.maxValue') }}</span>
@@ -12,7 +12,7 @@
             </div>
         </div>
         <div v-else-if="layerLegendData.type === LEGEND_DATA_TYPE.CHOROPLETH_QUANTILES" class="choropleth-legend-table">
-            <div class="choropleth-legend-header">{{ $t('common.measure') }}: {{ legendVizualizationSettings.visualizationType.targetProperty ?? legendVizualizationSettings.visualizationType.targetMeasure }}</div>
+            <div class="choropleth-legend-header">{{ $t('common.measure') }}: {{ getMeasureLabel() }}</div>
             <div class="choropleth-legend-row choropleth-legend-title-row">
                 <span>{{ $t('dashboard.widgetEditor.map.legend.minValue') }}</span>
                 <span>{{ $t('dashboard.widgetEditor.map.legend.maxValue') }}</span>
@@ -23,7 +23,7 @@
             </div>
         </div>
         <div v-else-if="layerLegendData.type === LEGEND_DATA_TYPE.CHOROPLETH_RANGES" class="choropleth-legend-table">
-            <div class="choropleth-legend-header">{{ $t('common.measure') }}: {{ legendVizualizationSettings.visualizationType.targetProperty ?? legendVizualizationSettings.visualizationType.targetMeasure }}</div>
+            <div class="choropleth-legend-header">{{ $t('common.measure') }}: {{ getMeasureLabel() }}</div>
             <div class="choropleth-legend-row choropleth-legend-title-row">
                 <span>{{ $t('dashboard.widgetEditor.map.legend.minValue') }}</span>
                 <span>{{ $t('dashboard.widgetEditor.map.legend.maxValue') }}</span>
@@ -48,6 +48,7 @@
 import { PropType } from 'vue'
 import { IMapWidgetVisualizationTypeLegendSettings } from '../../../../interfaces/mapWidget/DashboardMapWidget'
 import { LEGEND_DATA_TYPE } from '../../LeafletHelper'
+import { getMapVisualizationMeasureLabel } from '../../MapWidgetInfoSettingsHelper'
 
 export default {
     name: 'map-legend-choropleth-content',
@@ -77,6 +78,9 @@ export default {
     methods: {
         loadLegendVisualizationSettings() {
             this.legendVizualizationSettings = this.propMapWidgetLegendVisualization
+        },
+        getMeasureLabel() {
+            return getMapVisualizationMeasureLabel(this.legendVizualizationSettings?.visualizationType ?? null)
         },
         formatValue(value: number): string {
             if (!isFinite(value)) return 'N/A'
