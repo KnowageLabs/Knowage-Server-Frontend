@@ -4,7 +4,6 @@
         <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker>
         <q-list class="selector-expansion-list rounded-borders" bordered separator>
             <template v-for="(accordion, index) in filteredSettings" :key="index">
-                <q-separator v-if="accordion.startGroup && index > 0" />
                 <q-item v-if="accordion.toggleOnly">
                     <TextWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged" />
                 </q-item>
@@ -76,7 +75,7 @@ export default defineComponent({
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
-        settings: { type: Array as PropType<{ title: string; type: string; toggleOnly?: boolean; startGroup?: boolean }[]> },
+        settings: { type: Array as PropType<{ title: string; type: string; toggleOnly?: boolean }[]> },
         datasets: { type: Array as PropType<IDataset[]> },
         selectedDatasets: { type: Array as PropType<IDataset[]> },
         variables: { type: Array as PropType<IVariable[]>, required: true },
@@ -105,7 +104,7 @@ export default defineComponent({
         isSearchActive(): boolean {
             return ((this.widgetSettingsSearch as any) ?? '').length >= 3
         },
-        filteredSettings(): { title: string; type: string; toggleOnly?: boolean; startGroup?: boolean }[] {
+        filteredSettings(): { title: string; type: string; toggleOnly?: boolean }[] {
             if (!this.settings) return []
             const search = (this.widgetSettingsSearch as any) ?? ''
             if (search.length >= 3) {

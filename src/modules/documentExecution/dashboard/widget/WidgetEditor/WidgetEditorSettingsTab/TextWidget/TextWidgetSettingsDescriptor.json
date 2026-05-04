@@ -41,7 +41,6 @@
         ],
         "Style": [
             {
-                "startGroup": true,
                 "title": "dashboard.widgetEditor.titles.title",
                 "type": "Title"
             },
