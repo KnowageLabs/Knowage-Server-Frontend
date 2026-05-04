@@ -13,9 +13,11 @@ import { addGeography } from './visualization/MapGeographyVizualizationHelper'
 import { createChoropleth } from './visualization/MapChoroplethVizualizationHelper'
 import { createHeatmapVisualization } from './visualization/MapHeatmapVizualizationHelper'
 import { addMapCharts } from './visualization/MapChartsVizualizationHelper'
+import { transformDataUsingForeignKeyReturningAggregatedColumns } from './visualization/MapVisualizationHelper'
 import useAppStore from '@/App.store'
 import i18n from '@/App.i18n'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
+import { getMapDatasetInfoColumnNames } from './MapWidgetInfoSettingsHelper'
 
 const appStore = useAppStore()
 const { t } = i18n.global
@@ -125,6 +127,46 @@ export const resolveLayerByTarget = (widgetModel: IWidget | any, target: string)
     })
 }
 
+const cloneWidgetForInfoColumns = (widgetModel: IWidget, datasetLayerId: string, infoColumnNames: string[]): IWidget => {
+    const clonedWidgetModel = deepcopy(widgetModel)
+    const infoColumns = new Set(infoColumnNames)
+    const targetDatasetLayer = clonedWidgetModel.layers?.find((layer: IMapWidgetLayer) => layer.layerId === datasetLayerId)
+
+    targetDatasetLayer?.columns?.forEach((column: any) => {
+        if (column.deleted || column.fieldType === 'MEASURE') return
+        if (!column.properties) column.properties = {}
+        column.properties.aggregateBy = infoColumns.has(column.name)
+    })
+
+    return clonedWidgetModel
+}
+
+const loadTargetDatasetInfoMap = async (dashboardId: string, dashboardConfig: any, widgetModel: IWidget, layerVisualizationSettings: any, targetDatasetData: any, selections: ISelection[], associativeResponseSelections: any) => {
+    if (!widgetModel.settings?.dialog?.enabled && !widgetModel.settings?.tooltips?.enabled) return null
+    if (!layerVisualizationSettings.targetDataset || !layerVisualizationSettings.targetDatasetForeignKeyColumn) return null
+
+    const targetDatasetLayer = widgetModel.layers.find((layer: IMapWidgetLayer) => layer.layerId === layerVisualizationSettings.targetDataset)
+    if (!targetDatasetLayer) return null
+
+    const availableFieldNames = new Set((targetDatasetData?.metaData?.fields ?? []).flatMap((field: any) => [field?.name, field?.header]).filter((fieldName: string) => !!fieldName))
+    const missingInfoColumns = getMapDatasetInfoColumnNames(widgetModel, targetDatasetLayer).filter((columnName) => !availableFieldNames.has(columnName))
+    if (!missingInfoColumns.length) return null
+
+    const infoWidgetModel = cloneWidgetForInfoColumns(widgetModel, targetDatasetLayer.layerId, missingInfoColumns)
+    const targetDatasetConfigurations = (dashboardConfig?.datasets ?? []).filter((dataset: any) => dataset.dsLabel === targetDatasetLayer.label)
+    if (!targetDatasetConfigurations.length) return null
+
+    const targetDatasetTempInfoData = await getMapWidgetData(dashboardId, dashboardConfig, infoWidgetModel, targetDatasetConfigurations, false, selections, associativeResponseSelections)
+    const dsId = layerVisualizationSettings.targetDataset.replace('ds_', '')
+    const targetDatasetInfoData = targetDatasetTempInfoData?.[dsId]
+    if (!targetDatasetInfoData?.rows?.length) return null
+
+    const foreignKeyColumnName = getColumnName(layerVisualizationSettings.targetDatasetForeignKeyColumn, targetDatasetInfoData)
+    if (!foreignKeyColumnName) return null
+
+    return transformDataUsingForeignKeyReturningAggregatedColumns(targetDatasetInfoData.rows, foreignKeyColumnName, targetDatasetInfoData)
+}
+
 // Used for getting coordinates, if the type is WKT we are transforming them using the wktToGeoJSON from the @terraformer/wkt lib
 export function getCoordinates(spatialAttribute: any, input: string, coord?: string | null | undefined) {
     if (!spatialAttribute) return []
@@ -208,6 +250,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             let layersData = null as any
             let visualizationDataType = VisualizationDataType.DATASET_ONLY
             let targetDatasetData = null as any
+            let targetDatasetInfoMap = null as Record<string, Record<string, any>> | null
 
             const target = model.layers.find((widgetLayer: IMapWidgetLayer) => widgetLayer.layerId === layerVisualizationSettings.target)
 
@@ -275,10 +318,12 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
 
                     // dashboardConfig already resolved above
                     const selections = dashStore.getSelections(dashboardId) ?? []
+                    const associativeResponseSelections = dashStore.dashboards[dashboardId]?.associations ?? {}
 
-                    let targetDatasetTempData = await getMapWidgetData(dashboardId, dashboardConfig, model, dashboardConfig.datasets, false, selections, dashStore.dashboards[dashboardId]?.associations ?? {})
+                    let targetDatasetTempData = await getMapWidgetData(dashboardId, dashboardConfig, model, dashboardConfig.datasets, false, selections, associativeResponseSelections)
 
                     if (targetDatasetTempData?.[dsId]) targetDatasetData = targetDatasetTempData[dsId]
+                    targetDatasetInfoMap = await loadTargetDatasetInfoMap(dashboardId, dashboardConfig, model, layerVisualizationSettings, targetDatasetData, selections, associativeResponseSelections)
                 }
             }
 
@@ -288,22 +333,22 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             if (reloadWithFilters) centerMap = false
 
             if (layerVisualizationSettings.type === 'markers') {
-                addMarkers(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, activeSelections, dashboardId)
+                addMarkers(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, targetDatasetInfoMap, variables, activeSelections, dashboardId)
             }
 
             if (layerVisualizationSettings.type === 'balloons') {
-                const baloonsData = addBaloonMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, visualizationDataType, targetDatasetData, variables, activeSelections, dashboardId)
+                const baloonsData = addBaloonMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, visualizationDataType, targetDatasetData, targetDatasetInfoMap, variables, activeSelections, dashboardId)
                 legendData[layerVisualizationSettings.id] = baloonsData
             }
 
             if (layerVisualizationSettings.type === 'pies') {
-                const chartsData = addMapCharts(data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, activeSelections, dashboardId)
+                const chartsData = addMapCharts(data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, targetDatasetInfoMap, variables, activeSelections, dashboardId)
                 legendData[layerVisualizationSettings.id] = chartsData
             }
 
             if (layerVisualizationSettings.type === 'clusters') {
                 clusters = createClusterGroup(layerVisualizationSettings, target)
-                addClusters(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, clusters, activeSelections, dashboardId)
+                addClusters(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, targetDatasetInfoMap, variables, clusters, activeSelections, dashboardId)
             }
 
             if (layerVisualizationSettings.type === 'heatmap') {
@@ -312,7 +357,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             }
 
             if (layerVisualizationSettings.type === 'choropleth') {
-                const choroplethData = createChoropleth(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, variables, bounds, activeSelections, dashboardId)
+                const choroplethData = createChoropleth(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, targetDatasetInfoMap, variables, bounds, activeSelections, dashboardId)
                 legendData[layerVisualizationSettings.id] = choroplethData
             }
 

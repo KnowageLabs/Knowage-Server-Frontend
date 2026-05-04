@@ -22,11 +22,11 @@ const findInteractionColumnForVisualization = (widgetModel: IWidget, layerVisual
 }
 
 // Showing markers from the data using geoColumn for the dataset, and property for the layer features (only Points allowed)
-export const addMarkers = (data: any, model: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], layersData: any, targetDatasetData: any, variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
+export const addMarkers = (data: any, model: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], layersData: any, targetDatasetData: any, targetDatasetInfoMap: Record<string, Record<string, any>> | null, variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
     if (data && data[target.id]) {
         addMarkersFromData(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, variables, activeSelections, dashboardId)
     } else {
-        addMarkersUsingLayers(targetDatasetData, layersData, dataColumn, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds, model, variables, activeSelections, dashboardId)
+        addMarkersUsingLayers(targetDatasetData, targetDatasetInfoMap, layersData, dataColumn, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds, model, variables, activeSelections, dashboardId)
     }
 }
 
@@ -144,15 +144,15 @@ const createAndAddMarkerFromData = (row: any, data: any, widgetModel: IWidget, t
     return marker
 }
 
-const addMarkersUsingLayers = (targetDatasetData: any | null, layersData: any, dataColumn: string | null, spatialAttribute: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], widgetModel: IWidget, variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
+const addMarkersUsingLayers = (targetDatasetData: any | null, targetDatasetInfoMap: Record<string, Record<string, any>> | null, layersData: any, dataColumn: string | null, spatialAttribute: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], widgetModel: IWidget, variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
     const { mappedData, dataColumnIndex } = getMappedDataAndColumnIndex(targetDatasetData, dataColumn, layerVisualizationSettings)
 
     layersData.features.forEach((feature: ILayerFeature) => {
         if (feature.geometry?.type === 'Point') {
-            addMarkerUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, null, variables, dataColumnIndex, activeSelections, dashboardId, targetDatasetData)
+            addMarkerUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, null, variables, dataColumnIndex, activeSelections, dashboardId, targetDatasetData, targetDatasetInfoMap)
         } else if (feature.geometry?.type === 'MultiPoint') {
             feature.geometry.coordinates?.forEach((coord: any) => {
-                addMarkerUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, coord, variables, dataColumnIndex, activeSelections, dashboardId, targetDatasetData)
+                addMarkerUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, coord, variables, dataColumnIndex, activeSelections, dashboardId, targetDatasetData, targetDatasetInfoMap)
             })
         }
     })
@@ -174,11 +174,11 @@ export const getMappedDataAndColumnIndex = (targetDatasetData: any, dataColumn: 
     return { mappedData, dataColumnIndex }
 }
 
-const addMarkerUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, spatialAttribute: any, widgetModel: IWidget, markerBounds: any[], coord: any[] | null, variables: IVariable[], dataColumnIndex: string | null, activeSelections: ISelection[], dashboardId: string, targetDatasetData: any) => {
-    createMarkerForVisualization(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, coord, variables, dataColumnIndex, activeSelections, dashboardId, targetDatasetData)
+const addMarkerUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, spatialAttribute: any, widgetModel: IWidget, markerBounds: any[], coord: any[] | null, variables: IVariable[], dataColumnIndex: string | null, activeSelections: ISelection[], dashboardId: string, targetDatasetData: any, targetDatasetInfoMap: Record<string, Record<string, any>> | null) => {
+    createMarkerForVisualization(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, coord, variables, dataColumnIndex, activeSelections, dashboardId, targetDatasetData, targetDatasetInfoMap)
 }
 
-export const createMarkerForVisualization = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, spatialAttribute: any, widgetModel: IWidget, markerBounds: any[], coord: any[] | null, variables: IVariable[], dataColumnIndex: string | null, activeSelections: ISelection[], dashboardId: string, targetDatasetData: any) => {
+export const createMarkerForVisualization = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, spatialAttribute: any, widgetModel: IWidget, markerBounds: any[], coord: any[] | null, variables: IVariable[], dataColumnIndex: string | null, activeSelections: ISelection[], dashboardId: string, targetDatasetData: any, targetDatasetInfoMap: Record<string, Record<string, any>> | null) => {
     const { value } = getFeatureValues(feature, layerVisualizationSettings, mappedData, dataColumnIndex)
 
     if (!value) return
@@ -191,8 +191,8 @@ export const createMarkerForVisualization = (feature: ILayerFeature, layerVisual
     if (!coordinates) return
     const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.markerConf ?? null, value as any, spatialAttribute, conditionalStyle?.['background-color'], conditionalStyle?.icon)
 
-    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker, activeSelections, dashboardId, variables, null, targetDatasetData, mappedData)
-    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker, activeSelections, dashboardId, variables, null, targetDatasetData, mappedData)
+    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker, activeSelections, dashboardId, variables, null, targetDatasetData, mappedData, targetDatasetInfoMap)
+    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker, activeSelections, dashboardId, variables, null, targetDatasetData, mappedData, targetDatasetInfoMap)
     const isClusterGroup = typeof (layerGroup as any)?.getAllChildMarkers === 'function'
     if (!isClusterGroup) {
         markerBounds.push(marker.getLatLng())
@@ -216,7 +216,7 @@ export const createMarkerForVisualization = (feature: ILayerFeature, layerVisual
                         const column = findInteractionColumnForVisualization(widgetModel, layerVisualizationSettings)
                         if (!column) return
 
-                        const dataMap = getInteractionDataMap(feature, layerVisualizationSettings, mappedData, targetDatasetData)
+                        const dataMap = getInteractionDataMap(feature, layerVisualizationSettings, mappedData, targetDatasetData, null, targetDatasetInfoMap)
                         const valueForColumn = dataMap[column]
                         if (valueForColumn === undefined || valueForColumn === null) return
                         const dataValue = `${column}: ${valueForColumn}`
