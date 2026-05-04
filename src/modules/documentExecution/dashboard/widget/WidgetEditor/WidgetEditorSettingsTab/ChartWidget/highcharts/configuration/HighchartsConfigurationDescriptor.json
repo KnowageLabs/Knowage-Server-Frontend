@@ -16,7 +16,21 @@
             "type": "color"
         }
     ],
-    "dateFormats": ["DD-MM-YYYY", "DD/MM/YYYY", "YYYY", "MMMM YYYY", "dddd, MMM D, YYYY", "dddd, MMM D, YYYY hh", "dddd, MMM D, YYYY hh:mm", "dddd, MMM D, YYYY hh:mm:ss", "dddd, MMM D, YYYY hh:mm:ss sss"],
+    "dateFormats": [
+        "HH:mm",
+        "HH:mm:ss",
+        "DD-MM-YYYY",
+        "DD-MM-YYYY HH:mm",
+        "DD/MM/YYYY HH:mm",
+        "DD/MM/YYYY",
+        "YYYY",
+        "MMMM YYYY",
+        "dddd, MMM D, YYYY",
+        "dddd, MMM D, YYYY HH",
+        "dddd, MMM D, YYYY HH:mm",
+        "dddd, MMM D, YYYY HH:mm:ss",
+        "dddd, MMM D, YYYY HH:mm:ss sss"
+    ],
     "stackingOptions": [
         {
             "label": "dashboard.widgetEditor.highcharts.stacking.normal",
