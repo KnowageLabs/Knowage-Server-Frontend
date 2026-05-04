@@ -1,25 +1,21 @@
 <template>
-    <div v-if="widget?.settings?.style" class="p-grid p-p-4">
-        <div class="p-col-12 p-d-flex p-flex-column p-pb-2">
-            <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.widgetTheme') }}</label>
-            <Dropdown v-model="widget.settings.style.themeId" class="kn-material-input kn-full-width" :options="themes" option-label="themeName" option-value="id" show-clear @change="onThemeSelected"></Dropdown>
-        </div>
+    <div v-if="widget?.settings?.style" class="q-pb-md kn-width-full">
+        <q-select v-model="widget.settings.style.themeId" :options="themes" :label="$t('dashboard.widgetEditor.widgetTheme')" option-label="themeName" option-value="id" emit-value map-options clearable outlined dense @update:model-value="onThemeSelected" />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget } from '@/modules/documentExecution/Dashboard/Dashboard'
+import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { mapActions } from 'pinia'
 import { applyStylesToWidget } from '@/modules/documentExecution/dashboard/generalSettings/themes/ThemesHelper'
-import Dropdown from 'primevue/dropdown'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 
 export default defineComponent({
     name: 'widget-editor-theme-picker',
-    components: { Dropdown },
+    components: {},
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, styleChangedFlag: { type: Boolean, required: true } },
     emits: ['themeSelected'],
     data() {
@@ -46,10 +42,10 @@ export default defineComponent({
         loadWidgetStyle() {
             this.widget = this.widgetModel
             if (this.widget?.settings.style?.themeName) delete this.widget.settings.style.themeName
-            if (this.widget.settings.style.themeId) this.onThemeSelected({ value: this.widget.settings.style.themeId })
+            if (this.widget.settings.style.themeId) this.onThemeSelected(this.widget.settings.style.themeId)
         },
-        onThemeSelected(event: { value: number | null }) {
-            const selectedTheme = this.themes.find((theme: IDashboardTheme) => theme.id === event.value)
+        onThemeSelected(value: number | null) {
+            const selectedTheme = this.themes.find((theme: IDashboardTheme) => theme.id === value)
             if (!selectedTheme || !this.widget) return
             const widgetTypeForThemes = this.getWidgetTypeForThemes()
             applyStylesToWidget(this.widget, selectedTheme, selectedTheme.config[widgetTypeForThemes])

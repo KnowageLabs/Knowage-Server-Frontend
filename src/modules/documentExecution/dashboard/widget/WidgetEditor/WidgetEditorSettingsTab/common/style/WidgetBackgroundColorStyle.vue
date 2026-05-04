@@ -1,20 +1,19 @@
 <template>
-    <div v-if="backgroundStyleModel" class="kn-flex p-p-4">
-        <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="backgroundStyleModel.enabled" color="black" /> </span>
-        <form class="p-fluid p-formgrid p-grid">
-            <div class="p-field p-col-12">
-                <span class="">
-                    <WidgetEditorColorPicker :initial-value="backgroundStyleModel.properties['background-color']" :label="$t('dashboard.widgetEditor.iconTooltips.backgroundColor')" :disabled="backgroundStyleDisabled" @change="onBackroundColorChanged"></WidgetEditorColorPicker>
-                </span>
+    <div v-if="backgroundStyleModel" class="q-px-md q-pb-md">
+        <div class="row q-col-gutter-sm">
+            <div v-if="themeStyle" class="col-12">
+                <q-toggle v-model="backgroundStyleModel.enabled" :label="$t('common.enabled')" @update:model-value="backgroundColorStyleChanged" />
             </div>
-        </form>
+            <div class="col-6">
+                <WidgetEditorColorPicker :initial-value="backgroundStyleModel.properties['background-color']" :label="$t('dashboard.widgetEditor.iconTooltips.backgroundColor')" @change="backgroundColorStyleChanged"></WidgetEditorColorPicker>
+            </div>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget, IWidgetBackgroundStyle } from '@/modules/documentExecution/Dashboard/Dashboard'
-import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
+import { IWidget, IWidgetBackgroundStyle } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import descriptor from '../../WidgetEditorSettingsTabDescriptor.json'
 import WidgetEditorColorPicker from '../WidgetEditorColorPicker.vue'
@@ -28,8 +27,7 @@ export default defineComponent({
         return {
             descriptor,
             backgroundStyleModel: null as IWidgetBackgroundStyle | null,
-            widgetType: '' as string,
-            getTranslatedLabel
+            widgetType: '' as string
         }
     },
     computed: {
@@ -57,12 +55,16 @@ export default defineComponent({
         },
         backgroundColorStyleChanged() {
             if (this.widgetModel) this.$emit('styleChanged')
-        },
-        onBackroundColorChanged(event: string | null) {
-            if (!event || !this.backgroundStyleModel) return
-            this.backgroundStyleModel.properties['background-color'] = event
-            this.backgroundColorStyleChanged()
         }
     }
 })
 </script>
+
+<style lang="scss" scoped>
+.color-preview {
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    border: 1px solid rgba(0, 0, 0, 0.24);
+}
+</style>

@@ -1,80 +1,34 @@
 <template>
-    <div v-if="widgetHelpSettingsModel" class="p-ai-center kn-flex p-p-4">
-        <form class="p-fluid p-formgrid p-grid">
-            <div class="p-field p-col-12">
-                <span class="p-float-label">
-                    <Dropdown v-model="widgetHelpSettingsModel.visualizationType" class="kn-material-input" :options="descriptor.visualizationTypes" option-value="value">
-                        <template #value="slotProps">
-                            <div>
-                                <span>{{ getTranslatedLabel(slotProps.value, descriptor.visualizationTypes, $t) }}</span>
-                            </div>
-                        </template>
-                        <template #option="slotProps">
-                            <div>
-                                <span>{{ $t(slotProps.option.label) }}</span>
-                            </div>
-                        </template>
-                    </Dropdown>
-                    <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.help.visualization') }}</label>
-                </span>
+    <div v-if="widgetHelpSettingsModel" class="q-pa-md">
+        <div class="row q-col-gutter-sm">
+            <div class="col-6">
+                <WidgetEditorStyleToolbar :options="descriptor.styleToolbarSettings" :prop-model="toolbarModel" @change="onStyleToolbarChange" />
+            </div>
+            <div class="col-6">
+                <q-select v-model="widgetHelpSettingsModel.iconPosition" :options="translatedIconPositions" :label="$t('dashboard.widgetEditor.help.iconPosition')" option-value="value" option-label="label" emit-value map-options outlined dense />
+            </div>
+            <div class="col-12"><q-separator /></div>
+
+            <div class="col-12">
+                <q-select v-model="widgetHelpSettingsModel.visualizationType" :options="translatedVisualizationTypes" :label="$t('dashboard.widgetEditor.help.visualization')" option-value="value" option-label="label" emit-value map-options outlined dense />
             </div>
 
-            <div class="p-field p-col-6 p-mt-3 p-mb-5">
-                <WidgetEditorStyleToolbar :options="descriptor.styleToolbarSettings" :prop-model="toolbarModel" @change="onStyleToolbarChange"></WidgetEditorStyleToolbar>
+            <template v-if="widgetHelpSettingsModel.visualizationType === 'pop-up'">
+                <div class="col-6">
+                    <q-input v-model="widgetHelpSettingsModel.popupWidth" :label="$t('dashboard.widgetEditor.help.popupWidth')" outlined dense />
+                </div>
+                <div class="col-6">
+                    <q-input v-model="widgetHelpSettingsModel.popupHeight" :label="$t('dashboard.widgetEditor.help.popupHeight')" outlined dense />
+                </div>
+            </template>
+
+            <div class="col-12"><q-separator /></div>
+
+            <div class="col-12">
+                <q-select v-model="widgetHelpSettingsModel.type" :options="translatedTypes" :label="$t('common.type')" option-value="value" option-label="label" emit-value map-options outlined dense />
             </div>
 
-            <div class="p-field p-col-6 p-mt-2">
-                <span class="p-float-label">
-                    <Dropdown v-model="widgetHelpSettingsModel.iconPosition" class="kn-material-input" :options="descriptor.iconPositions" option-value="value">
-                        <template #value="slotProps">
-                            <div>
-                                <span>{{ getTranslatedLabel(slotProps.value, descriptor.iconPositions, $t) }}</span>
-                            </div>
-                        </template>
-                        <template #option="slotProps">
-                            <div>
-                                <span>{{ $t(slotProps.option.label) }}</span>
-                            </div>
-                        </template>
-                    </Dropdown>
-                    <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.help.iconPosition') }}</label>
-                </span>
-            </div>
-
-            <div v-if="widgetHelpSettingsModel.visualizationType === 'pop-up'" class="p-field p-col-6 p-pb-3">
-                <span class="p-float-label">
-                    <InputText v-model="widgetHelpSettingsModel.popupWidth" class="kn-material-input p-inputtext-sm" />
-                    <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.help.popupWidth') }}</label>
-                </span>
-            </div>
-
-            <div v-if="widgetHelpSettingsModel.visualizationType === 'pop-up'" class="p-field p-col-6 p-pb-3">
-                <span class="p-float-label">
-                    <InputText v-model="widgetHelpSettingsModel.popupHeight" class="kn-material-input p-inputtext-sm" />
-                    <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.help.popupHeight') }}</label>
-                </span>
-            </div>
-
-            <div id="help-content-section" class="p-field p-col-12 p-pt-5">
-                <span class="p-float-label">
-                    <Dropdown v-model="widgetHelpSettingsModel.type" class="kn-material-input" :options="descriptor.types" option-value="value" @change="typeChanged">
-                        <template #value="slotProps">
-                            <div>
-                                <span>{{ getTranslatedLabel(slotProps.value, descriptor.types, $t) }}</span>
-                            </div>
-                        </template>
-                        <template #option="slotProps">
-                            <div>
-                                <span>{{ $t(slotProps.option.label) }}</span>
-                            </div>
-                        </template>
-                    </Dropdown>
-                    <label class="kn-material-input-label">{{ $t('common.type') }}</label>
-                </span>
-            </div>
-
-            <div v-if="widgetHelpSettingsModel.type === 'free-text'" class="p-field p-col-12 q-pa-md q-gutter-sm">
-                <label class="kn-material-input-label">{{ $t('common.text') }}</label>
+            <div v-if="widgetHelpSettingsModel.type === 'free-text'" class="col-12">
                 <q-editor
                     v-model="widgetHelpSettingsModel.text"
                     :dense="$q.screen.lt.md"
@@ -92,47 +46,50 @@
                 />
             </div>
 
-            <div v-if="widgetHelpSettingsModel.type === 'link'" class="p-field p-col-12 p-mt-2">
-                <span class="p-float-label">
-                    <InputText v-model="widgetHelpSettingsModel.url" class="kn-material-input p-inputtext-sm" />
-                    <label class="kn-material-input-label">{{ $t('common.url') }}</label>
-                </span>
+            <div v-if="widgetHelpSettingsModel.type === 'link'" class="col-12">
+                <q-input v-model="widgetHelpSettingsModel.url" :label="$t('common.url')" outlined dense />
             </div>
-        </form>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget, IWidgetHelpSettings, IWidgetStyleToolbarModel } from '@/modules/documentExecution/Dashboard/Dashboard'
-import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
+import { useQuasar } from 'quasar'
+import { IWidget, IWidgetHelpSettings, IWidgetStyleToolbarModel } from '@/modules/documentExecution/dashboard/Dashboard'
 import descriptor from './WidgetHelpSettingsDescriptor.json'
-import Dropdown from 'primevue/dropdown'
-import WidgetEditorColorPicker from '../WidgetEditorColorPicker.vue'
 import WidgetEditorStyleToolbar from '../styleToolbar/WidgetEditorStyleToolbar.vue'
 
 export default defineComponent({
     name: 'widget-help-settings',
-    components: { WidgetEditorColorPicker, Dropdown, WidgetEditorStyleToolbar },
+    components: { WidgetEditorStyleToolbar },
     props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true } },
     emits: [],
+    setup() {
+        const $q = useQuasar()
+        return { $q }
+    },
     data() {
         return {
             descriptor,
             widgetHelpSettingsModel: null as IWidgetHelpSettings | null,
-            toolbarModel: { icon: '' } as { icon: string },
-            getTranslatedLabel
+            toolbarModel: { icon: '' } as { icon: string }
         }
     },
     computed: {
-        widgetHelpDisabled() {
-            return !this.widgetHelpSettingsModel || !this.widgetHelpSettingsModel.enabled
+        translatedVisualizationTypes(): { label: string; value: string }[] {
+            return descriptor.visualizationTypes.map((opt) => ({ label: this.$t(opt.label), value: opt.value }))
+        },
+        translatedIconPositions(): { label: string; value: string }[] {
+            return descriptor.iconPositions.map((opt) => ({ label: this.$t(opt.label), value: opt.value }))
+        },
+        translatedTypes(): { label: string; value: string }[] {
+            return descriptor.types.map((opt) => ({ label: this.$t(opt.label), value: opt.value }))
         }
     },
     mounted() {
         this.loadWidgetHelpSettings()
     },
-    unmounted() {},
     methods: {
         loadWidgetHelpSettings() {
             if (this.widgetModel?.settings?.help) this.widgetHelpSettingsModel = this.widgetModel.settings.help
@@ -149,9 +106,3 @@ export default defineComponent({
     }
 })
 </script>
-
-<style lang="scss" scoped>
-#help-content-section {
-    border-top: 1px solid #c2c2c2;
-}
-</style>
