@@ -1,5 +1,5 @@
 import { IWidget } from '../../Dashboard'
-import { IMapDialogSettings, IMapTooltipSettings, IMapTooltipSettingsVisualizations, IMapWidgetLegend, IMapWidgetVisualizationType } from '../../interfaces/mapWidget/DashboardMapWidget'
+import { IMapDialogSettings, IMapTooltipSettings, IMapTooltipSettingsVisualizations, IMapWidgetLayer, IMapWidgetLegend, IMapWidgetVisualizationType } from '../../interfaces/mapWidget/DashboardMapWidget'
 
 export const getMapInfoColumnName = (column: any): string => {
     if (typeof column === 'string') return column
@@ -15,6 +15,32 @@ export const normalizeMapInfoSettingColumns = (visualization: IMapTooltipSetting
 export const normalizeMapInfoSettings = (settings: IMapDialogSettings | IMapTooltipSettings | null | undefined) => {
     settings?.visualizations?.forEach((visualization) => normalizeMapInfoSettingColumns(visualization))
     return settings
+}
+
+export const getMapDatasetInfoColumnNames = (widgetModel: IWidget, datasetLayer: IMapWidgetLayer | null | undefined): string[] => {
+    if (!datasetLayer) return []
+
+    const datasetColumnNames = new Set((datasetLayer.columns ?? []).map((column: any) => column.name))
+    const infoColumnNames = new Set<string>()
+    const infoSettings = [widgetModel?.settings?.dialog, widgetModel?.settings?.tooltips]
+
+    ;(widgetModel?.settings?.visualizations ?? []).forEach((visualization: IMapWidgetVisualizationType) => {
+        const usesDataset = visualization.target === datasetLayer.layerId || visualization.targetDataset === datasetLayer.layerId
+        if (!usesDataset || !visualization.label) return
+
+        infoSettings.forEach((settings) => {
+            settings?.visualizations
+                ?.filter((item) => item.label === visualization.label)
+                .forEach((item) =>
+                    (item.columns ?? []).forEach((column: any) => {
+                        const columnName = getMapInfoColumnName(column)
+                        if (columnName && datasetColumnNames.has(columnName)) infoColumnNames.add(columnName)
+                    })
+                )
+        })
+    })
+
+    return Array.from(infoColumnNames)
 }
 
 export const getMapVisualizationMeasureLabel = (visualizationType: IMapWidgetVisualizationType | null | undefined): string => {

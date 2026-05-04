@@ -18,7 +18,22 @@ interface IListItemStyle {
 }
 
 // Function that creates popup/tooltip for the maps that use dataset as the target
+const createPopupContainer = (tooltip: boolean, title: string) => {
+    const container = document.createElement('div')
+    container.classList.add('customLeafletPopupCard')
+
+    if (!tooltip && title) {
+        const header = document.createElement('div')
+        header.classList.add('customLeafletPopupHeader')
+        header.innerText = title
+        container.appendChild(header)
+    }
+
+    return container
+}
+
 export const createDialogFromDataset = (tooltip: boolean, layerVisualizationSettings: IMapWidgetVisualizationType, settings: IMapTooltipSettings | IMapDialogSettings, meta: any, row: any, widgetModel: IWidget, activeSelections: ISelection[], dashboardId: string, variables: IVariable[]) => {
+    const container = createPopupContainer(tooltip, layerVisualizationSettings.label ?? '')
     const list = document.createElement('ul')
     list.classList.add('customLeafletPopup')
 
@@ -26,7 +41,7 @@ export const createDialogFromDataset = (tooltip: boolean, layerVisualizationSett
     visualizationList.forEach((item: IMapTooltipSettingsVisualizations) => {
         const dataMap = {}
 
-        meta.metaData?.fields.forEach((field: any) => {
+        meta?.metaData?.fields.forEach((field: any) => {
             if (field.dataIndex === undefined || field.dataIndex === null) return
             dataMap[field.header] = row[field.dataIndex]
             if (field.name) dataMap[field.name] = row[field.dataIndex]
@@ -42,8 +57,12 @@ export const createDialogFromDataset = (tooltip: boolean, layerVisualizationSett
             list.append(createTooltipListItem(value, (settings as IMapDialogSettings).style, item, widgetModel, layerVisualizationSettings, activeSelections, dashboardId, variables, dataMap))
         })
     })
-    if (tooltip) return L.tooltip().setContent(list)
-    else return L.popup().setContent(list)
+
+    if (!list.childElementCount) return null
+
+    container.appendChild(list)
+    if (tooltip) return L.tooltip({ className: 'kn-map-tooltip' }).setContent(container)
+    else return L.popup({ className: 'kn-map-popup' }).setContent(container)
 }
 
 export const addDialogToMarker = (data: any, model: IWidget, target: IMapWidgetLayer, layerVisualizationSettings: IMapWidgetVisualizationType, row: any, marker: any, activeSelections: ISelection[], dashboardId: string, variables: IVariable[]) => {
@@ -60,21 +79,21 @@ export const addTooltipToMarker = (data: any, model: IWidget, target: IMapWidget
     }
 }
 
-export const addDialogToMarkerForLayerData = (feature: ILayerFeature, model: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, value: string | number | ChartValuesRecord, marker: any, activeSelections: ISelection[], dashboardId: string, variables: IVariable[], foreignKeyValue?: string | null, targetDatasetData?: any, mappedData?: any) => {
+export const addDialogToMarkerForLayerData = (feature: ILayerFeature, model: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, value: string | number | ChartValuesRecord, marker: any, activeSelections: ISelection[], dashboardId: string, variables: IVariable[], foreignKeyValue?: string | null, targetDatasetData?: any, mappedData?: any, additionalMappedData?: Record<string, Record<string, any>> | null) => {
     if (!model.settings.dialog?.enabled) return
-    const popup = createDialogForLayerData(feature, false, layerVisualizationSettings, model.settings.dialog, value, model, activeSelections, dashboardId, variables, foreignKeyValue, targetDatasetData, mappedData)
+    const popup = createDialogForLayerData(feature, false, layerVisualizationSettings, model.settings.dialog, value, model, activeSelections, dashboardId, variables, foreignKeyValue, targetDatasetData, mappedData, additionalMappedData)
     if (popup) marker.bindPopup(popup)
 }
 
-export const addTooltipToMarkerForLayerData = (feature: ILayerFeature, model: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, value: string | number | ChartValuesRecord, marker: any, activeSelections: ISelection[], dashboardId: string, variables: IVariable[], foreignKeyValue?: string | null, targetDatasetData?: any, mappedData?: any) => {
+export const addTooltipToMarkerForLayerData = (feature: ILayerFeature, model: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, value: string | number | ChartValuesRecord, marker: any, activeSelections: ISelection[], dashboardId: string, variables: IVariable[], foreignKeyValue?: string | null, targetDatasetData?: any, mappedData?: any, additionalMappedData?: Record<string, Record<string, any>> | null) => {
     if (!model.settings.tooltips?.enabled) return
-    const tooltip = createDialogForLayerData(feature, true, layerVisualizationSettings, model.settings.tooltips, value, model, activeSelections, dashboardId, variables, foreignKeyValue, targetDatasetData, mappedData)
+    const tooltip = createDialogForLayerData(feature, true, layerVisualizationSettings, model.settings.tooltips, value, model, activeSelections, dashboardId, variables, foreignKeyValue, targetDatasetData, mappedData, additionalMappedData)
     if (tooltip) marker.bindTooltip(tooltip)
 }
 
 // Function that creates popup/tooltip for the maps that use layers as the target
-export const createDialogForLayerData = (feature: ILayerFeature, tooltip: boolean, layerVisualizationSettings: IMapWidgetVisualizationType, settings: IMapTooltipSettings | IMapDialogSettings, value: string | number | ChartValuesRecord, widgetModel: IWidget, activeSelections: ISelection[], dashboardId: string, variables: IVariable[], foreignKeyValue?: string | null, targetDatasetData?: any, mappedData?: any) => {
-    const container = document.createElement('div')
+export const createDialogForLayerData = (feature: ILayerFeature, tooltip: boolean, layerVisualizationSettings: IMapWidgetVisualizationType, settings: IMapTooltipSettings | IMapDialogSettings, value: string | number | ChartValuesRecord, widgetModel: IWidget, activeSelections: ISelection[], dashboardId: string, variables: IVariable[], foreignKeyValue?: string | null, targetDatasetData?: any, mappedData?: any, additionalMappedData?: Record<string, Record<string, any>> | null) => {
+    const container = createPopupContainer(tooltip, layerVisualizationSettings.label ?? '')
     const visualizationList = settings.visualizations.filter((visualization: IMapTooltipSettingsVisualizations) => visualization.label === layerVisualizationSettings.label) as any
     if (visualizationList?.length === 0) return null
 
@@ -83,7 +102,7 @@ export const createDialogForLayerData = (feature: ILayerFeature, tooltip: boolea
 
     const targetDatasetList = document.createElement('ul')
     targetDatasetList.classList.add('customLeafletPopup')
-    const mergedDataMap = getInteractionDataMap(feature, layerVisualizationSettings, mappedData, targetDatasetData)
+    const mergedDataMap = getInteractionDataMap(feature, layerVisualizationSettings, mappedData, targetDatasetData, null, additionalMappedData)
 
     visualizationList.forEach((item: IMapTooltipSettingsVisualizations) => {
         item.columns.forEach((property: any) => {
@@ -105,12 +124,14 @@ export const createDialogForLayerData = (feature: ILayerFeature, tooltip: boolea
         })
     })
 
-    container.appendChild(list)
+    if (!list.childElementCount && !targetDatasetList.childElementCount) return null
+
+    if (list.childElementCount) container.appendChild(list)
     if (layerVisualizationSettings.targetDataset && layerVisualizationSettings.targetDatasetForeignKeyColumn) {
-        container.appendChild(targetDatasetList)
+        if (targetDatasetList.childElementCount) container.appendChild(targetDatasetList)
     }
-    if (tooltip) return L.tooltip().setContent(container)
-    else return L.popup().setContent(container)
+    if (tooltip) return L.tooltip({ className: 'kn-map-tooltip' }).setContent(container)
+    else return L.popup({ className: 'kn-map-popup' }).setContent(container)
 }
 
 const createTooltipListItem = (value: string, style: IListItemStyle | undefined, visualizationDialogSettings: IMapTooltipSettingsVisualizations | null | undefined, widgetModel: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, activeSelections: ISelection[], dashboardId: string, variables: IVariable[], dataMap?: Record<string, string | number> | null) => {
@@ -119,7 +140,18 @@ const createTooltipListItem = (value: string, style: IListItemStyle | undefined,
     const column = rawValueColumn.trim()
     const formattedValue = rawValue.trim()
 
-    li.innerHTML = column + ': ' + (visualizationDialogSettings?.prefix || '') + getFormattedValueForTheTooltipListItem(formattedValue, visualizationDialogSettings?.precision) + (visualizationDialogSettings?.suffix || '')
+    li.classList.add('customLeafletPopupItem')
+
+    const label = document.createElement('span')
+    label.classList.add('customLeafletPopupLabel')
+    label.innerText = column
+
+    const itemValue = document.createElement('span')
+    itemValue.classList.add('customLeafletPopupValue')
+    itemValue.innerText = (visualizationDialogSettings?.prefix || '') + getFormattedValueForTheTooltipListItem(formattedValue, visualizationDialogSettings?.precision) + (visualizationDialogSettings?.suffix || '')
+
+    li.appendChild(label)
+    li.appendChild(itemValue)
 
     li.classList.add('kn-cursor-pointer')
 

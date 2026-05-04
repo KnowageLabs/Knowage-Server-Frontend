@@ -933,6 +933,10 @@
                 "baseLayer": {
                     "autoCentering": "Automatické centrovanie",
                     "selectBackgroundLayer": "Vybrať vrstvu pozadia",
+                    "osmStandard": "OpenStreetMap standard",
+                    "cartoLight": "CARTO light",
+                    "cartoDark": "CARTO dark",
+                    "esriSatellite": "Esri satellite",
                     "showScale": "Zobraziť mierku",
                     "title": "Povoliť základnú vrstvu",
                     "zoomFactor": "Faktor priblíženia"

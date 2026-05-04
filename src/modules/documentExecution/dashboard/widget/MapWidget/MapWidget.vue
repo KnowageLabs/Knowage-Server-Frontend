@@ -218,16 +218,13 @@ export default defineComponent({
 }
 
 .customLeafletPopup {
-    list-style-type: none;
-    padding-left: 0;
+    list-style: none;
+    margin: 0;
+    padding: 8px;
 }
 
 .customLeafletPopupListHeader {
-    font-weight: bold;
-    background-color: #f0f0f0;
-    border-bottom: 1px solid #c2c2c2;
-    text-align: center;
-    padding: 0.5rem;
+    display: none;
 }
 
 .customLeafletIcon {

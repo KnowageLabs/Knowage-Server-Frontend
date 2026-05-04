@@ -89,10 +89,13 @@ export interface IMapWidgetConfiguration {
     exports: IWidgetExports
 }
 
+export type IMapWidgetBaseLayerType = 'osmStandard' | 'cartoLight' | 'cartoDark' | 'esriSatellite'
+
 export interface IMapWidgetMapSettings {
     zoom: number | null
     showScale: boolean
     autoCentering: boolean
+    baseLayer?: IMapWidgetBaseLayerType
 }
 
 export interface IMapWidgetControlPanel {

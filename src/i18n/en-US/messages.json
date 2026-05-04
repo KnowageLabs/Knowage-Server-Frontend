@@ -1231,6 +1231,10 @@
                 "baseLayer": {
                     "autoCentering": "Auto centering",
                     "selectBackgroundLayer": "Select Background Layer",
+                    "osmStandard": "OpenStreetMap standard",
+                    "cartoLight": "CARTO light",
+                    "cartoDark": "CARTO dark",
+                    "esriSatellite": "Esri satellite",
                     "showScale": "Show scale",
                     "title": "Map",
                     "zoom": "Zoom"
