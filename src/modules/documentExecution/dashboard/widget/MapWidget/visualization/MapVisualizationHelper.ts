@@ -270,6 +270,43 @@ export const transformDataUsingForeignKeyReturningAllColumns = (rows: any[], piv
     }, {})
 }
 
+const addDataRowValuesToDataMap = (row: Record<string, any>, data: any, dataMap: Record<string, any>) => {
+    if (!row || !data?.metaData?.fields) return
+
+    data.metaData.fields.forEach((field: any) => {
+        if (!field?.dataIndex) return
+        const value = row[field.dataIndex]
+        if (typeof value === 'undefined') return
+
+        if (field.name) dataMap[field.name] = value
+        if (field.header) dataMap[field.header] = value
+    })
+}
+
+export const getInteractionDataMap = (source: ILayerFeature | Record<string, any> | null | undefined, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData?: Record<string, any> | null, targetDatasetData?: any, sourceData?: any): Record<string, any> => {
+    if (!source) return {}
+
+    const dataMap = {} as Record<string, any>
+    const isFeatureSource = typeof source === 'object' && source !== null && 'properties' in source
+
+    if (isFeatureSource) {
+        Object.assign(dataMap, (source as ILayerFeature).properties ?? {})
+    } else {
+        Object.assign(dataMap, source)
+        addDataRowValuesToDataMap(source as Record<string, any>, sourceData, dataMap)
+    }
+
+    if (mappedData && isFeatureSource && targetDatasetData && layerVisualizationSettings.targetProperty) {
+        const joinValue = (source as ILayerFeature).properties?.[layerVisualizationSettings.targetProperty]
+        if (joinValue != null) {
+            const targetDatasetRow = mappedData[joinValue]
+            if (targetDatasetRow) addDataRowValuesToDataMap(targetDatasetRow, targetDatasetData, dataMap)
+        }
+    }
+
+    return dataMap
+}
+
 export const getTargetDataColumn = (data: any, layerVisualizationSettings: IMapWidgetVisualizationType, dataColumn: string) => {
     const filter = layerVisualizationSettings.filter
 

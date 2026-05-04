@@ -9,25 +9,29 @@
         </div>
 
         <div v-for="field in layerFields" :key="field.name" class="dynamic-form-item p-grid p-col-12 p-ai-center">
-            <div class="p-grid p-ai-center p-mt-3 kn-width-full">
-                <div class="p-col-12 p-d-flex p-flex-row">
-                    <div class="p-float-label kn-flex">
-                        <InputText v-model="field.alias" class="kn-material-input kn-width-full" :disabled="true" />
-                        <label class="kn-material-input-label">{{ $t('common.column') }}</label>
+                <div class="p-grid p-ai-center p-mt-3 kn-width-full">
+                    <div class="p-col-12 p-d-flex p-flex-row">
+                        <div class="p-float-label kn-flex">
+                            <InputText v-model="field.alias" class="kn-material-input kn-width-full" :disabled="true" />
+                            <label class="kn-material-input-label">{{ $t('common.column') }}</label>
                     </div>
                     <div class="p-field p-float-label p-fluid kn-flex p-ml-2">
                         <Dropdown v-model="field.fieldType" class="kn-material-input" :options="descriptor.columnTypeOptions" :disabled="true"></Dropdown>
                         <label class="kn-material-input-label">{{ $t('common.type') }}</label>
+                        </div>
+                        <div v-if="field.fieldType === 'MEASURE' && !field.formula" class="p-field p-float-label p-fluid kn-flex p-ml-2">
+                            <Dropdown v-model="field.aggregationSelected" class="kn-material-input" :options="descriptor.columnAggregationOptions" option-value="value" option-label="label" @change="onFieldConfigurationChanged"></Dropdown>
+                            <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.aggregation') }}</label>
+                        </div>
+                        <div v-if="showAggregateByToggle(field)" class="p-d-flex p-ai-center p-ml-3 p-mb-2">
+                            <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.map.metadata.aggregateBy') }}</label>
+                            <InputSwitch v-model="field.properties.aggregateBy" @change="onFieldConfigurationChanged"></InputSwitch>
+                        </div>
+                        <div v-if="field.fieldType !== 'SPATIAL_ATTRIBUTE'" class="p-d-flex p-flex-row p-jc-between p-ai-center p-ml-3 p-mb-2">
+                            <i v-if="field.formula" class="pi pi-pencil kn-cursor-pointer p-mr-2" @click="editField(field)"></i>
+                            <i class="pi pi-trash kn-cursor-pointer" @click="removeField(field)"></i>
+                        </div>
                     </div>
-                    <div v-if="field.fieldType === 'MEASURE' && !field.formula" class="p-field p-float-label p-fluid kn-flex p-ml-2">
-                        <Dropdown v-model="field.aggregationSelected" class="kn-material-input" :options="descriptor.columnAggregationOptions" option-value="value" option-label="label"></Dropdown>
-                        <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.aggregation') }}</label>
-                    </div>
-                    <div v-if="field.fieldType !== 'SPATIAL_ATTRIBUTE'" class="p-d-flex p-flex-row p-jc-between p-ai-center p-ml-3 p-mb-2">
-                        <i v-if="field.formula" class="pi pi-pencil kn-cursor-pointer p-mr-2" @click="editField(field)"></i>
-                        <i class="pi pi-trash kn-cursor-pointer" @click="removeField(field)"></i>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -124,9 +128,31 @@ export default defineComponent({
         },
         loadFields() {
             this.fields = this.propFields
+            this.fields.forEach((field: IWidgetMapLayerColumn) => this.initializeFieldConfiguration(field))
         },
         addField() {
             this.addNewFieldDialogVisible = true
+        },
+        initializeFieldConfiguration(field: IWidgetMapLayerColumn) {
+            if (!field.properties) {
+                field.properties = {
+                    aggregateBy: field.fieldType !== 'MEASURE',
+                    coordType: '',
+                    coordFormat: '',
+                    showTooltip: false,
+                    modal: false
+                }
+            } else if (field.fieldType !== 'MEASURE' && typeof field.properties.aggregateBy === 'undefined') {
+                field.properties.aggregateBy = true
+            }
+
+            if (field.fieldType === 'MEASURE' && !field.aggregationSelected) field.aggregationSelected = 'NONE'
+        },
+        showAggregateByToggle(field: IWidgetMapLayerColumn) {
+            return this.selectedLayer?.type === 'dataset' && field.fieldType !== 'MEASURE'
+        },
+        onFieldConfigurationChanged() {
+            emitter.emit('mapFieldsUpdated')
         },
         removeField(field: IWidgetMapLayerColumn) {
             const index = this.fields.findIndex((tempField: IWidgetMapLayerColumn) => tempField.name === field.name)

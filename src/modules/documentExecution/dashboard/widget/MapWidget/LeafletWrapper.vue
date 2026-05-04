@@ -90,8 +90,8 @@ const props = defineProps<{
 }>()
 
 const mapId = 'map_' + Math.random().toString(36).slice(2, 7)
-let map: L.map
-let tile: string
+let map: L.Map
+let tile: L.TileLayer | null = null
 let variables: IVariable[] = []
 
 const loadVariables = () => {
@@ -156,7 +156,30 @@ const onSelectionsDeleted = (selections: any) => {
 
         if (!isForMap) return
     }
-    initializeLayers(map, props.widgetModel, props.data, props.dashboardId, variables, props.propActiveSelections)
+    reloadMapLayers()
+}
+
+const clearMapVisualizations = () => {
+    if (!map) return
+
+    map.eachLayer((layer: any) => {
+        if (layer === tile) return
+        if (layer.knProperties?.layerGroup || layer.knProperties?.cluster || layer.knProperties?.heatmap) {
+            map.removeLayer(layer)
+        }
+    })
+
+    clearLayersCache()
+}
+
+const reloadMapLayers = async () => {
+    if (!map) return
+
+    clearMapVisualizations()
+    const legendData = await initializeLayers(map, props.widgetModel, props.data, props.dashboardId, variables, props.propActiveSelections)
+    handleLegendUpdated(legendData)
+    switchLayerVisibility(map, props.layerVisibility)
+    map.invalidateSize()
 }
 
 const getMapZoomValue = (widgetModel: IWidget | undefined): number => {
@@ -192,8 +215,7 @@ onMounted(async () => {
     if (props.widgetModel.settings?.configuration?.map?.showScale) L.control.scale().addTo(map)
 
     try {
-        const legendData = await initializeLayers(map, props.widgetModel, props.data, props.dashboardId, variables, props.propActiveSelections)
-        handleLegendUpdated(legendData)
+        await reloadMapLayers()
         setTimeout(() => {
             switchLayerVisibility(map, props.layerVisibility)
             map.invalidateSize()
@@ -221,8 +243,7 @@ watch(props.layerVisibility, (newModel) => {
 watch(
     () => props.filtersReloadTrigger,
     async () => {
-        const legendData = await initializeLayers(map, props.widgetModel, props.data, props.dashboardId, variables, props.propActiveSelections)
-        handleLegendUpdated(legendData)
+        await reloadMapLayers()
     }
 )
 
@@ -231,6 +252,22 @@ watch(
     () => {
         loadVariables()
     }
+)
+
+watch(
+    () => props.propActiveSelections,
+    async () => {
+        await reloadMapLayers()
+    },
+    { deep: true }
+)
+
+watch(
+    () => props.data,
+    async () => {
+        await reloadMapLayers()
+    },
+    { deep: true }
 )
 
 const emit = defineEmits<{

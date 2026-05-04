@@ -59,8 +59,12 @@ export default {
             this.loadLegendForTheLayer()
         },
         loadLegendForTheLayer() {
-            if (!this.legendData || !this.legendVizualizationSettings?.visualizationType?.id) return
-            this.layerLegendData = this.legendData[this.legendVizualizationSettings.visualizationType.id]
+            if (!this.legendVizualizationSettings?.visualizationType?.id) {
+                this.layerLegendData = null
+                return
+            }
+
+            this.layerLegendData = this.legendData?.[this.legendVizualizationSettings.visualizationType.id] ?? null
         }
     }
 }

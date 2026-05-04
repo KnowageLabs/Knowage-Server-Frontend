@@ -31,8 +31,6 @@ export enum LEGEND_DATA_TYPE {
     CHOROPLETH_RANGES = ' CHOROPLETH_RANGES'
 }
 
-const legendData = {} as Record<string, any>
-
 // Used in the Map Visualization Helper to determine which of the three use cases is selected in the settings.
 // There is no explicit model property.
 export enum VisualizationDataType {
@@ -184,6 +182,8 @@ export const getParsedInput = (input: string) => {
 // Starting point for the data/layers logic
 export async function initializeLayers(map: L.Map, model: IWidget, data: any, dashboardId: string, variables: IVariable[], activeSelections: ISelection[]) {
     const dashStore = dashboardStore()
+    const dashboardConfig = dashStore.dashboards[dashboardId]?.configuration
+    const legendData = {} as Record<string, any>
 
     try {
         const markerBounds = [] as any
@@ -234,7 +234,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
                 dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[target.id])
             } else {
                 visualizationDataType = VisualizationDataType.LAYER_ONLY
-                layersData = await getLayerData(target)
+                layersData = await getLayerData(target, dashboardConfig)
 
                 if (!layersData) return
 
@@ -273,7 +273,6 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
                     dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[dsId])
                     foreignKeyColumn = getColumnName(layerVisualizationSettings.targetDatasetForeignKeyColumn, data[dsId])
 
-                    const dashboardConfig = dashStore.dashboards[dashboardId]?.configuration
                     const selections = dashStore.getSelections(dashboardId) ?? []
 
                     let targetDatasetTempData = await getMapWidgetData(dashboardId, dashboardConfig, model, dashboardConfig.datasets, false, selections, dashStore.dashboards[dashboardId]?.associations ?? {})
