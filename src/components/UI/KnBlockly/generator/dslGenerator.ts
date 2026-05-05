@@ -1,4 +1,5 @@
 import * as Blockly from 'blockly'
+import { IBlocklyCaseBlockState, IBlocklyFunctionBlockState } from '@/components/UI/KnBlockly/types'
 
 export const dslGenerator = new Blockly.Generator('DSL')
 
@@ -10,6 +11,21 @@ dslGenerator.ORDER_NONE = 99
 function quoteField(name: string) {
     const safe = String(name).replaceAll('"', '\\"')
     return `"${safe}"`
+}
+
+function quoteString(value: string) {
+    const safe = String(value).replaceAll("'", "''")
+    return `'${safe}'`
+}
+
+function getFunctionState(block: Blockly.Block): IBlocklyFunctionBlockState | null {
+    const state = (block as any).saveExtraState?.()
+    return state ?? null
+}
+
+function getCaseState(block: Blockly.Block): IBlocklyCaseBlockState | null {
+    const state = (block as any).saveExtraState?.()
+    return state ?? null
 }
 
 dslGenerator.forBlock['calc_root'] = function (block) {
@@ -26,6 +42,13 @@ dslGenerator.forBlock['agg_field'] = function (block) {
     return [code, dslGenerator.ORDER_ATOMIC]
 }
 
+dslGenerator.forBlock['field_ref'] = function (block) {
+    const field = block.getFieldValue('FIELD') || ''
+    if (!field) return ['/* MISSING_FIELD */', dslGenerator.ORDER_ATOMIC]
+
+    return [`$F{${field}}`, dslGenerator.ORDER_ATOMIC]
+}
+
 dslGenerator.forBlock['fn_nullif'] = function (block) {
     const a = dslGenerator.valueToCode(block, 'A', dslGenerator.ORDER_NONE) || '0'
     const b = dslGenerator.valueToCode(block, 'B', dslGenerator.ORDER_NONE) || '0'
@@ -38,6 +61,40 @@ dslGenerator.forBlock['variable'] = function (block) {
     if (!varName) return ['/* MISSING_VARIABLE */', dslGenerator.ORDER_ATOMIC]
     const code = `$V{${varName}}`
     return [code, dslGenerator.ORDER_ATOMIC]
+}
+
+dslGenerator.forBlock['function_call'] = function (block) {
+    const state = getFunctionState(block)
+    const argCount = state?.argCount ?? 0
+    const callName = state?.callName ?? 'function'
+    const args: string[] = []
+
+    for (let index = 0; index < argCount; index++) {
+        const value = dslGenerator.valueToCode(block, `ARG${index}`, dslGenerator.ORDER_NONE) || '/* MISSING_ARG */'
+        args.push(String(value).trim())
+    }
+
+    return [`${callName}(${args.join(', ')})`, dslGenerator.ORDER_ATOMIC]
+}
+
+dslGenerator.forBlock['case_when'] = function (block) {
+    const state = getCaseState(block)
+    const pairCount = state?.pairCount ?? 1
+    const parts = ['CASE']
+
+    for (let index = 0; index < pairCount; index++) {
+        const whenClause = dslGenerator.valueToCode(block, `WHEN${index}`, dslGenerator.ORDER_NONE) || '/* MISSING_CASE_WHEN */'
+        const thenClause = dslGenerator.valueToCode(block, `THEN${index}`, dslGenerator.ORDER_NONE) || '/* MISSING_CASE_THEN */'
+        parts.push(`WHEN ${String(whenClause).trim()} THEN ${String(thenClause).trim()}`)
+    }
+
+    const elseClause = dslGenerator.valueToCode(block, 'ELSE', dslGenerator.ORDER_NONE)
+    if (elseClause) {
+        parts.push(`ELSE ${String(elseClause).trim()}`)
+    }
+
+    parts.push('END')
+    return [parts.join(' '), dslGenerator.ORDER_ATOMIC]
 }
 
 function createAggregateFunctionGenerator(funcName: string) {
@@ -77,6 +134,10 @@ dslGenerator.forBlock['math_number'] = function (block) {
     return [String(num), dslGenerator.ORDER_ATOMIC]
 }
 
+dslGenerator.forBlock['text'] = function (block) {
+    return [quoteString(block.getFieldValue('TEXT') || ''), dslGenerator.ORDER_ATOMIC]
+}
+
 dslGenerator.forBlock['math_arithmetic'] = function (block) {
     const op = block.getFieldValue('OP')
 
@@ -93,6 +154,38 @@ dslGenerator.forBlock['math_arithmetic'] = function (block) {
 
     const code = `${left}${cfg.sym}${right}`
     return [code, cfg.order]
+}
+
+dslGenerator.forBlock['logic_compare'] = function (block) {
+    const operator = block.getFieldValue('OP')
+    const operations: Record<string, string> = {
+        EQ: '=',
+        GT: '>',
+        GTE: '>=',
+        LT: '<',
+        LTE: '<=',
+        NEQ: '<>'
+    }
+
+    const left = dslGenerator.valueToCode(block, 'A', dslGenerator.ORDER_NONE) || '/* MISSING_COMPARE_LEFT */'
+    const right = dslGenerator.valueToCode(block, 'B', dslGenerator.ORDER_NONE) || '/* MISSING_COMPARE_RIGHT */'
+    return [`(${left} ${operations[operator] ?? '='} ${right})`, dslGenerator.ORDER_ATOMIC]
+}
+
+dslGenerator.forBlock['logic_operation'] = function (block) {
+    const operator = block.getFieldValue('OP') === 'OR' ? 'OR' : 'AND'
+    const left = dslGenerator.valueToCode(block, 'A', dslGenerator.ORDER_NONE) || '/* MISSING_LOGIC_LEFT */'
+    const right = dslGenerator.valueToCode(block, 'B', dslGenerator.ORDER_NONE) || '/* MISSING_LOGIC_RIGHT */'
+    return [`(${left} ${operator} ${right})`, dslGenerator.ORDER_ATOMIC]
+}
+
+dslGenerator.forBlock['logic_negate'] = function (block) {
+    const value = dslGenerator.valueToCode(block, 'BOOL', dslGenerator.ORDER_NONE) || '/* MISSING_LOGIC_VALUE */'
+    return [`NOT (${value})`, dslGenerator.ORDER_ATOMIC]
+}
+
+dslGenerator.forBlock['logic_boolean'] = function (block) {
+    return [block.getFieldValue('BOOL') === 'TRUE' ? 'TRUE' : 'FALSE', dslGenerator.ORDER_ATOMIC]
 }
 
 dslGenerator.scrub_ = function (_block, code) {

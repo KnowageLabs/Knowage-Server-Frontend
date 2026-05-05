@@ -20,6 +20,10 @@
             <q-card-section class="q-pt-none flex-grow" style="overflow: visible; display: flex; flex-direction: column">
                 <q-input v-model="fieldName" filled square :label="t('knBlockly.fieldName')" :placeholder="t('knBlockly.fieldNamePlaceholder')" class="q-my-sm" :error="!fieldName || !fieldName.trim()" :error-message="t('knBlockly.fieldNameRequired')" />
 
+                <div v-if="$slots.additionalInputs" class="p-grid p-fluid">
+                    <slot name="additionalInputs"></slot>
+                </div>
+
                 <div v-show="editorMode === 'blockly'" ref="blocklyDiv" class="bcf-editor flex-grow"></div>
 
                 <q-input v-show="editorMode === 'text'" v-model="textDsl" type="textarea" filled square :label="t('knBlockly.formulaLabel')" :placeholder="t('knBlockly.formulaPlaceholder')" class="bcf-text-editor" :input-style="{ fontFamily: 'monospace', fontSize: '12px', minHeight: '300px' }" @update:model-value="onTextDslChange" />
@@ -58,29 +62,39 @@ import axios from 'axios'
 import { useI18n } from 'vue-i18n'
 import mainStore from '@/App.store'
 
-import toolboxJson from '@/components/UI/KnBlockly/toolbox/toolbox.json'
 import { initBlockly } from '@/components/UI/KnBlockly'
+import { buildToolbox } from '@/components/UI/KnBlockly/toolbox/buildToolbox'
+import type { BlocklyEditorType, IBlocklyFieldOption, IBlocklyFunctionDefinition, IBlocklyValidationField } from '@/components/UI/KnBlockly/types'
 import { setFieldOptions } from '@/components/UI/KnBlockly/workspace/fields'
 import { setVariableOptions } from '@/components/UI/KnBlockly/workspace/variables'
 import { workspaceToState, normalizeStateInput, getInitialMode, extractBlocklyXmlFromState, extractDslFromState } from '@/components/UI/KnBlockly/workspace/state'
 import { safeLoadState } from '@/components/UI/KnBlockly/workspace/safeLoad'
 import { generateDslFromWorkspace, validateWorkspace } from '@/components/UI/KnBlockly/generator/dslFromWorkspace'
+import { getInvalidQbeAggregationNamesFromFormula } from '@/components/UI/KnBlockly/validation/qbeFunctionSemantics'
 
 const { t } = useI18n()
 const store = mainStore()
 
 type Props = {
-    fields: string[]
+    editorType?: BlocklyEditorType
+    fields: Array<string | IBlocklyFieldOption>
+    functionDefinitions?: IBlocklyFunctionDefinition[]
     variables?: any[]
+    validationFields?: IBlocklyValidationField[]
     initialState?: unknown
     fieldName?: string
+    lockSavedMode?: boolean
     showOutputs?: boolean
     visibility: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
+    editorType: 'dashboard',
     fieldName: '',
+    functionDefinitions: () => [],
+    lockSavedMode: true,
     showOutputs: true,
+    validationFields: () => [],
     variables: () => []
 })
 
@@ -111,6 +125,34 @@ const internalVisibility = computed({
     set: (value: boolean) => emit('update:visibility', value)
 })
 
+const normalizedFieldOptions = computed<IBlocklyFieldOption[]>(() => {
+    return (props.fields || [])
+        .map((field) => {
+            if (typeof field === 'string') {
+                const value = field.trim()
+                return value ? { label: value, value } : null
+            }
+
+            const value = field?.value?.trim()
+            if (!value) return null
+
+            return {
+                label: field.label?.trim() || value,
+                value
+            }
+        })
+        .filter((field): field is IBlocklyFieldOption => !!field)
+})
+
+const validFieldValues = computed(() => normalizedFieldOptions.value.map((field) => field.value))
+const validationMeasures = computed(() => {
+    if (props.validationFields && props.validationFields.length > 0) {
+        return props.validationFields.map((field) => ({ alias: field.alias, name: field.name }))
+    }
+
+    return normalizedFieldOptions.value.map((field) => ({ alias: field.value, name: field.label }))
+})
+
 const dsl = ref('')
 const state = ref<any>(null)
 const errors = ref<string[]>([])
@@ -124,18 +166,13 @@ const saveButtonDisabled = computed(() => {
 
 // Blocca il toggle modalità se il campo è già stato salvato con una modalità specifica
 const isModeFixed = computed(() => {
+    if (!props.lockSavedMode) return false
     const saved = normalizeStateInput(props.initialState)
     return saved?.mode === 'text' || saved?.mode === 'blockly'
 })
 
 const dynamicToolbox = computed(() => {
-    const toolbox = JSON.parse(JSON.stringify(toolboxJson))
-
-    if (!props.variables || props.variables.length === 0) {
-        toolbox.contents = toolbox.contents.filter((cat: any) => cat.name !== 'Variables')
-    }
-
-    return toolbox
+    return buildToolbox(props.editorType, props.functionDefinitions || [], !!props.variables?.length)
 })
 
 function refreshOutputs() {
@@ -145,11 +182,11 @@ function refreshOutputs() {
 
         state.value = workspaceToState(ws)
         dsl.value = generateDslFromWorkspace(ws)
-        errors.value = validateWorkspace(ws, props.fields)
+        errors.value = [...validateWorkspace(ws, validFieldValues.value), ...getFunctionSemanticErrors(dsl.value)]
         textDsl.value = dsl.value
     } else {
         dsl.value = textDsl.value
-        errors.value = []
+        errors.value = getFunctionSemanticErrors(textDsl.value)
     }
 }
 
@@ -173,7 +210,16 @@ function onEditorModeChange(mode: 'blockly' | 'text') {
 function onTextDslChange() {
     if (editorMode.value === 'text') {
         dsl.value = textDsl.value
+        errors.value = getFunctionSemanticErrors(textDsl.value)
     }
+}
+
+function getFunctionSemanticErrors(formula: string) {
+    if (props.editorType !== 'qbe') return []
+
+    return getInvalidQbeAggregationNamesFromFormula(formula).map((functionName) =>
+        t('knBlockly.validation.singleArgumentAggregation', { functionName: functionName.toUpperCase() })
+    )
 }
 
 function clearValidationTimeout() {
@@ -210,7 +256,7 @@ async function validateFormula(formula: string): Promise<boolean> {
     isValidFormula.value = false
 
     const tempFormula = replaceFormulaVariables(candidateFormula)
-    const measuresList = (props.fields || []).map((field) => ({ name: field, alias: field }))
+    const measuresList = validationMeasures.value
 
     try {
         const response = await axios.post(
@@ -236,6 +282,12 @@ function scheduleFormulaValidation() {
     clearValidationTimeout()
 
     if (!dsl.value?.trim()) {
+        isValidFormula.value = false
+        isValidating.value = false
+        return
+    }
+
+    if (errors.value.length > 0) {
         isValidFormula.value = false
         isValidating.value = false
         return
@@ -341,7 +393,7 @@ function initializeBlockly() {
 
     if (blocklyXmlState) {
         safeLoadState(ws, blocklyXmlState, () => {
-            setFieldOptions(ws, props.fields)
+            setFieldOptions(ws, normalizedFieldOptions.value)
             setVariableOptions(ws, props.variables || [])
         })
     } else {
@@ -349,7 +401,7 @@ function initializeBlockly() {
         root.initSvg()
         root.render()
         root.moveBy(20, 20)
-        setFieldOptions(ws, props.fields)
+        setFieldOptions(ws, normalizedFieldOptions.value)
         setVariableOptions(ws, props.variables || [])
     }
 
@@ -363,12 +415,10 @@ function initializeBlockly() {
         if (event instanceof Blockly.Events.BlockCreate) {
             if (!event.blockId) return
             const block = ws.getBlockById(event.blockId)
-            if (block?.type === 'agg_field') {
-                console.log('[KnBlockly] Nuovo blocco agg_field creato, aggiorno opzioni')
-                setFieldOptions(ws, props.fields)
+            if (block?.type === 'agg_field' || block?.type === 'field_ref') {
+                setFieldOptions(ws, normalizedFieldOptions.value)
             }
             if (block?.type === 'variable') {
-                console.log('[KnBlockly] Nuovo blocco variable creato, aggiorno opzioni')
                 setVariableOptions(ws, props.variables || [])
             }
         }
@@ -397,7 +447,7 @@ function initializeBlockly() {
             const blocklyXml = extractBlocklyXmlFromState(parsed)
             if (blocklyXml) {
                 safeLoadState(ws, blocklyXml, () => {
-                    setFieldOptions(ws, props.fields)
+                    setFieldOptions(ws, normalizedFieldOptions.value)
                     setVariableOptions(ws, props.variables || [])
                 })
             }
@@ -452,6 +502,11 @@ onMounted(async () => {
             initializeBlockly()
         }, 100)
     }
+
+    if (editorMode.value === 'text') {
+        dsl.value = textDsl.value
+        errors.value = getFunctionSemanticErrors(textDsl.value)
+    }
 })
 
 watch(
@@ -463,10 +518,10 @@ watch(
 
 watch(
     () => props.fields,
-    (fields) => {
+    () => {
         const ws = workspace.value
         if (!ws) return
-        setFieldOptions(ws, fields)
+        setFieldOptions(ws, normalizedFieldOptions.value)
         refreshOutputs()
     },
     { deep: true }
@@ -479,6 +534,14 @@ watch(
         if (!ws) return
         setVariableOptions(ws, variables || [])
         refreshOutputs()
+    },
+    { deep: true }
+)
+
+watch(
+    dynamicToolbox,
+    (toolbox) => {
+        workspace.value?.updateToolbox(toolbox as any)
     },
     { deep: true }
 )

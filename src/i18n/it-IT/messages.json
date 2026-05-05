@@ -1970,6 +1970,7 @@
             "missingRoot": "Manca il blocco root (Calculated field).",
             "multipleRoots": "Ci sono più root block: deve essercene uno solo.",
             "rootNoExpression": "Il root block non ha un'espressione collegata.",
+            "singleArgumentAggregation": "In QBE, {functionName} accetta un solo argomento. Usa operatori aritmetici per combinare più campi.",
             "variableNotSelected": "Un blocco variabile non ha una variabile selezionata."
         },
         "validationTitle": "Validazione"

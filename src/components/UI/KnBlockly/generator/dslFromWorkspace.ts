@@ -33,7 +33,7 @@ export function validateWorkspace(ws: Blockly.Workspace, fields: string[]): stri
     if (extraTop.length) errs.push(i18n.global.t('knBlockly.validation.disconnectedBlocks'))
 
     ws.getAllBlocks(false).forEach((b) => {
-        if (b.type !== 'agg_field') return
+        if (b.type !== 'agg_field' && b.type !== 'field_ref') return
         const field = b.getFieldValue('FIELD') || ''
         if (!field) errs.push(i18n.global.t('knBlockly.validation.fieldNotSelected'))
         else if (fields.length && !fields.includes(field)) errs.push(i18n.global.t('knBlockly.validation.fieldNotInList', { field }))
@@ -42,6 +42,7 @@ export function validateWorkspace(ws: Blockly.Workspace, fields: string[]): stri
     const dsl = generateDslFromWorkspace(ws)
     if (dsl.includes('MISSING_FIELD')) errs.push(i18n.global.t('knBlockly.validation.incompleteExpression'))
     if (dsl.includes('MISSING_VARIABLE')) errs.push(i18n.global.t('knBlockly.validation.variableNotSelected'))
+    if (dsl.includes('MISSING_ARG') || dsl.includes('MISSING_CASE_') || dsl.includes('MISSING_COMPARE_') || dsl.includes('MISSING_LOGIC_')) errs.push(i18n.global.t('knBlockly.validation.incompleteExpression'))
 
     return errs
 }

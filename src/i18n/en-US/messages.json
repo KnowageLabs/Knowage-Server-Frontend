@@ -2479,6 +2479,7 @@
             "missingRoot": "Missing root block (Calculated field).",
             "multipleRoots": "Multiple root blocks: there must be only one.",
             "rootNoExpression": "Root block has no expression connected.",
+            "singleArgumentAggregation": "In QBE, {functionName} accepts only one argument. Use arithmetic operators to combine multiple fields.",
             "variableNotSelected": "A variable block has no variable selected."
         },
         "validationTitle": "Validation"

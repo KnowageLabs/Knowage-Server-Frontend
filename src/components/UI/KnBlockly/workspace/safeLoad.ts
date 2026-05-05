@@ -4,9 +4,8 @@ export function safeLoadState(ws: Blockly.WorkspaceSvg, state: any, postLoad?: (
     const fieldValues = new Map<string, string>()
     if (state?.blocks?.blocks) {
         const extractFieldValues = (block: any) => {
-            if (block.type === 'agg_field' && block.fields?.FIELD) {
+            if ((block.type === 'agg_field' || block.type === 'field_ref') && block.fields?.FIELD) {
                 fieldValues.set(block.id, block.fields.FIELD)
-                console.log('[safeLoadState] Trovato valore FIELD da preservare:', block.id, '=', block.fields.FIELD)
             }
             if (block.inputs) {
                 Object.values(block.inputs).forEach((input: any) => {
@@ -24,13 +23,12 @@ export function safeLoadState(ws: Blockly.WorkspaceSvg, state: any, postLoad?: (
         Blockly.serialization.workspaces.load(state, ws)
 
         ws.getAllBlocks(false).forEach((b) => {
-            if (b.type === 'agg_field') {
+            if (b.type === 'agg_field' || b.type === 'field_ref') {
                 const savedFieldValue = fieldValues.get(b.id)
                 if (savedFieldValue) {
                     const fieldDropdown = b.getField('FIELD') as Blockly.FieldDropdown | null
                     if (fieldDropdown) {
                         ;(fieldDropdown as any).value_ = savedFieldValue
-                        console.log('[safeLoadState] Ripristinato FIELD:', b.id, '=', savedFieldValue)
                     }
                 }
             }
