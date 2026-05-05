@@ -1,9 +1,9 @@
 <template>
-    <q-item-section v-if="model" class="row items-center col-shrink">
-        <q-toggle v-model="model.enabled" :label="title ? $t(title) : ''" @click.stop="onModelChange" dense />
-    </q-item-section>
-    <q-item-section v-else class="col-shrink">
+    <q-item-section>
         <span>{{ title ? $t(title) : '' }}</span>
+    </q-item-section>
+    <q-item-section v-if="model" side>
+        <q-toggle v-model="model.enabled" dense @click.stop="onModelChange" />
     </q-item-section>
 </template>
 
@@ -48,6 +48,8 @@ export default defineComponent({
                     return this.widgetModel.settings.configuration.widgetMenu
                 case 'NoSelections':
                     return this.widgetModel.settings.configuration.noSelections
+                case 'Filter':
+                    return this.widgetModel.settings.configuration.filter
                 case 'Title':
                     return this.widgetModel.settings.style.title
                 case 'LabelStyle':

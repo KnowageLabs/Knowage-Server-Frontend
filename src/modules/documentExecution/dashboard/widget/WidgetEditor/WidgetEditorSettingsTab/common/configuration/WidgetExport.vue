@@ -1,50 +1,28 @@
 <template>
-    <div v-if="exportModel" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div v-if="widgetType === 'table' && exportModel.pdf" class="p-col-12 p-p-2 p-grid">
-            <div class="p-col-2 p-sm-12 p-md-2">
-                <InputSwitch v-model="exportModel.pdf.enabled" @change="onEnableExportChanged"></InputSwitch>
-            </div>
-            <div class="p-col-11 p-sm-12 p-md-10">
-                <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.export.exportPdf') }}</label>
-            </div>
-        </div>
-        <div v-if="widgetType === 'table'" class="p-grid p-col-12 p-ai-center">
-            <div class="p-grid p-col-12 p-ai-center p-pt-4">
-                <div class="p-col-6 field-radiobutton p-px-2">
-                    <RadioButton v-model="selectedExport" name="export" value="a4portrait" :disabled="pdfExportDisabled" @change="onSelectedExportChanged" />
-                    <label class="kn-material-input-label p-m-2"> {{ $t('dashboard.widgetEditor.export.a4portrait') }}</label>
+    <div v-if="exportModel" class="q-px-md q-pb-md">
+        <div class="row q-col-gutter-sm">
+            <template v-if="widgetType === 'table' && exportModel.pdf">
+                <div class="col-12">
+                    <q-toggle v-model="exportModel.pdf.enabled" :label="$t('dashboard.widgetEditor.export.exportPdf')" @update:model-value="onEnableExportChanged" />
                 </div>
-
-                <div class="p-col-6 field-radiobutton p-px-2">
-                    <RadioButton v-model="selectedExport" name="export" value="a4landscape" :disabled="pdfExportDisabled" @change="onSelectedExportChanged" />
-                    <label class="kn-material-input-label p-m-2"> {{ $t('dashboard.widgetEditor.export.a4landscape') }}</label>
+                <div class="col-12 row items-center">
+                    <q-radio v-model="selectedExport" val="a4portrait" :label="$t('dashboard.widgetEditor.export.a4portrait')" :disable="pdfExportDisabled" @update:model-value="onSelectedExportChanged" />
+                    <q-radio v-model="selectedExport" val="a4landscape" :label="$t('dashboard.widgetEditor.export.a4landscape')" :disable="pdfExportDisabled" @update:model-value="onSelectedExportChanged" />
+                    <q-radio v-model="selectedExport" val="custom" :label="$t('common.custom')" :disable="pdfExportDisabled" @update:model-value="onSelectedExportChanged" />
                 </div>
+                <div class="col-6">
+                    <q-input v-model.number="exportModel.pdf.custom.width" type="number" :label="$t('common.width')" outlined dense :disable="pdfExportDisabled || selectedExport !== 'custom'" @blur="exportConfigurationChanged" />
+                </div>
+                <div class="col-6">
+                    <q-input v-model.number="exportModel.pdf.custom.height" type="number" :label="$t('common.height')" outlined dense :disable="pdfExportDisabled || selectedExport !== 'custom'" @blur="exportConfigurationChanged" />
+                </div>
+                <div class="col-12"><q-separator /></div>
+            </template>
+            <div v-if="['table', 'html', 'text', 'chartJS', 'highcharts', 'discovery', 'image', 'customchart', 'static-pivot-table'].includes(widgetType)" class="col-12">
+                <q-toggle v-model="exportModel.showScreenshot" :label="$t('dashboard.widgetEditor.export.enableScreenshots')" @update:model-value="onEnableExportChanged" />
             </div>
-            <div class="p-col-12 p-lg-9 p-grid p-ai-center">
-                <div class="p-col-12 p-md-12 p-lg-3 field-radiobutton p-d-flex p-ai-center p-pt-4">
-                    <RadioButton v-model="selectedExport" name="export" value="custom" :disabled="pdfExportDisabled" @change="onSelectedExportChanged" />
-                    <label class="kn-material-input-label p-m-2"> {{ $t('common.custom') }}</label>
-                </div>
-
-                <div v-if="exportModel.pdf" class="p-col-12 p-md-6 p-lg-5 p-d-flex p-flex-column p-px-4">
-                    <label class="kn-material-input-label">{{ $t('common.width') }}</label>
-                    <InputNumber v-model="exportModel.pdf.custom.width" class="kn-material-input p-inputtext-sm export-number-input" :disabled="pdfExportDisabled || selectedExport !== 'custom'" @blur="exportConfigurationChanged" />
-                </div>
-
-                <div v-if="exportModel.pdf" class="p-col-12 p-md-6 p-lg-4 p-d-flex p-flex-column p-px-4">
-                    <label class="kn-material-input-label">{{ $t('common.height') }}</label>
-                    <InputNumber v-model="exportModel.pdf.custom.height" class="kn-material-input p-inputtext-sm export-number-input" :disabled="pdfExportDisabled || selectedExport !== 'custom'" @blur="exportConfigurationChanged" />
-                </div>
-            </div>
-        </div>
-        <div class="p-grid p-col-12">
-            <div v-if="['table', 'html', 'text', 'chartJS', 'highcharts', 'discovery', 'image', 'customchart', 'static-pivot-table'].includes(widgetType)" class="p-col-12 p-lg-6">
-                <InputSwitch v-model="exportModel.showScreenshot" @change="onEnableExportChanged"></InputSwitch>
-                <label class="kn-material-input-label p-ml-4">{{ $t('dashboard.widgetEditor.export.enableScreenshots') }}</label>
-            </div>
-            <div class="p-col-12 p-lg-6">
-                <InputSwitch v-model="exportModel.showExcelExport" @change="onEnableExportChanged"></InputSwitch>
-                <label class="kn-material-input-label p-ml-4">{{ $t('dashboard.widgetEditor.export.showExcelExport') }}</label>
+            <div class="col-12">
+                <q-toggle v-model="exportModel.showExcelExport" :label="$t('dashboard.widgetEditor.export.showExcelExport')" @update:model-value="onEnableExportChanged" />
             </div>
         </div>
     </div>
@@ -54,13 +32,10 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetExports } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '../../../../../DashboardHelpers'
-import InputNumber from 'primevue/inputnumber'
-import InputSwitch from 'primevue/inputswitch'
-import RadioButton from 'primevue/radiobutton'
 
 export default defineComponent({
     name: 'table-widget-export',
-    components: { InputNumber, InputSwitch, RadioButton },
+    components: {},
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {
@@ -121,9 +96,3 @@ export default defineComponent({
     }
 })
 </script>
-
-<style lang="scss" scoped>
-.export-number-input {
-    max-width: 100px;
-}
-</style>

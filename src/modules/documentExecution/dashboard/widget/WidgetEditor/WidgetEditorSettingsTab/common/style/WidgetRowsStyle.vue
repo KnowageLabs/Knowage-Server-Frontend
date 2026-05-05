@@ -1,23 +1,20 @@
 <template>
-    <div v-if="rowsStyleModel" class="p-ai-center kn-flex p-p-4">
-        <form class="p-fluid p-formgrid p-grid">
-            <div class="p-field p-col-12 p-mb-4">
-                <span class="p-float-label">
-                    <InputNumber v-model="rowsStyleModel.height" class="kn-material-input p-inputtext-sm" @blur="rowsStyleChanged" />
-                    <label class="kn-material-input-label p-mr-2">{{ $t('common.height') }}</label>
-                </span>
+    <div v-if="rowsStyleModel" class="q-px-md q-pb-md">
+        <div class="row q-col-gutter-sm">
+            <div class="col-12">
+                <q-input v-model.number="rowsStyleModel.height" type="number" :label="$t('common.height')" outlined dense @blur="rowsStyleChanged" />
             </div>
-            <div class="p-field p-col-12 p-mb-4 p-d-flex p-flex-row p-ai-center">
-                <InputSwitch v-model="rowsStyleModel.alternatedRows.enabled" class="p-mr-2" @change="rowsStyleChanged"></InputSwitch>
-                <label class="kn-material-input-label p-m-0">{{ $t('dashboard.widgetEditor.rows.enabledAlternatedRows') }}</label>
+            <div class="col-12"><q-separator /></div>
+            <div class="col-12">
+                <q-toggle v-model="rowsStyleModel.alternatedRows.enabled" :label="$t('dashboard.widgetEditor.rows.enabledAlternatedRows')" @update:model-value="rowsStyleChanged" dense />
             </div>
-            <div class="p-field p-col-12 p-md-6">
-                <WidgetEditorColorPicker :initial-value="rowsStyleModel.alternatedRows.evenBackgroundColor" :label="$t('dashboard.widgetEditor.rows.alternatedRowsEven')" :disabled="!rowsStyleModel.alternatedRows.enabled" @change="onBackroundColorChanged($event, 'even')"></WidgetEditorColorPicker>
+            <div class="col-6">
+                <WidgetEditorColorPicker :initial-value="rowsStyleModel.alternatedRows.evenBackgroundColor" :label="$t('dashboard.widgetEditor.rows.alternatedRowsEven')" :disabled="!rowsStyleModel.alternatedRows.enabled" @change="onBackroundColorChanged($event, 'even')" />
             </div>
-            <div class="p-field p-col-12 p-md-6">
-                <WidgetEditorColorPicker :initial-value="rowsStyleModel.alternatedRows.oddBackgroundColor" :label="$t('dashboard.widgetEditor.rows.alternatedRowsOdd')" :disabled="!rowsStyleModel.alternatedRows.enabled" @change="onBackroundColorChanged($event, 'odd')"></WidgetEditorColorPicker>
+            <div class="col-6">
+                <WidgetEditorColorPicker :initial-value="rowsStyleModel.alternatedRows.oddBackgroundColor" :label="$t('dashboard.widgetEditor.rows.alternatedRowsOdd')" :disabled="!rowsStyleModel.alternatedRows.enabled" @change="onBackroundColorChanged($event, 'odd')" />
             </div>
-        </form>
+        </div>
     </div>
 </template>
 
@@ -25,13 +22,11 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetRowsStyle } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
-import InputNumber from 'primevue/inputnumber'
-import InputSwitch from 'primevue/inputswitch'
 import WidgetEditorColorPicker from '../../common/WidgetEditorColorPicker.vue'
 
 export default defineComponent({
     name: 'widget-rows-style',
-    components: { InputNumber, InputSwitch, WidgetEditorColorPicker },
+    components: { WidgetEditorColorPicker },
     props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true }, themeStyle: { type: Object as PropType<IWidgetRowsStyle | null>, required: true } },
     emits: ['styleChanged'],
     data() {
@@ -69,9 +64,3 @@ export default defineComponent({
     }
 })
 </script>
-
-<style lang="scss" scoped>
-#height-input-container {
-    max-width: 200px;
-}
-</style>

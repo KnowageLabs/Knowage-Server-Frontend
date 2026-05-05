@@ -1,36 +1,30 @@
 <template>
-    <div v-if="valuesManagementModel" class="p-grid p-jc-center p-ai-center kn-flex p-p-4">
-        <div class="p-col-12 p-grid p-d-flex p-flex-row p-jc-start p-p-4">
-            <div class="p-sm-12 p-md-2">
-                <InputSwitch v-model="valuesManagementModel.showDataset" @change="valuesManagementChanged"></InputSwitch>
-            </div>
-            <div class="p-sm-12 p-md-10 p-d-flex">
-                <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.valuesManagement.showDataset') }}</label>
-                <i v-tooltip.top="$t('dashboard.widgetEditor.valuesManagement.showDatasetHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-auto p-mr-4"></i>
-            </div>
-
-            <div class="p-sm-12 p-md-2">
-                <InputSwitch v-model="valuesManagementModel.showColumn" @change="valuesManagementChanged"></InputSwitch>
-            </div>
-            <div class="p-sm-12 p-md-10 p-d-flex">
-                <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.valuesManagement.showColumn') }}</label>
-                <i v-tooltip.top="$t('dashboard.widgetEditor.valuesManagement.showColumnHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-auto p-mr-4"></i>
-            </div>
+    <div v-if="valuesManagementModel" class="q-px-md q-pb-md">
+        <div class="col-12 row items-center">
+            <q-toggle v-model="valuesManagementModel.showDataset" :label="$t('dashboard.widgetEditor.valuesManagement.showDataset')" @update:model-value="valuesManagementChanged" />
+            <q-icon name="help_outline" class="q-ml-auto cursor-pointer" size="xs">
+                <q-tooltip>{{ $t('dashboard.widgetEditor.valuesManagement.showDatasetHint') }}</q-tooltip>
+            </q-icon>
+        </div>
+        <div class="col-12 row items-center">
+            <q-toggle v-model="valuesManagementModel.showColumn" :label="$t('dashboard.widgetEditor.valuesManagement.showColumn')" @update:model-value="valuesManagementChanged" />
+            <q-icon name="help_outline" class="q-ml-auto cursor-pointer" size="xs">
+                <q-tooltip>{{ $t('dashboard.widgetEditor.valuesManagement.showColumnHint') }}</q-tooltip>
+            </q-icon>
         </div>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget } from '@/modules/documentExecution/Dashboard/Dashboard'
+import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { ISelectionsWidgetValuesManagement } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectionsWidget'
 import { emitter } from '../../../../../DashboardHelpers'
 import descriptor from '../SelectionsWidgetSettingsDescriptor.json'
-import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
     name: 'selections-widget-values-management',
-    components: { InputSwitch },
+    components: {},
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {
