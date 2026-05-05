@@ -1,5 +1,5 @@
 <template>
-    <div v-if="widgetHelpSettingsModel" class="q-pa-md">
+    <div v-if="widgetHelpSettingsModel" class="q-pa-md" :class="{ 'widget-editor-disabled': widgetHelpSettingsModel.enabled === false }">
         <div class="row q-col-gutter-sm">
             <div class="col-6">
                 <WidgetEditorStyleToolbar :options="descriptor.styleToolbarSettings" :prop-model="toolbarModel" @change="onStyleToolbarChange" />
@@ -106,3 +106,10 @@ export default defineComponent({
     }
 })
 </script>
+
+<style scoped>
+.widget-editor-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+</style>
