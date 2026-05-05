@@ -126,7 +126,7 @@ describe('Home dynamic navigation', () => {
 
         methods.navigateDynamicHomeElement.call(context, button)
 
-        expect(context.$router.push).toHaveBeenCalledWith({ name: 'externalUrl', params: { url: 'https://example.com' } })
+        expect(context.$router.push).toHaveBeenCalledWith({ name: 'externalUrl', query: { url: 'https://example.com' } })
     })
 
     it('intercepts clicks from nested elements inside custom placeholders', () => {
@@ -183,11 +183,22 @@ describe('Home dynamic navigation', () => {
         const context = createContext({
             homePage: {
                 to: '/dashboard/Sales'
+            },
+            hasConfiguredHomeTarget: true,
+            stopGlobalLoading: vi.fn(),
+            startGlobalLoading: vi.fn(),
+            unbindDynamicHomeFrameInteractions: vi.fn(),
+            isFunctionality: vi.fn().mockReturnValue(false),
+            isADocument: vi.fn().mockReturnValue(true),
+            isHTML: vi.fn().mockReturnValue(false),
+            $router: {
+                push: vi.fn(),
+                replace: vi.fn()
             }
         })
 
-        await methods.setCompleteUrl.call(context)
+        await methods.resolveHomeTarget.call(context)
 
-        expect(context.$router.push).toHaveBeenCalledWith('/dashboard/Sales')
+        expect(context.$router.replace).toHaveBeenCalledWith('/dashboard/Sales')
     })
 })
