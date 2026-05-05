@@ -3,10 +3,10 @@
         <div class="row q-col-gutter-sm">
             <template v-if="widgetType === 'table' && exportModel.pdf">
                 <div class="col-12">
-                    <q-toggle v-model="exportModel.pdf.enabled" :label="$t('dashboard.widgetEditor.export.exportPdf')" @update:model-value="onEnableExportChanged" />
+                    <q-toggle v-model="exportModel.pdf.enabled" :label="$t('dashboard.widgetEditor.export.exportPdf')" @update:model-value="onEnableExportChanged" dense />
                 </div>
                 <div class="col-12 row items-center">
-                    <q-radio v-model="selectedExport" val="a4portrait" :label="$t('dashboard.widgetEditor.export.a4portrait')" :disable="pdfExportDisabled" @update:model-value="onSelectedExportChanged" />
+                    <q-radio v-model="selectedExport" val="a4portrait" :label="$t('dashboard.widgetEditor.export.a4portrait')" :disable="pdfExportDisabled" @update:model-value="onSelectedExportChanged" dense />
                     <q-radio v-model="selectedExport" val="a4landscape" :label="$t('dashboard.widgetEditor.export.a4landscape')" :disable="pdfExportDisabled" @update:model-value="onSelectedExportChanged" />
                     <q-radio v-model="selectedExport" val="custom" :label="$t('common.custom')" :disable="pdfExportDisabled" @update:model-value="onSelectedExportChanged" />
                 </div>
@@ -19,10 +19,10 @@
                 <div class="col-12"><q-separator /></div>
             </template>
             <div v-if="['table', 'html', 'text', 'chartJS', 'highcharts', 'discovery', 'image', 'customchart', 'static-pivot-table'].includes(widgetType)" class="col-12">
-                <q-toggle v-model="exportModel.showScreenshot" :label="$t('dashboard.widgetEditor.export.enableScreenshots')" @update:model-value="onEnableExportChanged" />
+                <q-toggle v-model="exportModel.showScreenshot" :label="$t('dashboard.widgetEditor.export.enableScreenshots')" @update:model-value="onEnableExportChanged" dense />
             </div>
             <div class="col-12">
-                <q-toggle v-model="exportModel.showExcelExport" :label="$t('dashboard.widgetEditor.export.showExcelExport')" @update:model-value="onEnableExportChanged" />
+                <q-toggle v-model="exportModel.showExcelExport" :label="$t('dashboard.widgetEditor.export.showExcelExport')" @update:model-value="onEnableExportChanged" dense />
             </div>
         </div>
     </div>

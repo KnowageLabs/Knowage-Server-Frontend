@@ -1,26 +1,15 @@
 <template>
-    <div v-if="summaryRowsModel" class="p-grid p-jc-center p-ai-center p-p-4">
-        <!-- <div class="p-col-12 p-grid">
-            <div class="p-col-12 p-text-left p-text-md-left p-pr-4">
-                <label class="kn-material-input-label p-mr-3"> {{ $t('dashboard.widgetEditor.summaryRows.pinnedColumnsOnly') }}</label>
-                <Checkbox v-model="summaryRowsModel.style.pinnedOnly" :binary="true" :disabled="summaryRowsDiabled" @change="summaryRowsChanged" />
-            </div>
-        </div> -->
-
-        <div class="p-col-12">
-            <div v-for="(summaryRow, index) in summaryRowsModel.list" :key="index" class="p-grid p-ai-center">
-                <div class="p-col-12 p-md-4 p-d-flex p-flex-column p-pt-1">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('common.label') }}</label>
-                    <InputText v-model="summaryRow.label" class="kn-material-input p-inputtext-sm" :disabled="summaryRowsDiabled" @change="summaryRowsChanged" />
+    <div v-if="summaryRowsModel" class="q-px-md q-pb-md">
+        <div class="row q-col-gutter-sm">
+            <div v-for="(summaryRow, index) in summaryRowsModel.list" :key="index" class="col-12 row q-col-gutter-sm items-center">
+                <div class="col">
+                    <q-input v-model="summaryRow.label" :label="$t('common.label')" outlined dense :disable="summaryRowsDiabled" @change="summaryRowsChanged" />
                 </div>
-                <div class="p-col-12 p-md-8 p-grid p-p-2">
-                    <div class="p-col-10 p-d-flex p-flex-column">
-                        <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.aggregation') }}</label>
-                        <Dropdown v-model="summaryRow.aggregation" class="kn-material-input" :options="getAggregationOptions(index)" option-value="value" option-label="label" :disabled="index === 0 || !summaryRowsModel.enabled" @change="summaryRowsChanged"> </Dropdown>
-                    </div>
-                    <div class="p-col-2 p-d-flex p-flex-column p-jc-center p-ai-center p-pl-3">
-                        <i :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash', summaryRowsDiabled ? 'icon-disabled' : '']" class="kn-cursor-pointer" @click="index === 0 ? addSummaryRow() : removeSummaryRow(index)"></i>
-                    </div>
+                <div class="col">
+                    <q-select v-model="summaryRow.aggregation" :options="getAggregationOptions(index)" option-value="value" option-label="label" emit-value map-options :label="$t('dashboard.widgetEditor.aggregation')" outlined dense :disable="index === 0 || !summaryRowsModel.enabled" @update:model-value="summaryRowsChanged" />
+                </div>
+                <div class="col-auto">
+                    <q-btn flat round dense :icon="index === 0 ? 'add_circle_outline' : 'delete'" size="sm" :disable="summaryRowsDiabled" @click="index === 0 ? addSummaryRow() : removeSummaryRow(index)" />
                 </div>
             </div>
         </div>
@@ -32,12 +21,10 @@ import { defineComponent, PropType } from 'vue'
 import { IWidget, ITableWidgetSummaryRows } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '../../../../../DashboardHelpers'
 import descriptor from '../TableWidgetSettingsDescriptor.json'
-import Checkbox from 'primevue/checkbox'
-import Dropdown from 'primevue/dropdown'
 
 export default defineComponent({
     name: 'table-widget-summary-rows',
-    components: { Checkbox, Dropdown },
+    components: {},
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {

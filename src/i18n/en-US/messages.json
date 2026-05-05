@@ -17,9 +17,9 @@
             "special": "At least 1 special character (_{'|'}-#$)",
             "uppercase": "At least 1 uppercase character"
         },
+        "requiresPasswordChange": "Password change required. Please set a new password to continue.",
         "subtitle": "Here you can change your personal informations",
-        "title": "Account Management",
-        "requiresPasswordChange": "Password change required. Please set a new password to continue."
+        "title": "Account Management"
     },
     "ai": {
         "dashboardLink": "Dashboard Link",
@@ -799,6 +799,7 @@
             "compareValueType": "Compare value type",
             "conditionalStyle": "Conditional Style",
             "conditions": {
+                "addCondition": "Add Condition",
                 "applyToWholeRow": "Apply to whole row",
                 "compareValueType": "Value type",
                 "formulaHint": "Formula hint placeholder",
@@ -1750,7 +1751,8 @@
             },
             "tooltipTextHint": "This text will overwrite the columns header default tooltip, variables and parameters placeholders ($V{placeholder} and $P{placeholder}) are available.",
             "tooltips": {
-                "customHeader": "Custom Header",
+                "addTooltip": "Add Tooltip",
+                "customHeader": "Custom Header Tooltip",
                 "title": "Tooltips"
             },
             "updateFromSelections": "Update From Selections",
@@ -1770,6 +1772,7 @@
                 "wrapTextHint": "Wrap text hint placeholder"
             },
             "visibilityConditions": {
+                "addCondition": "Add Condition",
                 "always": "Always",
                 "hideColumn": "Hide Column",
                 "hideFromSummary": "Hide Summary",
@@ -1788,9 +1791,11 @@
             },
             "visualizationType": {
                 "alignment": "Alignment",
+                "allCols": "All columns",
                 "bar": "Bar",
                 "barAndText": "Bar & Text",
                 "barColor": "Bar Color",
+                "columnOverrides": "Column overrides",
                 "maximumCharacters": "Maximum Characters",
                 "multilineText": "Multiline Text",
                 "pinned": "Pinned",

@@ -1,5 +1,5 @@
 <template>
-    <div v-if="paginatorStyleModel" class="q-pa-md">
+    <div v-if="paginatorStyleModel" class="q-pb-md q-px-md">
         <div class="row q-col-gutter-sm">
             <!-- Pagination Mode -->
             <label class="kn-material-input-label section-label col-12">{{ $t('dashboard.tableWidget.paginationMode') }}</label>

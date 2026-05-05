@@ -97,14 +97,14 @@ const removeColumnFromCrossNavigation = (widgetModel: IWidget, column: IWidgetCo
 export const removeColumnGroupFromModel = (widgetModel: IWidget, columnGroup: ITableWidgetColumnGroup) => {
     let removed = false
     for (let i = widgetModel.settings.style.columnGroups.styles.length - 1; i >= 0; i--) {
-        for (let j = widgetModel.settings.style.columnGroups[i].target.length; j >= 0; j--) {
-            const tempTarget = widgetModel.settings.style.columnGroups[i].target[j]
+        for (let j = widgetModel.settings.style.columnGroups.styles[i].target.length; j >= 0; j--) {
+            const tempTarget = widgetModel.settings.style.columnGroups.styles[i].target[j]
             if (columnGroup.id === tempTarget) {
-                ;(widgetModel.settings.style.columnGroups[i].target as string[]).splice(j, 1)
+                widgetModel.settings.style.columnGroups.styles[i].target.splice(j, 1)
                 removed = true
             }
         }
-        if (widgetModel.settings.style.columnGroups[i].target.length === 0) widgetModel.settings.style.columnGroups.styles.splice(i, 1)
+        if (widgetModel.settings.style.columnGroups.styles[i].target.length === 0) widgetModel.settings.style.columnGroups.styles.splice(i, 1)
     }
     if (removed) emitter.emit('columnGroupRemoved')
 }

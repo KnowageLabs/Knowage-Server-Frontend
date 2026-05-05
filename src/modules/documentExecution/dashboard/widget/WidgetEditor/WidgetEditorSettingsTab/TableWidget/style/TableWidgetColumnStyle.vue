@@ -1,49 +1,35 @@
-<!-- eslint-disable vue/valid-v-model -->
 <template>
-    <div v-if="columnStyles" class="kn-flex p-p-4">
-        <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="columnStyles.enabled" color="black" /> </span>
+    <div v-if="columnStyles" class="q-px-md q-pb-md">
+        <div v-if="themeStyle" class="row items-center q-mb-sm">
+            <q-toggle v-model="columnStyles.enabled" :label="$t('common.enabled')" dense />
+        </div>
 
-        <div v-for="(columnStyle, index) in columnStyles.styles" :key="index">
-            <div v-if="mode !== 'columnGroups'" class="p-fluid p-formgrid p-grid">
-                <div class="p-field p-col-8">
-                    <span class="p-float-label">
-                        <Dropdown v-model="columnStyle.properties['align-items']" class="kn-material-input p-inputtext-sm" :options="descriptor.verticalAlignmentOptions" option-value="value" :disabled="columnStylesDisabled" @change="columnStylesChanged">
-                            <template #value="slotProps">
-                                <div>
-                                    <span>{{ getTranslatedLabel(slotProps.value, descriptor.verticalAlignmentOptions, $t) }}</span>
-                                </div>
-                            </template>
-                            <template #option="slotProps">
-                                <div>
-                                    <span>{{ $t(slotProps.option.label) }}</span>
-                                </div>
-                            </template>
-                        </Dropdown>
-                        <label class="kn-material-input-label"> {{ $t('common.verticalAlign') }}</label>
-                    </span>
+        <div v-for="(columnStyle, index) in columnStyles.styles" :key="index" class="column-type-row row no-wrap q-mb-sm">
+            <!-- Card content -->
+            <div class="col q-pa-sm">
+                <div class="row q-mb-sm">
+                    <div class="col">
+                        <q-select v-if="index === 0" :model-value="descriptor.allColumnOption[0].value" :options="descriptor.allColumnOption" option-value="value" option-label="label" emit-value map-options outlined dense disable />
+                        <WidgetEditorColumnsMultiselect v-else :value="columnStyle.target as string[]" :available-target-options="availableColumnOptions" :widget-columns-alias-map="widgetColumnsAliasMap" option-label="alias" option-value="id" :disabled="columnStylesDisabled" @change="onColumnsSelected($event, columnStyle)" />
+                    </div>
                 </div>
-                <div class="p-field p-col-4">
-                    <span class="p-float-label">
-                        <InputNumber v-model="(columnStyle.properties.width as number)" class="kn-material-input p-inputtext-sm" :disabled="columnStylesDisabled" @blur="columnStylesChanged(index)" />
-                        <label class="kn-material-input-label p-mr-2">{{ $t('common.width') }}</label>
-                    </span>
+
+                <!-- Vertical align + width (not for columnGroups mode) -->
+                <div v-if="mode !== 'columnGroups'" class="row q-col-gutter-sm q-mb-sm">
+                    <div class="col-8">
+                        <q-select v-model="columnStyle.properties['align-items']" :options="translatedVerticalAlignmentOptions" option-value="value" option-label="label" emit-value map-options :label="$t('common.verticalAlign')" outlined dense :disable="columnStylesDisabled" @update:model-value="columnStylesChanged" />
+                    </div>
+                    <div class="col-4">
+                        <q-input v-model.number="columnStyle.properties.width" type="number" :label="$t('common.width')" outlined dense :disable="columnStylesDisabled" @blur="columnStylesChanged(index)" />
+                    </div>
                 </div>
+
+                <WidgetEditorStyleToolbar :options="settingsDescriptor.defaultToolbarStyleOptions" :prop-model="columnStyle.properties" :disabled="columnStylesDisabled" @change="onStyleToolbarChange($event, columnStyle, index)" />
             </div>
-            <form class="p-fluid p-formgrid p-grid">
-                <div class="p-field p-col-12 p-d-flex p-flex-row">
-                    <span class="p-float-label kn-flex">
-                        <Dropdown v-if="index === 0" v-model="columnStyle.target" class="kn-material-input p-inputtext-sm" :options="descriptor.allColumnOption" option-value="value" option-label="label" :disabled="true"> </Dropdown>
-                        <WidgetEditorColumnsMultiselect v-else :value="(columnStyle.target as string[])" :available-target-options="availableColumnOptions" :widget-columns-alias-map="widgetColumnsAliasMap" option-label="alias" option-value="id" :disabled="columnStylesDisabled" @change="onColumnsSelected($event, columnStyle)" />
-                        <label class="kn-material-input-label"> {{ $t('common.columns') }}</label>
-                    </span>
-                    <i v-if="widgetModel" :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash', columnStylesDisabled ? 'icon-disabled' : '']" class="kn-cursor-pointer p-as-center p-ml-3" @click="index === 0 ? addColumnStyle() : removeColumnStyle(index)"></i>
-                </div>
-            </form>
-
-            <WidgetEditorStyleToolbar :options="settingsDescriptor.defaultToolbarStyleOptions" :prop-model="columnStyle.properties" :disabled="columnStylesDisabled" @change="onStyleToolbarChange($event, columnStyle, index)"> </WidgetEditorStyleToolbar>
-
-            <br v-if="widgetModel && index < columnStyles.styles.length - 1" />
-            <br v-if="widgetModel && index < columnStyles.styles.length - 1" />
+            <!-- Action handle (full-height, shown on hover) -->
+            <div v-if="widgetModel" class="kn-action-handle row items-center justify-center" :class="columnStylesDisabled ? 'kn-action-handle-disabled' : ''">
+                <q-btn flat round dense :icon="index === 0 ? 'add' : 'delete'" size="sm" :disable="columnStylesDisabled" @click="index === 0 ? addColumnStyle() : removeColumnStyle(index)" />
+            </div>
         </div>
     </div>
 </template>
@@ -52,17 +38,14 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget, ITableWidgetColumnStyle, IWidgetStyleToolbarModel, IWidgetColumn, ITableWidgetColumnGroup, ITableWidgetColumnStyles } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '../../../../../DashboardHelpers'
-import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import descriptor from '../TableWidgetSettingsDescriptor.json'
 import settingsDescriptor from '../../WidgetEditorSettingsTabDescriptor.json'
-import Dropdown from 'primevue/dropdown'
-import InputNumber from 'primevue/inputnumber'
 import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 import WidgetEditorColumnsMultiselect from '../../common/WidgetEditorColumnsMultiselect.vue'
 
 export default defineComponent({
     name: 'table-widget-column-style',
-    components: { Dropdown, InputNumber, WidgetEditorColumnsMultiselect, WidgetEditorStyleToolbar },
+    components: { WidgetEditorColumnsMultiselect, WidgetEditorStyleToolbar },
     props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true }, themeStyle: { type: Object as PropType<ITableWidgetColumnStyles | null>, required: true }, mode: { type: String } },
     emits: ['styleChanged'],
     data() {
@@ -71,13 +54,15 @@ export default defineComponent({
             settingsDescriptor,
             columnStyles: null as ITableWidgetColumnStyles | null,
             availableColumnOptions: [] as (IWidgetColumn | ITableWidgetColumnGroup | { id: string; alias: string })[],
-            widgetColumnsAliasMap: {} as any,
-            getTranslatedLabel
+            widgetColumnsAliasMap: {} as any
         }
     },
     computed: {
         columnStylesDisabled() {
             return !this.columnStyles || !this.columnStyles.enabled
+        },
+        translatedVerticalAlignmentOptions(): { value: string; label: string }[] {
+            return descriptor.verticalAlignmentOptions.map((opt: any) => ({ value: opt.value, label: this.$t(opt.label) }))
         }
     },
     created() {
@@ -213,13 +198,13 @@ export default defineComponent({
             if (this.widgetModel) this.reloadModel()
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel, columnStyle: ITableWidgetColumnStyle, index: number | null = null) {
-            ;(columnStyle.properties['background-color'] = model['background-color'] ?? 'rgb(0, 0, 0)'),
+            ;((columnStyle.properties['background-color'] = model['background-color'] ?? 'rgb(0, 0, 0)'),
                 (columnStyle.properties.color = model.color ?? 'rgb(255, 255, 255)'),
                 (columnStyle.properties['justify-content'] = model['justify-content'] ?? 'center'),
                 (columnStyle.properties['font-size'] = model['font-size'] ?? '14px'),
                 (columnStyle.properties['font-family'] = model['font-family'] ?? ''),
                 (columnStyle.properties['font-style'] = model['font-style'] ?? 'normal'),
-                (columnStyle.properties['font-weight'] = model['font-weight'] ?? '')
+                (columnStyle.properties['font-weight'] = model['font-weight'] ?? ''))
             this.columnStylesChanged(index)
         },
         reloadModel() {
@@ -239,4 +224,10 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.column-type-row {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+</style>

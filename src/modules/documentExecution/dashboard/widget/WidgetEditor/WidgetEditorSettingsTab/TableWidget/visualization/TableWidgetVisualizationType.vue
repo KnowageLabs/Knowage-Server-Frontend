@@ -1,122 +1,119 @@
 <template>
-    <div v-if="visualizationTypeModel" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div v-for="(visualizationType, index) in visualizationTypeModel.types" :key="index" class="dynamic-form-item p-grid p-col-12 p-ai-center">
-            <div class="p-col-12 p-grid p-ai-center">
-                <div class="p-col-12 p-md-6 p-d-flex p-flex-column p-p-2">
-                    <label class="kn-material-input-label"> {{ $t('common.columns') }}</label>
-                    <Dropdown v-if="index === 0" v-model="visualizationType.target" class="kn-material-input" :options="descriptor.allColumnOption" option-value="value" option-label="label" :disabled="true"> </Dropdown>
-                    <WidgetEditorColumnsMultiselect
-                        v-else
-                        :value="(visualizationType.target as string[])"
-                        :available-target-options="availableColumnOptions"
-                        :widget-columns-alias-map="widgetColumnsAliasMap"
-                        option-label="alias"
-                        option-value="id"
-                        :disabled="visualizationTypeDisabled"
-                        @change="onColumnsSelected($event, visualizationType)"
-                    >
-                    </WidgetEditorColumnsMultiselect>
+    <div v-if="visualizationTypeModel" class="q-px-md q-pb-md">
+        <!-- Global Settings (index 0 = All Columns) -->
+        <div v-if="visualizationTypeModel.types.length > 0" class="q-mb-md">
+            <div>
+                <div class="row q-col-gutter-sm q-mb-sm">
+                    <div class="col-12">
+                        <q-select :model-value="descriptor.allColumnOption[0].value" :options="descriptor.allColumnOption" option-value="value" option-label="label" emit-value map-options outlined dense disable />
+                    </div>
+                    <div class="col-6">
+                        <q-select v-model="visualizationTypeModel.types[0].type" :options="translatedVisualizationTypeOptions(visualizationTypeModel.types[0])" option-value="value" option-label="label" emit-value map-options :label="$t('common.type')" outlined dense :disable="visualizationTypeDisabled" @update:model-value="visualizationTypeChanged" />
+                    </div>
+                    <div class="col-6">
+                        <q-select v-model="visualizationTypeModel.types[0].pinned" :options="translatedPinnedOptions" option-value="value" option-label="label" emit-value map-options :label="$t('dashboard.widgetEditor.visualizationType.pinned')" outlined dense :disable="visualizationTypeDisabled" @update:model-value="visualizationTypeChanged" />
+                    </div>
                 </div>
-                <div class="p-col-11 p-md-5 p-d-flex p-flex-column p-p-2">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('common.type') }}</label>
-                    <Dropdown v-model="visualizationType.type" class="kn-material-input" :options="getVisualizationTypeOptions(visualizationType)" option-value="value" :disabled="visualizationTypeDisabled" @change="visualizationTypeChanged">
-                        <template #value="slotProps">
-                            <div>
-                                <span>{{ getTranslatedLabel(slotProps.value, getVisualizationTypeOptions(visualizationType), $t) }}</span>
-                            </div>
-                        </template>
-                        <template #option="slotProps">
-                            <div>
-                                <span>{{ $t(slotProps.option.label) }}</span>
-                            </div>
-                        </template>
-                    </Dropdown>
+                <div v-if="hasTextFields(visualizationTypeModel.types[0])" class="row q-col-gutter-sm q-mb-sm">
+                    <div v-if="visualizationTypeModel.types[0].type && visualizationTypeModel.types[0].type !== 'Bar'" class="col-3">
+                        <q-input v-model="visualizationTypeModel.types[0].prefix" :label="$t('dashboard.widgetEditor.prefix')" outlined dense :disable="visualizationTypeDisabled" @change="visualizationTypeChanged" />
+                    </div>
+                    <div v-if="visualizationTypeModel.types[0].type && visualizationTypeModel.types[0].type !== 'Bar'" class="col-3">
+                        <q-input v-model="visualizationTypeModel.types[0].suffix" :label="$t('dashboard.widgetEditor.suffix')" outlined dense :disable="visualizationTypeDisabled" @change="visualizationTypeChanged" />
+                    </div>
+                    <div v-if="(optionsContainMeasureColumn(visualizationTypeModel.types[0]) && visualizationTypeModel.types[0].type === 'Text') || visualizationTypeModel.types[0].type === 'Text & Icon'" class="col-3">
+                        <q-input v-model.number="visualizationTypeModel.types[0].precision" type="number" :label="$t('dashboard.widgetEditor.precision')" outlined dense :disable="visualizationTypeDisabled" @blur="visualizationTypeChanged" />
+                    </div>
+                    <div v-if="visualizationTypeModel.types[0].type === 'Text' || visualizationTypeModel.types[0].type === 'Text & Icon'" class="col-3">
+                        <q-input v-model.number="visualizationTypeModel.types[0].maximumCharacters" type="number" :label="$t('dashboard.widgetEditor.visualizationType.maximumCharacters')" outlined dense :disable="visualizationTypeDisabled" @blur="visualizationTypeChanged" />
+                    </div>
+                    <div v-if="optionsContainTimestampColumn(visualizationTypeModel.types[0])" class="col-6">
+                        <q-select v-model="visualizationTypeModel.types[0].dateFormat" :options="dateFormatOptions" option-value="value" option-label="label" emit-value map-options :label="$t('managers.datasetManagement.ckanDateFormat')" outlined dense :disable="visualizationTypeDisabled" @update:model-value="visualizationTypeChanged" />
+                    </div>
                 </div>
-                <div class="p-col-1 p-d-flex p-flex-row p-jc-center p-ai-center p-pl-2 p-mt-3">
-                    <i v-if="['Icon', 'Text & Icon'].includes(visualizationType.type)" v-tooltip.top="$t('dashboard.widgetEditor.visualisationType.thresholdHint')" class="pi pi pi-exclamation-triangle threshold-warning-icon kn-cursor-pointer p-mr-4"></i>
-                    <i :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash', visualizationTypeDisabled ? 'icon-disabled' : '']" class="kn-cursor-pointer p-ml-2" @click="index === 0 ? addVisualizationType() : removeVisualizationType(index)"></i>
-                </div>
-            </div>
-            <div class="p-col-12 p-grid p-ai-center">
-                <div v-if="visualizationType.type && visualizationType.type !== 'Bar'" class="p-col-6 p-md-3 p-d-flex p-flex-column p-pr-2">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.prefix') }}</label>
-                    <InputText v-model="visualizationType.prefix" class="kn-material-input p-inputtext-sm" :disabled="visualizationTypeDisabled" @change="visualizationTypeChanged" />
-                </div>
-                <div v-if="visualizationType.type && visualizationType.type !== 'Bar'" class="p-col-6 p-md-3 p-d-flex p-flex-column kn-flex p-pr-2">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.suffix') }}</label>
-                    <InputText v-model="visualizationType.suffix" class="kn-material-input p-inputtext-sm" :disabled="visualizationTypeDisabled" @change="visualizationTypeChanged" />
-                </div>
-                <div v-if="(optionsContainMeasureColumn(visualizationType) && visualizationType.type === 'Text') || visualizationType.type === 'Text & Icon'" class="p-col-6 p-md-3 p-d-flex p-flex-column p-px-2">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.precision') }}</label>
-                    <InputNumber v-model="visualizationType.precision" class="kn-material-input p-inputtext-sm" :disabled="visualizationTypeDisabled" @blur="visualizationTypeChanged" />
-                </div>
-                <div class="p-col-6 p-md-3 p-d-flex p-flex-column kn-flex p-p-2">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.visualizationType.pinned') }}</label>
-                    <Dropdown v-model="visualizationType.pinned" class="kn-material-input" :options="descriptor.pinnedOptions" option-value="value" :disabled="visualizationTypeDisabled" @change="visualizationTypeChanged">
-                        <template #value="slotProps">
-                            <div>
-                                <span>{{ getTranslatedLabel(slotProps.value, descriptor.pinnedOptions, $t) }}</span>
-                            </div>
-                        </template>
-                        <template #option="slotProps">
-                            <div>
-                                <span>{{ $t(slotProps.option.label) }}</span>
-                            </div>
-                        </template>
-                    </Dropdown>
-                </div>
-                <div v-if="visualizationType.type === 'Text' || visualizationType.type === 'Text & Icon'" class="p-col-6 p-md-3 p-d-flex p-flex-column">
-                    <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.visualizationType.maximumCharacters') }}</label>
-                    <InputNumber v-model="visualizationType.maximumCharacters" class="kn-material-input p-inputtext-sm" :disabled="visualizationTypeDisabled" @blur="visualizationTypeChanged" />
-                </div>
-                <div v-if="optionsContainTimestampColumn(visualizationType)" class="p-col-11 p-md-5 p-d-flex p-flex-column p-p-2">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('managers.datasetManagement.ckanDateFormat') }}</label>
-                    <Dropdown v-model="visualizationType.dateFormat" class="kn-material-input" :options="descriptor.dateFormats" :disabled="visualizationTypeDisabled" @change="visualizationTypeChanged">
-                        <template #option="slotProps">
-                            <span>{{ getFormattedDate(new Date(), slotProps.option) }}</span>
-                        </template>
-                        <template #value="slotProps">
-                            <span>{{ getFormattedDate(new Date(), slotProps.value) }}</span>
-                        </template>
-                    </Dropdown>
+                <div v-if="optionsContainMeasureColumn(visualizationTypeModel.types[0]) && ['Bar', 'Sparkline', 'Bar & Text'].includes(visualizationTypeModel.types[0].type)" class="row q-col-gutter-sm items-end q-mb-sm">
+                    <div class="col-2">
+                        <q-input v-model.number="visualizationTypeModel.types[0].min" type="number" :label="$t('common.min')" outlined dense :disable="visualizationTypeDisabled" @blur="visualizationTypeChanged" />
+                    </div>
+                    <div class="col-2">
+                        <q-input v-model.number="visualizationTypeModel.types[0].max" type="number" :label="$t('common.max')" outlined dense :disable="visualizationTypeDisabled" @blur="visualizationTypeChanged" />
+                    </div>
+                    <div class="col-4">
+                        <q-select v-model="visualizationTypeModel.types[0].alignment" :options="translatedAlignmentOptions" option-value="value" option-label="label" emit-value map-options :label="$t('dashboard.widgetEditor.visualizationType.alignment')" outlined dense :disable="visualizationTypeDisabled" @update:model-value="visualizationTypeChanged" />
+                    </div>
+                    <div class="col-auto">
+                        <WidgetEditorStyleToolbar :options="descriptor.styleToolbarVisualizationTypeOptions" :prop-model="{ color: visualizationTypeModel.types[0].color, 'background-color': visualizationTypeModel.types[0]['background-color'] }" :disabled="visualizationTypeDisabled" @change="onStyleToolbarChange($event, visualizationTypeModel.types[0])" />
+                    </div>
                 </div>
             </div>
-            <div v-if="optionsContainMeasureColumn(visualizationType) && (visualizationType.type === 'Bar' || visualizationType.type === 'Sparkline' || visualizationType.type === 'Bar & Text')" class="p-col-12 p-grid p-ai-center p-pt-1">
-                <div class="p-col-12 p-md-6 p-lg-3 p-d-flex p-flex-column p-px-2">
-                    <label class="kn-material-input-label">{{ $t('common.min') }}</label>
-                    <InputNumber v-model="visualizationType.min" class="kn-material-input p-inputtext-sm" :disabled="visualizationTypeDisabled" @blur="visualizationTypeChanged" />
-                </div>
-                <div class="p-col-12 p-md-6 p-lg-3 p-d-flex p-flex-column p-px-2">
-                    <label class="kn-material-input-label">{{ $t('common.max') }}</label>
-                    <InputNumber v-model="visualizationType.max" class="kn-material-input p-inputtext-sm" :disabled="visualizationTypeDisabled" @blur="visualizationTypeChanged" />
-                </div>
+        </div>
 
-                <div class="p-col-6 p-md-6 p-lg-3 p-d-flex p-flex-column p-p-2">
-                    <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.visualizationType.alignment') }}</label>
-                    <Dropdown v-model="visualizationType.alignment" class="kn-material-input" :options="descriptor.alignmentOptions" option-value="value" :disabled="visualizationTypeDisabled" @change="visualizationTypeChanged">
-                        <template #value="slotProps">
-                            <div>
-                                <span>{{ getTranslatedLabel(slotProps.value, descriptor.alignmentOptions, $t) }}</span>
-                            </div>
-                        </template>
-                        <template #option="slotProps">
-                            <div>
-                                <span>{{ $t(slotProps.option.label) }}</span>
-                            </div>
-                        </template>
-                    </Dropdown>
+        <q-separator class="q-mb-sm" />
+
+        <!-- Column Overrides -->
+        <div class="row items-center justify-between q-mb-sm">
+            <span class="text-subtitle2">{{ $t('dashboard.widgetEditor.visualizationType.columnOverrides') }}</span>
+            <q-btn flat round dense color="primary" icon="add" :disable="visualizationTypeDisabled" @click="addVisualizationType" />
+        </div>
+
+        <div v-for="(visualizationType, index) in visualizationTypeModel.types.slice(1)" :key="index" class="column-type-row row no-wrap q-mb-sm">
+            <!-- Card content -->
+            <div class="col q-pa-sm">
+                <!-- Multiselect -->
+                <div class="row items-center q-mb-sm">
+                    <div class="col">
+                        <WidgetEditorColumnsMultiselect :value="visualizationType.target as string[]" :available-target-options="availableColumnOptions" :widget-columns-alias-map="widgetColumnsAliasMap" option-label="alias" option-value="id" :disabled="visualizationTypeDisabled" @change="onColumnsSelected($event, visualizationType)" />
+                    </div>
+                    <q-icon v-if="['Icon', 'Text & Icon'].includes(visualizationType.type)" name="warning" color="warning" size="sm" class="q-ml-sm">
+                        <q-tooltip>{{ $t('dashboard.widgetEditor.visualisationType.thresholdHint') }}</q-tooltip>
+                    </q-icon>
                 </div>
-                <div class="p-col-6 p-md-6 p-lg-3 p-as-end style-toolbar-container">
-                    <WidgetEditorStyleToolbar
-                        :options="descriptor.styleToolbarVisualizationTypeOptions"
-                        :prop-model="{
-                            color: visualizationType.color,
-                            'background-color': visualizationType['background-color']
-                        }"
-                        :disabled="visualizationTypeDisabled"
-                        @change="onStyleToolbarChange($event, visualizationType)"
-                    ></WidgetEditorStyleToolbar>
+                <!-- Type + Pinned -->
+                <div class="row q-col-gutter-sm q-mb-sm">
+                    <div class="col-6">
+                        <q-select v-model="visualizationType.type" :options="translatedVisualizationTypeOptions(visualizationType)" option-value="value" option-label="label" emit-value map-options :label="$t('common.type')" outlined dense :disable="visualizationTypeDisabled" @update:model-value="visualizationTypeChanged" />
+                    </div>
+                    <div class="col-6">
+                        <q-select v-model="visualizationType.pinned" :options="translatedPinnedOptions" option-value="value" option-label="label" emit-value map-options :label="$t('dashboard.widgetEditor.visualizationType.pinned')" outlined dense :disable="visualizationTypeDisabled" @update:model-value="visualizationTypeChanged" />
+                    </div>
                 </div>
+                <!-- Text/date fields -->
+                <div v-if="hasTextFields(visualizationType)" class="row q-col-gutter-sm q-mb-sm">
+                    <div v-if="visualizationType.type && visualizationType.type !== 'Bar'" class="col-3">
+                        <q-input v-model="visualizationType.prefix" :label="$t('dashboard.widgetEditor.prefix')" outlined dense :disable="visualizationTypeDisabled" @change="visualizationTypeChanged" />
+                    </div>
+                    <div v-if="visualizationType.type && visualizationType.type !== 'Bar'" class="col-3">
+                        <q-input v-model="visualizationType.suffix" :label="$t('dashboard.widgetEditor.suffix')" outlined dense :disable="visualizationTypeDisabled" @change="visualizationTypeChanged" />
+                    </div>
+                    <div v-if="(optionsContainMeasureColumn(visualizationType) && visualizationType.type === 'Text') || visualizationType.type === 'Text & Icon'" class="col-3">
+                        <q-input v-model.number="visualizationType.precision" type="number" :label="$t('dashboard.widgetEditor.precision')" outlined dense :disable="visualizationTypeDisabled" @blur="visualizationTypeChanged" />
+                    </div>
+                    <div v-if="visualizationType.type === 'Text' || visualizationType.type === 'Text & Icon'" class="col-3">
+                        <q-input v-model.number="visualizationType.maximumCharacters" type="number" :label="$t('dashboard.widgetEditor.visualizationType.maximumCharacters')" outlined dense :disable="visualizationTypeDisabled" @blur="visualizationTypeChanged" />
+                    </div>
+                    <div v-if="optionsContainTimestampColumn(visualizationType)" class="col-6">
+                        <q-select v-model="visualizationType.dateFormat" :options="dateFormatOptions" option-value="value" option-label="label" emit-value map-options :label="$t('managers.datasetManagement.ckanDateFormat')" outlined dense :disable="visualizationTypeDisabled" @update:model-value="visualizationTypeChanged" />
+                    </div>
+                </div>
+                <!-- Bar/sparkline metrics -->
+                <div v-if="optionsContainMeasureColumn(visualizationType) && ['Bar', 'Sparkline', 'Bar & Text'].includes(visualizationType.type)" class="row q-col-gutter-sm items-end q-mb-sm">
+                    <div class="col-3">
+                        <q-input v-model.number="visualizationType.min" type="number" :label="$t('common.min')" outlined dense :disable="visualizationTypeDisabled" @blur="visualizationTypeChanged" />
+                    </div>
+                    <div class="col-3">
+                        <q-input v-model.number="visualizationType.max" type="number" :label="$t('common.max')" outlined dense :disable="visualizationTypeDisabled" @blur="visualizationTypeChanged" />
+                    </div>
+                    <div class="col-3">
+                        <q-select v-model="visualizationType.alignment" :options="translatedAlignmentOptions" option-value="value" option-label="label" emit-value map-options :label="$t('dashboard.widgetEditor.visualizationType.alignment')" outlined dense :disable="visualizationTypeDisabled" @update:model-value="visualizationTypeChanged" />
+                    </div>
+                    <div class="col-3">
+                        <WidgetEditorStyleToolbar :options="descriptor.styleToolbarVisualizationTypeOptions" :prop-model="{ color: visualizationType.color, 'background-color': visualizationType['background-color'] }" :disabled="visualizationTypeDisabled" @change="onStyleToolbarChange($event, visualizationType)" />
+                    </div>
+                </div>
+            </div>
+            <!-- Action handle -->
+            <div class="kn-action-handle row items-center justify-center" :class="visualizationTypeDisabled ? 'kn-action-handle-disabled' : ''">
+                <q-btn flat round dense icon="delete" size="sm" :disable="visualizationTypeDisabled" @click="removeVisualizationType(index + 1)" />
             </div>
         </div>
     </div>
@@ -129,16 +126,12 @@ import { emitter } from '../../../../../DashboardHelpers'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import { luxonFormatDate } from '@/helpers/commons/localeHelper'
 import descriptor from '../TableWidgetSettingsDescriptor.json'
-import Dropdown from 'primevue/dropdown'
-import InputNumber from 'primevue/inputnumber'
 import WidgetEditorColumnsMultiselect from '../../common/WidgetEditorColumnsMultiselect.vue'
 import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 
 export default defineComponent({
     name: 'table-widget-visualization-type',
     components: {
-        Dropdown,
-        InputNumber,
         WidgetEditorColumnsMultiselect,
         WidgetEditorStyleToolbar
     },
@@ -157,6 +150,15 @@ export default defineComponent({
     computed: {
         visualizationTypeDisabled() {
             return !this.visualizationTypeModel || !this.visualizationTypeModel.enabled
+        },
+        translatedPinnedOptions(): { value: string; label: string }[] {
+            return descriptor.pinnedOptions.map((opt: any) => ({ value: opt.value, label: this.$t(opt.label) }))
+        },
+        translatedAlignmentOptions(): { value: string; label: string }[] {
+            return descriptor.alignmentOptions.map((opt: any) => ({ value: opt.value, label: this.$t(opt.label) }))
+        },
+        dateFormatOptions(): { value: string; label: string }[] {
+            return descriptor.dateFormats.map((fmt: string) => ({ value: fmt, label: this.getFormattedDate(new Date(), fmt) }))
         }
     },
     created() {
@@ -246,6 +248,17 @@ export default defineComponent({
         getVisualizationTypeOptions(visualizationType: ITableWidgetVisualizationType) {
             return this.optionsContainMeasureColumn(visualizationType) ? descriptor.visualizationTypes : descriptor.visualizationTypes.slice(0, 4)
         },
+        translatedVisualizationTypeOptions(visualizationType: ITableWidgetVisualizationType): { value: string; label: string }[] {
+            return this.getVisualizationTypeOptions(visualizationType).map((opt: any) => ({ value: opt.value, label: this.$t(opt.label) }))
+        },
+        hasTextFields(visualizationType: ITableWidgetVisualizationType): boolean {
+            if (!visualizationType.type) return false
+            const notBar = visualizationType.type !== 'Bar'
+            const isText = visualizationType.type === 'Text' || visualizationType.type === 'Text & Icon'
+            const measureText = this.optionsContainMeasureColumn(visualizationType) && visualizationType.type === 'Text'
+            const hasTimestamp = this.optionsContainTimestampColumn(visualizationType)
+            return notBar || isText || measureText || hasTimestamp
+        },
         optionsContainMeasureColumn(visualizationType: ITableWidgetVisualizationType) {
             let found = false
             for (let i = 0; i < visualizationType.target.length; i++) {
@@ -320,19 +333,10 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss" scoped>
-.visualization-type-container {
-    border-bottom: 1px solid #c2c2c2;
-}
-
-.visualization-type-containerr:last-child {
-    border-bottom: none;
-}
-.style-toolbar-container {
-    max-width: 120px;
-}
-
-.threshold-warning-icon {
-    font-size: 1.5rem;
+<style scoped>
+.column-type-row {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
 }
 </style>

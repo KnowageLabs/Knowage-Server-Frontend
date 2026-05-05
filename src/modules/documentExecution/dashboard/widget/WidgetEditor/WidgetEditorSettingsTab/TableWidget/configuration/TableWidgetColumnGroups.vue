@@ -1,17 +1,16 @@
 <template>
-    <div v-if="columnGroupsModel" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div v-for="(columnGroup, index) in columnGroupsModel.groups" :key="index" class="p-grid p-col-12 p-ai-center p-ai-center p-pt-2">
-            <div class="p-col-12 p-sm-12 p-md-4 p-d-flex p-flex-column p-p-2">
-                <label class="kn-material-input-label p-mr-2">{{ $t('common.label') }}</label>
-                <InputText v-model="columnGroup.label" class="kn-material-input p-inputtext-sm" :disabled="columnGroupsDisabled" @change="onColumnGroupLabelChanged(columnGroup)" />
-            </div>
-            <div class="p-col-11 p-sm-11 p-md-7 p-d-flex p-flex-column p-p-2">
-                <label class="kn-material-input-label"> {{ $t('common.columns') }}</label>
-                <WidgetEditorColumnsMultiselect :value="columnGroup.columns" :available-target-options="availableColumnOptions" :widget-columns-alias-map="widgetColumnsAliasMap" option-label="alias" option-value="id" :disabled="columnGroupsDisabled" @change="onColumnsSelected($event, columnGroup)">
-                </WidgetEditorColumnsMultiselect>
-            </div>
-            <div class="p-col-1 p-d-flex p-flex-column p-jc-center p-ai-center p-pl-2">
-                <i :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash', columnGroupsDisabled ? 'icon-disabled' : '']" class="kn-cursor-pointer p-ml-2" @click="index === 0 ? addColumnGroup() : removeColumnGroup(index)"></i>
+    <div v-if="columnGroupsModel" class="q-px-md q-pb-md">
+        <div class="row q-col-gutter-sm">
+            <div v-for="(columnGroup, index) in columnGroupsModel.groups" :key="index" class="col-12 row q-col-gutter-sm items-center">
+                <div class="col-4">
+                    <q-input v-model="columnGroup.label" :label="$t('common.label')" outlined dense :disable="columnGroupsDisabled" @change="onColumnGroupLabelChanged(columnGroup)" />
+                </div>
+                <div class="col">
+                    <WidgetEditorColumnsMultiselect :value="columnGroup.columns" :available-target-options="availableColumnOptions" :widget-columns-alias-map="widgetColumnsAliasMap" option-label="alias" option-value="id" :disabled="columnGroupsDisabled" @change="onColumnsSelected($event, columnGroup)" />
+                </div>
+                <div class="col-auto">
+                    <q-btn flat round dense :icon="index === 0 ? 'add_circle_outline' : 'delete'" size="sm" :disable="columnGroupsDisabled" @click="index === 0 ? addColumnGroup() : removeColumnGroup(index)" />
+                </div>
             </div>
         </div>
     </div>

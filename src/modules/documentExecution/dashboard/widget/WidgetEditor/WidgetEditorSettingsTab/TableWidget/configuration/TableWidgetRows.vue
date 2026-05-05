@@ -1,26 +1,14 @@
 <template>
-    <div v-if="rowsModel" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div id="index-column-switch" class="p-col-12 p-grid">
-            <div class="p-col-2 p-sm-12 p-md-2">
-                <InputSwitch v-model="rowsModel.indexColumn" @change="onIndexColumnChanged"></InputSwitch>
-            </div>
-            <div class="p-col-11 p-sm-12 p-md-10">
-                <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.rows.enableIndexColumn') }}</label>
-            </div>
+    <div v-if="rowsModel" class="row q-px-md q-pb-md">
+        <div class="col-12 q-mb-sm">
+            <q-toggle v-model="rowsModel.indexColumn" :label="$t('dashboard.widgetEditor.rows.enableIndexColumn')" @update:model-value="onIndexColumnChanged" dense />
         </div>
-
-        <div class="p-col-12 p-grid p-mt-1">
-            <div class="p-col-2 p-sm-12 p-md-2">
-                <InputSwitch v-model="rowsModel.rowSpan.enabled" @change="onRowSpanChanged"></InputSwitch>
-            </div>
-            <div class="p-col-10 p-sm-12 p-md-10">
-                <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.rows.enableRowspan') }}</label>
-            </div>
+        <div class="col-12"><q-separator /></div>
+        <div class="col-12 q-my-sm">
+            <q-toggle v-model="rowsModel.rowSpan.enabled" :label="$t('dashboard.widgetEditor.rows.enableRowspan')" @update:model-value="onRowSpanChanged" dense />
         </div>
-
-        <div class="p-col-12 p-fluid p-d-flex p-flex-column">
-            <label class="kn-material-input-label p-mb-1"> {{ $t('dashboard.widgetEditor.rows.rowSpanColumn') }}</label>
-            <Dropdown v-model="rowsModel.rowSpan.column" class="kn-material-input" :options="widgetModel.columns" option-label="alias" option-value="id" :disabled="!rowsModel.rowSpan.enabled" @change="onRowSpanChanged"> </Dropdown>
+        <div class="col-12">
+            <q-select v-model="rowsModel.rowSpan.column" :options="widgetModel.columns" option-label="alias" option-value="id" emit-value map-options :label="$t('dashboard.widgetEditor.rows.rowSpanColumn')" outlined dense :disable="!rowsModel.rowSpan.enabled" @update:model-value="onRowSpanChanged" />
         </div>
     </div>
 </template>
@@ -30,12 +18,10 @@ import { defineComponent, PropType } from 'vue'
 import { IWidget, ITableWidgetRows } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '../../../../../DashboardHelpers'
 import descriptor from '../TableWidgetSettingsDescriptor.json'
-import InputSwitch from 'primevue/inputswitch'
-import Dropdown from 'primevue/dropdown'
 
 export default defineComponent({
     name: 'table-widget-rows',
-    components: { InputSwitch, Dropdown },
+    components: {},
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {
@@ -78,9 +64,3 @@ export default defineComponent({
     }
 })
 </script>
-
-<style lang="scss" scoped>
-#index-column-switch {
-    border-bottom: 1px solid #c2c2c2;
-}
-</style>

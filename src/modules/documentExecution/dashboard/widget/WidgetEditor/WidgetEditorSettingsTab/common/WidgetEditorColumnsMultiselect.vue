@@ -1,15 +1,14 @@
 <template>
-    <MultiSelect v-model="modelValue" :options="options" :option-label="optionLabel" :option-value="optionsValue" :disabled="disabled" @change="$emit('change', $event)"> </MultiSelect>
+    <q-select v-model="modelValue" :options="options" :option-label="optionLabel" :option-value="optionsValue" :disable="disabled" emit-value map-options multiple outlined dense @update:model-value="(val) => $emit('change', { value: val })" />
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import MultiSelect from 'primevue/multiselect'
 import { IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 
 export default defineComponent({
     name: 'widget-editor-multiselect',
-    components: { MultiSelect },
+    components: {},
     props: { value: { type: Array }, availableTargetOptions: { type: Array, required: true }, widgetColumnsAliasMap: { type: Object, required: true }, optionLabel: { type: String }, optionsValue: { type: String }, disabled: { type: Boolean } },
     emits: ['change'],
     data() {

@@ -16,15 +16,21 @@
                 <q-btn flat round dense color="primary" icon="add" @click="addColumnTypeConfig" />
             </div>
 
-            <div v-for="(config, index) in columnTypeConfigs" :key="config.id" class="column column-type-row q-mb-sm q-pa-sm">
-                <div class="row q-gutter-sm items-start">
-                    <q-select v-model="config.columns" :options="columnOptions" option-value="columnName" option-label="alias" emit-value map-options multiple dense outlined class="col" :label="$t('common.columns')" />
-                    <q-select v-model="config.selectorType" :options="columnTypeOptions(config)" option-value="value" option-label="label" option-disable="disable" emit-value map-options dense outlined class="col" :label="$t('dashboard.widgetEditor.selectorWidget.type')" />
-                    <q-btn class="p-as-center" flat round dense color="primary" icon="delete" @click="removeColumnTypeConfig(index)" />
+            <div v-for="(config, index) in columnTypeConfigs" :key="config.id" class="row no-wrap column-type-row q-mb-sm">
+                <!-- Card content -->
+                <div class="col q-pa-sm">
+                    <div class="row q-gutter-sm items-start q-mb-xs">
+                        <q-select v-model="config.columns" :options="columnOptions" option-value="columnName" option-label="alias" emit-value map-options multiple dense outlined class="col" :label="$t('common.columns')" />
+                        <q-select v-model="config.selectorType" :options="columnTypeOptions(config)" option-value="value" option-label="label" option-disable="disable" emit-value map-options dense outlined class="col" :label="$t('dashboard.widgetEditor.selectorWidget.type')" />
+                    </div>
+                    <div v-if="supportsAlignment(config.selectorType)" class="row items-center">
+                        <q-radio v-for="layout in descriptor.layouts" :key="layout.value" v-model="config.alignment" :val="layout.value" :label="layout.name" />
+                        <q-input v-if="showGridColumnSize" class="q-ml-md" v-model="config.columnSize" dense :label="$t('dashboard.widgetEditor.valuesManagement.colNumber')" />
+                    </div>
                 </div>
-                <div v-if="supportsAlignment(config.selectorType)" class="row items-center">
-                    <q-radio v-for="layout in descriptor.layouts" :key="layout.value" v-model="config.alignment" :val="layout.value" :label="layout.name" />
-                    <q-input v-if="showGridColumnSize" class="q-ml-md" v-model="config.columnSize" dense :label="$t('dashboard.widgetEditor.valuesManagement.colNumber')" />
+                <!-- Action handle (full-height, shown on hover) -->
+                <div class="kn-action-handle row items-center justify-center">
+                    <q-btn flat round dense icon="delete" size="sm" color="primary" @click="removeColumnTypeConfig(index)" />
                 </div>
             </div>
         </template>
@@ -130,5 +136,6 @@ export default defineComponent({
 .column-type-row {
     border: 1px solid #e0e0e0;
     border-radius: 4px;
+    overflow: hidden;
 }
 </style>

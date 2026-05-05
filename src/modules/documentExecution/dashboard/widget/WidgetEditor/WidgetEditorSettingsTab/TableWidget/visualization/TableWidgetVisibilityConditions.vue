@@ -1,99 +1,64 @@
 <template>
-    <div v-if="visibilityConditionsModel" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div v-for="(visibilityCondition, index) in visibilityConditionsModel.conditions" :key="index" class="dynamic-form-item p-grid p-col-12 p-ai-center">
-            <div class="p-grid p-col-12 p-ai-center">
-                <div v-show="dropzoneTopVisible[index]" class="p-col-12 form-list-item-dropzone-active" @drop.stop="onDropComplete($event, 'before', index)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
-                <div
-                    class="p-col-12 form-list-item-dropzone"
-                    :class="[dropzoneTopVisible[index] ? 'form-list-item-dropzone-active' : '']"
-                    @drop.stop="onDropComplete($event, 'before', index)"
-                    @dragover.prevent
-                    @dragenter.prevent="displayDropzone('top', index)"
-                    @dragleave.prevent="hideDropzone('top', index)"
-                ></div>
-                <div class="p-col-12 p-grid" :draggable="!visibilityConditionsDisabled" @dragstart.stop="onDragStart($event, index)">
-                    <div class="p-col-1 p-d-flex p-flex-column p-jc-center p-ai-center">
-                        <i class="pi pi-th-large kn-cursor-pointer" :class="[visibilityConditionsDisabled ? 'icon-disabled' : '']"></i>
+    <div v-if="visibilityConditionsModel" class="q-px-md q-pb-md">
+        <!-- Add button -->
+        <div class="row items-center justify-between">
+            <span class="text-subtitle2">{{ $t('dashboard.widgetEditor.visibilityConditions.addCondition') }}</span>
+            <q-btn flat round dense color="primary" icon="add" :disable="visibilityConditionsDisabled" @click="addVisibilityCondition" />
+        </div>
+
+        <!-- Dropzone before first item -->
+        <div class="kn-dropzone" :class="{ 'kn-dropzone-visible': isDragging, 'kn-dropzone-active': activeDropzone === 0 }" @drop.stop="onDropAtIndex($event, 0)" @dragover.prevent @dragenter.prevent="activeDropzone = 0" @dragleave.prevent="activeDropzone = -1"></div>
+
+        <div v-for="(visibilityCondition, index) in visibilityConditionsModel.conditions" :key="index">
+            <!-- Condition card -->
+            <div class="column-type-row row no-wrap" :draggable="!visibilityConditionsDisabled" @dragstart.stop="onDragStart($event, index)" @dragend="isDragging = false">
+                <!-- Drag handle (full-height, shown on hover) -->
+                <div class="kn-drag-handle row items-center justify-center" :class="visibilityConditionsDisabled ? 'kn-drag-handle-disabled' : ''">
+                    <q-icon name="drag_indicator" size="xs" />
+                </div>
+                <!-- Card content -->
+                <div class="col q-pa-sm">
+                    <!-- Row 1: condition type | columns -->
+                    <div class="row items-center q-gutter-x-xs q-mb-sm">
+                        <div class="col">
+                            <q-select v-model="visibilityCondition.condition.type" :options="translatedConditionOptions" option-value="value" option-label="label" emit-value map-options :label="$t('common.condition')" outlined dense :disable="visibilityConditionsDisabled" @update:model-value="onVisibilityConditionTypeChanged(visibilityCondition)" />
+                        </div>
+                        <div class="col">
+                            <q-select v-model="visibilityCondition.target" :options="widgetModel.columns" option-label="alias" option-value="id" emit-value map-options multiple :label="$t('common.columns')" outlined dense :disable="visibilityConditionsDisabled" @update:model-value="visibilityConditionsChanged" />
+                        </div>
                     </div>
-                    <div class="p-col-11 p-grid p-ai-center">
-                        <div class="p-col-12 p-grid p-ai-center p-pt-1">
-                            <div class="p-col-12 p-md-4 p-d-flex p-flex-column kn-flex p-p-2">
-                                <label class="kn-material-input-label p-mr-2">{{ $t('common.condition') }}</label>
-                                <Dropdown v-model="visibilityCondition.condition.type" class="kn-material-input" :options="descriptor.visibilityConditionsOptions" option-value="value" :disabled="visibilityConditionsDisabled" @change="onVisibilityConditionTypeChanged(visibilityCondition)">
-                                    <template #value="slotProps">
-                                        <div>
-                                            <span>{{ getTranslatedLabel(slotProps.value, descriptor.visibilityConditionsOptions, $t) }}</span>
-                                        </div>
-                                    </template>
-                                    <template #option="slotProps">
-                                        <div>
-                                            <span>{{ $t(slotProps.option.label) }}</span>
-                                        </div>
-                                    </template>
-                                </Dropdown>
-                            </div>
-                            <div v-if="visibilityCondition.condition.type === 'variable'" class="p-col-11 p-md-7 p-grid p-ai-center p-p-2">
-                                <div class="p-col-12 p-md-4 p-d-flex p-flex-column p-px-2 p-pt-3">
-                                    <label class="kn-material-input-label">{{ $t('common.variable') }}</label>
-                                    <Dropdown v-model="visibilityCondition.condition.variable" class="kn-material-input" :options="variables" option-value="name" option-label="name" :disabled="visibilityConditionsDisabled" @change="onVariabeSelected(visibilityCondition)"> </Dropdown>
-                                </div>
-                                <div v-if="visibilityCondition.condition.type === 'variable' && visibilityCondition.condition.variablePivotDatasetOptions" class="p-col-12 p-md-2 p-d-flex p-flex-column">
-                                    <label class="kn-material-input-label p-mr-2">{{ $t('common.key') }}</label>
-                                    <Dropdown
-                                        v-model="visibilityCondition.condition.variableKey"
-                                        class="kn-material-input"
-                                        :options="visibilityCondition.condition.variablePivotDatasetOptions ? Object.keys(visibilityCondition.condition.variablePivotDatasetOptions) : []"
-                                        :disabled="visibilityConditionsDisabled"
-                                        @change="onVariableKeyChanged(visibilityCondition)"
-                                    >
-                                    </Dropdown>
-                                </div>
-                                <div class="p-col-12 p-md-2 p-d-flex p-flex-column p-px-2 p-pt-3">
-                                    <label class="kn-material-input-label">{{ $t('common.operator') }}</label>
-                                    <Dropdown v-model="visibilityCondition.condition.operator" class="kn-material-input" :options="descriptor.visibilityConditionOperators" option-value="value" option-label="label" :disabled="visibilityConditionsDisabled" @change="visibilityConditionsChanged">
-                                    </Dropdown>
-                                </div>
-                                <div class="p-col-12 p-md-4 p-d-flex p-flex-column p-px-2 p-pt-3">
-                                    <label class="kn-material-input-label p-pb-1">{{ $t('common.value') }}</label>
-                                    <InputText v-model="visibilityCondition.condition.value" class="kn-material-input p-inputtext-sm" :disabled="visibilityConditionsDisabled" @change="visibilityConditionsChanged" />
-                                </div>
-                            </div>
-                            <div class="p-col-1 p-d-flex p-flex-column p-jc-center p-ai-center p-pl-2">
-                                <i :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash', visibilityConditionsDisabled ? 'icon-disabled' : '']" class="kn-cursor-pointer p-ml-2" @click="index === 0 ? addVisibilityCondition() : removeVisibilityCondition(index)"></i>
-                            </div>
+
+                    <!-- Row 2: variable fields -->
+                    <div v-if="visibilityCondition.condition.type === 'variable'" class="row q-col-gutter-sm q-mb-sm">
+                        <div class="col-3">
+                            <q-select v-model="visibilityCondition.condition.variable" :options="variables" option-value="name" option-label="name" emit-value map-options :label="$t('common.variable')" outlined dense :disable="visibilityConditionsDisabled" @update:model-value="onVariabeSelected(visibilityCondition)" />
                         </div>
-                        <div class="p-col-12 p-grid p-ai-center p-ai-center p-pt-1">
-                            <div class="p-col-12 p-md-3 p-d-flex p-flex-column p-p-2">
-                                <label class="kn-material-input-label"> {{ $t('common.columns') }}</label>
-                                <MultiSelect v-model="visibilityCondition.target" :options="widgetModel.columns" option-label="alias" option-value="id" :disabled="visibilityConditionsDisabled" @change="visibilityConditionsChanged"> </MultiSelect>
-                            </div>
-                            <div class="p-col-4 p-md-3">
-                                <InputSwitch v-model="visibilityCondition.hide" :disabled="visibilityConditionsDisabled" @change="visibilityConditionsChanged"></InputSwitch>
-                                <label class="kn-material-input-label p-p-1">{{ $t('dashboard.widgetEditor.visibilityConditions.hideColumn') }}</label>
-                            </div>
-                            <div class="p-col-4 p-md-3">
-                                <InputSwitch v-model="visibilityCondition.hideFromSummary" :disabled="visibilityConditionsDisabled" @change="visibilityConditionsChanged"></InputSwitch>
-                                <label class="kn-material-input-label p-p-1">{{ $t('dashboard.widgetEditor.visibilityConditions.hideFromSummary') }}</label>
-                            </div>
-                            <div class="p-col-4 p-md-3">
-                                <InputSwitch v-model="visibilityCondition.hidePdf" :disabled="visibilityConditionsDisabled" @change="visibilityConditionsChanged"></InputSwitch>
-                                <label class="kn-material-input-label p-p-1">{{ $t('dashboard.widgetEditor.visibilityConditions.hideOnPdf') }}</label>
-                            </div>
+                        <div v-if="visibilityCondition.condition.variablePivotDatasetOptions" class="col-3">
+                            <q-select v-model="visibilityCondition.condition.variableKey" :options="Object.keys(visibilityCondition.condition.variablePivotDatasetOptions)" :label="$t('common.key')" outlined dense :disable="visibilityConditionsDisabled" @update:model-value="onVariableKeyChanged(visibilityCondition)" />
                         </div>
+                        <div class="col-3">
+                            <q-select v-model="visibilityCondition.condition.operator" :options="descriptor.visibilityConditionOperators" option-value="value" option-label="label" emit-value map-options :label="$t('common.operator')" outlined dense :disable="visibilityConditionsDisabled" @update:model-value="visibilityConditionsChanged" />
+                        </div>
+                        <div class="col-3">
+                            <q-input v-model="visibilityCondition.condition.value" :label="$t('common.value')" outlined dense :disable="visibilityConditionsDisabled" @change="visibilityConditionsChanged" />
+                        </div>
+                    </div>
+
+                    <!-- Row 3: hide toggles -->
+                    <div class="row q-gutter-x-md">
+                        <q-toggle v-model="visibilityCondition.hide" :label="$t('dashboard.widgetEditor.visibilityConditions.hideColumn')" dense :disable="visibilityConditionsDisabled" @update:model-value="visibilityConditionsChanged" />
+                        <q-toggle v-model="visibilityCondition.hideFromSummary" :label="$t('dashboard.widgetEditor.visibilityConditions.hideFromSummary')" dense :disable="visibilityConditionsDisabled" @update:model-value="visibilityConditionsChanged" />
+                        <q-toggle v-model="visibilityCondition.hidePdf" :label="$t('dashboard.widgetEditor.visibilityConditions.hideOnPdf')" dense :disable="visibilityConditionsDisabled" @update:model-value="visibilityConditionsChanged" />
                     </div>
                 </div>
-                <div
-                    class="p-col-12 form-list-item-dropzone"
-                    :class="{
-                        'form-list-item-dropzone-active': dropzoneBottomVisible[index]
-                    }"
-                    @drop.stop="onDropComplete($event, 'after', index)"
-                    @dragover.prevent
-                    @dragenter.prevent="displayDropzone('bottom', index)"
-                    @dragleave.prevent="hideDropzone('bottom', index)"
-                ></div>
-                <div v-show="dropzoneBottomVisible[index]" class="p-col-12 form-list-item-dropzone-active" @drop.stop="onDropComplete($event, 'after', index)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
+                <!-- Delete handle (full-height, shown on hover) -->
+                <div class="kn-action-handle row items-center justify-center" :class="visibilityConditionsDisabled ? 'kn-action-handle-disabled' : ''">
+                    <q-btn flat round dense icon="delete" size="sm" :disable="visibilityConditionsDisabled" @click.stop="removeVisibilityCondition(index)" />
+                </div>
             </div>
+
+            <!-- Dropzone after this item -->
+            <div class="kn-dropzone" :class="{ 'kn-dropzone-visible': isDragging, 'kn-dropzone-active': activeDropzone === index + 1 }" @drop.stop="onDropAtIndex($event, index + 1)" @dragover.prevent @dragenter.prevent="activeDropzone = index + 1" @dragleave.prevent="activeDropzone = -1"></div>
         </div>
     </div>
 </template>
@@ -102,17 +67,13 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetColumn, ITableWidgetVisibilityCondition, ITableWidgetVisibilityConditions, IVariable } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '../../../../../DashboardHelpers'
-import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import { getDefaultVisibilityCondition } from '../../../helpers/tableWidget/TableWidgetDefaultValues'
 import descriptor from '../TableWidgetSettingsDescriptor.json'
-import Dropdown from 'primevue/dropdown'
-import InputSwitch from 'primevue/inputswitch'
-import MultiSelect from 'primevue/multiselect'
 import { getSelectedVariable } from '@/modules/documentExecution/dashboard/generalSettings/VariablesHelper'
 
 export default defineComponent({
     name: 'table-widget-visibility-condition',
-    components: { Dropdown, InputSwitch, MultiSelect },
+    components: {},
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
         variables: { type: Array as PropType<IVariable[]>, required: true }
@@ -123,14 +84,16 @@ export default defineComponent({
             visibilityConditionsModel: null as ITableWidgetVisibilityConditions | null,
             widgetColumnsAliasMap: {} as any,
             variableMap: {} as any,
-            dropzoneTopVisible: {},
-            dropzoneBottomVisible: {},
-            getTranslatedLabel
+            isDragging: false,
+            activeDropzone: -1
         }
     },
     computed: {
         visibilityConditionsDisabled() {
             return !this.visibilityConditionsModel || !this.visibilityConditionsModel.enabled
+        },
+        translatedConditionOptions(): { value: string; label: string }[] {
+            return descriptor.visibilityConditionsOptions.map((opt: any) => ({ value: opt.value, label: this.$t(opt.label) }))
         }
     },
     watch: {
@@ -233,62 +196,32 @@ export default defineComponent({
         },
         onDragStart(event: any, index: number) {
             if (!this.visibilityConditionsModel || this.visibilityConditionsDisabled) return
+            this.isDragging = true
+            this.activeDropzone = -1
             event.dataTransfer.setData('text/plain', JSON.stringify(index))
             event.dataTransfer.dropEffect = 'move'
             event.dataTransfer.effectAllowed = 'move'
         },
-        onDropComplete(event: any, position: 'before' | 'after', index: number) {
+        onDropAtIndex(event: any, targetDropzoneIndex: number) {
             if (!this.visibilityConditionsModel || this.visibilityConditionsDisabled) return
-            this.hideDropzone('bottom', index)
-            this.hideDropzone('top', index)
-            const eventData = JSON.parse(event.dataTransfer.getData('text/plain'))
-            this.onRowsMove(eventData, index, position)
-        },
-        displayDropzone(position: string, index: number) {
-            if (!this.visibilityConditionsModel || this.visibilityConditionsDisabled) return
-            if (position === 'top') {
-                this.dropzoneTopVisible[index] = true
-            } else {
-                this.dropzoneBottomVisible[index] = true
-            }
-        },
-        hideDropzone(position: string, index: number) {
-            if (!this.visibilityConditionsModel || this.visibilityConditionsDisabled) return
-            if (position === 'top') {
-                this.dropzoneTopVisible[index] = false
-            } else {
-                this.dropzoneBottomVisible[index] = false
-            }
-        },
-        onRowsMove(sourceRowIndex: number, targetRowIndex: number, position: string) {
-            if (sourceRowIndex === targetRowIndex) return
-            if (this.visibilityConditionsModel) {
-                const newIndex = sourceRowIndex > targetRowIndex && position === 'after' ? targetRowIndex + 1 : targetRowIndex
-                this.visibilityConditionsModel.conditions.splice(newIndex, 0, this.visibilityConditionsModel.conditions.splice(sourceRowIndex, 1)[0])
-                this.visibilityConditionsChanged()
-            }
+            this.isDragging = false
+            this.activeDropzone = -1
+            const sourceIndex = JSON.parse(event.dataTransfer.getData('text/plain'))
+            if (sourceIndex === targetDropzoneIndex || sourceIndex === targetDropzoneIndex - 1) return
+            const items = this.visibilityConditionsModel.conditions
+            const [removed] = items.splice(sourceIndex, 1)
+            const insertAt = targetDropzoneIndex > sourceIndex ? targetDropzoneIndex - 1 : targetDropzoneIndex
+            items.splice(insertAt, 0, removed)
+            this.visibilityConditionsChanged()
         }
     }
 })
 </script>
 
 <style lang="scss" scoped>
-.visibility-condition-container {
-    border-bottom: 1px solid #c2c2c2;
-}
-
-.visibility-condition-containerr:last-child {
-    border-bottom: none;
-}
-
-.form-list-item-dropzone {
-    height: 20px;
-    width: 100%;
-    background-color: white;
-}
-
-.form-list-item-dropzone-active {
-    height: 10px;
-    background-color: #aec1d3;
+.column-type-row {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
 }
 </style>

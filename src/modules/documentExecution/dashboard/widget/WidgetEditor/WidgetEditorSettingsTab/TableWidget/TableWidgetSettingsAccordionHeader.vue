@@ -1,9 +1,9 @@
 <template>
-    <q-item-section v-if="model" class="row items-center col-shrink">
-        <q-toggle v-model="model.enabled" :label="title ? $t(title) : ''" :disable="multiselectInteractionsDisable" @click.stop="onModelChange" dense />
-    </q-item-section>
-    <q-item-section v-else class="col-shrink">
+    <q-item-section>
         <span>{{ title ? $t(title) : '' }}</span>
+    </q-item-section>
+    <q-item-section v-if="model" side>
+        <q-toggle v-model="model.enabled" dense :disable="multiselectInteractionsDisable" @click.stop="onModelChange" />
     </q-item-section>
 </template>
 
