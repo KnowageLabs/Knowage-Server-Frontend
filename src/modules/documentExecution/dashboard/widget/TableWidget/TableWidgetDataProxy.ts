@@ -136,7 +136,8 @@ const getSummaryRow = (widget: IWidget, dashboardConfig: IDashboardConfiguration
                     if (widget.settings.configuration.summaryRows.list[k].aggregation == 'Columns Default Aggregation') obj['funct'] = col.aggregation
                     else obj['funct'] = widget.settings.configuration.summaryRows.list[k].aggregation || col.aggregation
 
-                    if (col.formula) obj['formula'] = addVariablesToFormula(col, dashboardConfig) //col.formula
+                    if (col.formula)
+                        obj['formula'] = addVariablesToFormula(col, dashboardConfig) //col.formula
                     else obj['columnName'] = col.columnName
 
                     measures.push(obj)
@@ -153,7 +154,7 @@ const getSummaryRow = (widget: IWidget, dashboardConfig: IDashboardConfiguration
 }
 
 const getLikeSelections = (searchParams: IWidgetSearch, datasetLabel: string) => {
-    if (searchParams && searchParams?.searchText != '' && searchParams?.searchColumns.length > 0) {
+    if (searchParams && searchParams?.searchText != '' && searchParams?.searchColumns?.length > 0) {
         const formattedLikeSelections = searchParams.searchColumns.toString()
         return { [datasetLabel]: { [formattedLikeSelections]: searchParams.searchText } }
     } else return null
