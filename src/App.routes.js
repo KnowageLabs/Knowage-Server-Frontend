@@ -31,7 +31,15 @@ async function ensureUserLoaded(store) {
         userLoadPromise = axios
             .get(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/2.0/currentuser`)
             .then((response) => {
-                store.initializeUser(response.data)
+                const currentUser = response.data
+
+                if (localStorage.getItem('sessionRole')) {
+                    currentUser.sessionRole = localStorage.getItem('sessionRole')
+                } else if (currentUser.defaultRole) {
+                    currentUser.sessionRole = currentUser.defaultRole
+                }
+
+                store.initializeUser(currentUser)
                 return true
             })
             .catch(() => {

@@ -125,6 +125,7 @@ export default defineComponent({
             }
         },
         resolveRoleName(): string | null {
+            if (this.user.sessionRole) return this.user.sessionRole
             if (this.user.defaultRole) return this.user.defaultRole
             const raw: string = this.user.attributes?.roles ?? ''
             // format may be "'role1','role2'" — strip quotes and split
