@@ -406,7 +406,9 @@
             "background": {
                 "sheetsColor": "Farba pozadia hárkov",
                 "sheetsImage": "Adresa URL imagu na pozadí hárkov",
-                "sheetsSize": "veľkosť pozadia hárkov"
+                "sheetsSize": "veľkosť pozadia hárkov",
+                "sheetsStyle": "Sheets Background CSS",
+                "sheetsStyleHint": "Paste the full CSS background value, for example gradients, image, repeat and position"
             },
             "css": "CSS Editor",
             "menuWidgets": {

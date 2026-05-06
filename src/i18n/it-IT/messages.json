@@ -489,6 +489,8 @@
                 "sheetsImageHint": "Incolla l'indirizzo dell'immagine o il codice base64",
                 "sheetsSize": "Dimensione sfondo dei fogli",
                 "sheetsSizeHint": "Usa px, % o proprietà CSS come 'contain' o 'cover'",
+                "sheetsStyle": "CSS sfondo dei fogli",
+                "sheetsStyleHint": "Incolla l'intero valore della proprietà CSS background, ad esempio gradienti, immagine, repeat e position",
                 "showGrid": "Mostra griglia in modifica"
             },
             "css": "Editor CSS",

@@ -72,10 +72,12 @@ const getFormattedModelConfiguration = async (model: any, document: any, drivers
 const getFormattedSheetBackground = (model: any) => {
     const modelStyle = model.configuration.style
 
-    const formattedBackground = { sheetsBackgroundColor: '', imageBackgroundUrl: '', imageBackgroundSize: '', showGrid: true } as IBackground
+    const formattedBackground = { sheetsBackgroundColor: '', imageBackgroundUrl: '', imageBackgroundSize: '', sheetsBackgroundStyle: '', showGrid: true } as IBackground
     if (modelStyle.sheetsBackgroundColor) formattedBackground.sheetsBackgroundColor = modelStyle.sheetsBackgroundColor
     if (modelStyle.imageBackgroundUrl) formattedBackground.imageBackgroundUrl = modelStyle.imageBackgroundUrl
     if (modelStyle.imageBackgroundSize) formattedBackground.imageBackgroundSize = modelStyle.imageBackgroundSize
+    if (modelStyle.sheetsBackgroundStyle) formattedBackground.sheetsBackgroundStyle = modelStyle.sheetsBackgroundStyle
+    else if (modelStyle.background) formattedBackground.sheetsBackgroundStyle = modelStyle.background
     if (modelStyle.showGrid) formattedBackground.showGrid = modelStyle.showGrid
 
     return formattedBackground

@@ -27,6 +27,13 @@
                     </template>
                 </q-input>
             </span>
+            <span class="p-col-12 p-mb-4">
+                <q-input v-model="background.sheetsBackgroundStyle" type="textarea" autogrow :label="$t('dashboard.generalSettings.background.sheetsStyle')" :hint="$t('dashboard.generalSettings.background.sheetsStyleHint')">
+                    <template #append>
+                        <q-icon name="close" class="cursor-pointer" @click="background.sheetsBackgroundStyle = ''" />
+                    </template>
+                </q-input>
+            </span>
             <span class="p-col-12 p-sm-6 p-xl-3 p-mb-4">
                 <q-toggle v-model="background.showGrid" :label="$t('dashboard.generalSettings.background.showGrid')" />
             </span>
@@ -63,7 +70,8 @@ export default defineComponent({
     methods: {
         loadProps() {
             this.dashboard = this.dashboardModelProp
-            if (!this.dashboard.configuration?.background) this.dashboard.configuration.background = { sheetsBackgroundColor: '', imageBackgroundUrl: '', imageBackgroundSize: '', showGrid: true } as IBackground
+            if (!this.dashboard.configuration?.background) this.dashboard.configuration.background = { sheetsBackgroundColor: '', imageBackgroundUrl: '', imageBackgroundSize: '', sheetsBackgroundStyle: '', showGrid: true } as IBackground
+            else if (this.dashboard.configuration.background.sheetsBackgroundStyle === undefined) this.dashboard.configuration.background.sheetsBackgroundStyle = ''
             this.background = this.dashboard.configuration.background as IBackground
         },
         onSelectionColorChanged(event: string | null) {

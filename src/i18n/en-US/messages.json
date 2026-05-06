@@ -583,6 +583,8 @@
                 "sheetsImageHint": "Paste the image URL or base64 code here",
                 "sheetsSize": "Sheets Background Size",
                 "sheetsSizeHint": "Use px, % or CSS keywords like 'contain' or 'cover'",
+                "sheetsStyle": "Sheets Background CSS",
+                "sheetsStyleHint": "Paste the full CSS background value, for example gradients, image, repeat and position",
                 "showGrid": "Show Grid on edit"
             },
             "css": "CSS Editor",

@@ -1,8 +1,8 @@
 <template>
-    <KnDashboardTabsPanel v-if="dashboardModel.sheets" v-model:sheets="dashboardModel.sheets" :active-dashboard-sheet="activeDashboardSheet" :style="backgroundStyle" :current-screen-size="currentScreenSize" class="test" label-position="bottom" :edit="canEditDashboard(document)" @sheet-change="sheetChange($event)" @sheetDeleted="onSheetDeleted" @sheet-cloned="onSheetCloned">
+    <KnDashboardTabsPanel v-if="dashboardModel.sheets" v-model:sheets="dashboardModel.sheets" :active-dashboard-sheet="activeDashboardSheet" :current-screen-size="currentScreenSize" class="test" label-position="bottom" :edit="canEditDashboard(document)" @sheet-change="sheetChange($event)" @sheetDeleted="onSheetDeleted" @sheet-cloned="onSheetCloned">
         <div v-if="dashboardCssImportsTag" class="dashboard-css-imports" v-html="dashboardCssImportsTag" />
         <div v-if="dashboardCssTag" class="dashboard-css" v-html="dashboardCssTag" />
-        <div v-if="activeDashboardSheet" class="sheet-container">
+        <div v-if="activeDashboardSheet" class="sheet-container" :style="backgroundStyle">
             <GridLayout v-model:layout="activeDashboardSheet.widgets[currentScreenSize]" :responsive-layouts="activeDashboardSheet.widgets" :responsive="true" :cols="colSizes" :row-height="30" :is-draggable="canEditDashboard(document)" :is-resizable="canEditDashboard(document)" :vertical-compact="false" :use-css-transforms="false" :margin="[0, 0]" :style="getGridStyle" @breakpoint-changed="breakpointChangedEvent">
                 <WidgetController v-for="item in activeDashboardSheet.widgets[currentScreenSize]" :key="item.i" :active-sheet="activeDashboardSheet" :document="document" :widget="currentWidget(item.id)" :item="item" :datasets="datasets" :dashboard-id="dashboardId" :variables="variables" :model="model"></WidgetController>
                 <div v-if="canEditDashboard(document) && newDashboard" class="emptyDashboardWizard">
@@ -76,6 +76,10 @@ export default defineComponent({
             if (!this.dashboardModel.configuration) return ''
 
             const backgroundConfig = this.dashboardModel.configuration.background as IBackground
+            if (backgroundConfig?.sheetsBackgroundStyle) {
+                return { background: backgroundConfig.sheetsBackgroundStyle, 'min-height': '100%' }
+            }
+
             const backgroundStyle = { 'background-size': backgroundConfig?.imageBackgroundSize || '100%', 'background-position': 'center', 'background-repeat': 'no-repeat', 'min-height': '100%' }
 
             if (backgroundConfig?.imageBackgroundUrl) backgroundStyle['background-image'] = `url('${backgroundConfig.imageBackgroundUrl}')`

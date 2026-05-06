@@ -683,6 +683,7 @@ interface IBackground {
     sheetsBackgroundColor: string
     imageBackgroundUrl: string
     imageBackgroundSize: string
+    sheetsBackgroundStyle?: string
     showGrid: boolean
 }
 
