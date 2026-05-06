@@ -1,61 +1,81 @@
 <template>
-    <div class="p-grid">
-        <div v-for="(parameter, index) in parameters" :key="index" class="p-grid p-col-12 p-ai-center p-p-2">
-            <div class="p-sm-6 p-md-1 p-ai-center">
-                <div class="kn-flex p-mx-4 p-my-2">
-                    <InputSwitch v-model="parameter.enabled" :disabled="disabled" @change="parametersChanged"></InputSwitch>
-                </div>
+    <div>
+        <div v-for="(parameter, index) in parameters" :key="index" class="param-row row no-wrap q-mb-sm">
+            <!-- Handle: enable toggle -->
+            <div class="kn-action-handle row items-center justify-center" :class="disabled ? 'kn-action-handle-disabled' : ''" style="width: 22px">
+                <q-checkbox v-model="parameter.enabled" size="sm" :disable="disabled" dense @update:model-value="parametersChanged" />
             </div>
-            <div class="p-sm-6 p-md-2 p-d-flex p-flex-column kn-flex">
-                <label class="kn-material-input-label">{{ $t('common.parameter') }}</label>
-                <InputText v-model="parameter.name" class="kn-material-input p-inputtext-sm" :disabled="true" />
-            </div>
-            <div class="p-sm-6 p-md-2 p-d-flex p-flex-column kn-flex p-p-2 value-type-dropdown">
-                <label class="kn-material-input-label"> {{ $t('common.type') }}</label>
-                <Dropdown v-model="parameter.type" class="kn-material-input" :options="outputParameterTypeOptions" option-value="value" :disabled="disabled" @change="onParameterTypeChanged(parameter)">
-                    <template #value="slotProps">
-                        <div>
-                            <span>{{ getTranslatedLabel(slotProps.value, descriptor.outputParameterTypeOptions, $t) }}</span>
+            <!-- Main content -->
+            <div class="col q-pa-sm" :class="{ 'widget-editor-disabled': !parameter.enabled || disabled }">
+                <div class="row q-col-gutter-sm items-center">
+                    <div class="col-3">
+                        <q-input v-model="parameter.name" :label="$t('common.parameter')" outlined dense readonly />
+                    </div>
+                    <div class="col-3">
+                        <q-select v-model="parameter.type" :options="outputParameterTypeOptions" :label="$t('common.type')" option-value="value" option-label="label" emit-value map-options outlined dense :disable="!parameter.enabled || disabled" @update:model-value="onParameterTypeChanged(parameter)">
+                            <template #selected-item="slotProps">
+                                <span>{{ getTranslatedLabel(slotProps.opt.value, descriptor.outputParameterTypeOptions, $t) }}</span>
+                            </template>
+                            <template #option="slotProps">
+                                <q-item v-bind="slotProps.itemProps">
+                                    <q-item-section>
+                                        <q-item-label>{{ $t(slotProps.opt.label) }}</q-item-label>
+                                    </q-item-section>
+                                </q-item>
+                            </template>
+                        </q-select>
+                    </div>
+
+                    <!-- Static: value input -->
+                    <div v-if="parameter.type === 'static'" class="col-6">
+                        <q-input v-model="parameter.value" :label="$t('common.value')" outlined dense :disable="!parameter.enabled || disabled" @update:model-value="parametersChanged" />
+                    </div>
+
+                    <!-- Dynamic: column selector -->
+                    <template v-else-if="parameter.type === 'dynamic' && ['table', 'highcharts', 'chartJS', 'static-pivot-table', 'discovery', 'map', 'ce-pivot-table'].includes(widgetType)">
+                        <div v-if="['table', 'discovery', 'static-pivot-table', 'ce-pivot-table'].includes(widgetType)" class="col-6">
+                            <q-select v-model="parameter.column" :options="['table', 'discovery'].includes(widgetType) ? widgetModel.columns : pivotTableFields" :label="$t('common.column')" option-label="alias" option-value="columnName" emit-value map-options outlined dense :disable="!parameter.enabled || disabled" @update:model-value="parametersChanged" />
+                        </div>
+                        <div v-else-if="widgetType === 'map'" class="col-3">
+                            <q-select
+                                v-model="parameter.column"
+                                :options="mapDynamicOptions"
+                                :label="$t('common.column')"
+                                :option-value="getTargetLayerType(crossNavigationConfig ?? previewConfig) === 'layer' ? 'property' : 'name'"
+                                :option-label="getTargetLayerType(crossNavigationConfig ?? previewConfig) === 'layer' ? 'property' : 'name'"
+                                emit-value
+                                map-options
+                                outlined
+                                dense
+                                :disable="!parameter.enabled || disabled"
+                                @update:model-value="parametersChanged"
+                            />
+                        </div>
+                        <div v-else class="col-3">
+                            <q-select v-model="parameter.column" :options="chartColumnOptions" :label="$t('common.column')" option-value="value" option-label="label" emit-value map-options outlined dense :disable="!parameter.enabled || disabled" @update:model-value="parametersChanged">
+                                <template #selected-item="slotProps">
+                                    <span>{{ getTranslatedLabel(slotProps.opt.value, chartColumnOptions, $t) }}</span>
+                                </template>
+                                <template #option="slotProps">
+                                    <q-item v-bind="slotProps.itemProps">
+                                        <q-item-section>
+                                            <q-item-label>{{ $t(slotProps.opt.label) }}</q-item-label>
+                                        </q-item-section>
+                                    </q-item>
+                                </template>
+                            </q-select>
                         </div>
                     </template>
-                    <template #option="slotProps">
-                        <div>
-                            <span>{{ $t(slotProps.option.label) }}</span>
+
+                    <!-- Selection: dataset + column, side by side -->
+                    <template v-else-if="parameter.type === 'selection'">
+                        <div class="col-3">
+                            <q-select v-model="parameter.dataset" :options="selectedDatasetNames" :label="$t('common.dataset')" outlined dense :disable="!parameter.enabled || disabled" @update:model-value="onDatasetChanged(parameter)" />
+                        </div>
+                        <div class="col-3">
+                            <q-select v-model="parameter.column" :options="getSelectionDatasetColumnOptions(parameter)" :label="$t('common.column')" outlined dense :disable="!parameter.enabled || disabled" @update:model-value="parametersChanged" />
                         </div>
                     </template>
-                </Dropdown>
-            </div>
-            <div v-if="parameter.type === 'static'" class="p-sm-12 p-md-7 p-d-flex p-flex-column kn-flex">
-                <label class="kn-material-input-label">{{ $t('common.value') }}</label>
-                <InputText v-model="parameter.value" class="kn-material-input p-inputtext-sm" :disabled="disabled" @change="parametersChanged" />
-            </div>
-            <div v-else-if="parameter.type === 'dynamic' && ['table', 'highcharts', 'chartJS', 'static-pivot-table', 'discovery', 'map', 'ce-pivot-table'].includes(widgetType)" class="p-sm-12 p-md-7 p-d-flex p-flex-row p-ai-center kn-flex">
-                <div class="p-d-flex p-flex-column kn-flex">
-                    <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
-                    <Dropdown v-if="['table', 'discovery', 'static-pivot-table', 'ce-pivot-table'].includes(widgetType)" v-model="parameter.column" class="kn-material-input" :options="['table', 'discovery'].includes(widgetType) ? widgetModel.columns : pivotTableFields" option-label="alias" option-value="columnName" :disabled="disabled" @change="parametersChanged"></Dropdown>
-                    <Dropdown v-else-if="widgetType === 'map'" v-model="parameter.column" class="kn-material-input" :options="mapDynamicOptions" :option-value="getTargetLayerType(crossNavigationConfig ?? previewConfig) === 'layer' ? 'property' : 'name'" :option-label="getTargetLayerType(crossNavigationConfig ?? previewConfig) === 'layer' ? 'property' : 'name'" :disabled="disabled" @change="parametersChanged"></Dropdown>
-                    <Dropdown v-else v-model="parameter.column" class="kn-material-input" :options="chartColumnOptions" option-value="value" :disabled="disabled" @change="parametersChanged">
-                        <template #value="slotProps">
-                            <span>{{ getTranslatedLabel(slotProps.value, chartColumnOptions, $t) }}</span>
-                        </template>
-                        <template #option="slotProps">
-                            <span>{{ $t(slotProps.option.label) }}</span>
-                        </template>
-                    </Dropdown>
-                </div>
-            </div>
-            <div v-else-if="parameter.type === 'selection'" class="p-grid p-sm-12 p-md-7 p-d-flex p-flex-row p-ai-center kn-flex">
-                <div class="p-sm-12 p-md-6 p-ai-center">
-                    <div class="p-d-flex p-flex-column kn-flex">
-                        <label class="kn-material-input-label"> {{ $t('common.dataset') }}</label>
-                        <Dropdown v-model="parameter.dataset" class="kn-material-input" :options="selectedDatasetNames" :disabled="disabled" @change="onDatasetChanged(parameter)"> </Dropdown>
-                    </div>
-                </div>
-                <div class="p-sm-12 p-md-6 p-ai-center">
-                    <div class="p-d-flex p-flex-column kn-flex">
-                        <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
-                        <Dropdown v-model="parameter.column" class="kn-material-input" :options="getSelectionDatasetColumnOptions(parameter)" :disabled="disabled" @change="parametersChanged"> </Dropdown>
-                    </div>
                 </div>
             </div>
         </div>
@@ -67,13 +87,11 @@ import { IWidgetInteractionParameter, IWidget } from '@/modules/documentExecutio
 import { defineComponent, PropType } from 'vue'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import descriptor from '../WidgetInteractionsDescriptor.json'
-import Dropdown from 'primevue/dropdown'
-import InputSwitch from 'primevue/inputswitch'
 import { IMapWidgetCrossNavigationVisualizationTypeConfig, IMapWidgetLayer, IMapWidgetPreviewVisualizationTypeConfig } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 
 export default defineComponent({
     name: 'table-widget-output-parameters-list',
-    components: { Dropdown, InputSwitch },
+    components: {},
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
         propParameters: { type: Array as PropType<IWidgetInteractionParameter[]>, required: true },
@@ -167,3 +185,11 @@ export default defineComponent({
     }
 })
 </script>
+
+<style scoped>
+.param-row {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+</style>

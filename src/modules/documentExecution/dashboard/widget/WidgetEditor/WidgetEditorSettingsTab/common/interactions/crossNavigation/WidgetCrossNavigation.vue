@@ -1,63 +1,71 @@
 <template>
-    <div v-if="crossNavigationModel" class="p-grid p-p-4">
-        <div v-if="['table'].includes(widgetModel.type)" class="p-col-12 p-grid">
-            <div v-if="crossNavigationModel.multiselection" class="p-col-12 p-md-4 p-pt-4 p-pr-4">
-                <InputSwitch v-model="crossNavigationModel.multiselection.enabled" :disabled="crossNavigationDisabled" @click="toggleMultiselect"></InputSwitch>
-                <label class="kn-material-input-label p-m-3">{{ $t('dashboard.widgetEditor.interactions.enableMultiselection') }}</label>
-            </div>
-            <div v-if="crossNavigationModel.multiselection" class="p-col-12 p-md-4 style-toolbar-container p-pt-3 p-pr-5">
-                <WidgetEditorStyleToolbar
-                    :options="descriptor.styleToolbarSelectionOptions"
-                    :prop-model="{
-                        color: crossNavigationModel.multiselection.properties.color,
-                        'background-color': crossNavigationModel.multiselection.properties['background-color']
-                    }"
-                    :disabled="!crossNavigationModel.multiselection.enabled"
-                    @change="onStyleToolbarChange($event)"
-                ></WidgetEditorStyleToolbar>
-            </div>
-        </div>
-        <div class="p-grid p-col-12 p-ai-center">
-            <div v-if="!['html', 'text', 'highcharts', 'chartJS', 'image', 'customchart', 'static-pivot-table', 'map', 'ce-pivot-table'].includes(widgetModel.type)" class="p-col-6 p-sm-12 p-md-6 p-d-flex p-flex-column kn-flex p-px-2">
-                <label class="kn-material-input-label"> {{ $t('common.type') }}</label>
-                <Dropdown v-model="crossNavigationModel.type" class="kn-material-input" :options="interactionTypes" option-value="value" :disabled="crossNavigationDisabled" @change="onInteractionTypeChanged">
-                    <template #value="slotProps">
-                        <div>
-                            <span>{{ getTranslatedLabel(slotProps.value, interactionTypes, $t) }}</span>
-                        </div>
+    <div v-if="crossNavigationModel" class="q-px-md q-pb-md">
+        <div class="row q-col-gutter-sm">
+            <!-- Type: not shown for chart/special widget types -->
+            <div v-if="!['html', 'text', 'highcharts', 'chartJS', 'image', 'customchart', 'static-pivot-table', 'map', 'ce-pivot-table'].includes(widgetModel.type)" class="col-6">
+                <q-select v-model="crossNavigationModel.type" :options="interactionTypes" :label="$t('common.type')" option-value="value" option-label="label" emit-value map-options outlined dense :disable="crossNavigationDisabled" @update:model-value="onInteractionTypeChanged">
+                    <template #selected-item="slotProps">
+                        <span>{{ getTranslatedLabel(slotProps.opt.value, interactionTypes, $t) }}</span>
                     </template>
                     <template #option="slotProps">
-                        <div>
-                            <span>{{ $t(slotProps.option.label) }}</span>
-                        </div>
+                        <q-item v-bind="slotProps.itemProps">
+                            <q-item-section>
+                                <q-item-label>{{ $t(slotProps.opt.label) }}</q-item-label>
+                            </q-item-section>
+                        </q-item>
                     </template>
-                </Dropdown>
+                </q-select>
             </div>
-        </div>
-        <div class="p-grid p-col-12 p-ai-center">
-            <div v-if="['table', 'discovery'].includes(widgetModel.type) && crossNavigationModel.type === 'singleColumn'" class="p-sm-12 p-md-5 p-d-flex p-flex-row p-ai-center p-px-2">
-                <div class="p-d-flex p-flex-column kn-flex">
-                    <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
-                    <Dropdown v-model="crossNavigationModel.column" class="kn-material-input" :options="widgetModel.columns" option-label="alias" option-value="id" :disabled="crossNavigationDisabled"> </Dropdown>
+
+            <!-- Cross navigation name — always shown, half-width leaves room for col when needed -->
+            <div class="col-3">
+                <q-select v-model="crossNavigationModel.id" :options="crossNavigationOptions" :label="$t('dashboard.widgetEditor.interactions.crossNavigationName')" option-label="name" option-value="id" emit-value map-options outlined dense :disable="crossNavigationDisabled" @update:model-value="onCrossNavigationSelected" />
+            </div>
+
+            <!-- Column: table/discovery + singleColumn type — same row as type when both visible -->
+            <div v-if="['table', 'discovery'].includes(widgetModel.type) && crossNavigationModel.type === 'singleColumn'" class="col-3">
+                <q-select v-model="crossNavigationModel.column" :options="widgetModel.columns" :label="$t('common.column')" option-label="alias" option-value="id" emit-value map-options outlined dense :disable="crossNavigationDisabled" />
+            </div>
+
+            <!-- Icon toolbar: same row as name when icon type active -->
+            <div v-if="crossNavigationModel.type === 'icon'" class="col-3">
+                <WidgetEditorStyleToolbar :options="[{ type: 'icon' }]" :prop-model="{ icon: crossNavigationModel.icon }" :disabled="crossNavigationDisabled" @change="onStyleToolbarChange($event)" />
+            </div>
+
+            <!-- Map label + hint -->
+            <template v-if="widgetModel.type === 'map'">
+                <div class="col-12">
+                    <q-input v-model="crossNavigationModel.label" :label="$t('common.label')" outlined dense :disable="crossNavigationDisabled" />
+                    <div class="text-caption q-mt-xs text-grey-7">{{ $t('dashboard.widgetEditor.map.crossNavigationLabelHint') }}</div>
                 </div>
-            </div>
-            <div class="p-sm-10 p-md-5 p-d-flex p-flex-row p-ai-center">
-                <div class="p-d-flex p-flex-column kn-flex p-mx-2">
-                    <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.interactions.crossNavigationName') }}</label>
-                    <Dropdown v-model="crossNavigationModel.id" class="kn-material-input" :options="crossNavigationOptions" option-label="name" option-value="id" :disabled="crossNavigationDisabled" @change="onCrossNavigationSelected"> </Dropdown>
+            </template>
+
+            <!-- Output parameters -->
+            <template v-if="crossNavigationModel.parameters && crossNavigationModel.parameters.length > 0">
+                <div class="col-12"><q-separator /></div>
+                <div class="col-12">
+                    <TableWidgetOutputParametersList :widget-model="widgetModel" :prop-parameters="parameterList" :selected-datasets-columns-map="selectedDatasetsColumnsMap" :disabled="crossNavigationDisabled" @change="onParametersChanged" />
                 </div>
-            </div>
-            <div v-if="crossNavigationModel.type === 'icon'" class="p-col-2 p-p-4">
-                <WidgetEditorStyleToolbar :options="[{ type: 'icon' }]" :prop-model="{ icon: crossNavigationModel.icon }" :disabled="crossNavigationDisabled" @change="onStyleToolbarChange($event)"> </WidgetEditorStyleToolbar>
-            </div>
-            <div v-if="widgetModel.type === 'map'" class="p-d-flex p-flex-column kn-flex p-pt-2">
-                <label class="kn-material-input-label">{{ $t('common.label') }}</label>
-                <InputText v-model="crossNavigationModel.label" class="kn-material-input p-inputtext-sm" />
-                <small>{{ $t('dashboard.widgetEditor.map.crossNavigationLabelHint') }}</small>
-            </div>
-        </div>
-        <div v-if="crossNavigationModel.parameters" class="p-col-12 p-d-flex p-flex-row p-ai-center p-p-2">
-            <TableWidgetOutputParametersList class="kn-flex p-mr-2" :widget-model="widgetModel" :prop-parameters="parameterList" :selected-datasets-columns-map="selectedDatasetsColumnsMap" :disabled="crossNavigationDisabled" @change="onParametersChanged"></TableWidgetOutputParametersList>
+            </template>
+
+            <!-- Multiselection: table only, at bottom with separator -->
+            <template v-if="['table'].includes(widgetModel.type) && crossNavigationModel.multiselection">
+                <div class="col-12"><q-separator /></div>
+                <div class="col-12">
+                    <q-toggle v-model="crossNavigationModel.multiselection.enabled" :label="$t('dashboard.widgetEditor.interactions.enableMultiselection')" :disable="crossNavigationDisabled" dense @update:model-value="toggleMultiselect" />
+                </div>
+                <div class="col-12">
+                    <WidgetEditorStyleToolbar
+                        :options="descriptor.styleToolbarSelectionOptions"
+                        :prop-model="{
+                            color: crossNavigationModel.multiselection.properties.color,
+                            'background-color': crossNavigationModel.multiselection.properties['background-color']
+                        }"
+                        :disabled="!crossNavigationModel.multiselection.enabled"
+                        @change="onStyleToolbarChange($event)"
+                    />
+                </div>
+            </template>
         </div>
     </div>
 </template>
@@ -69,14 +77,12 @@ import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import { emitter } from '../../../../../../DashboardHelpers'
 import descriptor from '../WidgetInteractionsDescriptor.json'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
-import Dropdown from 'primevue/dropdown'
 import TableWidgetOutputParametersList from './WidgetOutputParametersList.vue'
 import WidgetEditorStyleToolbar from '../../styleToolbar/WidgetEditorStyleToolbar.vue'
-import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
     name: 'table-widget-cross-navigation',
-    components: { Dropdown, TableWidgetOutputParametersList, WidgetEditorStyleToolbar, InputSwitch },
+    components: { TableWidgetOutputParametersList, WidgetEditorStyleToolbar },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
         datasets: { type: Array as PropType<IDataset[]> },
@@ -196,9 +202,9 @@ export default defineComponent({
                 this.selectedDatasetsColumnsMap[dataset.name].push(dataset.metadata.fieldsMeta[i].name)
             }
         },
-        onCrossNavigationSelected(event: any) {
+        onCrossNavigationSelected(value: number) {
             if (!this.crossNavigationModel) return
-            const selected = this.crossNavigationOptions.find((opt: any) => opt.id === event.value)
+            const selected = this.crossNavigationOptions.find((opt: any) => opt.id === value)
             if (selected) {
                 this.crossNavigationModel.id = selected.id
                 this.crossNavigationModel.name = selected.name

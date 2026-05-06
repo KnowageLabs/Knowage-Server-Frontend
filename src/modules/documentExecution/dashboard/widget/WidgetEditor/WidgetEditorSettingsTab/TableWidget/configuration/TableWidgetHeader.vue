@@ -276,7 +276,7 @@ export default defineComponent({
 
 <style scoped>
 .widget-editor-disabled {
-    opacity: 0.5;
+    opacity: 0.6;
     pointer-events: none;
 }
 </style>

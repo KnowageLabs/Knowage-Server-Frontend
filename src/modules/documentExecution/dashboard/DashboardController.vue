@@ -282,7 +282,8 @@ export default defineComponent({
                 }
 
                 await this.$http
-                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/3.0/documentexecution/` + this.document?.id + '/templates', payload)
+                    // .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/3.0/documentexecution/` + this.document?.id + '/templates', payload)
+                    .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/3.0/documentexecution/` + this.document?.id + '/templates')
                     .then((response: AxiosResponse<any>) => (tempModel = response.data))
                     .catch(() => {})
             }

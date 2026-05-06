@@ -1,77 +1,95 @@
 <template>
-    <div v-if="linksModel" class="p-grid p-p-4">
-        <div v-if="['table'].includes(widgetModel.type)" class="p-col-12 p-grid">
-            <div v-if="linksModel.multiselection" class="p-col-12 p-md-4 p-pt-4 p-pr-4">
-                <InputSwitch v-model="linksModel.multiselection.enabled" :disabled="linksDisabled" @click="toggleMultiselect"></InputSwitch>
-                <label class="kn-material-input-label p-m-3">{{ $t('dashboard.widgetEditor.interactions.enableMultiselection') }}</label>
-            </div>
-            <div v-if="linksModel.multiselection" class="p-col-12 p-md-4 style-toolbar-container p-pt-3 p-pr-5">
-                <WidgetEditorStyleToolbar
-                    :options="descriptor.styleToolbarSelectionOptions"
-                    :prop-model="{
-                        color: linksModel.multiselection.properties.color,
-                        'background-color': linksModel.multiselection.properties['background-color']
-                    }"
-                    :disabled="!linksModel.multiselection.enabled"
-                    @change="onStyleToolbarChange($event)"
-                ></WidgetEditorStyleToolbar>
-            </div>
-        </div>
-        <div v-for="(link, index) in linksModel.links" :key="index" class="dynamic-form-item p-grid p-ai-center p-col-12">
-            <div v-if="widgetType === 'table'" class="p-sm-12 p-md-12 p-d-flex p-flex-column">
-                <label class="kn-material-input-label"> {{ $t('common.type') }}</label>
-                <Dropdown v-model="link.type" class="kn-material-input" :options="descriptor.interactionTypes" option-value="value" :disabled="linksDisabled" @change="onInteractionTypeChanged(link)">
-                    <template #value="slotProps">
-                        <div>
-                            <span>{{ getTranslatedLabel(slotProps.value, descriptor.interactionTypes, $t) }}</span>
-                        </div>
-                    </template>
-                    <template #option="slotProps">
-                        <div>
-                            <span>{{ $t(slotProps.option.label) }}</span>
-                        </div>
-                    </template>
-                </Dropdown>
-            </div>
+    <div v-if="linksModel" class="q-px-md q-pb-md">
+        <div class="row q-col-gutter-sm">
+            <!-- Links list -->
+            <div class="col-12">
+                <div class="row items-center justify-between q-mb-sm">
+                    <span class="text-subtitle2">{{ $t('dashboard.widgetEditor.interactions.addLink') }}</span>
+                    <q-btn flat dense color="primary" icon="add" :disable="linksDisabled" @click="addLink" />
+                </div>
 
-            <div class="kn-flex p-d-flex p-flex-column p-pt-2 p-ml-2">
-                <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.interactions.basicUrl') }}</label>
-                <InputText v-model="link.baseurl" class="kn-material-input p-inputtext-sm" :disabled="linksDisabled" />
-            </div>
+                <div v-for="(link, index) in linksModel.links" :key="index" class="link-row row no-wrap q-mb-sm">
+                    <!-- Link content -->
+                    <div class="col q-pa-sm">
+                        <div class="row q-col-gutter-sm">
+                            <!-- Base URL: full width -->
+                            <div class="col-6">
+                                <q-input v-model="link.baseurl" :label="$t('dashboard.widgetEditor.interactions.basicUrl')" outlined dense :disable="linksDisabled">
+                                    <q-tooltip anchor="top middle">{{ link.baseurl }}</q-tooltip>
+                                </q-input>
+                            </div>
+                            <div class="col-6">
+                                <q-select v-model="link.action" :options="descriptor.linkTypes" :label="$t('dashboard.widgetEditor.interactions.linkType')" option-value="value" option-label="label" emit-value map-options outlined dense :disable="linksDisabled">
+                                    <template #selected-item="slotProps">
+                                        <span>{{ getTranslatedLabel(slotProps.opt.value, descriptor.linkTypes, $t) }}</span>
+                                    </template>
+                                    <template #option="slotProps">
+                                        <q-item v-bind="slotProps.itemProps">
+                                            <q-item-section>
+                                                <q-item-label>{{ $t(slotProps.opt.label) }}</q-item-label>
+                                            </q-item-section>
+                                        </q-item>
+                                    </template>
+                                </q-select>
+                            </div>
+                            <!-- Type (table only, col-6) + Link action (col-6 or col-12) -->
+                            <div v-if="widgetType === 'table'" class="col-6">
+                                <q-select v-model="link.type" :options="descriptor.interactionTypes" :label="$t('common.type')" option-value="value" option-label="label" emit-value map-options outlined dense :disable="linksDisabled" @update:model-value="onInteractionTypeChanged(link)">
+                                    <template #selected-item="slotProps">
+                                        <span>{{ getTranslatedLabel(slotProps.opt.value, descriptor.interactionTypes, $t) }}</span>
+                                    </template>
+                                    <template #option="slotProps">
+                                        <q-item v-bind="slotProps.itemProps">
+                                            <q-item-section>
+                                                <q-item-label>{{ $t(slotProps.opt.label) }}</q-item-label>
+                                            </q-item-section>
+                                        </q-item>
+                                    </template>
+                                </q-select>
+                            </div>
 
-            <div v-if="link.type === 'singleColumn'" class="kn-flex">
-                <div class="p-d-flex p-flex-column kn-flex p-mx-2">
-                    <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
-                    <Dropdown v-model="link.column" class="kn-material-input" :options="widgetModel.columns" option-label="alias" option-value="columnName" :disabled="linksDisabled"> </Dropdown>
+                            <!-- Column (singleColumn) or icon toolbar -->
+                            <div v-if="link.type === 'singleColumn'" class="col-6">
+                                <q-select v-model="link.column" :options="widgetModel.columns" :label="$t('common.column')" option-label="alias" option-value="columnName" emit-value map-options outlined dense :disable="linksDisabled" />
+                            </div>
+                            <div v-else-if="link.type === 'icon'" class="col-6">
+                                <WidgetEditorStyleToolbar :options="[{ type: 'icon' }]" :prop-model="{ icon: link.icon }" :disabled="linksDisabled" @change="onStyleToolbarChange($event, link)" />
+                            </div>
+
+                            <div class="col-12"><q-separator /></div>
+
+                            <!-- Parameters -->
+                            <div class="col-12">
+                                <TableWidgetLinkParameterList :widget-model="widgetModel" :prop-parameters="link.parameters" :selected-datasets-columns-map="selectedDatasetColumnNameMap" :disabled="linksDisabled" :dashboard-id="dashboardId" @change="onParametersChanged($event, link)" @addParameter="onAddParameter(link)" @delete="onParameterDelete($event, link)" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Handle: delete -->
+                    <div class="kn-action-handle row items-center justify-center" :class="linksDisabled ? 'kn-action-handle-disabled' : ''">
+                        <q-btn flat round dense icon="delete" size="sm" :disable="linksDisabled" @click="removeLink(index)" />
+                    </div>
                 </div>
             </div>
-            <div v-else-if="link.type === 'icon'" class="kn-flex p-mt-5 p-mx-2">
-                <WidgetEditorStyleToolbar :options="[{ type: 'icon' }]" :prop-model="{ icon: link.icon }" :disabled="linksDisabled" @change="onStyleToolbarChange($event, link)"> </WidgetEditorStyleToolbar>
-            </div>
 
-            <div class="kn-flex p-d-flex p-flex-column p-mx-2">
-                <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.interactions.linkType') }}</label>
-                <Dropdown v-model="link.action" class="kn-material-input" :options="descriptor.linkTypes" option-value="value" :disabled="linksDisabled" @change="onInteractionTypeChanged(link)">
-                    <template #value="slotProps">
-                        <div>
-                            <span>{{ getTranslatedLabel(slotProps.value, descriptor.linkTypes, $t) }}</span>
-                        </div>
-                    </template>
-                    <template #option="slotProps">
-                        <div>
-                            <span>{{ $t(slotProps.option.label) }}</span>
-                        </div>
-                    </template>
-                </Dropdown>
-            </div>
-
-            <div class="p-text-left p-mt-3 p-ml-3">
-                <i :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash']" class="kn-cursor-pointer" @click="index === 0 ? addLink() : removeLink(index)"></i>
-            </div>
-
-            <div class="p-sm-12 p-md-12">
-                <TableWidgetLinkParameterList class="kn-flex p-mr-2" :widget-model="widgetModel" :prop-parameters="link.parameters" :selected-datasets-columns-map="selectedDatasetColumnNameMap" :disabled="linksDisabled" :dashboard-id="dashboardId" @change="onParametersChanged($event, link)" @addParameter="onAddParameter(link)" @delete="onParameterDelete($event, link)"></TableWidgetLinkParameterList>
-            </div>
+            <!-- Multiselection: table only, at bottom with separator -->
+            <template v-if="['table'].includes(widgetModel.type) && linksModel.multiselection">
+                <div class="col-12"><q-separator /></div>
+                <div class="col-12">
+                    <q-toggle v-model="linksModel.multiselection.enabled" :label="$t('dashboard.widgetEditor.interactions.enableMultiselection')" :disable="linksDisabled" dense @update:model-value="toggleMultiselect" />
+                </div>
+                <div class="col-12">
+                    <WidgetEditorStyleToolbar
+                        :options="descriptor.styleToolbarSelectionOptions"
+                        :prop-model="{
+                            color: linksModel.multiselection.properties.color,
+                            'background-color': linksModel.multiselection.properties['background-color']
+                        }"
+                        :disabled="!linksModel.multiselection.enabled"
+                        @change="onStyleToolbarChange($event)"
+                    />
+                </div>
+            </template>
         </div>
     </div>
 </template>
@@ -82,14 +100,12 @@ import { IWidget, IDataset, IWidgetLinks, ITableWidgetLink, IWidgetStyleToolbarM
 import { emitter } from '../../../../../../DashboardHelpers'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import descriptor from '../WidgetInteractionsDescriptor.json'
-import Dropdown from 'primevue/dropdown'
 import WidgetEditorStyleToolbar from '../../styleToolbar/WidgetEditorStyleToolbar.vue'
 import TableWidgetLinkParameterList from './WidgetLinkParameterList.vue'
-import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
     name: 'table-widget-interactions-links',
-    components: { Dropdown, TableWidgetLinkParameterList, WidgetEditorStyleToolbar, InputSwitch },
+    components: { TableWidgetLinkParameterList, WidgetEditorStyleToolbar },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
         datasets: { type: Array as PropType<IDataset[]> },
@@ -203,7 +219,7 @@ export default defineComponent({
             link.parameters = parameters
         },
         onAddParameter(link: ITableWidgetLink) {
-            link.parameters.push({ enabled: true, name: '', type: '', dataType: '' })
+            link.parameters.push({ enabled: true, name: '', type: '', dataType: '', useAsResource: false })
         },
         onParameterDelete(index: number, link: ITableWidgetLink) {
             link.parameters.splice(index, 1)
@@ -219,3 +235,11 @@ export default defineComponent({
     }
 })
 </script>
+
+<style scoped>
+.link-row {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+</style>

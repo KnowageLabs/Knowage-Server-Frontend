@@ -1,63 +1,61 @@
 <template>
-    <div v-if="previewModel" class="p-grid p-p-4">
-        <div v-if="['table'].includes(widgetModel.type)" class="p-col-12 p-grid">
-            <div v-if="previewModel.multiselection" class="p-col-12 p-md-4 p-pt-4 p-pr-4">
-                <InputSwitch v-model="previewModel.multiselection.enabled" :disabled="previewDisabled" @click="toggleMultiselect"></InputSwitch>
-                <label class="kn-material-input-label p-m-3">{{ $t('dashboard.widgetEditor.interactions.enableMultiselection') }}</label>
+    <div v-if="previewModel" class="q-px-md q-pb-md">
+        <div class="row q-col-gutter-sm">
+            <div class="col-12">
+                <q-select v-model="previewModel.dataset" :options="selectedDatasets" :label="$t('common.dataset')" option-label="name" :option-value="(opt) => opt?.id?.dsId" emit-value map-options outlined dense :disable="previewDisabled" @update:model-value="onDatasetChanged" />
             </div>
-            <div v-if="previewModel.multiselection" class="p-col-12 p-md-4 style-toolbar-container p-pt-3 p-pr-5">
-                <WidgetEditorStyleToolbar
-                    :options="descriptor.styleToolbarSelectionOptions"
-                    :prop-model="{
-                        color: previewModel.multiselection.properties.color,
-                        'background-color': previewModel.multiselection.properties['background-color']
-                    }"
-                    :disabled="!previewModel.multiselection.enabled"
-                    @change="onStyleToolbarChange($event)"
-                ></WidgetEditorStyleToolbar>
-            </div>
-        </div>
-        <div v-if="['table', 'discovery'].includes(widgetModel.type)" class="p-grid p-col-12 p-pt-4 p-ai-center">
-            <div v-if="widgetModel.type !== 'chart' && widgetModel.type !== 'customchart'" class="p-col-6 p-sm-12 p-md-6 p-d-flex p-flex-column kn-flex p-px-2">
-                <label class="kn-material-input-label"> {{ $t('common.type') }}</label>
-                <Dropdown v-model="previewModel.type" class="kn-material-input" :options="descriptor.interactionTypes" option-value="value" :disabled="previewDisabled" @change="onInteractionTypeChanged">
-                    <template #value="slotProps">
-                        <div>
-                            <span>{{ getTranslatedLabel(slotProps.value, descriptor.interactionTypes, $t) }}</span>
-                        </div>
+            <div v-if="['table', 'discovery'].includes(widgetModel.type) && widgetModel.type !== 'chart' && widgetModel.type !== 'customchart'" class="col-6">
+                <q-select v-model="previewModel.type" :options="descriptor.interactionTypes" :label="$t('common.type')" option-value="value" option-label="label" emit-value map-options outlined dense :disable="previewDisabled" @update:model-value="onInteractionTypeChanged">
+                    <template #selected-item="slotProps">
+                        <span>{{ getTranslatedLabel(slotProps.opt.value, descriptor.interactionTypes, $t) }}</span>
                     </template>
                     <template #option="slotProps">
-                        <div>
-                            <span>{{ $t(slotProps.option.label) }}</span>
-                        </div>
+                        <q-item v-bind="slotProps.itemProps">
+                            <q-item-section>
+                                <q-item-label>{{ $t(slotProps.opt.label) }}</q-item-label>
+                            </q-item-section>
+                        </q-item>
                     </template>
-                </Dropdown>
+                </q-select>
             </div>
-        </div>
-        <div class="p-grid p-col-12">
-            <div class="p-sm-12 p-md-6 p-px-2">
-                <div class="p-d-flex p-flex-column kn-flex p-mx-2">
-                    <label class="kn-material-input-label"> {{ $t('common.dataset') }}</label>
-                    <Dropdown v-model="previewModel.dataset" class="kn-material-input" :options="selectedDatasets" option-label="name" option-value="id.dsId" :disabled="previewDisabled" @change="onDatasetChanged"> </Dropdown>
+
+            <!-- Column (singleColumn) or icon toolbar — col-6, direct download inline -->
+            <div v-if="previewModel.type === 'singleColumn'" class="col-6">
+                <q-select v-model="previewModel.column" :options="widgetModel.columns" :label="$t('common.column')" option-label="alias" option-value="columnName" emit-value map-options outlined dense :disable="previewDisabled" />
+            </div>
+            <div v-else-if="previewModel.type === 'icon'" class="col-6">
+                <WidgetEditorStyleToolbar :options="[{ type: 'icon' }]" :prop-model="{ icon: previewModel.icon }" :disabled="previewDisabled" @change="onStyleToolbarChange($event)" />
+            </div>
+            <div class="col-12 q-pb-xs">
+                <q-toggle v-model="previewModel.directDownload" :label="$t('dashboard.widgetEditor.interactions.directDownload')" dense :disable="previewDisabled" />
+            </div>
+
+            <!-- Parameters -->
+            <template v-if="previewModel.parameters && previewModel.parameters.length > 0">
+                <div class="col-12"><q-separator /></div>
+                <div class="col-12">
+                    <TableWidgetPreviewParameterList :widget-model="widgetModel" :prop-parameters="previewModel.parameters" :selected-datasets-columns-map="selectedDatasetColumnNameMap" :dashboard-id="dashboardId" :disabled="previewDisabled" @change="onParametersChanged" />
                 </div>
-            </div>
-            <div v-if="previewModel.type === 'singleColumn'" class="p-sm-11 p-md-5">
-                <div class="p-d-flex p-flex-column kn-flex p-mx-2">
-                    <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
-                    <!-- <Dropdown v-model="previewModel.column" class="kn-material-input" :options="getSelectionDatasetColumnOptions()" :disabled="previewDisabled"> </Dropdown> -->
-                    <Dropdown v-model="previewModel.column" class="kn-material-input" :options="widgetModel.columns" option-label="alias" option-value="columnName" :disabled="previewDisabled"> </Dropdown>
+            </template>
+
+            <!-- Multiselection: table only, at bottom with separator -->
+            <template v-if="['table'].includes(widgetModel.type) && previewModel.multiselection">
+                <div class="col-12"><q-separator /></div>
+                <div class="col-12">
+                    <q-toggle v-model="previewModel.multiselection.enabled" :label="$t('dashboard.widgetEditor.interactions.enableMultiselection')" :disable="previewDisabled" dense @update:model-value="toggleMultiselect" />
                 </div>
-            </div>
-            <div v-else-if="previewModel.type === 'icon'" class="p-sm-11 p-md-5 p-p-4">
-                <WidgetEditorStyleToolbar :options="[{ type: 'icon' }]" :prop-model="{ icon: previewModel.icon }" :disabled="previewDisabled" @change="onStyleToolbarChange($event)"> </WidgetEditorStyleToolbar>
-            </div>
-            <div class="p-sm-1 p-md-1">
-                <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.interactions.directDownload') }}</label>
-                <Checkbox v-model="previewModel.directDownload" :binary="true" :disabled="previewDisabled" />
-            </div>
-        </div>
-        <div v-if="previewModel.parameters.length > 0" class="p-col-12 p-p-2">
-            <TableWidgetPreviewParameterList class="kn-flex p-mr-2" :widget-model="widgetModel" :prop-parameters="previewModel.parameters" :selected-datasets-columns-map="selectedDatasetColumnNameMap" :dashboard-id="dashboardId" :disabled="previewDisabled" @change="onParametersChanged"></TableWidgetPreviewParameterList>
+                <div class="col-12">
+                    <WidgetEditorStyleToolbar
+                        :options="descriptor.styleToolbarSelectionOptions"
+                        :prop-model="{
+                            color: previewModel.multiselection.properties.color,
+                            'background-color': previewModel.multiselection.properties['background-color']
+                        }"
+                        :disabled="!previewModel.multiselection.enabled"
+                        @change="onStyleToolbarChange($event)"
+                    />
+                </div>
+            </template>
         </div>
     </div>
 </template>
@@ -69,21 +67,12 @@ import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import { emitter } from '../../../../../../DashboardHelpers'
 import descriptor from '../WidgetInteractionsDescriptor.json'
 import dashboardStore from '../../../../../../Dashboard.store'
-import Checkbox from 'primevue/checkbox'
-import Dropdown from 'primevue/dropdown'
 import TableWidgetPreviewParameterList from './WidgetPreviewParameterList.vue'
 import WidgetEditorStyleToolbar from '../../styleToolbar/WidgetEditorStyleToolbar.vue'
-import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
     name: 'table-widget-preview',
-    components: {
-        Checkbox,
-        Dropdown,
-        TableWidgetPreviewParameterList,
-        WidgetEditorStyleToolbar,
-        InputSwitch
-    },
+    components: { TableWidgetPreviewParameterList, WidgetEditorStyleToolbar },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
         datasets: { type: Array as PropType<IDataset[]> },

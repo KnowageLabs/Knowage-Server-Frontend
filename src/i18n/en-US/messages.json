@@ -1290,7 +1290,8 @@
                 "preview": "Preview",
                 "selection": "Selection",
                 "static": "Static",
-                "title": "Interactions"
+                "title": "Interactions",
+                "addLink": "Add Link"
             },
             "itemsPerPage": "Items per page",
             "jsonLinkParsingError": "Error while parsing JSON link.",
@@ -1915,6 +1916,7 @@
             },
             "designerDialog": {
                 "addParameter": "Add Parameter",
+                "parameters": "Parameters",
                 "mondrian": "Mondrian",
                 "olapDesigner": "Olap Designer",
                 "selectCube": "Select Cube",
