@@ -147,6 +147,27 @@ describe('Home dynamic navigation', () => {
         expect(context.$router.push).toHaveBeenCalledWith('/workspace')
     })
 
+    it('resolves navigation elements created in the iframe document realm', () => {
+        const context = createContext()
+        const iframe = document.createElement('iframe')
+        document.body.appendChild(iframe)
+
+        const iframeDocument = iframe.contentDocument
+        expect(iframeDocument).toBeTruthy()
+
+        const button = iframeDocument!.createElement('button')
+        button.setAttribute('data-kn-menu-navigation', '/workspace')
+        button.setAttribute('data-kn-menu-navigation-type', 'to')
+        const title = iframeDocument!.createElement('h2')
+        title.className = 'category-title'
+        button.appendChild(title)
+
+        const target = methods.getDynamicHomeNavigationElement.call(context, title)
+
+        expect(target).toBe(button)
+        iframe.remove()
+    })
+
     it('builds homepage document routes using the resolved document type', async () => {
         mockAxiosGet
             .mockResolvedValueOnce({ data: [] })

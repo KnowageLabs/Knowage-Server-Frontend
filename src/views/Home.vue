@@ -106,8 +106,10 @@ export default defineComponent({
             this.navigateDynamicHomeElement(target)
         },
         getDynamicHomeNavigationElement(target: EventTarget | null): Element | null {
-            if (!(target instanceof Element)) return null
-            return target.closest(DYNAMIC_HOME_NAVIGATION_SELECTOR)
+            const targetNode = target as (Node & { closest?: (selector: string) => Element | null }) | null
+            if (!targetNode || targetNode.nodeType !== Node.ELEMENT_NODE || typeof targetNode.closest !== 'function') return null
+
+            return targetNode.closest(DYNAMIC_HOME_NAVIGATION_SELECTOR)
         },
         navigateDynamicHomeElement(element: Element) {
             const router = (this as any).$router
