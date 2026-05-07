@@ -1,33 +1,28 @@
 <template>
-    <div v-if="facetSettings" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-12 p-d-flex p-flex-column p-p-2">
-            <label class="kn-material-input-label"> {{ $t('common.columns') }}</label>
-            <MultiSelect v-model="facetSettings.columns" :options="widgetModel.columns.filter((column: any) => column.fieldType === 'ATTRIBUTE')" optionLabel="columnName" optionValue="columnName" :disabled="facetSettingsDisabled" @change="facetsSettingsChanged"> </MultiSelect>
+    <div v-if="facetSettings" class="q-px-md q-pb-md">
+        <div class="row q-col-gutter-sm q-mb-sm">
+            <div class="col-12">
+                <q-select v-model="facetSettings.columns" :options="widgetModel.columns.filter((column: any) => column.fieldType === 'ATTRIBUTE')" option-label="columnName" option-value="columnName" :label="$t('common.columns')" multiple use-chips outlined dense :disable="facetSettingsDisabled" @update:model-value="facetsSettingsChanged" />
+            </div>
         </div>
-
-        <div class="p-col-12 p-md-6 p-lg-3 p-grid p-ai-center p-pt-4">
-            <InputSwitch v-model="facetSettings.selection" :disabled="facetSettingsDisabled" @change="facetsSettingsChanged"></InputSwitch>
-            <label class="kn-material-input-label p-pl-2">{{ $t('dashboard.widgetEditor.discoveryWidget.facets.enableSelection') }}</label>
+        <div class="row q-col-gutter-sm q-mb-sm">
+            <div class="col-auto">
+                <q-toggle v-model="facetSettings.selection" :label="$t('dashboard.widgetEditor.discoveryWidget.facets.enableSelection')" dense :disable="facetSettingsDisabled" @update:model-value="facetsSettingsChanged" />
+            </div>
+            <div class="col-auto">
+                <q-toggle v-model="facetSettings.closedByDefault" :label="$t('dashboard.widgetEditor.discoveryWidget.facets.closedByDefault')" dense :disable="facetSettingsDisabled" @update:model-value="facetsSettingsChanged" />
+            </div>
         </div>
-
-        <div class="p-col-12 p-md-6 p-lg-3 p-grid p-ai-center p-pt-4">
-            <InputSwitch v-model="facetSettings.closedByDefault" :disabled="facetSettingsDisabled" @change="facetsSettingsChanged"></InputSwitch>
-            <label class="kn-material-input-label p-pl-2">{{ $t('dashboard.widgetEditor.discoveryWidget.facets.closedByDefault') }}</label>
-        </div>
-
-        <div class="p-col-12 p-md-4 p-lg-2 p-d-flex p-flex-column">
-            <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.discoveryWidget.facets.columnWidth') }}</label>
-            <InputText v-tooltip.top="$t('dashboard.widgetEditor.inputHintForPixels')" class="kn-material-input p-inputtext-sm" v-model="facetSettings.width" :disabled="facetSettingsDisabled" @change="facetsSettingsChanged" />
-        </div>
-
-        <div class="p-col-12 p-md-4 p-lg-2 p-d-flex p-flex-column">
-            <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.discoveryWidget.facets.maxNumber') }}</label>
-            <InputNumber class="kn-material-input p-inputtext-sm" v-model="facetSettings.limit" :disabled="facetSettingsDisabled" @blur="onInputNumberChanged" />
-        </div>
-
-        <div class="p-col-12 p-md-4 p-lg-2 p-d-flex p-flex-column">
-            <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.discoveryWidget.facets.decimalPrecision') }}</label>
-            <InputNumber class="kn-material-input p-inputtext-sm" v-model="facetSettings.precision" :disabled="facetSettingsDisabled" @blur="onInputNumberChanged" />
+        <div class="row q-col-gutter-sm">
+            <div class="col-4">
+                <q-input v-model="facetSettings.width" :label="$t('dashboard.widgetEditor.discoveryWidget.facets.columnWidth')" :placeholder="$t('dashboard.widgetEditor.inputHintForPixels')" outlined dense :disable="facetSettingsDisabled" @change="facetsSettingsChanged" />
+            </div>
+            <div class="col-4">
+                <q-input v-model.number="facetSettings.limit" type="number" :label="$t('dashboard.widgetEditor.discoveryWidget.facets.maxNumber')" outlined dense :disable="facetSettingsDisabled" @change="onInputNumberChanged" />
+            </div>
+            <div class="col-4">
+                <q-input v-model.number="facetSettings.precision" type="number" :label="$t('dashboard.widgetEditor.discoveryWidget.facets.decimalPrecision')" outlined dense :disable="facetSettingsDisabled" @change="onInputNumberChanged" />
+            </div>
         </div>
     </div>
 </template>
@@ -36,20 +31,14 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IDiscoveryWidgetFacetsSettings } from '@/modules/documentExecution/dashboard/interfaces/DashboardDiscoveryWidget'
-import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
-import InputNumber from 'primevue/inputnumber'
-import InputSwitch from 'primevue/inputswitch'
-import MultiSelect from 'primevue/multiselect'
-
 export default defineComponent({
     name: 'discovery-widget-facets-settings',
-    components: { InputNumber, InputSwitch, MultiSelect },
+    components: {},
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, dashboardId: { type: String, required: true } },
     data() {
         return {
-            facetSettings: null as IDiscoveryWidgetFacetsSettings | null,
-            getTranslatedLabel
+            facetSettings: null as IDiscoveryWidgetFacetsSettings | null
         }
     },
     computed: {
