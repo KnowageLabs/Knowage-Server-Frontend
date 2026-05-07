@@ -1,12 +1,10 @@
 <template>
-    <div v-if="responsiveModel" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-6 p-d-flex p-flex-column p-pt-2">
-            <label class="kn-material-input-label">{{ $t('common.width') }}</label>
-            <InputNumber v-model="responsiveModel.width" :disabled="!responsiveModel.enabled" class="kn-material-input p-inputtext-sm" />
+    <div v-if="responsiveModel" class="row q-col-gutter-sm q-px-md q-pb-md">
+        <div class="col-6">
+            <q-input v-model.number="responsiveModel.width" type="number" :label="$t('common.width')" :disable="!responsiveModel.enabled" outlined dense />
         </div>
-        <div class="p-col-6 p-d-flex p-flex-column p-pt-2">
-            <label class="kn-material-input-label">{{ $t('common.height') }}</label>
-            <InputNumber v-model="responsiveModel.height" :disabled="!responsiveModel.enabled" class="kn-material-input p-inputtext-sm" />
+        <div class="col-6">
+            <q-input v-model.number="responsiveModel.height" type="number" :label="$t('common.height')" :disable="!responsiveModel.enabled" outlined dense />
         </div>
     </div>
 </template>
@@ -16,11 +14,9 @@ import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IPivotFieldPicker } from '@/modules/documentExecution/dashboard/interfaces/pivotTable/DashboardPivotTableWidget'
 import descriptor from './PivotTableConfigDescriptor.json'
-import InputNumber from 'primevue/inputnumber'
 
 export default defineComponent({
     name: 'widget-responsive',
-    components: { InputNumber },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {

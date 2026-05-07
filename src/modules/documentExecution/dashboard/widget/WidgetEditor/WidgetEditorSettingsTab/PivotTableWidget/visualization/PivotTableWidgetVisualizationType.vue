@@ -1,52 +1,56 @@
 <template>
-    <div v-if="visualizationTypeModel" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div v-for="(visualizationType, index) in visualizationTypeModel.types" :key="index" class="dynamic-form-item p-grid p-col-12 p-ai-center">
-            <div class="p-col-12 p-grid p-ai-center">
-                <div class="p-col-12 p-md-6 p-d-flex p-flex-column">
-                    <label class="kn-material-input-label"> {{ $t('common.columns') }}</label>
-                    <Dropdown v-if="index === 0" v-model="visualizationType.target" class="kn-material-input" :options="descriptor.allColumnOption" option-value="value" option-label="label" :disabled="true"> </Dropdown>
-                    <WidgetEditorColumnsMultiselect
-                        v-else
-                        :value="(visualizationType.target as string[])"
-                        :available-target-options="availableColumnOptions"
-                        :widget-columns-alias-map="widgetColumnsAliasMap"
-                        option-label="alias"
-                        option-value="id"
-                        :disabled="visualizationTypeDisabled"
-                        @change="onColumnsSelected($event, visualizationType)"
-                    >
-                    </WidgetEditorColumnsMultiselect>
+    <div v-if="visualizationTypeModel" class="q-px-md q-pb-md">
+        <!-- Global Settings (index 0 = All Columns) -->
+        <div v-if="visualizationTypeModel.types.length > 0" class="q-mb-md">
+            <div class="row q-col-gutter-sm q-mb-sm">
+                <div class="col-12">
+                    <q-select :model-value="descriptor.allColumnOption[0].value" :options="descriptor.allColumnOption" option-value="value" option-label="label" emit-value map-options outlined dense disable />
                 </div>
-                <div class="p-col-12 p-md-6 p-d-flex p-flex-column p-p-2">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('common.type') }}</label>
-                    <Dropdown v-model="visualizationType.type" class="kn-material-input" :options="descriptor.visualizationTypes" option-value="value" :disabled="visualizationTypeDisabled">
-                        <template #value="slotProps">
-                            <div>
-                                <span>{{ getTranslatedLabel(slotProps.value, descriptor.visualizationTypes, $t) }}</span>
-                            </div>
-                        </template>
-                        <template #option="slotProps">
-                            <div>
-                                <span>{{ $t(slotProps.option.label) }}</span>
-                            </div>
-                        </template>
-                    </Dropdown>
+                <div class="col-6">
+                    <q-select v-model="visualizationTypeModel.types[0].type" :options="translatedVisualizationTypeOptions" option-value="value" option-label="label" emit-value map-options :label="$t('common.type')" outlined dense :disable="visualizationTypeDisabled" />
                 </div>
-                <div class="p-col-12 p-md-4 p-d-flex p-flex-column">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.prefix') }}</label>
-                    <InputText v-model="visualizationType.prefix" class="kn-material-input p-inputtext-sm" :disabled="visualizationTypeDisabled" />
+                <div class="col-3">
+                    <q-input v-model="visualizationTypeModel.types[0].prefix" :label="$t('dashboard.widgetEditor.prefix')" outlined dense :disable="visualizationTypeDisabled" />
                 </div>
-                <div class="p-col-12 p-md-4 p-d-flex p-flex-column">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.suffix') }}</label>
-                    <InputText v-model="visualizationType.suffix" class="kn-material-input p-inputtext-sm" :disabled="visualizationTypeDisabled" />
+                <div class="col-3">
+                    <q-input v-model="visualizationTypeModel.types[0].suffix" :label="$t('dashboard.widgetEditor.suffix')" outlined dense :disable="visualizationTypeDisabled" />
                 </div>
-                <div class="p-col-12 p-md-3 p-d-flex p-flex-column">
-                    <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.precision') }}</label>
-                    <InputNumber v-model="visualizationType.precision" class="kn-material-input p-inputtext-sm" :disabled="visualizationTypeDisabled" />
+                <div class="col-4">
+                    <q-input v-model.number="visualizationTypeModel.types[0].precision" type="number" :label="$t('dashboard.widgetEditor.precision')" outlined dense :disable="visualizationTypeDisabled" />
                 </div>
-                <div class="p-col-1 p-d-flex p-flex-column p-jc-center p-ai-center">
-                    <i :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash', visualizationTypeDisabled ? 'icon-disabled' : '']" class="kn-cursor-pointer p-ml-2" @click="index === 0 ? addVisualizationType() : removeVisualizationType(index)"></i>
+            </div>
+        </div>
+
+        <q-separator class="q-mb-sm" />
+
+        <!-- Column Overrides -->
+        <div class="row items-center justify-between q-mb-sm">
+            <span class="text-subtitle2">{{ $t('dashboard.widgetEditor.visualizationType.columnOverrides') }}</span>
+            <q-btn flat round dense color="primary" icon="add" :disable="visualizationTypeDisabled" @click="addVisualizationType" />
+        </div>
+
+        <div v-for="(visualizationType, index) in visualizationTypeModel.types.slice(1)" :key="index" class="column-type-row row no-wrap q-mb-sm">
+            <div class="col q-pa-sm">
+                <div class="q-mb-sm">
+                    <WidgetEditorColumnsMultiselect :value="visualizationType.target as string[]" :available-target-options="availableColumnOptions" :widget-columns-alias-map="widgetColumnsAliasMap" option-label="alias" option-value="id" :disabled="visualizationTypeDisabled" @change="onColumnsSelected($event, visualizationType)" />
                 </div>
+                <div class="row q-col-gutter-sm">
+                    <div class="col-6">
+                        <q-select v-model="visualizationType.type" :options="translatedVisualizationTypeOptions" option-value="value" option-label="label" emit-value map-options :label="$t('common.type')" outlined dense :disable="visualizationTypeDisabled" />
+                    </div>
+                    <div class="col-3">
+                        <q-input v-model="visualizationType.prefix" :label="$t('dashboard.widgetEditor.prefix')" outlined dense :disable="visualizationTypeDisabled" />
+                    </div>
+                    <div class="col-3">
+                        <q-input v-model="visualizationType.suffix" :label="$t('dashboard.widgetEditor.suffix')" outlined dense :disable="visualizationTypeDisabled" />
+                    </div>
+                    <div class="col-4">
+                        <q-input v-model.number="visualizationType.precision" type="number" :label="$t('dashboard.widgetEditor.precision')" outlined dense :disable="visualizationTypeDisabled" />
+                    </div>
+                </div>
+            </div>
+            <div class="kn-action-handle row items-center justify-center" :class="visualizationTypeDisabled ? 'kn-action-handle-disabled' : ''">
+                <q-btn flat round dense icon="delete" size="sm" :disable="visualizationTypeDisabled" @click="removeVisualizationType(index + 1)" />
             </div>
         </div>
     </div>
@@ -57,28 +61,27 @@ import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IPivotTableWidgetVisualizationType, IPivotTableWidgetVisualizationTypes } from '@/modules/documentExecution/dashboard/interfaces/pivotTable/DashboardPivotTableWidget'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
-import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import descriptor from '../PivotTableSettingsDescriptor.json'
-import InputNumber from 'primevue/inputnumber'
-import Dropdown from 'primevue/dropdown'
 import WidgetEditorColumnsMultiselect from '../../common/WidgetEditorColumnsMultiselect.vue'
 
 export default defineComponent({
     name: 'pivot-table-widget-visualization-type',
-    components: { InputNumber, Dropdown, WidgetEditorColumnsMultiselect },
+    components: { WidgetEditorColumnsMultiselect },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {
             descriptor,
             visualizationTypeModel: null as IPivotTableWidgetVisualizationTypes | null,
             availableColumnOptions: [] as (IWidgetColumn | { id: string; alias: string })[],
-            widgetColumnsAliasMap: {} as any,
-            getTranslatedLabel
+            widgetColumnsAliasMap: {} as any
         }
     },
     computed: {
         visualizationTypeDisabled() {
             return !this.visualizationTypeModel || !this.visualizationTypeModel.enabled
+        },
+        translatedVisualizationTypeOptions(): { value: string; label: string }[] {
+            return descriptor.visualizationTypes.map((opt: any) => ({ value: opt.value, label: this.$t(opt.label) }))
         }
     },
     created() {
@@ -154,7 +157,9 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.style-toolbar-container {
-    max-width: 120px;
+.column-type-row {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
 }
 </style>

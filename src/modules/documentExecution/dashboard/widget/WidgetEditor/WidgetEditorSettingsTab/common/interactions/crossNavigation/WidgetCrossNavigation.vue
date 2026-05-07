@@ -1,5 +1,6 @@
 <template>
     <div v-if="crossNavigationModel" class="q-px-md q-pb-md">
+        {{ crossNavigationModel }}
         <div class="row q-col-gutter-sm">
             <!-- Type: not shown for chart/special widget types -->
             <div v-if="!['html', 'text', 'highcharts', 'chartJS', 'image', 'customchart', 'static-pivot-table', 'map', 'ce-pivot-table'].includes(widgetModel.type)" class="col-6">
@@ -41,7 +42,7 @@
             </template>
 
             <!-- Output parameters -->
-            <template v-if="crossNavigationModel.parameters && crossNavigationModel.parameters.length > 0">
+            <template v-if="parameterList.length > 0">
                 <div class="col-12"><q-separator /></div>
                 <div class="col-12">
                     <TableWidgetOutputParametersList :widget-model="widgetModel" :prop-parameters="parameterList" :selected-datasets-columns-map="selectedDatasetsColumnsMap" :disabled="crossNavigationDisabled" @change="onParametersChanged" />

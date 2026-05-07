@@ -99,6 +99,7 @@ import { defineComponent, PropType } from 'vue'
 import { IWidget, IDataset, IWidgetLinks, ITableWidgetLink, IWidgetStyleToolbarModel, IWidgetInteractionParameter, IWidgetInteractions } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '../../../../../../DashboardHelpers'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
+import { getDefaultLinks } from '@/modules/documentExecution/dashboard/widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
 import descriptor from '../WidgetInteractionsDescriptor.json'
 import WidgetEditorStyleToolbar from '../../styleToolbar/WidgetEditorStyleToolbar.vue'
 import TableWidgetLinkParameterList from './WidgetLinkParameterList.vue'
@@ -157,7 +158,11 @@ export default defineComponent({
             this.widget = this.widgetModel
         },
         loadLinksModel() {
-            if (this.widgetModel?.settings?.interactions?.link) this.linksModel = this.widgetModel.settings.interactions.link
+            if (!this.widgetModel?.settings?.interactions) return
+            if (!this.widgetModel.settings.interactions.link) {
+                this.widgetModel.settings.interactions.link = getDefaultLinks()
+            }
+            this.linksModel = this.widgetModel.settings.interactions.link
         },
         loadSelectedDatasetColumnNames() {
             if (!this.selectedDatasets || this.selectedDatasets.length === 0) return

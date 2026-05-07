@@ -1255,6 +1255,7 @@
             "inputHintForTooltips": "This text will overwrite the column's header default tooltip. Variables and parameters placeholders are available.",
             "inside": "Inside",
             "interactions": {
+                "addLink": "Add Link",
                 "analyticalDriver": "Analytical Driver",
                 "basicUrl": "Basic Url",
                 "chartDynamicOptions": {
@@ -1290,8 +1291,7 @@
                 "preview": "Preview",
                 "selection": "Selection",
                 "static": "Static",
-                "title": "Interactions",
-                "addLink": "Add Link"
+                "title": "Interactions"
             },
             "itemsPerPage": "Items per page",
             "jsonLinkParsingError": "Error while parsing JSON link.",
@@ -1538,7 +1538,7 @@
             "percentage": "Percentage",
             "pivot": {
                 "configuration": {
-                    "colsExpanded": "Columns Expanded",
+                    "colsExpanded": "Columns Expanded by Default",
                     "disableExpandAll": "Disable Expand All",
                     "fieldPanel": "Field Panel",
                     "fieldPanelOptions": {
@@ -1916,9 +1916,9 @@
             },
             "designerDialog": {
                 "addParameter": "Add Parameter",
-                "parameters": "Parameters",
                 "mondrian": "Mondrian",
                 "olapDesigner": "Olap Designer",
+                "parameters": "Parameters",
                 "selectCube": "Select Cube",
                 "selectMondrianSchema": "Select Mondrian Schema",
                 "templateType": "Select type of Template",

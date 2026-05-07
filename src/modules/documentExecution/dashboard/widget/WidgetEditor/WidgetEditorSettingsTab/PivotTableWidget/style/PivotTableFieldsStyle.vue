@@ -1,21 +1,32 @@
 <template>
-    <div v-if="fieldStyles" class="kn-flex p-p-4">
-        <div v-for="(fieldStyle, index) in fieldStyles.styles" :key="index">
-            <form class="p-fluid p-formgrid p-grid">
-                <div class="p-field p-col-12 p-d-flex p-flex-row">
-                    <span class="p-float-label kn-flex">
-                        <Dropdown v-if="index === 0" v-model="fieldStyle.target" class="kn-material-input" :options="descriptor.allColumnOption" option-value="value" option-label="label" :disabled="true"> </Dropdown>
-                        <WidgetEditorColumnsMultiselect v-else :value="fieldStyle.target as string[]" :available-target-options="availableFieldOptions" :widget-columns-alias-map="widgetFieldsAliasMap" option-label="alias" option-value="id" :disabled="fieldStylesDisabled" @change="onFieldsSelected($event, fieldStyle)" />
-                        <label class="kn-material-input-label"> {{ $t('common.fields') }}</label>
-                    </span>
-                    <i v-if="widgetModel" :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash', fieldStylesDisabled ? 'icon-disabled' : '']" class="kn-cursor-pointer p-as-center p-ml-3" @click="index === 0 ? addFieldStyle() : removeFieldStyle(index)"></i>
+    <div v-if="fieldStyles" class="q-px-md q-pb-md">
+        <!-- Global row (index 0) -->
+        <div v-if="fieldStyles.styles.length > 0" class="q-mb-md">
+            <div class="row items-center justify-between q-mb-sm">
+                <div class="col">
+                    <q-select :model-value="descriptor.allColumnOption[0].value" :options="descriptor.allColumnOption" option-value="value" option-label="label" emit-value map-options :label="$t('common.fields')" outlined dense disable />
                 </div>
-            </form>
+            </div>
+            <WidgetEditorStyleToolbar :options="toolbarOptions" :prop-model="fieldStyles.styles[0].properties" :disabled="fieldStylesDisabled" @change="onStyleToolbarChange($event, fieldStyles.styles[0], 0)" />
+        </div>
 
-            <WidgetEditorStyleToolbar :options="toolbarOptions" :prop-model="fieldStyle.properties" :disabled="fieldStylesDisabled" @change="onStyleToolbarChange($event, fieldStyle, index)"> </WidgetEditorStyleToolbar>
+        <q-separator class="q-mb-sm" />
+        <div class="row items-center justify-between q-mb-sm">
+            <span class="text-subtitle2">{{ $t('dashboard.widgetEditor.visualizationType.columnOverrides') }}</span>
+            <q-btn flat round dense color="primary" icon="add" :disable="fieldStylesDisabled" class="q-ml-sm" @click="addFieldStyle" />
+        </div>
 
-            <br v-if="widgetModel && index < fieldStyles.styles.length - 1" />
-            <br v-if="widgetModel && index < fieldStyles.styles.length - 1" />
+        <!-- Override rows -->
+        <div v-for="(fieldStyle, index) in fieldStyles.styles.slice(1)" :key="index" class="column-type-row row no-wrap q-mb-sm">
+            <div class="col q-pa-sm">
+                <div class="q-mb-sm">
+                    <WidgetEditorColumnsMultiselect :value="fieldStyle.target as string[]" :available-target-options="availableFieldOptions" :widget-columns-alias-map="widgetFieldsAliasMap" option-label="alias" option-value="id" :disabled="fieldStylesDisabled" @change="onFieldsSelected($event, fieldStyle)" />
+                </div>
+                <WidgetEditorStyleToolbar :options="toolbarOptions" :prop-model="fieldStyle.properties" :disabled="fieldStylesDisabled" @change="onStyleToolbarChange($event, fieldStyle, index + 1)" />
+            </div>
+            <div class="kn-action-handle row items-center justify-center" :class="fieldStylesDisabled ? 'kn-action-handle-disabled' : ''">
+                <q-btn flat round dense icon="delete" size="sm" :disable="fieldStylesDisabled" @click="removeFieldStyle(index + 1)" />
+            </div>
         </div>
     </div>
 </template>
@@ -26,13 +37,12 @@ import { IWidget, IWidgetStyleToolbarModel, IWidgetColumn } from '@/modules/docu
 import { IPivotTableColumnStyles, IPivotTableColumnStyle } from '@/modules/documentExecution/dashboard/interfaces/pivotTable/DashboardPivotTableWidget'
 import { emitter } from '../../../../../DashboardHelpers'
 import descriptor from '../PivotTableSettingsDescriptor.json'
-import Dropdown from 'primevue/dropdown'
 import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 import WidgetEditorColumnsMultiselect from '../../common/WidgetEditorColumnsMultiselect.vue'
 
 export default defineComponent({
     name: 'pivot-table-fields-style',
-    components: { Dropdown, WidgetEditorColumnsMultiselect, WidgetEditorStyleToolbar },
+    components: { WidgetEditorColumnsMultiselect, WidgetEditorStyleToolbar },
     props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true }, themeStyle: { type: Object as PropType<IPivotTableColumnStyles | null>, required: true }, fieldType: { type: String, required: true } },
     emits: ['styleChanged'],
     data() {
@@ -176,5 +186,10 @@ export default defineComponent({
     }
 })
 </script>
-
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.column-type-row {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+</style>

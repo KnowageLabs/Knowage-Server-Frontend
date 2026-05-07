@@ -1,23 +1,25 @@
 <template>
-    <div class="p-grid p-jc-center p-ai-center p-p-4">
-        <template v-if="model">
-            <div class="row items-center justify-between col-12 q-mb-sm kn-width-full">
-                <span class="text-subtitle2">{{ $t('dashboard.widgetEditor.pivot.configuration.fieldPanelOptions.title') }}</span>
-                <q-btn flat round dense color="primary" icon="add" :disable="!model.enabled" @click="addOverride" />
-            </div>
+    <div v-if="model" class="q-px-md q-pb-md">
+        <div class="row items-center justify-between q-mb-sm">
+            <span class="text-subtitle2">{{ $t('dashboard.widgetEditor.pivot.configuration.fieldPanelOptions.title') }}</span>
+            <q-btn flat round dense color="primary" icon="add" :disable="!model.enabled" @click="addOverride" />
+        </div>
 
-            <div v-for="(override, index) in model.fieldDragOverrides" :key="override.id" class="col-12 field-drag-override-row q-mb-sm q-pa-sm kn-width-full">
-                <div class="row q-gutter-sm items-start">
-                    <q-select v-model="override.columns" :options="allFieldOptions" option-value="id" option-label="alias" emit-value map-options multiple dense outlined class="col" :label="$t('common.fields')" :disable="!model.enabled" />
-                    <q-btn class="self-center" flat round dense icon="delete" :disable="!model.enabled" @click="removeOverride(index)" />
+        <div v-for="(override, index) in model.fieldDragOverrides" :key="override.id" class="column-type-row row no-wrap q-mb-sm">
+            <div class="col q-pa-sm">
+                <div class="q-mb-sm">
+                    <q-select v-model="override.columns" :options="allFieldOptions" option-value="id" option-label="alias" emit-value map-options multiple dense outlined :label="$t('common.fields')" :disable="!model.enabled" />
                 </div>
-                <div class="row q-mt-xs q-gutter-sm">
+                <div class="row q-gutter-sm">
                     <q-checkbox v-model="override.disableDragging" :label="$t('dashboard.widgetEditor.pivot.configuration.fieldPanelOptions.disableDragging')" dense :disable="!model.enabled" />
                     <q-checkbox v-model="override.disableSorting" :label="$t('dashboard.widgetEditor.pivot.configuration.fieldPanelOptions.disableSorting')" dense :disable="!model.enabled" />
                     <q-checkbox v-model="override.disableFiltering" :label="$t('dashboard.widgetEditor.pivot.configuration.fieldPanelOptions.disableFiltering')" dense :disable="!model.enabled" />
                 </div>
             </div>
-        </template>
+            <div class="kn-action-handle row items-center justify-center">
+                <q-btn flat round dense icon="delete" size="sm" :disable="!model.enabled" @click="removeOverride(index)" />
+            </div>
+        </div>
     </div>
 </template>
 
@@ -56,8 +58,9 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.field-drag-override-row {
+.column-type-row {
     border: 1px solid #e0e0e0;
     border-radius: 4px;
+    overflow: hidden;
 }
 </style>

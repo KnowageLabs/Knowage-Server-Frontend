@@ -1,22 +1,12 @@
 <template>
-    <div v-if="responsiveModel" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div v-for="(field, index) in descriptor.rowTotals" :key="index" class="p-col-12 p-grid p-d-flex p-flex-row p-jc-start">
-            <div class="p-sm-12 p-md-2">
-                <InputSwitch v-model="responsiveModel[field]"></InputSwitch>
-            </div>
-            <div class="p-sm-12 p-md-10">
-                <label class="kn-material-input-label">{{ getLabel(field) }}</label>
-            </div>
-            <div class="p-col-12 p-d-flex p-flex-column p-pt-2">
-                <label class="kn-material-input-label">{{ getLabel(`${field}Label`) }}</label>
-                <InputText v-model="responsiveModel[`${field}Label`]" class="kn-material-input p-inputtext-sm" />
+    <div v-if="responsiveModel" class="q-px-md q-pb-md">
+        <div class="row q-col-gutter-sm q-mb-sm">
+            <div v-for="(field, index) in descriptor.rowTotals" :key="index" class="col-6 q-gutter-y-sm">
+                <q-toggle v-model="responsiveModel[field]" :label="getLabel(field)" dense />
+                <q-input v-model="responsiveModel[`${field}Label`]" :label="getLabel(`${field}Label`)" outlined dense :disable="!responsiveModel[field]" />
             </div>
         </div>
-        <div class="p-col-12 p-grid p-d-flex p-flex-row p-jc-start p-pt-3">
-            <div class="p-sm-12 p-md-2">
-                <q-checkbox v-model="responsiveModel.colsExpanded" :label="$t('dashboard.widgetEditor.pivot.configuration.colsExpanded')" dense />
-            </div>
-        </div>
+        <q-toggle v-model="responsiveModel.colsExpanded" :label="$t('dashboard.widgetEditor.pivot.configuration.colsExpanded')" dense />
     </div>
 </template>
 
@@ -25,12 +15,10 @@ import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IPivotColumnsConfiguration } from '@/modules/documentExecution/dashboard/interfaces/pivotTable/DashboardPivotTableWidget'
 import descriptor from './PivotTableConfigDescriptor.json'
-import InputSwitch from 'primevue/inputswitch'
-import InputText from 'primevue/inputtext'
 
 export default defineComponent({
     name: 'widget-responsive',
-    components: { InputSwitch, InputText },
+    components: {},
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {
