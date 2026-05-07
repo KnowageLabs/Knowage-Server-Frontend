@@ -30,6 +30,7 @@
         </div>
 
         <div v-for="(visualizationType, index) in visualizationTypeModel.types.slice(1)" :key="index" class="column-type-row row no-wrap q-mb-sm">
+            <div class="kn-action-handle kn-action-handle-disabled"></div>
             <div class="col q-pa-sm">
                 <div class="q-mb-sm">
                     <WidgetEditorColumnsMultiselect :value="visualizationType.target as string[]" :available-target-options="availableColumnOptions" :widget-columns-alias-map="widgetColumnsAliasMap" option-label="alias" option-value="id" :disabled="visualizationTypeDisabled" @change="onColumnsSelected($event, visualizationType)" />

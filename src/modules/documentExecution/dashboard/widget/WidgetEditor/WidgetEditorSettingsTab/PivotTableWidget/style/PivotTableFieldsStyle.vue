@@ -18,6 +18,7 @@
 
         <!-- Override rows -->
         <div v-for="(fieldStyle, index) in fieldStyles.styles.slice(1)" :key="index" class="column-type-row row no-wrap q-mb-sm">
+            <div class="kn-action-handle kn-action-handle-disabled"></div>
             <div class="col q-pa-sm">
                 <div class="q-mb-sm">
                     <WidgetEditorColumnsMultiselect :value="fieldStyle.target as string[]" :available-target-options="availableFieldOptions" :widget-columns-alias-map="widgetFieldsAliasMap" option-label="alias" option-value="id" :disabled="fieldStylesDisabled" @change="onFieldsSelected($event, fieldStyle)" />

@@ -57,6 +57,7 @@
         </div>
 
         <div v-for="(visualizationType, index) in visualizationTypeModel.types.slice(1)" :key="index" class="column-type-row row no-wrap q-mb-sm">
+            <div class="kn-action-handle kn-action-handle-disabled"></div>
             <!-- Card content -->
             <div class="col q-pa-sm">
                 <!-- Multiselect -->

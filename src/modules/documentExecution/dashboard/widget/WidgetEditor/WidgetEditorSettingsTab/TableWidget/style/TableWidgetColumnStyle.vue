@@ -5,6 +5,7 @@
         </div>
 
         <div v-for="(columnStyle, index) in columnStyles.styles" :key="index" class="column-type-row row no-wrap q-mb-sm">
+            <div class="kn-action-handle kn-action-handle-disabled"></div>
             <!-- Card content -->
             <div class="col q-pa-sm">
                 <div class="row q-mb-sm">

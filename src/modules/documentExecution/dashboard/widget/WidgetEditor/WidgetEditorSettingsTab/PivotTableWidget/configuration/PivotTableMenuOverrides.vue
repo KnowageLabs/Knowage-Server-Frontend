@@ -6,6 +6,7 @@
         </div>
 
         <div v-for="(override, index) in overrides" :key="override.id" class="column-type-row row no-wrap q-mb-sm">
+            <div class="kn-action-handle kn-action-handle-disabled"></div>
             <div class="col q-pa-sm">
                 <div class="q-mb-sm">
                     <q-select v-model="override.columns" :options="allFieldOptions" option-value="id" option-label="alias" emit-value map-options multiple dense outlined :label="$t('common.fields')" />
