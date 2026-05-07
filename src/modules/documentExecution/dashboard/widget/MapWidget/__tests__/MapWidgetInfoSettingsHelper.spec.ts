@@ -100,4 +100,21 @@ describe('MapWidgetInfoSettingsHelper', () => {
             { text: '', visualizationType: secondVisualization }
         ])
     })
+
+    it('does not replace legend visualization settings when they are already aligned', () => {
+        const visualization = { id: 'viz-1', label: 'Regions', type: 'choropleth', target: 'layer-1' }
+        const visualizationTypes = [{ text: 'Legend text', visualizationType: visualization }]
+        const widgetModel = {
+            settings: {
+                visualizations: [visualization]
+            }
+        } as any
+        const legendSettings = {
+            visualizationTypes
+        } as any
+
+        normalizeMapLegendSettings(widgetModel, legendSettings)
+
+        expect(legendSettings.visualizationTypes).toBe(visualizationTypes)
+    })
 })

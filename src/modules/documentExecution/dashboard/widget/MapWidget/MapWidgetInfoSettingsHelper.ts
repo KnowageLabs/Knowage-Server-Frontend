@@ -73,8 +73,7 @@ export const normalizeMapLegendSettings = (widgetModel: IWidget, legendSettings:
 
     const currentVisualizations = (widgetModel?.settings?.visualizations ?? []).filter((visualization: IMapWidgetVisualizationType) => visualization.type !== 'geography')
     const existingVisualizationTypes = legendSettings.visualizationTypes ?? []
-
-    legendSettings.visualizationTypes = currentVisualizations.map((visualization: IMapWidgetVisualizationType) => {
+    const normalizedVisualizationTypes = currentVisualizations.map((visualization: IMapWidgetVisualizationType) => {
         const existingVisualizationSettings =
             existingVisualizationTypes.find((visualizationTypeSettings) => {
                 const resolvedVisualization = resolveMapLegendVisualization(widgetModel, visualizationTypeSettings.visualizationType ?? null)
@@ -86,6 +85,15 @@ export const normalizeMapLegendSettings = (widgetModel: IWidget, legendSettings:
             visualizationType: visualization
         }
     })
+    const legendNeedsSync =
+        normalizedVisualizationTypes.length !== existingVisualizationTypes.length ||
+        normalizedVisualizationTypes.some((normalizedVisualizationType, index) => {
+            const existingVisualizationType = existingVisualizationTypes[index]
+            return existingVisualizationType?.text !== normalizedVisualizationType.text || existingVisualizationType?.visualizationType !== normalizedVisualizationType.visualizationType
+        })
+
+    // Avoid reassigning an equivalent array: the Legend editor deep-watches widgetModel.
+    if (legendNeedsSync) legendSettings.visualizationTypes = normalizedVisualizationTypes
 
     return legendSettings
 }
