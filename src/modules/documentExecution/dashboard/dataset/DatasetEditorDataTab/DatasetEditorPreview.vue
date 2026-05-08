@@ -151,10 +151,12 @@ export default defineComponent({
         },
         async onSort(event: any) {
             this.sort = event
+            this.pagination.start = 0
             await this.loadPreviewData()
         },
         async onFilter(event: any) {
             this.filter = event
+            this.pagination.start = 0
             await this.loadPreviewData()
         },
         setPreviewColumns(data: any) {
