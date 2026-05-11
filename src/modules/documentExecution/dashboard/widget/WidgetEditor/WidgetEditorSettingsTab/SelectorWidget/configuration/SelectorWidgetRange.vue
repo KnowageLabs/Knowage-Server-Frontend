@@ -5,12 +5,12 @@
             <div v-if="isDateType" class="p-col-10 p-lg-11 p-grid">
                 <div class="p-col-12 p-lg-6 p-d-flex p-flex-column">
                     <label class="kn-material-input-label"> {{ $t('cron.startDate') }}</label>
-                    <Calendar v-model="(defaultValuesModel.startDate as Date)" :manual-input="true" @input="defaultValuesChanged" @dateSelect="defaultValuesChanged"></Calendar>
+                    <Calendar v-model="defaultValuesModel.startDate as Date" :manual-input="true" :date-format="dateFormat" @input="defaultValuesChanged" @dateSelect="defaultValuesChanged"></Calendar>
                 </div>
 
                 <div class="p-col-12 p-lg-6 p-d-flex p-flex-column">
                     <label class="kn-material-input-label"> {{ $t('cron.endDate') }}</label>
-                    <Calendar v-model="(defaultValuesModel.endDate as Date)" :manual-input="true" @input="defaultValuesChanged" @dateSelect="defaultValuesChanged"></Calendar>
+                    <Calendar v-model="defaultValuesModel.endDate as Date" :manual-input="true" :date-format="dateFormat" @input="defaultValuesChanged" @dateSelect="defaultValuesChanged"></Calendar>
                 </div>
             </div>
             <div class="p-col-2 p-lg-1 p-d-flex p-jc-center">
@@ -22,10 +22,11 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget } from '@/modules/documentExecution/Dashboard/Dashboard'
+import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { ISelectorWidgetDefaultValues } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectorWidget'
 import { emitter } from '../../../../../DashboardHelpers'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
+import { primeVueDate } from '@/helpers/commons/localeHelper'
 import descriptor from '../SelectorWidgetSettingsDescriptor.json'
 import Calendar from 'primevue/calendar'
 import Dropdown from 'primevue/dropdown'
@@ -38,6 +39,7 @@ export default defineComponent({
         return {
             descriptor,
             defaultValuesModel: null as ISelectorWidgetDefaultValues | null,
+            dateFormat: primeVueDate() as string,
             getTranslatedLabel
         }
     },
@@ -59,7 +61,12 @@ export default defineComponent({
     },
     methods: {
         loadDefaultValuesModel() {
-            if (this.widgetModel.settings?.configuration?.defaultValues) this.defaultValuesModel = this.widgetModel.settings.configuration.defaultValues
+            if (this.widgetModel.settings?.configuration?.defaultValues) {
+                const dv = this.widgetModel.settings.configuration.defaultValues
+                if (dv.startDate && !(dv.startDate instanceof Date)) dv.startDate = new Date(dv.startDate as string)
+                if (dv.endDate && !(dv.endDate instanceof Date)) dv.endDate = new Date(dv.endDate as string)
+                this.defaultValuesModel = dv
+            }
         },
         defaultValuesChanged() {
             emitter.emit('defaultValuesChanged', this.widgetModel.id)
