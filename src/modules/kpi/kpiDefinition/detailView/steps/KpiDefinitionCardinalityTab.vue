@@ -125,6 +125,7 @@ export default defineComponent({
         },
 
         getAllMeasure() {
+            console.log('getAllMeasure')
             this.attributesList = []
             if (this.kpi.cardinality != undefined && this.kpi.cardinality != null) {
                 if (typeof this.kpi.cardinality !== 'object') {
@@ -154,15 +155,13 @@ export default defineComponent({
             }
 
             await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/kpi/buildCardinalityMatrix', definition).then((response: AxiosResponse<any>) => {
-                if (this.formulaChanged) {
-                    this.kpi.cardinality.measureList = [...response.data]
-                    this.formulaChanged = false
-                    this.attributesList = []
-                    for (let i = 0; i < response.data.length; i++) {
-                        for (const key of Object.keys(response.data[i]['attributes'])) {
-                            if (this.attributesList.indexOf(key) == -1) {
-                                this.attributesList.push(key)
-                            }
+                this.kpi.cardinality.measureList = [...response.data]
+                this.formulaChanged = false
+                this.attributesList = []
+                for (let i = 0; i < response.data.length; i++) {
+                    for (const key of Object.keys(response.data[i]['attributes'])) {
+                        if (this.attributesList.indexOf(key) == -1) {
+                            this.attributesList.push(key)
                         }
                     }
                 }
