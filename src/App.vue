@@ -26,6 +26,7 @@ import themeHelper from '@/helpers/themeHelper/themeHelper'
 import { primeVueDate, getLocale } from '@/helpers/commons/localeHelper'
 import { loadLanguageAsync } from '@/App.i18n.js'
 import auth from '@/helpers/commons/authHelper'
+import sessionTimeoutHelper from '@/helpers/commons/sessionTimeoutHelper'
 
 export default defineComponent({
     components: { ConfirmDialog, KnOverlaySpinnerPanel, KnRotate, MainMenu, Toast },
@@ -181,6 +182,7 @@ export default defineComponent({
             }
 
             this.onLoad()
+            sessionTimeoutHelper.start(this.configurations)
         })
     },
 
@@ -192,6 +194,7 @@ export default defineComponent({
 
     beforeUnmounted() {
         clearInterval(this.pollingInterval)
+        sessionTimeoutHelper.stop()
     },
 
     methods: {

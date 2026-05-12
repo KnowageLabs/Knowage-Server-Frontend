@@ -269,6 +269,11 @@
         "sendByEmail": "Send by e-mail",
         "sendMail": "Send Mail",
         "sendMailSuccess": "Email Sent",
+        "session": {
+            "expired": "Your session has expired. Please log in again.",
+            "expiring": "Your session is about to expire. Click 'Stay Connected' to continue.",
+            "stayConnected": "Stay Connected"
+        },
         "set": "Set",
         "settings": "Settings",
         "share": "Share",
