@@ -1,6 +1,5 @@
 <template>
     <div class="kn-table-widget-container p-d-flex p-d-row kn-flex">
-        {{ propWidget.settings.conditionalStyles }}
         <div v-if="selectedColumn" class="multiselect-overlay kn-cursor-pointer" @click="applyMultiSelection">
             <i class="fas fa-bolt p-mr-2" />
             {{ $t('dashboard.tableWidget.launchSelection') }}

@@ -4,7 +4,7 @@
             <q-select v-model="model.settings.configuration.selectorType.modality" :options="selectorTypeOptions" :label="$t('dashboard.widgetEditor.selectorWidget.type')" option-value="value" option-label="label" option-disable="disable" emit-value map-options dense outlined />
         </div>
 
-        <template v-if="columnOptions.length > 1">
+        <template v-if="showColumnTypeOverrides">
             <q-separator class="q-my-md q-pa-none" />
 
             <div class="row items-center justify-between q-mb-sm">
@@ -57,6 +57,12 @@ export default defineComponent({
         },
         selectorTypeOptions(): { label: string; value: string; disable: boolean }[] {
             return this.descriptor.selectorTypes.map((t) => ({ label: t.label, value: t.value, disable: (t.value === 'tree' || t.value === 'multiTree') && this.columnOptions.length < 2 }))
+        },
+        showColumnTypeOverrides(): boolean {
+            if (this.columnOptions.length <= 1) return false
+            const modality = this.model.settings?.configuration?.selectorType?.modality
+            if ((modality === 'tree' || modality === 'multiTree') && this.columnOptions.length <= 2) return false
+            return true
         },
         showGridColumnSize(): boolean {
             const cfg = this.model.settings?.configuration?.selectorType
