@@ -230,16 +230,6 @@ export default defineComponent({
             }
         },
         async loadHomePage() {
-            // Resolve numeric roleId from role name
-            let roleId: number | null = null
-            try {
-                const roleName = this.resolveRoleName()
-                const rolesRes = await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/roles')
-                const matched = rolesRes.data.find((r: any) => r.name === roleName)
-                if (matched) roleId = matched.id
-            } catch (e) {
-                // ignore, fall back to default
-            }
 
             const fetchConfig = async (id: number | string) => {
                 const res = await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/homepage/' + id, { headers: { 'X-Disable-Errors': 'true' } })
@@ -247,17 +237,18 @@ export default defineComponent({
             }
 
             let config: any = null
+            const roleName = this.resolveRoleName()
             try {
-                config = await fetchConfig(roleId ?? 'default')
+                config = await fetchConfig(roleName ?? 'default')
             } catch (e) {
-                if (roleId !== null) {
+                if (roleName !== null) {
                     try { config = await fetchConfig('default') } catch (e2) { /* ignore */ }
                 }
             }
 
             const homePage: any = { loading: false }
             if (config && config.type && config.type !== 'default') {
-                homePage.roleId = roleId
+                homePage.roleName = roleName
                 switch (config.type) {
                     case 'document': {
                         const documentNavigation = await this.resolveHomepageDocumentNavigation(config)
@@ -354,7 +345,7 @@ export default defineComponent({
             }
 
             this.unbindDynamicHomeFrameInteractions()
-            const roleSegment = this.homePage.roleId ?? 'default'
+            const roleSegment = this.homePage.roleName ?? 'default'
             const [endUserRes, previewRes] = await Promise.all([
                 axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/3.0/menu/enduser?locale=' + encodeURIComponent(this.resolveMenuLocale())),
                 axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/menu/preview/' + roleSegment)

@@ -24,7 +24,7 @@ describe('Home dynamic navigation', () => {
         return {
             ...methods,
             homePage: {
-                roleId: 7,
+                roleName: 'testRole',
                 template: {
                     html: '<div><button data-kn-menu><span data-kn-label>Menu Item</span></button></div>',
                     css: '',
