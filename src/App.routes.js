@@ -133,7 +133,7 @@ router.beforeEach(async (to, from, next) => {
     if (loggedIn && !localStorage.getItem('public') && localStorage.getItem('lastResponseTimestamp') && to.name !== 'login') {
         const elapsed = Date.now() - Number(localStorage.getItem('lastResponseTimestamp'))
         const timeout = Number(localStorage.getItem('sessionTimeoutMs') || import.meta.env.VITE_SESSION_TIMEOUT || 1800000)
-        if (elapsed >= timeout) {
+        if (timeout > 0 && elapsed >= timeout) {
             localStorage.removeItem('token')
             localStorage.removeItem('lastResponseTimestamp')
             localStorage.removeItem('sessionTimeoutMs')

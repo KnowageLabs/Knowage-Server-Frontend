@@ -22,9 +22,18 @@ function stop(): void {
 function start(configurations: Record<string, any>): void {
     if (localStorage.getItem('public')) return
 
-    const timeout = Number(configurations['KNOWAGE.SESSION_TIMEOUT'] || import.meta.env.VITE_SESSION_TIMEOUT || 1800000)
-    const warningAdvance = Number(configurations['KNOWAGE.SESSION_WARNING_ADVANCE'] || 300000)
+    // Read configured timeout — explicit 0 (or negative) means "disabled"
+    const rawTimeout = configurations['KNOWAGE.SESSION_TIMEOUT']
+    const timeout =
+        rawTimeout !== undefined && rawTimeout !== null && rawTimeout !== ''
+            ? Number(rawTimeout)
+            : Number(import.meta.env.VITE_SESSION_TIMEOUT || 1800000)
+
     localStorage.setItem('sessionTimeoutMs', String(timeout))
+
+    if (timeout <= 0) return  // feature disabled by configuration
+
+    const warningAdvance = Number(configurations['KNOWAGE.SESSION_WARNING_ADVANCE'] || 300000)
 
     stop()
 
