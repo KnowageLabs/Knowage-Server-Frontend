@@ -128,6 +128,20 @@ router.beforeEach(async (to, from, next) => {
     const checkRequired = !('/' == to.fullPath && '/' == from.fullPath)
     let loggedIn = localStorage.getItem('token')
 
+    // Check custom session timeout before any API call so that the lastResponseTimestamp
+    // is not refreshed by ensureUserLoaded before the check runs.
+    if (loggedIn && !localStorage.getItem('public') && localStorage.getItem('lastResponseTimestamp') && to.name !== 'login') {
+        const elapsed = Date.now() - Number(localStorage.getItem('lastResponseTimestamp'))
+        const timeout = Number(localStorage.getItem('sessionTimeoutMs') || import.meta.env.VITE_SESSION_TIMEOUT || 1800000)
+        if (elapsed >= timeout) {
+            localStorage.removeItem('token')
+            localStorage.removeItem('lastResponseTimestamp')
+            localStorage.removeItem('sessionTimeoutMs')
+            next({ name: 'login', query: { logout: 'sessionExpired', redirect: to.fullPath } })
+            return
+        }
+    }
+
     if (loggedIn) {
         await ensureUserLoaded(store)
     }

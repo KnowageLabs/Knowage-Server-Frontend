@@ -276,6 +276,11 @@
         "sendByEmail": "invia tramite e-mail",
         "sendMail": "invia mail",
         "sendMailSuccess": "mail inviata",
+        "session": {
+            "expiring": "La tua sessione sta per scadere. Clicca 'Rimani connesso' per continuare.",
+            "expired": "La tua sessione è scaduta. Effettua nuovamente il login.",
+            "stayConnected": "Rimani connesso"
+        },
         "set": "imposta",
         "settings": "impostazioni",
         "share": "condividi",

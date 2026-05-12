@@ -191,7 +191,13 @@ onMounted(async () => {
     const authToken = route.query.authToken as string
     const authCode = route.query.code as string
     const authState = route.query.state as string
+    const logoutReason = route.query.logout as string
     const config = loginConfig.value?.items?.[0]
+
+    // Show session-expired banner when redirected from forced logout
+    if (logoutReason === 'sessionExpired') {
+        error.value = t('common.session.expired')
+    }
 
     // Handle direct authToken (backward compatibility or SSO callback)
     if (authToken) {

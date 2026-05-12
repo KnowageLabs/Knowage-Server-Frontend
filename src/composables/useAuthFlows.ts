@@ -72,9 +72,8 @@ export const useAuthFlows = () => {
         store.setLocale(storedLocale)
         await loadLanguageAsync(storedLocale)
 
-        // Redirect alla home o alla pagina richiesta
-        // Controlla prima 'redirect', poi 'logout', infine default alla home
-        const redirect = (router.currentRoute.value.query.redirect as string) || (router.currentRoute.value.query.logout as string) || '/'
+        // Redirect alla pagina richiesta prima del logout, oppure alla home
+        const redirect = (router.currentRoute.value.query.redirect as string) || '/'
         router.push(redirect)
     }
 

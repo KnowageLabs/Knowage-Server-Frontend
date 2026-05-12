@@ -17,9 +17,9 @@
             "special": "At least 1 special character (_{'|'}-#$)",
             "uppercase": "At least 1 uppercase character"
         },
+        "requiresPasswordChange": "Password change required. Please set a new password to continue.",
         "subtitle": "Here you can change your personal informations",
-        "title": "Account Management",
-        "requiresPasswordChange": "Password change required. Please set a new password to continue."
+        "title": "Account Management"
     },
     "ai": {
         "dashboardLink": "Dashboard Link",
@@ -336,6 +336,11 @@
         "sendByEmail": "Send by e-mail",
         "sendMail": "Send Mail",
         "sendMailSuccess": "Email Sent",
+        "session": {
+            "expired": "Your session has expired. Please log in again.",
+            "expiring": "Your session is about to expire. Click 'Stay Connected' to continue.",
+            "stayConnected": "Stay Connected"
+        },
         "set": "Set",
         "settings": "Settings",
         "share": "Share",
@@ -1312,11 +1317,11 @@
                 "balloonsDesc": "Display scaled circles based on values",
                 "baseLayer": {
                     "autoCentering": "Auto centering",
-                    "selectBackgroundLayer": "Select Background Layer",
-                    "osmStandard": "OpenStreetMap standard",
-                    "cartoLight": "CARTO light",
                     "cartoDark": "CARTO dark",
+                    "cartoLight": "CARTO light",
                     "esriSatellite": "Esri satellite",
+                    "osmStandard": "OpenStreetMap standard",
+                    "selectBackgroundLayer": "Select Background Layer",
                     "showScale": "Show scale",
                     "title": "Map",
                     "zoom": "Zoom"
@@ -2742,12 +2747,62 @@
     },
     "locale": {
         "dateFormat": "mm/dd/yy",
-        "dayNames": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-        "dayNamesMin": ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
-        "dayNamesShort": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+        "dayNames": [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday"
+        ],
+        "dayNamesMin": [
+            "Su",
+            "Mo",
+            "Tu",
+            "We",
+            "Th",
+            "Fr",
+            "Sa"
+        ],
+        "dayNamesShort": [
+            "Sun",
+            "Mon",
+            "Tue",
+            "Wed",
+            "Thu",
+            "Fri",
+            "Sat"
+        ],
         "firstDayOfWeek": 0,
-        "monthNames": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-        "monthNamesShort": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        "monthNames": [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
+        ],
+        "monthNamesShort": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec"
+        ],
         "today": "Today",
         "weekHeader": "Wk"
     },

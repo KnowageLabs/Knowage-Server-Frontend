@@ -26,6 +26,7 @@ import themeHelper from '@/helpers/themeHelper/themeHelper'
 import { primeVueDate, getLocale } from '@/helpers/commons/localeHelper'
 import { loadLanguageAsync } from '@/App.i18n.js'
 import auth from '@/helpers/commons/authHelper'
+import sessionTimeoutHelper from '@/helpers/commons/sessionTimeoutHelper'
 import { driver } from 'driver.js'
 import 'driver.js/dist/driver.css'
 import { useServiceWorker } from '@/composables/useServiceWorker'
@@ -245,6 +246,7 @@ export default defineComponent({
 
     beforeUnmounted() {
         clearInterval(this.pollingInterval)
+        sessionTimeoutHelper.stop()
     },
 
     methods: {
@@ -289,6 +291,7 @@ export default defineComponent({
                 }
 
                 this.onLoad()
+                sessionTimeoutHelper.start(this.configurations)
             })
         },
         closeDialog() {
