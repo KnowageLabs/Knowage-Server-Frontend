@@ -1,5 +1,6 @@
 <template>
     <div class="kn-table-widget-container p-d-flex p-d-row kn-flex">
+        {{ propWidget.settings.conditionalStyles }}
         <div v-if="selectedColumn" class="multiselect-overlay kn-cursor-pointer" @click="applyMultiSelection">
             <i class="fas fa-bolt p-mr-2" />
             {{ $t('dashboard.tableWidget.launchSelection') }}
@@ -128,6 +129,7 @@ export default defineComponent({
         },
         propVariables() {
             this.loadVariables()
+            this.refreshColumnsIfVariableConditionsExist()
         }
     },
     beforeMount() {
@@ -177,6 +179,15 @@ export default defineComponent({
         },
         loadVariables() {
             this.variables = this.propVariables
+        },
+        refreshColumnsIfVariableConditionsExist() {
+            const visCond = this.widgetModel.settings?.visualization?.visibilityConditions
+            if (!visCond?.enabled) return
+            const hasVariableCondition = visCond.conditions.some((condition) => condition.condition.type === 'variable')
+            if (!hasVariableCondition) return
+            const gridColumns = this.createGridColumns(this.tableData?.metaData?.fields)
+            this.gridApi?.setGridOption('columnDefs', gridColumns)
+            this.gridApi?.redrawRows()
         },
         setSelectedCellForMultiselected(columnName: string) {
             if (!columnName || !this.tableData || !this.tableData.metaData) this.selectedColumn = ''
