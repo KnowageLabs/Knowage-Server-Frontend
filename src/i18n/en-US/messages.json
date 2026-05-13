@@ -4098,6 +4098,14 @@
             "title": "Users Management",
             "unlockUser": "Unlock user",
             "userId": "User ID",
+            "import": {
+                "errors": "Errors",
+                "fromFile": "Import from file",
+                "importedUsers": "Imported Users",
+                "selectFile": "Select XLS or CSV file",
+                "title": "Import Users from File"
+            },
+            "newUser": "New user",
             "validation": {
                 "sameAsPassword": "Different password values"
             },

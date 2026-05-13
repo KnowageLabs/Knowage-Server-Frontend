@@ -3403,6 +3403,14 @@
             "title": "Users Management",
             "unlockUser": "Unlock user",
             "userId": "User ID",
+            "import": {
+                "errors": "Errori",
+                "fromFile": "Importa da file",
+                "importedUsers": "Utenti importati",
+                "selectFile": "Seleziona file XLS o CSV",
+                "title": "Importa utenti da file"
+            },
+            "newUser": "Nuovo utente",
             "validation": {
                 "sameAsPassword": "Different password values"
             },
