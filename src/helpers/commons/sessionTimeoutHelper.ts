@@ -44,7 +44,7 @@ function start(configurations: Record<string, any>): void {
 
         if (elapsed >= timeout) {
             stop()
-            localStorage.removeItem('token')
+            sessionStorage.removeItem('token')
             localStorage.removeItem('lastResponseTimestamp')
             localStorage.removeItem('sessionTimeoutMs')
             authHelper.logout()

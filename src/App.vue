@@ -27,6 +27,7 @@ import { primeVueDate, getLocale } from '@/helpers/commons/localeHelper'
 import { loadLanguageAsync } from '@/App.i18n.js'
 import auth from '@/helpers/commons/authHelper'
 import sessionTimeoutHelper from '@/helpers/commons/sessionTimeoutHelper'
+import { markAuthReady } from '@/helpers/commons/authState'
 
 export default defineComponent({
     components: { ConfirmDialog, KnOverlaySpinnerPanel, KnRotate, MainMenu, Toast },
@@ -91,7 +92,7 @@ export default defineComponent({
     async created() {
         const locationParams = new URL(location).searchParams
 
-        let userEndpoint = !localStorage.getItem('token') && locationParams.get('public') ? `/restful-services/3.0/public-user` : '/restful-services/2.0/currentuser'
+        let userEndpoint = !sessionStorage.getItem('token') && locationParams.get('public') ? `/restful-services/3.0/public-user` : '/restful-services/2.0/currentuser'
         if (locationParams.get('organization')) userEndpoint += `?organization=${locationParams.get('organization')}`
         await this.$http
             .get(import.meta.env.VITE_KNOWAGE_CONTEXT + userEndpoint)
@@ -110,7 +111,8 @@ export default defineComponent({
                 }
                 const normalizedLocale = storedLocale.replaceAll('_', '-')
                 localStorage.setItem('locale', normalizedLocale)
-                localStorage.setItem('token', response.data.userUniqueIdentifier)
+                sessionStorage.setItem('token', response.data.userUniqueIdentifier)
+                markAuthReady()
 
                 this.setLocale(normalizedLocale)
                 this.$i18n.locale = normalizedLocale

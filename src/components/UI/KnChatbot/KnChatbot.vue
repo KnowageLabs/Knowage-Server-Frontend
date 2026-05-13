@@ -118,7 +118,7 @@ async function sendMessage() {
         content: userMessage.value,
         turnId: turnId.value++
     }
-    ;((body.tenant = store.user.organization), (body.token = localStorage.getItem('token')), (body.role = store.user.defaultRole || store.user.roles[0]), (body.pathQuestion = router.currentRoute.value.path), (body.promptUser = userMessage.value), (body.conversationHistory = chat.value), (body.timestamp = new Date().toISOString()))
+    ;((body.tenant = store.user.organization), (body.token = sessionStorage.getItem('token')), (body.role = store.user.defaultRole || store.user.roles[0]), (body.pathQuestion = router.currentRoute.value.path), (body.promptUser = userMessage.value), (body.conversationHistory = chat.value), (body.timestamp = new Date().toISOString()))
     body.dashboard = null
     body.drivers = null
 
