@@ -32,7 +32,7 @@ export default defineComponent({
         }
     },
     watch: {
-        visTypeProp() {
+        widgetModel() {
             this.loadVisType()
         }
     },

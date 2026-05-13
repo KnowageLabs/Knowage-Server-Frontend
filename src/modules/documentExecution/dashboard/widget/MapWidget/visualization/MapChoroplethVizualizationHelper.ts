@@ -3,7 +3,7 @@ import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationThreshold, IMapW
 import { getColumnName, getCoordinates, getCoordinatesFromJSONCoordType, getCoordinatesFromString, getParsedInput, LEGEND_DATA_TYPE, VisualizationDataType } from '../LeafletHelper'
 import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData, createDialogFromDataset } from './MapDialogHelper'
 import { executeMapInteractions, columnsMatch } from '../interactions/MapInteractionsHelper'
-import { formatRanges, getConditionalStyleUsingTargetDataset, getCoordinatesFromWktPointFeature, getFeatureValues, getInteractionDataMap, getMinMaxByName, getNumericPropertyValues, getQuantiles, getQuantilesFromLayersData, getRowValues, getTargetDataColumn, isConditionMet, sortRanges, transformDataUsingForeignKeyReturningAllColumns, validateNumber } from './MapVisualizationHelper'
+import { formatRanges, getConditionalStyleUsingTargetDataset, getCoordinatesFromWktPointFeature, getFeatureValues, getMinMaxByName, getNumericPropertyValues, getQuantiles, getQuantilesFromLayersData, getRowValues, getTargetDataColumn, isConditionMet, sortRanges, transformDataUsingForeignKeyReturningAllColumns, validateNumber } from './MapVisualizationHelper'
 import { wktToGeoJSON } from '@terraformer/wkt'
 import L from 'leaflet'
 import * as mapWidgetDefaultValues from '../../WidgetEditor/helpers/mapWidget/MapWidgetDefaultValues'
@@ -145,7 +145,7 @@ const addChoroplethPolygonUsingLayersPointClassifedByEqualIntervals = (
     const polygon = createPolygon(polygonCoords, color, layerVisualizationSettings, defaultChoroplethValues, layerGroup, bounds, conditionalStyle)
     addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables, foreignKeyValue, targetDatasetData, mappedData)
     addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables, foreignKeyValue, targetDatasetData, mappedData)
-    attachPolygonInteractionHandlers(polygon, feature, layerVisualizationSettings, widgetModel, activeSelections, dashboardId, variables, mappedData, targetDatasetData)
+    attachPolygonInteractionHandlers(polygon, feature, layerVisualizationSettings, widgetModel, activeSelections, dashboardId, variables)
 }
 
 const createChoroplethClassifiedByEqualIntervalsFromData = (data: any, widgetModel: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, bounds: any, variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
@@ -279,7 +279,7 @@ const addChoroplethPolygonUsingLayersPointClassifedByQuantils = (
 
     addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables, foreignKeyValue, targetDatasetData, mappedData)
     addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables, foreignKeyValue, targetDatasetData, mappedData)
-    attachPolygonInteractionHandlers(polygon, feature, layerVisualizationSettings, widgetModel, activeSelections, dashboardId, variables, mappedData, targetDatasetData)
+    attachPolygonInteractionHandlers(polygon, feature, layerVisualizationSettings, widgetModel, activeSelections, dashboardId, variables)
 }
 
 const createChoroplethClassifiedByQuantilsFromData = (layerGroup: any, data: any, widgetModel: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerVisualizationSettings: IMapWidgetVisualizationType, bounds: any, variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
@@ -390,7 +390,7 @@ const addChoroplethPolygonUsingLayersPointClassifedByRanges = (layerGroup: any, 
     const polygon = createPolygon(polygonCoords, rangeIndexAndColor.color, layerVisualizationSettings, defaultChoroplethValues, layerGroup, bounds, conditionalStyle)
     addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables, foreignKeyValue, targetDatasetData, mappedData)
     addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables, foreignKeyValue, targetDatasetData, mappedData)
-    attachPolygonInteractionHandlers(polygon, feature, layerVisualizationSettings, widgetModel, activeSelections, dashboardId, variables, mappedData, targetDatasetData)
+    attachPolygonInteractionHandlers(polygon, feature, layerVisualizationSettings, widgetModel, activeSelections, dashboardId, variables)
 }
 
 const createChoroplethClassifiedByRangesFromData = (layerGroup: any, data: any, widgetModel: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerVisualizationSettings: IMapWidgetVisualizationType, bounds: any, variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
@@ -478,7 +478,7 @@ const createPolygonFromDataRow = (data: any, widgetModel: IWidget, target: IMapW
                     onEachFeature: function (feature, layer) {
                         addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, layer, activeSelections, dashboardId, variables)
                         addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, layer, activeSelections, dashboardId, variables)
-                        attachPolygonInteractionHandlers(layer, row, layerVisualizationSettings, widgetModel, activeSelections, dashboardId, variables, null, null, data[target.id])
+                        attachPolygonInteractionHandlers(layer, feature, layerVisualizationSettings, widgetModel, activeSelections, dashboardId, variables)
                     }
                 }).addTo(layerGroup)
                 bounds.extend(polygon.getBounds())
@@ -505,11 +505,11 @@ const createPolygonFromDataRow = (data: any, widgetModel: IWidget, target: IMapW
     bounds.extend(polygon.getBounds())
     addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, polygon, activeSelections, dashboardId, variables)
     addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, polygon, activeSelections, dashboardId, variables)
-    attachPolygonInteractionHandlers(polygon, row, layerVisualizationSettings, widgetModel, activeSelections, dashboardId, variables, null, null, data[target.id])
+    attachPolygonInteractionHandlers(polygon, row, layerVisualizationSettings, widgetModel, activeSelections, dashboardId, variables)
 }
 
 // Generalized interaction handler for choropleth polygons
-const attachPolygonInteractionHandlers = (polygon: any, feature: any, layerVisualizationSettings: IMapWidgetVisualizationType, widgetModel: IWidget, activeSelections: ISelection[], dashboardId: string, variables: IVariable[], mappedData?: Record<string, any> | null, targetDatasetData?: any, sourceData?: any) => {
+const attachPolygonInteractionHandlers = (polygon: any, feature: any, layerVisualizationSettings: IMapWidgetVisualizationType, widgetModel: IWidget, activeSelections: ISelection[], dashboardId: string, variables: IVariable[]) => {
     try {
         if (!widgetModel.settings.dialog?.enabled) {
             polygon.on &&
@@ -547,9 +547,8 @@ const attachPolygonInteractionHandlers = (polygon: any, feature: any, layerVisua
                         const column = findInteractionColumnForVisualization(widgetModel, layerVisualizationSettings)
                         if (!column) return
 
-                        const dataMap = getInteractionDataMap(feature, layerVisualizationSettings, mappedData, targetDatasetData, sourceData)
-                        const valueForColumn = dataMap[column]
-                        if (valueForColumn === undefined || valueForColumn === null) return
+                        const dataMap = feature.properties ?? {}
+                        const valueForColumn = feature.properties?.[column]
                         const dataValue = `${column}: ${valueForColumn}`
 
                         const fakeElement: any = {

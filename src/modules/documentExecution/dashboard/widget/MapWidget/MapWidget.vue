@@ -1,6 +1,6 @@
 <template>
     <div class="map-container">
-        <MapLegend v-if="widgetModel?.settings?.legend?.enabled" :widget-model="widgetModel" :propMapWidgetLegend="widgetModel?.settings?.legend" :legend-data="legendData"> </MapLegend>
+        <MapLegend v-if="widgetModel?.settings?.legend?.enabled" :propMapWidgetLegend="widgetModel?.settings?.legend" :legend-data="legendData"> </MapLegend>
 
         <LeafletWrapper v-if="visualizationVisibilityState" :widget-model="widgetModel" :data="dataToShow" :layer-visibility="visualizationVisibilityState" :dashboardId="dashboardId" :filtersReloadTrigger="filtersReloadTrigger" :propVariables="variables" :propActiveSelections="activeSelections" @legend-updated="onLegendUpdated"></LeafletWrapper>
 
@@ -83,9 +83,6 @@ export default defineComponent({
         }
     },
     watch: {
-        propActiveSelections() {
-            this.loadActiveSelections()
-        },
         propVariables() {
             this.loadVariables()
         }

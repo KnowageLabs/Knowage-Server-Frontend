@@ -26,11 +26,7 @@ export default defineComponent({
             getTranslatedLabel
         }
     },
-    watch: {
-        propVisualizationTypeLegendSettings() {
-            this.loadLegendSettings()
-        }
-    },
+
     created() {
         this.loadLegendSettings()
     },

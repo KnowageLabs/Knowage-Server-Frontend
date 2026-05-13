@@ -3,7 +3,7 @@ import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationType } from '../
 import { addMarker, getColumnName, getCoordinates } from '../LeafletHelper'
 import { executeMapInteractions, columnsMatch } from '../interactions/MapInteractionsHelper'
 import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData, createDialogFromDataset } from './MapDialogHelper'
-import { getConditionalStyleUsingTargetDataset, getCoordinatesFromWktPointFeature, getFeatureValues, getInteractionDataMap, getTargetDataColumn, isConditionMet, transformDataUsingForeignKeyReturningAllColumns } from './MapVisualizationHelper'
+import { getConditionalStyleUsingTargetDataset, getCoordinatesFromWktPointFeature, getFeatureValues, getTargetDataColumn, isConditionMet, transformDataUsingForeignKeyReturningAllColumns } from './MapVisualizationHelper'
 
 const findInteractionColumnForVisualization = (widgetModel: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType): string | null => {
     const selectionConfig = widgetModel?.settings?.interactions?.selection?.selections?.find((s: any) => s.vizualizationType?.id === layerVisualizationSettings.id || s.vizualizationType?.target === layerVisualizationSettings.target || s.vizualizationType?.label === layerVisualizationSettings.label)
@@ -191,8 +191,8 @@ export const createMarkerForVisualization = (feature: ILayerFeature, layerVisual
     if (!coordinates) return
     const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.markerConf ?? null, value as any, spatialAttribute, conditionalStyle?.['background-color'], conditionalStyle?.icon)
 
-    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker, activeSelections, dashboardId, variables, null, targetDatasetData, mappedData)
-    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker, activeSelections, dashboardId, variables, null, targetDatasetData, mappedData)
+    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker, activeSelections, dashboardId, variables)
+    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker, activeSelections, dashboardId, variables)
     const isClusterGroup = typeof (layerGroup as any)?.getAllChildMarkers === 'function'
     if (!isClusterGroup) {
         markerBounds.push(marker.getLatLng())
@@ -216,9 +216,8 @@ export const createMarkerForVisualization = (feature: ILayerFeature, layerVisual
                         const column = findInteractionColumnForVisualization(widgetModel, layerVisualizationSettings)
                         if (!column) return
 
-                        const dataMap = getInteractionDataMap(feature, layerVisualizationSettings, mappedData, targetDatasetData)
-                        const valueForColumn = dataMap[column]
-                        if (valueForColumn === undefined || valueForColumn === null) return
+                        const dataMap = feature.properties ?? {}
+                        const valueForColumn = feature.properties?.[column]
                         const dataValue = `${column}: ${valueForColumn}`
 
                         const fakeElement: any = {

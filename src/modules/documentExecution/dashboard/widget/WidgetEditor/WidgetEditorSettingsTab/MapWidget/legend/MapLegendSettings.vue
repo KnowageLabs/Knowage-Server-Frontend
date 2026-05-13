@@ -46,7 +46,6 @@ import InputNumber from 'primevue/inputnumber'
 import descriptor from './MapLegendSettingsDescriptor.json'
 import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 import MapLegendVisualizationTypeSettings from './MapLegendVisualizationTypeSettings.vue'
-import { normalizeMapLegendSettings } from '../../../../MapWidget/MapWidgetInfoSettingsHelper'
 
 export default defineComponent({
     name: 'map-legend-settings',
@@ -90,7 +89,7 @@ export default defineComponent({
             emitter.off('mapFieldsUpdated', this.loadLegendSettings)
         },
         loadLegendSettings() {
-            if (this.widgetModel?.settings?.legend) this.legendSettings = normalizeMapLegendSettings(this.widgetModel, this.widgetModel.settings.legend)
+            if (this.widgetModel?.settings?.legend) this.legendSettings = this.widgetModel.settings.legend
         },
         onLegendPositionChange() {
             if (!this.legendSettings) return
