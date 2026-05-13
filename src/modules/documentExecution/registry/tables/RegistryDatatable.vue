@@ -163,6 +163,12 @@ async function loadColumnDefinitions() {
         if (el.isVisible) newColumns.push(el)
     }
     columns.value = newColumns
+    // Compute hasDependencies: for each column, collect all other columns that reference
+    // it via dependsFrom or foreignKey so the warning dialog can be triggered correctly.
+    for (const col of columns.value) {
+        const deps = columns.value.filter((c: any) => (c.dependsFrom && c.dependsFrom === col.field) || (c.foreignKey && c.foreignKey === col.field))
+        if (deps.length > 0) col.hasDependencies = deps
+    }
     // Pre-load options for COMBO columns
     for (const col of columns.value) {
         if (col.editorType === 'COMBO') {
@@ -251,6 +257,20 @@ function onRowsDeletedFromGrid(rowsToDelete: any[]) {
 function onRowChanged(row: any, field?: string) {
     if (field) {
         const col = columns.value.find((c: any) => c.field === field)
+        // Show warning when the changed column has dependent children (hasDependencies)
+        if (col?.hasDependencies) {
+            selectedRow.value = row
+            dependentColumns.value = []
+            collectDependentColumns(col)
+            if (!stopWarnings.value[col.field]) {
+                const hasValues = dependentColumns.value.some((c: any) => row[c.field])
+                if (hasValues) warningVisible.value = true
+                else clearDependentColumnsValues()
+            } else {
+                clearDependentColumnsValues()
+            }
+        }
+        // Show dependsFrom warning when the changed column itself depends on another column
         if (col?.dependsFrom && !dependsFromSuppressed.value[field]) {
             const sourceCol = columns.value.find((c: any) => c.field === col.dependsFrom)
             dependsFromCurrentField.value = field
