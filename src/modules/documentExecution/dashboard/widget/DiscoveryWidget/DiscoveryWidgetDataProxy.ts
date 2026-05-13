@@ -87,7 +87,10 @@ const formatDiscoveryModelForGet = (dashboardId, dashboardConfig: IDashboardConf
             }
             const measureToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, funct: 'NONE', orderColumn: column.columnName, functColumn: column.columnName, orderType: '' } as any
             column.id === propWidget.settings.sortingColumn ? (measureToPush.orderType = propWidget.settings.sortingOrder) : ''
-            if (column.formula) measureToPush.formula = addVariablesToFormula(column, dashboardConfig)
+            if (column.formula) {
+                measureToPush.formula = addVariablesToFormula(column, dashboardConfig)
+                measureToPush.funct = 'NONE'
+            }
 
             dataToSend.aggregations.measures.push(measureToPush)
         } else {

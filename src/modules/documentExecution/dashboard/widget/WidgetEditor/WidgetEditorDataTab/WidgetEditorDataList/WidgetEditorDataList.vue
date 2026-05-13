@@ -311,7 +311,7 @@ export default defineComponent({
                     formula: calcFieldOutput.dsl,
                     formulaEditor: calcFieldOutput.dsl,
                     blocklyXml: calcFieldOutput.state,
-                    aggregation: 'SUM'
+                    aggregation: 'NONE'
                 }
                 emitter.emit('addNewCalculatedField', newCalcField)
             }

@@ -94,7 +94,10 @@ const formatMapModelForService = (dashboardId: any, dashboardConfig: IDashboardC
                 continue
             }
             const measureToPush = { id: column.alias, alias: column.alias, columnName: column.name, funct: column.aggregationSelected, orderColumn: column.alias, orderType: widget.settings?.sortingOrder } as any
-            if (column.formula) measureToPush.formula = addVariablesToFormula(column, dashboardConfig)
+            if (column.formula) {
+                measureToPush.formula = addVariablesToFormula(column, dashboardConfig)
+                measureToPush.funct = 'NONE'
+            }
 
             dataToSend.aggregations.measures.push(measureToPush)
         }

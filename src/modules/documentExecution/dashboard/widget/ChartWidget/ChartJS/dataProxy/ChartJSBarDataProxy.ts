@@ -81,7 +81,10 @@ const addMeasuresAndCategoriesByCount = (widget: IWidget, dashboardConfig: IDash
                 continue
             }
             const measureToPush = { id: `${measure.alias}_${measure.aggregation}`, alias: `${measure.alias}_${measure.aggregation}`, columnName: measure.columnName, funct: measure.aggregation, orderColumn: measure.alias, orderType: measure.orderType } as any
-            if (measure.formula) measureToPush.formula = addVariablesToFormula(measure, dashboardConfig)
+            if (measure.formula) {
+                measureToPush.formula = addVariablesToFormula(measure, dashboardConfig)
+                measureToPush.funct = 'NONE'
+            }
 
             dataToSend.aggregations.measures.push(measureToPush)
         }
@@ -94,8 +97,10 @@ const addMeasuresAndCategoriesByCount = (widget: IWidget, dashboardConfig: IDash
                 return
             }
             const measureToPush = { id: `${measure.alias}_${measure.aggregation}`, alias: `${measure.alias}_${measure.aggregation}`, columnName: measure.columnName, funct: measure.aggregation, orderColumn: measure.alias, orderType: measure.orderType } as any
-            if (measure.formula) measureToPush.formula = addVariablesToFormula(measure, dashboardConfig)
-
+            if (measure.formula) {
+                measureToPush.formula = addVariablesToFormula(measure, dashboardConfig)
+                measureToPush.funct = 'NONE'
+            }
             dataToSend.aggregations.measures.push(measureToPush)
         }
     }

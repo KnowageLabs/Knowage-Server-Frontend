@@ -154,7 +154,10 @@ const formatPivotModelForGet = (dashboardId: any, dashboardConfig: IDashboardCon
         fields.forEach((field) => {
             if (field.fieldType === 'MEASURE') {
                 const measureToPush = { id: field.alias, alias: field.alias, columnName: field.columnName, funct: field.aggregation, orderColumn: field.alias } as any
-                if (field.formula) measureToPush.formula = addVariablesToFormula(field, dashboardConfig)
+                if (field.formula) {
+                    measureToPush.formula = addVariablesToFormula(field, dashboardConfig)
+                    measureToPush.funct = 'NONE'
+                }
 
                 dataToSend.aggregations.measures.push(measureToPush)
             } else {
