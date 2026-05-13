@@ -4,7 +4,25 @@
             <div class="kn-list--column p-col-4 p-sm-4 p-md-3 p-p-0">
                 <q-toolbar class="kn-toolbar kn-toolbar--primary">
                     <q-toolbar-title>{{ $t('managers.usersManagement.title') }}</q-toolbar-title>
-                    <KnFabButton icon="fas fa-plus" data-test="new-button" @click="showForm()"></KnFabButton>
+                    <q-btn round class="kn-fab-btn" data-test="new-button">
+                        <q-icon name="fas fa-plus" size="xs"/>
+                        <q-menu square>
+                            <q-list dense style="min-width: 180px">
+                                <q-item clickable v-close-popup @click="showForm()">
+                                    <q-item-section avatar>
+                                        <q-icon name="fas fa-plus" size="xs"/>
+                                    </q-item-section>
+                                    <q-item-section>{{ $t('managers.usersManagement.newUser') }}</q-item-section>
+                                </q-item>
+                                <q-item clickable v-close-popup @click="importDialogVisible = true">
+                                    <q-item-section avatar>
+                                        <q-icon name="fas fa-file-import" size="xs"/>
+                                    </q-item-section>
+                                    <q-item-section>{{ $t('managers.usersManagement.import.fromFile') }}</q-item-section>
+                                </q-item>
+                            </q-list>
+                        </q-menu>
+                    </q-btn>
                 </q-toolbar>
                 <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
                 <KnListBox :options="users" :settings="usersManagementDescriptor.knListSettings" @click="onUserSelect" @delete.stop="onUserDelete" />
@@ -43,6 +61,8 @@
             </div>
         </div>
     </div>
+
+    <UsersManagementImportDialog :visible="importDialogVisible" @close="importDialogVisible = false" @imported="loadAllUsers" />
 </template>
 
 <script lang="ts">
@@ -54,12 +74,12 @@ import useValidate from '@vuelidate/core'
 import { AxiosResponse } from 'axios'
 import TabView from 'primevue/tabview'
 import TabPanel from 'primevue/tabpanel'
-import KnFabButton from '@/components/UI/KnFabButton.vue'
 import KnHint from '@/components/UI/KnHint.vue'
 import KnListBox from '@/components/UI/KnListBox/KnListBox.vue'
 import RolesTab from './UserRolesTab/RolesTab.vue'
 import DetailFormTab from './UserDetailTab/DetailFormTab.vue'
 import UserAttributesForm from './UserAttributesTab/UserAttributesForm.vue'
+import UsersManagementImportDialog from './UsersManagementImportDialog.vue'
 import detailFormTabValidationDescriptor from './UserDetailTab/DetailFormTabValidationDescriptor.json'
 import usersManagementDescriptor from './UsersManagementDescriptor.json'
 import { sameAs } from '@vuelidate/validators'
@@ -68,7 +88,7 @@ import { iTenant } from '../tenantManagement/TenantManagement'
 
 export default defineComponent({
     name: 'user-management',
-    components: { KnListBox, TabView, TabPanel, KnFabButton, KnHint, RolesTab, DetailFormTab, UserAttributesForm },
+    components: { KnListBox, TabView, TabPanel, KnHint, RolesTab, DetailFormTab, UserAttributesForm, UsersManagementImportDialog },
     data() {
         return {
             v$: useValidate() as any,
@@ -86,6 +106,7 @@ export default defineComponent({
             hiddenForm: true,
             disableUsername: true,
             loading: false,
+            importDialogVisible: false,
             selectedRoles: [] as iRole[],
             usersManagementDescriptor: usersManagementDescriptor,
             selectedTab: 'detail',
@@ -357,6 +378,24 @@ export default defineComponent({
 
     @media screen and (max-width: 960px) {
         align-items: start;
+    }
+}
+
+.kn-fab-btn {
+    position: absolute;
+    width: 40px;
+    right:20px;
+    height: 40px;
+    transform: translateY(30%);
+    z-index:90;
+    border-radius: 50%;
+    background-color: var(--kn-button-fab-background-color);
+    color: var(--kn-button-fab-color);
+    box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12);
+    transition: background-color 0.3s cubic-bezier(0.445, 0.05, 0.55, 0.95);
+    &:hover {
+        background-color: var(--kn-button-fab-hover-background-color);
+        color: var(--kn-button-fab-hover-color);
     }
 }
 
