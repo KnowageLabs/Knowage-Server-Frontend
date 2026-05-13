@@ -20,7 +20,7 @@
 
             <q-card-section>
                 <q-input type="text" class="q-mb-sm" filled v-model="account.username" :label="$t('common.user')" disable />
-                <q-input type="email" class="q-mb-sm" filled v-model="account.email" :label="$t('common.email')" />
+                <q-input v-if="!requiresPasswordChange" type="email" class="q-mb-sm" filled v-model="account.email" :label="$t('common.email')" />
                 <q-input bottom-slots type="password" class="password" filled v-model="account.password" :label="$t('common.password')">
                     <template #prepend>
                         <q-icon name="lock" />
