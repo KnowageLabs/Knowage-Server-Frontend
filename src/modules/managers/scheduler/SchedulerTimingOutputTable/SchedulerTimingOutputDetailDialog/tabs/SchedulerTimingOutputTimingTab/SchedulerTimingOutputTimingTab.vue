@@ -40,7 +40,7 @@
                 <div class="p-col-5">
                     <span>
                         <label for="startDateTiming" class="kn-material-input-label">{{ $t('cron.startDate') + ':' }}</label>
-                        <Calendar id="startDateTiming" v-model="trigger.startDateTiming" class="kn-material-input custom-timepicker" :style="schedulerTimingOutputTimingTabDescriptor.style.calendarInput" :show-icon="true" :manual-input="true" @change="setStartDate" @date-select="setStartDate" />
+                        <Calendar id="startDateTiming" v-model="trigger.startDateTiming" class="kn-material-input custom-timepicker" :style="schedulerTimingOutputTimingTabDescriptor.style.calendarInput" :date-format="dateFormat" :show-icon="true" :manual-input="true" @change="setStartDate" @date-select="setStartDate" />
                     </span>
                     <div v-if="!validDates" class="p-error p-grid">
                         <small class="p-col-12">
@@ -72,7 +72,7 @@
                 <div class="p-col-5">
                     <span>
                         <label for="endDateTiming" class="kn-material-input-label">{{ $t('cron.endDate') + ':' }}</label>
-                        <Calendar id="endDateTiming" v-model="trigger.endDateTiming" class="kn-material-input custom-timepicker" :style="schedulerTimingOutputTimingTabDescriptor.style.calendarInput" :show-icon="true" :manual-input="true" @change="setEndDate" @date-select="setEndDate" />
+                        <Calendar id="endDateTiming" v-model="trigger.endDateTiming" class="kn-material-input custom-timepicker" :style="schedulerTimingOutputTimingTabDescriptor.style.calendarInput" :date-format="dateFormat" :show-icon="true" :manual-input="true" @change="setEndDate" @date-select="setEndDate" />
                     </span>
                     <div v-if="!validDates" class="p-error p-grid">
                         <small class="p-col-12">
@@ -147,6 +147,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import { primeVueDate } from '@/helpers/commons/localeHelper'
 import Calendar from 'primevue/calendar'
 import Dropdown from 'primevue/dropdown'
 import RadioButton from 'primevue/radiobutton'
@@ -177,6 +178,9 @@ export default defineComponent({
         }
     },
     computed: {
+        dateFormat(): String {
+            return primeVueDate()
+        },
         validDates() {
             let valid = true
             const now = new Date()
