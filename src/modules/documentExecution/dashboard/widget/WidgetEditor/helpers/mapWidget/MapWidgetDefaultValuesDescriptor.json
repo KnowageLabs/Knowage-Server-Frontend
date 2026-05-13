@@ -58,7 +58,6 @@
     },
     "defaultMapLayerSettings": {
         "autoCentering": true,
-        "baseLayer": "cartoLight",
         "enabled": true,
         "showScale": false,
         "zoom": 10

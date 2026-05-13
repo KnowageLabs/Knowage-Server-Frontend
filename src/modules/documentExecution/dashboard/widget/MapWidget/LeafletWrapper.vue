@@ -10,7 +10,6 @@ import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 import 'leaflet/dist/leaflet.css'
 import './Leaflet-heatmap.js'
 import { initializeLayers } from './LeafletHelper'
-import { DEFAULT_MAP_BASE_LAYER, getMapBaseLayerDefinition } from './MapBaseLayerHelper'
 import useAppStore from '@/App.store'
 import i18n from '@/App.i18n'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
@@ -195,33 +194,6 @@ const getMapZoomValue = (widgetModel: IWidget | undefined): number => {
     return isNaN(parsedZoom) ? defaultZoom : parsedZoom
 }
 
-const getMapCenterValue = (widgetModel: IWidget | undefined): [number, number] | null => {
-    const center = widgetModel?.settings?.configuration?.map?.center
-    if (!center || !Array.isArray(center) || center.length !== 2) return null
-
-    const [lat, lon] = center.map((v: any) => Number.parseFloat(v as any))
-
-    if (Number.isNaN(lat) || Number.isNaN(lon)) return null
-
-    return [lat, lon]
-}
-
-const ensureMapConfig = () => {
-    if (!props.widgetModel.settings) props.widgetModel.settings = {} as any
-    if (!props.widgetModel.settings.configuration) props.widgetModel.settings.configuration = {} as any
-    if (!props.widgetModel.settings.configuration.map) props.widgetModel.settings.configuration.map = {} as any
-    if (!props.widgetModel.settings.configuration.map.baseLayer) props.widgetModel.settings.configuration.map.baseLayer = DEFAULT_MAP_BASE_LAYER
-}
-
-const updateBaseLayer = () => {
-    if (!map) return
-
-    ensureMapConfig()
-    const baseLayerDefinition = getMapBaseLayerDefinition(props.widgetModel.settings.configuration.map.baseLayer)
-
-    if (tile) map.removeLayer(tile)
-    tile = L.tileLayer(baseLayerDefinition.url, baseLayerDefinition.options).addTo(map)
-}
 onMounted(async () => {
     emitter.on('widgetResized', resizeMap)
 
@@ -229,34 +201,16 @@ onMounted(async () => {
 
     loadVariables()
 
-    const storedCenter = getMapCenterValue(props.widgetModel)
-    const shouldAutoCenter = props.widgetModel.settings?.configuration?.map?.autoCentering
-    const initialCenter = storedCenter ?? (navigator && !shouldAutoCenter ? await getCoords() : [0, 0])
-
-    ensureMapConfig()
     map = L.map(mapId, {
-        center: initialCenter,
+        center: navigator && !props.widgetModel.settings?.configuration?.map?.autoCentering ? await getCoords() : [0, 0],
         zoom: getMapZoomValue(props.widgetModel),
         attributionControl: false
     })
 
-    map.on('zoomend', () => {
-        const currentZoom = map.getZoom()
-
-        ensureMapConfig()
-
-        props.widgetModel.settings.configuration.map.zoom = currentZoom
-    })
-
-    map.on('moveend', () => {
-        const center = map.getCenter()
-
-        ensureMapConfig()
-
-        props.widgetModel.settings.configuration.map.center = [center.lat, center.lng]
-    })
-
-    updateBaseLayer()
+    tile = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map)
 
     if (props.widgetModel.settings?.configuration?.map?.showScale) L.control.scale().addTo(map)
 
@@ -316,13 +270,6 @@ watch(
     { deep: true }
 )
 
-watch(
-    () => props.widgetModel?.settings?.configuration?.map?.baseLayer,
-    () => {
-        updateBaseLayer()
-    }
-)
-
 const emit = defineEmits<{
     (e: 'legend-updated', legendData: Record<string, any> | undefined): void
 }>()
@@ -344,72 +291,26 @@ const handleLegendUpdated = (legendData: Record<string, any> | undefined) => {
 }
 
 .leaflet-popup-content-wrapper {
-    padding: 0;
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 14px 32px rgba(15, 23, 42, 0.18);
+    padding: 20px 1px 5px 1px;
 }
 
 .leaflet-popup-content {
     margin: 0;
 }
 
-.kn-map-popup .leaflet-popup-content,
-.kn-map-tooltip .leaflet-tooltip-content {
-    margin: 0;
-}
-
 .customLeafletPopup {
-    list-style: none;
-    margin: 0;
-    padding: 8px;
-    min-width: 220px;
-    max-width: 380px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+    margin: 0px 0px;
+    padding: 0px 5px;
+    background: white;
+    min-width: 150px;
+    max-width: 400px;
+    white-space: nowrap;
 }
 
-.customLeafletPopupCard {
-    background: #ffffff;
-    min-width: 220px;
-    max-width: 380px;
-}
-
-.customLeafletPopupHeader {
-    padding: 10px 14px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #1f2937;
-    background: linear-gradient(135deg, #f8fafc 0%, #eef5ff 100%);
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.customLeafletPopupItem {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    padding: 6px 9px;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    background: #f8fafc;
-    white-space: normal;
-    overflow-wrap: anywhere;
-}
-
-.customLeafletPopupLabel {
-    font-size: 0.62rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: #6b7280;
-}
-
-.customLeafletPopupValue {
-    font-size: 0.82rem;
-    line-height: 1.2;
-    font-weight: 500;
-    color: #111827;
+.customLeafletPopup li {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .leaflet-popup-tip {
@@ -417,30 +318,13 @@ const handleLegendUpdated = (legendData: Record<string, any> | undefined) => {
 }
 
 .clickable-custom-leaflet-list-item {
-    border-color: #bfdbfe;
-    background: #eff6ff;
-    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease;
+    color: #0056b3;
+    background-color: #ffffff;
+    transition: color 0.2s ease, background-color 0.2s ease;
 }
 
 .clickable-custom-leaflet-list-item:hover {
-    background: #dbeafe;
-    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.18);
-    transform: translateY(-1px);
-}
-
-.clickable-custom-leaflet-list-item .customLeafletPopupValue {
-    color: #1d4ed8;
-}
-
-.kn-map-tooltip {
-    border: 0;
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
-    background: transparent;
-    padding: 0;
-}
-
-.kn-map-tooltip .leaflet-tooltip-content {
-    margin: 0;
-    padding: 0;
+    color: #004085;
+    background-color: #e9f5ff;
 }
 </style>

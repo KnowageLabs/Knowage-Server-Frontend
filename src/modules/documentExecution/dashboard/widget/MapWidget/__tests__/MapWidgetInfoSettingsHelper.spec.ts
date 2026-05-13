@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getMapDatasetInfoColumnNames, getMapInfoColumnName, getMapVisualizationMeasureLabel, normalizeMapInfoSettings, normalizeMapLegendSettings } from '../MapWidgetInfoSettingsHelper'
+import { getMapInfoColumnName, getMapVisualizationMeasureLabel, normalizeMapInfoSettings, normalizeMapLegendSettings } from '../MapWidgetInfoSettingsHelper'
 
 describe('MapWidgetInfoSettingsHelper', () => {
     it('extracts column names from strings and option objects', () => {
@@ -21,27 +21,6 @@ describe('MapWidgetInfoSettingsHelper', () => {
         normalizeMapInfoSettings(settings)
 
         expect(settings.visualizations[0].columns).toEqual(['REG_NAME', 'ELETTORI', 'NAME_1'])
-    })
-
-    it('collects dataset info columns configured in dialog and tooltips for matching visualizations', () => {
-        const datasetLayer = {
-            layerId: 'ds_votes',
-            columns: [{ name: 'REG_NAME' }, { name: 'PROVINCIA' }, { name: 'ELETTORI' }]
-        } as any
-
-        const widgetModel = {
-            settings: {
-                visualizations: [{ label: 'Regions', targetDataset: 'ds_votes' }, { label: 'Markers', target: 'ds_votes' }],
-                dialog: {
-                    visualizations: [{ label: 'Regions', columns: ['PROVINCIA', 'NAME_1'] }]
-                },
-                tooltips: {
-                    visualizations: [{ label: 'Markers', columns: [{ name: 'ELETTORI' }, { name: 'REG_NAME' }] }]
-                }
-            }
-        } as any
-
-        expect(getMapDatasetInfoColumnNames(widgetModel, datasetLayer)).toEqual(['PROVINCIA', 'ELETTORI', 'REG_NAME'])
     })
 
     it('realigns legend visualization references with current widget visualizations', () => {

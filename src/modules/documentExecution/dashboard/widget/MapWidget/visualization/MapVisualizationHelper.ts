@@ -283,64 +283,7 @@ const addDataRowValuesToDataMap = (row: Record<string, any>, data: any, dataMap:
     })
 }
 
-const addDataRowValuesToAggregatedMap = (row: Record<string, any>, data: any, dataMap: Record<string, Set<any>>) => {
-    if (!row || !data?.metaData?.fields) return
-
-    data.metaData.fields.forEach((field: any) => {
-        if (!field?.dataIndex) return
-        const value = row[field.dataIndex]
-        if (value === undefined || value === null || value === '') return
-
-        if (field.name) {
-            if (!dataMap[field.name]) dataMap[field.name] = new Set<any>()
-            dataMap[field.name].add(value)
-        }
-
-        if (field.header) {
-            if (!dataMap[field.header]) dataMap[field.header] = new Set<any>()
-            dataMap[field.header].add(value)
-        }
-    })
-}
-
-const collapseAggregatedDataMapValues = (dataMap: Record<string, Set<any>>) => {
-    return Object.entries(dataMap).reduce((accumulator, [fieldName, values]) => {
-        const uniqueValues = Array.from(values ?? [])
-        if (!uniqueValues.length) return accumulator
-
-        accumulator[fieldName] = uniqueValues.length === 1 ? uniqueValues[0] : uniqueValues.map((value) => `${value}`).join(', ')
-        return accumulator
-    }, {} as Record<string, any>)
-}
-
-const addMissingDataMapValues = (sourceDataMap: Record<string, any> | null | undefined, targetDataMap: Record<string, any>) => {
-    if (!sourceDataMap) return
-
-    Object.entries(sourceDataMap).forEach(([key, value]) => {
-        if (targetDataMap[key] !== undefined && targetDataMap[key] !== null && targetDataMap[key] !== '') return
-        if (value === undefined || value === null || value === '') return
-        targetDataMap[key] = value
-    })
-}
-
-export const transformDataUsingForeignKeyReturningAggregatedColumns = (rows: any[], pivotColumnIndex: string, data: any) => {
-    const aggregatedDataMap = rows.reduce((accumulator: Record<string, Record<string, Set<any>>>, row: any) => {
-        const key = row?.[pivotColumnIndex]
-        if (key === undefined || key === null || key === '') return accumulator
-
-        if (!accumulator[key]) accumulator[key] = {}
-        addDataRowValuesToAggregatedMap(row, data, accumulator[key])
-
-        return accumulator
-    }, {})
-
-    return Object.entries(aggregatedDataMap).reduce((accumulator, [key, fieldValues]) => {
-        accumulator[key] = collapseAggregatedDataMapValues(fieldValues)
-        return accumulator
-    }, {} as Record<string, Record<string, any>>)
-}
-
-export const getInteractionDataMap = (source: ILayerFeature | Record<string, any> | null | undefined, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData?: Record<string, any> | null, targetDatasetData?: any, sourceData?: any, additionalMappedData?: Record<string, Record<string, any>> | null): Record<string, any> => {
+export const getInteractionDataMap = (source: ILayerFeature | Record<string, any> | null | undefined, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData?: Record<string, any> | null, targetDatasetData?: any, sourceData?: any): Record<string, any> => {
     if (!source) return {}
 
     const dataMap = {} as Record<string, any>
@@ -358,7 +301,6 @@ export const getInteractionDataMap = (source: ILayerFeature | Record<string, any
         if (joinValue != null) {
             const targetDatasetRow = mappedData[joinValue]
             if (targetDatasetRow) addDataRowValuesToDataMap(targetDatasetRow, targetDatasetData, dataMap)
-            addMissingDataMapValues(additionalMappedData?.[joinValue], dataMap)
         }
     }
 
