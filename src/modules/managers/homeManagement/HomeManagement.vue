@@ -49,7 +49,7 @@
                         <!-- Role selector -->
                         <div class="col-12 col-sm-6">
                             <q-select
-                                v-model="selectedRoleId"
+                                v-model="selectedRoleName"
                                 :options="roleOptions"
                                 :label="$t('managers.homeManagement.role')"
                                 emit-value map-options
@@ -153,7 +153,7 @@
                 v-if="config.type === 'dynamic'"
                 :model-value="config.template ?? EMPTY_TEMPLATE"
                 :roles="roles"
-                :current-role-id="selectedRoleId"
+                :current-role-name="selectedRoleName"
                 @update:model-value="(val) => { config.template = val; dirty = true }"
             />
 
@@ -239,12 +239,12 @@ const { t } = useI18n()
 const store = mainStore()
 
 const EMPTY_TEMPLATE: IDynamicHomeTemplate = { html: '', css: '', menuPlaceholders: [] }
-const EMPTY_CONFIG: IHomeConfig = { roleId: null, type: 'default', template: deepcopy(EMPTY_TEMPLATE) }
+const EMPTY_CONFIG: IHomeConfig = { roleName: null, type: 'default', template: deepcopy(EMPTY_TEMPLATE) }
 
 const loading = ref(false)
 const dirty = ref(false)
-const roles = ref<{ id: number; name: string }[]>([])
-const selectedRoleId = ref<number | null>(null)
+const roles = ref<{ name: string }[]>([])
+const selectedRoleName = ref<string | null>(null)
 const config = ref<IHomeConfig>(deepcopy(EMPTY_CONFIG))
 const staticPages = ref<{ id: number; name: string }[]>([])
 const staticPagesLoading = ref(false)
@@ -281,10 +281,10 @@ const homeTypeOptions = computed(() => [
 
 const roleOptions = computed(() => [
     { label: t('managers.homeManagement.defaultRole'), value: null },
-    ...roles.value.map((r) => ({ label: r.name, value: r.id }))
+    ...roles.value.map((r) => ({ label: r.name, value: r.name }))
 ])
 
-const isDefaultRole = computed(() => selectedRoleId.value === null)
+const isDefaultRole = computed(() => selectedRoleName.value === null)
 
 const docColumns = computed(() => [
     { name: 'DOCUMENT_LABEL', field: 'DOCUMENT_LABEL', label: t('common.label'), sortable: true, align: 'left' as const },
@@ -317,11 +317,11 @@ async function loadRoles() {
     }
 }
 
-async function loadConfig(roleId: number | null) {
+async function loadConfig(roleName: string | null) {
     loading.value = true
     dirty.value = false
     try {
-        const id = roleId === null ? 'default' : roleId
+        const id = roleName === null ? 'default' : encodeURIComponent(roleName)
         const res = await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/homepage/' + id)
         config.value = { ...deepcopy(EMPTY_CONFIG), ...res.data }
         if (!config.value.template) config.value.template = deepcopy(EMPTY_TEMPLATE)
@@ -334,7 +334,7 @@ async function loadConfig(roleId: number | null) {
         }
     } catch {
         config.value = deepcopy(EMPTY_CONFIG)
-        config.value.roleId = roleId
+        config.value.roleName = roleName
     } finally {
         loading.value = false
     }
@@ -382,7 +382,7 @@ async function resolveDocumentRouteType() {
     }
 }
 
-function onRoleChange(val: number | null) {
+function onRoleChange(val: string | null) {
     loadConfig(val)
 }
 
@@ -397,7 +397,7 @@ async function onDocumentSelect(_evt: any, row: any) {
 
 async function save() {
     try {
-        config.value.roleId = selectedRoleId.value
+        config.value.roleName = selectedRoleName.value
         const payload = deepcopy(config.value)
         if (payload.type !== 'dynamic') delete payload.template
         else if (payload.template) {
@@ -419,9 +419,9 @@ async function save() {
 }
 
 async function resetToDefault() {
-    if (selectedRoleId.value === null) return
+    if (selectedRoleName.value === null) return
     config.value = deepcopy(EMPTY_CONFIG)
-    config.value.roleId = selectedRoleId.value
+    config.value.roleName = selectedRoleName.value
     dirty.value = true
 }
 
