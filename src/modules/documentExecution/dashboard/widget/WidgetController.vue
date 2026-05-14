@@ -352,6 +352,10 @@ export default defineComponent({
             else quickWidgetCreateTableFromChart(this.widgetModel, this.dashboardId)
         },
         async widgetExport(type: string) {
+            if (type === 'spreadsheet' && this.widgetModel.type === 'static-pivot-table') {
+                emitter.emit('exportPivotWidget', { widgetId: this.widgetModel.id, filename: this.widgetModel.name ?? 'pivot-export' })
+                return
+            }
             this.setLoading(true)
             const widgetToExport = this.widgetModel.type === 'static-pivot-table' ? enrichPivotWidgetWithSortState(this.widgetModel) : this.widgetModel
             const body = createWidgetExportBody(type, widgetToExport, this.dashStore.$state.dashboards[this.dashboardId], this.document?.creationUser, this.locale)
