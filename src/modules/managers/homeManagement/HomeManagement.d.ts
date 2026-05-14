@@ -16,8 +16,8 @@ export interface IDynamicHomeTemplate {
 
 export interface IHomeConfig {
     /** null means this is the default config (no role selected) */
-    roleId: number | null
-    roleName?: string
+    roleName: string | null
+    roleId?: number | null
     type: HomeType
     /** static page: name/path of the HTML file in Tomcat resources */
     staticPage?: string

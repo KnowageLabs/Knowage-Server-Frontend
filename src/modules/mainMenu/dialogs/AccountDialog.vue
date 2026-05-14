@@ -103,7 +103,8 @@ function deleteAccount() {
         message: t('account.confirmDelete'),
         cancel: true,
         ok: t('common.yes'),
-        persistent: true
+        persistent: true,
+        style: 'z-index: 10001'
     }).onOk(() => {
         axios.post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/signup/delete?SBI_EXECUTION_ID=-1', account).then((response: any) => {
             if (response.data.errors) {

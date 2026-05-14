@@ -109,7 +109,7 @@
                 <span class="text-subtitle2 text-weight-medium">{{ $t('managers.homeManagement.dynamic.preview') }}</span>
                 <q-space />
                 <q-select
-                    v-model="viewAsRoleId"
+                    v-model="viewAsRoleName"
                     :options="roleOptions"
                     :label="$t('managers.homeManagement.dynamic.viewAs')"
                     emit-value map-options
@@ -178,8 +178,8 @@ import { IDynamicHomeTemplate, IMenuPlaceholderConfig, IMenuNode } from '../Home
 
 const props = defineProps<{
     modelValue: IDynamicHomeTemplate
-    roles: { id: number; name: string }[]
-    currentRoleId: number | null
+    roles: { name: string }[]
+    currentRoleName: string | null
 }>()
 
 const emit = defineEmits<{
@@ -200,7 +200,7 @@ const galleryLoading = ref(false)
 const galleryTemplates = ref<any[]>([])
 const pickerVisible = ref(false)
 const activePlaceholderIndex = ref<number | null>(null)
-const viewAsRoleId = ref<number | null>(props.currentRoleId)
+const viewAsRoleName = ref<string | null>(props.currentRoleName)
 const editorsExpanded = ref(true)
 
 const allMenuNodes = ref<IMenuNode[]>([])
@@ -208,7 +208,7 @@ const previewLoading = ref(false)
 
 const roleOptions = computed(() => [
     { label: t('managers.homeManagement.defaultRole'), value: null },
-    ...props.roles.map((r) => ({ label: r.name, value: r.id }))
+    ...props.roles.map((r) => ({ label: r.name, value: r.name }))
 ])
 
 const selectedPlaceholderSignature = computed(() =>
@@ -236,10 +236,10 @@ function applyIncomingTemplate(template?: IDynamicHomeTemplate) {
     menuPlaceholders.value = normalizedTemplate.menuPlaceholders
 }
 
-async function loadMenuAndFilter(roleId: number | null) {
+async function loadMenuAndFilter(roleName: string | null) {
     previewLoading.value = true
     try {
-        const roleSegment = roleId ?? 'default'
+        const roleSegment = roleName != null ? encodeURIComponent(roleName) : 'default'
         const res = await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/menu/preview/' + roleSegment)
         allMenuNodes.value = res.data
     } catch { /* no-op */ }
@@ -331,8 +331,8 @@ async function applyGalleryTemplate(tpl: any) {
 }
 
 // When "view as" role changes → reload/refilter with spinner
-watch(viewAsRoleId, (roleId) => {
-    loadMenuAndFilter(roleId)
+watch(viewAsRoleName, (roleName) => {
+    loadMenuAndFilter(roleName)
 })
 
 // Sync incoming modelValue changes
@@ -347,7 +347,7 @@ watch(
 watch(
     selectedPlaceholderSignature,
     (signature) => {
-        if (signature) loadMenuAndFilter(viewAsRoleId.value)
+        if (signature) loadMenuAndFilter(viewAsRoleName.value)
     },
     { immediate: true }
 )
