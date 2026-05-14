@@ -63,7 +63,6 @@ import DatasetEditorPreview from '../dataset/DatasetEditorDataTab/DatasetEditorP
 import { formatParameterForPreview } from '@/modules/documentExecution/dashboard/widget/interactionsHelpers/PreviewHelper'
 import { quickWidgetCreateChartFromTable, quickWidgetCreateTableFromChart } from './WidgetControllerHelpers'
 import { createWidgetExportBody } from '../helpers/DashboardExportHelper'
-import { enrichPivotWidgetWithSortState } from '@/modules/documentExecution/dashboard/widget/PivotWidget/PivotWidgetExportHelper'
 
 export default defineComponent({
     name: 'widget-manager',
@@ -357,7 +356,7 @@ export default defineComponent({
                 return
             }
             this.setLoading(true)
-            const widgetToExport = this.widgetModel.type === 'static-pivot-table' ? enrichPivotWidgetWithSortState(this.widgetModel) : this.widgetModel
+            const widgetToExport = this.widgetModel
             const body = createWidgetExportBody(type, widgetToExport, this.dashStore.$state.dashboards[this.dashboardId], this.document?.creationUser, this.locale)
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/dashboardExport/${type}`, body, {
