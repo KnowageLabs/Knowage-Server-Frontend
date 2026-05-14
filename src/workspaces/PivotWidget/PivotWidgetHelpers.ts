@@ -1,4 +1,4 @@
-import { IDataset, ISelection, IWidget, IWidgetCrossNavigation, IWidgetInteractionParameter } from '../../Dashboard'
+import { IDataset, ISelection, IWidget, IWidgetCrossNavigation, IWidgetInteractionParameter } from '@/modules/documentExecution/dashboard/Dashboard'
 
 interface ISelectionValue {
     columnName: string
