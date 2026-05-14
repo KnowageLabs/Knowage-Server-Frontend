@@ -95,7 +95,7 @@ const store = defineStore('store', {
             this.news = hasNews
         },
         setHomePage(homePage) {
-            this.homePage = homePage
+            this.homePage = { loading: false, ...(homePage || {}) }
         },
         setInternationalization(internationalization) {
             this.internationalization = internationalization

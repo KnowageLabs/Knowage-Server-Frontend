@@ -232,6 +232,9 @@ export default defineComponent({
                 return scriptURL
             }
         },
+        isExternalLibraryScript(scriptURL: string) {
+            return scriptURL.includes('/knowage-api/api/2.0/resources/external-libraries?libraryName=')
+        },
         async loadUserImportScript(scriptURL: string) {
             const resolvedURL = this.resolveScriptUrl(scriptURL)
             if (this.loadedScriptUrls.has(resolvedURL)) {
@@ -239,9 +242,15 @@ export default defineComponent({
                 return
             }
             try {
-                const response = await fetch(resolvedURL)
-                if (!response.ok) throw new Error(`HTTP ${response.status}`)
-                const scriptText = await response.text()
+                let scriptText = ''
+                if (this.isExternalLibraryScript(scriptURL)) {
+                    const response = await this.$http.get(resolvedURL, { responseType: 'text' })
+                    scriptText = response.data
+                } else {
+                    const response = await fetch(resolvedURL)
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+                    scriptText = await response.text()
+                }
                 const userImportScript = document.createElement('script')
                 userImportScript.text = scriptText
                 this.iframeDocument.body.appendChild(userImportScript)

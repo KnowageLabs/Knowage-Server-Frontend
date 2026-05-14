@@ -12,6 +12,7 @@ import dataPreparationRoutes from '@/modules/workspace/dataPreparation/DataPrepa
 import documentationRoutes from '@/components/documentation/Documentation.routes.js'
 import { loadLanguageAsync } from '@/App.i18n.js'
 import mainStore from '@/App.store'
+import { authReady } from '@/helpers/commons/authState'
 
 function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms))
@@ -88,14 +89,40 @@ router.beforeEach(async (to, from, next) => {
     const store = mainStore()
 
     const checkRequired = !('/' == to.fullPath && '/' == from.fullPath)
-    const loggedIn = localStorage.getItem('token')
+    const loggedIn = sessionStorage.getItem('token')
+
+    // Check custom session timeout before proceeding so that lastResponseTimestamp
+    // is not refreshed before the check runs.
+    if (loggedIn && !localStorage.getItem('public') && localStorage.getItem('lastResponseTimestamp')) {
+        const elapsed = Date.now() - Number(localStorage.getItem('lastResponseTimestamp'))
+        const timeout = Number(localStorage.getItem('sessionTimeoutMs') || import.meta.env.VITE_SESSION_TIMEOUT || 1800000)
+        if (timeout > 0 && elapsed >= timeout) {
+            sessionStorage.removeItem('token')
+            localStorage.removeItem('lastResponseTimestamp')
+            localStorage.removeItem('sessionTimeoutMs')
+            authHelper.logout()
+            return
+        }
+    }
 
     if (to.meta.hideMenu || (to.query.menu != 'undefined' && to.query.menu === 'false')) {
         store.hideMainMenu()
     } else store.showMainMenu()
 
     if (checkRequired && !to.meta.public && !loggedIn && !to.query.public) {
-        authHelper.handleUnauthorized()
+        if (from.name === undefined) {
+            // New tab: no token in sessionStorage yet — wait for App.vue to
+            // receive the /currentuser response and store the token, then
+            // re-evaluate rather than immediately redirecting to login.
+            await authReady
+            if (sessionStorage.getItem('token')) {
+                next()
+            } else {
+                authHelper.handleUnauthorized()
+            }
+        } else {
+            authHelper.handleUnauthorized()
+        }
     } else {
         if (to.meta?.functionality) {
             if (from.path === '/' && !store.user?.functionalities?.includes(to.meta?.functionality)) await sleep(1000)

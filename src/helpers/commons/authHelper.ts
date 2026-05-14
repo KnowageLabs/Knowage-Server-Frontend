@@ -4,6 +4,7 @@ export default {
     logout(): void {
         const store = mainStore()
         localStorage.clear()
+        sessionStorage.removeItem('token')
         store.storeClearIndexedDBCache()
         store.setUser({})
         const url = window.location.origin
@@ -12,6 +13,7 @@ export default {
     handleUnauthorized(): void {
         const store = mainStore()
         localStorage.clear()
+        sessionStorage.removeItem('token')
         store.setUser({})
         const url = window.location.origin
         let search = window.location.search ?? ''

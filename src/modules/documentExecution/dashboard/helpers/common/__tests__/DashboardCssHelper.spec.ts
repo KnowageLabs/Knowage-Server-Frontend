@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { composeCssWithHoistedImports, scopeDashboardCssToContainer } from '../DashboardCssHelper'
+import { composeCssWithHoistedImports, scopeDashboardCssToContainer, splitDashboardCssForContainer } from '../DashboardCssHelper'
 
 const normalizeCss = (css: string) => css.replace(/\s+/g, '').trim()
 
@@ -49,5 +49,18 @@ describe('scopeDashboardCssToContainer', () => {
         expect(normalizedResult).toContain(normalizeCss("@font-face { font-family: 'Demo'; src: url('demo.woff2'); }"))
         expect(normalizedResult).toContain(normalizeCss('@keyframes fade { from { opacity: 0; } to { opacity: 1; } }'))
         expect(normalizedResult).toContain(normalizeCss(`@media screen and (max-width: 600px) { ${scopeSelector} .module { display: flex; } ${scopeSelector} { padding: 0; } }`))
+    })
+})
+
+describe('splitDashboardCssForContainer', () => {
+    it('keeps imports separate from scoped dashboard css', () => {
+        const scopeSelector = '#dashboard_test .dashboard-renderer-container'
+        const dashboardCss = "@import url('https://fonts.example/dashboard.css');\n.container { color: white; }\nbody { margin: 0; }"
+
+        const result = splitDashboardCssForContainer(dashboardCss, scopeSelector)
+
+        expect(normalizeCss(result.imports)).toBe(normalizeCss("@import url('https://fonts.example/dashboard.css');"))
+        expect(normalizeCss(result.scopedCss)).toContain(normalizeCss(`${scopeSelector} .container { color: white; }`))
+        expect(normalizeCss(result.scopedCss)).toContain(normalizeCss(`${scopeSelector} { margin: 0; }`))
     })
 })
