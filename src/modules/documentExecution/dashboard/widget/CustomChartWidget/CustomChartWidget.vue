@@ -92,6 +92,7 @@ export default defineComponent({
         loadDriversToDatastore() {
             const formattedDrivers = this.getDashboardDrivers(this.dashboardId).reduce((acc: Record<string, any>, driver: any) => {
                 acc[driver.name] = driver.value
+                if (driver.description !== undefined) acc[`${driver.name}_description`] = driver.description
                 return acc
             }, {})
             this.datastore.setDrivers(formattedDrivers)
