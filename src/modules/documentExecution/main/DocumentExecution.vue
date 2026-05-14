@@ -136,7 +136,7 @@ import DashboardSaveViewDialog from '../dashboard/DashboardViews/DashboardSaveVi
 import DashboardSavedViewsDialog from '../dashboard/DashboardViews/DashboardSavedViewsDialog/DashboardSavedViewsDialog.vue'
 import DatasetEditorPreview from '../dashboard/dataset/DatasetEditorDataTab/DatasetEditorPreview.vue'
 import { createDashboardSpreadsheetExportBody } from '../dashboard/helpers/DashboardExportHelper'
-import { enrichDashboardBodyWithPivotSortState } from '@/workspaces/PivotWidget/PivotWidgetExportHelper'
+import { enrichDashboardBodyWithPivotSortState } from '@/modules/documentExecution/dashboard/widget/PivotWidget/PivotWidgetExportHelper'
 
 let seeAsFinalUserWarning
 // @ts-ignore

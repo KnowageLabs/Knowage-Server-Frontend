@@ -63,7 +63,7 @@ import DatasetEditorPreview from '../dataset/DatasetEditorDataTab/DatasetEditorP
 import { formatParameterForPreview } from '@/modules/documentExecution/dashboard/widget/interactionsHelpers/PreviewHelper'
 import { quickWidgetCreateChartFromTable, quickWidgetCreateTableFromChart } from './WidgetControllerHelpers'
 import { createWidgetExportBody } from '../helpers/DashboardExportHelper'
-import { enrichPivotWidgetWithSortState } from '@/workspaces/PivotWidget/PivotWidgetExportHelper'
+import { enrichPivotWidgetWithSortState } from '@/modules/documentExecution/dashboard/widget/PivotWidget/PivotWidgetExportHelper'
 
 export default defineComponent({
     name: 'widget-manager',
@@ -361,6 +361,16 @@ export default defineComponent({
                     headers: { Accept: 'text/html,application/xhtml+xml,application/xml;application/pdf;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9' }
                 })
                 .then((response) => {
+                    if (!response.headers['content-disposition']) {
+                        response.data.text().then((text) => {
+                            let message = text
+                            try {
+                                message = JSON.parse(text)?.message ?? text
+                            } catch {}
+                            this.setError({ title: this.$t('common.toast.errorTitle'), msg: message })
+                        })
+                        return
+                    }
                     downloadDirectFromResponse(response)
                 })
                 .finally(() => this.setLoading(false))
