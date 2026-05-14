@@ -1,4 +1,17 @@
 <template>
+    <q-dialog v-model="confirmDeleteVisible" :style="{ zIndex: 10001 }" persistent>
+        <q-card style="min-width: 300px">
+            <q-card-section>
+                <div class="text-h6">{{ $t('common.delete') }}</div>
+                <div class="q-mt-sm">{{ $t('account.confirmDelete') }}</div>
+            </q-card-section>
+            <q-card-actions align="right">
+                <q-btn flat :label="$t('common.cancel')" @click="confirmDeleteVisible = false" />
+                <q-btn flat color="negative" :label="$t('common.yes')" @click="onConfirmDelete" />
+            </q-card-actions>
+        </q-card>
+    </q-dialog>
+
     <q-dialog v-model="props.visible" :persistent="requiresPasswordChange" :style="{ zIndex: 10000 }">
         <q-card style="min-width: 400px">
             <q-card-section class="column items-center q-pb-none">
@@ -71,6 +84,7 @@ const publicPath = ref(import.meta.env.VITE_PUBLIC_PATH)
 
 const store = mainStore()
 const account: any = reactive({})
+const confirmDeleteVisible = ref(false)
 
 const props = defineProps<{
     visible: boolean
@@ -98,30 +112,26 @@ function closeDialog() {
 }
 
 function deleteAccount() {
-    $q.dialog({
-        title: 'Confirm',
-        message: t('account.confirmDelete'),
-        cancel: true,
-        ok: t('common.yes'),
-        persistent: true,
-        style: 'z-index: 10001'
-    }).onOk(() => {
-        axios.post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/signup/delete?SBI_EXECUTION_ID=-1', account).then((response: any) => {
-            if (response.data.errors) {
-                $q.notify({
-                    position: 'top',
-                    type: 'negative',
-                    message: t('account.error.notUpdated', { msg: response.data.errors[0].message })
-                })
-            } else {
-                $q.notify({
-                    position: 'top',
-                    type: 'info',
-                    message: t('account.info.deleted')
-                })
-                setTimeout(() => auth.logout(), 3000)
-            }
-        })
+    confirmDeleteVisible.value = true
+}
+
+function onConfirmDelete() {
+    confirmDeleteVisible.value = false
+    axios.post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/signup/delete?SBI_EXECUTION_ID=-1', account).then((response: any) => {
+        if (response.data.errors) {
+            $q.notify({
+                position: 'top',
+                type: 'negative',
+                message: t('account.error.notUpdated', { msg: response.data.errors[0].message })
+            })
+        } else {
+            $q.notify({
+                position: 'top',
+                type: 'info',
+                message: t('account.info.deleted')
+            })
+            setTimeout(() => auth.logout(), 3000)
+        }
     })
 }
 
