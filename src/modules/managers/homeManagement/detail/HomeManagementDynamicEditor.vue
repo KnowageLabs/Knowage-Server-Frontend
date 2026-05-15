@@ -290,7 +290,7 @@ function onPickerConfirm(ids: number[]) {
         ? menuPlaceholders.value.map((placeholder) => (placeholder.index === activePlaceholderIndex.value ? { ...placeholder, menuIds: ids } : placeholder))
         : [...menuPlaceholders.value, { index: activePlaceholderIndex.value, menuIds: ids }]
     emitChange()
-    loadMenuAndFilter(viewAsRoleId.value)
+    loadMenuAndFilter(viewAsRoleName.value)
 }
 
 function removePlaceholder(index: number) {

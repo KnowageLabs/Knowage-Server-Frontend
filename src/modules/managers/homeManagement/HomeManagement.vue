@@ -53,6 +53,7 @@
                                 :options="roleOptions"
                                 :label="$t('managers.homeManagement.role')"
                                 emit-value map-options
+                                multiple use-chips
                                 outlined dense
                                 options-dense
                                 :loading="loading"
@@ -153,7 +154,7 @@
                 v-if="config.type === 'dynamic'"
                 :model-value="config.template ?? EMPTY_TEMPLATE"
                 :roles="roles"
-                :current-role-name="selectedRoleName"
+                :current-role-name="selectedRoleName[0] ?? null"
                 @update:model-value="(val) => { config.template = val; dirty = true }"
             />
 
@@ -244,7 +245,7 @@ const EMPTY_CONFIG: IHomeConfig = { roleName: null, type: 'default', template: d
 const loading = ref(false)
 const dirty = ref(false)
 const roles = ref<{ name: string }[]>([])
-const selectedRoleName = ref<string | null>(null)
+const selectedRoleName = ref<(string | null)[]>([null])
 const config = ref<IHomeConfig>(deepcopy(EMPTY_CONFIG))
 const staticPages = ref<{ id: number; name: string }[]>([])
 const staticPagesLoading = ref(false)
@@ -284,7 +285,7 @@ const roleOptions = computed(() => [
     ...roles.value.map((r) => ({ label: r.name, value: r.name }))
 ])
 
-const isDefaultRole = computed(() => selectedRoleName.value === null)
+const isDefaultRole = computed(() => selectedRoleName.value.includes(null))
 
 const docColumns = computed(() => [
     { name: 'DOCUMENT_LABEL', field: 'DOCUMENT_LABEL', label: t('common.label'), sortable: true, align: 'left' as const },
@@ -382,8 +383,9 @@ async function resolveDocumentRouteType() {
     }
 }
 
-function onRoleChange(val: string | null) {
-    loadConfig(val)
+function onRoleChange(val: (string | null)[]) {
+    const first = val.length > 0 ? val[0] : null
+    loadConfig(first)
 }
 
 async function onDocumentSelect(_evt: any, row: any) {
@@ -397,20 +399,25 @@ async function onDocumentSelect(_evt: any, row: any) {
 
 async function save() {
     try {
-        config.value.roleName = selectedRoleName.value
-        const payload = deepcopy(config.value)
-        if (payload.type !== 'dynamic') delete payload.template
-        else if (payload.template) {
-            payload.template = normalizeDynamicHomeTemplate(payload.template)
-            if (payload.template.html) {
-                // Strip href from data-kn-menu anchors to avoid backend XSS URL validation
-                payload.template.html = stripHrefFromDynamicHomePlaceholders(payload.template.html)
-            }
-        }
-        if (payload.type !== 'static') delete payload.staticPage
-        if (payload.type !== 'document') { delete payload.documentId; delete payload.documentLabel; delete payload.documentRouteType }
-        if (payload.type !== 'image') delete payload.imageUrl
-        await axios.post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/homepage', payload)
+        const roleNames = selectedRoleName.value.length > 0 ? selectedRoleName.value : [null]
+        await Promise.all(
+            roleNames.map((roleName) => {
+                const payload = deepcopy(config.value)
+                payload.roleName = roleName
+                if (payload.type !== 'dynamic') delete payload.template
+                else if (payload.template) {
+                    payload.template = normalizeDynamicHomeTemplate(payload.template)
+                    if (payload.template.html) {
+                        // Strip href from data-kn-menu anchors to avoid backend XSS URL validation
+                        payload.template.html = stripHrefFromDynamicHomePlaceholders(payload.template.html)
+                    }
+                }
+                if (payload.type !== 'static') delete payload.staticPage
+                if (payload.type !== 'document') { delete payload.documentId; delete payload.documentLabel; delete payload.documentRouteType }
+                if (payload.type !== 'image') delete payload.imageUrl
+                return axios.post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/homepage', payload)
+            })
+        )
         store.setInfo({ title: t('managers.homeManagement.saveTitle'), msg: t('managers.homeManagement.saveSuccess') })
         dirty.value = false
     } catch {
@@ -419,9 +426,10 @@ async function save() {
 }
 
 async function resetToDefault() {
-    if (selectedRoleName.value === null) return
+    const nonDefaultRoles = selectedRoleName.value.filter((r) => r !== null)
+    if (nonDefaultRoles.length === 0) return
     config.value = deepcopy(EMPTY_CONFIG)
-    config.value.roleName = selectedRoleName.value
+    config.value.roleName = nonDefaultRoles[0] as string
     dirty.value = true
 }
 
@@ -447,7 +455,7 @@ watch(
 
 onMounted(async () => {
     await loadRoles()
-    await loadConfig(null)
+    await loadConfig(selectedRoleName.value[0] ?? null)
 })
 </script>
 
