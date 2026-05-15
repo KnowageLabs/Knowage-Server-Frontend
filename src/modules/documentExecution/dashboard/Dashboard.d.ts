@@ -525,6 +525,7 @@ export interface IWidgetColumn {
     drillOrder?: IDrillOrderItem
     orderColumn?: string
     orderType?: string
+    orderBySummaryPath?: any[]
     sort?: string
     serieType?: string
     axis?: string
