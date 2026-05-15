@@ -132,7 +132,7 @@ const onSubmit = async () => {
             password: password.value,
             confirmPassword: confirmPassword.value,
             captcha: captchaInput.value,
-            captchaContent: captchaContent.value
+            content: captchaContent.value
         })
 
         emit('success', t('common.loginPage.registrationSuccess'))
