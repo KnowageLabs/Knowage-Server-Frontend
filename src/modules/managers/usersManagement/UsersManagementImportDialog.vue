@@ -7,7 +7,7 @@
 
             <q-card-section>
                 <template v-if="phase === 'select'">
-                    <q-file v-model="selectedFile" :label="$t('managers.usersManagement.import.selectFile')" accept=".csv" outlined square dense>
+                    <q-file v-model="selectedFile" :label="$t('managers.usersManagement.import.selectFile')" accept=".csv,.xls,.xlsx" outlined square dense>
                         <template #prepend>
                             <q-icon name="attach_file" />
                         </template>
