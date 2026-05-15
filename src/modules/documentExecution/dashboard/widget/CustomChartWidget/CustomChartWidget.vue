@@ -35,7 +35,7 @@ export default defineComponent({
             htmlContent: '' as string,
             webComponentCss: '' as string,
             webComponentJs: '' as string,
-            datastore: new CustomChartDatastore(null),
+            datastore: new CustomChartDatastore(null, this.dashboardId ?? undefined),
             userScriptsURLs: [] as string[],
             iframeDocument: null as any,
             loadedScriptsCount: 0,
@@ -92,6 +92,7 @@ export default defineComponent({
         loadDriversToDatastore() {
             const formattedDrivers = this.getDashboardDrivers(this.dashboardId).reduce((acc: Record<string, any>, driver: any) => {
                 acc[driver.name] = driver.value
+                if (driver.description !== undefined) acc[`${driver.name}_description`] = driver.description
                 return acc
             }, {})
             this.datastore.setDrivers(formattedDrivers)
@@ -103,9 +104,6 @@ export default defineComponent({
         loadVariablesToDatastore() {
             this.datastore.setVariables(this.variables)
         },
-        loadSelectionsToDatastore() {
-            this.datastore.setCurrentSelections(this.activeSelections)
-        },
         loadWidgetState() {
             if (this.propWidget.state) this.datastore.state = this.propWidget.state
         },
@@ -114,7 +112,6 @@ export default defineComponent({
             if (this.widgetData) this.datastore.setData(this.widgetData)
             setTimeout(async () => {
                 await this.loadHTML()
-                this.loadSelectionsToDatastore()
             }, 250)
         },
         loadActiveSelections() {
