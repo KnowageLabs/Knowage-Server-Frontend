@@ -137,6 +137,7 @@ import DashboardSaveViewDialog from '../dashboard/DashboardViews/DashboardSaveVi
 import DashboardSavedViewsDialog from '../dashboard/DashboardViews/DashboardSavedViewsDialog/DashboardSavedViewsDialog.vue'
 import DatasetEditorPreview from '../dashboard/dataset/DatasetEditorDataTab/DatasetEditorPreview.vue'
 import { createDashboardSpreadsheetExportBody } from '../dashboard/helpers/DashboardExportHelper'
+import { enrichDashboardBodyWithPivotSortState } from '@/modules/documentExecution/dashboard/widget/PivotWidget/PivotWidgetExportHelper'
 
 let seeAsFinalUserWarning
 // @ts-ignore
@@ -721,6 +722,7 @@ export default defineComponent({
                 format = 'spreadsheet'
                 if (this.document.dashboardId && this.dashboards[this.document.dashboardId]) {
                     body = createDashboardSpreadsheetExportBody(this.dashboards[this.document.dashboardId])
+                    enrichDashboardBodyWithPivotSortState(body)
                 }
             }
 
