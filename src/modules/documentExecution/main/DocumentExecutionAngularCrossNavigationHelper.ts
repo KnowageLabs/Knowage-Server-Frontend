@@ -124,8 +124,12 @@ const formatNavigationParams = (vueComponent: any, otherOutputParameters: any[],
             const { mainValue, additionalParams } = parseCompoundNavigationValue(rawValue)
             formatedParams[label] = mainValue
             formatedParams[label + '_field_visible_description'] = mainValue
-            // Map additional params extracted from compound value to their target navigation keys
+            // Map additional params extracted from compound value to their target navigation keys.
+            // Prefer an explicit entry in otherOutputParameters over the compound-extracted value
+            // (e.g. when the user clicked a specific row among multiple selected rows).
             Object.entries(additionalParams).forEach(([k, v]) => {
+                const explicitEntry = otherOutputParameters.find((e: any) => Object.keys(e)[0] === k)
+                const valueToUse = explicitEntry !== undefined ? explicitEntry[k] : v
                 let additionalNavKey = ''
                 for (const navKey of Object.keys(navigationParams)) {
                     if (navigationParams[navKey].value.label === k) {
@@ -134,8 +138,8 @@ const formatNavigationParams = (vueComponent: any, otherOutputParameters: any[],
                     }
                 }
                 const targetKey = additionalNavKey || k
-                formatedParams[targetKey] = v
-                formatedParams[targetKey + '_field_visible_description'] = v
+                formatedParams[targetKey] = valueToUse
+                formatedParams[targetKey + '_field_visible_description'] = valueToUse
             })
         }
     })
@@ -176,8 +180,11 @@ const addDocumentOtherParametersToNavigationParamas = (vueComponent: any, naviga
             const rawValue = angularData.outputParameters[tempKey]
             const { mainValue, additionalParams } = parseCompoundNavigationValue(rawValue)
             navigationParams[newKey] = mainValue
-            // Also propagate any additional params embedded in the compound value
+            // Also propagate any additional params embedded in the compound value.
+            // Prefer an explicit key in outputParameters over the compound-extracted value
+            // (e.g. when the user clicked a specific row among multiple selected rows).
             Object.entries(additionalParams).forEach(([k, v]) => {
+                const explicitValue = k in angularData.outputParameters ? angularData.outputParameters[k] : v
                 let additionalNavKey = ''
                 for (const navKey of documentNavigationParamsKeys) {
                     if (crossNavigationDocument.navigationParams[navKey].value?.label === k) {
@@ -185,7 +192,7 @@ const addDocumentOtherParametersToNavigationParamas = (vueComponent: any, naviga
                         break
                     }
                 }
-                navigationParams[additionalNavKey || k] = v
+                navigationParams[additionalNavKey || k] = explicitValue
             })
         }
     }

@@ -358,6 +358,7 @@ export default defineComponent({
         }
     },
     async activated() {
+        window.addEventListener('message', this.iframeEventsListener)
         if (this.mode === 'iframe' && this.$route.name !== 'new-dashboard') this.userRole ? await this.loadPage(true) : (this.parameterSidebarVisible = true)
     },
     deactivated() {
@@ -504,6 +505,10 @@ export default defineComponent({
                 .catch(() => {})
         },
         async iframeEventsListener(event) {
+            if (!this.document) {
+                console.error('iframeEventsListener: this.document is null')
+                return
+            }
             if (event.data.type === 'crossNavigation') {
                 let crossNavigation = {} as any
                 await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/crossNavigation/${this.document.label}/loadCrossNavigationByDocument`).then((response: AxiosResponse<any>) => {
