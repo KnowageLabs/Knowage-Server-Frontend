@@ -186,7 +186,7 @@ export default defineComponent({
                         this.$http
                             .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/serverManager/importExport/menu/importMenuInDB', {
                                 rolesFromFile: this.importData.roles.exportedRoles,
-                                obj: [],
+                                obj: this.importData.objects.exportedObjects,
                                 overwrite: false,
                                 tree: this.exportedMenuTree
                             })
