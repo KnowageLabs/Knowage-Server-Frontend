@@ -400,7 +400,7 @@ export default defineComponent({
                 this.getDocumentNameByID(menuNode.objId)
             }
 
-            if (menuNode.custIcon != null) {
+            if (menuNode.custIcon) {
                 //var base64regex = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
                 this.selectedIcon = menuNode.custIcon.src || undefined
             } else if (menuNode.icon != null) {
@@ -408,16 +408,16 @@ export default defineComponent({
             } else {
                 this.selectedIcon = undefined
             }
-            if (this.menuNode.functionality != null) {
+            if (this.menuNode.functionality) {
                 this.menuNode.menuNodeContent = 4
                 this.toggleFunctionality()
-            } else if (this.menuNode.externalApplicationUrl != null) {
+            } else if (this.menuNode.externalApplicationUrl) {
                 this.menuNode.menuNodeContent = 2
                 this.toggleExternalApp()
-            } else if (this.menuNode.objId != null) {
+            } else if (this.menuNode.objId) {
                 this.menuNode.menuNodeContent = 1
                 this.toggleDocument()
-            } else if (this.menuNode.staticPage != null && this.menuNode.staticPage != '') {
+            } else if (this.menuNode.staticPage) {
                 this.menuNode.menuNodeContent = 3
                 this.toggleStaticPage()
             } else {
