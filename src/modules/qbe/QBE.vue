@@ -1102,8 +1102,7 @@ export default defineComponent({
             const actualDropIndex = this.selectedQuery.fields.indexOf(dropField)
 
             const [removed] = this.selectedQuery.fields.splice(actualDragIndex, 1)
-            const adjustedDropIndex = actualDropIndex > actualDragIndex ? actualDropIndex - 1 : actualDropIndex
-            this.selectedQuery.fields.splice(adjustedDropIndex, 0, removed)
+            this.selectedQuery.fields.splice(actualDropIndex, 0, removed)
 
             this.updateSmartView()
         },
