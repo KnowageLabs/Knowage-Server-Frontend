@@ -1,65 +1,75 @@
 <template>
-    <DataTable
-        v-if="previewData != null"
-        class="qbe-smart-table"
-        :first="first"
-        :value="previewData.rows"
-        :scrollable="true"
-        scroll-height="flex"
-        scroll-direction="both"
-        :resizable-columns="true"
-        :reorderable-columns="true"
-        :row-hover="true"
-        column-resize-mode="expand"
-        :paginator="true"
-        :lazy="true"
-        :rows="25"
-        :total-records="lazyParams.size"
-        :current-page-report-template="
-            $t('common.table.footer.paginated', {
-                first: '{first}',
-                last: '{last}',
-                totalRecords: '{totalRecords}'
-            })
-        "
-        striped-rows
-        show-gridlines
-        @page="onPage($event)"
-        @column-reorder="$emit('reordered', $event)"
-        @drop.stop="onDrop($event)"
-        @dragover.prevent
-        @dragenter.prevent
-    >
-        <template #empty>
-            <div id="noFunctionsFound">
-                {{ $t('common.info.noDataFound') }}
+    <div class="qbe-quasar-section" @drop.stop="onDrop($event)" @dragover.prevent @dragenter.prevent>
+        <template v-if="previewData != null">
+            <q-table class="qbe-quasar-table" flat dense bordered separator="cell" :columns="quasarColumns" :rows="previewData.rows || []" row-key="id" hide-pagination v-model:pagination="qPagination" @request="onQPageRequest" square>
+                <template #no-data>
+                    <div class="full-width text-center q-pa-sm">{{ $t('common.info.noDataFound') }}</div>
+                </template>
+                <template #header="props">
+                    <q-tr :props="props">
+                        <q-th v-for="col in props.cols" :key="col.name" :props="props" class="qbe-q-th" :class="qColDropClass(col)" draggable="true" @dragstart="onQColDragStart($event, col)" @dragover.prevent @dragenter.prevent="onQColDragEnter($event, col)" @dragleave="onQColDragLeave($event, col)" @drop.stop="onQColDrop($event, col)" @dragend="onQColDragEnd()">
+                            <div class="qbe-q-custom-header">
+                                <div class="qbe-q-color-bar" :style="`background-color: ${col._col.color}`" :title="col._col.entity"></div>
+                                <div class="qbe-q-header-row">
+                                    <i class="fas fa-sort p-ml-2" @click.stop="changeOrder(col._col)">
+                                        <q-tooltip anchor="bottom middle" self="top middle">{{ $t('qbe.detailView.smartViewMenu.sorting') }}</q-tooltip>
+                                    </i>
+                                    <span class="p-mx-2 kn-truncated"
+                                        >{{ col.label }}
+                                        <q-tooltip anchor="bottom middle" self="top middle">{{ col.label }}</q-tooltip>
+                                    </span>
+                                    <i class="fas fa-cog p-ml-auto" @click.stop="showMenu($event, col._col)">
+                                        <q-tooltip anchor="bottom middle" self="top middle">{{ $t('qbe.detailView.smartViewMenu.colset') }}</q-tooltip>
+                                    </i>
+                                    <i class="fas fa-filter p-mx-2" :class="{ 'qbe-active-filter-icon': fieldHasFilters(col._col) }" @click.stop="openFiltersDialog(col._col)">
+                                        <q-tooltip anchor="bottom middle" self="top middle">{{ $t('qbe.detailView.smartViewMenu.colfil') }}</q-tooltip>
+                                    </i>
+                                    <i class="fas fa-times p-mr-2" @click.stop="$emit('removeFieldFromQuery', col._col.uniqueID)">
+                                        <q-tooltip anchor="bottom middle" self="top middle">{{ $t('qbe.detailView.smartViewMenu.coldel') }}</q-tooltip>
+                                    </i>
+                                </div>
+                            </div>
+                        </q-th>
+                    </q-tr>
+                </template>
+                <template #body="props">
+                    <q-tr :props="props">
+                        <q-td v-for="col in props.cols" :key="col.name" :props="props" class="kn-truncated" style="height: 20px">
+                            <span v-if="typeof props.row[col.field] === 'number' && props.row[col.field]">
+                                {{ getFormattedNumber(col._col, props.row[col.field]) }}
+                                <q-tooltip>{{ props.row[col.field] }}</q-tooltip>
+                            </span>
+                            <span v-else-if="previewData?.metaData?.fields[col._index + 1]?.type === 'date' && col._col.type !== 'inline.calculated.field'"
+                                >{{ getFormattedDate(props.row[col.field], previewData.metaData.fields[col._index + 1].metawebDateFormat, 'dd/MM/yyyy') }}
+                                <q-tooltip anchor="bottom middle" self="top middle">{{ getFormattedDate(props.row[col.field], previewData.metaData.fields[col._index + 1].metawebDateFormat, 'dd/MM/yyyy') }}</q-tooltip>
+                            </span>
+                            <span v-else-if="previewData?.metaData?.fields[col._index + 1]?.type === 'date' && col._col.type === 'inline.calculated.field'"
+                                >{{ getFormattedDate(props.row[col.field], col._col.id.format, 'dd/MM/yyyy') }}
+                                <q-tooltip anchor="bottom middle" self="top middle">{{ getFormattedDate(props.row[col.field], col._col.id.format, 'dd/MM/yyyy') }}</q-tooltip>
+                            </span>
+                            <span v-else-if="previewData?.metaData?.fields[col._index + 1]?.type === 'timestamp' && col._col.type !== 'inline.calculated.field'"
+                                >{{ getFormattedDate(props.row[col.field], previewData.metaData.fields[col._index + 1].metawebDateFormat, 'dd/MM/yyyy HH:mm:ss.SSS') }}
+                                <q-tooltip anchor="bottom middle" self="top middle">{{ getFormattedDate(props.row[col.field], previewData.metaData.fields[col._index + 1].metawebDateFormat, 'dd/MM/yyyy HH:mm:ss.SSS') }}</q-tooltip>
+                            </span>
+                            <span v-else-if="previewData?.metaData?.fields[col._index + 1]?.type === 'timestamp' && col._col.type === 'inline.calculated.field'"
+                                >{{ getFormattedDate(props.row[col.field], col._col.id.format, 'dd/MM/yyyy HH:mm:ss.SSS') }}
+                                <q-tooltip anchor="bottom middle" self="top middle">{{ getFormattedDate(props.row[col.field], col._col.id.format, 'dd/MM/yyyy HH:mm:ss.SSS') }}</q-tooltip>
+                            </span>
+                            <span v-else
+                                >{{ props.row[col.field] }}
+                                <q-tooltip anchor="bottom middle" self="top middle">{{ props.row[col.field] }}</q-tooltip>
+                            </span>
+                        </q-td>
+                    </q-tr>
+                </template>
+            </q-table>
+            <div class="qbe-paginator-bar row items-center justify-center q-py-xs q-px-md">
+                <span class="text-body2 q-mr-sm">{{ paginatorLabel }}</span>
+                <q-pagination v-model="qPagination.page" :max="totalPages" :max-pages="6" boundary-links direction-links dense color="grey-8" @update:model-value="onPaginatorPageChange" />
             </div>
         </template>
-        <Column v-for="(col, index) of filteredVisibleFields" :key="index" class="kn-truncated" :hidden="!col.visible" :field="`column_${index + 1}`" :style="qbeSimpleTableDescriptor.style.column">
-            <template #header>
-                <div class="customHeader">
-                    <div class="qbeCustomTopColor" :style="`background-color: ${col.color}`" :title="col.entity"></div>
-                    <div class="qbeHeaderContainer">
-                        <i v-tooltip.bottom="$t(`qbe.detailView.smartViewMenu.sorting`)" class="fas fa-sort p-ml-2" :data-test="'change-order-' + col.alias" @click="changeOrder(col)" />
-                        <span v-tooltip.bottom="col.alias" class="p-mx-2 kn-truncated">{{ col.alias }}</span>
-                        <i v-tooltip.bottom="$t(`qbe.detailView.smartViewMenu.colset`)" class="fas fa-cog p-ml-auto" @click="showMenu($event, col)" />
-                        <i v-tooltip.bottom="$t(`qbe.detailView.smartViewMenu.colfil`)" class="fas fa-filter p-mx-2" :class="{ 'qbe-active-filter-icon': fieldHasFilters(col) }" @click="openFiltersDialog(col)" />
-                        <i v-tooltip.bottom="$t(`qbe.detailView.smartViewMenu.coldel`)" class="fas fa-times p-mr-2" :data-test="'delete-column-' + col.alias" @click="$emit('removeFieldFromQuery', col.uniqueID)" />
-                    </div>
-                </div>
-            </template>
-            <template #body="slotProps">
-                <span v-if="typeof slotProps.data[`column_${index + 1}`] === 'number' && slotProps.data[`column_${index + 1}`]" v-tooltip="{ value: slotProps.data[`column_${index + 1}`] }"> {{ getFormattedNumber(col, slotProps.data[`column_${index + 1}`]) }}</span>
-                <span v-else-if="previewData?.metaData?.fields[index + 1]?.type === 'date' && col.type != 'inline.calculated.field'">{{ getFormattedDate(slotProps.data[`column_${index + 1}`], previewData.metaData.fields[index + 1].metawebDateFormat, 'dd/MM/yyyy') }} </span>
-                <span v-else-if="previewData?.metaData?.fields[index + 1]?.type === 'date' && col.type == 'inline.calculated.field'">{{ getFormattedDate(slotProps.data[`column_${index + 1}`], col.id.format, 'dd/MM/yyyy') }} </span>
-                <span v-else-if="previewData?.metaData?.fields[index + 1]?.type === 'timestamp' && col.type != 'inline.calculated.field'">{{ getFormattedDate(slotProps.data[`column_${index + 1}`], previewData.metaData.fields[index + 1].metawebDateFormat, 'dd/MM/yyyy HH:mm:ss.SSS') }} </span>
-                <span v-else-if="previewData?.metaData?.fields[index + 1]?.type === 'timestamp' && col.type == 'inline.calculated.field'">{{ getFormattedDate(slotProps.data[`column_${index + 1}`], col.id.format, 'dd/MM/yyyy HH:mm:ss.SSS') }} </span>
-                <span v-else v-tooltip.bottom="slotProps.data[`column_${index + 1}`]">{{ slotProps.data[`column_${index + 1}`] }}</span>
-            </template>
-        </Column>
-    </DataTable>
-
-    <div v-else class="kn-height-full kn-width-full" @drop="onDrop($event)" @dragover.prevent @dragenter.prevent>{{ $t('common.info.noDataFound') }}</div>
+        <div v-else class="kn-height-full kn-width-full">{{ $t('common.info.noDataFound') }}</div>
+    </div>
 
     <Dialog v-if="aliasDialogVisible" class="qbe-smart-table-alias-dialog" :visible="aliasDialogVisible" :modal="true" :closable="false" :base-z-index="1" :auto-z-index="true">
         <template #header>
@@ -86,34 +96,54 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
 import Menu from 'primevue/contextmenu'
 import Dialog from 'primevue/dialog'
-import qbeSimpleTableDescriptor from './QBESmartTableDescriptor.json'
 import { formatDateLuxon, getLocale } from '@/helpers/commons/localeHelper'
 import { formatNumber } from '@/helpers/commons/qbeHelpers'
 
 export default defineComponent({
     name: 'qbe-simple-table',
-    components: { Column, DataTable, Menu, Dialog },
+    components: { Menu, Dialog },
     props: { previewData: { type: Object, required: true }, query: { type: Object, required: true }, pagination: { type: Object } },
     emits: ['removeFieldFromQuery', 'orderChanged', 'fieldHidden', 'fieldGrouped', 'fieldAggregated', 'aliasChanged', 'entityDropped', 'reordered', 'pageChanged', 'openFilterDialog'],
     data() {
         return {
-            qbeSimpleTableDescriptor,
             aliasDialogVisible: false,
             alias: '',
             menuButtons: [] as any,
-            lazyParams: {} as any,
             selectedField: {} as any,
-            first: 0
+            qDraggedColIndex: null as number | null,
+            qDragOverColIndex: null as number | null,
+            qPagination: { page: 1, rowsPerPage: 25, rowsNumber: 0 } as any
         }
     },
     computed: {
         filteredVisibleFields(): any {
             const newArr = this.query?.fields?.filter((field) => field.visible === true && field.inUse === true)
             return newArr
+        },
+        quasarColumns(): any[] {
+            return (this.filteredVisibleFields || []).map((col: any, index: number) => ({
+                name: col.uniqueID,
+                label: col.alias,
+                field: `column_${index + 1}`,
+                align: 'left',
+                sortable: false,
+                _col: col,
+                _index: index
+            }))
+        },
+        paginatorLabel(): string {
+            const rpp = this.qPagination.rowsPerPage
+            const page = this.qPagination.page
+            const total = this.qPagination.rowsNumber
+            if (!total) return '0-0 of 0'
+            const start = (page - 1) * rpp + 1
+            const end = Math.min(page * rpp, total)
+            return `${start}-${end} of ${total}`
+        },
+        totalPages(): number {
+            return Math.max(1, Math.ceil(this.qPagination.rowsNumber / this.qPagination.rowsPerPage))
         }
     },
     watch: {
@@ -182,16 +212,18 @@ export default defineComponent({
             this.$emit('aliasChanged', this.selectedField)
         },
         onDrop(event) {
-            const data = JSON.parse(event.dataTransfer.getData('text/plain'))
-            this.$emit('entityDropped', data)
+            try {
+                const data = JSON.parse(event.dataTransfer.getData('text/plain'))
+                this.$emit('entityDropped', data)
+            } catch (_) {
+                // Not a QBE entity drop
+            }
         },
         loadPagination() {
-            this.lazyParams = this.pagination as any
-            this.first = this.pagination?.start
-        },
-        onPage(event: any) {
-            this.lazyParams = { paginationStart: event.first, paginationLimit: event.rows, paginationEnd: event.first + event.rows, size: this.lazyParams.size }
-            this.$emit('pageChanged', this.lazyParams)
+            const rowsPerPage = this.qPagination.rowsPerPage || 25
+            const start = (this.pagination as any)?.start || 0
+            this.qPagination.rowsNumber = (this.pagination as any)?.size || 0
+            this.qPagination.page = Math.floor(start / rowsPerPage) + 1
         },
         fieldHasFilters(field: any) {
             for (let i = 0; i < this.query.filters.length; i++) {
@@ -218,6 +250,55 @@ export default defineComponent({
             if (!date) return null
             return formatDateLuxon(date, output, input)
         },
+        onQColDragStart(event: DragEvent, col: any) {
+            this.qDraggedColIndex = this.quasarColumns.findIndex((c) => c.name === col.name)
+            event.dataTransfer!.effectAllowed = 'move'
+            event.dataTransfer!.setData('text/plain', 'col-reorder')
+        },
+        onQColDrop(_event: DragEvent, dropCol: any) {
+            if (this.qDraggedColIndex === null) return
+            const dropIndex = this.quasarColumns.findIndex((c) => c.name === dropCol.name)
+            if (this.qDraggedColIndex !== dropIndex) {
+                this.$emit('reordered', { dragIndex: this.qDraggedColIndex, dropIndex })
+            }
+            this.qDraggedColIndex = null
+            this.qDragOverColIndex = null
+        },
+        onQColDragEnd() {
+            this.qDraggedColIndex = null
+            this.qDragOverColIndex = null
+        },
+        onQColDragEnter(_event: DragEvent, col: any) {
+            if (this.qDraggedColIndex === null) return
+            this.qDragOverColIndex = this.quasarColumns.findIndex((c) => c.name === col.name)
+        },
+        onQColDragLeave(event: DragEvent, col: any) {
+            const th = event.currentTarget as Element
+            if (!th.contains(event.relatedTarget as Node)) {
+                const idx = this.quasarColumns.findIndex((c) => c.name === col.name)
+                if (this.qDragOverColIndex === idx) this.qDragOverColIndex = null
+            }
+        },
+        qColDropClass(col: any) {
+            if (this.qDragOverColIndex === null || this.qDraggedColIndex === null) return {}
+            const idx = this.quasarColumns.findIndex((c) => c.name === col.name)
+            if (idx !== this.qDragOverColIndex || idx === this.qDraggedColIndex) return {}
+            return this.qDraggedColIndex > idx ? { 'qbe-q-th--drop-left': true } : { 'qbe-q-th--drop-right': true }
+        },
+        onQPageRequest(requestProps: any) {
+            const { page, rowsPerPage } = requestProps.pagination
+            const start = (page - 1) * rowsPerPage
+            this.$emit('pageChanged', { paginationStart: start, paginationLimit: rowsPerPage, paginationEnd: start + rowsPerPage, size: this.qPagination.rowsNumber })
+        },
+        triggerPageChange(page: number) {
+            const rowsPerPage = this.qPagination.rowsPerPage
+            const start = (page - 1) * rowsPerPage
+            this.qPagination.page = page
+            this.$emit('pageChanged', { paginationStart: start, paginationLimit: rowsPerPage, paginationEnd: start + rowsPerPage, size: this.qPagination.rowsNumber })
+        },
+        onPaginatorPageChange(page: number) {
+            this.triggerPageChange(page)
+        },
         setDateFormatsForPreviewData() {
             if (!this.previewData?.metaData?.fields) return
 
@@ -240,46 +321,6 @@ export default defineComponent({
 })
 </script>
 <style lang="scss">
-.qbe-smart-table {
-    th {
-        padding: 0 !important;
-        border-bottom: 1px solid #a9a9a9 !important;
-        .p-column-header-content {
-            flex: 1;
-            min-width: 0;
-        }
-    }
-    td {
-        height: 20px;
-    }
-    .customHeader {
-        width: 100%;
-        flex-direction: column;
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        .qbeCustomTopColor {
-            width: 100%;
-            height: 5px;
-        }
-        .qbeHeaderContainer {
-            width: 100%;
-            display: flex;
-            justify-content: flex-start;
-            align-items: baseline;
-            color: #707171;
-        }
-        i {
-            transition: color 0.3s ease-out;
-            line-height: 24px;
-            cursor: pointer;
-            margin: 0;
-            &:hover {
-                color: #bbd6ed;
-            }
-        }
-    }
-}
 .qbe-smart-table-alias-dialog .p-dialog-header,
 .qbe-smart-table-alias-dialog .p-dialog-content {
     padding: 0;
@@ -288,5 +329,119 @@ export default defineComponent({
 
 .qbe-active-filter-icon {
     color: red !important;
+}
+
+.qbe-quasar-section {
+    border-top: 2px solid #a9a9a9;
+    position: absolute;
+    top: 8px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.qbe-paginator-bar {
+    flex-shrink: 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+    background: white;
+    min-height: 40px;
+
+    .q-btn {
+        color: rgba(0, 0, 0, 0.54);
+    }
+}
+
+.qbe-quasar-table {
+    flex: 1;
+    min-height: 0;
+    border: none !important;
+
+    .q-table__middle {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+    }
+
+    .q-table__bottom {
+        display: none;
+    }
+
+    thead tr th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: white;
+    }
+
+    .q-table tbody tr:nth-child(even) td {
+        background-color: rgba(0, 0, 0, 0.04);
+    }
+
+    .qbe-q-th {
+        padding: 0 !important;
+        min-width: 170px;
+        max-width: 170px;
+        border-bottom: 1px solid #a9a9a9 !important;
+        cursor: grab;
+        user-select: none;
+
+        &:active {
+            cursor: grabbing;
+        }
+
+        &.qbe-q-th--drop-left {
+            border-left: 3px solid #1976d2 !important;
+            background-color: rgba(25, 118, 210, 0.08);
+        }
+
+        &.qbe-q-th--drop-right {
+            border-right: 3px solid #1976d2 !important;
+            background-color: rgba(25, 118, 210, 0.08);
+        }
+    }
+
+    .q-table tbody td {
+        max-width: 170px;
+        min-width: 170px;
+        height: 20px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .qbe-q-custom-header {
+        width: 100%;
+        flex-direction: column;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+
+        .qbe-q-color-bar {
+            width: 100%;
+            height: 5px;
+        }
+
+        .qbe-q-header-row {
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+            align-items: baseline;
+            color: #707171;
+        }
+
+        i {
+            transition: color 0.3s ease-out;
+            line-height: 24px;
+            cursor: pointer;
+            margin: 0;
+
+            &:hover {
+                color: #bbd6ed;
+            }
+        }
+    }
 }
 </style>
