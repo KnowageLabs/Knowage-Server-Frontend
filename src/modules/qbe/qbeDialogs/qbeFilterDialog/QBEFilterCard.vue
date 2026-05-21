@@ -281,6 +281,7 @@ export default defineComponent({
 
                     this.filter.hasParam = false
                     this.filter.paramName = ''
+                    await this.loadFilterValues()
                     break
                 case 'anotherEntity':
                     this.filter.rightOperandType = 'Field Content'
@@ -345,11 +346,7 @@ export default defineComponent({
                 this.firstOperand = ''
                 this.secondOperand = ''
                 this.multiManualValues = []
-                this.formatFilter()
-
-                if (this.filter.rightType === 'valueOfField') {
-                    await this.loadFilterValues()
-                }
+                await this.formatFilter()
             }
         },
         resetFilterRightOperandValues() {
