@@ -4,7 +4,7 @@
             <GlossaryDefinitionInfoDialog v-show="infoDialogVisible" :visible="infoDialogVisible" :content-info="contentInfo" @close="infoDialogVisible = false"></GlossaryDefinitionInfoDialog>
 
             <div class="p-col-8 p-sm-8 p-md-9 p-p-0 p-m-0 kn-page">
-                <GlossaryDefinitionDetail :reload-tree="reloadTree" @infoClicked="showInfo" @addWord="editWord(-1, $event)"></GlossaryDefinitionDetail>
+                <GlossaryDefinitionDetail :reload-tree="reloadTree" :dragging="dragging" @infoClicked="showInfo" @addWord="editWord(-1, $event)"></GlossaryDefinitionDetail>
             </div>
 
             <div class="kn-list--column kn-list-border-left p-col-4 p-sm-4 p-md-3 p-p-0">
@@ -17,20 +17,10 @@
                     </template>
                 </Toolbar>
                 <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
-                <Listbox
-                    v-if="!loading"
-                    class="kn-list--column"
-                    :options="wordsList"
-                    :filter="true"
-                    :filter-placeholder="$t('common.search')"
-                    filter-match-mode="contains"
-                    :filter-fields="glossaryDefinitionDescriptor.filterFields"
-                    :empty-filter-message="$t('common.info.noDataFound')"
-                    data-test="words-list"
-                >
+                <Listbox v-if="!loading" class="kn-list--column" :options="wordsList" :filter="true" :filter-placeholder="$t('common.search')" filter-match-mode="contains" :filter-fields="glossaryDefinitionDescriptor.filterFields" :empty-filter-message="$t('common.info.noDataFound')" data-test="words-list">
                     <template #empty>{{ $t('common.info.noDataFound') }}</template>
                     <template #option="slotProps">
-                        <div class="kn-list-item kn-draggable" draggable="true" data-test="list-item" @dragstart="onDragStart($event, slotProps.option)">
+                        <div class="kn-list-item kn-draggable" draggable="true" data-test="list-item" @dragstart="onDragStart($event, slotProps.option)" @dragend="dragging = false">
                             <i class="pi pi-bars"></i>
                             <div class="kn-list-item-text" @click.stop="editWord(slotProps.option.WORD_ID)">
                                 <span>{{ slotProps.option.WORD }}</span>
@@ -83,7 +73,8 @@ export default defineComponent({
             user: {} as any,
             reloadTree: false,
             loading: false,
-            editWordDialogVisible: false
+            editWordDialogVisible: false,
+            dragging: false
         }
     },
     async created() {
@@ -139,8 +130,8 @@ export default defineComponent({
         },
         onDragStart(event: any, word: iWord) {
             event.dataTransfer.setData('text/plain', JSON.stringify(word))
-            event.dataTransfer.dropEffect = 'move'
             event.dataTransfer.effectAllowed = 'move'
+            this.dragging = true
         },
         async editWord(id: number, event: any) {
             if (id != -1) {
