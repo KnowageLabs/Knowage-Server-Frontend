@@ -102,14 +102,22 @@ export default defineComponent({
     watch: {
         selectedDatasetProp() {
             this.selectedDataset = this.selectedDatasetProp
+            this.initParameterDefaults()
             this.loadDrivers()
         }
     },
     async created() {
         this.selectedDataset = this.selectedDatasetProp
+        this.initParameterDefaults()
         this.loadDrivers()
     },
     methods: {
+        initParameterDefaults() {
+            this.selectedDataset?.parameters?.forEach((parameter: any) => {
+                if (!parameter.modelType) parameter.modelType = 'static'
+                if (parameter.value === undefined || parameter.value === null) parameter.value = parameter.defaultValue ?? ''
+            })
+        },
         loadDrivers() {
             if (!this.selectedDataset.formattedDrivers) {
                 this.selectedDataset.formattedDrivers = this.selectedDataset && this.selectedDataset.drivers ? (getFormattedDatasetDrivers(this.selectedDataset) as IDashboardDatasetDriver[]) : []

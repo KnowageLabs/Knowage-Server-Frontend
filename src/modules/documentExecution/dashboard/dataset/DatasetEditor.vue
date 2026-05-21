@@ -121,14 +121,16 @@ export default defineComponent({
         },
         setDatasetParametersFromModel() {
             this.selectedDatasets.forEach((dataset) => {
-                if (dataset.parameters.length > 0 && dataset.modelParams.length > 0) {
+                if (dataset.parameters.length > 0) {
                     dataset.parameters.forEach((parameter) => {
-                        dataset.modelParams.forEach((modelParam) => {
-                            if (parameter.name === modelParam.name) {
-                                parameter.value = modelParam.value
-                                parameter.modelType = modelParam.type
-                            }
-                        })
+                        const modelParam = dataset.modelParams?.find((mp) => mp.name === parameter.name)
+                        if (modelParam) {
+                            parameter.value = modelParam.value
+                            parameter.modelType = modelParam.type
+                        } else {
+                            parameter.value = parameter.defaultValue ?? ''
+                            parameter.modelType = 'static'
+                        }
                     })
                 }
             })
@@ -223,8 +225,6 @@ export default defineComponent({
             this.$emit('datasetEditorSaved')
         },
         formatDatasetForModel(datasetToFormat) {
-            console.log('Formatting dataset for model:', datasetToFormat)
-            console.log('datasetToFormat.parameters', datasetToFormat.parameters)
             const formattedDataset = {
                 id: datasetToFormat.id.dsId,
                 dsLabel: datasetToFormat.label,
@@ -257,8 +257,6 @@ export default defineComponent({
 
             newDatasets.forEach((newDataset) => {
                 const originalDataset = this.initialDatasetsSnapshot.find((orig) => orig.id === newDataset.id)
-
-                console.log('Comparing datasets:', newDataset, 'with original:', originalDataset)
 
                 if (originalDataset) {
                     const originalParams = JSON.stringify(originalDataset.parameters?.sort((a, b) => a.name.localeCompare(b.name)) || [])
