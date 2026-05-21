@@ -274,7 +274,8 @@ export default defineComponent({
             /* CONST */
             DERIVED_CONST: 'Derived',
             showWarning: false as boolean,
-            correctRolesForExecution: null as string[] | null
+            correctRolesForExecution: null as string[] | null,
+            componentActive: true
         }
     },
     computed: {
@@ -297,6 +298,9 @@ export default defineComponent({
         async sourceDataset() {
             await this.loadPage()
         }
+    },
+    beforeUnmount() {
+        this.componentActive = false
     },
     async created() {
         this.uniqueID = crypto.randomUUID()
@@ -337,11 +341,23 @@ export default defineComponent({
                     }
                 })
                 .catch(() => this.$emit('close'))
-        } else await this.loadPage()
+        } else {
+            this.correctRolesForExecution = this.user.roles ?? []
+            if (!this.userRole) {
+                if (this.correctRolesForExecution.length === 1) {
+                    this.userRole = this.correctRolesForExecution[0]
+                } else if (this.correctRolesForExecution.length > 1) {
+                    this.parameterSidebarVisible = true
+                    return
+                }
+            }
+            await this.loadPage()
+        }
     },
     methods: {
         //#region ===================== Load QBE and format data ====================================================
         async loadPage() {
+            if (!this.componentActive) return
             this.store.setLoading(true)
 
             if (this.dataset && !this.dataset.dataSourceId && !this.dataset.federation_id) {
@@ -1137,13 +1153,7 @@ export default defineComponent({
         async onRoleChange(role: string) {
             this.userRole = role as any
             this.filtersData = {}
-            if (this.dataset && !this.dataset.dataSourceId && !this.dataset.federation_id) {
-                await this.loadDataset()
-            } else {
-                this.qbe = this.getQBEFromModel()
-            }
-            this.loadQuery()
-            if (!this.dataset?.federation_id) await this.loadDatasetDrivers()
+            await this.loadPage()
         },
         //#endregion ================================================================================================
         async openSavingDialog() {

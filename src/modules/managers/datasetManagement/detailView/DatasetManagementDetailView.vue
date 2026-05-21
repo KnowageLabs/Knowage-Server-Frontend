@@ -472,7 +472,7 @@ export default defineComponent({
                 })
             } else {
                 const sessionRole = (this.store.$state as any).user.sessionRole !== this.$t('role.defaultRolePlaceholder') ? (this.store.$state as any).user.sessionRole : null
-                this.correctRolesForExecution = sessionRole ? [sessionRole] : [(this.store.$state as any).user.roles[0]]
+                this.correctRolesForExecution = sessionRole ? [sessionRole] : ((this.store.$state as any).user.roles ?? [])
             }
 
             this.previewDataset = JSON.parse(JSON.stringify(this.selectedDataset))
