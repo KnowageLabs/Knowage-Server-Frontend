@@ -23,8 +23,8 @@
             </q-tab-panels>
 
             <q-card-actions align="right">
-                <q-btn color="primary" data-test="close-button" @click="$emit('close')">{{ $t('common.cancel') }}</q-btn>
-                <q-btn color="secondary" data-test="save-button" @click="saveDataset"> {{ $t('common.save') }}</q-btn>
+                <q-btn color="secondary" data-test="close-button" @click="$emit('close')">{{ $t('common.cancel') }}</q-btn>
+                <q-btn color="primary" data-test="save-button" @click="saveDataset"> {{ $t('common.save') }}</q-btn>
             </q-card-actions>
         </q-card>
     </q-dialog>

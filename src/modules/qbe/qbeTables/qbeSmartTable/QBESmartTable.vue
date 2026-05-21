@@ -168,11 +168,11 @@ export default defineComponent({
             const groupIcon = field.group ? 'fas fa-check' : 'fas fa-times'
             this.menuButtons.push(
                 { key: '1', label: this.$t('qbe.detailView.smartViewMenu.showField'), icon: visibleIcon, command: () => this.hideField(field) },
-                { key: '2', label: this.$t('qbe.detailView.smartViewMenu.group'), icon: groupIcon, visible: field.iconCls == 'attribute' || (field.iconCls == 'calculation' && field.attributes.formState.nature.toLowerCase() == 'attribute'), command: () => this.groupField(field) },
+                { key: '2', label: this.$t('qbe.detailView.smartViewMenu.group'), icon: groupIcon, visible: field.iconCls == 'attribute' || (field.iconCls == 'calculation' && (field.attributes?.formState?.nature ?? field.nature ?? field.id?.nature ?? '').toLowerCase() == 'attribute'), command: () => this.groupField(field) },
                 {
                     key: '3',
                     label: this.$t('qbe.detailView.smartViewMenu.aggregation.title') + `: ${field.funct}`,
-                    visible: field.iconCls == 'measure' || (field.iconCls == 'calculation' && field.attributes.formState.nature.toLowerCase() == 'measure'),
+                    visible: field.iconCls == 'measure' || (field.iconCls == 'calculation' && (field.attributes?.formState?.nature ?? field.nature ?? field.id?.nature ?? '').toLowerCase() == 'measure'),
                     items: [
                         { label: this.$t('qbe.detailView.smartViewMenu.aggregation.sum'), command: () => this.applyAggregation(field, 'SUM') },
                         { label: this.$t('qbe.detailView.smartViewMenu.aggregation.min'), command: () => this.applyAggregation(field, 'MIN') },
