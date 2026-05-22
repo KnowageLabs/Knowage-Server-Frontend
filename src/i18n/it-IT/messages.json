@@ -2244,7 +2244,31 @@
         "ai": {
             "hint": " AI functionalities management allows you to manage the AI functionalities of the platform. You can enable or disable them, and update the tenant definitions for the AI engine.",
             "syncronize": "Sincronizza Tenant",
-            "title": "Gestione funzionalità AI"
+            "title": "Gestione funzionalità AI",
+            "businessModels": {
+                "title": "Business Model",
+                "syncronize": "Sincronizza Business Model",
+                "enabledToggle": "Includi nell'AI"
+            },
+            "goldQueries": {
+                "title": "Query Gold – {name}",
+                "editTitle": "Modifica Query Gold",
+                "editor": "Editor JSON",
+                "tablesColumns": "Tabelle e Colonne",
+                "insertTable": "Inserisci nome tabella",
+                "insertColumn": "Inserisci riferimento colonna",
+                "invalidJson": "JSON non valido",
+                "addQuery": "Aggiungi Query",
+                "newQuery": "Nuova query…",
+                "noQueries": "Nessuna query gold presente. Aggiungine una per iniziare.",
+                "queries": "query",
+                "naturalLanguage": "Linguaggio Naturale",
+                "naturalLanguagePlaceholder": "es. Qual è il fatturato totale per negozio?",
+                "tables": "Tabelle",
+                "columns": "Colonne",
+                "addTables": "Aggiungi tabelle",
+                "addColumns": "Aggiungi colonne"
+            }
         },
         "bml": {
             "drivers": "Analytical Drivers",
