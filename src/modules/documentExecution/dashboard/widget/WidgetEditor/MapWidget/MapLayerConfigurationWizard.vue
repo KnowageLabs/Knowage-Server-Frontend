@@ -371,10 +371,12 @@
                                 />
 
                                 <WidgetEditorColorPicker
+                                    v-if="!isRangeClassificationSelected"
                                     :initial-value="visualizationConfig.toColor"
                                     :label="$t('dashboard.widgetEditor.map.toColor')"
                                     @change="(newColor) => { visualizationConfig.toColor = newColor }"
                                 />
+                                <div v-else></div>
 
                                 <WidgetEditorColorPicker
                                     :initial-value="visualizationConfig.borderColor"
@@ -408,7 +410,17 @@
                                     </template>
                                 </q-select>
 
+                                <q-btn
+                                    v-if="isRangeClassificationSelected"
+                                    unelevated
+                                    color="primary"
+                                    class="ranges-button"
+                                    :label="$t('dashboard.widgetEditor.map.manageRanges')"
+                                    @click="openRangesDialog"
+                                />
+
                                 <q-input
+                                    v-else
                                     v-model.number="visualizationConfig.numberOfClasses"
                                     outlined
                                     type="number"
@@ -466,7 +478,17 @@
                                     </template>
                                 </q-select>
 
+                                <q-btn
+                                    v-if="isRangeClassificationSelected"
+                                    unelevated
+                                    color="primary"
+                                    class="ranges-button"
+                                    :label="$t('dashboard.widgetEditor.map.manageRanges')"
+                                    @click="openRangesDialog"
+                                />
+
                                 <q-input
+                                    v-else
                                     v-model.number="visualizationConfig.numberOfClasses"
                                     outlined
                                     type="number"
@@ -779,6 +801,14 @@
             />
         </div>
     </Teleport>
+
+    <MapVisualizationRangesDialog
+        v-if="rangesDialogVisible"
+        :visible="rangesDialogVisible"
+        :prop-ranges="visualizationConfig.thresholds"
+        @setRanges="onSetRanges"
+        @close="rangesDialogVisible = false"
+    />
 </template>
 
 <script lang="ts">
@@ -786,12 +816,13 @@ import { defineComponent, PropType } from 'vue'
 import { mapActions } from 'pinia'
 import appStore from '@/App.store'
 import deepcopy from 'deepcopy'
-import { IMapWidgetLayer } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
+import { IMapWidgetLayer, IMapWidgetVisualizationThreshold } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { IDataset } from '@/modules/documentExecution/dashboard/Dashboard'
 import { getPropertiesByLayerLabel } from '../../MapWidget/MapWidgetDataProxy'
 import WidgetEditorColorPicker from '../WidgetEditorSettingsTab/common/WidgetEditorColorPicker.vue'
 import WidgetEditorStyleIconPickerDialog from '../WidgetEditorSettingsTab/common/styleToolbar/WidgetEditorStyleIconPickerDialog.vue'
 import MapVisualizationImagePickerDialog from '../WidgetEditorSettingsTab/MapWidget/visualization/markers/MapVisualizationImagePickerDialog.vue'
+import MapVisualizationRangesDialog from '../WidgetEditorSettingsTab/MapWidget/visualization/configuration/MapVisualizationRangesDialog.vue'
 import { normalizeMapWidgetBalloonsConfiguration, normalizeMapWidgetChoroplethConfiguration } from '../helpers/mapWidget/MapWidgetVisualizationConfigurationHelper'
 
 const getDefaultVisualizationData = () => ({
@@ -826,7 +857,8 @@ const getDefaultVisualizationConfig = () => ({
     heatmapMaxZoom: 18,
     iconClass: 'fa fa-map-marker',
     iconUrl: '',
-    iconImg: ''
+    iconImg: '',
+    thresholds: [] as IMapWidgetVisualizationThreshold[]
 })
 
 export default defineComponent({
@@ -834,7 +866,8 @@ export default defineComponent({
     components: {
         WidgetEditorColorPicker,
         WidgetEditorStyleIconPickerDialog,
-        MapVisualizationImagePickerDialog
+        MapVisualizationImagePickerDialog,
+        MapVisualizationRangesDialog
     },
     props: {
         visible: { type: Boolean, required: true },
@@ -864,6 +897,7 @@ export default defineComponent({
             visualizationConfig: getDefaultVisualizationConfig(),
             iconPickerVisible: false,
             imagePickerVisible: false,
+            rangesDialogVisible: false,
             pendingId: null as string | null,
             originalBackup: null as any,
             isInitializing: false,
@@ -967,6 +1001,9 @@ export default defineComponent({
                 ]
             }
         },
+        isRangeClassificationSelected() {
+            return this.visualizationConfig.classificationMethod === 'CLASSIFY_BY_RANGES' && (this.selectedVisualizationType === 'choropleth' || this.selectedVisualizationType === 'balloons')
+        },
         canProceed() {
             if (this.currentStep === 1) {
                 // Step 1: Must select visualization type
@@ -996,6 +1033,8 @@ export default defineComponent({
             if (newVal) {
                 this.loadWizardData()
                 this.hasUnsavedChanges = false
+            } else {
+                this.rangesDialogVisible = false
             }
             // Live sync handles real-time persistence; no auto-save needed on close
         },
@@ -1036,6 +1075,7 @@ export default defineComponent({
             this.visualizationConfig = getDefaultVisualizationConfig()
             this.selectedVisualizationType = 'choropleth'
             this.currentStep = 1
+            this.rangesDialogVisible = false
         },
         loadWizardData() {
             this.isInitializing = true
@@ -1097,6 +1137,7 @@ export default defineComponent({
                     this.visualizationConfig.toColor = conf.style.toColor ?? this.visualizationConfig.toColor
                     this.visualizationConfig.borderColor = conf.style.borderColor ?? this.visualizationConfig.borderColor
                     this.visualizationConfig.borderWidth = conf.style.borderWidth ?? this.visualizationConfig.borderWidth
+                    this.visualizationConfig.thresholds = deepcopy(conf.properties?.thresholds ?? [])
                     break
                 }
                 case 'markers': {
@@ -1126,6 +1167,7 @@ export default defineComponent({
                     this.visualizationConfig.classificationMethod = conf.method
                     this.visualizationConfig.numberOfClasses = conf.classes
                     this.visualizationConfig.color = conf.style.color ?? this.visualizationConfig.color
+                    this.visualizationConfig.thresholds = deepcopy(conf.properties?.thresholds ?? [])
                     break
                 }
                 case 'heatmap': {
@@ -1241,6 +1283,7 @@ export default defineComponent({
             return targetLayer ? targetLayer.type : 'dataset'
         },
         closeDialog() {
+            this.rangesDialogVisible = false
             this.revertChanges()
             this.currentStep = 1
             this.$emit('close')
@@ -1268,6 +1311,13 @@ export default defineComponent({
             this.visualizationConfig.iconImg = `${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services` + image.url
             this.imagePickerVisible = false
         },
+        openRangesDialog() {
+            this.rangesDialogVisible = true
+        },
+        onSetRanges(ranges: IMapWidgetVisualizationThreshold[]) {
+            this.visualizationConfig.thresholds = deepcopy(ranges)
+            this.rangesDialogVisible = false
+        },
         handleSaveClick() {
             (this as any).saveConfiguration(false)
         },
@@ -1287,7 +1337,9 @@ export default defineComponent({
                     method: this.visualizationConfig.classificationMethod,
                     classes: this.visualizationConfig.numberOfClasses,
                     borderColor: this.visualizationConfig.borderColor,
-                    properties: existingConfiguration.properties,
+                    properties: {
+                        thresholds: deepcopy(this.visualizationConfig.thresholds ?? existingConfiguration.properties?.thresholds ?? [])
+                    },
                     style: {
                         ...existingConfiguration.style,
                         color: this.visualizationConfig.color,
@@ -1331,6 +1383,9 @@ export default defineComponent({
                     ...existingConfiguration,
                     method: this.visualizationConfig.classificationMethod || existingConfiguration.method,
                     classes: this.visualizationConfig.numberOfClasses || existingConfiguration.classes,
+                    properties: {
+                        thresholds: deepcopy(this.visualizationConfig.thresholds ?? existingConfiguration.properties?.thresholds ?? [])
+                    },
                     style: {
                         ...existingConfiguration.style,
                         color: this.visualizationConfig.color
@@ -1665,6 +1720,11 @@ export default defineComponent({
     grid-template-columns: repeat(3, 1fr);
     gap: 12px;
     align-items: center;
+}
+
+.ranges-button {
+    width: 100%;
+    min-height: 40px;
 }
 
 @media (max-width: 900px) {
@@ -2063,4 +2123,3 @@ export default defineComponent({
     padding-right: 8px !important;
 }
 </style>
-

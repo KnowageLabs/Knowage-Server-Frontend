@@ -13,11 +13,11 @@
                 <WidgetEditorColorPicker :initial-value="range.color" :label="$t('common.color')" @change="onSelectionColorChanged($event, range)"></WidgetEditorColorPicker>
             </div>
             <div class="p-float-label p-col-6 p-lg-3 p-fluid p-p-2">
-                <InputNumber v-model="range.from" class="kn-material-input" />
+                <InputNumber v-model="range.from" class="kn-material-input" mode="decimal" :locale="numberLocale" :use-grouping="true" :min-fraction-digits="0" :max-fraction-digits="20" />
                 <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.map.fromThreshold') }}</label>
             </div>
             <div class="p-float-label p-col-6 p-lg-3 p-fluid p-p-2">
-                <InputNumber v-model="range.to" class="kn-material-input" />
+                <InputNumber v-model="range.to" class="kn-material-input" mode="decimal" :locale="numberLocale" :use-grouping="true" :min-fraction-digits="0" :max-fraction-digits="20" />
                 <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.map.toThreshold') }}</label>
             </div>
             <div class="p-col-6 p-lg-2 p-text-right">
@@ -42,6 +42,7 @@ import deepcopy from 'deepcopy'
 import InputNumber from 'primevue/inputnumber'
 import WidgetEditorColorPicker from '../../../common/WidgetEditorColorPicker.vue'
 import { IMapWidgetVisualizationThreshold } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
+import { getLocale } from '@/helpers/commons/localeHelper'
 
 export default defineComponent({
     name: 'map-visualization-type-choropleth-ranges-dialog',
@@ -51,7 +52,8 @@ export default defineComponent({
     data() {
         return {
             descriptor,
-            ranges: [] as { color: string; from: number; to: number }[]
+            ranges: [] as { color: string; from: number; to: number }[],
+            numberLocale: 'en-US'
         }
     },
     watch: {
@@ -60,6 +62,7 @@ export default defineComponent({
         }
     },
     created() {
+        this.numberLocale = getLocale(true) || 'en-US'
         this.loadRanges()
     },
     methods: {
