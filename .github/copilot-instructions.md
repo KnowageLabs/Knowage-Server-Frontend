@@ -202,3 +202,6 @@ export class KnowageHighcharts<ChartName>Chart extends KnowageHighcharts {
 | `npm run test` | Vitest watch |
 | `npm run test:run` | Vitest single run |
 | `npm run coverage` | Vitest coverage report |
+
+ Dont'execute any linting, testing, or building actions unless explicitly requested.
+

@@ -358,6 +358,8 @@ export interface IWidgetMapLayerColumn {
     aggregationSelected?: string
     deleted?: boolean
     formula?: string
+    formulaEditor?: string
+    blocklyXml?: any
     isCalculatedField?: boolean
 }
 
