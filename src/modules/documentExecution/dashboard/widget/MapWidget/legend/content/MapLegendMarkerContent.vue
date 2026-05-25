@@ -17,6 +17,7 @@
 <script lang="ts">
 import { PropType } from 'vue'
 import { IMapWidgetVisualizationTypeCluster, IMapWidgetVisualizationTypeLegendSettings, IMapWidgetVisualizationTypeMarker } from '../../../../interfaces/mapWidget/DashboardMapWidget'
+import { normalizeMapWidgetClusterConfiguration } from '../../../WidgetEditor/helpers/mapWidget/MapWidgetVisualizationConfigurationHelper'
 
 export default {
     name: 'map-legend-marker-content',
@@ -57,7 +58,8 @@ export default {
         },
         getClusterPreviewStyle(clustersConfig: IMapWidgetVisualizationTypeCluster | undefined) {
             if (!clustersConfig) return ''
-            return `color:${clustersConfig.style.color}; background-color:${clustersConfig.style['background-color']};`
+            const normalizedConfiguration = normalizeMapWidgetClusterConfiguration(clustersConfig)
+            return `color:${normalizedConfiguration.style.color}; background-color:${normalizedConfiguration.style['background-color']};`
         }
     }
 }

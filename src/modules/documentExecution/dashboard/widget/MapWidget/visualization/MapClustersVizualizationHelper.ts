@@ -2,7 +2,7 @@ import { ISelection, IVariable, IWidget } from '../../../Dashboard'
 import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import { addMarkersOrClustersFromData, createMarkerForVisualization, getMappedDataAndColumnIndex } from './MapMarkersVizualizationHelper'
 import L from 'leaflet'
-import * as mapWidgetDefaultValues from '../../WidgetEditor/helpers/mapWidget/MapWidgetDefaultValues'
+import { normalizeMapWidgetClusterConfiguration } from '../../WidgetEditor/helpers/mapWidget/MapWidgetVisualizationConfigurationHelper'
 
 export const addClusters = (data: any, model: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], layersData: any, targetDatasetData: any, targetDatasetInfoMap: Record<string, Record<string, any>> | null, variables: IVariable[], clusters: any, activeSelections: ISelection[], dashboardId: string) => {
     if (data && data[target.id]) {
@@ -13,12 +13,12 @@ export const addClusters = (data: any, model: IWidget, target: IMapWidgetLayer, 
 }
 
 export const createClusterGroup = (layerVisualizationSettings: IMapWidgetVisualizationType, target: IMapWidgetLayer) => {
-    const defaultClusterConfiguration = mapWidgetDefaultValues.getDefaultVisualizationClusterConfiguration()
-    const maxClusterRadius = layerVisualizationSettings.clusterConf?.maxClusterRadius ?? defaultClusterConfiguration.maxClusterRadius
-    const clusterIconRadius = layerVisualizationSettings?.clusterConf?.radiusSize ?? defaultClusterConfiguration.radiusSize
-    const clusterIconFontSize = layerVisualizationSettings?.clusterConf?.style?.['font-size'] ?? defaultClusterConfiguration.style['font-size']
-    const clusterIconFontColor = layerVisualizationSettings?.clusterConf?.style?.color ?? defaultClusterConfiguration.style.color
-    const clusterIconBackgroundColor = layerVisualizationSettings?.clusterConf?.style?.['background-color'] ?? defaultClusterConfiguration.style['background-color']
+    const clusterConfiguration = normalizeMapWidgetClusterConfiguration(layerVisualizationSettings.clusterConf as any)
+    const maxClusterRadius = clusterConfiguration.maxClusterRadius
+    const clusterIconRadius = clusterConfiguration.radiusSize
+    const clusterIconFontSize = clusterConfiguration.style['font-size']
+    const clusterIconFontColor = clusterConfiguration.style.color
+    const clusterIconBackgroundColor = clusterConfiguration.style['background-color']
 
     const clusters = L.markerClusterGroup({
         maxClusterRadius: maxClusterRadius,

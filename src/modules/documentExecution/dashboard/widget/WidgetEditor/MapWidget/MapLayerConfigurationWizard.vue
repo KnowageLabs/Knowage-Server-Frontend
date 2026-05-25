@@ -823,7 +823,7 @@ import WidgetEditorColorPicker from '../WidgetEditorSettingsTab/common/WidgetEdi
 import WidgetEditorStyleIconPickerDialog from '../WidgetEditorSettingsTab/common/styleToolbar/WidgetEditorStyleIconPickerDialog.vue'
 import MapVisualizationImagePickerDialog from '../WidgetEditorSettingsTab/MapWidget/visualization/markers/MapVisualizationImagePickerDialog.vue'
 import MapVisualizationRangesDialog from '../WidgetEditorSettingsTab/MapWidget/visualization/configuration/MapVisualizationRangesDialog.vue'
-import { normalizeMapWidgetBalloonsConfiguration, normalizeMapWidgetChoroplethConfiguration } from '../helpers/mapWidget/MapWidgetVisualizationConfigurationHelper'
+import { normalizeMapWidgetBalloonsConfiguration, normalizeMapWidgetChoroplethConfiguration, normalizeMapWidgetClusterConfiguration } from '../helpers/mapWidget/MapWidgetVisualizationConfigurationHelper'
 
 const getDefaultVisualizationData = () => ({
     label: '',
@@ -1179,9 +1179,9 @@ export default defineComponent({
                     break
                 }
                 case 'clusters': {
-                    if (!this.selectedVisualization.clusterConf) break
-                    this.visualizationConfig.clusterRadius = this.selectedVisualization.clusterConf.clusterRadius ?? 40
-                    if (this.selectedVisualization.clusterConf.style?.color) this.visualizationConfig.color = this.selectedVisualization.clusterConf.style.color
+                    const conf = normalizeMapWidgetClusterConfiguration(this.selectedVisualization.clusterConf)
+                    this.visualizationConfig.clusterRadius = conf.maxClusterRadius ?? 40
+                    this.visualizationConfig.color = conf.style['background-color'] ?? this.visualizationConfig.color
                     break
                 }
             }
@@ -1398,10 +1398,13 @@ export default defineComponent({
                     maxZoom: this.visualizationConfig.heatmapMaxZoom || 1
                 }
             } else if (this.selectedVisualizationType === 'clusters') {
+                const existingConfiguration = normalizeMapWidgetClusterConfiguration(this.selectedVisualization?.clusterConf)
                 baseConfig.clusterConf = {
-                    clusterRadius: this.visualizationConfig.clusterRadius,
+                    ...existingConfiguration,
+                    maxClusterRadius: this.visualizationConfig.clusterRadius,
                     style: {
-                        color: this.visualizationConfig.color
+                        ...existingConfiguration.style,
+                        'background-color': this.visualizationConfig.color
                     }
                 }
             }

@@ -1,4 +1,4 @@
-import { IMapWidgetVisualizationTypeBalloons, IMapWidgetVisualizationTypeChoropleth } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
+import { IMapWidgetVisualizationTypeBalloons, IMapWidgetVisualizationTypeChoropleth, IMapWidgetVisualizationTypeCluster } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import * as mapWidgetDefaultValues from './MapWidgetDefaultValues'
 
 type TLegacyChoroplethConfiguration = Partial<IMapWidgetVisualizationTypeChoropleth> & {
@@ -9,6 +9,18 @@ type TLegacyChoroplethConfiguration = Partial<IMapWidgetVisualizationTypeChoropl
 
 type TLegacyBalloonsConfiguration = Partial<IMapWidgetVisualizationTypeBalloons> & {
     fromColor?: string
+}
+
+type TLegacyClusterConfiguration = Partial<IMapWidgetVisualizationTypeCluster> & {
+    clusterRadius?: number
+}
+
+const DEFAULT_CLUSTER_BACKGROUND_COLOR = 'rgba(59, 130, 246, 1)'
+const DEFAULT_CLUSTER_FONT_COLOR = '#ffffff'
+const DEFAULT_CLUSTER_FONT_SIZE = '12px'
+
+const getPopulatedStyleValue = (value?: string | null) => {
+    return value && value.trim().length > 0 ? value : null
 }
 
 export const normalizeMapWidgetChoroplethConfiguration = (configuration?: TLegacyChoroplethConfiguration | null): IMapWidgetVisualizationTypeChoropleth => {
@@ -56,6 +68,30 @@ export const normalizeMapWidgetBalloonsConfiguration = (configuration?: TLegacyB
         },
         properties: {
             thresholds: configuration?.properties?.thresholds ?? defaultValues.properties?.thresholds ?? []
+        }
+    }
+}
+
+export const normalizeMapWidgetClusterConfiguration = (configuration?: TLegacyClusterConfiguration | null): IMapWidgetVisualizationTypeCluster => {
+    const defaultValues = mapWidgetDefaultValues.getDefaultVisualizationClusterConfiguration()
+    const style = configuration?.style ?? {}
+
+    const explicitBackgroundColor = getPopulatedStyleValue(style['background-color'])
+    const legacySingleColor = explicitBackgroundColor ? null : getPopulatedStyleValue(style.color)
+    const normalizedBackgroundColor = explicitBackgroundColor ?? legacySingleColor ?? getPopulatedStyleValue(defaultValues.style['background-color']) ?? DEFAULT_CLUSTER_BACKGROUND_COLOR
+    const normalizedFontColor = explicitBackgroundColor ? getPopulatedStyleValue(style.color) ?? getPopulatedStyleValue(defaultValues.style.color) ?? DEFAULT_CLUSTER_FONT_COLOR : getPopulatedStyleValue(defaultValues.style.color) ?? DEFAULT_CLUSTER_FONT_COLOR
+
+    return {
+        ...defaultValues,
+        ...configuration,
+        maxClusterRadius: configuration?.maxClusterRadius ?? configuration?.clusterRadius ?? defaultValues.maxClusterRadius,
+        radiusSize: configuration?.radiusSize ?? defaultValues.radiusSize,
+        style: {
+            ...defaultValues.style,
+            ...style,
+            'font-size': getPopulatedStyleValue(style['font-size']) ?? getPopulatedStyleValue(defaultValues.style['font-size']) ?? DEFAULT_CLUSTER_FONT_SIZE,
+            'background-color': normalizedBackgroundColor,
+            color: normalizedFontColor
         }
     }
 }
