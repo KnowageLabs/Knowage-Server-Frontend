@@ -910,7 +910,7 @@ export default defineComponent({
             if (this.document.typeCode === 'DATAMART') this.mode = 'registry'
             else if (this.document.typeCode === 'DOSSIER') this.mode = 'dossier'
             else if (this.document.typeCode === 'OLAP') this.mode = 'olap'
-            else if ((this.document.typeCode === 'DOCUMENT_COMPOSITE' && this.$route.params?.mode === 'dashboard') || this.document.typeCode === 'DASHBOARD') {
+            else if ((this.document.typeCode === 'DOCUMENT_COMPOSITE' && this.$route.params?.mode === 'dashboard' && !this.document.navigationFromDashboard) || this.document.typeCode === 'DASHBOARD') {
                 this.mode = 'dashboard'
                 if (refresh) this.reloadTrigger = !this.reloadTrigger
             } else this.mode = 'iframe'
