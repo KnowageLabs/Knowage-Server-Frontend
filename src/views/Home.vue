@@ -94,7 +94,7 @@ export default defineComponent({
             return to.startsWith('/document-browser') || to.startsWith('/workspace')
         },
         isADocument(to: string): boolean {
-            return to.startsWith('/dossier/') || to.startsWith('/map/') || to.startsWith('/kpi/') || to.startsWith('/office-doc/') || to.startsWith('/document-composite/')
+            return to.startsWith('/dossier/') || to.startsWith('/map/') || to.startsWith('/kpi/') || to.startsWith('/office-doc/') || to.startsWith('/document-composite/') || to.startsWith('/dashboard/')
         }
     },
     computed: {
