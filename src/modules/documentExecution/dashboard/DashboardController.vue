@@ -219,6 +219,7 @@ export default defineComponent({
             emitter.on('newDashboardClosed', this.onNewDashboardClosed)
             emitter.on('selectionsChanged', this.onSelectionsChanged)
             emitter.on('selectionsDeleted', this.onSelectionsChanged)
+            emitter.on('crossNavigationsUpdated', this.loadCrossNavigations)
         },
         removeEventListeners() {
             emitter.off('openNewWidgetPicker', this.openNewWidgetPicker)
@@ -232,6 +233,7 @@ export default defineComponent({
             emitter.off('newDashboardClosed', this.onNewDashboardClosed)
             emitter.off('selectionsChanged', this.onSelectionsChanged)
             emitter.off('selectionsDeleted', this.onSelectionsChanged)
+            emitter.off('crossNavigationsUpdated', this.loadCrossNavigations)
         },
         async getData() {
             this.loading = true

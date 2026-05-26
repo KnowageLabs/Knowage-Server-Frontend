@@ -1,7 +1,7 @@
 ﻿<template>
     <q-layout view="hHh lpR fFf" container>
         <q-header>
-            <q-toolbar class="kn-toolbar kn-toolbar--primary">
+            <q-toolbar :class="['kn-toolbar', secondary ? 'kn-toolbar--secondary' : 'kn-toolbar--primary']">
                 <q-btn flat round dense icon="menu_open" @click="$emit('toggleDrawer')">
                     <q-tooltip>{{ $t('common.toggle') }}</q-tooltip>
                 </q-btn>
@@ -66,7 +66,8 @@ export default defineComponent({
     name: 'cross-navigation-detail',
     components: { CrossNavStep1Docs, CrossNavStep2Params, CrossNavStep3Details, HintDialog },
     props: {
-        id: { type: String }
+        id: { type: String },
+        secondary: { type: Boolean, default: false }
     },
     emits: ['close', 'touched', 'saved', 'toggleDrawer'],
     setup() {

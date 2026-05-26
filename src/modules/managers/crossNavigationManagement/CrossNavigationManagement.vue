@@ -3,7 +3,7 @@
         <q-page-container>
             <q-page class="row" style="position: unset">
                 <q-drawer v-model="drawerVisible" side="left" :width="400" :breakpoint="0" show-if-above class="column no-wrap">
-                    <q-toolbar class="kn-toolbar kn-toolbar--primary">
+                    <q-toolbar :class="['kn-toolbar', secondary ? 'kn-toolbar--secondary' : 'kn-toolbar--primary']">
                         <q-toolbar-title>{{ $t('managers.crossNavigationManagement.title') }}</q-toolbar-title>
                         <KnFabButton icon="fas fa-plus" data-test="new-button" @click="showForm(-1)" />
                     </q-toolbar>
@@ -11,7 +11,8 @@
                     <KnListBox v-if="!loading" class="col kn-height-full" :options="navigations" :settings="crossNavigationDescriptor.knListSettings" @click="selected" @delete.stop="deleteTempateConfirm" />
                 </q-drawer>
                 <div class="col">
-                    <router-view @close="closeForm" @touched="touched = true" @saved="reload" @toggle-drawer="drawerVisible = !drawerVisible" />
+                    <CrossNavigationManagementDetail v-if="selectedId !== null" :id="selectedId === 'new' ? undefined : selectedId" :secondary="secondary" @close="closeForm" @touched="onTouched" @saved="reload" @toggle-drawer="drawerVisible = !drawerVisible" />
+                    <KnHint v-else :title="'managers.crossNavigationManagement.title'" :hint="'managers.crossNavigationManagement.hint'" />
                 </div>
             </q-page>
         </q-page-container>
@@ -23,21 +24,25 @@ import { defineComponent } from 'vue'
 import { iNavigation } from './CrossNavigationManagement'
 import { AxiosResponse } from 'axios'
 import { useQuasar } from 'quasar'
-import { useRouter, useRoute } from 'vue-router'
 import KnFabButton from '@/components/UI/KnFabButton.vue'
 import KnListBox from '@/components/UI/KnListBox/KnListBox.vue'
+import KnHint from '@/components/UI/KnHint.vue'
+import CrossNavigationManagementDetail from './CrossNavigationManagementDetail.vue'
 import crossNavigationDescriptor from './CrossNavigationManagementDescriptor.json'
 import mainStore from '../../../App.store'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 
 export default defineComponent({
     name: 'navigation-management',
-    components: { KnFabButton, KnListBox },
+    components: { KnFabButton, KnListBox, KnHint, CrossNavigationManagementDetail },
+    props: {
+        secondary: { type: Boolean, default: false }
+    },
+    emits: ['touched'],
     setup() {
         const store = mainStore()
-        const router = useRouter()
-        const route = useRoute()
         const $q = useQuasar()
-        return { store, router, route, $q }
+        return { store, $q }
     },
     data() {
         return {
@@ -45,6 +50,7 @@ export default defineComponent({
             loading: false,
             touched: false,
             drawerVisible: true,
+            selectedId: null as string | null,
             crossNavigationDescriptor
         }
     },
@@ -79,7 +85,7 @@ export default defineComponent({
                 .then(async () => {
                     this.store.setInfo({ title: this.$t('common.toast.deleteTitle'), msg: this.$t('common.toast.deleteSuccess') })
                     await this.loadAll()
-                    if (String(itemId) === this.route.params.id) this.router.push('/cross-navigation-management')
+                    if (String(itemId) === this.selectedId) this.selectedId = null
                 })
                 .catch((error) =>
                     this.store.setError({
@@ -90,9 +96,9 @@ export default defineComponent({
                 .finally(() => (this.loading = false))
         },
         showForm(id: number) {
-            const path = id !== -1 ? '/cross-navigation-management/' + id : '/cross-navigation-management/new-navigation'
+            const newId = id !== -1 ? String(id) : 'new'
             if (!this.touched) {
-                this.router.push(path)
+                this.selectedId = newId
             } else {
                 this.$q
                     .dialog({
@@ -103,13 +109,13 @@ export default defineComponent({
                     })
                     .onOk(() => {
                         this.touched = false
-                        this.router.push(path)
+                        this.selectedId = newId
                     })
             }
         },
         closeForm() {
             if (!this.touched) {
-                this.handleClose()
+                this.selectedId = null
             } else {
                 this.$q
                     .dialog({
@@ -120,20 +126,42 @@ export default defineComponent({
                     })
                     .onOk(() => {
                         this.touched = false
-                        this.handleClose()
+                        this.selectedId = null
                     })
             }
         },
-        handleClose() {
-            this.router.replace('/cross-navigation-management')
+        onTouched() {
+            this.touched = true
+            this.$emit('touched')
+        },
+        canLeave(): Promise<boolean> {
+            return new Promise((resolve) => {
+                if (!this.touched) {
+                    resolve(true)
+                    return
+                }
+                this.$q
+                    .dialog({
+                        title: this.$t('common.toast.unsavedChangesHeader'),
+                        message: this.$t('common.toast.unsavedChangesMessage'),
+                        cancel: true,
+                        persistent: true
+                    })
+                    .onOk(() => {
+                        this.touched = false
+                        resolve(true)
+                    })
+                    .onCancel(() => resolve(false))
+            })
         },
         async reload(operation: string, name: string) {
             await this.loadAll()
             this.touched = false
             if (operation === 'insert') {
-                const id = this.navigations.find((nav) => nav.name === name)?.id
-                this.router.push('/cross-navigation-management/' + id)
+                const id = this.navigations.find((nav: iNavigation) => nav.name === name)?.id
+                if (id) this.selectedId = String(id)
             }
+            emitter.emit('crossNavigationsUpdated')
         }
     }
 })

@@ -82,6 +82,11 @@
             "icon": "fa-solid fa-heading",
             "label": "dashboard.generalSettings.customHeader",
             "value": "Custom Header"
+        },
+        {
+            "icon": "fa-solid fa-route",
+            "label": "managers.crossNavigationManagement.title",
+            "value": "CrossNavigation"
         }
     ],
     "settingsListFilterFields": ["label"],

@@ -25,6 +25,10 @@
                 <WidgetEditor ref="widgetEditor" :dashboard-id="dashboardId" :datasets="datasets" :variables="variables" :prop-widget="customHeaderWidget" :class="{ 'editor-disabled': !menuWidgetsConfig.enableCustomHeader }"></WidgetEditor>
             </div>
             <AiSettings v-if="isEnterprise && selectedOption === 'aisettings'" :dashboard-model-prop="dashboardModel" @change="setAiModel" />
+
+            <div v-if="selectedOption === 'CrossNavigation'" class="p-d-flex p-flex-column kn-flex dashboard-card-shadow q-ma-md">
+                <CrossNavigationManagement ref="crossNavRef" :secondary="true" />
+            </div>
         </div>
     </div>
 </template>
@@ -41,6 +45,7 @@ import MenuWidgets from './menu&widgets/Menu&Widgets.vue'
 import DashboardVariables from './DashboardVariables.vue'
 import DashboardThemes from './themes/DashboardThemes.vue'
 import AiSettings from './aisettings/DashboardAiSettings.vue'
+import CrossNavigationManagement from '@/modules/managers/crossNavigationManagement/CrossNavigationManagement.vue'
 import store from '@/modules/documentExecution/dashboard/Dashboard.store'
 import mainStore from '@/App.store'
 import deepcopy from 'deepcopy'
@@ -53,7 +58,7 @@ import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
     name: 'dashboard-general-settings',
-    components: { DashboardGeneralSettingsList, DashboardVariables, DashboardInformation, DashboardBackground, MenuWidgets, CssEditor, DashboardThemes, WidgetEditor, InputSwitch, AiSettings },
+    components: { DashboardGeneralSettingsList, DashboardVariables, DashboardInformation, DashboardBackground, MenuWidgets, CssEditor, DashboardThemes, WidgetEditor, InputSwitch, AiSettings, CrossNavigationManagement },
     props: {
         dashboardId: { type: String, required: true },
         datasets: { type: Array as PropType<IDataset[]>, required: true },
@@ -123,7 +128,11 @@ export default defineComponent({
                 this.selectedDatasetColumnsMap[dataset.id.dsId].columns.push(dataset.metadata.fieldsMeta[i].name)
             }
         },
-        setSelectedOption(option: string) {
+        async setSelectedOption(option: string) {
+            if (this.selectedOption === 'CrossNavigation') {
+                const canLeave = await (this.$refs.crossNavRef as any)?.canLeave()
+                if (!canLeave) return
+            }
             if (option === 'Custom Header') {
                 if (!this.customHeaderWidget) this.customHeaderWidget = createCustomHeaderWidget()
                 this.customHeaderWidgetEditorVisible = true
