@@ -2747,94 +2747,44 @@
     },
     "locale": {
         "dateFormat": "mm/dd/yy",
-        "dayNames": [
-            "Sunday",
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday"
-        ],
-        "dayNamesMin": [
-            "Su",
-            "Mo",
-            "Tu",
-            "We",
-            "Th",
-            "Fr",
-            "Sa"
-        ],
-        "dayNamesShort": [
-            "Sun",
-            "Mon",
-            "Tue",
-            "Wed",
-            "Thu",
-            "Fri",
-            "Sat"
-        ],
+        "dayNames": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+        "dayNamesMin": ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+        "dayNamesShort": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
         "firstDayOfWeek": 0,
-        "monthNames": [
-            "January",
-            "February",
-            "March",
-            "April",
-            "May",
-            "June",
-            "July",
-            "August",
-            "September",
-            "October",
-            "November",
-            "December"
-        ],
-        "monthNamesShort": [
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec"
-        ],
+        "monthNames": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+        "monthNamesShort": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
         "today": "Today",
         "weekHeader": "Wk"
     },
     "managers": {
         "ai": {
-            "hint": " AI functionalities management allows you to manage the AI functionalities of the platform. You can enable or disable them, and update the tenant definitions for the AI engine.",
-            "syncronize": "Synchronize Tenant",
-            "title": "AI functionalities management",
             "businessModels": {
-                "title": "Business Models",
+                "enabledToggle": "Include in AI",
                 "syncronize": "Synchronize Business Models",
-                "enabledToggle": "Include in AI"
+                "title": "Business Models"
             },
             "goldQueries": {
-                "title": "Gold Queries – {name}",
+                "addColumns": "Add columns",
+                "addQuery": "Add Query",
+                "addTables": "Add tables",
+                "columns": "Columns",
                 "editTitle": "Edit Gold Queries",
                 "editor": "JSON Editor",
-                "tablesColumns": "Tables & Columns",
-                "insertTable": "Insert table name",
                 "insertColumn": "Insert column reference",
+                "insertTable": "Insert table name",
                 "invalidJson": "Invalid JSON",
-                "addQuery": "Add Query",
+                "naturalLanguage": "Natural Language",
+                "naturalLanguagePlaceholder": "e.g. What is the total revenue by shop?",
                 "newQuery": "New query…",
                 "noQueries": "No gold queries yet. Add one to get started.",
                 "queries": "queries",
-                "naturalLanguage": "Natural Language",
-                "naturalLanguagePlaceholder": "e.g. What is the total revenue by shop?",
                 "tables": "Tables",
-                "columns": "Columns",
-                "addTables": "Add tables",
-                "addColumns": "Add columns"
-            }
+                "tablesColumns": "Tables & Columns",
+                "title": "Gold Queries – {name}"
+            },
+            "hint": " AI functionalities management allows you to manage the AI functionalities of the platform. You can enable or disable them, and update the tenant definitions for the AI engine.",
+            "syncronize": "Synchronize Tenant",
+            "title": "AI functionalities management"
         },
         "bml": {
             "drivers": "Analytical Drivers",
@@ -3022,6 +2972,14 @@
             "popUp": "Pop-up",
             "popUpWindow": "Pop-up window",
             "selectDocument": "Select document",
+            "sourceParameter": "Source parameters",
+            "targetParameter": "Target parameters",
+            "step1Caption": "Select the documents to link",
+            "step1Title": "Documents",
+            "step2Caption": "Connect source document output parameters to target document input parameters",
+            "step2Title": "Parameters",
+            "step3Caption": "Set the details of the cross navigation",
+            "step3Title": "Details",
             "targetDoc": "Target doc",
             "title": "Cross Navigation",
             "width": "Window width",
@@ -4110,6 +4068,13 @@
             },
             "fullName": "Full Name",
             "hint": "Users management allows you to define different users roles and permissions. Click on one existing item from the list on the side, or press the \"+\" button to add one.",
+            "import": {
+                "errors": "Errors",
+                "fromFile": "Import from file",
+                "importedUsers": "Imported Users",
+                "selectFile": "Select XLS or CSV file",
+                "title": "Import Users from File"
+            },
             "info": {
                 "createMessage": "User created successfully",
                 "createTitle": "Create user",
@@ -4118,18 +4083,11 @@
                 "resetSuccessful": "Multifactor authentication successfully reset"
             },
             "multifactor": "This user has multifactor authentication enabled. Click the button to reset it",
+            "newUser": "New user",
             "roles": "Roles",
             "title": "Users Management",
             "unlockUser": "Unlock user",
             "userId": "User ID",
-            "import": {
-                "errors": "Errors",
-                "fromFile": "Import from file",
-                "importedUsers": "Imported Users",
-                "selectFile": "Select XLS or CSV file",
-                "title": "Import Users from File"
-            },
-            "newUser": "New user",
             "validation": {
                 "sameAsPassword": "Different password values"
             },
