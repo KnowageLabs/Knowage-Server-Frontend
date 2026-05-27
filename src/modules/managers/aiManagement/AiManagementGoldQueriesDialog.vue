@@ -430,7 +430,7 @@ export default defineComponent({
                 jsonContent: JSON.stringify({ sql_gold: this.queries })
             }
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_API_CONTEXT + '/api/2.0/resources/folders/upload-json', payload)
+                .put(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/2.0/resources/eng-gpt-data/${payload.modelId}`, payload)
                 .then(() => {
                     this.store.setInfo({ title: this.$t('common.toast.createTitle'), msg: this.$t('common.toast.success') })
                     this.$emit('saved', this.queries)
