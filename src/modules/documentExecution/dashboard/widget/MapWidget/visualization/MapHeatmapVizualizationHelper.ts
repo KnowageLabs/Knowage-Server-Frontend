@@ -1,6 +1,6 @@
 import { getColumnName, getCoordinates, LEGEND_DATA_TYPE, VisualizationDataType } from '../LeafletHelper'
 import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
-import { getCoordinatesFromWktPointFeature, getMinMaxByName, getNumericPropertyValues, getTargetDataColumn, getTargetProperty, incrementColumnName, isConditionMet, transformDataUsingForeignKeyReturningAllColumns, validateNumber } from './MapVisualizationHelper'
+import { getCoordinatesFromWktPointFeature, getMinMaxByName, getNumericPropertyValues, getTargetDataColumn, getTargetProperty, incrementColumnName, isConditionMet, isSingleLayerPropertyVisualization, transformDataUsingForeignKeyReturningAllColumns, validateNumber } from './MapVisualizationHelper'
 import * as mapWidgetDefaultValues from '../../WidgetEditor/helpers/mapWidget/MapWidgetDefaultValues'
 import L from 'leaflet'
 import 'leaflet.heat'
@@ -34,9 +34,8 @@ const createHeatmapVisualizationLayers = (map: any, layersData: any, target: IMa
 
         mappedData = transformDataUsingForeignKeyReturningAllColumns(targetDatasetData.rows, foreignKeyColumnName)
         dataColumnIndex = getTargetDataColumn(targetDatasetData, layerVisualizationSettings, dataColumn)
-    } else if (layersData && layerVisualizationSettings.targetType === 'property' && layerVisualizationSettings.targetProperty) {
+    } else if (layersData && isSingleLayerPropertyVisualization(layerVisualizationSettings)) {
         layerTargetProperty = getTargetProperty(layerVisualizationSettings)
-        if (!layerTargetProperty) layerTargetProperty = layerVisualizationSettings.targetProperty
         const layerPropertyValues = layerTargetProperty ? getNumericPropertyValues(layersData, layerTargetProperty) : []
         max = Math.max(...layerPropertyValues) ?? 0
     }
@@ -57,7 +56,7 @@ const createHeatmapVisualizationLayers = (map: any, layersData: any, target: IMa
 }
 
 const addHeatmapPointUsingLayers = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, heatMapData: number[][], coord: any[] | null, layerTargetProperty: string | null, dataColumnIndex: string | null | undefined) => {
-    const valueKey = feature.properties[layerTargetProperty ?? layerVisualizationSettings.targetProperty]
+    const valueKey = feature.properties[layerTargetProperty ?? getTargetProperty(layerVisualizationSettings)]
     let value = null as string | number | null
     if (mappedData && dataColumnIndex) {
         value = mappedData[valueKey] ? mappedData[valueKey][dataColumnIndex] : null

@@ -3,7 +3,7 @@ import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationThreshold, IMapW
 import { getColumnName, getCoordinates, getCoordinatesFromJSONCoordType, getCoordinatesFromString, getParsedInput, LEGEND_DATA_TYPE, VisualizationDataType } from '../LeafletHelper'
 import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData, createDialogFromDataset } from './MapDialogHelper'
 import { executeMapInteractions, columnsMatch } from '../interactions/MapInteractionsHelper'
-import { formatRanges, getConditionalStyleUsingTargetDataset, getCoordinatesFromWktPointFeature, getFeatureValues, getInteractionDataMap, getMinMaxByName, getNumericPropertyValues, getQuantiles, getQuantilesFromLayersData, getRowValues, getTargetDataColumn, isConditionMet, sortRanges, transformDataUsingForeignKeyReturningAllColumns, validateNumber } from './MapVisualizationHelper'
+import { formatRanges, getConditionalStyleUsingTargetDataset, getCoordinatesFromWktPointFeature, getFeatureValues, getInteractionDataMap, getMinMaxByName, getNumericPropertyValues, getQuantiles, getQuantilesFromLayersData, getRowValues, getTargetDataColumn, isConditionMet, isSingleLayerPropertyVisualization, sortRanges, transformDataUsingForeignKeyReturningAllColumns, validateNumber } from './MapVisualizationHelper'
 import { wktToGeoJSON } from '@terraformer/wkt'
 import L from 'leaflet'
 import * as mapWidgetDefaultValues from '../../WidgetEditor/helpers/mapWidget/MapWidgetDefaultValues'
@@ -41,7 +41,7 @@ export const createChoropleth = (map: L.Map, data: any, model: IWidget, target: 
             }
         case 'CLASSIFY_BY_QUANTILS':
             if (visualizationDataType === VisualizationDataType.LAYER_ONLY) {
-                return createChoroplethClassifiedByQuantilsUsingLayers(null, layersData, null, layerGroup, layerVisualizationSettings, model, bounds, variables, activeSelections, dashboardId)
+                return createChoroplethClassifiedByQuantilsUsingLayers(null, null, layersData, null, layerGroup, layerVisualizationSettings, model, bounds, variables, activeSelections, dashboardId)
             } else if (visualizationDataType === VisualizationDataType.DATASET_AND_LAYER) {
                 return createChoroplethClassifiedByQuantilsUsingLayers(targetDatasetData, targetDatasetInfoMap, layersData, dataColumn, layerGroup, layerVisualizationSettings, model, bounds, variables, activeSelections, dashboardId)
             } else {
@@ -83,7 +83,7 @@ const createChoroplethClassifiedByEqualIntervalsUsingLayers = (layerGroup: any, 
         mappedData = transformDataUsingForeignKeyReturningAllColumns(targetDatasetData.rows, foreignKeyColumnName)
         dataColumnIndex = getTargetDataColumn(targetDatasetData, layerVisualizationSettings, dataColumn)
     } else {
-        if (layersData && layerVisualizationSettings.targetType === 'property' && layerVisualizationSettings.targetProperty) {
+        if (layersData && isSingleLayerPropertyVisualization(layerVisualizationSettings)) {
             const layerPropertyValues = getNumericPropertyValues(layersData, layerVisualizationSettings.targetProperty)
             minValue = Math.min(...layerPropertyValues) ?? 0
             maxValue = Math.max(...layerPropertyValues) ?? 0
@@ -339,7 +339,7 @@ const createChoroplethClassifiedByRangesUsingLayers = (layerGroup: any, layersDa
         mappedData = transformDataUsingForeignKeyReturningAllColumns(targetDatasetData.rows, foreignKeyColumnName)
         dataColumnIndex = getTargetDataColumn(targetDatasetData, layerVisualizationSettings, dataColumn)
     } else {
-        if (layersData && layerVisualizationSettings.targetType === 'property' && layerVisualizationSettings.targetProperty) {
+        if (layersData && isSingleLayerPropertyVisualization(layerVisualizationSettings)) {
             const layerPropertyValues = getNumericPropertyValues(layersData, layerVisualizationSettings.targetProperty)
             minValue = Math.min(...layerPropertyValues) ?? 0
             maxValue = Math.max(...layerPropertyValues) ?? 0

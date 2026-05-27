@@ -1105,12 +1105,15 @@ export default defineComponent({
         loadExistingVisualization() {
             if (!this.selectedVisualization) return
 
+            const selectedTargetLayer = this.widgetModel.layers?.find((layer: any) => layer.layerId === this.selectedVisualization.target)
+
             // Load base data
             Object.assign(this.visualizationData, {
                 label: this.selectedVisualization.label ?? '',
                 target: this.selectedVisualization.target ?? '',
                 connectionType: this.selectedVisualization.targetDataset ? 'join' : 'single',
                 visible: this.selectedVisualization.visible ?? true,
+                targetType: this.selectedVisualization.targetType ?? (selectedTargetLayer?.type === 'layer' ? 'property' : 'column'),
                 targetDataset: this.selectedVisualization.targetDataset,
                 targetMeasure: this.selectedVisualization.targetMeasure,
                 targetProperty: this.selectedVisualization.targetProperty ?? null,
@@ -1259,12 +1262,12 @@ export default defineComponent({
             this.visualizationData.targetDataset = undefined
             this.visualizationData.targetMeasure = undefined
             this.visualizationData.targetProperty = null
-            this.visualizationData.targetType = 'column'
             this.visualizationData.targetDatasetForeignKeyColumn = undefined
             this.visualizationData.chartMeasures = []
             this.visualizationData.targetDatasetMeasures = []
 
             const target = this.widgetModel.layers?.find((layer: any) => id === layer.layerId)
+            this.visualizationData.targetType = target?.type === 'layer' ? 'property' : 'column'
             if (!target || target.type !== 'layer' || this.propertiesCache.has(id)) {
                 this.visualizationData.properties = this.propertiesCache.get(id) || []
                 return
@@ -1323,8 +1326,10 @@ export default defineComponent({
         },
         buildBaseConfig(): any {
             const { analysisConf, markerConf, balloonConf, pieConf, clusterConf, heatmapConf, ...baseVisualizationData } = deepcopy(this.visualizationData) as any
+            const resolvedTargetType = this.getSelectedLayerType() === 'layer' ? 'property' : 'column'
             const baseConfig: any = {
                 ...baseVisualizationData,
+                targetType: resolvedTargetType,
                 // For charts, use 'pies' as the type for map rendering compatibility
                 type: this.selectedVisualizationType === 'charts' ? 'pies' : this.selectedVisualizationType
             }

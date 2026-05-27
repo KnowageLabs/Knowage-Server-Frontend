@@ -3,6 +3,7 @@ import { IVariable, IWidget } from '../../../Dashboard'
 import { ILayerFeature, IMapWidgetConditionalStyle, IMapWidgetLayer, IMapWidgetLayerFilter, IMapWidgetVisualizationThreshold, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import { replaceVariablesPlaceholdersByVariableName } from '../../interactionsHelpers/InteractionsParserHelper'
 import { getColumnDataIndex, resolveLayerByTarget } from '../LeafletHelper'
+import { getMapInfoColumnName } from '../MapWidgetInfoSettingsHelper'
 
 export const transformDataUsingForeginKey = (rows: any, pivotColumnIndex: string, valueColumnIndex: string) => {
     return rows.reduce((acc: number, row: any) => {
@@ -61,18 +62,37 @@ export const getQuantiles = (rows: number[] | null, numQuantiles: number, valueC
     return quantiles
 }
 
-export const getNumericPropertyValues = (geojson: any, propertyName: string): number[] => {
+const getMapLayerPropertyName = (propertyName: any): string => {
+    return getMapInfoColumnName(propertyName)
+}
+
+const getNumericPropertyValue = (value: unknown, propertyName: string): number => {
+    if (typeof value === 'number' && !Number.isNaN(value)) return value
+
+    if (typeof value === 'string') {
+        const trimmedValue = value.trim()
+        const numericValue = Number(trimmedValue)
+        if (trimmedValue.length > 0 && !Number.isNaN(numericValue)) return numericValue
+    }
+
+    throw new Error(`Property "${propertyName}" contains a non-numeric value: ${value}`)
+}
+
+export const getNumericPropertyValues = (geojson: any, propertyName: any): number[] => {
+    const normalizedPropertyName = getMapLayerPropertyName(propertyName)
+    if (!normalizedPropertyName) {
+        throw new Error('Property name is required to extract numeric layer values')
+    }
+
     const values = geojson.features.map((feature: ILayerFeature) => {
-        const value = feature.properties[propertyName]
-
-        if (typeof value !== 'number') {
-            throw new Error(`Property "${propertyName}" contains a non-numeric value: ${value}`)
-        }
-
-        return value
+        return getNumericPropertyValue(feature.properties?.[normalizedPropertyName], normalizedPropertyName)
     })
 
     return values
+}
+
+export const isSingleLayerPropertyVisualization = (layerVisualizationSettings: IMapWidgetVisualizationType): boolean => {
+    return !layerVisualizationSettings.targetDataset && !!getMapLayerPropertyName(layerVisualizationSettings.targetProperty)
 }
 
 export const getQuantilesFromLayersData = (rows: number[], numQuantiles: number): number[] => {
@@ -345,6 +365,7 @@ export const getInteractionDataMap = (source: ILayerFeature | Record<string, any
 
     const dataMap = {} as Record<string, any>
     const isFeatureSource = typeof source === 'object' && source !== null && 'properties' in source
+    const targetProperty = getMapLayerPropertyName(layerVisualizationSettings.targetProperty)
 
     if (isFeatureSource) {
         Object.assign(dataMap, (source as ILayerFeature).properties ?? {})
@@ -353,8 +374,8 @@ export const getInteractionDataMap = (source: ILayerFeature | Record<string, any
         addDataRowValuesToDataMap(source as Record<string, any>, sourceData, dataMap)
     }
 
-    if (mappedData && isFeatureSource && targetDatasetData && layerVisualizationSettings.targetProperty) {
-        const joinValue = (source as ILayerFeature).properties?.[layerVisualizationSettings.targetProperty]
+    if (mappedData && isFeatureSource && targetDatasetData && targetProperty) {
+        const joinValue = (source as ILayerFeature).properties?.[targetProperty]
         if (joinValue != null) {
             const targetDatasetRow = mappedData[joinValue]
             if (targetDatasetRow) addDataRowValuesToDataMap(targetDatasetRow, targetDatasetData, dataMap)
@@ -380,8 +401,8 @@ export const getTargetDataColumn = (data: any, layerVisualizationSettings: IMapW
 export const getTargetProperty = (layerVisualizationSettings: IMapWidgetVisualizationType) => {
     const filter = layerVisualizationSettings.filter
 
-    let targetProperty = layerVisualizationSettings.targetProperty
-    if (filter?.enabled) targetProperty = filter.column
+    let targetProperty = getMapLayerPropertyName(layerVisualizationSettings.targetProperty)
+    if (filter?.enabled) targetProperty = getMapLayerPropertyName(filter.column)
 
     return targetProperty
 }
@@ -395,14 +416,18 @@ export const getRowValues = (row: any, dataColumn: string, layerVisualizationSet
 }
 
 export const getFeatureValues = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, dataColumnIndex: string | null | undefined): { value: any; originalVisualizationTypeValue: any } => {
-    const layerTargetProperty = mappedData ? layerVisualizationSettings.targetProperty : getTargetProperty(layerVisualizationSettings)
-    const valueKey = feature.properties[layerTargetProperty]
+    const originalTargetProperty = getMapLayerPropertyName(layerVisualizationSettings.targetProperty)
+    const layerTargetProperty = mappedData ? originalTargetProperty : getTargetProperty(layerVisualizationSettings)
+
+    if (!layerTargetProperty || !originalTargetProperty) return { value: null, originalVisualizationTypeValue: null }
+
+    const valueKey = feature.properties?.[layerTargetProperty]
 
     if (mappedData && !mappedData[valueKey]) return { value: null, originalVisualizationTypeValue: null }
-    const value = mappedData && dataColumnIndex ? mappedData[valueKey][dataColumnIndex] : valueKey
+    const value = mappedData && dataColumnIndex ? mappedData[valueKey]?.[dataColumnIndex] : valueKey
 
-    const originalVisualizationTypeValueKey = feature.properties[layerVisualizationSettings.targetProperty]
-    const originalVisualizationTypeValue = mappedData && dataColumnIndex ? mappedData[originalVisualizationTypeValueKey][dataColumnIndex] : feature.properties[layerVisualizationSettings.targetProperty]
+    const originalVisualizationTypeValueKey = feature.properties?.[originalTargetProperty]
+    const originalVisualizationTypeValue = mappedData && dataColumnIndex ? mappedData[originalVisualizationTypeValueKey]?.[dataColumnIndex] : originalVisualizationTypeValueKey
 
     return { value, originalVisualizationTypeValue }
 }
