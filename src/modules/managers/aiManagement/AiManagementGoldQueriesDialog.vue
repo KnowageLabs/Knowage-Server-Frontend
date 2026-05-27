@@ -651,7 +651,7 @@ export default defineComponent({
 .query-item {
     border: 1px solid #e0e4ea;
     border-radius: 8px;
-    overflow: hidden;
+    overflow: auto;
     transition: box-shadow 0.15s ease;
     background: #fff;
     &:hover {
