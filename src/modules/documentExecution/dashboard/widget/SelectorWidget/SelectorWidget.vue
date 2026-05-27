@@ -100,6 +100,10 @@ export default defineComponent({
     watch: {
         propActiveSelections() {
             this.loadActiveSelections()
+            if (!this.editorMode) {
+                const found = this.loadActiveSelectionValue()
+                if (!found) this.removeDeafultValues()
+            }
         },
         dataToShow() {
             this.loadOptions()
