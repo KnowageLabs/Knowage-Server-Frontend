@@ -877,7 +877,7 @@ export default defineComponent({
             this.embed = this.$route.path.includes('embed')
             if (this.embed) this.setDocumentExecutionEmbed()
             if (this.$route.params?.mode && ['registry', 'dossier', 'olap', 'dashboard'].includes(this.$route.params.mode)) this.mode = this.$route.params.mode
-            else if (this.$route.name === 'new-dashboard' || this.$route.name === 'dashboard-new') this.mode = 'dashboard'
+            else if (this.$route.name === 'new-dashboard' || this.$route.name === 'dashboard-new' || this.$route.name === 'dashboard-execution') this.mode = 'dashboard'
             else this.mode = 'iframe'
             this.$q.loading.hide()
         },
@@ -925,7 +925,12 @@ export default defineComponent({
                       document: this.document,
                       dashboardReady: false
                   })
-            if (this.mode === 'iframe' && this.document.typeCode === 'DASHBOARD') this.mode = 'dashboard'
+            if (this.document.typeCode === 'DASHBOARD' && this.$route.name === 'document-execution' && this.$route.params?.mode === 'document-composite') {
+                this.mode = 'dashboard'
+                this.$router.replace(`/dashboard/${this.document.label}`)
+            } else if (this.mode === 'iframe' && this.document.typeCode === 'DASHBOARD') {
+                this.mode = 'dashboard'
+            }
         },
         async loadView() {
             this.loading = true
