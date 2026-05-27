@@ -3432,6 +3432,7 @@
                 "fromFile": "Importa da file",
                 "importedUsers": "Utenti importati",
                 "selectFile": "Seleziona file XLS o CSV",
+                "serviceError": "Non è stato possibile caricare gli utenti, controllare la struttura del file o riprovare più tardi",
                 "title": "Importa utenti da file"
             },
             "newUser": "Nuovo utente",

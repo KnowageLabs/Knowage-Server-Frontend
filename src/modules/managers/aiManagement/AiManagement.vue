@@ -13,21 +13,7 @@
                         <div class="ai-section-header-left">
                             <q-icon name="storage" size="20px" class="ai-section-icon" />
                             <span class="ai-section-title">{{ $t('managers.ai.businessModels.title') }}</span>
-                            <q-badge v-if="!loadingBm && businessModels.length" outline color="primary" class="q-ml-sm">{{ businessModels.length }}</q-badge>
                         </div>
-                        <q-btn
-                            v-if="store.isEnterprise && store.configurations['KNOWAGE.AI.URL']"
-                            color="primary"
-                            unelevated
-                            size="sm"
-                            :disable="loadingBm || syncingBm"
-                            :loading="syncingBm"
-                            class="ai-sync-bm-btn"
-                            @click.stop="syncronizeBusinessModels"
-                        >
-                            <q-icon name="sync" :class="{ 'ai-spin': syncingBm }" class="q-mr-xs" size="xs" />
-                            {{ $t('managers.ai.businessModels.syncronize') }}
-                        </q-btn>
                     </div>
 
                     <q-separator />
@@ -249,13 +235,13 @@ onMounted(async () => {
     setTimeout(() => {
         if (store.isEnterprise && store.configurations['KNOWAGE.AI.URL']) {
             getLastUpdate()
-            getBmLastUpdate()
+            //getBmLastUpdate()
         }
     }, 2000)
     polling.value = setInterval(() => {
         if (store.isEnterprise && store.configurations['KNOWAGE.AI.URL']) {
             getLastUpdate()
-            getBmLastUpdate()
+            //getBmLastUpdate()
         }
     }, 10000)
 })
@@ -278,7 +264,7 @@ async function loadBusinessModels() {
 
 async function loadGoldQueries(bmId: number) {
     await axios
-        .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/PLACEHOLDER_GET_GOLD_QUERIES/${bmId}`)
+        .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/2.0/resources/eng-gpt-data/${bmId}`)
         .then((response) => {
             const data = response.data
             goldQueriesMap.value[bmId] = Array.isArray(data?.sql_gold) ? data.sql_gold : Array.isArray(data) ? data : []

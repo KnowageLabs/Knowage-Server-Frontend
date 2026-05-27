@@ -101,13 +101,16 @@ export default defineComponent({
                     const data: any[] = response.data || []
                     this.importedUsers = data.filter((item) => item.success)
                     this.errors = data.filter((item) => !item.success).map((item) => `${item.userId}: ${item.message}`)
+                    if (this.importedUsers.length === 0 && this.errors.length === 0) {
+                        this.errors = [this.$t('managers.usersManagement.import.serviceError')]
+                    }
                     if (this.importedUsers.length > 0) {
                         this.$emit('imported')
                     }
                     this.phase = 'results'
                 })
-                .catch((error) => {
-                    this.errors = [error?.message || this.$t('common.error.uploading')]
+                .catch(() => {
+                    this.errors = [this.$t('managers.usersManagement.import.serviceError')]
                     this.importedUsers = []
                     this.phase = 'results'
                 })
