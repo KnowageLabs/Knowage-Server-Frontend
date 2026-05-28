@@ -62,7 +62,7 @@
             <div class="wizard-separator"></div>
 
             <!-- Step Content -->
-            <div class="wizard-content" :class="{ 'no-scroll': currentStep === 1 }">
+            <div class="wizard-content">
                 <!-- Step 1: Visualization Type Selection -->
                 <div v-show="currentStep === 1" class="step-content">
                     <div class="viz-section">
@@ -106,7 +106,7 @@
                                 <div
                                     class="chart-type-option"
                                     :class="{ selected: visualizationConfig.chartType === 'pies' }"
-                                    @click="visualizationConfig.chartType = 'pies'"
+                                    @click="setChartType('pies')"
                                 >
                                     <q-icon name="pie_chart" size="md" />
                                     <span>{{ $t('dashboard.widgetEditor.map.chartTypes.pies') }}</span>
@@ -120,7 +120,7 @@
                                 <div
                                     class="chart-type-option"
                                     :class="{ selected: visualizationConfig.chartType === 'bar' }"
-                                    @click="visualizationConfig.chartType = 'bar'"
+                                    @click="setChartType('bar')"
                                 >
                                     <q-icon name="bar_chart" size="md" />
                                     <span>{{ $t('dashboard.widgetEditor.map.chartTypes.bar') }}</span>
@@ -131,6 +131,10 @@
                                         class="check-icon"
                                     />
                                 </div>
+                            </div>
+
+                            <div class="p-mt-3">
+                                <MapVisualizatonChartsColorPicker :prop-visualization-type="visualizationConfig.chartPalette"></MapVisualizatonChartsColorPicker>
                             </div>
                         </div>
 
@@ -823,7 +827,9 @@ import WidgetEditorColorPicker from '../WidgetEditorSettingsTab/common/WidgetEdi
 import WidgetEditorStyleIconPickerDialog from '../WidgetEditorSettingsTab/common/styleToolbar/WidgetEditorStyleIconPickerDialog.vue'
 import MapVisualizationImagePickerDialog from '../WidgetEditorSettingsTab/MapWidget/visualization/markers/MapVisualizationImagePickerDialog.vue'
 import MapVisualizationRangesDialog from '../WidgetEditorSettingsTab/MapWidget/visualization/configuration/MapVisualizationRangesDialog.vue'
+import MapVisualizatonChartsColorPicker from '../WidgetEditorSettingsTab/MapWidget/visualization/configuration/MapVisualizatonChartsColorPicker.vue'
 import { normalizeMapWidgetBalloonsConfiguration, normalizeMapWidgetChoroplethConfiguration, normalizeMapWidgetClusterConfiguration } from '../helpers/mapWidget/MapWidgetVisualizationConfigurationHelper'
+import * as mapWidgetDefaultValues from '../helpers/mapWidget/MapWidgetDefaultValues'
 
 const getDefaultVisualizationData = () => ({
     label: '',
@@ -858,6 +864,7 @@ const getDefaultVisualizationConfig = () => ({
     iconClass: 'fa fa-map-marker',
     iconUrl: '',
     iconImg: '',
+    chartPalette: mapWidgetDefaultValues.getDefaultVisualizationPieConfiguration(),
     thresholds: [] as IMapWidgetVisualizationThreshold[]
 })
 
@@ -867,7 +874,8 @@ export default defineComponent({
         WidgetEditorColorPicker,
         WidgetEditorStyleIconPickerDialog,
         MapVisualizationImagePickerDialog,
-        MapVisualizationRangesDialog
+        MapVisualizationRangesDialog,
+        MapVisualizatonChartsColorPicker
     },
     props: {
         visible: { type: Boolean, required: true },
@@ -1159,8 +1167,14 @@ export default defineComponent({
                 }
                 case 'charts': {
                     if (!this.selectedVisualization.pieConf) break
+                    const defaultChartPalette = mapWidgetDefaultValues.getDefaultVisualizationPieConfiguration()
                     const conf = this.selectedVisualization.pieConf
-                    this.visualizationConfig.chartType = conf.type === 'pie' ? 'pies' : 'bar'
+                    this.setChartType(conf.type === 'pie' ? 'pies' : 'bar')
+                    this.visualizationConfig.chartPalette = {
+                        ...defaultChartPalette,
+                        ...conf,
+                        colors: [...(conf.colors?.length ? conf.colors : defaultChartPalette.colors)]
+                    }
                     if (this.selectedVisualization.chartMeasures) this.visualizationData.chartMeasures = this.selectedVisualization.chartMeasures
                     else if (conf.measures) this.visualizationData.chartMeasures = conf.measures
                     break
@@ -1281,6 +1295,10 @@ export default defineComponent({
                 this.visualizationData.targetDataset = undefined
             }
         },
+        setChartType(value: 'pies' | 'bar') {
+            this.visualizationConfig.chartType = value
+            this.visualizationConfig.chartPalette.type = value === 'pies' ? 'pie' : 'bar'
+        },
         getTargetLayerType() {
             const targetLayer = this.widgetModel.layers?.find((layer: any) => this.visualizationData.target === layer.layerId)
             return targetLayer ? targetLayer.type : 'dataset'
@@ -1376,7 +1394,7 @@ export default defineComponent({
                 baseConfig.pieConf = {
                     type: this.visualizationConfig.chartType === 'pies' ? 'pie' : 'bar',
                     measures: this.visualizationData.chartMeasures || [],
-                    colors: ['rgba(59, 130, 246, 1)', 'rgba(236, 72, 153, 1)', 'rgba(16, 185, 129, 1)', 'rgba(245, 158, 11, 1)', 'rgba(139, 92, 246, 1)', 'rgba(236, 252, 203, 1)']
+                    colors: [...(this.visualizationConfig.chartPalette?.colors?.length ? this.visualizationConfig.chartPalette.colors : mapWidgetDefaultValues.getDefaultVisualizationPieConfiguration().colors)]
                 }
                 baseConfig.chartMeasures = this.visualizationData.chartMeasures
                 if (this.visualizationData.connectionType === 'join' && this.visualizationData.targetDataset) {
@@ -1652,12 +1670,9 @@ export default defineComponent({
 
 .wizard-content {
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
     padding: 32px;
-
-    &.no-scroll {
-        overflow-y: hidden;
-    }
     background: #f8f9fa;
 
     &::-webkit-scrollbar {

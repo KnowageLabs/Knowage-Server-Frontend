@@ -203,7 +203,11 @@ const createChart = (chartValuesRecord: ChartValuesRecord, layerVisualizationSet
 const formatChartColorsAndData = (data: { category: string; value: number | string }[], layerVisualizationSettings: IMapWidgetVisualizationType, variables: IVariable[], widgetModel: IWidget) => {
     const defaultColors = ['red', 'blue', 'green']
     const chartData = data.map((item: { category: string; value: number | string }) => ({ category: item.category, value: item.value })) as { category: string; value: number }[]
-    const chartColors = (layerVisualizationSettings.pieConf?.colors ?? defaultColors).slice(0, chartData.length).concat(Array.from({ length: Math.max(0, chartData.length - defaultColors.length) }, (_, i) => defaultColors[i % defaultColors.length]))
+    const configuredColors = layerVisualizationSettings.pieConf?.colors?.filter((color: string) => !!color) ?? []
+    const baseColors = configuredColors.length > 0 ? configuredColors : defaultColors
+    const chartColors = baseColors
+        .slice(0, chartData.length)
+        .concat(Array.from({ length: Math.max(0, chartData.length - baseColors.length) }, (_, i) => defaultColors[i % defaultColors.length]))
     const chartDomains = chartData.map((item: { category: string; value: number | string }) => item.category)
 
     chartData?.forEach((data: { category: string; value: number }, index: number) => {

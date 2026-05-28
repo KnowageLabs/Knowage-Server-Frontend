@@ -6,13 +6,15 @@
                 <label for="customColor" class="kn-material-input-label">{{ $t('dashboard.widgetEditor.map.customColor') }}</label>
             </span>
         </div>
-        <Button class="kn-button kn-button--primary click-outside p-mx-1 p-p-0 kn-flex" :style="`background-color:${customColorValue}`" @click="toggleColorPicker(-1)"></Button>
-        <Button icon="fas fa-plus fa-1x" class="p-button-text p-button-plain p-ml-2" @click="addColor" />
+        <q-btn class="kn-button kn-button--primary p-mx-1 p-p-0 kn-flex" :style="`background-color:${customColorValue}`" unelevated>
+            <q-menu touch-position>
+                <q-color v-model="customColorValue" format-model="hexa" :palette="descriptor.defaultColors" />
+            </q-menu>
+        </q-btn>
+        <q-btn icon="fas fa-plus" class="p-button-text" color="primary" unelevated @click="addColor" />
     </div>
 
-    <ColorPicker v-if="colorPickerVisible" class="dashboard-color-picker click-outside" theme="light" :color="customColorValue" :colors-default="descriptor.defaultColors" :sucker-hide="true" @changeColor="changeColor" />
-
-    <DataTable v-if="visualizationType" class="pallete-table p-col-12 p-p-0" :style="descriptor.colorPaletteStyle.table" :value="visualizationType.colors" :reorderable-columns="false" responsive-layout="scroll" @rowReorder="onRowReorder">
+    <DataTable v-if="colorsModel" class="pallete-table p-col-12 p-p-0" :style="descriptor.colorPaletteStyle.table" :value="colorsModel" :reorderable-columns="false" responsive-layout="scroll" @rowReorder="onRowReorder">
         <Column :row-reorder="true" :reorderable-column="false" :style="descriptor.colorPaletteStyle.column">
             <template #body="slotProps">
                 <span class="kn-height-full" :style="`background-color: ${slotProps.data};`">
@@ -28,7 +30,11 @@
         <Column :row-reorder="true" :reorderable-column="false" :style="descriptor.colorPaletteStyle.column">
             <template #body="slotProps">
                 <span class="kn-height-full" :style="`background-color: ${slotProps.data};`">
-                    <i class="pi pi-pencil kn-cursor-pointer p-mr-2 click-outside" @click="toggleColorPicker(slotProps.index)"></i>
+                    <i class="pi pi-pencil kn-cursor-pointer p-mr-2">
+                        <q-menu touch-position>
+                            <q-color v-model="colorsModel[slotProps.index]" format-model="hexa" :palette="descriptor.defaultColors" @change="colorsChanged" />
+                        </q-menu>
+                    </i>
                     <i class="pi pi-trash kn-cursor-pointer p-mr-2" @click="deleteColor(slotProps.index)"></i>
                 </span>
             </template>
@@ -39,77 +45,64 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref } from 'vue'
+import { defineComponent, PropType } from 'vue'
 import { IMapWidgetVisualizationTypePie } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
-import { ColorPicker } from 'vue-color-kit'
-import { useClickOutside } from '../../../common/styleToolbar/useClickOutside'
-import 'vue-color-kit/dist/vue-color-kit.css'
 import descriptor from './MapVisualizationDescriptor.json'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
+import * as mapWidgetDefaultValues from '../../../../helpers/mapWidget/MapWidgetDefaultValues'
+import deepcopy from 'deepcopy'
 
 export default defineComponent({
     name: 'map-visualizations-charts-color-picker',
-    components: { DataTable, Column, ColorPicker },
+    components: { DataTable, Column },
     props: { propVisualizationType: { type: Object as PropType<IMapWidgetVisualizationTypePie | undefined>, required: true } },
-    setup() {
-        const knowageStyleIcon = ref(null)
-        const colorPickerVisible = ref(false)
-        const contextMenuVisible = ref(false)
-        useClickOutside(knowageStyleIcon, () => {
-            colorPickerVisible.value = false
-            contextMenuVisible.value = false
-        })
-        return { colorPickerVisible, contextMenuVisible, knowageStyleIcon }
-    },
     data() {
         return {
             descriptor,
             customColorValue: '#8D8D8D',
-            editIndex: -1,
-            colorPickTimer: null as any,
-            useClickOutside,
-            visualizationType: null as IMapWidgetVisualizationTypePie | null
+            visualizationType: null as IMapWidgetVisualizationTypePie | null,
+            colorsModel: null as string[] | null
         }
     },
     watch: {
-        widgetModel() {
+        propVisualizationType() {
             this.loadVisualizationType()
         }
     },
     created() {
         this.loadVisualizationType()
     },
-    unmounted() {},
     methods: {
         loadVisualizationType() {
             this.visualizationType = this.propVisualizationType ?? null
-        },
-        toggleColorPicker(index) {
-            this.colorPickerVisible = !this.colorPickerVisible
-            this.editIndex = index
+            if (!this.visualizationType) {
+                this.colorsModel = null
+                return
+            }
+            const defaultColors = mapWidgetDefaultValues.getDefaultVisualizationPieConfiguration().colors
+            const sourceColors = this.visualizationType.colors?.length ? this.visualizationType.colors : defaultColors
+            this.colorsModel = deepcopy(sourceColors)
+            if (!this.visualizationType.colors || this.visualizationType.colors.length === 0) this.colorsChanged()
         },
         onRowReorder(event: { value: string[] }) {
-            if (this.visualizationType) this.visualizationType.colors = [...event.value]
+            if (!this.colorsModel) return
+            this.colorsModel.splice(0, this.colorsModel.length, ...event.value)
+            this.colorsChanged()
         },
         addColor() {
-            if (this.visualizationType) this.visualizationType.colors.push(this.customColorValue)
+            if (!this.colorsModel) this.colorsModel = []
+            this.colorsModel.push(this.customColorValue)
+            this.colorsChanged()
         },
-        changeColor(color: any) {
-            const { r, g, b, a } = color.rgba
-
-            if (this.colorPickTimer) {
-                clearTimeout(this.colorPickTimer)
-                this.colorPickTimer = null
-            }
-            this.colorPickTimer = setTimeout(() => {
-                if (!this.customColorValue || !this.visualizationType) return
-                if (this.editIndex != -1) this.visualizationType.colors[this.editIndex] = `rgba(${r}, ${g}, ${b}, ${a})`
-                else this.customColorValue = `rgba(${r}, ${g}, ${b}, ${a})`
-            }, 200)
+        colorsChanged() {
+            if (!this.visualizationType || !this.colorsModel) return
+            this.visualizationType.colors = deepcopy(this.colorsModel)
         },
         deleteColor(index: number) {
-            if (this.visualizationType) this.visualizationType.colors.splice(index, 1)
+            if (!this.colorsModel) return
+            this.colorsModel.splice(index, 1)
+            this.colorsChanged()
         }
     }
 })

@@ -123,7 +123,7 @@
                                 </div>
 
                                 <div class="viz-actions">
-                                    <div class="viz-preview-colors" v-if="viz.type === 'choropleth' || viz.type === 'markers'">
+                                    <div class="viz-preview-colors" v-if="viz.type === 'choropleth' || viz.type === 'markers' || viz.type === 'pies'">
                                         <div
                                             v-for="(color, i) in getVisualizationColors(viz)"
                                             :key="i"
@@ -340,6 +340,10 @@ export default defineComponent({
 
             if (viz.type === 'markers' && viz.markerConf?.style?.color) {
                 return [viz.markerConf.style.color]
+            }
+
+            if (viz.type === 'pies' && viz.pieConf?.colors?.length) {
+                return viz.pieConf.colors.slice(0, 5)
             }
 
             // Default fallback colors
@@ -661,4 +665,3 @@ export default defineComponent({
     }
 }
 </style>
-
