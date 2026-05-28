@@ -24,7 +24,12 @@
                                         <q-btn flat round class="q-mr-xs" color="black" size="xs" :icon="visualization.filter?.enabled ? 'filter_alt' : 'filter_alt_off'" @click="toggleFilter(visualization)">
                                             <q-tooltip :delay="500">{{ $t('common.close') }}</q-tooltip>
                                         </q-btn>
-                                        {{ visualization.label }}
+                                        <div class="kn-map-sidebar-visualization-preview">
+                                            <img v-if="isMarkerImagePreview(visualization)" :src="getMarkerPreviewImageSource(visualization)" class="kn-map-sidebar-preview-image" />
+                                            <i v-else-if="isMarkerVisualization(visualization)" :class="getMarkerPreviewIconClass(visualization)" :style="getMarkerPreviewStyle(visualization)" class="kn-map-sidebar-preview-icon"></i>
+                                            <q-icon v-else :name="getVisualizationIcon(visualization.type)" size="xs" class="kn-map-sidebar-preview-icon"></q-icon>
+                                        </div>
+                                        <span class="kn-map-sidebar-visualization-label">{{ visualization.label }}</span>
                                     </div>
                                     <q-select filled class="col-4 q-mr-xs q-mt-xs" v-model="visualization.filter.column" :options="getFilterColumnOptions(visualization)" dense options-dense stack-label emit-value map-options option-label="alias" option-value="name" :label="$t('common.column')" @update:modelValue="onFilterColumnChanged(visualization)" />
                                     <div class="row items-center gap-2" v-if="visualization.filter?.enabled">
@@ -57,6 +62,7 @@ import { getPropertiesByLayerLabel } from './MapWidgetDataProxy'
 import MapLegend from './legend/MapLegend.vue'
 import { emitter } from '../../DashboardHelpers'
 import { ensureMapVisualizationFilter, getAvailableMapFilterColumns, getConfiguredMapFilterColumns, getMapFilterColumnsFromProperties, MapFilterColumnsCache } from './MapWidgetControlPanelHelper'
+import { getMapMarkerPreviewIconClass, getMapMarkerPreviewImageSource, getMapMarkerPreviewStyle, getMapVisualizationIcon, isMapMarkerImagePreview } from './MapWidgetVisualizationPreviewHelper'
 
 export default defineComponent({
     name: 'map-widget',
@@ -182,6 +188,24 @@ export default defineComponent({
             ensureMapVisualizationFilter(visualization)
             this.reloadFilters(visualization)
         },
+        getVisualizationIcon(type: string) {
+            return getMapVisualizationIcon(type)
+        },
+        isMarkerImagePreview(visualization: IMapWidgetVisualizationType) {
+            return isMapMarkerImagePreview(visualization)
+        },
+        isMarkerVisualization(visualization: IMapWidgetVisualizationType) {
+            return visualization.type === 'markers' && !!visualization.markerConf && !this.isMarkerImagePreview(visualization)
+        },
+        getMarkerPreviewIconClass(visualization: IMapWidgetVisualizationType) {
+            return getMapMarkerPreviewIconClass(visualization)
+        },
+        getMarkerPreviewStyle(visualization: IMapWidgetVisualizationType) {
+            return getMapMarkerPreviewStyle(visualization)
+        },
+        getMarkerPreviewImageSource(visualization: IMapWidgetVisualizationType) {
+            return getMapMarkerPreviewImageSource(visualization)
+        },
         reloadFilters(visualization: IMapWidgetVisualizationType) {
             if (visualization.filter) visualization.filter.reloaded = false
             this.filtersReloadTrigger = !this.filtersReloadTrigger
@@ -252,6 +276,29 @@ export default defineComponent({
     }
     .kn-map-sidebar-layer {
         font-size: 1rem;
+    }
+    .kn-map-sidebar-visualization-preview {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.4rem;
+        min-width: 1.4rem;
+        height: 1.4rem;
+        margin-right: 0.35rem;
+        color: #495057;
+    }
+    .kn-map-sidebar-preview-icon {
+        font-size: 0.95rem;
+        line-height: 1;
+    }
+    .kn-map-sidebar-preview-image {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+    .kn-map-sidebar-visualization-label {
+        font-weight: 500;
+        overflow-wrap: anywhere;
     }
     .kn-map-sidebar-scroller {
         flex: 1;

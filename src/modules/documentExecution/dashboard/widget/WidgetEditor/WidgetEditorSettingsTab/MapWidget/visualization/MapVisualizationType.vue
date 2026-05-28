@@ -184,6 +184,7 @@ import { useQuasar } from 'quasar'
 import { IWidget } from '../../../../../Dashboard'
 import { IMapWidgetLayer, IMapWidgetVisualizationType } from '../../../../../interfaces/mapWidget/DashboardMapWidget'
 import MapLayerConfigurationWizard from '../../../MapWidget/MapLayerConfigurationWizard.vue'
+import { getMapVisualizationColors, getMapVisualizationIcon } from '../../../../../MapWidget/MapWidgetVisualizationPreviewHelper'
 
 export default defineComponent({
     name: 'map-visualization-type',
@@ -306,16 +307,7 @@ export default defineComponent({
             this.loadVisualizations()
         },
         getVisualizationIcon(type: string): string {
-            const icons: Record<string, string> = {
-                markers: 'place',
-                choropleth: 'map',
-                heatmap: 'blur_on',
-                clusters: 'group_work',
-                charts: 'pie_chart',
-                pies: 'pie_chart', // backward compatibility
-                balloons: 'bubble_chart'
-            }
-            return icons[type] || 'layers'
+            return getMapVisualizationIcon(type)
         },
         getVisualizationTypeLabel(type: string): string {
             return this.$t(`dashboard.widgetEditor.map.visTypes.${type}`)
@@ -329,25 +321,7 @@ export default defineComponent({
             return target?.type === 'layer' ? this.$t('common.layer') : this.$t('common.dataset')
         },
         getVisualizationColors(viz: IMapWidgetVisualizationType): string[] {
-            // Get colors from style configuration
-            if (viz.type === 'choropleth' && viz.analysisConf?.style) {
-                const colors: string[] = []
-                const style = viz.analysisConf.style
-                if (style.color) colors.push(style.color)
-                if (style.toColor) colors.push(style.toColor)
-                if (colors.length > 0) return colors
-            }
-
-            if (viz.type === 'markers' && viz.markerConf?.style?.color) {
-                return [viz.markerConf.style.color]
-            }
-
-            if (viz.type === 'pies' && viz.pieConf?.colors?.length) {
-                return viz.pieConf.colors.slice(0, 5)
-            }
-
-            // Default fallback colors
-            return ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981']
+            return getMapVisualizationColors(viz)
         },
         onDragStart(event: DragEvent, index: number) {
             event.dataTransfer!.setData('text/plain', JSON.stringify(index))
