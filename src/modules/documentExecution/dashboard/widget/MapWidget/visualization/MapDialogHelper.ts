@@ -6,6 +6,7 @@ import { ChartValuesRecord } from './MapChartsVizualizationHelper'
 import { executeMapInteractions } from '../interactions/MapInteractionsHelper'
 import { getInteractionDataMap } from './MapVisualizationHelper'
 import { getMapInfoColumnName } from '../MapWidgetInfoSettingsHelper'
+import { formatNumberWithLocale } from '@/helpers/commons/localeHelper'
 
 interface IListItemStyle {
     'justify-content': string
@@ -170,6 +171,11 @@ const createTooltipListItem = (value: string, style: IListItemStyle | undefined,
                 li.style.setProperty(key, val)
             }
         })
+
+        if (style.color) {
+            label.style.color = style.color
+            itemValue.style.color = style.color
+        }
     }
 
     li.addEventListener('click', (event) => executeMapInteractions(event, widgetModel, layerVisualizationSettings, activeSelections, dashboardId, variables))
@@ -177,16 +183,33 @@ const createTooltipListItem = (value: string, style: IListItemStyle | undefined,
     return li
 }
 
-const getFormattedValueForTheTooltipListItem = (value: string, precision: number | undefined) => {
-    if (!precision) return value
+const getNumericValueForTooltipListItem = (value: string): number | null => {
+    const trimmedValue = value.trim()
+    if (!trimmedValue) return null
 
-    const floatValue = parseFloat(value)
+    const directNumericValue = Number(trimmedValue)
+    if (Number.isFinite(directNumericValue)) return directNumericValue
 
-    if (!isNaN(floatValue) && Number.isFinite(floatValue) && !Number.isInteger(floatValue)) {
-        return floatValue.toFixed(precision)
-    }
+    const compactValue = trimmedValue.replace(/\s/g, '')
+    const lastCommaIndex = compactValue.lastIndexOf(',')
+    const lastDotIndex = compactValue.lastIndexOf('.')
+    if (lastCommaIndex === -1 && lastDotIndex === -1) return null
 
-    return value
+    const decimalSeparator = lastCommaIndex > lastDotIndex ? ',' : '.'
+    const thousandsSeparator = decimalSeparator === ',' ? '.' : ','
+    const normalizedValue = compactValue.split(thousandsSeparator).join('').replace(decimalSeparator, '.')
+    const localizedNumericValue = Number(normalizedValue)
+
+    return Number.isFinite(localizedNumericValue) ? localizedNumericValue : null
+}
+
+const getFormattedValueForTheTooltipListItem = (value: string, precision: number | undefined | null) => {
+    if (precision === undefined || precision === null) return value
+
+    const numericValue = getNumericValueForTooltipListItem(value)
+    if (numericValue === null) return value
+
+    return formatNumberWithLocale(numericValue, precision)
 }
 
 const checkInteractionsIfColumnIsClickable = (value: string, widgetModel: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType) => {
