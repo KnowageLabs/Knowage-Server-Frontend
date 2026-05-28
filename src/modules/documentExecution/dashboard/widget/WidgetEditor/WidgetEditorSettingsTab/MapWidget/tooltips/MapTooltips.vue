@@ -11,7 +11,7 @@
                 <div class="row items-center q-mb-sm">
                     <i class="pi pi-th-large kn-cursor-pointer"></i>
                     <q-select class="col-6" filled dense :model-value="tool.label" :disable="tooltipsDisabled" :options="getFilteredVisualizationTypeOptions(index)" option-label="label" option-value="label" emit-value map-options option-dense :label="$t('dashboard.widgetEditor.visualizationType.title')" @update:model-value="(val) => onVisualizationSelected(val, tool)"></q-select>
-                    <MultiSelect class="col-5 q-ml-sm" v-model="tool.columns" :disabled="tooltipsDisabled" :options="getColumnOptionsFromLayer(tool)" option-label="alias" option-value="name" display="chip" />
+                    <MultiSelect class="col-5 q-ml-sm" :model-value="getSelectedColumnNames(tool)" :disabled="tooltipsDisabled" :options="getColumnOptionsFromLayer(tool)" option-label="alias" option-value="name" display="chip" @update:model-value="(val) => onColumnsChanged(val, tool)" />
                 </div>
                 <div class="q-col-gutter" style="gap: 0.5em; margin-left: auto">
                     <i v-if="index === 0" class="pi pi-plus-circle kn-cursor-pointer" data-test="new-button" @click="addTooltip()"></i>
@@ -19,10 +19,13 @@
                 </div>
             </div>
 
-            <div class="p-grid p-col-12 p-mt-2">
-                <q-input dense class="p-col-4" filled v-model="tool.prefix" :label="$t('dashboard.widgetEditor.prefix')" :disable="tooltipsDisabled" />
-                <q-input dense class="p-col-4" filled v-model="tool.suffix" :label="$t('dashboard.widgetEditor.suffix')" :disable="tooltipsDisabled" />
-                <q-input dense class="p-col-4" type="number" filled v-model="tool.precision" :label="$t('dashboard.widgetEditor.precision')" :disable="tooltipsDisabled" />
+            <div v-if="getSelectedColumns(tool).length" class="p-col-12 p-mt-2">
+                <div v-for="column in getSelectedColumns(tool)" :key="column.name" class="p-grid p-ai-center p-mb-2 map-info-column-row">
+                    <div class="p-col-12 p-md-3 map-info-column-label">{{ getColumnAlias(column, tool) }}</div>
+                    <q-input dense class="p-col-12 p-md-3" filled v-model="column.prefix" :label="$t('dashboard.widgetEditor.prefix')" :disable="tooltipsDisabled" />
+                    <q-input dense class="p-col-12 p-md-3" filled v-model="column.suffix" :label="$t('dashboard.widgetEditor.suffix')" :disable="tooltipsDisabled" />
+                    <q-input dense class="p-col-12 p-md-3" type="number" filled v-model.number="column.precision" :label="$t('dashboard.widgetEditor.precision')" :disable="tooltipsDisabled" />
+                </div>
             </div>
 
             <div class="p-col-12 form-list-item-dropzone" :class="{ 'form-list-item-dropzone-active': dropzoneBottomVisible[index] }" @drop.stop="onDropComplete($event, 'after', index)" @dragover.prevent @dragenter.prevent="displayDropzone('bottom', index)" @dragleave.prevent="hideDropzone('bottom', index)"></div>
@@ -34,7 +37,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
-import { IMapTooltipSettings, IMapTooltipSettingsVisualizations, IMapWidgetLayer, IMapWidgetLayerProperty, IMapWidgetVisualizationType } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
+import { IMapInfoColumnSettings, IMapTooltipSettings, IMapTooltipSettingsVisualizations, IMapWidgetLayer, IMapWidgetLayerProperty, IMapWidgetVisualizationType } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { mapActions } from 'pinia'
 import appStore from '@/App.store'
 import Dropdown from 'primevue/dropdown'
@@ -44,7 +47,7 @@ import defaultsDescriptor from '../../../helpers/mapWidget/MapWidgetDefaultValue
 import { getPropertiesByLayerLabel } from '../../../../MapWidget/MapWidgetDataProxy'
 import * as mapWidgetDefaultValues from '../../../helpers/mapWidget/MapWidgetDefaultValues'
 import { resolveLayerByTarget } from '../../../../MapWidget/LeafletHelper'
-import { normalizeMapInfoSettings } from '../../../../MapWidget/MapWidgetInfoSettingsHelper'
+import { createMapInfoColumnSettings, getMapInfoColumnName, normalizeMapInfoSettings } from '../../../../MapWidget/MapWidgetInfoSettingsHelper'
 
 export default defineComponent({
     name: 'map-tooltips',
@@ -185,6 +188,27 @@ export default defineComponent({
                 return { name: property.property, alias: property.property }
             })
         },
+        getSelectedColumnNames(tooltip: { columns?: IMapInfoColumnSettings[] } | null | undefined) {
+            return (tooltip?.columns ?? []).map((column: IMapInfoColumnSettings) => getMapInfoColumnName(column)).filter((columnName: string) => !!columnName)
+        },
+        getSelectedColumns(tooltip: { columns?: IMapInfoColumnSettings[] } | null | undefined) {
+            return tooltip?.columns ?? []
+        },
+        getColumnAlias(column: IMapInfoColumnSettings, tooltip: any) {
+            const columnName = getMapInfoColumnName(column)
+            return this.getColumnOptionsFromLayer(tooltip).find((option: { name: string; alias: string }) => option.name === columnName)?.alias ?? columnName
+        },
+        onColumnsChanged(selectedColumns: string[] | null, tooltip: any) {
+            const existingColumns = new Map(
+                (tooltip?.columns ?? []).map((column: IMapInfoColumnSettings) => {
+                    return [getMapInfoColumnName(column), column]
+                })
+            )
+
+            tooltip.columns = (selectedColumns ?? []).map((columnName: string) => {
+                return existingColumns.get(columnName) ?? createMapInfoColumnSettings(columnName)
+            })
+        },
         loadVisualizations() {
             this.visualizationTypeOptions = []
             if (!this.widgetModel?.settings?.visualizations) return
@@ -226,5 +250,15 @@ export default defineComponent({
 .form-list-item-dropzone-active {
     height: 10px;
     background-color: #aec1d3;
+}
+
+.map-info-column-row {
+    padding: 0.5rem 0;
+    border-top: 1px solid #e5e7eb;
+}
+
+.map-info-column-label {
+    font-weight: 600;
+    overflow-wrap: anywhere;
 }
 </style>

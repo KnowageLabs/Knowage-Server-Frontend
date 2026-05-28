@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getMapDatasetInfoColumnNames, getMapInfoColumnName, getMapVisualizationMeasureLabel, normalizeMapInfoSettings, normalizeMapLegendSettings } from '../MapWidgetInfoSettingsHelper'
+import { createMapInfoColumnSettings, getMapDatasetInfoColumnNames, getMapInfoColumnName, getMapVisualizationMeasureLabel, normalizeMapInfoSettings, normalizeMapLegendSettings } from '../MapWidgetInfoSettingsHelper'
 
 describe('MapWidgetInfoSettingsHelper', () => {
     it('extracts column names from strings and option objects', () => {
@@ -8,19 +8,34 @@ describe('MapWidgetInfoSettingsHelper', () => {
         expect(getMapInfoColumnName({ property: 'NAME_1' })).toBe('NAME_1')
     })
 
-    it('normalizes dialog and tooltip columns to string names', () => {
+    it('normalizes dialog and tooltip columns to per-column formatting settings', () => {
         const settings = {
+            prefix: 'EUR ',
+            suffix: '%',
+            precision: 3,
             visualizations: [
                 {
                     label: 'Regions',
-                    columns: ['REG_NAME', { name: 'ELETTORI', alias: 'Elettori' }, { property: 'NAME_1' }]
+                    prefix: '$',
+                    suffix: ' pcs',
+                    precision: 1,
+                    columns: ['REG_NAME', { name: 'ELETTORI', alias: 'Elettori' }, { property: 'NAME_1', prefix: '#', suffix: '', precision: 0 }]
                 }
             ]
         } as any
 
         normalizeMapInfoSettings(settings)
 
-        expect(settings.visualizations[0].columns).toEqual(['REG_NAME', 'ELETTORI', 'NAME_1'])
+        expect(settings.visualizations[0].columns).toEqual([
+            { name: 'REG_NAME', prefix: '$', suffix: ' pcs', precision: 1 },
+            { name: 'ELETTORI', prefix: '$', suffix: ' pcs', precision: 1 },
+            { name: 'NAME_1', prefix: '#', suffix: '', precision: 0 }
+        ])
+    })
+
+    it('creates standalone info column settings with default formatting', () => {
+        expect(createMapInfoColumnSettings('REG_NAME')).toEqual({ name: 'REG_NAME', prefix: '', suffix: '', precision: 2 })
+        expect(createMapInfoColumnSettings({ name: 'ELETTORI', prefix: 'EUR ', suffix: '%', precision: '3' })).toEqual({ name: 'ELETTORI', prefix: 'EUR ', suffix: '%', precision: 3 })
     })
 
     it('collects dataset info columns configured in dialog and tooltips for matching visualizations', () => {

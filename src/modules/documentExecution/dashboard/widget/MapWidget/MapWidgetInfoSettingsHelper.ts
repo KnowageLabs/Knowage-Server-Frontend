@@ -1,14 +1,46 @@
 import { IWidget } from '../../Dashboard'
-import { IMapDialogSettings, IMapTooltipSettings, IMapTooltipSettingsVisualizations, IMapWidgetLayer, IMapWidgetLegend, IMapWidgetVisualizationType } from '../../interfaces/mapWidget/DashboardMapWidget'
+import { IMapDialogSettings, IMapInfoColumnSettings, IMapTooltipSettings, IMapTooltipSettingsVisualizations, IMapWidgetLayer, IMapWidgetLegend, IMapWidgetVisualizationType } from '../../interfaces/mapWidget/DashboardMapWidget'
+
+const DEFAULT_MAP_INFO_PRECISION = 2
+
+const getNormalizedMapInfoPrecision = (precision: unknown, fallbackPrecision: number | null = DEFAULT_MAP_INFO_PRECISION) => {
+    if (precision === undefined || precision === null || precision === '') return fallbackPrecision
+
+    const numericPrecision = Number(precision)
+    return Number.isFinite(numericPrecision) ? numericPrecision : fallbackPrecision
+}
 
 export const getMapInfoColumnName = (column: any): string => {
     if (typeof column === 'string') return column
     return column?.name ?? column?.property ?? column?.header ?? ''
 }
 
+const getLegacyMapInfoColumnDefaults = (visualization: IMapTooltipSettingsVisualizations | null | undefined) => {
+    return {
+        prefix: visualization?.prefix ?? '',
+        suffix: visualization?.suffix ?? '',
+        precision: getNormalizedMapInfoPrecision(visualization?.precision)
+    }
+}
+
+export const createMapInfoColumnSettings = (column: any, defaults?: Partial<IMapInfoColumnSettings>): IMapInfoColumnSettings => {
+    const columnName = getMapInfoColumnName(column)
+
+    return {
+        name: columnName,
+        prefix: typeof column === 'object' && column !== null ? (column.prefix ?? defaults?.prefix ?? '') : (defaults?.prefix ?? ''),
+        suffix: typeof column === 'object' && column !== null ? (column.suffix ?? defaults?.suffix ?? '') : (defaults?.suffix ?? ''),
+        precision: typeof column === 'object' && column !== null ? getNormalizedMapInfoPrecision(column.precision, defaults?.precision ?? DEFAULT_MAP_INFO_PRECISION) : getNormalizedMapInfoPrecision(defaults?.precision)
+    }
+}
+
+export const getMapInfoColumnSettings = (column: any, visualization: IMapTooltipSettingsVisualizations | null | undefined): IMapInfoColumnSettings => {
+    return createMapInfoColumnSettings(column, getLegacyMapInfoColumnDefaults(visualization))
+}
+
 export const normalizeMapInfoSettingColumns = (visualization: IMapTooltipSettingsVisualizations | null | undefined) => {
     if (!visualization) return visualization
-    visualization.columns = (visualization.columns ?? []).map((column: any) => getMapInfoColumnName(column)).filter((column: string) => !!column)
+    visualization.columns = (visualization.columns ?? []).map((column: any) => getMapInfoColumnSettings(column, visualization)).filter((column: IMapInfoColumnSettings) => !!column.name)
     return visualization
 }
 

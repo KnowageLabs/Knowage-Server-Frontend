@@ -1,11 +1,11 @@
 import { ISelection, IVariable, IWidget } from '../../../Dashboard'
-import { ILayerFeature, IMapDialogSettings, IMapTooltipSettings, IMapTooltipSettingsVisualizations, IMapWidgetCrossNavigation, IMapWidgetLayer, IMapWidgetLinkConfiguration, IMapWidgetPreview, IMapWidgetSelectionConfiguration, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
+import { ILayerFeature, IMapDialogSettings, IMapInfoColumnSettings, IMapTooltipSettings, IMapTooltipSettingsVisualizations, IMapWidgetCrossNavigation, IMapWidgetLayer, IMapWidgetLinkConfiguration, IMapWidgetPreview, IMapWidgetSelectionConfiguration, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import { getColumnName } from '../LeafletHelper'
 import L from 'leaflet'
 import { ChartValuesRecord } from './MapChartsVizualizationHelper'
 import { executeMapInteractions } from '../interactions/MapInteractionsHelper'
 import { getInteractionDataMap } from './MapVisualizationHelper'
-import { getMapInfoColumnName } from '../MapWidgetInfoSettingsHelper'
+import { getMapInfoColumnSettings } from '../MapWidgetInfoSettingsHelper'
 import { formatNumberWithLocale } from '@/helpers/commons/localeHelper'
 
 interface IListItemStyle {
@@ -49,13 +49,13 @@ export const createDialogFromDataset = (tooltip: boolean, layerVisualizationSett
         })
 
         item.columns.forEach((column: any) => {
-            const columnName = getMapInfoColumnName(column)
+            const columnSettings = getMapInfoColumnSettings(column, item)
+            const columnName = columnSettings.name
             if (!columnName) return
             const rowColumnName = getColumnName(columnName, meta) || columnName
             const columnValue = row[rowColumnName]
             if (columnValue === undefined || columnValue === null || columnValue === '') return
-            const value = `${columnName}: ${columnValue}`
-            list.append(createTooltipListItem(value, (settings as IMapDialogSettings).style, item, widgetModel, layerVisualizationSettings, activeSelections, dashboardId, variables, dataMap))
+            list.append(createTooltipListItem(columnName, columnValue, (settings as IMapDialogSettings).style, columnSettings, widgetModel, layerVisualizationSettings, activeSelections, dashboardId, variables, dataMap))
         })
     })
 
@@ -107,19 +107,19 @@ export const createDialogForLayerData = (feature: ILayerFeature, tooltip: boolea
 
     visualizationList.forEach((item: IMapTooltipSettingsVisualizations) => {
         item.columns.forEach((property: any) => {
-            const propertyName = getMapInfoColumnName(property)
+            const columnSettings = getMapInfoColumnSettings(property, item)
+            const propertyName = columnSettings.name
             if (!propertyName) return
 
             const featureValue = feature.properties?.[propertyName]
             if (featureValue !== undefined && featureValue !== null && featureValue !== '') {
-                list.append(createTooltipListItem(`${propertyName}: ${featureValue ?? ''}`, (settings as IMapDialogSettings).style, item, widgetModel, layerVisualizationSettings, activeSelections, dashboardId, variables, mergedDataMap))
+                list.append(createTooltipListItem(propertyName, featureValue, (settings as IMapDialogSettings).style, columnSettings, widgetModel, layerVisualizationSettings, activeSelections, dashboardId, variables, mergedDataMap))
             }
 
             if (layerVisualizationSettings.targetDataset && layerVisualizationSettings.targetDatasetForeignKeyColumn) {
                 const targetDatasetValue = mergedDataMap[propertyName]
                 if ((featureValue === undefined || featureValue === null || featureValue === '') && targetDatasetValue !== undefined && targetDatasetValue !== null && targetDatasetValue !== '') {
-                    const value = `${propertyName}: ${targetDatasetValue}`
-                    targetDatasetList.append(createTooltipListItem(value, (settings as IMapDialogSettings).style, item, widgetModel, layerVisualizationSettings, activeSelections, dashboardId, variables, mergedDataMap))
+                    targetDatasetList.append(createTooltipListItem(propertyName, targetDatasetValue, (settings as IMapDialogSettings).style, columnSettings, widgetModel, layerVisualizationSettings, activeSelections, dashboardId, variables, mergedDataMap))
                 }
             }
         })
@@ -135,11 +135,9 @@ export const createDialogForLayerData = (feature: ILayerFeature, tooltip: boolea
     else return L.popup({ className: 'kn-map-popup' }).setContent(container)
 }
 
-const createTooltipListItem = (value: string, style: IListItemStyle | undefined, visualizationDialogSettings: IMapTooltipSettingsVisualizations | null | undefined, widgetModel: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, activeSelections: ISelection[], dashboardId: string, variables: IVariable[], dataMap?: Record<string, string | number> | null) => {
+const createTooltipListItem = (column: string, rawValue: string | number, style: IListItemStyle | undefined, columnSettings: IMapInfoColumnSettings, widgetModel: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, activeSelections: ISelection[], dashboardId: string, variables: IVariable[], dataMap?: Record<string, string | number> | null) => {
     const li = document.createElement('li')
-    const [rawValueColumn, rawValue] = value.split(':')
-    const column = rawValueColumn.trim()
-    const formattedValue = rawValue.trim()
+    const rawValueAsString = `${rawValue ?? ''}`
 
     li.classList.add('customLeafletPopupItem')
 
@@ -149,17 +147,17 @@ const createTooltipListItem = (value: string, style: IListItemStyle | undefined,
 
     const itemValue = document.createElement('span')
     itemValue.classList.add('customLeafletPopupValue')
-    itemValue.innerText = (visualizationDialogSettings?.prefix || '') + getFormattedValueForTheTooltipListItem(formattedValue, visualizationDialogSettings?.precision) + (visualizationDialogSettings?.suffix || '')
+    itemValue.innerText = (columnSettings.prefix || '') + getFormattedValueForTheTooltipListItem(rawValueAsString, columnSettings.precision) + (columnSettings.suffix || '')
 
     li.appendChild(label)
     li.appendChild(itemValue)
 
     li.classList.add('kn-cursor-pointer')
 
-    li.setAttribute('data-value', value)
+    li.setAttribute('data-value', `${column}: ${rawValueAsString}`)
     li.setAttribute('data-layerId', layerVisualizationSettings.target)
 
-    if (checkInteractionsIfColumnIsClickable(value, widgetModel, layerVisualizationSettings)) {
+    if (checkInteractionsIfColumnIsClickable(column, widgetModel, layerVisualizationSettings)) {
         li.classList.add('clickable-custom-leaflet-list-item')
     }
 
@@ -212,10 +210,7 @@ const getFormattedValueForTheTooltipListItem = (value: string, precision: number
     return formatNumberWithLocale(numericValue, precision)
 }
 
-const checkInteractionsIfColumnIsClickable = (value: string, widgetModel: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType) => {
-    const [rawValueColumn] = value.split(':')
-    const column = rawValueColumn.trim()
-
+const checkInteractionsIfColumnIsClickable = (column: string, widgetModel: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType) => {
     const selectionConfiguration = (widgetModel?.settings?.interactions?.selection ?? null) as IMapWidgetSelectionConfiguration | null
     if (!selectionConfiguration) return false
 

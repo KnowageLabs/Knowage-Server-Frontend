@@ -266,12 +266,19 @@ export interface IMapTooltipSettings {
     visualizations: IMapTooltipSettingsVisualizations[]
 }
 
+export interface IMapInfoColumnSettings {
+    name: string
+    prefix: string
+    suffix: string
+    precision: number | null
+}
+
 export interface IMapTooltipSettingsVisualizations {
     label: string
     prefix: string
     suffix: string
     precision: number
-    columns: any[]
+    columns: IMapInfoColumnSettings[]
 }
 
 export interface IMapWidgetStyle {

@@ -14,7 +14,7 @@
                 <div class="row items-center q-mb-sm">
                     <i class="pi pi-th-large kn-cursor-pointer"></i>
                     <q-select class="col-6" filled dense :model-value="dialogProperty.label" :disable="dialogSettingsDisabled" :options="getFilteredVisualizationTypeOptions(index)" option-label="label" option-value="label" emit-value map-options options-dense :label="$t('dashboard.widgetEditor.visualizationType.title')" @update:model-value="(val) => onVisualizationSelected(val, dialogProperty)"></q-select>
-                    <MultiSelect class="col-5 q-ml-sm" v-model="dialogProperty.columns" :disabled="dialogSettingsDisabled" :options="getColumnOptionsFromLayer(dialogProperty)" option-label="alias" option-value="name" display="chip" />
+                    <MultiSelect class="col-5 q-ml-sm" :model-value="getSelectedColumnNames(dialogProperty)" :disabled="dialogSettingsDisabled" :options="getColumnOptionsFromLayer(dialogProperty)" option-label="alias" option-value="name" display="chip" @update:model-value="(val) => onColumnsChanged(val, dialogProperty)" />
                 </div>
                 <div class="q-col-gutter" style="gap: 0.5em; margin-left: auto">
                     <i v-if="index === 0" class="pi pi-plus-circle kn-cursor-pointer" data-test="new-button" @click="addDialog()"></i>
@@ -22,10 +22,13 @@
                 </div>
             </div>
 
-            <div class="p-grid p-col-12 p-mt-2">
-                <q-input dense class="p-col-4" filled v-model="dialogProperty.prefix" :label="$t('dashboard.widgetEditor.prefix')" :disable="dialogSettingsDisabled" />
-                <q-input dense class="p-col-4" filled v-model="dialogProperty.suffix" :label="$t('dashboard.widgetEditor.suffix')" :disable="dialogSettingsDisabled" />
-                <q-input dense class="p-col-4" type="number" filled v-model="dialogProperty.precision" :label="$t('dashboard.widgetEditor.precision')" :disable="dialogSettingsDisabled" />
+            <div v-if="getSelectedColumns(dialogProperty).length" class="p-col-12 p-mt-2">
+                <div v-for="column in getSelectedColumns(dialogProperty)" :key="column.name" class="p-grid p-ai-center p-mb-2 map-info-column-row">
+                    <div class="p-col-12 p-md-3 map-info-column-label">{{ getColumnAlias(column, dialogProperty) }}</div>
+                    <q-input dense class="p-col-12 p-md-3" filled v-model="column.prefix" :label="$t('dashboard.widgetEditor.prefix')" :disable="dialogSettingsDisabled" />
+                    <q-input dense class="p-col-12 p-md-3" filled v-model="column.suffix" :label="$t('dashboard.widgetEditor.suffix')" :disable="dialogSettingsDisabled" />
+                    <q-input dense class="p-col-12 p-md-3" type="number" filled v-model.number="column.precision" :label="$t('dashboard.widgetEditor.precision')" :disable="dialogSettingsDisabled" />
+                </div>
             </div>
 
             <div class="p-col-12 form-list-item-dropzone" :class="{ 'form-list-item-dropzone-active': dropzoneBottomVisible[index] }" @drop.stop="onDropComplete($event, 'after', index)" @dragover.prevent @dragenter.prevent="displayDropzone('bottom', index)" @dragleave.prevent="hideDropzone('bottom', index)"></div>
@@ -37,7 +40,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetStyleToolbarModel } from '@/modules/documentExecution/dashboard/Dashboard'
-import { IMapDialogSettings, IMapTooltipSettings, IMapWidgetLayer, IMapWidgetLayerProperty, IMapWidgetSelectionConfiguration, IMapWidgetVisualizationType } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
+import { IMapDialogSettings, IMapInfoColumnSettings, IMapWidgetLayer, IMapWidgetLayerProperty, IMapWidgetVisualizationType } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { mapActions } from 'pinia'
 import appStore from '@/App.store'
 import descriptor from './MapDialogSettingsDescriptor.json'
@@ -48,7 +51,7 @@ import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyl
 import * as mapWidgetDefaultValues from '../../../helpers/mapWidget/MapWidgetDefaultValues'
 import { getPropertiesByLayerLabel } from '../../../../MapWidget/MapWidgetDataProxy'
 import { resolveLayerByTarget } from '../../../../MapWidget/LeafletHelper'
-import { normalizeMapInfoSettings } from '../../../../MapWidget/MapWidgetInfoSettingsHelper'
+import { createMapInfoColumnSettings, getMapInfoColumnName, normalizeMapInfoSettings } from '../../../../MapWidget/MapWidgetInfoSettingsHelper'
 
 export default defineComponent({
     name: 'map-dialog-settings',
@@ -193,6 +196,27 @@ export default defineComponent({
                 return { name: property.property, alias: property.property }
             })
         },
+        getSelectedColumnNames(dialogProperty: { columns?: IMapInfoColumnSettings[] } | null | undefined) {
+            return (dialogProperty?.columns ?? []).map((column: IMapInfoColumnSettings) => getMapInfoColumnName(column)).filter((columnName: string) => !!columnName)
+        },
+        getSelectedColumns(dialogProperty: { columns?: IMapInfoColumnSettings[] } | null | undefined) {
+            return dialogProperty?.columns ?? []
+        },
+        getColumnAlias(column: IMapInfoColumnSettings, dialogProperty: any) {
+            const columnName = getMapInfoColumnName(column)
+            return this.getColumnOptionsFromLayer(dialogProperty).find((option: { name: string; alias: string }) => option.name === columnName)?.alias ?? columnName
+        },
+        onColumnsChanged(selectedColumns: string[] | null, dialogProperty: any) {
+            const existingColumns = new Map(
+                (dialogProperty?.columns ?? []).map((column: IMapInfoColumnSettings) => {
+                    return [getMapInfoColumnName(column), column]
+                })
+            )
+
+            dialogProperty.columns = (selectedColumns ?? []).map((columnName: string) => {
+                return existingColumns.get(columnName) ?? createMapInfoColumnSettings(columnName)
+            })
+        },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel) {
             if (!this.dialogSettings) return
             const defaultDialogSettings = mapWidgetDefaultValues.getDefaultDialogSettings()
@@ -245,5 +269,15 @@ export default defineComponent({
 .form-list-item-dropzone-active {
     height: 10px;
     background-color: #aec1d3;
+}
+
+.map-info-column-row {
+    padding: 0.5rem 0;
+    border-top: 1px solid #e5e7eb;
+}
+
+.map-info-column-label {
+    font-weight: 600;
+    overflow-wrap: anywhere;
 }
 </style>

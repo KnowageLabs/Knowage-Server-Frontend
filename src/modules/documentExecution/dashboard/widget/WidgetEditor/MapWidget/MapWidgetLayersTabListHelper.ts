@@ -1,5 +1,6 @@
 import {
     IMapDialogSettings,
+    IMapInfoColumnSettings,
     IMapTooltipSettings,
     IMapTooltipSettingsVisualizations,
     IMapWidgetCrossNavigation,
@@ -17,6 +18,7 @@ import {
 } from './../../../interfaces/mapWidget/DashboardMapWidget'
 import { IWidget } from '../../../Dashboard'
 import * as mapWidgetDefaultValues from '../helpers/mapWidget/MapWidgetDefaultValues'
+import { getMapInfoColumnName } from '../../MapWidget/MapWidgetInfoSettingsHelper'
 
 export const removeLayerFromModel = (layer: IMapWidgetLayer, widgetModel: IWidget) => {
     removeLayerFromVizualizationTypes(layer, widgetModel)
@@ -93,7 +95,7 @@ const removeColumnFromDialogs = (layer: IMapWidgetLayer, column: IWidgetMapLayer
     const tooltipSettings = widgetModel.settings?.tooltips as IMapTooltipSettings
     tooltipSettings.visualizations.forEach((tooltipLayerSettings: IMapTooltipSettingsVisualizations) => {
         if (((tooltipLayerSettings as any).target ?? (tooltipLayerSettings as any).name) !== layer.layerId) return
-        tooltipLayerSettings.columns = tooltipLayerSettings.columns.filter((columnName: string) => columnName !== column.name)
+        tooltipLayerSettings.columns = tooltipLayerSettings.columns.filter((tooltipColumn: IMapInfoColumnSettings) => getMapInfoColumnName(tooltipColumn) !== column.name)
     })
 }
 
@@ -102,7 +104,7 @@ const removeColumnFromTooltips = (layer: IMapWidgetLayer, column: IWidgetMapLaye
     const dialogSettings = widgetModel.settings.dialog as IMapDialogSettings
     dialogSettings.visualizations.forEach((dialogSettingsLayerSettings: IMapTooltipSettingsVisualizations) => {
         if (((dialogSettingsLayerSettings as any).target ?? (dialogSettingsLayerSettings as any).name) !== layer.layerId) return
-        dialogSettingsLayerSettings.columns = dialogSettingsLayerSettings.columns.filter((columnName: string) => columnName !== column.name)
+        dialogSettingsLayerSettings.columns = dialogSettingsLayerSettings.columns.filter((dialogColumn: IMapInfoColumnSettings) => getMapInfoColumnName(dialogColumn) !== column.name)
     })
 }
 
