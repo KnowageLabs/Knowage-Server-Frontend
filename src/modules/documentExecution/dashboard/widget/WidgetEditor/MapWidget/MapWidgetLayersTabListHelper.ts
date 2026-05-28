@@ -84,10 +84,18 @@ const removeColumnFromLegend = (layer: IMapWidgetLayer, column: IWidgetMapLayerC
 }
 
 const removeColumnFromVizualizationType = (layer: IMapWidgetLayer, column: IWidgetMapLayerColumn, visType: IMapWidgetVisualizationType) => {
-    if (visType.target !== layer.layerId) return
-    if (visType.properties) visType.properties = visType.properties.filter((tempProperty: IMapWidgetLayerProperty) => tempProperty.property !== column.name)
-    if (visType.targetMeasure && visType.targetMeasure === column.name) visType.targetMeasure = ''
-    if (visType.chartMeasures) visType.chartMeasures = visType.chartMeasures.filter((chartMeasure: string) => chartMeasure !== column.name)
+    const isTargetLayer = visType.target === layer.layerId
+    const isTargetDataset = visType.targetDataset === layer.layerId
+    if (!isTargetLayer && !isTargetDataset) return
+
+    if (isTargetLayer && visType.properties) visType.properties = visType.properties.filter((tempProperty: IMapWidgetLayerProperty) => tempProperty.property !== column.name)
+    if (isTargetLayer && getMapInfoColumnName(visType.targetProperty) === column.name) visType.targetProperty = ''
+    if ((isTargetLayer || isTargetDataset) && visType.targetMeasure && visType.targetMeasure === column.name) visType.targetMeasure = ''
+    if (isTargetDataset && visType.targetDatasetMeasures) visType.targetDatasetMeasures = visType.targetDatasetMeasures.filter((targetDatasetMeasure: string) => targetDatasetMeasure !== column.name)
+    if ((isTargetLayer || isTargetDataset) && visType.chartMeasures) visType.chartMeasures = visType.chartMeasures.filter((chartMeasure: string) => chartMeasure !== column.name)
+
+    if (visType.filter?.column === column.name) visType.filter.column = null
+    if (Array.isArray(visType.filter?.columns)) visType.filter.columns = visType.filter.columns.filter((filterColumn) => filterColumn.name !== column.name)
 }
 
 const removeColumnFromDialogs = (layer: IMapWidgetLayer, column: IWidgetMapLayerColumn, widgetModel: IWidget) => {

@@ -3,7 +3,7 @@ import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationThreshold, IMapW
 import { addMarker, getCoordinates, LEGEND_DATA_TYPE, VisualizationDataType } from '../LeafletHelper'
 import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData } from './MapDialogHelper'
 import { getMappedDataAndColumnIndex } from './MapMarkersVizualizationHelper'
-import { formatRanges, getConditionalStyleUsingTargetDataset, getCoordinatesFromWktPointFeature, getFeatureValues, getMinMaxByName, getNumericPropertyValues, getQuantiles, getQuantilesFromLayersData, getRowValues, isConditionMet, isSingleLayerPropertyVisualization, sortRanges, validateNumber } from './MapVisualizationHelper'
+import { doesMapFilterMatchDatasetRow, doesMapFilterMatchLayerFeature, formatRanges, getConditionalStyleUsingTargetDataset, getCoordinatesFromWktPointFeature, getFeatureValues, getMinMaxByName, getNumericPropertyValues, getQuantiles, getQuantilesFromLayersData, getRowValues, isSingleLayerPropertyVisualization, sortRanges, validateNumber } from './MapVisualizationHelper'
 
 interface IntervalSize {
     classIndex: number
@@ -124,8 +124,7 @@ const addBaloonMarkerUsingLayersPointClassifedByRanges = (
     if (!value) return
     validateNumber(value)
 
-    const filter = layerVisualizationSettings.filter
-    if (filter?.enabled && !isConditionMet(filter, value)) return
+    if (!doesMapFilterMatchLayerFeature(feature, layerVisualizationSettings, mappedData, targetDatasetData, value, targetDatasetInfoMap ?? null)) return
 
     if (!layerVisualizationSettings.balloonConf) return
     let sizeAndColor = getSizeAndColorFromRanges(originalVisualizationTypeValue as number, layerVisualizationSettings.balloonConf.minSize, layerVisualizationSettings.balloonConf.maxSize, sortedRanges, defaultColor) || { size: 1, color: layerVisualizationSettings.balloonConf?.style.color ?? '' }
@@ -156,8 +155,7 @@ const addBaloonMarkersClassifedByRangesFromData = (data: any, widgetModel: IWidg
         const { value, originalValue } = getRowValues(row, dataColumn, layerVisualizationSettings, data[target.id])
         if (!value) return
 
-        const filter = layerVisualizationSettings.filter
-        if (filter?.enabled && !isConditionMet(filter, value)) return
+        if (!doesMapFilterMatchDatasetRow(row, data[target.id], layerVisualizationSettings, value)) return
 
         let sizeAndColor = null as { size: number; color: string } | null
         if (layerVisualizationSettings.balloonConf) {
@@ -250,8 +248,7 @@ const addBaloonMarkerUsingLayersPointClassifedByQuantils = (feature: ILayerFeatu
 
     validateNumber(value)
 
-    const filter = layerVisualizationSettings.filter
-    if (filter?.enabled && !isConditionMet(filter, value)) return
+    if (!doesMapFilterMatchLayerFeature(feature, layerVisualizationSettings, mappedData, targetDatasetData, value, targetDatasetInfoMap ?? null)) return
 
     if (!layerVisualizationSettings.balloonConf) return
     layerVisualizationSettings.balloonConf.size = getSizeFromQuantiles(quantiles, originalVisualizationTypeValue as number, layerVisualizationSettings.balloonConf.classes, layerVisualizationSettings.balloonConf.minSize, layerVisualizationSettings.balloonConf.maxSize)
@@ -274,8 +271,7 @@ const addBaloonMarkersClassifedByQuantilsFromData = (data: any, widgetModel: IWi
         const { value, originalValue } = getRowValues(row, dataColumn, layerVisualizationSettings, data[target.id])
         if (!value) return
 
-        const filter = layerVisualizationSettings.filter
-        if (filter?.enabled && !isConditionMet(filter, value)) return
+        if (!doesMapFilterMatchDatasetRow(row, data[target.id], layerVisualizationSettings, value)) return
 
         if (layerVisualizationSettings.balloonConf) layerVisualizationSettings.balloonConf.size = getSizeFromQuantiles(quantiles, originalValue, layerVisualizationSettings.balloonConf.classes, layerVisualizationSettings.balloonConf.minSize, layerVisualizationSettings.balloonConf.maxSize)
 
@@ -371,8 +367,7 @@ const addBaloonMarkerUsingLayersPointClassifedByEqualIntervals = (feature: ILaye
     if (!value) return
     validateNumber(value)
 
-    const filter = layerVisualizationSettings.filter
-    if (filter?.enabled && !isConditionMet(filter, value)) return
+    if (!doesMapFilterMatchLayerFeature(feature, layerVisualizationSettings, mappedData, targetDatasetData, value, targetDatasetInfoMap ?? null)) return
 
     if (!layerVisualizationSettings.balloonConf) return
     layerVisualizationSettings.balloonConf.size = getSizeFromEqualIntervals(originalVisualizationTypeValue as number, minValue, maxValue, layerVisualizationSettings.balloonConf.classes, layerVisualizationSettings.balloonConf.minSize, layerVisualizationSettings.balloonConf.maxSize)
@@ -397,8 +392,7 @@ const addBaloonMarkersClassifedByEqualIntervalsFromData = (data: any, widgetMode
         const { value, originalValue } = getRowValues(row, dataColumn, layerVisualizationSettings, data[target.id])
         if (!value) return
 
-        const filter = layerVisualizationSettings.filter
-        if (filter?.enabled && !isConditionMet(filter, value)) return
+        if (!doesMapFilterMatchDatasetRow(row, data[target.id], layerVisualizationSettings, value)) return
 
         if (!layerVisualizationSettings.balloonConf) return
         layerVisualizationSettings.balloonConf.size = getSizeFromEqualIntervals(originalValue, valueColumnMinMaxValues?.min ?? Number.MIN_SAFE_INTEGER, valueColumnMinMaxValues?.max ?? Number.MAX_SAFE_INTEGER, layerVisualizationSettings.balloonConf.classes, layerVisualizationSettings.balloonConf.minSize, layerVisualizationSettings.balloonConf.maxSize)

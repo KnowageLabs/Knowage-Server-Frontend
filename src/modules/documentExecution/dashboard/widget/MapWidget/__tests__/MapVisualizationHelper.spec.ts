@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getInteractionDataMap, transformDataUsingForeignKeyReturningAggregatedColumns } from '../visualization/MapVisualizationHelper'
+import { doesMapFilterMatchDatasetRow, doesMapFilterMatchLayerFeature, getInteractionDataMap, transformDataUsingForeignKeyReturningAggregatedColumns } from '../visualization/MapVisualizationHelper'
 
 describe('MapVisualizationHelper', () => {
     it('merges layer properties with joined target dataset values for interactions', () => {
@@ -59,6 +59,33 @@ describe('MapVisualizationHelper', () => {
         expect(dataMap.Voters).toBe(7573433)
     })
 
+    it('matches dataset row filters against attribute columns', () => {
+        const row = {
+            column_1: 'LOMBARDIA',
+            column_2: 7573433
+        }
+
+        const data = {
+            metaData: {
+                fields: [
+                    { name: 'REG_NAME', header: 'Region', dataIndex: 'column_1' },
+                    { name: 'ELETTORI', header: 'Voters', dataIndex: 'column_2' }
+                ]
+            }
+        }
+
+        const visualization = {
+            filter: {
+                enabled: true,
+                column: 'REG_NAME',
+                operator: '=',
+                value: 'LOMBARDIA'
+            }
+        } as any
+
+        expect(doesMapFilterMatchDatasetRow(row, data, visualization, 7573433)).toBe(true)
+    })
+
     it('merges additional info values into layer interactions when they are not in the plotted dataset payload', () => {
         const source = {
             properties: {
@@ -96,6 +123,56 @@ describe('MapVisualizationHelper', () => {
 
         expect(dataMap.ELETTORI).toBe(7573433)
         expect(dataMap.PROVINCIA).toBe('Milano, Bergamo')
+    })
+
+    it('matches joined layer filters against both dataset measures and layer attributes', () => {
+        const feature = {
+            properties: {
+                NAME_1: 'LOMBARDIA'
+            }
+        } as any
+
+        const mappedData = {
+            LOMBARDIA: {
+                column_1: 'LOMBARDIA',
+                column_2: 7573433
+            }
+        }
+
+        const targetDatasetData = {
+            metaData: {
+                fields: [
+                    { name: 'REG_NAME', header: 'REG_NAME', dataIndex: 'column_1' },
+                    { name: 'ELETTORI', header: 'ELETTORI', dataIndex: 'column_2' }
+                ]
+            }
+        }
+
+        expect(
+            doesMapFilterMatchLayerFeature(
+                feature,
+                {
+                    targetProperty: 'NAME_1',
+                    filter: { enabled: true, column: 'ELETTORI', operator: '>', value: 7000000 }
+                } as any,
+                mappedData,
+                targetDatasetData,
+                7573433
+            )
+        ).toBe(true)
+
+        expect(
+            doesMapFilterMatchLayerFeature(
+                feature,
+                {
+                    targetProperty: 'NAME_1',
+                    filter: { enabled: true, column: 'NAME_1', operator: '=', value: 'LOMBARDIA' }
+                } as any,
+                mappedData,
+                targetDatasetData,
+                7573433
+            )
+        ).toBe(true)
     })
 
     it('aggregates extra dataset rows by join key for popup information', () => {

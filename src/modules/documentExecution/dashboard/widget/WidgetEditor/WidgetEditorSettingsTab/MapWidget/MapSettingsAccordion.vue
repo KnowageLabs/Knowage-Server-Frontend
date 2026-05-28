@@ -31,7 +31,7 @@
                 <MapDialogSettings v-else-if="accordion.type === 'DialogSettings'" :widget-model="widgetModel" :dashboard-id="dashboardId"></MapDialogSettings>
                 <MapLegendSettings v-else-if="accordion.type === 'Legend'" :widget-model="widgetModel"></MapLegendSettings>
                 <MapBaseLayerSettings v-else-if="accordion.type === 'Map'" :widget-model="widgetModel"></MapBaseLayerSettings>
-                <MapControlPanelSettings v-else-if="accordion.type === 'ControlPanel'" :widget-model="widgetModel"></MapControlPanelSettings>
+                <MapControlPanelSettings v-else-if="accordion.type === 'ControlPanel'" :widget-model="widgetModel" :dashboard-id="dashboardId"></MapControlPanelSettings>
                 <MapConditionalStyles v-else-if="accordion.type === 'Conditions'" :widget-model="widgetModel" :variables="variables" :dashboard-id="dashboardId"></MapConditionalStyles>
                 <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
             </q-expansion-item>

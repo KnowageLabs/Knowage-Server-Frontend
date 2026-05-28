@@ -2,7 +2,7 @@ import { ISelection, IVariable, IWidget } from '../../../Dashboard'
 import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import { getColumnName, getCoordinates, LEGEND_DATA_TYPE } from '../LeafletHelper'
 import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData } from './MapDialogHelper'
-import { getChartConditionalStyle, getCoordinatesFromWktPointFeature, isConditionMet, transformDataUsingForeignKeyReturningAllColumns } from './MapVisualizationHelper'
+import { doesMapFilterMatchDatasetRow, doesMapFilterMatchLayerFeature, getChartConditionalStyle, getCoordinatesFromWktPointFeature, isConditionMet, transformDataUsingForeignKeyReturningAllColumns } from './MapVisualizationHelper'
 import L from 'leaflet'
 import ChartJS from 'chart.js/auto'
 
@@ -33,6 +33,9 @@ const addMapChartsUsingData = (data: any, model: IWidget, target: IMapWidgetLaye
             const value = row[fieldMetadata[chartMeasure]]
             chartValuesRecord[chartMeasure] = { value: value, measureName: chartMeasure }
         })
+
+        const chartFilterFallbackValue = layerVisualizationSettings.filter?.column ? chartValuesRecord[layerVisualizationSettings.filter.column]?.value ?? null : null
+        if (!doesMapFilterMatchDatasetRow(row, data[target.id], layerVisualizationSettings, chartFilterFallbackValue)) continue
 
         const customIcon = L.divIcon({
             html: `<div id='${id}'></div>`,
@@ -105,6 +108,9 @@ const addChartsUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSet
             chartValuesRecord[chartMeasure] = { value: feature.properties[chartMeasure], measureName: chartMeasure }
         })
     }
+
+    const chartFilterFallbackValue = layerVisualizationSettings.filter?.column ? chartValuesRecord[layerVisualizationSettings.filter.column]?.value ?? null : null
+    if (!doesMapFilterMatchLayerFeature(feature, layerVisualizationSettings, mappedData, targetDatasetData, chartFilterFallbackValue, targetDatasetInfoMap ?? null)) return
 
     const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
     if (!coordinates) return

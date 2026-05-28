@@ -26,7 +26,7 @@
                                         </q-btn>
                                         {{ visualization.label }}
                                     </div>
-                                    <q-select filled class="col-4 q-mr-xs q-mt-xs" v-model="visualization.targetMeasure" :options="getColumnOptionsFromLayer(visualization)" dense options-dense stack-label emit-value map-options option-label="alias" option-value="name" :label="$t('common.column')" @update:modelValue="onFilterColumnChanged(visualization)" />
+                                    <q-select filled class="col-4 q-mr-xs q-mt-xs" v-model="visualization.filter.column" :options="getFilterColumnOptions(visualization)" dense options-dense stack-label emit-value map-options option-label="alias" option-value="name" :label="$t('common.column')" @update:modelValue="onFilterColumnChanged(visualization)" />
                                     <div class="row items-center gap-2" v-if="visualization.filter?.enabled">
                                         <q-select filled class="col-4 q-mr-xs q-mt-xs" v-model="visualization.filter.operator" :options="['=', '>', '<']" dense options-dense stack-label :label="$t('common.operator')" @update:modelValue="onFilterUpdated(visualization)" />
                                         <q-input filled class="col q-mt-xs" v-model="visualization.filter.value" dense options-dense stack-label :label="$t('common.value')" @blur="onFilterUpdated(visualization)" />
@@ -46,16 +46,17 @@
 
 <script lang="ts">
 import { mapActions } from 'pinia'
-import { IDashboardDataset, ISelection, IVariable, IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IDashboardDataset, ISelection, IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { defineComponent, PropType } from 'vue'
 import mainStore from '@/App.store'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import LeafletWrapper from './LeafletWrapper.vue'
-import { IMapWidgetLayer, IMapWidgetVisualizationType, IMapWidgetLayerProperty } from '../../interfaces/mapWidget/DashboardMapWidget'
+import { IMapNormalisedInteractionColumn, IMapWidgetLayer, IMapWidgetVisualizationType } from '../../interfaces/mapWidget/DashboardMapWidget'
 import deepcopy from 'deepcopy'
 import { getPropertiesByLayerLabel } from './MapWidgetDataProxy'
 import MapLegend from './legend/MapLegend.vue'
 import { emitter } from '../../DashboardHelpers'
+import { ensureMapVisualizationFilter, getAvailableMapFilterColumns, getConfiguredMapFilterColumns, getMapFilterColumnsFromProperties, MapFilterColumnsCache } from './MapWidgetControlPanelHelper'
 
 export default defineComponent({
     name: 'map-widget',
@@ -76,7 +77,7 @@ export default defineComponent({
             activeSelections: [] as ISelection[],
             visualizationVisibilityState: null as Record<string, boolean> | null,
             showPanel: false as Boolean,
-            propertiesCache: new Map<string, { name: string; alias: string }[]>(),
+            propertiesCache: new Map<string, IMapNormalisedInteractionColumn[]>() as MapFilterColumnsCache,
             filtersReloadTrigger: false,
             variables: [] as IVariable[],
             legendData: null as Record<string, any> | null | undefined
@@ -117,8 +118,12 @@ export default defineComponent({
                 tempVisualization.layerName = layer ? layer.name : ''
             })
         },
+        ensureVisualizationFilters() {
+            this.widgetModel?.settings?.visualizations?.forEach((visualization: IMapWidgetVisualizationType) => ensureMapVisualizationFilter(visualization))
+        },
         loadWidgetModel() {
             this.widgetModel = this.propWidget
+            this.ensureVisualizationFilters()
             this.showPanel = this.widgetModel.settings.configuration.controlPanel.alwaysShow
             this.updateLayerVisibilityState()
         },
@@ -145,7 +150,7 @@ export default defineComponent({
         },
         resetFilter(visualization: IMapWidgetVisualizationType) {
             if (!visualization.filter) return
-            visualization.filter.column = ''
+            visualization.filter.column = null
             visualization.filter.operator = ''
             visualization.filter.value = ''
             this.reloadFilters(visualization)
@@ -155,43 +160,26 @@ export default defineComponent({
             this.visualizationVisibilityState[layer.label] = !this.visualizationVisibilityState[layer.label]
         },
         toggleFilter(visualization: IMapWidgetVisualizationType) {
-            if (visualization.filter?.enabled) visualization.filter.enabled = !visualization.filter.enabled
-            else visualization.filter = { enabled: true }
+            const filter = ensureMapVisualizationFilter(visualization)
+            filter.enabled = !filter.enabled
             this.reloadFilters(visualization)
         },
         onFilterUpdated(visualization: IMapWidgetVisualizationType) {
-            visualization.filter = visualization.filter || {}
-            visualization.filter.column = visualization.targetMeasure || ''
             this.reloadFilters(visualization)
         },
-        getColumnOptionsFromLayer(visualization: IMapWidgetVisualizationType) {
-            if (visualization.targetDataset) return this.getColumnOptionsFromTargetDataset(visualization)
-            else {
-                const layer = this.widgetModel.layers.find((layer: any) => layer.layerId === visualization.target)
-                if (!layer) return []
-                else if (layer.type === 'dataset') return layer.columns.filter((column: IWidgetColumn) => column.fieldType === 'MEASURE')
-                else return this.propertiesCache.get(layer.layerId) ?? []
-            }
-        },
-        getColumnOptionsFromTargetDataset(visualization: IMapWidgetVisualizationType) {
-            const targetDataset = this.widgetModel.layers.find((layer: IMapWidgetLayer) => layer.layerId === visualization.targetDataset)
-            return targetDataset ? targetDataset.columns.filter((column: IWidgetColumn) => column.fieldType === 'MEASURE') : []
+        getFilterColumnOptions(visualization: IMapWidgetVisualizationType) {
+            const configuredColumns = getConfiguredMapFilterColumns(visualization)
+            if (configuredColumns) return configuredColumns
+            return getAvailableMapFilterColumns(this.widgetModel, visualization, this.propertiesCache)
         },
         async loadAvailablePropertiesInTooltipSettingsForLayer(targetLayer: IMapWidgetLayer) {
             this.setLoading(true)
             const properties = await getPropertiesByLayerLabel(targetLayer.label, this.dashboardId)
-            const formattedProperties = this.getPropertiesFormattedForDropdownOptions(properties)
-            this.propertiesCache.set(targetLayer.layerId, formattedProperties)
+            this.propertiesCache.set(targetLayer.layerId, getMapFilterColumnsFromProperties(properties))
             this.setLoading(false)
         },
-        getPropertiesFormattedForDropdownOptions(properties: IMapWidgetLayerProperty[]) {
-            return properties.map((property: IMapWidgetLayerProperty) => {
-                return { name: property.property, alias: property.property }
-            })
-        },
         onFilterColumnChanged(visualization: IMapWidgetVisualizationType) {
-            visualization.filter = visualization.filter || {}
-            visualization.filter.column = visualization.targetMeasure || ''
+            ensureMapVisualizationFilter(visualization)
             this.reloadFilters(visualization)
         },
         reloadFilters(visualization: IMapWidgetVisualizationType) {

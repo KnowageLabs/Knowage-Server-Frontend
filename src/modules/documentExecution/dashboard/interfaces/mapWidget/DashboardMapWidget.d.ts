@@ -332,6 +332,7 @@ export interface IMapWidgetLayer {
 export interface IMapWidgetLayerFilter {
     enabled?: boolean
     column?: string | null
+    columns?: IMapNormalisedInteractionColumn[]
     operator?: string
     value?: string
     reloaded?: false

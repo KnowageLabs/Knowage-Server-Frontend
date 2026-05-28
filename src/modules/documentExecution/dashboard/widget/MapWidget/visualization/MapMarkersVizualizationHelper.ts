@@ -3,7 +3,7 @@ import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationType } from '../
 import { addMarker, getColumnName, getCoordinates } from '../LeafletHelper'
 import { executeMapInteractions, columnsMatch } from '../interactions/MapInteractionsHelper'
 import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData, createDialogFromDataset } from './MapDialogHelper'
-import { getConditionalStyleUsingTargetDataset, getCoordinatesFromWktPointFeature, getFeatureValues, getInteractionDataMap, getTargetDataColumn, isConditionMet, transformDataUsingForeignKeyReturningAllColumns } from './MapVisualizationHelper'
+import { doesMapFilterMatchDatasetRow, doesMapFilterMatchLayerFeature, getConditionalStyleUsingTargetDataset, getCoordinatesFromWktPointFeature, getFeatureValues, getInteractionDataMap, getTargetDataColumn, transformDataUsingForeignKeyReturningAllColumns } from './MapVisualizationHelper'
 
 const findInteractionColumnForVisualization = (widgetModel: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType): string | null => {
     const selectionConfig = widgetModel?.settings?.interactions?.selection?.selections?.find((s: any) => s.vizualizationType?.id === layerVisualizationSettings.id || s.vizualizationType?.target === layerVisualizationSettings.target || s.vizualizationType?.label === layerVisualizationSettings.label)
@@ -46,8 +46,7 @@ const createAndAddMarkerFromData = (row: any, data: any, widgetModel: IWidget, t
     const dataColumnIndex = getTargetDataColumn(data[target.id], layerVisualizationSettings, dataColumn)
     const value = row[dataColumnIndex]
 
-    const filter = layerVisualizationSettings.filter
-    if (filter?.enabled && !isConditionMet(filter, value)) return null
+    if (!doesMapFilterMatchDatasetRow(row, data[target.id], layerVisualizationSettings, value)) return null
 
     const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, row, variables, null, null, data[target.id])
     const coordinates = getCoordinates(spatialAttribute, row[geoColumn], null)
@@ -183,8 +182,7 @@ export const createMarkerForVisualization = (feature: ILayerFeature, layerVisual
 
     if (!value) return
 
-    const filter = layerVisualizationSettings.filter
-    if (filter?.enabled && !isConditionMet(filter, value)) return null
+    if (!doesMapFilterMatchLayerFeature(feature, layerVisualizationSettings, mappedData, targetDatasetData, value, targetDatasetInfoMap ?? null)) return null
 
     const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, value, variables, mappedData, feature.properties, targetDatasetData)
     const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)

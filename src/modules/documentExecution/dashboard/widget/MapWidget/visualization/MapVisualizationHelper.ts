@@ -386,6 +386,36 @@ export const getInteractionDataMap = (source: ILayerFeature | Record<string, any
     return dataMap
 }
 
+const hasResolvedFilterValue = (value: any) => value !== undefined && value !== null && value !== ''
+
+export const getFilterValueFromDatasetRow = (row: Record<string, any>, data: any, layerVisualizationSettings: IMapWidgetVisualizationType, fallbackValue?: any) => {
+    const filterColumn = getMapLayerPropertyName(layerVisualizationSettings.filter?.column)
+    if (!filterColumn) return fallbackValue
+
+    const filterValue = getInteractionDataMap(row, layerVisualizationSettings, null, null, data)[filterColumn]
+    return hasResolvedFilterValue(filterValue) ? filterValue : fallbackValue
+}
+
+export const getFilterValueFromLayerFeature = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData?: Record<string, any> | null, targetDatasetData?: any, fallbackValue?: any, additionalMappedData?: Record<string, Record<string, any>> | null) => {
+    const filterColumn = getMapLayerPropertyName(layerVisualizationSettings.filter?.column)
+    if (!filterColumn) return fallbackValue
+
+    const filterValue = getInteractionDataMap(feature, layerVisualizationSettings, mappedData, targetDatasetData, null, additionalMappedData)[filterColumn]
+    return hasResolvedFilterValue(filterValue) ? filterValue : fallbackValue
+}
+
+export const doesMapFilterMatchDatasetRow = (row: Record<string, any>, data: any, layerVisualizationSettings: IMapWidgetVisualizationType, fallbackValue?: any) => {
+    const filter = layerVisualizationSettings.filter
+    if (!filter?.enabled) return true
+    return isConditionMet(filter, getFilterValueFromDatasetRow(row, data, layerVisualizationSettings, fallbackValue))
+}
+
+export const doesMapFilterMatchLayerFeature = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData?: Record<string, any> | null, targetDatasetData?: any, fallbackValue?: any, additionalMappedData?: Record<string, Record<string, any>> | null) => {
+    const filter = layerVisualizationSettings.filter
+    if (!filter?.enabled) return true
+    return isConditionMet(filter, getFilterValueFromLayerFeature(feature, layerVisualizationSettings, mappedData, targetDatasetData, fallbackValue, additionalMappedData))
+}
+
 export const getTargetDataColumn = (data: any, layerVisualizationSettings: IMapWidgetVisualizationType, dataColumn: string) => {
     const filter = layerVisualizationSettings.filter
 
