@@ -27,7 +27,7 @@
             <AiSettings v-if="isEnterprise && selectedOption === 'aisettings'" :dashboard-model-prop="dashboardModel" @change="setAiModel" />
 
             <div v-if="selectedOption === 'CrossNavigation'" class="p-d-flex p-flex-column kn-flex dashboard-card-shadow q-ma-md">
-                <CrossNavigationManagement ref="crossNavRef" :secondary="true" />
+                <DashboardCrossNavigation ref="crossNavRef" :dashboard-id="dashboardId" />
             </div>
         </div>
     </div>
@@ -45,7 +45,7 @@ import MenuWidgets from './menu&widgets/Menu&Widgets.vue'
 import DashboardVariables from './DashboardVariables.vue'
 import DashboardThemes from './themes/DashboardThemes.vue'
 import AiSettings from './aisettings/DashboardAiSettings.vue'
-import CrossNavigationManagement from '@/modules/managers/crossNavigationManagement/CrossNavigationManagement.vue'
+import DashboardCrossNavigation from './DashboardCrossNavigation.vue'
 import store from '@/modules/documentExecution/dashboard/Dashboard.store'
 import mainStore from '@/App.store'
 import deepcopy from 'deepcopy'
@@ -58,7 +58,7 @@ import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
     name: 'dashboard-general-settings',
-    components: { DashboardGeneralSettingsList, DashboardVariables, DashboardInformation, DashboardBackground, MenuWidgets, CssEditor, DashboardThemes, WidgetEditor, InputSwitch, AiSettings, CrossNavigationManagement },
+    components: { DashboardGeneralSettingsList, DashboardVariables, DashboardInformation, DashboardBackground, MenuWidgets, CssEditor, DashboardThemes, WidgetEditor, InputSwitch, AiSettings, DashboardCrossNavigation },
     props: {
         dashboardId: { type: String, required: true },
         datasets: { type: Array as PropType<IDataset[]>, required: true },

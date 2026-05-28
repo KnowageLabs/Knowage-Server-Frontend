@@ -18,6 +18,14 @@
 
         <div v-if="!navigation.toPars?.length" class="q-pa-sm text-grey text-center">{{ $t('common.info.noDataFound') }}</div>
         <q-table v-else :rows="navigation.toPars" :columns="tableColumns" row-key="id" dense flat bordered hide-bottom :pagination="{ rowsPerPage: 0 }">
+            <template #header-cell-source="props">
+                <q-th :props="props" class="row items-center no-wrap" style="justify-content: space-between">
+                    <span>{{ props.col.label }}</span>
+                    <q-btn flat round dense icon="fas fa-link" size="sm" color="primary" @click="autoLinkByName">
+                        <q-tooltip>{{ $t('managers.crossNavigationManagement.autoLink') }}</q-tooltip>
+                    </q-btn>
+                </q-th>
+            </template>
             <template #body-cell-source="props">
                 <q-td :props="props" style="min-width: 200px">
                     <q-select :model-value="getLinkedSourceName(props.row)" :options="navigation.fromPars || []" option-label="name" option-value="name" emit-value map-options dense outlined clearable :placeholder="$t('managers.crossNavigationManagement.notLinked')" @update:model-value="(name) => onTableSelect(props.row, name)">
@@ -117,6 +125,16 @@ export default defineComponent({
             }
             const fromPar = this.navigation.fromPars?.find((fp: any) => fp.name === name)
             if (fromPar) this.setLink(toPar, fromPar)
+        },
+        autoLinkByName() {
+            if (!this.navigation.fromPars?.length || !this.navigation.toPars?.length) return
+            this.navigation.toPars.forEach((toPar: any) => {
+                const fromPar = this.navigation.fromPars.find((f: any) => f.name.toLowerCase() === toPar.name.toLowerCase())
+                if (fromPar && (fromPar.type === 2 || fromPar.parType === toPar.parType)) {
+                    toPar.links = [fromPar]
+                }
+            })
+            this.$emit('touched')
         }
     }
 })

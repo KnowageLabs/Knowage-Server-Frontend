@@ -19,7 +19,8 @@ export function createToolbarMenuItems(document: any, functions: any, exporters:
             items: [
                 { icon: 'pi pi-cog', label: $t('common.general'), command: () => functions.openDashboardGeneralSettings('General') },
                 { icon: 'fa-brands fa-diaspora', label: $t('common.variables'), command: () => functions.openDashboardGeneralSettings('Variables') },
-                { icon: 'fa-solid fa-heading', label: $t('dashboard.generalSettings.customHeader'), command: () => functions.openDashboardGeneralSettings('Custom Header') }
+                { icon: 'fa-solid fa-heading', label: $t('dashboard.generalSettings.customHeader'), command: () => functions.openDashboardGeneralSettings('Custom Header') },
+                { icon: 'fa-solid fa-route', label: $t('managers.crossNavigationManagement.title'), command: () => functions.openDashboardGeneralSettings('CrossNavigation') }
             ]
         })
         if (mainStore.isEnterprise) toolbarMenuItems[0].items.push({ icon: 'fas fa-paint-roller', label: $t('common.themes'), command: () => functions.openDashboardGeneralSettings('Themes') })

@@ -2949,9 +2949,13 @@
             "type": "Check type"
         },
         "crossNavigationManagement": {
+            "autoLink": "Link parameters with same name",
             "availableIO": "Available Input/Output parameters",
             "availableInput": "Available Input parameters",
             "breadCrumbs": "Text to show on Bread Crumbs",
+            "filterBoth": "All",
+            "filterSource": "Source",
+            "filterTarget": "Target",
             "fixed": "Fixed value",
             "fixedValue": "Fixed value parameter",
             "height": "Window height",
@@ -2973,7 +2977,6 @@
             "popUpWindow": "Pop-up window",
             "selectDocument": "Select document",
             "sourceParameter": "Source parameters",
-            "targetParameter": "Target parameters",
             "step1Caption": "Select the documents to link",
             "step1Title": "Documents",
             "step2Caption": "Connect source document output parameters to target document input parameters",
@@ -2981,6 +2984,7 @@
             "step3Caption": "Set the details of the cross navigation",
             "step3Title": "Details",
             "targetDoc": "Target doc",
+            "targetParameter": "Target parameters",
             "title": "Cross Navigation",
             "width": "Window width",
             "widthHelp": "Width in px of the popup window."
@@ -4073,6 +4077,7 @@
                 "fromFile": "Import from file",
                 "importedUsers": "Imported Users",
                 "selectFile": "Select XLS or CSV file",
+                "serviceError": "It was not possible to load the users, please check the file structure or try again later",
                 "title": "Import Users from File"
             },
             "info": {
@@ -4088,15 +4093,6 @@
             "title": "Users Management",
             "unlockUser": "Unlock user",
             "userId": "User ID",
-            "import": {
-                "errors": "Errors",
-                "fromFile": "Import from file",
-                "importedUsers": "Imported Users",
-                "selectFile": "Select XLS or CSV file",
-                "serviceError": "It was not possible to load the users, please check the file structure or try again later",
-                "title": "Import Users from File"
-            },
-            "newUser": "New user",
             "validation": {
                 "sameAsPassword": "Different password values"
             },
