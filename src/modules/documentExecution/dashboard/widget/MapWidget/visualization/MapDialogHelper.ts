@@ -5,7 +5,7 @@ import L from 'leaflet'
 import { ChartValuesRecord } from './MapChartsVizualizationHelper'
 import { executeMapInteractions } from '../interactions/MapInteractionsHelper'
 import { getInteractionDataMap } from './MapVisualizationHelper'
-import { getMapInfoColumnSettings } from '../MapWidgetInfoSettingsHelper'
+import { getMapInfoColumnLabel, getMapInfoColumnSettings } from '../MapWidgetInfoSettingsHelper'
 import { formatNumberWithLocale } from '@/helpers/commons/localeHelper'
 
 interface IListItemStyle {
@@ -143,7 +143,7 @@ const createTooltipListItem = (column: string, rawValue: string | number, style:
 
     const label = document.createElement('span')
     label.classList.add('customLeafletPopupLabel')
-    label.innerText = column
+    label.innerText = getMapInfoColumnLabel(columnSettings)
 
     const itemValue = document.createElement('span')
     itemValue.classList.add('customLeafletPopupValue')

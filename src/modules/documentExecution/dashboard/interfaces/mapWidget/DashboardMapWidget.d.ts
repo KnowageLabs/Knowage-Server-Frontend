@@ -268,6 +268,7 @@ export interface IMapTooltipSettings {
 
 export interface IMapInfoColumnSettings {
     name: string
+    alias: string
     prefix: string
     suffix: string
     precision: number | null

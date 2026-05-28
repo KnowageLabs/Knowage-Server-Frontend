@@ -15,8 +15,13 @@ export const getMapInfoColumnName = (column: any): string => {
     return column?.name ?? column?.property ?? column?.header ?? ''
 }
 
+const hasMapInfoFormattingSettings = (column: any) => {
+    return typeof column === 'object' && column !== null && ('prefix' in column || 'suffix' in column || 'precision' in column)
+}
+
 const getLegacyMapInfoColumnDefaults = (visualization: IMapTooltipSettingsVisualizations | null | undefined) => {
     return {
+        alias: '',
         prefix: visualization?.prefix ?? '',
         suffix: visualization?.suffix ?? '',
         precision: getNormalizedMapInfoPrecision(visualization?.precision)
@@ -28,6 +33,7 @@ export const createMapInfoColumnSettings = (column: any, defaults?: Partial<IMap
 
     return {
         name: columnName,
+        alias: hasMapInfoFormattingSettings(column) ? (column.alias ?? defaults?.alias ?? '') : (defaults?.alias ?? ''),
         prefix: typeof column === 'object' && column !== null ? (column.prefix ?? defaults?.prefix ?? '') : (defaults?.prefix ?? ''),
         suffix: typeof column === 'object' && column !== null ? (column.suffix ?? defaults?.suffix ?? '') : (defaults?.suffix ?? ''),
         precision: typeof column === 'object' && column !== null ? getNormalizedMapInfoPrecision(column.precision, defaults?.precision ?? DEFAULT_MAP_INFO_PRECISION) : getNormalizedMapInfoPrecision(defaults?.precision)
@@ -36,6 +42,11 @@ export const createMapInfoColumnSettings = (column: any, defaults?: Partial<IMap
 
 export const getMapInfoColumnSettings = (column: any, visualization: IMapTooltipSettingsVisualizations | null | undefined): IMapInfoColumnSettings => {
     return createMapInfoColumnSettings(column, getLegacyMapInfoColumnDefaults(visualization))
+}
+
+export const getMapInfoColumnLabel = (column: IMapInfoColumnSettings | null | undefined): string => {
+    const alias = column?.alias?.trim()
+    return alias || getMapInfoColumnName(column)
 }
 
 export const normalizeMapInfoSettingColumns = (visualization: IMapTooltipSettingsVisualizations | null | undefined) => {

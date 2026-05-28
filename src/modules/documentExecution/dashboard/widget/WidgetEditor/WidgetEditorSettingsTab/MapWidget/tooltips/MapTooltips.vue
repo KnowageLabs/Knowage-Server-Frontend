@@ -21,9 +21,10 @@
 
             <div v-if="getSelectedColumns(tool).length" class="p-col-12 p-mt-2">
                 <div v-for="column in getSelectedColumns(tool)" :key="column.name" class="p-grid p-ai-center p-mb-2 map-info-column-row">
-                    <div class="p-col-12 p-md-3 map-info-column-label">{{ getColumnAlias(column, tool) }}</div>
-                    <q-input dense class="p-col-12 p-md-3" filled v-model="column.prefix" :label="$t('dashboard.widgetEditor.prefix')" :disable="tooltipsDisabled" />
-                    <q-input dense class="p-col-12 p-md-3" filled v-model="column.suffix" :label="$t('dashboard.widgetEditor.suffix')" :disable="tooltipsDisabled" />
+                    <div class="p-col-12 p-md-2 map-info-column-label">{{ getAvailableColumnAlias(column, tool) }}</div>
+                    <q-input dense class="p-col-12 p-md-3" filled v-model="column.alias" :label="$t('common.alias')" :disable="tooltipsDisabled" />
+                    <q-input dense class="p-col-12 p-md-2" filled v-model="column.prefix" :label="$t('dashboard.widgetEditor.prefix')" :disable="tooltipsDisabled" />
+                    <q-input dense class="p-col-12 p-md-2" filled v-model="column.suffix" :label="$t('dashboard.widgetEditor.suffix')" :disable="tooltipsDisabled" />
                     <q-input dense class="p-col-12 p-md-3" type="number" filled v-model.number="column.precision" :label="$t('dashboard.widgetEditor.precision')" :disable="tooltipsDisabled" />
                 </div>
             </div>
@@ -194,7 +195,7 @@ export default defineComponent({
         getSelectedColumns(tooltip: { columns?: IMapInfoColumnSettings[] } | null | undefined) {
             return tooltip?.columns ?? []
         },
-        getColumnAlias(column: IMapInfoColumnSettings, tooltip: any) {
+        getAvailableColumnAlias(column: IMapInfoColumnSettings, tooltip: any) {
             const columnName = getMapInfoColumnName(column)
             return this.getColumnOptionsFromLayer(tooltip).find((option: { name: string; alias: string }) => option.name === columnName)?.alias ?? columnName
         },

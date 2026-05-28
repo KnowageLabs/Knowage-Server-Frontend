@@ -24,9 +24,10 @@
 
             <div v-if="getSelectedColumns(dialogProperty).length" class="p-col-12 p-mt-2">
                 <div v-for="column in getSelectedColumns(dialogProperty)" :key="column.name" class="p-grid p-ai-center p-mb-2 map-info-column-row">
-                    <div class="p-col-12 p-md-3 map-info-column-label">{{ getColumnAlias(column, dialogProperty) }}</div>
-                    <q-input dense class="p-col-12 p-md-3" filled v-model="column.prefix" :label="$t('dashboard.widgetEditor.prefix')" :disable="dialogSettingsDisabled" />
-                    <q-input dense class="p-col-12 p-md-3" filled v-model="column.suffix" :label="$t('dashboard.widgetEditor.suffix')" :disable="dialogSettingsDisabled" />
+                    <div class="p-col-12 p-md-2 map-info-column-label">{{ getAvailableColumnAlias(column, dialogProperty) }}</div>
+                    <q-input dense class="p-col-12 p-md-3" filled v-model="column.alias" :label="$t('common.alias')" :disable="dialogSettingsDisabled" />
+                    <q-input dense class="p-col-12 p-md-2" filled v-model="column.prefix" :label="$t('dashboard.widgetEditor.prefix')" :disable="dialogSettingsDisabled" />
+                    <q-input dense class="p-col-12 p-md-2" filled v-model="column.suffix" :label="$t('dashboard.widgetEditor.suffix')" :disable="dialogSettingsDisabled" />
                     <q-input dense class="p-col-12 p-md-3" type="number" filled v-model.number="column.precision" :label="$t('dashboard.widgetEditor.precision')" :disable="dialogSettingsDisabled" />
                 </div>
             </div>
@@ -202,7 +203,7 @@ export default defineComponent({
         getSelectedColumns(dialogProperty: { columns?: IMapInfoColumnSettings[] } | null | undefined) {
             return dialogProperty?.columns ?? []
         },
-        getColumnAlias(column: IMapInfoColumnSettings, dialogProperty: any) {
+        getAvailableColumnAlias(column: IMapInfoColumnSettings, dialogProperty: any) {
             const columnName = getMapInfoColumnName(column)
             return this.getColumnOptionsFromLayer(dialogProperty).find((option: { name: string; alias: string }) => option.name === columnName)?.alias ?? columnName
         },

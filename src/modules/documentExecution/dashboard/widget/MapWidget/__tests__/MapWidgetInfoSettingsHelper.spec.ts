@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createMapInfoColumnSettings, getMapDatasetInfoColumnNames, getMapInfoColumnName, getMapVisualizationMeasureLabel, normalizeMapInfoSettings, normalizeMapLegendSettings } from '../MapWidgetInfoSettingsHelper'
+import { createMapInfoColumnSettings, getMapDatasetInfoColumnNames, getMapInfoColumnLabel, getMapInfoColumnName, getMapVisualizationMeasureLabel, normalizeMapInfoSettings, normalizeMapLegendSettings } from '../MapWidgetInfoSettingsHelper'
 
 describe('MapWidgetInfoSettingsHelper', () => {
     it('extracts column names from strings and option objects', () => {
@@ -27,15 +27,21 @@ describe('MapWidgetInfoSettingsHelper', () => {
         normalizeMapInfoSettings(settings)
 
         expect(settings.visualizations[0].columns).toEqual([
-            { name: 'REG_NAME', prefix: '$', suffix: ' pcs', precision: 1 },
-            { name: 'ELETTORI', prefix: '$', suffix: ' pcs', precision: 1 },
-            { name: 'NAME_1', prefix: '#', suffix: '', precision: 0 }
+            { name: 'REG_NAME', alias: '', prefix: '$', suffix: ' pcs', precision: 1 },
+            { name: 'ELETTORI', alias: '', prefix: '$', suffix: ' pcs', precision: 1 },
+            { name: 'NAME_1', alias: '', prefix: '#', suffix: '', precision: 0 }
         ])
     })
 
     it('creates standalone info column settings with default formatting', () => {
-        expect(createMapInfoColumnSettings('REG_NAME')).toEqual({ name: 'REG_NAME', prefix: '', suffix: '', precision: 2 })
-        expect(createMapInfoColumnSettings({ name: 'ELETTORI', prefix: 'EUR ', suffix: '%', precision: '3' })).toEqual({ name: 'ELETTORI', prefix: 'EUR ', suffix: '%', precision: 3 })
+        expect(createMapInfoColumnSettings('REG_NAME')).toEqual({ name: 'REG_NAME', alias: '', prefix: '', suffix: '', precision: 2 })
+        expect(createMapInfoColumnSettings({ name: 'ELETTORI', prefix: 'EUR ', suffix: '%', precision: '3', alias: 'Voters' })).toEqual({ name: 'ELETTORI', alias: 'Voters', prefix: 'EUR ', suffix: '%', precision: 3 })
+    })
+
+    it('uses the configured alias for display labels and ignores legacy column option aliases', () => {
+        expect(createMapInfoColumnSettings({ name: 'ELETTORI', alias: 'Elettori' })).toEqual({ name: 'ELETTORI', alias: '', prefix: '', suffix: '', precision: 2 })
+        expect(getMapInfoColumnLabel({ name: 'ELETTORI', alias: 'Voters', prefix: '', suffix: '', precision: 2 })).toBe('Voters')
+        expect(getMapInfoColumnLabel({ name: 'ELETTORI', alias: '   ', prefix: '', suffix: '', precision: 2 })).toBe('ELETTORI')
     })
 
     it('collects dataset info columns configured in dialog and tooltips for matching visualizations', () => {
