@@ -3,7 +3,7 @@ import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationThreshold, IMapW
 import { addMarker, getCoordinates, LEGEND_DATA_TYPE, VisualizationDataType } from '../LeafletHelper'
 import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData } from './MapDialogHelper'
 import { getMappedDataAndColumnIndex } from './MapMarkersVizualizationHelper'
-import { formatRanges, getConditionalStyleUsingTargetDataset, getCoordinatesFromWktPointFeature, getFeatureValues, getMinMaxByName, getNumericPropertyValues, getQuantiles, getQuantilesFromLayersData, getRowValues, isConditionMet, sortRanges, validateNumber } from './MapVisualizationHelper'
+import { formatRanges, getConditionalStyleUsingTargetDataset, getCoordinatesFromWktPointFeature, getFeatureValues, getMinMaxByName, getNumericPropertyValues, getQuantiles, getQuantilesFromLayersData, getRowValues, isConditionMet, isSingleLayerPropertyVisualization, sortRanges, validateNumber } from './MapVisualizationHelper'
 
 interface IntervalSize {
     classIndex: number
@@ -42,7 +42,7 @@ export const addBaloonMarkers = (map: any, data: any, model: IWidget, target: IM
         // We divide the value array into user defined number of subarrays, each having the same number of elements, and determine the balloon size depending where the value fits
         case 'CLASSIFY_BY_QUANTILS':
             if (visualizationDataType === VisualizationDataType.LAYER_ONLY) {
-                return addBaloonMarkersClassifedByQuantilsUsingLayers(null, layersData, null, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds, model, variables, activeSelections, dashboardId)
+                return addBaloonMarkersClassifedByQuantilsUsingLayers(null, null, layersData, null, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds, model, variables, activeSelections, dashboardId)
             } else if (visualizationDataType === VisualizationDataType.DATASET_AND_LAYER) {
                 return addBaloonMarkersClassifedByQuantilsUsingLayers(targetDatasetData, targetDatasetInfoMap, layersData, dataColumn, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds, model, variables, activeSelections, dashboardId)
             } else {
@@ -92,7 +92,7 @@ const getMappedDataMinMax = (targetDatasetData: any, layersData: any, dataColumn
         const valueColumnMinMaxValues = getMinMaxByName(targetDatasetData.stats, dataColumnIndex)
         minValue = valueColumnMinMaxValues?.min ?? 0
         maxValue = valueColumnMinMaxValues?.max ?? 0
-    } else if (layersData && layerVisualizationSettings.targetType === 'property' && layerVisualizationSettings.targetProperty) {
+    } else if (layersData && isSingleLayerPropertyVisualization(layerVisualizationSettings)) {
         const layerPropertyValues = getNumericPropertyValues(layersData, layerVisualizationSettings.targetProperty)
         minValue = Math.min(...layerPropertyValues) ?? 0
         maxValue = Math.max(...layerPropertyValues) ?? 0
@@ -356,7 +356,7 @@ const getMappedDataAndMinMaxValues = (targetDatasetData: any, layersData: any, d
         const valueColumnMinMaxValues = getMinMaxByName(targetDatasetData.stats, dataColumnIndex)
         minValue = valueColumnMinMaxValues?.min ?? Number.MIN_SAFE_INTEGER
         maxValue = valueColumnMinMaxValues?.max ?? Number.MAX_SAFE_INTEGER
-    } else if (layersData && layerVisualizationSettings.targetType === 'property' && layerVisualizationSettings.targetProperty) {
+    } else if (layersData && isSingleLayerPropertyVisualization(layerVisualizationSettings)) {
         const layerPropertyValues = getNumericPropertyValues(layersData, layerVisualizationSettings.targetProperty)
         minValue = Math.min(...layerPropertyValues) ?? 0
         maxValue = Math.max(...layerPropertyValues) ?? 0
