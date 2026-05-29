@@ -1,12 +1,12 @@
 <template>
-    <div v-if="heatmapPlotOptions" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-3 p-md-4">
-            <InputSwitch v-model="heatmapPlotOptions.connectNulls" @change="modelChanged"></InputSwitch>
-            <label class="kn-material-input-label p-m-2">{{ $t('dashboard.widgetEditor.highcharts.heatmap.nullValues.connectNulls') }}</label>
-        </div>
-        <div class="p-col-9 p-md-8 p-d-flex p-flex-row">
-            <WidgetEditorColorPicker class="kn-flex" :initial-value="heatmapPlotOptions.nullColor" :label="$t('dashboard.widgetEditor.highcharts.heatmap.nullValues.nullColor')" @change="onSelectionColorChanged"></WidgetEditorColorPicker>
-            <Button icon="fa fa-eraser" class="p-button-text p-button-rounded p-button-plain" @click="removeNullColor" />
+    <div v-if="heatmapPlotOptions" class="q-px-md q-pb-md">
+        <div class="row items-center q-col-gutter-sm q-mb-sm">
+            <div class="col-12">
+                <q-toggle v-model="heatmapPlotOptions.connectNulls" :label="$t('dashboard.widgetEditor.highcharts.heatmap.nullValues.connectNulls')" dense @update:model-value="modelChanged" />
+            </div>
+            <div class="col-6">
+                <WidgetEditorColorPicker :initial-value="heatmapPlotOptions.nullColor" :label="$t('dashboard.widgetEditor.highcharts.heatmap.nullValues.nullColor')" @change="onSelectionColorChanged" />
+            </div>
         </div>
     </div>
 </template>
@@ -15,12 +15,11 @@
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { defineComponent, PropType } from 'vue'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
-import InputSwitch from 'primevue/inputswitch'
 import WidgetEditorColorPicker from '../../../common/WidgetEditorColorPicker.vue'
 
 export default defineComponent({
     name: 'highcharts-heatmap-null-settings',
-    components: { InputSwitch, WidgetEditorColorPicker },
+    components: { WidgetEditorColorPicker },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {
@@ -41,9 +40,6 @@ export default defineComponent({
             if (!event || !this.heatmapPlotOptions) return
             this.heatmapPlotOptions.nullColor = event
             this.modelChanged()
-        },
-        removeNullColor() {
-            delete this.heatmapPlotOptions?.nullColor
         }
     }
 })

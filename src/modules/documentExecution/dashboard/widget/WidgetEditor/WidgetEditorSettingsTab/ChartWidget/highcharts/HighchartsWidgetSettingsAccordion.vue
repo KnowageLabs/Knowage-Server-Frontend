@@ -1,74 +1,79 @@
 <template>
     <div v-show="widgetModel">
-        <Message v-if="themePropertyChanged" class="p-p-2 p-m-4" severity="warn" :closable="false">{{ $t('dashboard.widgetEditor.themeChangedWarning') }}</Message>
+        <q-banner v-if="themePropertyChanged" class="q-ma-sm bg-warning text-white" rounded dense>{{ $t('dashboard.widgetEditor.themeChangedWarning') }}</q-banner>
         <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker>
-        <q-list class="widget-editor-accordion" bordered separator>
-            <q-expansion-item v-for="(accordion, index) in filteredSettings" :key="index" :model-value="activeIndex === index" expand-icon-class="col kn-width-full" @update:model-value="(val) => onExpansionChange(val, index)">
-                <template #header>
+        <q-list class="selector-expansion-list rounded-borders" bordered separator>
+            <template v-for="(accordion, index) in filteredSettings" :key="index">
+                <q-item v-if="accordion.toggleOnly">
                     <HighchartsWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></HighchartsWidgetSettingsAccordionHeader>
-                </template>
+                </q-item>
+                <q-expansion-item v-else :model-value="activeIndex === index" expand-icon-class="col kn-width-full" hide-expand-icon @update:model-value="(val) => onExpansionChange(val, index)">
+                    <template #header>
+                        <HighchartsWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></HighchartsWidgetSettingsAccordionHeader>
+                    </template>
 
-                <Highcharts3DConfiguration v-if="accordion.type === 'ConfigurationOf3D'" :widget-model="widgetModel"></Highcharts3DConfiguration>
-                <HighchartsNoDataMessageConfiguration v-else-if="accordion.type === 'NoDataMessageConfiguration'" :widget-model="widgetModel"></HighchartsNoDataMessageConfiguration>
-                <HighchartsCategoryThresholdSettings v-else-if="accordion.type === 'CategoryThresholdSettings'" :widget-model="widgetModel"></HighchartsCategoryThresholdSettings>
-                <HighchartsAccessibilitySettings v-else-if="accordion.type === 'AccessibilitySettings'" :widget-model="widgetModel"></HighchartsAccessibilitySettings>
-                <HighchartsSeriesAccessibilitySettings v-else-if="accordion.type === 'SeriesAccessibilitySettings'" :prop-widget-model="widgetModel"></HighchartsSeriesAccessibilitySettings>
-                <HighchartsLabelsSettings v-else-if="accordion.type === 'Labels'" :widget-model="widgetModel"></HighchartsLabelsSettings>
-                <HighchartsLegendSettings v-else-if="accordion.type === 'Legend'" :widget-model="widgetModel"></HighchartsLegendSettings>
-                <HighchartsTooltipSettings v-else-if="accordion.type === 'Tooltip'" :widget-model="widgetModel"></HighchartsTooltipSettings>
-                <HighchartsActivityGaugeTooltipSettings v-else-if="accordion.type === 'ActivityGaugeTooltip'" :widget-model="widgetModel"></HighchartsActivityGaugeTooltipSettings>
-                <HighchartsSeriesLabelSettings v-else-if="accordion.type === 'SeriesLabel'" :prop-widget-model="widgetModel"></HighchartsSeriesLabelSettings>
-                <HighchartsDrilldownSettings v-else-if="accordion.type === 'Drilldown'" :widget-model="widgetModel"></HighchartsDrilldownSettings>
-                <HighchartsGaugeGeneralSettings v-else-if="accordion.type === 'GaugeSettings'" :widget-model="widgetModel"></HighchartsGaugeGeneralSettings>
-                <HighchartsGaugeScaleSettings v-else-if="accordion.type === 'ScaleSettings'" :widget-model="widgetModel"></HighchartsGaugeScaleSettings>
-                <HighchartsGaugeTickSettings v-else-if="accordion.type === 'TickSettings'" :widget-model="widgetModel"></HighchartsGaugeTickSettings>
-                <HighchartsStopsSettings v-else-if="accordion.type === 'StopsSettings'" :widget-model="widgetModel"></HighchartsStopsSettings>
-                <HighchartsBandsSettings v-else-if="accordion.type === 'XAxisBandsSettings'" :widget-model="widgetModel" axis="x"></HighchartsBandsSettings>
-                <HighchartsBandsSettings v-else-if="accordion.type === 'YAxisBandsSettings'" :widget-model="widgetModel" axis="y"></HighchartsBandsSettings>
-                <ChartColorSettings v-else-if="accordion.type === 'Colors'" :widget-model="widgetModel" :theme-style="null"></ChartColorSettings>
-                <WidgetSelectionConfiguration v-else-if="accordion.type === 'SelectionConfiguration'" :widget-model="widgetModel"></WidgetSelectionConfiguration>
-                <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
-                <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
-                <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" :dashboard-id="dashboardId" @styleChanged="onStyleChanged"></WidgetTitleStyle>
-                <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :theme-style="null" :widget-model="widgetModel" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
-                <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>
-                <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetPaddingStyle>
-                <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetShadowsStyle>
-                <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
-                <WidgetSelection v-else-if="accordion.type === 'Selection'" :widget-model="widgetModel"></WidgetSelection>
-                <WidgetCrossNavigation v-else-if="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetCrossNavigation>
-                <WidgetInteractionsLinks v-else-if="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetInteractionsLinks>
-                <WidgetPreview v-else-if="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetPreview>
-                <HighchartsAxisSettings v-else-if="accordion.type === 'HighchartsXAxisSettings'" :widget-model="widgetModel" axis="x"></HighchartsAxisSettings>
-                <HighchartsAxisSettings v-else-if="accordion.type === 'HighchartsYAxisSettings'" :widget-model="widgetModel" axis="y"></HighchartsAxisSettings>
-                <HighchartsAxisTitleSettings v-else-if="accordion.type === 'HighchartsXAxisTitleSettings'" :widget-model="widgetModel" axis="x"></HighchartsAxisTitleSettings>
-                <HighchartsAxisTitleSettings v-else-if="accordion.type === 'HighchartsYAxisTitleSettings'" :widget-model="widgetModel" axis="y"></HighchartsAxisTitleSettings>
-                <HighchartsHeatmapNullSettings v-else-if="accordion.type === 'HeatmapNullSettings'" :widget-model="widgetModel"></HighchartsHeatmapNullSettings>
-                <HighchartsDatetypeSettings v-else-if="accordion.type === 'DatetypeSettings'" :widget-model="widgetModel"></HighchartsDatetypeSettings>
-                <HighchartsLineSettings v-else-if="accordion.type === 'XAxisLinesSettings'" :widget-model="widgetModel" axis="x"></HighchartsLineSettings>
-                <HighchartsLineSettings v-else-if="accordion.type === 'YAxisLinesSettings'" :widget-model="widgetModel" axis="y"></HighchartsLineSettings>
-                <HighchartsAxisGridSettings v-else-if="accordion.type === 'XAxisMajorGridSettings'" :widget-model="widgetModel" type="major" axis="x"></HighchartsAxisGridSettings>
-                <HighchartsAxisGridSettings v-else-if="accordion.type === 'YAxisMajorGridSettings'" :widget-model="widgetModel" type="major" axis="y"></HighchartsAxisGridSettings>
-                <HighchartsAxisGridSettings v-else-if="accordion.type === 'XAxisMinorGridSettings'" :widget-model="widgetModel" type="minor" axis="x"></HighchartsAxisGridSettings>
-                <HighchartsAxisGridSettings v-else-if="accordion.type === 'YAxisMinorGridSettings'" :widget-model="widgetModel" type="minor" axis="y"></HighchartsAxisGridSettings>
-                <HighchartsConditionalStyles v-else-if="accordion.type === 'ConditionalStyles'" :widget-model="widgetModel"></HighchartsConditionalStyles>
-                <HighchartsSonificationSettings v-else-if="accordion.type === 'SonificationSettings'" :widget-model="widgetModel"></HighchartsSonificationSettings>
-                <HighchartsGroupingSettings v-else-if="accordion.type === 'GroupingSettings'" :widget-model="widgetModel"></HighchartsGroupingSettings>
-                <HighchartsStackingSettings v-else-if="accordion.type === 'StackingSettings' && isStacked" :widget-model="widgetModel"></HighchartsStackingSettings>
-                <HighchartsCenterTextSettings v-else-if="accordion.type === 'CenterTextSettings'" :widget-model="widgetModel"></HighchartsCenterTextSettings>
-                <HighchartsAxisLinesSettings v-else-if="accordion.type === 'AxisLinesSettings'" :widget-model="widgetModel"></HighchartsAxisLinesSettings>
-                <HighchartsSVGSettings v-else-if="accordion.type === 'SVGSettings'" :widget-model="widgetModel"></HighchartsSVGSettings>
-                <HighchartsPieDonutSettings v-else-if="accordion.type === 'PieDonutSettings'" :widget-model="widgetModel"></HighchartsPieDonutSettings>
-                <HighchartsFunnelNeckSettings v-else-if="accordion.type === 'FunnelNeckSettings'" :widget-model="widgetModel"></HighchartsFunnelNeckSettings>
-                <HighchartsAdvancedSettings v-else-if="accordion.type === 'AdvancedSettings'" :prop-widget-model="widgetModel"></HighchartsAdvancedSettings>
-                <HighchartsMarkerSettings v-else-if="accordion.type === 'MarkerSettings'" :widget-model="widgetModel"></HighchartsMarkerSettings>
-                <HighchartsConnectorSettings v-else-if="accordion.type === 'ConnectorSettings'" :widget-model="widgetModel"></HighchartsConnectorSettings>
-                <HighchartsAnnotations v-else-if="accordion.type === 'Annotations'" :widget-model="widgetModel"></HighchartsAnnotations>
-                <HighchartsJitterSettings v-else-if="accordion.type === 'JitterSettings' && isJittered" :widget-model="widgetModel"></HighchartsJitterSettings>
-                <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
-                <HighchartsSeriesAliasesSettings v-else-if="accordion.type === 'SeriesAliasesSettings'" :prop-widget-model="widgetModel"></HighchartsSeriesAliasesSettings>
-                <HighchartsMeasureToggleSettings v-else-if="accordion.type === 'MeasureToggleSettings'" :prop-widget-model="widgetModel"></HighchartsMeasureToggleSettings>
-            </q-expansion-item>
+                    <Highcharts3DConfiguration v-if="accordion.type === 'ConfigurationOf3D'" :widget-model="widgetModel"></Highcharts3DConfiguration>
+                    <HighchartsNoDataMessageConfiguration v-else-if="accordion.type === 'NoDataMessageConfiguration'" :widget-model="widgetModel"></HighchartsNoDataMessageConfiguration>
+                    <HighchartsCategoryThresholdSettings v-else-if="accordion.type === 'CategoryThresholdSettings'" :widget-model="widgetModel"></HighchartsCategoryThresholdSettings>
+                    <HighchartsAccessibilitySettings v-else-if="accordion.type === 'AccessibilitySettings'" :widget-model="widgetModel"></HighchartsAccessibilitySettings>
+                    <HighchartsSeriesAccessibilitySettings v-else-if="accordion.type === 'SeriesAccessibilitySettings'" :prop-widget-model="widgetModel"></HighchartsSeriesAccessibilitySettings>
+                    <HighchartsLabelsSettings v-else-if="accordion.type === 'Labels'" :widget-model="widgetModel"></HighchartsLabelsSettings>
+                    <HighchartsLegendSettings v-else-if="accordion.type === 'Legend'" :widget-model="widgetModel"></HighchartsLegendSettings>
+                    <HighchartsTooltipSettings v-else-if="accordion.type === 'Tooltip'" :widget-model="widgetModel"></HighchartsTooltipSettings>
+                    <HighchartsActivityGaugeTooltipSettings v-else-if="accordion.type === 'ActivityGaugeTooltip'" :widget-model="widgetModel"></HighchartsActivityGaugeTooltipSettings>
+                    <HighchartsSeriesLabelSettings v-else-if="accordion.type === 'SeriesLabel'" :prop-widget-model="widgetModel"></HighchartsSeriesLabelSettings>
+                    <HighchartsDrilldownSettings v-else-if="accordion.type === 'Drilldown'" :widget-model="widgetModel"></HighchartsDrilldownSettings>
+                    <HighchartsGaugeGeneralSettings v-else-if="accordion.type === 'GaugeSettings'" :widget-model="widgetModel"></HighchartsGaugeGeneralSettings>
+                    <HighchartsGaugeScaleSettings v-else-if="accordion.type === 'ScaleSettings'" :widget-model="widgetModel"></HighchartsGaugeScaleSettings>
+                    <HighchartsGaugeTickSettings v-else-if="accordion.type === 'TickSettings'" :widget-model="widgetModel"></HighchartsGaugeTickSettings>
+                    <HighchartsStopsSettings v-else-if="accordion.type === 'StopsSettings'" :widget-model="widgetModel"></HighchartsStopsSettings>
+                    <HighchartsBandsSettings v-else-if="accordion.type === 'XAxisBandsSettings'" :widget-model="widgetModel" axis="x"></HighchartsBandsSettings>
+                    <HighchartsBandsSettings v-else-if="accordion.type === 'YAxisBandsSettings'" :widget-model="widgetModel" axis="y"></HighchartsBandsSettings>
+                    <ChartColorSettings v-else-if="accordion.type === 'Colors'" :widget-model="widgetModel" :theme-style="null"></ChartColorSettings>
+                    <WidgetSelectionConfiguration v-else-if="accordion.type === 'SelectionConfiguration'" :widget-model="widgetModel"></WidgetSelectionConfiguration>
+                    <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
+                    <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
+                    <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" :dashboard-id="dashboardId" @styleChanged="onStyleChanged"></WidgetTitleStyle>
+                    <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :theme-style="null" :widget-model="widgetModel" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
+                    <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>
+                    <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetPaddingStyle>
+                    <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetShadowsStyle>
+                    <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
+                    <WidgetSelection v-else-if="accordion.type === 'Selection'" :widget-model="widgetModel"></WidgetSelection>
+                    <WidgetCrossNavigation v-else-if="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetCrossNavigation>
+                    <WidgetInteractionsLinks v-else-if="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetInteractionsLinks>
+                    <WidgetPreview v-else-if="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetPreview>
+                    <HighchartsAxisSettings v-else-if="accordion.type === 'HighchartsXAxisSettings'" :widget-model="widgetModel" axis="x"></HighchartsAxisSettings>
+                    <HighchartsAxisSettings v-else-if="accordion.type === 'HighchartsYAxisSettings'" :widget-model="widgetModel" axis="y"></HighchartsAxisSettings>
+                    <HighchartsAxisTitleSettings v-else-if="accordion.type === 'HighchartsXAxisTitleSettings'" :widget-model="widgetModel" axis="x"></HighchartsAxisTitleSettings>
+                    <HighchartsAxisTitleSettings v-else-if="accordion.type === 'HighchartsYAxisTitleSettings'" :widget-model="widgetModel" axis="y"></HighchartsAxisTitleSettings>
+                    <HighchartsHeatmapNullSettings v-else-if="accordion.type === 'HeatmapNullSettings'" :widget-model="widgetModel"></HighchartsHeatmapNullSettings>
+                    <HighchartsDatetypeSettings v-else-if="accordion.type === 'DatetypeSettings'" :widget-model="widgetModel"></HighchartsDatetypeSettings>
+                    <HighchartsLineSettings v-else-if="accordion.type === 'XAxisLinesSettings'" :widget-model="widgetModel" axis="x"></HighchartsLineSettings>
+                    <HighchartsLineSettings v-else-if="accordion.type === 'YAxisLinesSettings'" :widget-model="widgetModel" axis="y"></HighchartsLineSettings>
+                    <HighchartsAxisGridSettings v-else-if="accordion.type === 'XAxisMajorGridSettings'" :widget-model="widgetModel" type="major" axis="x"></HighchartsAxisGridSettings>
+                    <HighchartsAxisGridSettings v-else-if="accordion.type === 'YAxisMajorGridSettings'" :widget-model="widgetModel" type="major" axis="y"></HighchartsAxisGridSettings>
+                    <HighchartsAxisGridSettings v-else-if="accordion.type === 'XAxisMinorGridSettings'" :widget-model="widgetModel" type="minor" axis="x"></HighchartsAxisGridSettings>
+                    <HighchartsAxisGridSettings v-else-if="accordion.type === 'YAxisMinorGridSettings'" :widget-model="widgetModel" type="minor" axis="y"></HighchartsAxisGridSettings>
+                    <HighchartsConditionalStyles v-else-if="accordion.type === 'ConditionalStyles'" :widget-model="widgetModel"></HighchartsConditionalStyles>
+                    <HighchartsSonificationSettings v-else-if="accordion.type === 'SonificationSettings'" :widget-model="widgetModel"></HighchartsSonificationSettings>
+                    <HighchartsGroupingSettings v-else-if="accordion.type === 'GroupingSettings'" :widget-model="widgetModel"></HighchartsGroupingSettings>
+                    <HighchartsStackingSettings v-else-if="accordion.type === 'StackingSettings' && isStacked" :widget-model="widgetModel"></HighchartsStackingSettings>
+                    <HighchartsCenterTextSettings v-else-if="accordion.type === 'CenterTextSettings'" :widget-model="widgetModel"></HighchartsCenterTextSettings>
+                    <HighchartsAxisLinesSettings v-else-if="accordion.type === 'AxisLinesSettings'" :widget-model="widgetModel"></HighchartsAxisLinesSettings>
+                    <HighchartsSVGSettings v-else-if="accordion.type === 'SVGSettings'" :widget-model="widgetModel"></HighchartsSVGSettings>
+                    <HighchartsPieDonutSettings v-else-if="accordion.type === 'PieDonutSettings'" :widget-model="widgetModel"></HighchartsPieDonutSettings>
+                    <HighchartsFunnelNeckSettings v-else-if="accordion.type === 'FunnelNeckSettings'" :widget-model="widgetModel"></HighchartsFunnelNeckSettings>
+                    <HighchartsAdvancedSettings v-else-if="accordion.type === 'AdvancedSettings'" :prop-widget-model="widgetModel"></HighchartsAdvancedSettings>
+                    <HighchartsMarkerSettings v-else-if="accordion.type === 'MarkerSettings'" :widget-model="widgetModel"></HighchartsMarkerSettings>
+                    <HighchartsConnectorSettings v-else-if="accordion.type === 'ConnectorSettings'" :widget-model="widgetModel"></HighchartsConnectorSettings>
+                    <HighchartsAnnotations v-else-if="accordion.type === 'Annotations'" :widget-model="widgetModel"></HighchartsAnnotations>
+                    <HighchartsJitterSettings v-else-if="accordion.type === 'JitterSettings' && isJittered" :widget-model="widgetModel"></HighchartsJitterSettings>
+                    <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
+                    <HighchartsSeriesAliasesSettings v-else-if="accordion.type === 'SeriesAliasesSettings'" :prop-widget-model="widgetModel"></HighchartsSeriesAliasesSettings>
+                    <HighchartsMeasureToggleSettings v-else-if="accordion.type === 'MeasureToggleSettings'" :prop-widget-model="widgetModel"></HighchartsMeasureToggleSettings>
+                </q-expansion-item>
+            </template>
         </q-list>
         <q-item v-if="isSearchActive && filteredSettings.length === 0" class="q-pa-md">
             <q-item-section class="text-grey-6">{{ $t('common.info.noAvailableItems') }}</q-item-section>
@@ -127,7 +132,6 @@ import HighchartsStackingSettings from './configuration/HighchartsStackingSettin
 import HighchartsAxisLinesSettings from './configuration/HighchartsAxisLinesSettings.vue'
 import HighchartsSVGSettings from './configuration/HighchartsSVGSettings.vue'
 import WidgetEditorThemePicker from '../../common/style/WidgetEditorThemePicker.vue'
-import Message from 'primevue/message'
 import HighchartsFunnelNeckSettings from '../highcharts/series/HighchartsFunnelNeckSettings.vue'
 import HighchartsPieDonutSettings from '../highcharts/configuration/HighchartsPieDonutSettings.vue'
 import HighchartsAdvancedSettings from '../highcharts/advanced/HighchartsAdvancedSettings.vue'
@@ -185,7 +189,6 @@ export default defineComponent({
         HighchartsAxisLinesSettings,
         HighchartsSVGSettings,
         WidgetEditorThemePicker,
-        Message,
         HighchartsFunnelNeckSettings,
         HighchartsAdvancedSettings,
         WidgetMenuConfiguration,
@@ -201,7 +204,7 @@ export default defineComponent({
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
-        settings: { type: Array as PropType<{ title: string; type: string }[]> },
+        settings: { type: Array as PropType<{ title: string; type: string; toggleOnly?: boolean }[]> },
         datasets: { type: Array as PropType<IDataset[]> },
         selectedDatasets: { type: Array as PropType<IDataset[]> },
         variables: { type: Array as PropType<IVariable[]>, required: true },
@@ -214,7 +217,7 @@ export default defineComponent({
     data() {
         return {
             settingsTabDescriptor,
-            filteredSettings: [] as { title: string; type: string }[],
+            filteredSettings: [] as { title: string; type: string; toggleOnly?: boolean }[],
             activeIndex: -1,
             styleChangedFlag: false,
             themePropertyChanged: false,
@@ -265,12 +268,12 @@ export default defineComponent({
             const search = (this.widgetSettingsSearch as any) ?? ''
             if (search.length >= 3) {
                 const lc = search.toLowerCase()
-                this.filteredSettings = this.filteredSettings.filter((s: { title: string; type: string }) => this.$t(s.title).toLowerCase().includes(lc))
+                this.filteredSettings = this.filteredSettings.filter((s: { title: string; type: string; toggleOnly?: boolean }) => this.$t(s.title).toLowerCase().includes(lc))
             }
             this.setActiveAccordion()
         },
         removeStackedFromOptions() {
-            const index = this.filteredSettings.findIndex((setting: { title: string; type: string }) => setting.type === 'StackingSettings')
+            const index = this.filteredSettings.findIndex((setting: { title: string; type: string; toggleOnly?: boolean }) => setting.type === 'StackingSettings')
             if (index !== -1) this.filteredSettings.splice(index, 1)
         },
         setActiveAccordion() {

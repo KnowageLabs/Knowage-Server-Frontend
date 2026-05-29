@@ -1,17 +1,21 @@
 <template>
-    <div v-if="datetypeSettings" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-10 p-p-d-flex p-flex-column p-p-2 p-fluid">
-            <label class="kn-material-input-label p-mr-2">{{ $t('managers.datasetManagement.ckanDateFormat') }}</label>
-            <Dropdown v-model="datetypeSettings.format" class="kn-material-input" :options="descriptor.dateFormats" :disabled="datetypeSettingsDisabled" @change="modelChanged">
-                <template #option="slotProps">
-                    <span>{{ getFormattedDate(new Date(), slotProps.option) }}</span>
-                </template>
-                <template #value="slotProps">
-                    <span>{{ getFormattedDate(new Date(), slotProps.value) }}</span>
-                </template>
-            </Dropdown>
+    <div v-if="datetypeSettings" class="q-px-md q-pb-sm">
+        <div class="row q-col-gutter-sm q-mb-sm">
+            <div class="col-6">
+                <q-select v-model="datetypeSettings.format" :label="$t('managers.datasetManagement.ckanDateFormat')" outlined dense :options="descriptor.dateFormats" :disable="datetypeSettingsDisabled" @update:model-value="modelChanged">
+                    <template #selected-item="slotProps">
+                        <span>{{ getFormattedDate(new Date(), slotProps.opt) }}</span>
+                    </template>
+                    <template #option="slotProps">
+                        <q-item v-bind="slotProps.itemProps">
+                            <q-item-section
+                                ><q-item-label>{{ getFormattedDate(new Date(), slotProps.opt) }}</q-item-label></q-item-section
+                            >
+                        </q-item>
+                    </template>
+                </q-select>
+            </div>
         </div>
-        <div class="p-col-2"></div>
     </div>
 </template>
 
@@ -21,11 +25,10 @@ import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { formatDate } from '@/helpers/commons/localeHelper'
 import descriptor from './HighchartsConfigurationDescriptor.json'
-import Dropdown from 'primevue/dropdown'
 
 export default defineComponent({
     name: 'highcharts-datetype-settings',
-    components: { Dropdown },
+    components: {},
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {

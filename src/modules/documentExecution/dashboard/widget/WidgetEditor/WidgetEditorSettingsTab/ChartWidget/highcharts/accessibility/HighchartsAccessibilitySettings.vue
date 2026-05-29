@@ -1,29 +1,27 @@
 <template>
-    <div v-if="model?.accessibility" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-12">
-            <label class="kn-material-input-label">{{ $t('common.description') }}</label>
-            <Textarea v-model="model.accessibility.description" class="kn-material-input kn-width-full" rows="4" :auto-resize="true" maxlength="250" :disabled="accessibilityDisabled" @change="modelChanged" />
+    <div v-if="model?.accessibility" class="q-px-md q-pb-lg">
+        <div class="row q-mb-sm">
+            <div class="col-12">
+                <q-input v-model="model.accessibility.description" :label="$t('common.description')" type="textarea" outlined dense autogrow maxlength="250" :disable="accessibilityDisabled" @change="modelChanged" />
+            </div>
         </div>
-        <div class="p-col-12 p-grid p-ai-center p-p-4">
-            <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.accessibility.enabelKeyboardNavigation') }}</label>
-            <InputSwitch v-model="model.accessibility.keyboardNavigation.enabled" :disabled="accessibilityDisabled" @change="modelChanged"></InputSwitch>
+        <div class="row items-center q-mb-sm">
+            <q-toggle v-model="model.accessibility.keyboardNavigation.enabled" :disable="accessibilityDisabled" :label="$t('dashboard.widgetEditor.accessibility.enabelKeyboardNavigation')" dense @update:model-value="modelChanged" />
         </div>
-        <div class="p-col-12 p-d-flex p-flex-column kn-flex p-m-2">
-            <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.accessibility.keyboardNavigationOrder') }}</label>
-            <div class="p-d-flex p-flex-row p-ai-center">
-                <MultiSelect v-model="model.accessibility.keyboardNavigation.order" class="kn-material-input multiselect-keyboardNavigation" :options="descriptor.keyboardNavigationOrderOptions" option-value="value" :disabled="accessibilityDisabled" @change="modelChanged">
-                    <template #value="slotProps">
-                        <div v-for="value of slotProps.value" :key="value" class="option-item-value">
-                            <span> {{ getTranslatedLabel(value, descriptor.keyboardNavigationOrderOptions, $t) }}</span>
-                        </div>
+        <div class="row q-mb-sm">
+            <div class="col-12">
+                <q-select v-model="model.accessibility.keyboardNavigation.order" :label="$t('dashboard.widgetEditor.accessibility.keyboardNavigationOrder')" multiple use-chips emit-value map-options outlined dense :options="descriptor.keyboardNavigationOrderOptions" option-value="value" option-label="label" :disable="accessibilityDisabled" :hint="$t('dashboard.widgetEditor.accessibility.keyboardNavigationOrderHint')" @update:model-value="modelChanged">
+                    <template #selected-item="slotProps">
+                        <q-chip dense :label="getTranslatedLabel(slotProps.opt.value, descriptor.keyboardNavigationOrderOptions, $t)" />
                     </template>
                     <template #option="slotProps">
-                        <div>
-                            <span>{{ $t(slotProps.option.label) }}</span>
-                        </div>
+                        <q-item v-bind="slotProps.itemProps">
+                            <q-item-section>
+                                <q-item-label>{{ $t(slotProps.opt.label) }}</q-item-label>
+                            </q-item-section>
+                        </q-item>
                     </template>
-                </MultiSelect>
-                <i v-tooltip.top="$t('dashboard.widgetEditor.accessibility.keyboardNavigationOrderHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+                </q-select>
             </div>
         </div>
     </div>
@@ -36,13 +34,10 @@ import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import { IHighchartsChartModel } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import descriptor from '../HighchartsWidgetSettingsDescriptor.json'
-import InputSwitch from 'primevue/inputswitch'
-import MultiSelect from 'primevue/multiselect'
-import Textarea from 'primevue/textarea'
 
 export default defineComponent({
     name: 'hihgcharts-accessibility-settings',
-    components: { InputSwitch, MultiSelect, Textarea },
+    components: {},
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {

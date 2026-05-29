@@ -1,32 +1,64 @@
 <template>
-    <div v-if="model" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div v-for="(serieSetting, index) in seriesSettings" :key="index" class="dynamic-form-item p-grid p-col-12 p-ai-center">
-            <div class="p-col-12 p-md-6 p-d-flex p-flex-column p-p-2">
-                <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.series.title') }}</label>
-                <Dropdown v-if="index === 0 && allSeriesOptionEnabled" v-model="serieSetting.names[0]" class="kn-material-input" :options="descriptor.allSerieOption" option-value="value" option-label="label" :disabled="true"> </Dropdown>
-                <HighchartsSeriesMultiselect v-else :value="serieSetting.names" :available-series-options="availableSeriesOptions" :disabled="!allSeriesOptionEnabled" @change="onSeriesSelected($event, serieSetting)"> </HighchartsSeriesMultiselect>
+    <div v-if="model" class="q-px-md q-pb-md">
+        <!-- Global section (index 0 — "all series") shown only when allSeriesOptionEnabled -->
+        <template v-if="allSeriesOptionEnabled && seriesSettings.length > 0">
+            <div class="q-mb-md">
+                <div class="row no-wrap items-center q-col-gutter-sm q-mb-sm">
+                    <div class="col">
+                        <q-select :model-value="seriesSettings[0].names[0]" :options="descriptor.allSerieOption" option-value="value" option-label="label" emit-value map-options :label="$t('dashboard.widgetEditor.series.title')" outlined dense disable />
+                    </div>
+                    <div class="col-auto">
+                        <q-toggle v-model="seriesSettings[0].accessibility.enabled" :label="$t('common.enabled')" dense @update:model-value="modelChanged" />
+                    </div>
+                </div>
+                <div class="row q-mb-sm">
+                    <div class="col-12">
+                        <q-input v-model="seriesSettings[0].accessibility.description" :label="$t('common.description')" type="textarea" outlined dense autogrow maxlength="250" :disable="!seriesSettings[0].accessibility.enabled" @change="modelChanged" />
+                    </div>
+                </div>
+                <div class="row q-gutter-x-md q-mb-sm">
+                    <q-toggle v-model="seriesSettings[0].accessibility.exposeAsGroupOnly" :disable="!seriesSettings[0].accessibility.enabled" :label="$t('dashboard.widgetEditor.accessibility.exposeAsGroupOnly')" dense @update:model-value="modelChanged">
+                        <q-tooltip>{{ $t('dashboard.widgetEditor.accessibility.exposeAsGroupOnlyHint') }}</q-tooltip>
+                    </q-toggle>
+                    <q-toggle v-model="seriesSettings[0].accessibility.keyboardNavigation.enabled" :disable="!seriesSettings[0].accessibility.enabled" :label="$t('dashboard.widgetEditor.accessibility.enabelKeyboardNavigation')" dense @update:model-value="modelChanged" />
+                </div>
             </div>
 
-            <div class="p-col-5 p-pt-4 p-px-4">
-                <InputSwitch v-model="serieSetting.accessibility.enabled" @change="modelChanged"></InputSwitch>
-                <label class="kn-material-input-label p-m-3">{{ $t('common.enabled') }}</label>
-            </div>
-            <div v-if="allSeriesOptionEnabled" class="p-col-1 p-d-flex p-flex-column p-jc-center p-ai-center p-pl-2">
-                <i :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash']" class="kn-cursor-pointer p-ml-2 p-mt-4" @click="index === 0 ? addSerieSetting() : removeSerieSetting(index)"></i>
-            </div>
+            <q-separator class="q-mb-xs" />
 
-            <div class="p-col-12">
-                <label class="kn-material-input-label">{{ $t('common.description') }}</label>
-                <Textarea v-model="serieSetting.accessibility.description" class="kn-material-input kn-width-full" rows="4" :auto-resize="true" maxlength="250" :disabled="!serieSetting.accessibility.enabled" @change="modelChanged" />
+            <!-- Per-series overrides header + add button -->
+            <div class="row items-center justify-between q-mb-xs">
+                <span class="text-subtitle2">{{ $t('dashboard.widgetEditor.accessibility.perSeriesOverrides') }}</span>
+                <q-btn flat round dense color="primary" icon="add" @click="addSerieSetting" />
             </div>
-            <div class="p-col-6 p-pt-2 p-px-4">
-                <InputSwitch v-model="serieSetting.accessibility.exposeAsGroupOnly" :disabled="!serieSetting.accessibility.enabled" @change="modelChanged"></InputSwitch>
-                <label class="kn-material-input-label p-m-3">{{ $t('dashboard.widgetEditor.accessibility.exposeAsGroupOnly') }}</label>
-                <i v-tooltip.top="$t('dashboard.widgetEditor.accessibility.exposeAsGroupOnlyHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+        </template>
+
+        <!-- Per-series list (index 1+ when allSeriesOptionEnabled, all items when !allSeriesOptionEnabled) -->
+        <div v-for="(serieSetting, listIndex) in perSeriesSettings" :key="listIndex" class="column-type-row row no-wrap q-mb-sm">
+            <div class="kn-action-handle kn-action-handle-disabled"></div>
+            <div class="col q-pa-sm">
+                <div class="row no-wrap items-center q-col-gutter-sm q-mb-sm">
+                    <div class="col">
+                        <HighchartsSeriesMultiselect :value="serieSetting.names" :available-series-options="availableSeriesOptions" :disabled="false" @change="onSeriesSelected($event, serieSetting)" />
+                    </div>
+                    <div class="col-auto">
+                        <q-toggle v-model="serieSetting.accessibility.enabled" :label="$t('common.enabled')" dense @update:model-value="modelChanged" />
+                    </div>
+                </div>
+                <div class="row q-mb-sm">
+                    <div class="col-12">
+                        <q-input v-model="serieSetting.accessibility.description" :label="$t('common.description')" type="textarea" outlined dense autogrow maxlength="250" :disable="!serieSetting.accessibility.enabled" @change="modelChanged" />
+                    </div>
+                </div>
+                <div class="row q-gutter-x-md">
+                    <q-toggle v-model="serieSetting.accessibility.exposeAsGroupOnly" :disable="!serieSetting.accessibility.enabled" :label="$t('dashboard.widgetEditor.accessibility.exposeAsGroupOnly')" dense @update:model-value="modelChanged">
+                        <q-tooltip>{{ $t('dashboard.widgetEditor.accessibility.exposeAsGroupOnlyHint') }}</q-tooltip>
+                    </q-toggle>
+                    <q-toggle v-model="serieSetting.accessibility.keyboardNavigation.enabled" :disable="!serieSetting.accessibility.enabled" :label="$t('dashboard.widgetEditor.accessibility.enabelKeyboardNavigation')" dense @update:model-value="modelChanged" />
+                </div>
             </div>
-            <div class="p-col-6 p-pt-2 p-px-4">
-                <InputSwitch v-model="serieSetting.accessibility.keyboardNavigation.enabled" :disabled="!serieSetting.accessibility.enabled" @change="modelChanged"></InputSwitch>
-                <label class="kn-material-input-label p-m-3">{{ $t('dashboard.widgetEditor.accessibility.enabelKeyboardNavigation') }}</label>
+            <div class="kn-action-handle row items-center justify-center">
+                <q-btn flat round dense icon="delete" size="sm" @click="removeSerieSetting(allSeriesOptionEnabled ? listIndex + 1 : listIndex)" />
             </div>
         </div>
     </div>
@@ -38,28 +70,30 @@ import { IWidget, IWidgetColumn } from '../../../../../../Dashboard'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { IHighchartsChartModel, ISerieAccessibilitySetting } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import descriptor from '../HighchartsWidgetSettingsDescriptor.json'
-import Dropdown from 'primevue/dropdown'
-import InputSwitch from 'primevue/inputswitch'
-import Textarea from 'primevue/textarea'
 import HighchartsSeriesMultiselect from '../common/HighchartsSeriesMultiselect.vue'
 import * as highchartsDefaultValues from '../../../../helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
 export default defineComponent({
     name: 'hihgcharts-series-accessibility-settings',
-    components: { Dropdown, InputSwitch, Textarea, HighchartsSeriesMultiselect },
+    components: { HighchartsSeriesMultiselect },
     props: { propWidgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {
             descriptor,
             widgetModel: {} as IWidget,
             model: null as IHighchartsChartModel | null,
-            seriesSettings: [] as ISerieAccessibilitySetting[],
             availableSeriesOptions: [] as string[]
         }
     },
     computed: {
-        allSeriesOptionEnabled() {
-            return this.model && !['pie', 'solidgauge', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall', 'scatter'].includes(this.model.chart.type)
+        allSeriesOptionEnabled(): boolean {
+            return !!this.model && !['pie', 'solidgauge', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall', 'scatter'].includes(this.model.chart.type)
+        },
+        seriesSettings(): ISerieAccessibilitySetting[] {
+            return this.widgetModel.settings?.accesssibility?.seriesAccesibilitySettings ?? []
+        },
+        perSeriesSettings(): ISerieAccessibilitySetting[] {
+            return this.allSeriesOptionEnabled ? this.seriesSettings.slice(1) : this.seriesSettings
         }
     },
     watch: {
@@ -91,28 +125,34 @@ export default defineComponent({
         },
         loadModel() {
             this.model = this.widgetModel.settings.chartModel ? this.widgetModel.settings.chartModel.model : null
-            if (this.widgetModel.settings?.accesssibility?.seriesAccesibilitySettings) this.seriesSettings = this.widgetModel.settings.accesssibility.seriesAccesibilitySettings
+            // Ensure the settings array exists on the widget model
+            if (!this.widgetModel.settings.accesssibility) (this.widgetModel.settings as any).accesssibility = { seriesAccesibilitySettings: [] }
+            if (!this.widgetModel.settings.accesssibility.seriesAccesibilitySettings) this.widgetModel.settings.accesssibility.seriesAccesibilitySettings = []
             this.loadSeriesOptions()
             this.removeSeriesFromAvailableOptions()
             this.removeAllSerieSettingsFromModel()
             if (this.seriesSettings.length === 0) this.addFirstSeriesSetting()
-            if (!this.allSeriesOptionEnabled) this.seriesSettings.splice(1)
+            if (!this.allSeriesOptionEnabled) {
+                // Remove "all" entry if chart type no longer supports it
+                while (this.seriesSettings.length > 0 && this.seriesSettings[0].names[0] === 'all') {
+                    this.seriesSettings.splice(0, 1)
+                }
+            }
         },
         removeAllSerieSettingsFromModel() {
-            if (this.seriesSettings[0]?.names[0] && this.seriesSettings[0].names[0] === 'all' && !this.allSeriesOptionEnabled) {
+            if (this.seriesSettings[0]?.names[0] === 'all' && !this.allSeriesOptionEnabled) {
                 this.seriesSettings.splice(0, 1)
-                this.widgetModel.settings.accesssibility.seriesAccesibilitySettings.splice(0, 1)
             }
         },
         removeSeriesFromAvailableOptions() {
-            for (let i = 1; i < this.widgetModel.settings.accesssibility.seriesAccesibilitySettings?.length; i++) {
-                for (let j = 0; j < this.widgetModel.settings.accesssibility.seriesAccesibilitySettings[i].names.length; j++) {
-                    this.removeSerieFromAvailableOptions(this.widgetModel.settings.accesssibility.seriesAccesibilitySettings[i].names[j])
+            for (let i = 1; i < this.seriesSettings.length; i++) {
+                for (let j = 0; j < this.seriesSettings[i].names.length; j++) {
+                    this.removeSerieFromAvailableOptions(this.seriesSettings[i].names[j])
                 }
             }
         },
         removeSerieFromAvailableOptions(seriesName: string) {
-            const index = this.availableSeriesOptions.findIndex((tempSerieName: string) => tempSerieName === seriesName)
+            const index = this.availableSeriesOptions.findIndex((s: string) => s === seriesName)
             if (index !== -1) this.availableSeriesOptions.splice(index, 1)
         },
         loadSeriesOptions() {
@@ -123,45 +163,34 @@ export default defineComponent({
             })
         },
         addFirstSeriesSetting() {
-            if (!this.model) return
-            this.seriesSettings = []
-            if (this.availableSeriesOptions.length >= 1) {
-                const name = this.allSeriesOptionEnabled ? 'all' : this.availableSeriesOptions[0]
-                const formattedSeriesSettings = {
-                    names: [name],
-                    accessibility: { ...highchartsDefaultValues.getDefaultSerieAccessibilitySetting() }
-                } as ISerieAccessibilitySetting
-
-                this.seriesSettings.push(formattedSeriesSettings)
-                this.widgetModel.settings.accesssibility.seriesAccesibilitySettings.push(formattedSeriesSettings)
-            }
+            if (!this.model || this.availableSeriesOptions.length < 1) return
+            const name = this.allSeriesOptionEnabled ? 'all' : this.availableSeriesOptions[0]
+            const entry = { names: [name], accessibility: { ...highchartsDefaultValues.getDefaultSerieAccessibilitySetting() } } as ISerieAccessibilitySetting
+            // Push to the shared array directly (seriesSettings IS the widget model array)
+            this.seriesSettings.push(entry)
         },
         modelChanged() {
             emitter.emit('refreshChart', this.widgetModel.id)
         },
         onSeriesSelected(event: any, serieSetting: ISerieAccessibilitySetting) {
-            const intersection = serieSetting.names.filter((el: string) => !event.value.includes(el))
+            const removed = serieSetting.names.filter((el: string) => !event.value.includes(el))
             serieSetting.names = event.value
-            intersection.length > 0 ? this.onSeriesRemovedFromMultiselect(intersection) : this.onSeriesAddedFromMultiselect(serieSetting)
+            removed.length > 0 ? removed.forEach((n: string) => this.availableSeriesOptions.push(n)) : this.onSeriesAddedFromMultiselect(serieSetting)
             this.modelChanged()
         },
         onSeriesAddedFromMultiselect(serieSetting: ISerieAccessibilitySetting) {
             serieSetting.names.forEach((serieName: string) => {
-                const index = this.availableSeriesOptions.findIndex((tempSerieName: string) => tempSerieName === serieName)
+                const index = this.availableSeriesOptions.findIndex((s: string) => s === serieName)
                 if (index !== -1) this.availableSeriesOptions.splice(index, 1)
             })
         },
-        onSeriesRemovedFromMultiselect(intersection: string[]) {
-            intersection.forEach((serieName: string) => this.availableSeriesOptions.push(serieName))
-        },
         addSerieSetting() {
-            const serieSetting = { names: [], accessibility: highchartsDefaultValues.getDefaultSeriesAccessibilitySettings() }
-            this.widgetModel.settings.accesssibility.seriesAccesibilitySettings.push(serieSetting)
-            this.seriesSettings.push(serieSetting)
+            // Push only once — seriesSettings is the widget model array (computed prop)
+            const entry = { names: [], accessibility: highchartsDefaultValues.getDefaultSeriesAccessibilitySettings() } as ISerieAccessibilitySetting
+            this.seriesSettings.push(entry)
         },
         removeSerieSetting(index: number) {
-            this.seriesSettings[index].names.forEach((serieName: string) => this.availableSeriesOptions.push(serieName))
-            this.widgetModel.settings.accesssibility.seriesAccesibilitySettings.splice(index, 1)
+            this.seriesSettings[index].names.forEach((n: string) => this.availableSeriesOptions.push(n))
             this.seriesSettings.splice(index, 1)
             this.modelChanged()
         },
@@ -172,3 +201,11 @@ export default defineComponent({
     }
 })
 </script>
+
+<style scoped lang="scss">
+.column-type-row {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+</style>

@@ -1,92 +1,87 @@
 <template>
-    <div v-if="model?.legend" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-12 p-md-6 p-lg-3 p-d-flex p-flex-column kn-flex p-m-2">
-            <label class="kn-material-input-label p-mr-2">{{ $t('common.align') }}</label>
-            <div class="p-d-flex p-flex-row p-ai-center">
-                <Dropdown v-model="model.legend.align" class="kn-material-input kn-flex" :options="descriptor.alignmentOptions" option-value="value" :disabled="legendDisabled" @change="modelChanged">
-                    <template #value="slotProps">
-                        <div>
-                            <span>{{ getTranslatedLabel(slotProps.value, descriptor.alignmentOptions, $t) }}</span>
-                        </div>
+    <div v-if="model?.legend" class="q-px-md">
+        <div class="row q-col-gutter-sm">
+            <div class="col-6 col-md-3">
+                <q-select v-model="model.legend.align" :label="$t('common.align')" emit-value map-options outlined dense :options="descriptor.alignmentOptions" option-value="value" option-label="label" :disable="legendDisabled" @update:model-value="modelChanged">
+                    <template #selected-item="slotProps">
+                        <span>{{ getTranslatedLabel(slotProps.opt.value, descriptor.alignmentOptions, $t) }}</span>
                     </template>
                     <template #option="slotProps">
-                        <div>
-                            <span>{{ $t(slotProps.option.label) }}</span>
-                        </div>
+                        <q-item v-bind="slotProps.itemProps">
+                            <q-item-section>
+                                <q-item-label>{{ $t(slotProps.opt.label) }}</q-item-label>
+                            </q-item-section>
+                        </q-item>
                     </template>
-                </Dropdown>
-                <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.legend.alignHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+                    <q-tooltip max-width="250px">{{ $t('dashboard.widgetEditor.highcharts.legend.alignHint') }}</q-tooltip>
+                </q-select>
             </div>
-        </div>
-        <div class="p-col-12 p-md-6 p-lg-3 p-d-flex p-flex-column kn-flex p-m-2">
-            <label class="kn-material-input-label p-mr-2">{{ $t('common.verticalAlign') }}</label>
-            <div class="p-d-flex p-flex-row p-ai-center">
-                <Dropdown v-model="model.legend.verticalAlign" class="kn-material-input kn-flex" :options="descriptor.verticalAlignmentOptions" option-value="value" :disabled="legendDisabled" @change="modelChanged">
-                    <template #value="slotProps">
-                        <div>
-                            <span>{{ getTranslatedLabel(slotProps.value, descriptor.verticalAlignmentOptions, $t) }}</span>
-                        </div>
+            <div class="col-6 col-md-3">
+                <q-select v-model="model.legend.verticalAlign" :label="$t('common.verticalAlign')" emit-value map-options outlined dense :options="descriptor.verticalAlignmentOptions" option-value="value" option-label="label" :disable="legendDisabled" @update:model-value="modelChanged">
+                    <template #selected-item="slotProps">
+                        <span>{{ getTranslatedLabel(slotProps.opt.value, descriptor.verticalAlignmentOptions, $t) }}</span>
                     </template>
                     <template #option="slotProps">
-                        <div>
-                            <span>{{ $t(slotProps.option.label) }}</span>
-                        </div>
+                        <q-item v-bind="slotProps.itemProps">
+                            <q-item-section>
+                                <q-item-label>{{ $t(slotProps.opt.label) }}</q-item-label>
+                            </q-item-section>
+                        </q-item>
                     </template>
-                </Dropdown>
-                <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.legend.verticalAlignHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+                    <q-tooltip max-width="250px">{{ $t('dashboard.widgetEditor.highcharts.legend.verticalAlignHint') }}</q-tooltip>
+                </q-select>
             </div>
-        </div>
-        <div class="p-col-12 p-md-6 p-lg-3 p-d-flex p-flex-column kn-flex p-m-2">
-            <label class="kn-material-input-label p-mr-2">{{ $t('common.layout') }}</label>
-            <div class="p-d-flex p-flex-row p-ai-center">
-                <Dropdown v-model="model.legend.layout" class="kn-material-input kn-flex" :options="descriptor.layoutOptions" option-value="value" :disabled="legendDisabled" @change="modelChanged">
-                    <template #value="slotProps">
-                        <div>
-                            <span>{{ getTranslatedLabel(slotProps.value, descriptor.layoutOptions, $t) }}</span>
-                        </div>
+            <div class="col-6 col-md-3">
+                <q-select v-model="model.legend.layout" :label="$t('common.layout')" emit-value map-options outlined dense :options="descriptor.layoutOptions" option-value="value" option-label="label" :disable="legendDisabled" @update:model-value="modelChanged">
+                    <template #selected-item="slotProps">
+                        <span>{{ getTranslatedLabel(slotProps.opt.value, descriptor.layoutOptions, $t) }}</span>
                     </template>
                     <template #option="slotProps">
-                        <div>
-                            <span>{{ $t(slotProps.option.label) }}</span>
-                        </div>
+                        <q-item v-bind="slotProps.itemProps">
+                            <q-item-section>
+                                <q-item-label>{{ $t(slotProps.opt.label) }}</q-item-label>
+                            </q-item-section>
+                        </q-item>
                     </template>
-                </Dropdown>
-                <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.legend.layoutHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+                </q-select>
+                <q-tooltip max-width="250px">{{ $t('dashboard.widgetEditor.highcharts.legend.layoutHint') }}</q-tooltip>
+            </div>
+            <div v-if="['area', 'bar', 'column', 'pie'].includes(chartType) && model.plotOptions.series" class="col-6 col-md-3 row items-center">
+                <q-toggle v-model="model.plotOptions.series.showCheckbox" :label="$t('dashboard.widgetEditor.highcharts.showChekboxes')" dense />
             </div>
         </div>
-        <div v-if="['area', 'bar', 'column', 'pie'].includes(chartType) && model.plotOptions.series" class="p-col-12 p-md-6 p-lg-3 p-p-4">
-            <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.showChekboxes') }}</label>
-            <InputSwitch v-model="model.plotOptions.series.showCheckbox"></InputSwitch>
-        </div>
-        <div class="p-col-12 p-py-4">
-            <WidgetEditorStyleToolbar :options="descriptor.legendStyleOptions" :prop-model="toolbarModel" :disabled="legendDisabled" @change="onStyleToolbarChange"> </WidgetEditorStyleToolbar>
-        </div>
-        <div class="p-col-12 p-py-4">
-            <div class="p-d-flex p-flex-row p-jc-center">
-                <label class="kn-material-input-label kn-cursor-pointer" @click="advancedVisible = !advancedVisible">{{ $t('common.advanced') }}<i :class="advancedVisible ? 'fas fa-chevron-up' : 'fas fa-chevron-down'" class="p-ml-2"></i></label>
-                <i class=""></i>
+        <div class="row q-mb-sm">
+            <div class="col-12 q-py-sm">
+                <WidgetEditorStyleToolbar :options="descriptor.legendStyleOptions" :prop-model="toolbarModel" :disabled="legendDisabled" @change="onStyleToolbarChange" />
             </div>
-            <Transition>
-                <div v-if="advancedVisible" class="p-d-flex p-flex-column">
-                    <div class="p-col-12">
-                        <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.format') }}</label>
-                        <div class="p-d-flex p-flex-row p-ai-center">
-                            <Textarea v-model="model.legend.labelFormat" class="kn-material-input kn-width-full" rows="2" :auto-resize="true" maxlength="250" :disabled="legendDisabled" @change="modelChanged" />
-                            <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.legend.formatHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
-                        </div>
-                    </div>
-                    <div class="p-col-12">
-                        <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.formatter') }}</label>
-                        <Message v-if="model.legend.labelFormatterError" class="p-m-2" severity="warn" :closable="false" :style="descriptor.warningMessageStyle">
-                            {{ model.legend.labelFormatterError }}
-                        </Message>
-                        <div class="p-d-flex p-flex-row p-ai-center">
-                            <HighchartsFormatterMonaco :prop-code="model.legend.labelFormatterText" :disabled="legendDisabled" @change="onFormatterChange" @blur="modelChanged"></HighchartsFormatterMonaco>
-                            <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.legend.formatterHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
-                        </div>
-                    </div>
+        </div>
+        <div class="row q-mb-sm">
+            <div class="col-12">
+                <div class="row items-center justify-center cursor-pointer q-mb-sm" @click="advancedVisible = !advancedVisible">
+                    <span class="text-subtitle2">{{ $t('common.advanced') }}</span>
+                    <q-icon :name="advancedVisible ? 'expand_less' : 'expand_more'" class="q-ml-xs" />
                 </div>
-            </Transition>
+                <Transition>
+                    <div v-if="advancedVisible" class="column">
+                        <div class="row q-mb-sm">
+                            <div class="col-12">
+                                <q-input v-model="model.legend.labelFormat" :label="$t('dashboard.widgetEditor.format')" type="textarea" outlined dense autogrow maxlength="250" :disable="legendDisabled" :hint="$t('dashboard.widgetEditor.highcharts.legend.formatHint')" @change="modelChanged" />
+                            </div>
+                        </div>
+                        <div class="row q-mb-sm">
+                            <div class="col-12">
+                                <q-banner v-if="model.legend.labelFormatterError" class="q-mb-sm bg-warning text-white" rounded dense>{{ model.legend.labelFormatterError }}</q-banner>
+                                <div class="row items-center">
+                                    <HighchartsFormatterMonaco class="col" :prop-code="model.legend.labelFormatterText" :disabled="legendDisabled" @change="onFormatterChange" @blur="modelChanged" />
+                                    <q-icon name="help_outline" size="xs" class="q-ml-xs cursor-pointer">
+                                        <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.legend.formatterHint') }}</q-tooltip>
+                                    </q-icon>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Transition>
+            </div>
         </div>
     </div>
 </template>
@@ -98,16 +93,12 @@ import { IHighchartsChartModel } from '@/modules/documentExecution/dashboard/int
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import descriptor from '../HighchartsWidgetSettingsDescriptor.json'
-import Dropdown from 'primevue/dropdown'
-import Message from 'primevue/message'
 import WidgetEditorStyleToolbar from '../../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
-import Textarea from 'primevue/textarea'
 import HighchartsFormatterMonaco from '../common/HighchartsFormatterMonaco.vue'
-import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
     name: 'hihgcharts-legend-settings',
-    components: { Dropdown, Message, WidgetEditorStyleToolbar, Textarea, HighchartsFormatterMonaco, InputSwitch },
+    components: { WidgetEditorStyleToolbar, HighchartsFormatterMonaco },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {
