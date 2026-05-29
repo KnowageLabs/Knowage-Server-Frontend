@@ -1,44 +1,45 @@
 <template>
-    <div v-if="axisModel" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-12 p-md-3 p-d-flex p-flex-column">
-            <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.lines.lineInterval') }}</label>
-            <InputNumber v-if="type === 'major'" v-model="axisModel.tickInterval" class="kn-material-input p-inputtext-sm" />
-            <InputNumber v-else v-model="axisModel.minorTickInterval" class="kn-material-input p-inputtext-sm" />
-        </div>
-        <div class="p-col-12 p-md-4 p-d-flex p-flex-column">
-            <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.lines.lineType') }}</label>
-            <Dropdown v-if="type === 'major'" v-model="axisModel.gridLineDashStyle" class="kn-material-input" :options="descriptor.gridLineTypeOptions" option-value="value">
-                <template #value="slotProps">
-                    <div>
-                        <span>{{ getTranslatedLabel(slotProps.value, descriptor.gridLineTypeOptions, $t) }}</span>
-                    </div>
-                </template>
-                <template #option="slotProps">
-                    <div>
-                        <span>{{ $t(slotProps.option.label) }}</span>
-                    </div>
-                </template>
-            </Dropdown>
-            <Dropdown v-else v-model="axisModel.minorGridLineDashStyle" class="kn-material-input" :options="descriptor.gridLineTypeOptions" option-value="value">
-                <template #value="slotProps">
-                    <div>
-                        <span>{{ getTranslatedLabel(slotProps.value, descriptor.gridLineTypeOptions, $t) }}</span>
-                    </div>
-                </template>
-                <template #option="slotProps">
-                    <div>
-                        <span>{{ $t(slotProps.option.label) }}</span>
-                    </div>
-                </template>
-            </Dropdown>
-        </div>
-        <div class="p-col-10 p-md-3 p-px-2 p-pt-4">
-            <WidgetEditorColorPicker v-if="type === 'major'" :initial-value="getDisplayedGridLineColor('major')" :label="$t('dashboard.widgetEditor.highcharts.lines.lineColor')" @change="onSelectionColorChanged"></WidgetEditorColorPicker>
-            <WidgetEditorColorPicker v-else :initial-value="getDisplayedGridLineColor('minor')" :label="$t('dashboard.widgetEditor.highcharts.lines.lineColor')" @change="onSelectionColorChanged"></WidgetEditorColorPicker>
-        </div>
-
-        <div class="p-col-2 p-text-right p-mt-3">
-            <Button icon="fa fa-eraser" class="p-button-text p-button-rounded p-button-plain" @click="removeGridSettings" />
+    <div v-if="axisModel" class="q-px-md q-pb-sm">
+        <div class="row q-col-gutter-sm q-mb-sm">
+            <div class="col-6 col-md-3">
+                <q-input v-if="type === 'major'" v-model.number="axisModel.tickInterval" type="number" :label="$t('dashboard.widgetEditor.highcharts.lines.lineInterval')" outlined dense />
+                <q-input v-else v-model.number="axisModel.minorTickInterval" type="number" :label="$t('dashboard.widgetEditor.highcharts.lines.lineInterval')" outlined dense />
+            </div>
+            <div class="col-6 col-md-4">
+                <q-select v-if="type === 'major'" v-model="axisModel.gridLineDashStyle" :label="$t('dashboard.widgetEditor.highcharts.lines.lineType')" emit-value map-options outlined dense :options="descriptor.gridLineTypeOptions" option-value="value" option-label="label">
+                    <template #selected-item="slotProps">
+                        <span>{{ getTranslatedLabel(slotProps.opt.value, descriptor.gridLineTypeOptions, $t) }}</span>
+                    </template>
+                    <template #option="slotProps">
+                        <q-item v-bind="slotProps.itemProps">
+                            <q-item-section
+                                ><q-item-label>{{ $t(slotProps.opt.label) }}</q-item-label></q-item-section
+                            >
+                        </q-item>
+                    </template>
+                </q-select>
+                <q-select v-else v-model="axisModel.minorGridLineDashStyle" :label="$t('dashboard.widgetEditor.highcharts.lines.lineType')" emit-value map-options outlined dense :options="descriptor.gridLineTypeOptions" option-value="value" option-label="label">
+                    <template #selected-item="slotProps">
+                        <span>{{ getTranslatedLabel(slotProps.opt.value, descriptor.gridLineTypeOptions, $t) }}</span>
+                    </template>
+                    <template #option="slotProps">
+                        <q-item v-bind="slotProps.itemProps">
+                            <q-item-section
+                                ><q-item-label>{{ $t(slotProps.opt.label) }}</q-item-label></q-item-section
+                            >
+                        </q-item>
+                    </template>
+                </q-select>
+            </div>
+            <div class="col-10 col-md-4">
+                <WidgetEditorColorPicker v-if="type === 'major'" :initial-value="getDisplayedGridLineColor('major')" :label="$t('dashboard.widgetEditor.highcharts.lines.lineColor')" @change="onSelectionColorChanged" />
+                <WidgetEditorColorPicker v-else :initial-value="getDisplayedGridLineColor('minor')" :label="$t('dashboard.widgetEditor.highcharts.lines.lineColor')" @change="onSelectionColorChanged" />
+            </div>
+            <div class="col-2 col-md-1 row items-center justify-center">
+                <q-btn flat dense icon="backspace" size="sm" @click="removeGridSettings">
+                    <q-tooltip>{{ $t('common.clear') }}</q-tooltip>
+                </q-btn>
+            </div>
         </div>
     </div>
 </template>
@@ -47,14 +48,12 @@
 import { defineComponent, PropType } from 'vue'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import descriptor from './HighchartsAxisSettingsDescriptor.json'
-import InputNumber from 'primevue/inputnumber'
-import Dropdown from 'primevue/dropdown'
 import WidgetEditorColorPicker from '../../../common/WidgetEditorColorPicker.vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 
 export default defineComponent({
     name: 'highcharts-axis-grid-settings',
-    components: { InputNumber, Dropdown, WidgetEditorColorPicker },
+    components: { WidgetEditorColorPicker },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, type: { type: String, required: true }, axis: { type: String, required: true } },
     data() {
         return {

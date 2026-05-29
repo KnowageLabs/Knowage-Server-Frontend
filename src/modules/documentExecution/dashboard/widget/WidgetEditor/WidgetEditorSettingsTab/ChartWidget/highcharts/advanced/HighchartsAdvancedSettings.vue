@@ -1,17 +1,23 @@
 <template>
-    <div v-if="advancedSettingsModel" class="p-grid p-jc-center p-ai-center p-p-4">
-        <Message class="p-col-11 p-m-auto" severity="info" :closable="false">{{ $t('dashboard.widgetEditor.highcharts.advancedSettingsHint') }}</Message>
-        <div v-for="(property, index) in advancedSettingsModel" :key="index" class="dynamic-form-item p-grid p-col-12 p-ai-center">
-            <div class="p-col-12 p-md-6 p-d-flex p-flex-column kn-flex">
-                <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.property') }}</label>
-                <InputText v-model="property.propertyPath" class="kn-material-input p-inputtext-sm" />
+    <div v-if="advancedSettingsModel" class="q-px-md q-pb-sm">
+        <q-banner class="q-mb-sm bg-grey-3" rounded dense>
+            {{ $t('dashboard.widgetEditor.highcharts.advancedSettingsHint') }}
+        </q-banner>
+        <div v-for="(property, index) in advancedSettingsModel" :key="index" class="column-type-row row no-wrap q-mb-sm">
+            <div class="kn-action-handle kn-action-handle-disabled"></div>
+            <div class="col q-pa-sm">
+                <div class="row q-col-gutter-sm">
+                    <div class="col-6">
+                        <q-input v-model="property.propertyPath" :label="$t('dashboard.widgetEditor.highcharts.property')" outlined dense />
+                    </div>
+                    <div class="col-6">
+                        <q-input v-model="property.propertyValue" :label="$t('common.value')" outlined dense />
+                    </div>
+                </div>
             </div>
-            <div class="p-col-11 p-md-5 p-d-flex p-flex-column kn-flex">
-                <label class="kn-material-input-label p-mr-2">{{ $t('common.value') }}</label>
-                <InputText v-model="property.propertyValue" class="kn-material-input p-inputtext-sm" />
-            </div>
-            <div class="p-col-1 p-d-flex p-flex-column p-jc-center p-ai-center p-pl-2">
-                <i :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash']" class="kn-cursor-pointer p-ml-2 p-mt-4" @click="index === 0 ? addPropertySetting() : removePropertySetting(index)"></i>
+            <div class="kn-action-handle row items-center justify-center">
+                <q-btn v-if="index === 0" flat round dense icon="add_circle" size="sm" @click="addPropertySetting()" />
+                <q-btn v-else flat round dense icon="delete" size="sm" @click="removePropertySetting(index)" />
             </div>
         </div>
     </div>
@@ -21,11 +27,10 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IHighchartsAdvancedPropertySettings } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
-import Message from 'primevue/message'
 
 export default defineComponent({
     name: 'highcharts-advanced-settings',
-    components: { Message },
+    components: {},
     props: { propWidgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {
@@ -51,3 +56,11 @@ export default defineComponent({
     }
 })
 </script>
+
+<style lang="scss" scoped>
+.column-type-row {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+</style>

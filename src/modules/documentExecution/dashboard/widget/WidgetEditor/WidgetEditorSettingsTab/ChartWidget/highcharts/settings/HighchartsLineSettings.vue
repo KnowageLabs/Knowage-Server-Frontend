@@ -1,55 +1,55 @@
 <template>
-    <div v-if="axisModel" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div v-if="axisModel.plotLines.length === 0" class="p-grid p-col-12 p-pl-2">
-            <Message class="p-col-11" :closable="false">{{ $t('dashboard.widgetEditor.highcharts.lines.linesHint') }}</Message>
-            <div class="p-col-1 p-text-right">
-                <i class="pi pi-plus-circle kn-cursor-pointer p-pt-4" @click="addPlotBand()"></i>
-            </div>
+    <div v-if="axisModel" class="q-px-md q-pb-sm">
+        <div class="row items-center justify-between q-mb-sm">
+            <span class="text-subtitle2">{{ $t('dashboard.widgetEditor.highcharts.lines.linesHint') }}</span>
+            <q-btn flat round dense color="primary" icon="add" @click="addPlotBand()" />
         </div>
 
-        <template v-else>
-            <div v-for="(plotLine, index) in axisModel.plotLines" :key="index" class="p-grid p-col-12 p-ai-center p-ai-center p-pt-2">
-                <div class="p-col-12 p-md-3 p-lg-2 p-d-flex p-flex-column kn-flex">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('common.value') }}</label>
-                    <div class="p-d-flex p-flex-row p-ai-center">
-                        <InputText v-model="plotLine.value" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
-                        <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.lines.valueHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+        <div v-for="(plotLine, index) in axisModel.plotLines" :key="index" class="column-type-row row no-wrap q-mb-sm">
+            <div class="kn-action-handle kn-action-handle-disabled"></div>
+            <div class="col q-pa-sm">
+                <div class="row q-col-gutter-sm">
+                    <div class="col-6 col-md-3">
+                        <q-input v-model="plotLine.value" :label="$t('common.value')" outlined dense @blur="onInputNumberChanged">
+                            <template #append>
+                                <q-icon name="help_outline" size="xs" class="cursor-pointer text-grey-5">
+                                    <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.lines.valueHint') }}</q-tooltip>
+                                </q-icon>
+                            </template>
+                        </q-input>
                     </div>
-                </div>
-                <div class="p-col-12 p-md-3 p-lg-2 p-d-flex p-flex-column kn-flex">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('common.width') }}</label>
-                    <div class="p-d-flex p-flex-row p-ai-center">
-                        <InputNumber v-model="plotLine.width" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
-                        <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.lines.widthHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+                    <div class="col-6 col-md-3">
+                        <q-input v-model.number="plotLine.width" type="number" :label="$t('common.width')" outlined dense @blur="onInputNumberChanged">
+                            <template #append>
+                                <q-icon name="help_outline" size="xs" class="cursor-pointer text-grey-5">
+                                    <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.lines.widthHint') }}</q-tooltip>
+                                </q-icon>
+                            </template>
+                        </q-input>
                     </div>
-                </div>
-
-                <div class="p-col-12 p-md-3 p-lg-2 p-d-flex p-flex-column p-p-2">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('common.type') }}</label>
-                    <Dropdown v-model="plotLine.dashStyle" class="kn-material-input" :options="descriptor.lineTypeOptions" option-value="value">
-                        <template #value="slotProps">
-                            <div>
-                                <span>{{ getTranslatedLabel(slotProps.value, descriptor.lineTypeOptions, $t) }}</span>
-                            </div>
-                        </template>
-                        <template #option="slotProps">
-                            <div>
-                                <span>{{ $t(slotProps.option.label) }}</span>
-                            </div>
-                        </template>
-                    </Dropdown>
-                </div>
-
-                <div class="p-col-12 p-md-6 p-lg-6 p-px-2 p-pt-4">
-                    <WidgetEditorColorPicker :initial-value="plotLine.color" :label="$t('dashboard.widgetEditor.highcharts.tick.tickColor')" @change="onSelectionColorChanged($event, plotLine)"></WidgetEditorColorPicker>
-                </div>
-
-                <div class="p-col-1 p-d-flex p-flex-row p-jc-center p-ai-center p-pl-2">
-                    <i v-if="index === 0" class="pi pi-plus-circle kn-cursor-pointer p-pr-4 p-pt-2" @click="addPlotBand()"></i>
-                    <i :class="'pi pi-trash'" class="kn-cursor-pointer p-pt-2" @click="deletePlotBand(index)"></i>
+                    <div class="col-6 col-md-3">
+                        <q-select v-model="plotLine.dashStyle" :label="$t('common.type')" emit-value map-options outlined dense :options="descriptor.lineTypeOptions" option-value="value" option-label="label">
+                            <template #selected-item="slotProps">
+                                <span>{{ getTranslatedLabel(slotProps.opt.value, descriptor.lineTypeOptions, $t) }}</span>
+                            </template>
+                            <template #option="slotProps">
+                                <q-item v-bind="slotProps.itemProps">
+                                    <q-item-section
+                                        ><q-item-label>{{ $t(slotProps.opt.label) }}</q-item-label></q-item-section
+                                    >
+                                </q-item>
+                            </template>
+                        </q-select>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <WidgetEditorColorPicker :initial-value="plotLine.color" :label="$t('dashboard.widgetEditor.highcharts.tick.tickColor')" @change="onSelectionColorChanged($event, plotLine)" />
+                    </div>
                 </div>
             </div>
-        </template>
+            <div class="kn-action-handle row items-center justify-center">
+                <q-btn flat round dense icon="delete" size="sm" @click="deletePlotBand(index)" />
+            </div>
+        </div>
     </div>
 </template>
 
@@ -60,15 +60,12 @@ import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import settingsDescriptor from '../HighchartsWidgetSettingsDescriptor.json'
 import descriptor from './HighchartsLineSettingsDescriptor.json'
-import InputNumber from 'primevue/inputnumber'
-import Message from 'primevue/message'
 import WidgetEditorColorPicker from '../../../common/WidgetEditorColorPicker.vue'
-import Dropdown from 'primevue/dropdown'
 import * as highchartsDefaultValues from '../../../../helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
 export default defineComponent({
     name: 'hihgcharts-line-settings',
-    components: { InputNumber, Message, WidgetEditorColorPicker, Dropdown },
+    components: { WidgetEditorColorPicker },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, axis: { type: String, required: true } },
     data() {
         return {
@@ -113,3 +110,11 @@ export default defineComponent({
     }
 })
 </script>
+
+<style lang="scss" scoped>
+.column-type-row {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+</style>

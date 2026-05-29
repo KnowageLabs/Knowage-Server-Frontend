@@ -1,26 +1,28 @@
 <template>
-    <div v-if="axisModel" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-12 p-md-6 p-d-flex p-flex-column">
-            <label class="kn-material-input-label p-mr-2">{{ $t('common.text') }}</label>
-            <InputText v-model="axisModel.title.text" class="kn-material-input p-inputtext-sm" :disabled="titleDisabled" @change="modelChanged" />
+    <div v-if="axisModel" class="q-px-md q-pb-sm">
+        <div class="row q-col-gutter-sm q-mb-sm">
+            <div class="col-12 col-md-6">
+                <q-input v-model="axisModel.title.text" :label="$t('common.text')" outlined dense :disable="titleDisabled" @change="modelChanged" />
+            </div>
+            <div class="col-12 col-md-6">
+                <q-select v-model="axisModel.title.align" :label="$t('common.align')" emit-value map-options outlined dense :options="axisAlignOptions" option-value="value" option-label="label" :disable="titleDisabled" @update:model-value="modelChanged">
+                    <template #selected-item="slotProps">
+                        <span>{{ getTranslatedLabel(slotProps.opt.value, axisAlignOptions, $t) }}</span>
+                    </template>
+                    <template #option="slotProps">
+                        <q-item v-bind="slotProps.itemProps">
+                            <q-item-section
+                                ><q-item-label>{{ $t(slotProps.opt.label) }}</q-item-label></q-item-section
+                            >
+                        </q-item>
+                    </template>
+                </q-select>
+            </div>
         </div>
-        <div class="p-col-12 p-md-6 p-d-flex p-flex-column">
-            <label class="kn-material-input-label p-mr-2">{{ $t('common.align') }}</label>
-            <Dropdown v-model="axisModel.title.align" class="kn-material-input" :options="axisAlignOptions" option-value="value" @change="modelChanged">
-                <template #value="slotProps">
-                    <div>
-                        <span>{{ getTranslatedLabel(slotProps.value, axisAlignOptions, $t) }}</span>
-                    </div>
-                </template>
-                <template #option="slotProps">
-                    <div>
-                        <span>{{ $t(slotProps.option.label) }}</span>
-                    </div>
-                </template>
-            </Dropdown>
-        </div>
-        <div class="p-col-12 p-px-2 p-pt-4">
-            <WidgetEditorStyleToolbar :options="descriptor.styleToolbarSettings" :prop-model="toolbarModel" :disabled="titleDisabled" @change="onStyleToolbarChange"></WidgetEditorStyleToolbar>
+        <div class="row q-mb-sm">
+            <div class="col-12">
+                <WidgetEditorStyleToolbar :options="descriptor.styleToolbarSettings" :prop-model="toolbarModel" :disabled="titleDisabled" @change="onStyleToolbarChange" />
+            </div>
         </div>
     </div>
 </template>
@@ -32,12 +34,11 @@ import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import descriptor from './HighchartsAxisSettingsDescriptor.json'
 import settingsDescriptor from '../HighchartsWidgetSettingsDescriptor.json'
-import Dropdown from 'primevue/dropdown'
 import WidgetEditorStyleToolbar from '../../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 
 export default defineComponent({
     name: 'highcharts-heatmap-axis-title-settings',
-    components: { Dropdown, WidgetEditorStyleToolbar },
+    components: { WidgetEditorStyleToolbar },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, axis: { type: String, required: true } },
     data() {
         return {
@@ -69,8 +70,7 @@ export default defineComponent({
             this.loadToolbarModel()
         },
         loadToolbarModel() {
-            if (this.axisModel && this.axisModel.title)
-                this.toolbarModel = { 'font-style': this.axisModel.title.style.fontStyle, 'font-family': this.axisModel.title.style.fontFamily, 'font-size': this.axisModel.title.style.fontSize, 'font-weight': this.axisModel.title.style.fontWeight, color: this.axisModel.title.style.color }
+            if (this.axisModel && this.axisModel.title) this.toolbarModel = { 'font-style': this.axisModel.title.style.fontStyle, 'font-family': this.axisModel.title.style.fontFamily, 'font-size': this.axisModel.title.style.fontSize, 'font-weight': this.axisModel.title.style.fontWeight, color: this.axisModel.title.style.color }
         },
         modelChanged() {
             emitter.emit('refreshChart', this.widgetModel.id)
