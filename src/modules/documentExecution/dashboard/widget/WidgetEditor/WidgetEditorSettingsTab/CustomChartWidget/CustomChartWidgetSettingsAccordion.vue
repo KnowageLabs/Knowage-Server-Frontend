@@ -1,30 +1,34 @@
 <template>
     <div v-show="widgetModel">
-        <Message v-if="themePropertyChanged" class="p-p-2 p-m-4" severity="warn" :closable="false">{{ $t('dashboard.widgetEditor.themeChangedWarning') }}</Message>
+        <q-banner v-if="themePropertyChanged" class="q-ma-sm bg-warning text-white" rounded dense>{{ $t('dashboard.widgetEditor.themeChangedWarning') }}</q-banner>
         <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker>
-        <q-list class="widget-editor-accordion" bordered separator>
-            <q-expansion-item v-for="(accordion, index) in filteredSettings" :key="index" :model-value="activeIndex === index" expand-icon-class="col kn-width-full" @update:model-value="(val) => onExpansionChange(val, index)">
-                <template #header>
-                    <CustomChartWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></CustomChartWidgetSettingsAccordionHeader>
-                </template>
-                <CustomChartHTMLEditor v-if="accordion.type === 'HTML'" :active-index="activeIndex" :widget-model="widgetModel"></CustomChartHTMLEditor>
-                <CustomChartCSSEditor v-if="accordion.type === 'CSS'" :active-index="activeIndex" :widget-model="widgetModel"></CustomChartCSSEditor>
-                <CustomChartJSEditor v-if="accordion.type === 'JS'" :active-index="activeIndex" :widget-model="widgetModel"></CustomChartJSEditor>
-                <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
-                <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
-                <WidgetSelectionConfiguration v-else-if="accordion.type === 'SelectionConfiguration'" :widget-model="widgetModel"></WidgetSelectionConfiguration>
-                <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" :dashboard-id="dashboardId" @styleChanged="onStyleChanged"></WidgetTitleStyle>
-                <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
-                <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>
-                <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetPaddingStyle>
-                <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetShadowsStyle>
-                <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
-                <WidgetCrossNavigation v-else-if="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetCrossNavigation>
-                <WidgetPreview v-else-if="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetPreview>
-                <WidgetInteractionsIframe v-else-if="accordion.type === 'IFrameInteraction'" :widget-model="widgetModel" :dashboard-id="dashboardId"></WidgetInteractionsIframe>
-                <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
-                <CustomChartLibrariesList v-else-if="accordion.type === 'Libraries'" :widget-model="widgetModel" :dashboard-id="dashboardId"></CustomChartLibrariesList>
-            </q-expansion-item>
+        <q-list class="selector-expansion-list rounded-borders" bordered separator>
+            <template v-for="(accordion, index) in filteredSettings" :key="index">
+                <q-item v-if="accordion.toggleOnly">
+                    <CustomChartWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged" />
+                </q-item>
+                <q-expansion-item v-else :model-value="activeIndex === index" expand-icon-class="col kn-width-full" hide-expand-icon @update:model-value="(val) => onExpansionChange(val, index)">
+                    <template #header>
+                        <CustomChartWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></CustomChartWidgetSettingsAccordionHeader>
+                    </template>
+                    <CustomChartHTMLEditor v-if="accordion.type === 'HTML'" :active-index="activeIndex" :widget-model="widgetModel"></CustomChartHTMLEditor>
+                    <CustomChartCSSEditor v-if="accordion.type === 'CSS'" :active-index="activeIndex" :widget-model="widgetModel"></CustomChartCSSEditor>
+                    <CustomChartJSEditor v-if="accordion.type === 'JS'" :active-index="activeIndex" :widget-model="widgetModel"></CustomChartJSEditor>
+                    <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
+                    <WidgetSelectionConfiguration v-else-if="accordion.type === 'SelectionConfiguration'" :widget-model="widgetModel"></WidgetSelectionConfiguration>
+                    <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" :dashboard-id="dashboardId" @styleChanged="onStyleChanged"></WidgetTitleStyle>
+                    <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
+                    <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>
+                    <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetPaddingStyle>
+                    <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetShadowsStyle>
+                    <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
+                    <WidgetCrossNavigation v-else-if="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetCrossNavigation>
+                    <WidgetPreview v-else-if="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetPreview>
+                    <WidgetInteractionsIframe v-else-if="accordion.type === 'IFrameInteraction'" :widget-model="widgetModel" :dashboard-id="dashboardId"></WidgetInteractionsIframe>
+                    <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
+                    <CustomChartLibrariesList v-else-if="accordion.type === 'Libraries'" :widget-model="widgetModel" :dashboard-id="dashboardId"></CustomChartLibrariesList>
+                </q-expansion-item>
+            </template>
         </q-list>
         <q-item v-if="isSearchActive && filteredSettings.length === 0" class="q-pa-md">
             <q-item-section class="text-grey-6">{{ $t('common.info.noAvailableItems') }}</q-item-section>
@@ -40,7 +44,7 @@ import mainStore from '@/App.store'
 import descriptor from './CustomChartWidgetSettingsDescriptor.json'
 import settingsTabDescriptor from '../WidgetEditorSettingsTabDescriptor.json'
 import WidgetExport from '../common/configuration/WidgetExport.vue'
-import WidgetMenuConfiguration from '../common/configuration/WidgetMenuConfiguration.vue'
+import WidgetSelectionConfiguration from '../common/configuration/WidgetSelectionConfiguration.vue'
 import WidgetBordersStyle from '../common/style/WidgetBordersStyle.vue'
 import WidgetShadowsStyle from '../common/style/WidgetShadowsStyle.vue'
 import WidgetResponsive from '../common/responsive/WidgetResponsive.vue'
@@ -55,8 +59,6 @@ import CustomChartCSSEditor from './editor/CustomChartCSSEditor.vue'
 import CustomChartJSEditor from './editor/CustomChartJSEditor.vue'
 import WidgetInteractionsIframe from '../common/interactions/iframe/WidgetInteractionsIframe.vue'
 import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue'
-import Message from 'primevue/message'
-import WidgetSelectionConfiguration from '../common/configuration/WidgetSelectionConfiguration.vue'
 import WidgetHelpSettings from '../common/help/WidgetHelpSettings.vue'
 import CustomChartLibrariesList from './libraries/CustomChartLibrariesList.vue'
 
@@ -78,8 +80,6 @@ export default defineComponent({
         CustomChartJSEditor,
         WidgetInteractionsIframe,
         WidgetEditorThemePicker,
-        Message,
-        WidgetMenuConfiguration,
         WidgetSelectionConfiguration,
         WidgetHelpSettings,
         CustomChartLibrariesList
@@ -115,7 +115,7 @@ export default defineComponent({
         isSearchActive(): boolean {
             return ((this.widgetSettingsSearch as any) ?? '').length >= 3
         },
-        filteredSettings(): { title: string; type: string }[] {
+        filteredSettings(): { title: string; type: string; toggleOnly?: boolean }[] {
             if (!this.settings) return []
             const search = (this.widgetSettingsSearch as any) ?? ''
             if (search.length >= 3) {
