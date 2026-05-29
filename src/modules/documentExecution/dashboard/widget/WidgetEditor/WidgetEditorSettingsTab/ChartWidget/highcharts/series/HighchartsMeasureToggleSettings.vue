@@ -1,33 +1,19 @@
 <template>
-    <div v-if="widgetModel" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-12 p-md-12">
-            <div class="p-field-checkbox p-d-flex p-flex-row p-ai-center">
-                <InputSwitch v-model="seriesSettings.showMeasureToggle" />
-                <label class="kn-material-input-label p-ml-2">
-                    {{ $t('dashboard.widgetEditor.highcharts.series.showMeasureToggle') }}
-                </label>
+    <div v-if="widgetModel" class="q-px-md q-pb-md">
+        <div class="row q-mb-sm">
+            <div class="col-12">
+                <q-toggle v-model="seriesSettings.showMeasureToggle" :label="$t('dashboard.widgetEditor.highcharts.series.showMeasureToggle')" dense @update:model-value="() => {}" />
+                <div class="text-caption text-grey-7 q-mt-xs">
+                    {{ $t('dashboard.widgetEditor.highcharts.series.showMeasureToggleHint') }}
+                </div>
             </div>
-            <small class="p-d-block p-mt-2 p-text-secondary">
-                {{ $t('dashboard.widgetEditor.highcharts.series.showMeasureToggleHint') }}
-            </small>
         </div>
-
-        <div v-if="seriesSettings.showMeasureToggle" class="p-col-12 p-md-12 p-mt-3">
-            <label class="kn-material-input-label p-mb-2">
-                {{ $t('dashboard.widgetEditor.highcharts.series.availableMeasures') }}
-            </label>
-            <small class="p-d-block p-mb-2 p-text-secondary">
-                {{ $t('dashboard.widgetEditor.highcharts.series.availableMeasuresHint') }}
-            </small>
-            <div class="p-d-flex p-flex-column">
-                <div v-for="measure in datasetMeasures" :key="measure.name" class="p-field-checkbox p-mb-2">
-                    <Checkbox
-                        :id="measure.name"
-                        v-model="selectedMeasures"
-                        :value="measure.name"
-                        @change="onMeasureSelectionChanged"
-                    />
-                    <label :for="measure.name" class="p-ml-2">{{ measure.alias || measure.name }}</label>
+        <div v-if="seriesSettings.showMeasureToggle" class="row q-mt-md">
+            <div class="col-12">
+                <div class="text-subtitle2 q-mb-xs">{{ $t('dashboard.widgetEditor.highcharts.series.availableMeasures') }}</div>
+                <div class="text-caption text-grey-7 q-mb-sm">{{ $t('dashboard.widgetEditor.highcharts.series.availableMeasuresHint') }}</div>
+                <div v-for="measure in datasetMeasures" :key="measure.name" class="row items-center q-mb-xs">
+                    <q-checkbox v-model="selectedMeasures" :val="measure.name" :label="measure.alias || measure.name" dense @update:model-value="onMeasureSelectionChanged" />
                 </div>
             </div>
         </div>
@@ -38,13 +24,11 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { mapActions, mapState } from 'pinia'
-import InputSwitch from 'primevue/inputswitch'
-import Checkbox from 'primevue/checkbox'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 
 export default defineComponent({
     name: 'highcharts-measure-toggle-settings',
-    components: { InputSwitch, Checkbox },
+    components: {},
     props: { propWidgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {
@@ -105,9 +89,7 @@ export default defineComponent({
             if (!this.areStringArraysEqual(this.selectedMeasures, availableMeasures)) this.selectedMeasures = availableMeasures
         },
         loadDatasetMeasures() {
-            const widgetMeasures = (this.widgetModel?.columns ?? [])
-                .filter((column: any) => (column.fieldType || '').toUpperCase() === 'MEASURE')
-                .map((column: any) => ({ name: column.columnName, alias: column.alias || column.columnName, fieldType: 'MEASURE' }))
+            const widgetMeasures = (this.widgetModel?.columns ?? []).filter((column: any) => (column.fieldType || '').toUpperCase() === 'MEASURE').map((column: any) => ({ name: column.columnName, alias: column.alias || column.columnName, fieldType: 'MEASURE' }))
 
             if (!this.widgetModel?.dataset) {
                 this.datasetMeasures = widgetMeasures
@@ -116,9 +98,7 @@ export default defineComponent({
 
             const allDatasets = this.getAllDatasets()
             const currentDataset = allDatasets.find((ds: any) => ds.id?.dsId === this.widgetModel?.dataset || ds.id === this.widgetModel?.dataset)
-            const metadataMeasures = currentDataset?.metadata?.fieldsMeta
-                ? currentDataset.metadata.fieldsMeta.filter((field: any) => (field.fieldType || '').toUpperCase() === 'MEASURE')
-                : []
+            const metadataMeasures = currentDataset?.metadata?.fieldsMeta ? currentDataset.metadata.fieldsMeta.filter((field: any) => (field.fieldType || '').toUpperCase() === 'MEASURE') : []
 
             const mergedByName = new Map<string, any>()
             metadataMeasures.forEach((measure: any) => mergedByName.set(measure.name, measure))
@@ -144,16 +124,3 @@ export default defineComponent({
     }
 })
 </script>
-
-<style lang="scss" scoped>
-.p-field-checkbox {
-    display: flex;
-    align-items: center;
-
-    label {
-        cursor: pointer;
-        user-select: none;
-    }
-}
-</style>
-

@@ -29,8 +29,8 @@
             },
             {
                 "title": "dashboard.widgetEditor.menuConfiguration",
-                "type": "MenuConfiguration",
-                "toggleOnly": true
+                "toggleOnly": true,
+                "type": "MenuConfiguration"
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.annotations",
@@ -139,6 +139,11 @@
             "icon": "sym_o_legend_toggle",
             "label": "dashboard.widgetEditor.legend.title",
             "value": "Legend"
+        },
+        {
+            "icon": "sym_o_label",
+            "label": "common.labels",
+            "value": "Labels"
         },
         {
             "icon": "sym_o_live_help",

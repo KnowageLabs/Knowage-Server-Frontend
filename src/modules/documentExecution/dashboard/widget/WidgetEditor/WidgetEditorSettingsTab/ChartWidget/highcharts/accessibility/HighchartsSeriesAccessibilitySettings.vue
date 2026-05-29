@@ -1,5 +1,5 @@
 <template>
-    <div v-if="model" class="q-px-md q-pb-md">
+    <div v-if="model" class="q-px-md q-pb-sm">
         <!-- Global section (index 0 — "all series") shown only when allSeriesOptionEnabled -->
         <template v-if="allSeriesOptionEnabled && seriesSettings.length > 0">
             <div class="q-mb-md">
@@ -34,6 +34,13 @@
         </template>
 
         <!-- Per-series list (index 1+ when allSeriesOptionEnabled, all items when !allSeriesOptionEnabled) -->
+        <!--
+            For chart types where allSeriesOptionEnabled = false (pie, solidgauge, sunburst, treemap, sankey, etc.),
+            each measure maps to a discrete visual element rather than a shared series, so there is no "all series"
+            concept. In the old app this section had no add/delete controls — the first series was hardcoded and
+            users had no way to manage per-series overrides. That was a limitation, not intentional design, so we
+            now show + on the first card and delete on subsequent ones, consistent with how SeriesLabelSettings works.
+        -->
         <div v-for="(serieSetting, listIndex) in perSeriesSettings" :key="listIndex" class="column-type-row row no-wrap q-mb-sm">
             <div class="kn-action-handle kn-action-handle-disabled"></div>
             <div class="col q-pa-sm">
@@ -58,7 +65,10 @@
                 </div>
             </div>
             <div class="kn-action-handle row items-center justify-center">
-                <q-btn flat round dense icon="delete" size="sm" @click="removeSerieSetting(allSeriesOptionEnabled ? listIndex + 1 : listIndex)" />
+                <!-- when allSeriesOptionEnabled: + is in the section header, cards only have delete -->
+                <!-- when !allSeriesOptionEnabled: first card gets +, rest get delete -->
+                <q-btn v-if="!allSeriesOptionEnabled && listIndex === 0" flat round dense icon="add_circle" size="sm" @click="addSerieSetting()" />
+                <q-btn v-else flat round dense icon="delete" size="sm" @click="removeSerieSetting(allSeriesOptionEnabled ? listIndex + 1 : listIndex)" />
             </div>
         </div>
     </div>

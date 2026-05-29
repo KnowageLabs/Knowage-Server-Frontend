@@ -108,6 +108,13 @@ export default defineComponent({
                     return this.widgetModel.settings.configuration.limit
                 case 'HelpSettings':
                     return this.widgetModel.settings.help
+                case 'Labels':
+                    return this.widgetModel.settings.chartModel?.model?.plotOptions?.solidgauge?.dataLabels ?? null
+                case 'PieDonutSettings': {
+                    const pie = this.widgetModel.settings.chartModel?.model?.plotOptions?.pie
+                    if (pie) pie.enabled = !!(pie.innerSize !== undefined && pie.innerSize !== null && pie.innerSize !== '')
+                    return pie ?? null
+                }
                 default:
                     return null
             }
@@ -123,8 +130,18 @@ export default defineComponent({
                 case 'Tooltip':
                 case 'ActivityGaugeTooltip':
                 case 'CategoryThresholdSettings':
+                case 'Labels':
                     setTimeout(() => emitter.emit('refreshChart', this.widgetModel.id), 250)
                     break
+                case 'PieDonutSettings': {
+                    const pie = this.widgetModel.settings.chartModel?.model?.plotOptions?.pie
+                    if (pie) {
+                        if (!pie.enabled) delete pie.innerSize
+                        else if (!pie.innerSize) pie.innerSize = '50%'
+                    }
+                    setTimeout(() => emitter.emit('refreshChart', this.widgetModel.id), 250)
+                    break
+                }
                 case 'Header':
                 case 'Title':
                 case 'BackgroundColorStyle':

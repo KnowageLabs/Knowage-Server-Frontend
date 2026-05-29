@@ -1,17 +1,23 @@
 <template>
-    <div v-if="funnelPlotOptions" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-6 p-fluid">
-            <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.highcharts.funnel.neckWidth') }}</label>
-            <div class="p-d-flex p-flex-row p-ai-center">
-                <InputText v-model="funnelPlotOptions.neckWidth" class="kn-material-input p-inputtext-sm" />
-                <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.funnel.neckWidthHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+    <div v-if="funnelPlotOptions" class="q-px-md q-pb-md">
+        <div class="row q-col-gutter-sm">
+            <div class="col-6">
+                <q-input v-model="funnelPlotOptions.neckWidth" :label="$t('dashboard.widgetEditor.highcharts.funnel.neckWidth')" outlined dense>
+                    <template #append>
+                        <q-icon name="help_outline" size="xs" class="cursor-pointer">
+                            <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.funnel.neckWidthHint') }}</q-tooltip>
+                        </q-icon>
+                    </template>
+                </q-input>
             </div>
-        </div>
-        <div class="p-col-6 p-fluid">
-            <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.highcharts.funnel.neckHeight') }}</label>
-            <div class="p-d-flex p-flex-row p-ai-center">
-                <InputText v-model="funnelPlotOptions.neckHeight" class="kn-material-input p-inputtext-sm" />
-                <i v-tooltip.left="$t('dashboard.widgetEditor.highcharts.funnel.neckHeightHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+            <div class="col-6">
+                <q-input v-model="funnelPlotOptions.neckHeight" :label="$t('dashboard.widgetEditor.highcharts.funnel.neckHeight')" outlined dense>
+                    <template #append>
+                        <q-icon name="help_outline" size="xs" class="cursor-pointer">
+                            <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.funnel.neckHeightHint') }}</q-tooltip>
+                        </q-icon>
+                    </template>
+                </q-input>
             </div>
         </div>
     </div>

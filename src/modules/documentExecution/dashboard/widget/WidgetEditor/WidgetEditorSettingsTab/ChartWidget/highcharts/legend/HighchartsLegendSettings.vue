@@ -70,12 +70,15 @@
                         </div>
                         <div class="row q-mb-sm">
                             <div class="col-12">
-                                <q-banner v-if="model.legend.labelFormatterError" class="q-mb-sm bg-warning text-white" rounded dense>{{ model.legend.labelFormatterError }}</q-banner>
-                                <div class="row items-center">
-                                    <HighchartsFormatterMonaco class="col" :prop-code="model.legend.labelFormatterText" :disabled="legendDisabled" @change="onFormatterChange" @blur="modelChanged" />
-                                    <q-icon name="help_outline" size="xs" class="q-ml-xs cursor-pointer">
-                                        <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.legend.formatterHint') }}</q-tooltip>
-                                    </q-icon>
+                                <q-banner v-if="model.legend.labelFormatterError" class="q-mb-xs bg-warning text-white" rounded dense>{{ model.legend.labelFormatterError }}</q-banner>
+                                <div class="formatter-block">
+                                    <div class="row items-center q-mb-xs">
+                                        <span class="text-caption text-grey-7">{{ $t('dashboard.widgetEditor.formatter') }}</span>
+                                        <q-icon name="help_outline" size="xs" class="q-ml-xs cursor-pointer text-grey-5">
+                                            <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.legend.formatterHint') }}</q-tooltip>
+                                        </q-icon>
+                                    </div>
+                                    <HighchartsFormatterMonaco :prop-code="model.legend.labelFormatterText" :disabled="false" @change="onFormatterChange" @blur="modelChanged" />
                                 </div>
                             </div>
                         </div>
@@ -188,5 +191,11 @@ export default defineComponent({
 .v-enter-from,
 .v-leave-to {
     opacity: 0;
+}
+
+.formatter-block {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 8px;
 }
 </style>

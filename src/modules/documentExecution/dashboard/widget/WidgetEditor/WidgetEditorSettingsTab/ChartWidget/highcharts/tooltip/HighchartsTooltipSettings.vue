@@ -1,54 +1,60 @@
 <template>
-    <div v-if="model" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div v-if="['heatmap', 'sunburst'].includes(chartType)" class="p-col-12 p-d-flex p-flex-row">
-            <div class="p-col-12 p-md-4 p-d-flex p-flex-column kn-flex">
-                <label class="kn-material-input-label p-mr-">{{ $t('dashboard.widgetEditor.prefix') }}</label>
-                <InputText v-model="model.tooltip.valuePrefix" class="kn-material-input p-inputtext-sm" @change="modelChanged" />
+    <div v-if="model" class="q-px-md">
+        <div v-if="['heatmap', 'sunburst'].includes(chartType)" class="row q-col-gutter-sm">
+            <div class="col-4">
+                <q-input v-model="model.tooltip.valuePrefix" :label="$t('dashboard.widgetEditor.prefix')" outlined dense @change="modelChanged" />
             </div>
-            <div class="p-col-12 p-md-4 p-d-flex p-flex-column kn-flex">
-                <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.suffix') }}</label>
-                <InputText v-model="model.tooltip.valueSuffix" class="kn-material-input p-inputtext-sm" @change="modelChanged" />
+            <div class="col-4">
+                <q-input v-model="model.tooltip.valueSuffix" :label="$t('dashboard.widgetEditor.suffix')" outlined dense @change="modelChanged" />
             </div>
-            <div class="p-col-12 p-md-4 p-d-flex p-flex-column kn-flex">
-                <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.precision') }}</label>
-                <InputNumber v-model="model.tooltip.valueDecimals" class="kn-material-input p-inputtext-sm" @blur="modelChanged" />
+            <div class="col-4">
+                <q-input v-model.number="model.tooltip.valueDecimals" type="number" :label="$t('dashboard.widgetEditor.precision')" outlined dense @blur="modelChanged" />
             </div>
         </div>
-        <div class="p-col-12 p-py-4">
-            <WidgetEditorStyleToolbar :options="descriptor.tooltipStyleOptions" :prop-model="toolbarModel" :disabled="tooltipDisabled" @change="onStyleToolbarChange"> </WidgetEditorStyleToolbar>
-        </div>
-        <div class="p-col-12 p-py-4">
-            <div class="p-d-flex p-flex-row p-jc-center">
-                <label class="kn-material-input-label kn-cursor-pointer" @click="advancedVisible = !advancedVisible">{{ $t('common.advanced') }}<i :class="advancedVisible ? 'fas fa-chevron-up' : 'fas fa-chevron-down'" class="p-ml-2"></i></label>
+        <div class="row q-mb-sm">
+            <div class="col-12 q-py-sm">
+                <WidgetEditorStyleToolbar :options="descriptor.tooltipStyleOptions" :prop-model="toolbarModel" :disabled="tooltipDisabled" @change="onStyleToolbarChange" />
             </div>
-            <Transition>
-                <div v-if="advancedVisible" class="p-d-flex p-flex-column">
-                    <div class="p-col-12">
-                        <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.formatter') }}</label>
-                        <span class="pi pi-question-circle kn-cursor-pointer p-ml-2">
-                            <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.tooltip.formatterHint') }}</q-tooltip>
-                        </span>
-                        <Message v-if="model.tooltip.formatterError" class="p-m-2" severity="warn" :closable="false" :style="descriptor.warningMessageStyle">
-                            {{ model.tooltip.formatterError }}
-                        </Message>
-                        <div class="p-d-flex p-flex-row p-ai-center">
-                            <HighchartsFormatterMonaco :prop-code="model.tooltip.formatterText" @change="onFormatterChange($event, 'formatter')" @blur="modelChanged"></HighchartsFormatterMonaco>
-                        </div>
-                    </div>
-                    <div class="p-col-12">
-                        <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.highcharts.tooltip.pointFormatter') }}</label>
-                        <span class="pi pi-question-circle kn-cursor-pointer p-ml-2">
-                            <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.tooltip.pointFormatterHint') }}</q-tooltip>
-                        </span>
-                        <Message v-if="model.tooltip.pointFormatterError" class="p-m-2" severity="warn" :closable="false" :style="descriptor.warningMessageStyle">
-                            {{ model.tooltip.pointFormatterError }}
-                        </Message>
-                        <div class="p-d-flex p-flex-row p-ai-center">
-                            <HighchartsFormatterMonaco :prop-code="model.tooltip.pointFormatterText" @change="onFormatterChange($event, 'pointFormatter')" @blur="modelChanged"></HighchartsFormatterMonaco>
-                        </div>
-                    </div>
+        </div>
+        <div class="row q-mb-sm">
+            <div class="col-12">
+                <div class="row items-center justify-center cursor-pointer q-mb-sm" @click="advancedVisible = !advancedVisible">
+                    <span class="text-subtitle2">{{ $t('common.advanced') }}</span>
+                    <q-icon :name="advancedVisible ? 'expand_less' : 'expand_more'" class="q-ml-xs" />
                 </div>
-            </Transition>
+                <Transition>
+                    <div v-if="advancedVisible" class="column">
+                        <div class="row q-mb-sm">
+                            <div class="col-12">
+                                <q-banner v-if="model.tooltip.formatterError" class="q-mb-xs bg-warning text-white" rounded dense>{{ model.tooltip.formatterError }}</q-banner>
+                                <div class="formatter-block">
+                                    <div class="row items-center q-mb-xs">
+                                        <span class="text-caption text-grey-7">{{ $t('dashboard.widgetEditor.formatter') }}</span>
+                                        <q-icon name="help_outline" size="xs" class="q-ml-xs cursor-pointer text-grey-5">
+                                            <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.tooltip.formatterHint') }}</q-tooltip>
+                                        </q-icon>
+                                    </div>
+                                    <HighchartsFormatterMonaco :prop-code="model.tooltip.formatterText" :disabled="tooltipDisabled" @change="onFormatterChange($event, 'formatter')" @blur="modelChanged" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row q-mb-sm">
+                            <div class="col-12">
+                                <q-banner v-if="model.tooltip.pointFormatterError" class="q-mb-xs bg-warning text-white" rounded dense>{{ model.tooltip.pointFormatterError }}</q-banner>
+                                <div class="formatter-block">
+                                    <div class="row items-center q-mb-xs">
+                                        <span class="text-caption text-grey-7">{{ $t('dashboard.widgetEditor.highcharts.tooltip.pointFormatter') }}</span>
+                                        <q-icon name="help_outline" size="xs" class="q-ml-xs cursor-pointer text-grey-5">
+                                            <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.tooltip.pointFormatterHint') }}</q-tooltip>
+                                        </q-icon>
+                                    </div>
+                                    <HighchartsFormatterMonaco :prop-code="model.tooltip.pointFormatterText" :disabled="tooltipDisabled" @change="onFormatterChange($event, 'pointFormatter')" @blur="modelChanged" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Transition>
+            </div>
         </div>
     </div>
 </template>
@@ -58,19 +64,12 @@ import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetStyleToolbarModel } from '../../../../../../Dashboard'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import descriptor from '../HighchartsWidgetSettingsDescriptor.json'
-import InputNumber from 'primevue/inputnumber'
-import Message from 'primevue/message'
 import WidgetEditorStyleToolbar from '../../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 import HighchartsFormatterMonaco from '../common/HighchartsFormatterMonaco.vue'
 
 export default defineComponent({
     name: 'hihgcharts-tooltip-settings',
-    components: {
-        InputNumber,
-        Message,
-        WidgetEditorStyleToolbar,
-        HighchartsFormatterMonaco
-    },
+    components: { WidgetEditorStyleToolbar, HighchartsFormatterMonaco },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {
@@ -121,13 +120,13 @@ export default defineComponent({
                 color: model.color ?? '',
                 'background-color': model['background-color'] ?? ''
             }
-            ;(this.model.tooltip.backgroundColor = this.toolbarModel['background-color'] ?? ''),
+            ;((this.model.tooltip.backgroundColor = this.toolbarModel['background-color'] ?? ''),
                 (this.model.tooltip.style = {
                     fontFamily: this.toolbarModel['font-family'] ?? '',
                     fontSize: this.toolbarModel['font-size'] ?? '14px',
                     fontWeight: this.toolbarModel['font-weight'] ?? '',
                     color: this.toolbarModel.color ?? ''
-                })
+                }))
             this.modelChanged()
         },
         onFormatterChange(newValue: string, type: 'formatter' | 'pointFormatter') {
@@ -148,5 +147,11 @@ export default defineComponent({
 .v-enter-from,
 .v-leave-to {
     opacity: 0;
+}
+
+.formatter-block {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 8px;
 }
 </style>
