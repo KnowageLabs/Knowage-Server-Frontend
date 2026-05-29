@@ -184,7 +184,7 @@ import { useQuasar } from 'quasar'
 import { IWidget } from '../../../../../Dashboard'
 import { IMapWidgetLayer, IMapWidgetVisualizationType } from '../../../../../interfaces/mapWidget/DashboardMapWidget'
 import MapLayerConfigurationWizard from '../../../MapWidget/MapLayerConfigurationWizard.vue'
-import { getMapVisualizationColors, getMapVisualizationIcon } from '../../../../../MapWidget/MapWidgetVisualizationPreviewHelper'
+import { getMapVisualizationColors, getMapVisualizationIcon } from '../../../../MapWidget/MapWidgetVisualizationPreviewHelper'
 
 export default defineComponent({
     name: 'map-visualization-type',
