@@ -1,18 +1,27 @@
 <template>
     <div v-if="annotations && annotations[0]" class="q-px-md q-pb-sm">
-        <div v-for="(label, index) in annotations[0].labels" :key="index" class="row items-center q-col-gutter-sm q-mb-sm">
-            <div class="col-3">
-                <q-input v-model.number="label.point.x" type="number" label="X" outlined dense />
+        <div class="row items-center justify-between q-mb-xs">
+            <span class="text-subtitle2">{{ $t('common.labels') }}</span>
+            <q-btn flat round dense color="primary" icon="add" @click="addLabel()" />
+        </div>
+
+        <div v-for="(label, index) in annotations[0].labels" :key="index" class="column-type-row row no-wrap q-mb-sm">
+            <div class="kn-action-handle kn-action-handle-disabled"></div>
+            <div class="col q-pa-sm">
+                <div class="row q-col-gutter-sm">
+                    <div class="col-3">
+                        <q-input v-model.number="label.point.x" type="number" label="X" outlined dense />
+                    </div>
+                    <div class="col-3">
+                        <q-input v-model.number="label.point.y" type="number" label="Y" outlined dense />
+                    </div>
+                    <div class="col">
+                        <q-input v-model="label.text" :label="$t('common.label')" outlined dense />
+                    </div>
+                </div>
             </div>
-            <div class="col-3">
-                <q-input v-model.number="label.point.y" type="number" label="Y" outlined dense />
-            </div>
-            <div class="col">
-                <q-input v-model="label.text" :label="$t('common.label')" outlined dense />
-            </div>
-            <div class="col-auto row items-center">
-                <q-btn v-if="index === 0" flat round dense icon="add_circle_outline" size="sm" @click="addLabel()" />
-                <q-btn v-if="index !== 0" flat round dense icon="delete" size="sm" @click="removeLabel(index)" />
+            <div class="kn-action-handle row items-center justify-center">
+                <q-btn flat round dense icon="delete" size="sm" @click="removeLabel(index)" />
             </div>
         </div>
     </div>
@@ -48,16 +57,16 @@ export default defineComponent({
             })
         },
         removeLabel(index: number) {
-            if (index === 0) {
-                this.annotations[0].labels[0] = {
-                    point: {
-                        x: 0,
-                        y: 0
-                    },
-                    text: ''
-                }
-            } else this.annotations[0].labels.splice(index, 1)
+            this.annotations[0].labels.splice(index, 1)
         }
     }
 })
 </script>
+
+<style lang="scss" scoped>
+.column-type-row {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+</style>

@@ -1,30 +1,24 @@
 <template>
-    <div v-if="seriesSettings" class="p-ai-center kn-flex p-p-4">
-        <form class="p-fluid p-formgrid p-grid">
-            <div class="p-col-12 p-grid">
-                <div class="p-field p-col-12 p-md-6">
-                    <WidgetEditorColorPicker :initial-value="seriesSettings.connectorColor" :label="$t('dashboard.widgetEditor.highcharts.connector.connectorColor')" @change="onConnectorColorChanged($event)"></WidgetEditorColorPicker>
-                </div>
-                <div class="p-field p-col-12 p-md-6">
-                    <span class="p-float-label">
-                        <InputNumber v-model="seriesSettings.connectorWidth" class="kn-material-input p-inputtext-sm" />
-                        <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.connector.connectorWidth') }}</label>
-                    </span>
-                </div>
+    <div v-if="seriesSettings" class="q-px-md q-pb-md">
+        <div class="row q-col-gutter-sm">
+            <div class="col-6">
+                <WidgetEditorColorPicker :initial-value="seriesSettings.connectorColor" :label="$t('dashboard.widgetEditor.highcharts.connector.connectorColor')" @change="onConnectorColorChanged($event)" />
             </div>
-        </form>
+            <div class="col-6">
+                <q-input v-model.number="seriesSettings.connectorWidth" type="number" :label="$t('dashboard.widgetEditor.highcharts.connector.connectorWidth')" outlined dense />
+            </div>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
-import InputNumber from 'primevue/inputnumber'
 import WidgetEditorColorPicker from '../../../../common/WidgetEditorColorPicker.vue'
 
 export default defineComponent({
     name: 'highcharts-connector-settings',
-    components: { InputNumber, WidgetEditorColorPicker },
+    components: { WidgetEditorColorPicker },
     props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true } },
     emits: [],
     data() {

@@ -1,19 +1,23 @@
 <template>
-    <div v-if="model?.yAxis && model.yAxis[0]" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-12 p-md-6 p-lg-6 p-d-flex p-flex-column kn-flex">
-            <label class="kn-material-input-label p-mr-2">{{ $t('common.min') }}</label>
-            <div class="p-d-flex p-flex-row p-ai-center p-fluid">
-                <InputNumber v-model="model.yAxis[0].min" class="kn-material-input p-inputtext-sm" @blur="modelChanged" />
-                <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.scale.minHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
-                <Button icon="fa fa-eraser" class="p-button-text p-button-rounded p-button-plain" @click="onInputChanged('min')" />
+    <div v-if="model?.yAxis && model.yAxis[0]" class="q-px-md q-pb-md">
+        <div class="row q-col-gutter-sm">
+            <div class="col-6">
+                <q-input v-model.number="model.yAxis[0].min" type="number" :label="$t('common.min')" outlined dense @blur="modelChanged">
+                    <template #append>
+                        <q-icon name="help_outline" size="xs" class="cursor-pointer text-grey-5 q-mr-xs">
+                            <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.scale.minHint') }}</q-tooltip>
+                        </q-icon>
+                    </template>
+                </q-input>
             </div>
-        </div>
-        <div class="p-col-12 p-md-6 p-lg-6 p-d-flex p-flex-column kn-flex">
-            <label class="kn-material-input-label p-mr-2">{{ $t('common.max') }}</label>
-            <div class="p-d-flex p-flex-row p-ai-center p-fluid">
-                <InputNumber v-model="model.yAxis[0].max" class="kn-material-input p-inputtext-sm" @blur="modelChanged" />
-                <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.scale.maxHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
-                <Button icon="fa fa-eraser" class="p-button-text p-button-rounded p-button-plain" @click="onInputChanged('max')" />
+            <div class="col-6">
+                <q-input v-model.number="model.yAxis[0].max" type="number" :label="$t('common.max')" outlined dense @blur="modelChanged">
+                    <template #append>
+                        <q-icon name="help_outline" size="xs" class="cursor-pointer text-grey-5 q-mr-xs">
+                            <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.scale.maxHint') }}</q-tooltip>
+                        </q-icon>
+                    </template>
+                </q-input>
             </div>
         </div>
     </div>
@@ -24,11 +28,10 @@ import { defineComponent, PropType } from 'vue'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IHighchartsChartModel } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
-import InputNumber from 'primevue/inputnumber'
 
 export default defineComponent({
     name: 'hihgcharts-gauge-scale-settings',
-    components: { InputNumber },
+    components: {},
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {
