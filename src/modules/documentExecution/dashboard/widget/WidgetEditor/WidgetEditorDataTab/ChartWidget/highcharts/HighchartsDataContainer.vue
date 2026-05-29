@@ -1,6 +1,6 @@
 <template>
     <div v-if="widgetModel">
-        <q-card class="p-m-3" flat bordered>
+        <q-card class="q-ma-md rounded-borders" flat bordered>
             <q-toolbar class="kn-toolbar kn-toolbar--secondary">
                 <q-toolbar-title>{{ $t('dashboard.widgetEditor.toolbars.general') }}</q-toolbar-title>
             </q-toolbar>
@@ -41,9 +41,7 @@ export default defineComponent({
             return this.widgetModel?.settings.chartModel?.model?.chart.type
         }
     },
-    async created() {
-        console.log('HighchartsDataContainer created', this.widgetModel)
-    },
+    async created() {},
     methods: {}
 })
 </script>

@@ -1,33 +1,25 @@
 <template>
-    <form v-if="limitModel" class="p-fluid p-formgrid p-grid p-mt-3">
-        <div class="p-col-6 p-lg-4">
-            <span class="p-float-label">
-                <InputNumber v-model="limitModel.itemsNumber" class="kn-material-input p-inputtext-sm" :disabled="limitSettingsDisabled" />
-                <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.highcharts.limit.itemsNumber') }}</label>
-            </span>
+    <div v-if="limitModel" class="row q-col-gutter-sm q-mt-xs items-center">
+        <div class="col-6">
+            <q-input v-model.number="limitModel.itemsNumber" type="number" outlined dense :label="$t('dashboard.widgetEditor.highcharts.limit.itemsNumber')" :disable="limitSettingsDisabled" />
         </div>
-        <span class="p-col-6 p-lg-6 p-d-flex p-ai-center">
-            <InputSwitch id="visible" v-model="limitModel.enabled" />
-            <label for="visible" class="kn-material-input-label p-ml-2"> {{ $t('common.enable') }} </label>
-        </span>
-    </form>
+        <div class="col-6 row items-center">
+            <q-toggle v-model="limitModel.enabled" :label="$t('common.enable')" dense />
+        </div>
+    </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
-import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
-import InputNumber from 'primevue/inputnumber'
-import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
     name: 'highcharts-limit-settings',
-    components: { InputNumber, InputSwitch },
+    components: {},
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {
-            limitModel: null as any,
-            getTranslatedLabel
+            limitModel: null as any
         }
     },
     computed: {
