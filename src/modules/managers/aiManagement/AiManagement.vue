@@ -290,7 +290,7 @@ async function syncronizeBusinessModels() {
     syncingBm.value = true
     const enabledIds = Object.keys(bmEnabled.value).filter((id) => bmEnabled.value[Number(id)]).map(Number)
     await axios
-        .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/PLACEHOLDER_SYNC_BM_AI', {
+        .post(store.configurations['KNOWAGE.AI.URL'] + '/register_metadata_knowage', {
             tenant: store.user.organization,
             token: localStorage.getItem('token'),
             businessModelIds: enabledIds
@@ -303,7 +303,7 @@ async function syncronizeBusinessModels() {
 function getBmLastUpdate() {
     bmSyncLoading.value = true
     axios
-        .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/PLACEHOLDER_BM_SYNC_STATUS', {
+        .post(store.configurations['KNOWAGE.AI.URL'] + '/bm_sync_status', {
             tenant: store.user.organization,
             token: localStorage.getItem('token')
         })
