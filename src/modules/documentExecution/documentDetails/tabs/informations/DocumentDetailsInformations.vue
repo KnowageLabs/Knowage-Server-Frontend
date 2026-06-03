@@ -1,276 +1,259 @@
 <template>
-    <div class="p-grid p-m-0 kn-flex">
-        <div class="p-col-7 p-m-0 p-p-0 right-border p-d-flex p-flex-column kn-flex">
-            <Toolbar class="kn-toolbar kn-toolbar--secondary">
-                <template #start>
-                    {{ $t('documentExecution.documentDetails.info.infoTitle') }}
-                </template>
-                <template #end>
-                    <Button v-if="designerButtonVisible" :label="$t('documentExecution.olap.openDesigner')" class="p-button-text p-button-plain" @click="openDesignerConfirm" />
-                </template>
-            </Toolbar>
-            <div id="informations-content" class="kn-flex kn-relative">
-                <div :style="mainDescriptor.style.absoluteScroll">
-                    <Card class="p-m-2">
-                        <template #content>
-                            <div v-if="templates.length == 0">
-                                <div class="p-field p-col-12 p-d-flex">
-                                    <div class="kn-flex">
-                                        <span class="p-float-label">
-                                            <InputText id="fileName" v-model="templateToUpload.name" class="kn-material-input kn-width-full" :disabled="true" />
-                                            <label for="fileName" class="kn-material-input-label"> {{ $t('documentExecution.documentDetails.info.uploadTemplate') }} </label>
-                                        </span>
-                                    </div>
-                                    <Button icon="fas fa-upload fa-1x" class="p-button-text p-button-plain p-ml-2" @click="setUploadType" />
-                                    <KnInputFile v-if="!uploading" label="" :change-function="setTemplateForUpload" :trigger-input="triggerUpload" />
+    <div class="dd-info-layout">
+        <q-scroll-area class="dd-scroll">
+            <div class="dd-grid">
+                <!-- ══════ LEFT COLUMN ══════ -->
+                <div class="dd-col">
+                    <!-- Template -->
+                    <q-card>
+                        <q-card-section class="q-py-sm">
+                            <div class="dd-section-label">{{ $t('documentExecution.documentDetails.history.template') }}</div>
+                        </q-card-section>
+                        <q-separator />
+                        <q-card-section>
+                            <div v-if="templates.length === 0">
+                                <q-input :model-value="templateToUpload.name" :placeholder="$t('documentExecution.documentDetails.info.uploadTemplate')" dense outlined readonly class="cursor-pointer" @click="setUploadType">
+                                    <template #prepend>
+                                        <q-icon name="description" color="primary" />
+                                    </template>
+                                    <template #append>
+                                        <q-spinner v-if="uploading" color="primary" size="xs" />
+                                        <q-icon v-else name="upload" color="grey-6" />
+                                    </template>
+                                </q-input>
+                                <KnInputFile v-if="!uploading" label="" :change-function="setTemplateForUpload" :trigger-input="triggerUpload" />
+                            </div>
+                        </q-card-section>
+                    </q-card>
+
+                    <!-- Identity -->
+                    <q-card>
+                        <q-card-section class="q-py-sm">
+                            <div class="dd-section-label">{{ $t('documentExecution.documentDetails.info.infoTitle') }}</div>
+                        </q-card-section>
+                        <q-separator />
+                        <q-card-section>
+                            <div class="row q-col-gutter-sm">
+                                <div class="col-6">
+                                    <q-input outlined dense hide-bottom-space v-model="v$.document.label.$model" :label="$t('common.label') + ' *'" :error="v$.document.label.$invalid && v$.document.label.$dirty" :error-message="getValidationErrorMessage(v$.document.label, $t('common.label'))" @blur="v$.document.label.$touch()" @update:model-value="$emit('touched')" />
+                                </div>
+                                <div class="col-6">
+                                    <q-input outlined dense hide-bottom-space v-model="v$.document.name.$model" :label="$t('common.name') + ' *'" :error="v$.document.name.$invalid && v$.document.name.$dirty" :error-message="getValidationErrorMessage(v$.document.name, $t('common.name'))" @blur="v$.document.name.$touch()" @update:model-value="$emit('touched')" />
+                                </div>
+                                <div class="col-12">
+                                    <q-input outlined dense hide-bottom-space v-model="v$.document.description.$model" type="textarea" :rows="3" :label="$t('common.description')" :error="v$.document.description.$invalid && v$.document.description.$dirty" :error-message="getValidationErrorMessage(v$.document.description, $t('common.description'))" @blur="v$.document.description.$touch()" @update:model-value="$emit('touched')" />
                                 </div>
                             </div>
-                            <form class="p-fluid p-formgrid p-grid p-m-1">
-                                <div class="p-field p-col-12 p-lg-6">
-                                    <span class="p-float-label">
-                                        <InputText
-                                            id="label"
-                                            v-model="v$.document.label.$model"
-                                            class="kn-material-input"
-                                            type="text"
-                                            max-length="100"
-                                            :class="{
-                                                'p-invalid': v$.document.label.$invalid
-                                            }"
-                                            @blur="v$.document.label.$touch()"
-                                            @change="$emit('touched')"
-                                        />
-                                        <label for="label" class="kn-material-input-label"> {{ $t('common.label') }} * </label>
-                                    </span>
-                                    <KnValidationMessages class="p-mt-1" :v-comp="v$.document.label" :additional-translate-params="{ fieldName: $t('common.label') }" />
-                                </div>
-                                <div class="p-field p-col-12 p-lg-6">
-                                    <span class="p-float-label">
-                                        <InputText
-                                            id="name"
-                                            v-model="v$.document.name.$model"
-                                            class="kn-material-input"
-                                            type="text"
-                                            max-length="200"
-                                            :class="{
-                                                'p-invalid': v$.document.name.$invalid
-                                            }"
-                                            @blur="v$.document.name.$touch()"
-                                            @change="$emit('touched')"
-                                        />
-                                        <label for="name" class="kn-material-input-label"> {{ $t('common.name') }} * </label>
-                                    </span>
-                                    <KnValidationMessages class="p-mt-1" :v-comp="v$.document.name" :additional-translate-params="{ fieldName: $t('common.name') }" />
-                                </div>
+                        </q-card-section>
+                    </q-card>
 
-                                <div class="p-field p-col-12 p-lg-6">
-                                    <img v-if="selectedDocument?.previewFile && !imagePreview" id="image-preview" :src="imagePreviewUrl" :height="mainDescriptor.style.previewImage" />
-                                    <img v-if="imagePreviewUrl && imagePreview" id="image-preview" :src="imagePreviewUrl" :height="mainDescriptor.style.previewImage" />
-                                </div>
-
-                                <div class="p-field p-col-12 p-lg-6">
-                                    <span class="p-float-label">
-                                        <Textarea
-                                            id="description"
-                                            v-model="v$.document.description.$model"
-                                            class="kn-material-input"
-                                            rows="9"
-                                            max-length="400"
-                                            :auto-resize="true"
-                                            :class="{
-                                                'p-invalid': v$.document.description.$invalid && v$.document.description.$dirty
-                                            }"
-                                            @blur="v$.document.description.$touch()"
-                                            @change="$emit('touched')"
-                                        />
-                                        <label for="description" class="kn-material-input-label"> {{ $t('common.description') }} </label>
-                                    </span>
-                                    <KnValidationMessages class="p-mt-1" :v-comp="v$.document.description" :additional-translate-params="{ fieldName: $t('common.description') }" />
-                                </div>
-
-                                <div class="p-field p-col-12 p-d-flex">
-                                    <div class="kn-flex">
-                                        <span class="p-float-label">
-                                            <InputText id="fileName" v-model="document.previewFile" class="kn-material-input" :disabled="true" />
-                                            <label for="fileName" class="kn-material-input-label"> {{ $t('documentExecution.documentDetails.info.previewImage') }} </label>
-                                        </span>
+                    <!-- Media -->
+                    <q-card>
+                        <q-card-section class="q-py-sm row items-center">
+                            <div class="dd-section-label col">{{ $t('common.media') }}</div>
+                            <q-btn v-if="document.previewFile" class="q-ma-none q-pa-none" flat round dense icon="delete" size="sm" color="grey-6" :disable="!document.profiledVisibility" @click.stop="$emit('deleteImage')">
+                                <q-tooltip>{{ $t('common.delete') }}</q-tooltip>
+                            </q-btn>
+                        </q-card-section>
+                        <q-separator />
+                        <q-card-section>
+                            <div class="row q-col-gutter-md">
+                                <div class="col-12">
+                                    <div v-if="imagePreviewUrl" class="dd-img-wrap rounded-borders" @click="setImageUploadType">
+                                        <q-img :src="imagePreviewUrl" fit="contain" class="rounded-borders dd-preview-img">
+                                            <div class="absolute-full flex flex-center column dd-img-overlay">
+                                                <q-icon name="photo_camera" size="1.5rem" color="white" />
+                                                <span class="text-white text-caption q-mt-xs">{{ $t('documentExecution.documentDetails.info.uploadTemplate') }}</span>
+                                            </div>
+                                        </q-img>
                                     </div>
-                                    <Button icon="fas fa-upload fa-1x" class="p-button-text p-button-plain p-ml-2" @click="setImageUploadType" />
-                                    <Button v-if="document.previewFile" icon="fas fa-trash fa-1x" class="p-button-text p-button-plain p-ml-2" @click="$emit('deleteImage')" />
+                                    <div v-else class="dd-upload-zone rounded-borders cursor-pointer column flex-center" @click="setImageUploadType">
+                                        <q-icon name="image" size="2rem" color="grey-5" />
+                                        <span class="text-caption text-grey-6 q-mt-sm">{{ $t('documentExecution.documentDetails.info.previewImage') }}</span>
+                                        <span class="text-caption text-grey-4">PNG · JPG · JPEG</span>
+                                    </div>
                                     <KnInputFile :change-function="setImageForUpload" accept=".png, .jpg, .jpeg" :trigger-input="triggerImageUpload" />
                                 </div>
-                                <div class="p-field p-col-12 p-lg-6">
-                                    <span class="p-float-label">
-                                        <Dropdown
-                                            id="type"
-                                            v-model="v$.document.typeCode.$model"
-                                            class="kn-material-input"
-                                            :options="documentTypes"
-                                            option-label="translatedValueName"
-                                            option-value="valueCd"
-                                            :class="{
-                                                'p-invalid': v$.document.typeCode.$invalid && v$.document.typeCode.$dirty
-                                            }"
-                                            @blur="v$.document.typeCode.$touch()"
-                                            @change="onTypeChange"
-                                        />
-                                        <label for="type" class="kn-material-input-label"> {{ $t('importExport.catalogFunction.column.type') }} *</label>
-                                    </span>
-                                    <KnValidationMessages class="p-mt-1" :v-comp="v$.document.typeCode" :additional-translate-params="{ fieldName: $t('importExport.catalogFunction.column.type') }" />
-                                </div>
-                                <div class="p-field p-col-12 p-lg-6">
-                                    <span class="p-float-label">
-                                        <Dropdown
-                                            id="engine"
-                                            v-model="v$.document.engine.$model"
-                                            class="kn-material-input"
-                                            :options="filteredEngines"
-                                            option-label="name"
-                                            option-value="label"
-                                            :disabled="!document.typeCode || document.typeCode == ''"
-                                            :class="{
-                                                'p-invalid': v$.document.engine.$invalid && v$.document.engine.$dirty
-                                            }"
-                                            @blur="v$.document.engine.$touch()"
-                                            @change="$emit('touched')"
-                                        />
-                                        <label for="engine" class="kn-material-input-label"> {{ $t('documentExecution.documentDetails.info.engine') }} *</label>
-                                    </span>
-                                    <small>{{ $t('documentExecution.documentDetails.info.engineHint') }}</small>
-                                    <KnValidationMessages class="p-mt-1" :v-comp="v$.document.engine" :additional-translate-params="{ fieldName: $t('documentExecution.documentDetails.info.engine') }" />
-                                </div>
+                            </div>
+                        </q-card-section>
+                    </q-card>
 
-                                <span v-if="isDataSourceVisible" class="p-field p-float-label p-col-12 p-lg-6" :class="{ 'p-lg-12': !isDataSetVisible }">
-                                    <Dropdown id="datasource" v-model="document.dataSourceLabel" class="kn-material-input" :options="availableDatasources" option-label="label" option-value="label" />
-                                    <label for="datasource" class="kn-material-input-label"> {{ $t('managers.businessModelManager.dataSource') }} </label>
-                                </span>
-
-                                <div v-if="isDataSetVisible" class="p-field p-col-12 p-lg-6 p-d-flex">
-                                    <div class="kn-flex">
-                                        <span class="p-float-label">
-                                            <InputText id="dataset" v-model="dataset.name" class="kn-material-input" :disabled="true" />
-                                            <label for="dataset" class="kn-material-input-label"> {{ $t('common.dataset') }} </label>
-                                        </span>
-                                    </div>
-                                    <Button v-if="isDataSetVisible" icon="fas fa-search fa-1x" class="p-button-text p-button-plain p-ml-2" @click="showDatasetDialog = true" />
+                    <!-- Configuration -->
+                    <q-card>
+                        <q-card-section class="q-py-sm row items-center justify-between">
+                            <div class="dd-section-label">{{ $t('common.configuration') }}</div>
+                            <q-btn v-if="designerButtonVisible" class="q-ma-none q-pa-none" flat dense size="sm" color="primary" :label="$t('documentExecution.olap.openDesigner')" @click="openDesignerConfirm" />
+                        </q-card-section>
+                        <q-separator />
+                        <q-card-section>
+                            <div class="row q-col-gutter-sm">
+                                <div class="col-6">
+                                    <q-select
+                                        outlined
+                                        dense
+                                        emit-value
+                                        map-options
+                                        hide-bottom-space
+                                        v-model="v$.document.typeCode.$model"
+                                        :options="documentTypes"
+                                        option-label="translatedValueName"
+                                        option-value="valueCd"
+                                        :label="$t('importExport.catalogFunction.column.type') + ' *'"
+                                        :error="v$.document.typeCode.$invalid && v$.document.typeCode.$dirty"
+                                        :error-message="getValidationErrorMessage(v$.document.typeCode, $t('importExport.catalogFunction.column.type'))"
+                                        @blur="v$.document.typeCode.$touch()"
+                                        @update:model-value="onTypeChange"
+                                    />
                                 </div>
-
-                                <div class="p-field p-col-12 p-lg-6">
-                                    <span class="p-float-label">
-                                        <Dropdown
-                                            id="state"
-                                            v-model="v$.document.stateCode.$model"
-                                            class="kn-material-input"
-                                            :options="availableStates"
-                                            option-label="translatedValueName"
-                                            option-value="valueCd"
-                                            :class="{
-                                                'p-invalid': v$.document.stateCode.$invalid && v$.document.stateCode.$dirty
-                                            }"
-                                            @blur="v$.document.stateCode.$touch()"
-                                            @change="$emit('touched')"
-                                        />
-                                        <label for="state" class="kn-material-input-label"> {{ $t('common.state') }} *</label>
-                                    </span>
-                                    <KnValidationMessages class="p-mt-1" :v-comp="v$.document.stateCode" :additional-translate-params="{ fieldName: $t('common.state') }" />
-                                </div>
-                                <div class="p-field p-col-12 p-lg-6">
-                                    <span class="p-float-label">
-                                        <InputText id="refresh" v-model="document.refreshSeconds" class="kn-material-input" type="number" />
-                                        <label for="refresh" class="kn-material-input-label"> {{ $t('documentExecution.documentDetails.info.refresh') }} </label>
-                                    </span>
-                                    <small>{{ $t('documentExecution.documentDetails.info.refreshHint') }}</small>
-                                </div>
-                                <span class="p-field p-col-12 p-lg-6 p-jc-center p-mt-3">
-                                    <InputSwitch id="visible" v-model="document.visible" />
-                                    <i class="far fa-eye p-ml-2" />
-                                    <label for="visible" class="kn-material-input-label p-ml-2"> {{ $t('common.visible') }} </label>
-                                </span>
-                                <span class="p-field p-col-12 p-lg-6 p-mt-3">
-                                    <InputSwitch id="locked" v-model="lockedByUser" @change="setIsLockedByUser" />
-                                    <i class="fas fa-lock p-ml-2" />
-                                    <label for="locked" class="kn-material-input-label p-ml-2"> {{ $t('common.locked') }} </label>
-                                </span>
-                            </form>
-                        </template>
-                    </Card>
-                </div>
-            </div>
-        </div>
-        <div class="p-col-5 p-m-0 p-p-0 p-d-flex p-flex-column kn-flex">
-            <Toolbar class="kn-toolbar kn-toolbar--secondary">
-                <template #start>
-                    {{ $t('documentExecution.documentDetails.info.positionTitle') }}
-                </template>
-            </Toolbar>
-            <div id="position-content" class="kn-flex kn-relative">
-                <div :style="mainDescriptor.style.absoluteScroll">
-                    <div v-if="document.drivers && document.drivers.length > 0" id="driver-position-container" class="p-m-2">
-                        <Toolbar class="kn-toolbar kn-toolbar--default">
-                            <template #start>
-                                {{ $t('documentExecution.documentDetails.info.parametersPanelPosition') }}
-                            </template>
-                        </Toolbar>
-                        <Card>
-                            <template #content>
-                                <span class="p-field p-float-label p-col-12">
-                                    <Dropdown id="attributes" v-model="document.parametersRegion" class="kn-material-input kn-width-full" :options="driversPositions" :option-label="translatedLabel" option-value="value">
-                                        <template #option="slotProps">
-                                            <div class="p-dropdown-option">
-                                                <span>{{ $t(slotProps.option.label) }}</span>
-                                            </div>
+                                <div class="col-6">
+                                    <q-select
+                                        outlined
+                                        dense
+                                        emit-value
+                                        map-options
+                                        hide-bottom-space
+                                        v-model="v$.document.engine.$model"
+                                        :options="filteredEngines"
+                                        option-label="name"
+                                        option-value="label"
+                                        :disable="!document.typeCode || document.typeCode === ''"
+                                        :label="$t('documentExecution.documentDetails.info.engine') + ' *'"
+                                        :error="v$.document.engine.$invalid && v$.document.engine.$dirty"
+                                        :error-message="getValidationErrorMessage(v$.document.engine, $t('documentExecution.documentDetails.info.engine'))"
+                                        @blur="v$.document.engine.$touch()"
+                                        @update:model-value="$emit('touched')"
+                                    >
+                                        <template #append>
+                                            <q-icon name="info" color="grey" size="xs">
+                                                <q-tooltip>{{ $t('documentExecution.documentDetails.info.engineHint') }}</q-tooltip>
+                                            </q-icon>
                                         </template>
-                                    </Dropdown>
-                                    <label for="attributes" class="kn-material-input-label"> {{ $t('documentExecution.documentDetails.info.positionTitle') }} </label>
-                                </span>
-                            </template>
-                        </Card>
-                    </div>
-                    <div id="restriction-container" class="p-m-2">
-                        <Toolbar class="kn-toolbar kn-toolbar--default">
-                            <template #start>
-                                {{ $t('documentExecution.documentDetails.info.restrictionsTitle') }}
-                            </template>
-                        </Toolbar>
-                        <Card>
-                            <template #content>
-                                <form class="p-formgrid p-grid p-mb-3">
-                                    <span class="p-float-label p-col-10">
-                                        <Textarea id="profiledVisibility" v-model="document.profiledVisibility" class="kn-material-input kn-width-full" rows="1" :auto-resize="true" :disabled="true" />
-                                        <label for="profiledVisibility" class="kn-material-input-label"> {{ $t('documentExecution.documentDetails.info.profiledVisibility') }} </label>
-                                    </span>
-                                    <Button icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-ml-2 p-col-1" :disabled="!visibilityAttribute" @click="addRestriction" />
-                                    <Button icon="fas fa-eraser fa-1x" class="p-button-text p-button-plain p-ml-2 p-col-1" @click="clearAllRestrictions" />
-                                </form>
-                                <form class="p-formgrid p-grid">
-                                    <span class="p-field p-float-label p-col-12 p-lg-5">
-                                        <Dropdown id="attributes" v-model="visibilityAttribute" class="kn-material-input kn-width-full" :options="availableAttributes" option-label="attributeName" option-value="attributeName" />
-                                        <label for="attributes" class="kn-material-input-label"> {{ $t('documentExecution.documentDetails.info.attribute') }} </label>
-                                    </span>
-                                    <span class="p-col-12 p-lg-1" :style="infoDescriptor.style.center">=</span>
-                                    <span class="p-field p-float-label p-col-12 p-lg-6">
-                                        <InputText id="restrictionValue" v-model="restrictionValue" class="kn-material-input kn-width-full" />
-                                        <label for="restrictionValue" class="kn-material-input-label"> {{ $t('documentExecution.documentDetails.info.restrictionValueHint') }} </label>
-                                    </span>
-                                </form>
-                            </template>
-                        </Card>
-                    </div>
-                    <div id="tree-container" class="p-m-2">
-                        <Toolbar class="kn-toolbar kn-toolbar--default">
-                            <template #start>
-                                {{ $t('documentExecution.documentDetails.info.visibilityLocationTitle') }}
-                            </template>
-                        </Toolbar>
-                        <Card class="card-0-padding">
-                            <template #content>
-                                <DocumentDetailsTree :prop-functionalities="folders" :prop-selected-folders="document.functionalities" @selected="setFunctionality" />
-                            </template>
-                        </Card>
-                    </div>
+                                    </q-select>
+                                </div>
+                                <div v-if="isDataSourceVisible" class="col-6">
+                                    <q-select outlined dense emit-value map-options v-model="document.dataSourceLabel" :options="availableDatasources" option-label="label" option-value="label" :label="$t('managers.businessModelManager.dataSource')" />
+                                </div>
+                                <div class="col-6">
+                                    <q-input outlined dense readonly :model-value="dataset.name" :label="$t('common.dataset')">
+                                        <template #append>
+                                            <q-btn flat round dense icon="search" size="sm" @click="showDatasetDialog = true" />
+                                        </template>
+                                    </q-input>
+                                </div>
+                            </div>
+                        </q-card-section>
+                    </q-card>
+
+                    <!-- Publishing -->
+                    <q-card>
+                        <q-card-section class="q-py-sm">
+                            <div class="dd-section-label">{{ $t('common.state') }}</div>
+                        </q-card-section>
+                        <q-separator />
+                        <q-card-section>
+                            <div class="row q-col-gutter-sm">
+                                <div class="col-6">
+                                    <q-select
+                                        outlined
+                                        dense
+                                        emit-value
+                                        map-options
+                                        hide-bottom-space
+                                        v-model="v$.document.stateCode.$model"
+                                        :options="availableStates"
+                                        option-label="translatedValueName"
+                                        option-value="valueCd"
+                                        :label="$t('common.state') + ' *'"
+                                        :error="v$.document.stateCode.$invalid && v$.document.stateCode.$dirty"
+                                        :error-message="getValidationErrorMessage(v$.document.stateCode, $t('common.state'))"
+                                        @blur="v$.document.stateCode.$touch()"
+                                        @update:model-value="$emit('touched')"
+                                    />
+                                </div>
+                                <div class="col-6">
+                                    <q-input outlined dense v-model="document.refreshSeconds" type="number" :label="$t('documentExecution.documentDetails.info.refresh')">
+                                        <template #append>
+                                            <span class="text-caption text-grey-5">sec</span>
+                                            <q-icon class="q-ml-sm" name="info" color="grey" size="xs">
+                                                <q-tooltip>{{ $t('documentExecution.documentDetails.info.refreshHint') }}</q-tooltip>
+                                            </q-icon>
+                                        </template>
+                                    </q-input>
+                                </div>
+                                <div class="col-12">
+                                    <div class="dd-toggles-row">
+                                        <q-toggle v-model="document.visible" :label="$t('common.visible')" dense />
+                                        <q-toggle v-model="lockedByUser" :label="$t('common.locked')" dense @update:model-value="setIsLockedByUser" />
+                                    </div>
+                                </div>
+                            </div>
+                        </q-card-section>
+                    </q-card>
+                </div>
+
+                <!-- ══════ RIGHT COLUMN ══════ -->
+                <div class="dd-col">
+                    <!-- Parameters panel position (only when drivers exist) -->
+                    <q-card v-if="document.drivers && document.drivers.length > 0">
+                        <q-card-section class="q-py-sm">
+                            <div class="dd-section-label">{{ $t('documentExecution.documentDetails.info.parametersPanelPosition') }}</div>
+                        </q-card-section>
+                        <q-separator />
+                        <q-card-section>
+                            <q-select outlined dense emit-value map-options v-model="document.parametersRegion" :options="driversPositions" :option-label="translatedLabel" option-value="value" :label="$t('documentExecution.documentDetails.info.positionTitle')">
+                                <template #option="slotProps">
+                                    <q-item v-bind="slotProps.itemProps">
+                                        <q-item-section>
+                                            <q-item-label>{{ $t(slotProps.opt.label) }}</q-item-label>
+                                        </q-item-section>
+                                    </q-item>
+                                </template>
+                            </q-select>
+                        </q-card-section>
+                    </q-card>
+
+                    <!-- Visibility Restrictions -->
+                    <q-card>
+                        <q-card-section class="q-py-sm row items-center">
+                            <div class="dd-section-label col">{{ $t('documentExecution.documentDetails.info.restrictionsTitle') }}</div>
+                            <q-btn class="q-ma-none q-pa-none" flat round dense icon="delete_sweep" size="sm" color="grey-6" :disable="!document.profiledVisibility" @click="clearAllRestrictions">
+                                <q-tooltip>{{ $t('common.delete') }}</q-tooltip>
+                            </q-btn>
+                        </q-card-section>
+                        <q-separator />
+                        <q-card-section>
+                            <div class="row q-col-gutter-sm items-end q-mb-sm">
+                                <div class="col">
+                                    <q-select outlined dense emit-value map-options v-model="visibilityAttribute" :options="availableAttributes" option-label="attributeName" option-value="attributeName" :label="$t('documentExecution.documentDetails.info.attribute')" />
+                                </div>
+                                <div class="col-auto text-grey-5 q-pb-sm text-h6">=</div>
+                                <div class="col">
+                                    <q-input outlined dense v-model="restrictionValue" :label="$t('documentExecution.documentDetails.info.restrictionValueHint')" />
+                                </div>
+                                <div class="col-auto q-pb-xs">
+                                    <q-btn flat round dense icon="add_circle" color="primary" :disable="!visibilityAttribute" @click="addRestriction">
+                                        <q-tooltip>{{ $t('common.add') }}</q-tooltip>
+                                    </q-btn>
+                                </div>
+                            </div>
+                            <q-input outlined dense readonly type="textarea" :rows="2" :model-value="document.profiledVisibility" :label="$t('documentExecution.documentDetails.info.profiledVisibility')" />
+                        </q-card-section>
+                    </q-card>
+
+                    <!-- Folders -->
+                    <q-card>
+                        <q-card-section class="q-py-sm">
+                            <div class="dd-section-label">{{ $t('documentExecution.documentDetails.info.visibilityLocationTitle') }}</div>
+                        </q-card-section>
+                        <q-separator />
+                        <q-card-section class="q-pa-none q-ma-none">
+                            <DocumentDetailsTree :prop-functionalities="folders" :prop-selected-folders="document.functionalities" @selected="setFunctionality" />
+                        </q-card-section>
+                    </q-card>
                 </div>
             </div>
-        </div>
+        </q-scroll-area>
+
         <DatasetDialog v-if="showDatasetDialog" :selected-dataset="selectedDataset" :visible="showDatasetDialog" @closeDialog="showDatasetDialog = false" @saveSelectedDataset="saveSelectedDataset" />
     </div>
 </template>
@@ -278,6 +261,7 @@
 <script lang="ts">
 import { iDocument, iDataSource, iEngine, iTemplate, iAttribute, iFolder } from '@/modules/documentExecution/documentDetails/DocumentDetails'
 import { defineComponent, PropType } from 'vue'
+import { useRouter } from 'vue-router'
 import { createValidations } from '@/helpers/commons/validationHelper'
 import { AxiosResponse } from 'axios'
 import { mapState } from 'pinia'
@@ -286,18 +270,13 @@ import mainDescriptor from '../../DocumentDetailsDescriptor.json'
 import infoDescriptor from './DocumentDetailsInformationsDescriptor.json'
 import useValidate from '@vuelidate/core'
 import DatasetDialog from './DocumentDetailsDatasetDialog.vue'
-import KnValidationMessages from '@/components/UI/KnValidatonMessages.vue'
-import Card from 'primevue/card'
-import Textarea from 'primevue/textarea'
-import Dropdown from 'primevue/dropdown'
-import InputSwitch from 'primevue/inputswitch'
 import KnInputFile from '@/components/UI/KnInputFile.vue'
 import DocumentDetailsTree from './DocumentDetailsTree.vue'
 import mainStore from '../../../../../App.store'
 
 export default defineComponent({
     name: 'document-details-informations',
-    components: { DatasetDialog, Card, Textarea, Dropdown, InputSwitch, KnValidationMessages, KnInputFile, DocumentDetailsTree },
+    components: { DatasetDialog, KnInputFile, DocumentDetailsTree },
     props: {
         selectedDocument: { type: Object as PropType<iDocument> },
         selectedDataset: { type: Object },
@@ -352,7 +331,8 @@ export default defineComponent({
     },
     setup() {
         const store = mainStore()
-        return { store }
+        const router = useRouter()
+        return { store, router }
     },
     data() {
         return {
@@ -410,9 +390,7 @@ export default defineComponent({
                 return ''
             }
             try {
-                const response = await this.$http.get(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/preview-file/download?fileName=${this.selectedDocument.previewFile}`,
-                    { responseType: 'blob' }
-                )
+                const response = await this.$http.get(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/preview-file/download?fileName=${this.selectedDocument.previewFile}`, { responseType: 'blob' })
                 return response.data
             } catch (error) {
                 return ''
@@ -524,7 +502,7 @@ export default defineComponent({
             } else {
                 const activeTemplate = this.findActiveTemplate()
                 const sbiExecutionId = crypto.randomUUID()
-                await startOlap(this.$http, this.user, sbiExecutionId, this.document, activeTemplate, this.$router)
+                await startOlap(this.$http, this.user, sbiExecutionId, this.document, activeTemplate, this.router)
             }
         },
         findActiveTemplate() {
@@ -537,14 +515,19 @@ export default defineComponent({
             }
             return activeTemplate
         },
+        getValidationErrorMessage(field: any, fieldName: string): string {
+            if (!field.$invalid || !field.$dirty || !field.$errors.length) return ''
+            const error = field.$errors[0]
+            return this.$t(`common.validation.${error.$validator}`, { ...error.$params, fieldName })
+        },
         translatedLabel(a) {
             return this.$t(a.label)
         },
         openKpiDocumentDesigner() {
-            this.$router.push(`/kpi-edit/${this.document.id}?from=documentDetail`)
+            this.router.push(`/kpi-edit/${this.document.id}?from=documentDetail`)
         },
         openGis() {
-            this.$router.push(`/gis/edit?documentId=${this.document.id}`)
+            this.router.push(`/gis/edit?documentId=${this.document.id}`)
         },
         async getAllTemplates() {
             if (this.document && this.document.id) this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.document.id}/templates`).then((response: AxiosResponse<any>) => (this.listOfTemplates = response.data as iTemplate[]))
@@ -556,9 +539,104 @@ export default defineComponent({
     }
 })
 </script>
-<style lang="scss">
-.card-0-padding .p-card-body,
-.card-0-padding .p-card-content {
-    padding: 0px;
+
+<style lang="scss" scoped>
+.dd-info-layout {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    background-color: #f3f3f3;
+    min-height: 0;
+}
+
+.dd-scroll {
+    flex: 1;
+    height: 100%;
+}
+
+.dd-grid {
+    display: grid;
+    grid-template-columns: 1fr 45%;
+    align-items: start;
+    gap: 0 1px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 8px;
+
+    @media (max-width: 860px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.dd-col {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 8px;
+    min-width: 0;
+
+    // &:first-child {
+    //     border-right: 1px solid #e0e0e0;
+
+    //     @media (max-width: 860px) {
+    //         border-right: none;
+    //     }
+    // }
+}
+
+.dd-section-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #9e9e9e;
+}
+
+.dd-img-wrap {
+    position: relative;
+    cursor: pointer;
+
+    .dd-preview-img {
+        height: 160px;
+        width: 100%;
+    }
+
+    .dd-img-overlay {
+        background: rgba(0, 0, 0, 0.45);
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    &:hover .dd-img-overlay {
+        opacity: 1;
+        border: 2px dashed grey;
+    }
+
+    .dd-img-delete {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+    }
+}
+
+.dd-upload-zone {
+    height: 160px;
+    border: 2px dashed #e0e0e0;
+    background: #fafaf9;
+    transition:
+        border-color 0.15s,
+        background 0.15s;
+
+    &:hover {
+        border-color: var(--q-primary);
+        background: #eef2ff;
+    }
+}
+
+.dd-toggles-row {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
 }
 </style>

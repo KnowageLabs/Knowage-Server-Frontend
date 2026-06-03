@@ -103,6 +103,7 @@
         "columns": "Columns",
         "comment": "Comment",
         "condition": "Condition",
+        "configuration": "Configuration",
         "confirmPassword": "Confirm Password",
         "continue": "Continue",
         "conversation": "Conversation",
@@ -285,6 +286,7 @@
         "max": "Max",
         "measure": "measure",
         "measures": "measures",
+        "media": "Media",
         "medium": "Medium",
         "menu": "Menu",
         "message": "Message",
@@ -2017,6 +2019,7 @@
                 "refreshHint": "Select the number of milliseconds after the document will refresh",
                 "restrictionValueHint": "Enter Value",
                 "restrictionsTitle": "Visibility Restrictions",
+                "template": "Template",
                 "uploadTemplate": "Upload template",
                 "visibilityLocationTitle": "Select the functionalities where the document will be visible"
             },
