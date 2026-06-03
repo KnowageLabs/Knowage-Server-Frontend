@@ -1,43 +1,38 @@
 <template>
-    <Tree class="documents-tree" :value="nodes" :expanded-keys="expandedKeys" @node-expand="setOpenFolderIcon($event)" @node-collapse="setClosedFolderIcon($event)">
-        <template #default="slotProps">
-            <i class="p-mr-2" :class="slotProps.node.customIcon"></i>
-            <Checkbox v-if="slotProps.node.selectable" v-model="selectedFolders" name="folders" :value="slotProps.node.path" @change="emitSelectedFolders" />
-            <b>{{ slotProps.node.label }}</b>
+    <q-tree :nodes="nodes" node-key="path" tick-strategy="strict" v-model:ticked="selectedFolders" default-expand-all @update:ticked="emitSelectedFolders">
+        <template #default-header="{ node }">
+            <div class="row items-center">
+                <q-icon :name="node.icon" color="grey" class="q-mr-xs" />
+                <span>{{ node.label }}</span>
+            </div>
         </template>
-    </Tree>
+    </q-tree>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Checkbox from 'primevue/checkbox'
-import Tree from 'primevue/tree'
 export default defineComponent({
     name: 'scheduler-document-accordion-tree',
-    components: { Checkbox, Tree },
     props: { propFunctionalities: { type: Array }, propSelectedFolders: { type: Array } },
     data() {
         return {
             functionalities: [] as any[],
             selectedFolders: [] as any[],
-            nodes: [] as any[],
-            expandedKeys: {}
+            nodes: [] as any[]
         }
     },
     watch: {
         propFunctionalities() {
             this.loadFunctionalities()
             this.createNodeTree()
-            this.expandAll()
         },
         propSelectedFolders() {
             this.loadSelectedFolders()
         }
     },
-    created() {
+    async created() {
         this.loadFunctionalities()
         this.createNodeTree()
-        this.expandAll()
         this.loadSelectedFolders()
     },
     methods: {
@@ -45,24 +40,23 @@ export default defineComponent({
             this.functionalities = this.propFunctionalities as any[]
         },
         loadSelectedFolders() {
-            this.selectedFolders = this.propSelectedFolders ? this.propSelectedFolders : []
+            this.selectedFolders = this.propSelectedFolders ? [...(this.propSelectedFolders as any[])] : []
         },
         createNodeTree() {
             this.nodes = []
             const foldersWithMissingParent = [] as any[]
             this.functionalities.forEach((folder: any) => {
                 const node = {
-                    key: folder.name,
+                    path: folder.path,
                     id: folder.id,
                     parentId: folder.parentId,
                     label: folder.name,
                     children: [] as any[],
                     data: folder,
-                    path: folder.path,
-                    customIcon: folder.childs ? 'pi pi-folder-open' : 'pi pi-folder',
-                    selectable: folder.codType === 'USER_FUNCT' || folder.parentId
+                    icon: 'folder',
+                    noTick: !(folder.codType === 'USER_FUNCT' || folder.parentId)
                 }
-                node.children = foldersWithMissingParent.filter((folder: any) => node.id === folder.parentId)
+                node.children = foldersWithMissingParent.filter((f: any) => node.id === f.parentId)
                 this.attachFolderToTree(node, foldersWithMissingParent)
             })
         },
@@ -107,26 +101,6 @@ export default defineComponent({
                 return tempFolder
             }
         },
-        expandAll() {
-            for (const node of this.nodes) {
-                this.expandNode(node)
-            }
-            this.expandedKeys = { ...this.expandedKeys }
-        },
-        expandNode(node: any) {
-            if (node.children && node.children.length) {
-                this.expandedKeys[node.key] = true
-                for (const child of node.children) {
-                    this.expandNode(child)
-                }
-            }
-        },
-        setOpenFolderIcon(node: any) {
-            node.customIcon = 'pi pi-folder-open'
-        },
-        setClosedFolderIcon(node: any) {
-            node.customIcon = 'pi pi-folder'
-        },
         emitSelectedFolders() {
             this.$emit('selected', this.selectedFolders)
         }
@@ -134,8 +108,4 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss" scoped>
-.documents-tree {
-    border: none;
-}
-</style>
+<style lang="scss" scoped></style>
