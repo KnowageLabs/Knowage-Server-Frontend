@@ -164,9 +164,14 @@ async function loadColumnDefinitions() {
     }
     columns.value = newColumns
     // Compute hasDependencies: for each column, collect all other columns that reference
-    // it via dependsFrom or foreignKey so the warning dialog can be triggered correctly.
+    // it via dependsFrom, via plain dependences (COMBO parent-child), or via foreignKey+dependences
+    // (sub-entity columns), so the warning dialog can be triggered correctly.
     for (const col of columns.value) {
-        const deps = columns.value.filter((c: any) => (c.dependsFrom && c.dependsFrom === col.field) || (c.foreignKey && c.foreignKey === col.field))
+        const deps = columns.value.filter(
+            (c: any) =>
+                (c.dependsFrom && c.dependsFrom === col.field) ||
+                (c.dependences && c.dependences === col.field)
+        )
         if (deps.length > 0) col.hasDependencies = deps
     }
     // Pre-load options for COMBO columns
@@ -270,12 +275,15 @@ function onRowChanged(row: any, field?: string) {
                 clearDependentColumnsValues()
             }
         }
-        // Show dependsFrom warning when the changed column itself depends on another column
-        if (col?.dependsFrom && !dependsFromSuppressed.value[field]) {
-            const sourceCol = columns.value.find((c: any) => c.field === col.dependsFrom)
+        // Show dependsFrom warning when the changed column has an explicit dependsFrom attribute.
+        // Plain COMBO columns with 'dependences' don't trigger this dialog — the parent-side
+        // RegistryDatatableWarningDialog already handles the cascade warning.
+        const parentField = col?.dependsFrom
+        if (parentField && !dependsFromSuppressed.value[field]) {
+            const sourceCol = columns.value.find((c: any) => c.field === parentField)
             dependsFromCurrentField.value = field
             dependsFromWarningColumn.value = col.title ?? col.field
-            dependsFromWarningSource.value = sourceCol?.title ?? col.dependsFrom
+            dependsFromWarningSource.value = sourceCol?.title ?? parentField
             dependsFromWarningVisible.value = true
         }
     }

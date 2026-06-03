@@ -71,6 +71,7 @@ const popupStyle = ref<Record<string, string>>({})
 const cellType = computed(() => {
     if (props.col?.editorType === 'COMBO') return 'dropdown'
     if (props.col?.columnInfo?.type === 'date' || props.col?.columnInfo?.type === 'timestamp') return 'temporal'
+    if (!props.col?.columnInfo) return 'text'
     return 'text'
 })
 
