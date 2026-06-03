@@ -1,36 +1,27 @@
 <template>
-    <div class="p-d-flex p-flex-column kn-flex p-mr-3 p-my-3 dashboard-card-shadow kn-overflow dashboard-scrollbar">
-        <label class="kn-material-input-label p-m-3"> {{ $t('dashboard.widgetEditor.background') }}</label>
-        <form v-if="background" class="p-fluid p-formgrid p-grid p-m-1">
-            <span class="p-col-12 p-sm-6 p-xl-3 p-mb-4">
-                <q-input v-model="background.imageBackgroundUrl" :label="$t('dashboard.generalSettings.background.sheetsImage')" :hint="$t('dashboard.generalSettings.background.sheetsImageHint')">
-                    <template #append>
-                        <q-icon name="close" data-test="close-button" @click="background.imageBackgroundUrl = ''" />
-                    </template>
-                </q-input>
-            </span>
-            <span class="p-col-12 p-sm-6 p-xl-3 p-mb-4">
-                <q-input v-model="background.imageBackgroundSize" :label="$t('dashboard.generalSettings.background.sheetsSize')" :hint="$t('dashboard.generalSettings.background.sheetsSizeHint')">
-                    <template #append>
-                        <q-icon name="close" @click="background.imageBackgroundSize = ''" />
-                    </template>
-                </q-input>
-            </span>
-            <span class="p-col-12 p-sm-6 p-xl-3 p-mb-4">
-                <q-input v-model="background.sheetsBackgroundColor" :label="$t('dashboard.generalSettings.background.sheetsColor')">
-                    <template #append>
-                        <q-icon name="colorize" class="cursor-pointer">
-                            <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                                <q-color v-model="background.sheetsBackgroundColor" format-model="hexa" />
-                            </q-popup-proxy>
-                        </q-icon>
-                    </template>
-                </q-input>
-            </span>
-            <span class="p-col-12 p-sm-6 p-xl-3 p-mb-4">
+    <div v-if="background" class="q-px-md q-pb-xs">
+        <div class="row q-col-gutter-sm q-mb-sm">
+            <div class="col-6">
+                <WidgetEditorColorPicker class="col-6" :initial-value="background.sheetsBackgroundColor" :label="'dashboard.generalSettings.background.sheetsColor'" @change="background.sheetsBackgroundColor = $event" />
+            </div>
+            <div class="col-6">
                 <q-toggle v-model="background.showGrid" :label="$t('dashboard.generalSettings.background.showGrid')" />
-            </span>
-        </form>
+            </div>
+            <div class="col-6">
+                <q-input v-model="background.imageBackgroundUrl" class="col-6" outlined dense :label="$t('dashboard.generalSettings.background.sheetsImage')" :hint="$t('dashboard.generalSettings.background.sheetsImageHint')" hide-bottom-space>
+                    <template #append>
+                        <q-icon name="close" class="cursor-pointer" data-test="close-button" @click="background.imageBackgroundUrl = ''" />
+                    </template>
+                </q-input>
+            </div>
+            <div class="col-6">
+                <q-input v-model="background.imageBackgroundSize" class="col-6" outlined dense :label="$t('dashboard.generalSettings.background.sheetsSize')" :hint="$t('dashboard.generalSettings.background.sheetsSizeHint')" hide-bottom-space>
+                    <template #append>
+                        <q-icon name="close" class="cursor-pointer" @click="background.imageBackgroundSize = ''" />
+                    </template>
+                </q-input>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -38,9 +29,11 @@
 import { defineComponent } from 'vue'
 import descriptor from '../DashboardGeneralSettingsDescriptor.json'
 import { IBackground } from '../../Dashboard'
+import WidgetEditorColorPicker from '../../widget/WidgetEditor/WidgetEditorSettingsTab/common/WidgetEditorColorPicker.vue'
 
 export default defineComponent({
-    name: 'dashboard-variables',
+    name: 'dashboard-background',
+    components: { WidgetEditorColorPicker },
     props: {
         dashboardModelProp: {
             type: Object as any,
@@ -65,10 +58,6 @@ export default defineComponent({
             this.dashboard = this.dashboardModelProp
             if (!this.dashboard.configuration?.background) this.dashboard.configuration.background = { sheetsBackgroundColor: '', imageBackgroundUrl: '', imageBackgroundSize: '', showGrid: true } as IBackground
             this.background = this.dashboard.configuration.background as IBackground
-        },
-        onSelectionColorChanged(event: string | null) {
-            if (!event) return
-            else this.background.sheetsBackgroundColor = event
         }
     }
 })

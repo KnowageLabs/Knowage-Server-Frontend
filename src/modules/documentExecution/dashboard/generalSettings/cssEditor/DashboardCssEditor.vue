@@ -1,7 +1,10 @@
 <template>
-    <div class="p-d-flex p-flex-column kn-flex p-mr-3 p-my-3 dashboard-card-shadow kn-overflow dashboard-scrollbar">
-        <label class="kn-material-input-label p-m-3"> {{ $t('dashboard.generalSettings.css') }}</label>
-        <KnMonaco v-model="dashboardConfig.cssToRender" :options="{ theme: 'vs-light' }" :language="'css'" />
+    <div class="q-px-md q-pb-xs">
+        <div class="row q-col-gutter-sm">
+            <div class="col-12" style="height: 600px">
+                <KnMonaco v-model="dashboardConfig.cssToRender" :options="{ theme: 'vs-light' }" :language="'css'" style="height: 100%" />
+            </div>
+        </div>
     </div>
 </template>
 

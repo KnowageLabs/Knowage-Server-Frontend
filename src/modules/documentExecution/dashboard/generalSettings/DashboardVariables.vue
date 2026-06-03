@@ -1,95 +1,82 @@
 <template>
-    <div class="p-d-flex p-flex-column kn-flex p-mr-3 p-my-3 dashboard-card-shadow kn-overflow dashboard-scrollbar">
-        <KnFabButton icon="fas fa-plus" class="p-as-end" style="position: absolute; right: 10px" data-test="new-button" @click="addNewVariable()"></KnFabButton>
-        <label class="kn-material-input-label p-m-3">{{ $t('common.variables') }}</label>
-
-        <KnHint v-if="variables.length == 0" class="p-as-center" :title="'common.variables'" :hint="'dashboard.generalSettings.variablesHint'"></KnHint>
-
-        <div v-for="(variable, index) in variables" :key="index" class="p-fluid p-formgrid p-grid p-m-3" style="gap: 5px">
-            <div class="p-field kn-flex">
-                <span class="p-float-label">
-                    <InputText v-model="variable.name" class="kn-material-input" />
-                    <label class="kn-material-input-label">{{ $t('common.name') }}</label>
-                </span>
+    <div class="q-px-md q-pb-xs" style="position: relative">
+        <div class="row items-center justify-between q-mb-xs">
+            <span class="text-subtitle2">{{ $t('dashboard.generalSettings.createVariable') }}</span>
+            <div class="row items-center q-gutter-xs">
+                <q-btn flat dense icon="info" size="sm" color="grey-6">
+                    <q-tooltip anchor="top middle" self="bottom middle">{{ $t('dashboard.generalSettings.variablesHint') }}</q-tooltip>
+                </q-btn>
+                <q-btn flat round dense color="primary" icon="add" @click="addNewVariable()" />
             </div>
+        </div>
 
-            <div class="p-field kn-flex">
-                <span class="p-float-label">
-                    <Dropdown v-model="variable.type" class="kn-material-input" :options="descriptor.variableTypes" option-value="value" @change="onVariableTypeChange(variable)">
-                        <template #value="slotProps">
-                            <span>{{ getTranslatedLabel(slotProps.value, descriptor.variableTypes, $t) }}</span>
-                        </template>
-                        <template #option="slotProps">
-                            <span>{{ $t(slotProps.option.label) }}</span>
-                        </template>
-                    </Dropdown>
-                    <label class="kn-material-input-label">{{ $t('common.type') }}</label>
-                </span>
-            </div>
+        <div v-for="(variable, index) in variables" :key="index" class="column-type-row row no-wrap q-mb-sm">
+            <div class="kn-action-handle kn-action-handle-disabled"></div>
+            <div class="col q-pa-sm">
+                <div class="row q-col-gutter-sm">
+                    <div class="col-6">
+                        <q-input v-model="variable.name" outlined dense :label="$t('common.name')" />
+                    </div>
+                    <div class="col-6">
+                        <q-select v-model="variable.type" outlined dense emit-value map-options :options="descriptor.variableTypes" option-value="value" option-label="label" :label="$t('common.type')" @update:model-value="onVariableTypeChange(variable)">
+                            <template #selected-item="slotProps">
+                                <span>{{ getTranslatedLabel(slotProps.opt.value, descriptor.variableTypes, $t) }}</span>
+                            </template>
+                            <template #option="slotProps">
+                                <q-item v-bind="slotProps.itemProps">
+                                    <q-item-section
+                                        ><q-item-label>{{ $t(slotProps.opt.label) }}</q-item-label></q-item-section
+                                    >
+                                </q-item>
+                            </template>
+                        </q-select>
+                    </div>
 
-            <div v-if="variable.type === 'static'" class="p-field kn-flex">
-                <span class="p-float-label">
-                    <InputText v-model="variable.value" class="kn-material-input" />
-                    <label class="kn-material-input-label">{{ $t('common.value') }}</label>
-                </span>
-            </div>
+                    <div v-if="variable.type === 'static'" class="col-12">
+                        <q-input v-model="variable.value" outlined dense :label="$t('common.value')" />
+                    </div>
 
-            <div v-if="variable.type === 'dataset'" class="p-field kn-flex">
-                <span class="p-float-label">
-                    <Dropdown v-model="variable.dataset" class="kn-material-input" :options="selectedDatasetOptions" option-label="label" option-value="id"></Dropdown>
-                    <label class="kn-material-input-label">{{ $t('common.dataset') }}</label>
-                </span>
-            </div>
-            <div v-if="variable.type === 'dataset'" class="p-field kn-flex">
-                <span class="p-float-label">
-                    <Dropdown v-model="variable.column" class="kn-material-input" :options="getSelectionDatasetColumnOptions(variable)"></Dropdown>
-                    <label class="kn-material-input-label">{{ $t('common.column') }}</label>
-                </span>
-                <small>{{ $t('dashboard.generalSettings.variableColumnHint') }}</small>
-            </div>
+                    <div v-if="variable.type === 'dataset'" class="col-6">
+                        <q-select v-model="variable.dataset" outlined dense emit-value map-options :options="selectedDatasetOptions" option-label="label" option-value="id" :label="$t('common.dataset')" />
+                    </div>
+                    <div v-if="variable.type === 'dataset'" class="col-6">
+                        <q-select v-model="variable.column" outlined dense :options="getSelectionDatasetColumnOptions(variable)" :label="$t('common.column')" :hint="$t('dashboard.generalSettings.variableColumnHint')" hide-bottom-space />
+                    </div>
 
-            <div v-if="variable.type === 'driver'" class="p-field kn-flex">
-                <span class="p-float-label">
-                    <Dropdown v-model="variable.driver" class="kn-material-input" :options="drivers" option-label="name" option-value="urlName" @change="setValueFromAnalyticalDriver(variable)"></Dropdown>
-                    <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.interactions.analyticalDriver') }}</label>
-                </span>
-            </div>
+                    <div v-if="variable.type === 'driver'" class="col-12">
+                        <q-select v-model="variable.driver" outlined dense emit-value map-options :options="drivers" option-label="name" option-value="urlName" :label="$t('dashboard.widgetEditor.interactions.analyticalDriver')" @update:model-value="setValueFromAnalyticalDriver(variable)" />
+                    </div>
 
-            <div v-if="variable.type === 'profile'" class="p-field kn-flex">
-                <span class="p-float-label">
-                    <Dropdown v-model="variable.attribute" class="kn-material-input" :options="profileAttributes" option-label="name" option-value="name" @change="setValueFromProfileAttribute(variable)"></Dropdown>
-                    <label class="kn-material-input-label">{{ $t('dashboard.generalSettings.attribute') }}</label>
-                </span>
-            </div>
+                    <div v-if="variable.type === 'profile'" class="col-12">
+                        <q-select v-model="variable.attribute" outlined dense emit-value map-options :options="profileAttributes" option-label="name" option-value="name" :label="$t('dashboard.generalSettings.attribute')" @update:model-value="setValueFromProfileAttribute(variable)" />
+                    </div>
 
-            <div v-if="['executionTime', 'executionDate'].includes(variable.type)" class="p-field kn-flex">
-                <span class="p-float-label">
-                    <Dropdown v-model="variable.dateTimeFormat" class="kn-material-input" :options="variable.type === 'executionTime' ? descriptor.variablesTimeFormatOptions : descriptor.variablesDateFormatOptions" option-value="value" @change="onTimeFormatChanged(variable)">
-                        <template #value="slotProps">
-                            <span>{{ getTranslatedLabel(slotProps.value, variable.type === 'executionTime' ? descriptor.variablesTimeFormatOptions : descriptor.variablesDateFormatOptions, $t) }}</span>
-                        </template>
-                        <template #option="slotProps">
-                            <span>{{ $t(slotProps.option.label) }}</span>
-                        </template>
-                    </Dropdown>
-                    <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.format') }}</label>
-                </span>
-            </div>
+                    <div v-if="['executionTime', 'executionDate'].includes(variable.type)" class="col-12">
+                        <q-select v-model="variable.dateTimeFormat" outlined dense emit-value map-options :options="variable.type === 'executionTime' ? descriptor.variablesTimeFormatOptions : descriptor.variablesDateFormatOptions" option-value="value" option-label="label" :label="$t('dashboard.widgetEditor.format')" @update:model-value="onTimeFormatChanged(variable)">
+                            <template #selected-item="slotProps">
+                                <span>{{ getTranslatedLabel(slotProps.opt.value, variable.type === 'executionTime' ? descriptor.variablesTimeFormatOptions : descriptor.variablesDateFormatOptions, $t) }}</span>
+                            </template>
+                            <template #option="slotProps">
+                                <q-item v-bind="slotProps.itemProps">
+                                    <q-item-section
+                                        ><q-item-label>{{ $t(slotProps.opt.label) }}</q-item-label></q-item-section
+                                    >
+                                </q-item>
+                            </template>
+                        </q-select>
+                    </div>
 
-            <div v-if="variable.type === 'activeSelection'" class="p-field kn-flex">
-                <span class="p-float-label">
-                    <Dropdown v-model="variable.activeSelectionDataset" class="kn-material-input" :options="selectedDatasetOptions" option-label="label" option-value="id" @change="onActiveSelectionDatasetChanged(variable)"></Dropdown>
-                    <label class="kn-material-input-label">{{ $t('common.dataset') }}</label>
-                </span>
+                    <div v-if="variable.type === 'activeSelection'" class="col-6">
+                        <q-select v-model="variable.activeSelectionDataset" outlined dense emit-value map-options :options="selectedDatasetOptions" option-label="label" option-value="id" :label="$t('common.dataset')" @update:model-value="onActiveSelectionDatasetChanged(variable)" />
+                    </div>
+                    <div v-if="variable.type === 'activeSelection'" class="col-6">
+                        <q-select v-model="variable.activeSelectionColumn" outlined dense :options="getSelectionDatasetColumnOptions(variable, true)" :label="$t('common.column')" @update:model-value="onActiveSelectionColumnChanged(variable)" />
+                    </div>
+                </div>
             </div>
-            <div v-if="variable.type === 'activeSelection'" class="p-field kn-flex">
-                <span class="p-float-label">
-                    <Dropdown v-model="variable.activeSelectionColumn" class="kn-material-input" :options="getSelectionDatasetColumnOptions(variable, true)" @change="onActiveSelectionColumnChanged(variable)"></Dropdown>
-                    <label class="kn-material-input-label">{{ $t('common.column') }}</label>
-                </span>
+            <div class="kn-action-handle row items-center justify-center">
+                <q-btn v-tooltip.left="$t('common.delete')" flat round dense icon="delete" size="sm" data-test="delete-button" @click="removeVariable(index)" />
             </div>
-
-            <Button v-tooltip.left="$t('common.delete')" icon="fas fa-trash-alt" class="p-button-text p-button-rounded p-button-plain p-mt-1" data-test="delete-button" @click="removeVariable(index)" />
         </div>
     </div>
 </template>
@@ -100,15 +87,13 @@ import { IVariable, IDataset, IDashboardDriver } from '@/modules/documentExecuti
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import { mapActions } from 'pinia'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
-import KnHint from '@/components/UI/KnHint.vue'
 import descriptor from './DashboardGeneralSettingsDescriptor.json'
-import Dropdown from 'primevue/dropdown'
 import KnFabButton from '@/components/UI/KnFabButton.vue'
 import { setVairableExecutionDateValue, setVairableLocaleValue, setVariableActiveSelectionValue, setVariableExectuionTimeValue } from './VariablesHelper'
 
 export default defineComponent({
     name: 'dashboard-variables',
-    components: { KnHint, Dropdown, KnFabButton },
+    components: { KnFabButton },
     props: {
         propVariables: { type: Array as PropType<IVariable[]>, required: true },
         selectedDatasets: { type: Array as PropType<IDataset[]>, required: true },
@@ -219,3 +204,11 @@ export default defineComponent({
     }
 })
 </script>
+
+<style lang="scss" scoped>
+.column-type-row {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+</style>
