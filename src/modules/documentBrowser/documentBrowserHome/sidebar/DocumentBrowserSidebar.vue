@@ -39,27 +39,27 @@
                 </div>
             </div> -->
             <div class="row q-gutter-sm q-pa-sm justify-between">
-                <q-btn v-if="user?.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_USER_MANAGEMENT)" dense unelevated color="primary" icon="play_arrow" @click="executeDocument">
+                <q-btn v-if="user?.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_USER_MANAGEMENT)" size="sm" :label="$t('documentBrowser.executeDocument')" unelevated color="primary" icon="play_arrow" @click="executeDocument">
                     <q-tooltip>{{ $t('documentBrowser.executeDocument') }}</q-tooltip>
                 </q-btn>
 
-                <q-btn v-if="canEditDocument" dense outline unelevated icon="edit" @click="$emit('showDocumentDetails', document)">
+                <q-btn v-if="canEditDocument" dense outline icon="edit" color="secondary" @click="$emit('showDocumentDetails', document)">
                     <q-tooltip>{{ $t('documentBrowser.editDocument') }}</q-tooltip>
                 </q-btn>
 
-                <q-btn v-if="canEditDocument && document?.typeCode !== 'DOSSIER'" flat dense icon="file_copy" @click="cloneDocumentConfirm">
+                <q-btn v-if="canEditDocument && document?.typeCode !== 'DOSSIER'" color="primary" outline dense icon="file_copy" @click="cloneDocumentConfirm">
                     <q-tooltip>{{ $t('documentBrowser.cloneDocument') }}</q-tooltip>
                 </q-btn>
 
-                <q-btn v-if="user?.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_MOVE_UP_STATE) && document?.stateCode === 'TEST'" flat dense icon="arrow_upward" @click="changeStateDocumentConfirm('UP')">
+                <q-btn v-if="user?.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_MOVE_UP_STATE) && document?.stateCode === 'TEST'" color="primary" outline dense icon="arrow_upward" @click="changeStateDocumentConfirm('UP')">
                     <q-tooltip>{{ $t('documentBrowser.moveUpDocumentState') }}</q-tooltip>
                 </q-btn>
 
-                <q-btn v-if="user?.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_MOVE_DOWN_STATE) && (document?.stateCode === 'TEST' || document?.stateCode === 'REL')" flat dense icon="arrow_downward" @click="changeStateDocumentConfirm('DOWN')">
+                <q-btn v-if="user?.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_MOVE_DOWN_STATE) && (document?.stateCode === 'TEST' || document?.stateCode === 'REL')" color="primary" outline dense icon="arrow_downward" @click="changeStateDocumentConfirm('DOWN')">
                     <q-tooltip>{{ $t('documentBrowser.moveDownDocumentState') }}</q-tooltip>
                 </q-btn>
 
-                <q-btn v-if="canEditDocument && user?.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_DELETE_MANAGEMENT)" flat dense icon="delete" @click="deleteDocumentConfirm">
+                <q-btn v-if="canEditDocument && user?.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_DELETE_MANAGEMENT)" color="negative" outline dense icon="delete" @click="deleteDocumentConfirm">
                     <q-tooltip>{{ $t('common.delete') }}</q-tooltip>
                 </q-btn>
             </div>
@@ -257,7 +257,7 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .doc-sidebar-card {
-    background-color: #f3f3f3;
+    // background-color: #f3f3f3;
     width: 100%;
     border-radius: 0;
     border-top: none;
@@ -293,8 +293,8 @@ export default defineComponent({
     border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 8px;
     overflow: hidden;
-    // background: #f3f3f3;
-    background: #ffff;
+    background: #f3f3f3;
+    // background: #ffff;
 }
 .doc-detail-row {
     display: flex;
