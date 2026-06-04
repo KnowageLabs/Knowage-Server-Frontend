@@ -47,15 +47,15 @@
                     <q-tooltip>{{ $t('documentBrowser.editDocument') }}</q-tooltip>
                 </q-btn>
 
-                <q-btn v-if="canEditDocument && document?.typeCode !== 'DOSSIER'" color="primary" outline dense icon="file_copy" @click="cloneDocumentConfirm">
+                <q-btn v-if="canEditDocument && document?.typeCode !== 'DOSSIER'" color="secondary" outline dense icon="file_copy" @click="cloneDocumentConfirm">
                     <q-tooltip>{{ $t('documentBrowser.cloneDocument') }}</q-tooltip>
                 </q-btn>
 
-                <q-btn v-if="user?.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_MOVE_UP_STATE) && document?.stateCode === 'TEST'" color="primary" outline dense icon="arrow_upward" @click="changeStateDocumentConfirm('UP')">
+                <q-btn v-if="user?.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_MOVE_UP_STATE) && document?.stateCode === 'TEST'" color="secondary" outline dense icon="arrow_upward" @click="changeStateDocumentConfirm('UP')">
                     <q-tooltip>{{ $t('documentBrowser.moveUpDocumentState') }}</q-tooltip>
                 </q-btn>
 
-                <q-btn v-if="user?.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_MOVE_DOWN_STATE) && (document?.stateCode === 'TEST' || document?.stateCode === 'REL')" color="primary" outline dense icon="arrow_downward" @click="changeStateDocumentConfirm('DOWN')">
+                <q-btn v-if="user?.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_MOVE_DOWN_STATE) && (document?.stateCode === 'TEST' || document?.stateCode === 'REL')" color="secondary" outline dense icon="arrow_downward" @click="changeStateDocumentConfirm('DOWN')">
                     <q-tooltip>{{ $t('documentBrowser.moveDownDocumentState') }}</q-tooltip>
                 </q-btn>
 
