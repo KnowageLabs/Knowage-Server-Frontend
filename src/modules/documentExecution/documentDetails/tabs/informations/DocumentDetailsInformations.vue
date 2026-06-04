@@ -51,7 +51,7 @@
                     <q-card>
                         <q-card-section class="q-py-sm row items-center">
                             <div class="dd-section-label col">{{ $t('common.media') }}</div>
-                            <q-btn v-if="document.previewFile" class="q-ma-none q-pa-none" flat round dense icon="delete" size="sm" color="grey-6" :disable="!document.profiledVisibility" @click.stop="$emit('deleteImage')">
+                            <q-btn v-if="document.previewFile" class="q-ma-none q-pa-none" flat round dense icon="delete" size="sm" color="red" @click.stop="$emit('deleteImage')">
                                 <q-tooltip>{{ $t('common.delete') }}</q-tooltip>
                             </q-btn>
                         </q-card-section>
@@ -134,7 +134,7 @@
                                     <q-select outlined dense emit-value map-options v-model="document.dataSourceLabel" :options="availableDatasources" option-label="label" option-value="label" :label="$t('managers.businessModelManager.dataSource')" />
                                 </div>
                                 <div class="col-6">
-                                    <q-input outlined dense readonly :model-value="dataset.name" :label="$t('common.dataset')">
+                                    <q-input outlined dense readonly :model-value="dataset.name" :label="$t('common.dataset')" @click="showDatasetDialog = true">
                                         <template #append>
                                             <q-btn flat round dense icon="search" size="sm" @click="showDatasetDialog = true" />
                                         </template>
@@ -216,7 +216,7 @@
                     <q-card>
                         <q-card-section class="q-py-sm row items-center">
                             <div class="dd-section-label col">{{ $t('documentExecution.documentDetails.info.restrictionsTitle') }}</div>
-                            <q-btn class="q-ma-none q-pa-none" flat round dense icon="delete_sweep" size="sm" color="grey-6" :disable="!document.profiledVisibility" @click="clearAllRestrictions">
+                            <q-btn class="q-ma-none q-pa-none" flat round dense icon="delete_sweep" size="sm" color="red" :disable="!document.profiledVisibility" @click="clearAllRestrictions">
                                 <q-tooltip>{{ $t('common.delete') }}</q-tooltip>
                             </q-btn>
                         </q-card-section>
@@ -549,11 +549,6 @@ export default defineComponent({
     min-height: 0;
 }
 
-.dd-scroll {
-    flex: 1;
-    height: 100%;
-}
-
 .dd-grid {
     display: grid;
     grid-template-columns: 1fr 45%;
@@ -575,22 +570,6 @@ export default defineComponent({
     gap: 16px;
     padding: 8px;
     min-width: 0;
-
-    // &:first-child {
-    //     border-right: 1px solid #e0e0e0;
-
-    //     @media (max-width: 860px) {
-    //         border-right: none;
-    //     }
-    // }
-}
-
-.dd-section-label {
-    font-size: 10.5px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #9e9e9e;
 }
 
 .dd-img-wrap {
