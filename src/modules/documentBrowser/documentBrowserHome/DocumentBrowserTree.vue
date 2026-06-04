@@ -1,21 +1,32 @@
 <template>
-    <Tree id="folders-tree" v-model:selectionKeys="selectedFolderKey" class="kn-tree kn-column-tree kn-flex p-p-0" scroll-height="calc(100vh - 127px)" maximizable :value="nodes" selection-mode="single" :filter="true" filter-mode="lenient" :expanded-keys="expandedKeys" @node-select="setSelectedFolder" @node-expand="setOpenFolderIcon($event)" @node-collapse="setClosedFolderIcon($event)">
-        <template #default="slotProps">
-            <span>{{ getTranslatedLabel(slotProps.node.label) }}</span>
-        </template>
-    </Tree>
+    <div class="column no-wrap full-height">
+        <div class="q-pa-sm">
+            <q-input v-model="treeFilter" outlined dense clearable :placeholder="$t('common.search')">
+                <template #prepend>
+                    <q-icon name="search" size="xs" />
+                </template>
+            </q-input>
+        </div>
+        <q-separator></q-separator>
+        <q-scroll-area class="col">
+            <q-tree :nodes="filteredNodes as any" node-key="key" v-model:selected="selectedKey" v-model:expanded="expandedKeys" selected-color="primary" @update:selected="onNodeSelected">
+                <template #default-header="{ node }">
+                    <q-icon :name="expandedKeys.includes(node.key) && node.children?.length ? 'folder_open' : 'folder'" class="q-mr-sm" color="primary" size="sm" />
+                    <span class="text-body2">{{ getTranslatedLabel(node.label) }}</span>
+                </template>
+            </q-tree>
+        </q-scroll-area>
+    </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { iFolder, iNode } from '../DocumentBrowser'
-import Tree from 'primevue/tree'
 import mainStore from '../../../App.store'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 
 export default defineComponent({
     name: 'document-browser-tree',
-    components: { Tree },
     props: { propFolders: { type: Array as PropType<Array<iFolder>> }, selectedBreadcrumb: { type: Object }, selectedFolderProp: { type: Object } },
     emits: ['folderSelected'],
     setup() {
@@ -26,15 +37,20 @@ export default defineComponent({
         return {
             folders: [] as iFolder[],
             nodes: [] as iNode[],
-            selectedFolderKey: {},
-            expandedKeys: {},
-            selectedFolder: null as any
+            selectedKey: null as string | null,
+            expandedKeys: [] as string[],
+            selectedFolder: null as any,
+            treeFilter: ''
         }
     },
     computed: {
         isAdmin(): boolean {
             const user = (this.store.$state as any).user
             return user?.isSuperadmin || user?.functionalities?.includes(UserFunctionalitiesConstants.VIEW_MY_FOLDER_ADMIN)
+        },
+        filteredNodes(): iNode[] {
+            if (!this.treeFilter?.trim()) return this.nodes
+            return this.filterNodes(this.nodes, this.treeFilter.toLowerCase())
         }
     },
     watch: {
@@ -48,21 +64,29 @@ export default defineComponent({
         selectedFolderProp() {
             this.selectedFolder = this.selectedFolderProp
             if (!this.selectedFolder) return
-            this.selectedFolderKey = {}
-            this.selectedFolderKey[this.selectedFolder.key] = true
-            let temp = null as any
+            this.selectedKey = String(this.selectedFolder.id)
             for (let i = 0; i < this.nodes.length; i++) {
-                temp = this.findNode(this.nodes[i], this.selectedFolder.id, 'id')
+                const temp = this.findNode(this.nodes[i], this.selectedFolder.id, 'id')
                 if (temp) {
-                    this.selectedFolderKey[temp.key] = true
-                    this.expandedKeys[temp.key] = true
+                    const tempKeyStr = String(temp.key)
+                    if (!this.expandedKeys.includes(tempKeyStr)) this.expandedKeys.push(tempKeyStr)
                     const tempPath = this.selectedFolder.path?.substring(1)?.split('/')
                     tempPath?.forEach((el: string) => {
                         const tempFolderByCode = this.findNode(this.nodes[i], el, 'code')
-                        if (tempFolderByCode) this.expandedKeys[tempFolderByCode.key] = true
+                        if (tempFolderByCode) {
+                            const codeKeyStr = String(tempFolderByCode.key)
+                            if (!this.expandedKeys.includes(codeKeyStr)) this.expandedKeys.push(codeKeyStr)
+                        }
                     })
                     break
                 }
+            }
+        },
+        treeFilter(val: string | null) {
+            if (val && val.trim()) {
+                const allKeys: string[] = []
+                this.collectKeys(this.filteredNodes, allKeys)
+                this.expandedKeys = allKeys
             }
         }
     },
@@ -78,7 +102,7 @@ export default defineComponent({
         createNodeTree() {
             const personalFolder = {
                 key: 'Personal_Folders',
-                icon: 'pi pi-folder',
+                icon: 'folder',
                 id: -1,
                 prog: 0,
                 parentId: null,
@@ -96,10 +120,10 @@ export default defineComponent({
                     path: '/Personal-Folders'
                 }
             }
-            this.nodes = this.isAdmin ? [personalFolder] : [] // add Personal Folders if user is admin
+            this.nodes = this.isAdmin ? [personalFolder] : []
             const foldersWithMissingParent = [] as iNode[]
             this.folders.forEach((folder: iFolder) => {
-                const node = { key: folder.name, icon: 'pi pi-folder', id: folder.id, prog: folder.prog, parentId: folder.parentId, label: folder.name, children: [] as iNode[], data: folder }
+                const node = { key: String(folder.id), icon: 'folder', id: folder.id, prog: folder.prog, parentId: folder.parentId, label: folder.name, children: [] as iNode[], data: folder }
                 node.children = foldersWithMissingParent.filter((folder: iNode) => node.id === folder.parentId && folder.data.codType !== 'LOW_FUNCT')
                 this.attachFolderToTree(node, foldersWithMissingParent, personalFolder)
             })
@@ -135,7 +159,6 @@ export default defineComponent({
                 }
             } else if (folder.data.codType === 'USER_FUNCT') {
                 if (this.isAdmin) {
-                    // attach user folders if admin and personal folder exists
                     folder.data.parentFolder = personalFolder
                     folder.data.parentId = personalFolder.id
                     personalFolder.children?.push(folder)
@@ -145,23 +168,16 @@ export default defineComponent({
             }
         },
         findParentFolder(folderToAdd: iNode, folderToSearch: iNode) {
-            if (folderToAdd.data.codType === 'USER_FUNCT') {
-                return null
-            }
-            if (folderToAdd.parentId === folderToSearch.id) {
-                return folderToSearch
-            } else {
-                let tempFolder = null as iNode | null
-                if (folderToSearch.children) {
-                    for (let i = 0; i < folderToSearch.children.length; i++) {
-                        tempFolder = this.findParentFolder(folderToAdd, folderToSearch.children[i])
-                        if (tempFolder) {
-                            break
-                        }
-                    }
+            if (folderToAdd.data.codType === 'USER_FUNCT') return null
+            if (folderToAdd.parentId === folderToSearch.id) return folderToSearch
+            let tempFolder = null as iNode | null
+            if (folderToSearch.children) {
+                for (let i = 0; i < folderToSearch.children.length; i++) {
+                    tempFolder = this.findParentFolder(folderToAdd, folderToSearch.children[i])
+                    if (tempFolder) break
                 }
-                return tempFolder
             }
+            return tempFolder
         },
         attachFoldersFromMissngParentArrayToTheTree(foldersWithMissingParent: iNode[], personalFolder: iNode) {
             for (let i = foldersWithMissingParent.length - 1; i >= 0; i--) {
@@ -169,21 +185,19 @@ export default defineComponent({
                 foldersWithMissingParent.splice(i)
             }
         },
+        onNodeSelected(key: string | null) {
+            if (!key) return
+            const node = this.findNodeByKey(this.nodes, key)
+            if (node) this.setSelectedFolder(node)
+        },
         setSelectedFolder(node: iNode) {
             this.selectedFolder = node.data
             localStorage.setItem('documentSelectedFolderId', JSON.stringify(this.selectedFolder.id))
             this.$emit('folderSelected', this.selectedFolder)
         },
-        setOpenFolderIcon(node: iNode) {
-            node.icon = 'pi pi-folder-open'
-        },
-        setClosedFolderIcon(node: iNode) {
-            node.icon = 'pi pi-folder'
-        },
         onBreadcrumbSelected() {
             this.selectedFolder = this.selectedBreadcrumb?.node
-            this.selectedFolderKey = {}
-            this.selectedFolderKey[this.selectedFolder.key] = true
+            if (this.selectedFolder) this.selectedKey = this.selectedFolder.key
         },
         loadSelectedFolderFromLocalStorage() {
             const folderId = localStorage.getItem('documentSelectedFolderId')
@@ -191,16 +205,15 @@ export default defineComponent({
                 const index = this.folders.findIndex((el: iFolder) => el.id === JSON.parse(folderId))
                 if (index !== -1) {
                     this.selectedFolder = this.folders[index]
-                    this.selectedFolderKey[this.folders[index].name] = true
-                    this.expandedKeys[this.folders[index].name] = true
+                    this.selectedKey = String(this.folders[index].id)
+                    if (!this.expandedKeys.includes(String(this.folders[index].id))) this.expandedKeys.push(String(this.folders[index].id))
                     this.$emit('folderSelected', this.selectedFolder)
                 }
             }
         },
-        findNode(node: iNode, value: number | string, property: string) {
-            if (node.data[property] === value) {
-                return node
-            } else if (node.children != null) {
+        findNode(node: iNode, value: number | string, property: string): iNode | null {
+            if (node.data[property] === value) return node
+            if (node.children != null) {
                 let result = null as any
                 for (let i = 0; result == null && i < node.children.length; i++) {
                     result = this.findNode(node.children[i], value, property)
@@ -208,6 +221,31 @@ export default defineComponent({
                 return result
             }
             return null
+        },
+        findNodeByKey(nodes: iNode[], key: string): iNode | null {
+            for (const node of nodes) {
+                if (node.key === key) return node
+                if (node.children?.length) {
+                    const found = this.findNodeByKey(node.children, key)
+                    if (found) return found
+                }
+            }
+            return null
+        },
+        filterNodes(nodes: iNode[], filter: string): iNode[] {
+            return nodes.reduce((acc: iNode[], node: iNode) => {
+                const children = this.filterNodes(node.children || [], filter)
+                if (node.label.toLowerCase().includes(filter) || children.length > 0) {
+                    acc.push({ ...node, children })
+                }
+                return acc
+            }, [])
+        },
+        collectKeys(nodes: iNode[], keys: string[]) {
+            nodes.forEach((n) => {
+                keys.push(String(n.key))
+                if (n.children?.length) this.collectKeys(n.children, keys)
+            })
         },
         getTranslatedLabel(label: string) {
             return (this as any).$internationalization(label)
@@ -217,21 +255,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-#folders-tree {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    border: none;
-}
-
-.isMobileDevice {
-    #folders-tree {
-        &:deep(.p-tree-wrapper) {
-            max-height: 100% !important;
-        }
-        &:deep(.p-tree-container) {
-            padding-bottom: 30px;
-        }
-    }
+.q-tree {
+    padding: 0 4px;
 }
 </style>
