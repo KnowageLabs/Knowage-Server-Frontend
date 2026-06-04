@@ -18,27 +18,7 @@
             <q-separator />
 
             <!-- Actions -->
-            <!-- <div class="q-pa-md q-pb-sm">
-                <div class="row q-gutter-sm q-mb-sm">
-                    <q-btn v-if="user?.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_USER_MANAGEMENT)" dense unelevated color="primary" icon="play_arrow" :label="$t('documentBrowser.executeDocument')" class="col" data-test="execution" @click="executeDocument" />
-                    <q-btn v-if="canEditDocument" unelevated outline dense color="grey-8" icon="edit" :label="$t('documentBrowser.editDocument')" class="col" @click="$emit('showDocumentDetails', document)" />
-                </div>
-                <div class="row justify-between">
-                    <q-btn v-if="canEditDocument && document?.typeCode !== 'DOSSIER'" flat dense icon="file_copy" color="grey-7" @click="cloneDocumentConfirm">
-                        <q-tooltip>{{ $t('documentBrowser.cloneDocument') }}</q-tooltip>
-                    </q-btn>
-                    <q-btn v-if="user?.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_MOVE_UP_STATE) && document?.stateCode === 'TEST'" flat dense icon="arrow_upward" color="grey-7" @click="changeStateDocumentConfirm('UP')">
-                        <q-tooltip>{{ $t('documentBrowser.moveUpDocumentState') }}</q-tooltip>
-                    </q-btn>
-                    <q-btn v-if="user?.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_MOVE_DOWN_STATE) && (document?.stateCode === 'TEST' || document?.stateCode === 'REL')" flat dense icon="arrow_downward" color="grey-7" @click="changeStateDocumentConfirm('DOWN')">
-                        <q-tooltip>{{ $t('documentBrowser.moveDownDocumentState') }}</q-tooltip>
-                    </q-btn>
-                    <q-btn v-if="canEditDocument && user?.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_DELETE_MANAGEMENT)" flat dense icon="delete" color="negative" @click="deleteDocumentConfirm">
-                        <q-tooltip>{{ $t('common.delete') }}</q-tooltip>
-                    </q-btn>
-                </div>
-            </div> -->
-            <div class="row q-gutter-sm q-pa-sm justify-between">
+            <div class="row q-gutter-sm q-pa-sm">
                 <q-btn v-if="user?.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_USER_MANAGEMENT)" size="sm" :label="$t('documentBrowser.executeDocument')" unelevated color="primary" icon="play_arrow" @click="executeDocument">
                     <q-tooltip>{{ $t('documentBrowser.executeDocument') }}</q-tooltip>
                 </q-btn>
@@ -59,7 +39,7 @@
                     <q-tooltip>{{ $t('documentBrowser.moveDownDocumentState') }}</q-tooltip>
                 </q-btn>
 
-                <q-btn v-if="canEditDocument && user?.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_DELETE_MANAGEMENT)" color="negative" outline dense icon="delete" @click="deleteDocumentConfirm">
+                <q-btn v-if="canEditDocument && user?.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_DELETE_MANAGEMENT)" class="q-ml-auto" color="negative" outline dense icon="delete" @click="deleteDocumentConfirm">
                     <q-tooltip>{{ $t('common.delete') }}</q-tooltip>
                 </q-btn>
             </div>

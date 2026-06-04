@@ -1,6 +1,4 @@
 <template>
-    <!-- <q-layout view="hHh lpR fFf" container> -->
-    <!-- <q-layout view="hHh lpR fFf" container> -->
     <q-layout view="hHh lpR fFf" container>
         <q-header class="bg-grey-2 text-grey-8" bordered>
             <div class="row no-wrap items-center">
@@ -10,8 +8,8 @@
                     </q-tab>
                     <q-tab v-for="(tab, index) in tabs" :key="index" :name="'tab-' + index" :label="getTabName(tab)" />
                 </q-tabs>
-                <div v-if="activeTab !== 'browser'" class="self-stretch flex items-center q-pr-xs bg-grey-2">
-                    <q-btn flat round dense icon="close" size="sm" color="grey-7" @click="openTabMenu">
+                <div v-if="activeTab !== 'browser'" class="q-ml-auto q-mr-md">
+                    <q-btn unelevated round dense icon="close" size="sm" color="grey-7" @click="openTabMenu">
                         <q-menu ref="tabMenu" auto-close>
                             <q-list dense style="min-width: 200px">
                                 <q-item v-for="item in menuItems" :key="item.label" clickable @click="item.command">
