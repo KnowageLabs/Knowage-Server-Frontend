@@ -1,32 +1,47 @@
 <template>
-    <div class="kn-page">
-        <div class="document-browser-tab-container kn-flex">
-            <TabView id="document-browser-tab-view" v-model:activeIndex="activeIndex" class="p-d-flex p-flex-column kn-flex kn-tab" @tab-change="onTabChange">
-                <TabPanel>
-                    <template #header>
-                        <i class="fa fa-folder-open" style="line-height: 21px"></i>
-                    </template>
-
-                    <DocumentBrowserHome :document-saved="documentSaved" :document-saved-trigger="documentSavedTrigger" @itemSelected="onItemSelect($event)"></DocumentBrowserHome>
-                </TabPanel>
-
-                <TabPanel v-for="(tab, index) in tabs" :key="index">
-                    <template #header>
-                        <span>{{ getTabName(tab) }}</span>
-                    </template>
-                </TabPanel>
-            </TabView>
-
-            <DocumentBrowserTab v-show="selectedItem && selectedItem.mode" :item="selectedItem?.item" :functionality-id="selectedItem?.functionalityId" @close="closeDocument('current')" @iframeCreated="onIFrameCreated" @closeIframe="closeIframe" @documentSaved="onDocumentSaved"></DocumentBrowserTab>
-            <div v-for="(iframe, index) in iFrameContainers" :key="index">
-                <iframe v-show="iframe.item?.routerId === selectedItem?.item.routerId" ref="iframe" class="document-browser-cockpit-iframe" :src="iframe.iframe"></iframe>
+    <!-- <q-layout view="hHh lpR fFf" container> -->
+    <!-- <q-layout view="hHh lpR fFf" container> -->
+    <q-layout view="hHh lpR fFf" container>
+        <q-header class="bg-grey-2 text-grey-8" bordered>
+            <div class="row no-wrap items-center">
+                <q-tabs v-model="activeTab" dense align="left" indicator-color="primary" class="doc-browser-tabs col" @update:model-value="onTabChange">
+                    <q-tab name="browser">
+                        <q-icon name="folder_open" size="sm" />
+                    </q-tab>
+                    <q-tab v-for="(tab, index) in tabs" :key="index" :name="'tab-' + index" :label="getTabName(tab)" />
+                </q-tabs>
+                <div v-if="activeTab !== 'browser'" class="self-stretch flex items-center q-pr-xs bg-grey-2">
+                    <q-btn flat round dense icon="close" size="sm" color="grey-7" @click="openTabMenu">
+                        <q-menu ref="tabMenu" auto-close>
+                            <q-list dense style="min-width: 200px">
+                                <q-item v-for="item in menuItems" :key="item.label" clickable @click="item.command">
+                                    <q-item-section>{{ item.label }}</q-item-section>
+                                </q-item>
+                            </q-list>
+                        </q-menu>
+                    </q-btn>
+                </div>
             </div>
-            <div v-if="activeIndex !== 0" id="document-browser-tab-icon-container">
-                <i id="document-browser-tab-icon" class="fa fa-times-circle" @click="toggle($event)"></i>
-                <Menu ref="menu" :model="menuItems" :popup="true" data-test="menu" />
-            </div>
-        </div>
-    </div>
+        </q-header>
+
+        <q-page-container>
+            <q-page class="row">
+                <div class="col-12">
+                    <q-tab-panels v-model="activeTab" animated class="full-height">
+                        <q-tab-panel name="browser" class="q-pa-none full-height">
+                            <DocumentBrowserHome :document-saved="documentSaved" :document-saved-trigger="documentSavedTrigger" @itemSelected="onItemSelect($event)" />
+                        </q-tab-panel>
+                        <q-tab-panel v-for="(tab, index) in tabs" :key="index" :name="'tab-' + index" class="q-pa-none full-height" />
+                    </q-tab-panels>
+
+                    <DocumentBrowserTab v-show="selectedItem && selectedItem.mode" style="position: absolute; inset: 0; overflow: auto" :item="selectedItem?.item" :functionality-id="selectedItem?.functionalityId" @close="closeDocument('current')" @iframeCreated="onIFrameCreated" @closeIframe="closeIframe" @documentSaved="onDocumentSaved" />
+                    <div v-for="(iframe, index) in iFrameContainers" :key="index">
+                        <iframe v-show="iframe.item?.routerId === selectedItem?.item.routerId" ref="iframe" class="document-browser-cockpit-iframe" :src="iframe.iframe"></iframe>
+                    </div>
+                </div>
+            </q-page>
+        </q-page-container>
+    </q-layout>
 </template>
 
 <script lang="ts">
@@ -35,18 +50,22 @@ import { AxiosResponse } from 'axios'
 import { getRouteDocumentType } from './documentBrowserHelper'
 import DocumentBrowserHome from './documentBrowserHome/DocumentBrowserHome.vue'
 import DocumentBrowserTab from './DocumentBrowserTab.vue'
-import Menu from 'primevue/menu'
-import TabView from 'primevue/tabview'
-import TabPanel from 'primevue/tabpanel'
+import { useQuasar } from 'quasar'
+import { useRouter } from 'vue-router'
 
 export default defineComponent({
     name: 'document-browser',
-    components: { DocumentBrowserHome, DocumentBrowserTab, Menu, TabView, TabPanel },
+    components: { DocumentBrowserHome, DocumentBrowserTab },
+    setup() {
+        const $q = useQuasar()
+        const $router = useRouter()
+        return { $q, $router }
+    },
     props: { selectedMenuItem: { type: Object }, menuItemClickedTrigger: { type: Boolean } },
     data() {
         return {
             tabs: [] as any[],
-            activeIndex: 0,
+            activeTab: 'browser',
             menuItems: [] as any[],
             selectedItem: null as any,
             id: 0,
@@ -62,7 +81,7 @@ export default defineComponent({
             if (!this.selectedMenuItem) return
             if (this.selectedMenuItem.to === '/document-browser') {
                 this.selectedItem = null
-                this.activeIndex = 0
+                this.activeTab = 'browser'
             } else if (this.selectedMenuItem.to && this.selectedMenuItem.to.includes('document-browser')) {
                 await this.loadPage()
             }
@@ -99,27 +118,28 @@ export default defineComponent({
                 }
                 this.tabs.push(tempItem)
 
-                this.activeIndex = 1
+                this.activeTab = 'tab-0'
                 this.selectedItem = tempItem
             }
         },
-        onTabChange() {
-            if (this.activeIndex === 0) {
+        onTabChange(tabName: string) {
+            if (tabName === 'browser') {
                 this.selectedItem = null
                 this.$router.push('/document-browser')
                 return
             }
 
-            const id = this.tabs[this.activeIndex - 1].item ? this.tabs[this.activeIndex - 1].item.label : 'new-dashboard'
+            const tabIndex = parseInt(tabName.replace('tab-', ''))
+            const id = this.tabs[tabIndex].item ? this.tabs[tabIndex].item.label : 'new-dashboard'
 
-            this.selectedItem = this.tabs[this.activeIndex - 1]
+            this.selectedItem = this.tabs[tabIndex]
             this.selectedItem.item.fromTab = true
 
             if (this.selectedItem.mode === 'documentDetail') {
                 const path = this.selectedItem.functionalityId ? `/document-browser/document-details/new/${this.selectedItem.functionalityId}` : `/document-browser/document-details/${this.selectedItem.item.id}`
                 this.$router.push(path)
             } else {
-                const routeDocumentType = this.tabs[this.activeIndex - 1].item.mode ? this.tabs[this.activeIndex - 1].item.mode : this.getRouteDocumentType(this.tabs[this.activeIndex - 1].item)
+                const routeDocumentType = this.tabs[tabIndex].item.mode ? this.tabs[tabIndex].item.mode : this.getRouteDocumentType(this.tabs[tabIndex].item)
                 routeDocumentType ? this.$router.push(`/document-browser/${routeDocumentType}/` + id) : this.$router.push('/document-browser/new-dashboard')
             }
         },
@@ -153,12 +173,10 @@ export default defineComponent({
                 }
             }
 
-            this.activeIndex = this.tabs.length
+            this.activeTab = `tab-${this.tabs.length - 1}`
         },
-        toggle(event: any) {
+        openTabMenu() {
             this.createMenuItems()
-            const menu = this.$refs.menu as any
-            menu.toggle(event)
         },
         createMenuItems() {
             this.menuItems = []
@@ -168,11 +186,14 @@ export default defineComponent({
             this.menuItems.push({ label: this.$t('documentBrowser.closeAllDocuments'), command: () => this.closeDocumentConfirm('all') })
         },
         closeDocumentConfirm(mode: string) {
-            this.$confirm.require({
-                message: this.$t('documentBrowser.closeDocumentConfirmMessage'),
-                header: this.$t('documentBrowser.closeDocumentConfirmTitle', { numberOfDocuments: this.getNumberOfDocuments(mode) }),
-                accept: () => this.closeDocument(mode)
-            })
+            this.$q
+                .dialog({
+                    message: this.$t('documentBrowser.closeDocumentConfirmMessage'),
+                    title: this.$t('documentBrowser.closeDocumentConfirmTitle', { numberOfDocuments: this.getNumberOfDocuments(mode) }),
+                    cancel: true,
+                    persistent: true
+                })
+                .onOk(() => this.closeDocument(mode))
         },
         getNumberOfDocuments(mode: string) {
             switch (mode) {
@@ -181,7 +202,7 @@ export default defineComponent({
                 case 'other':
                     return this.tabs.length - 1
                 case 'right':
-                    return this.tabs.length - this.activeIndex
+                    return this.tabs.length - parseInt((this.activeTab as string).replace('tab-', ''))
                 case 'all':
                     return this.tabs.length
             }
@@ -189,27 +210,33 @@ export default defineComponent({
         closeDocument(mode: string) {
             let index = -1
             switch (mode) {
-                case 'current':
-                    this.tabs.splice(this.activeIndex - 1, 1)
-                    this.activeIndex = 0
+                case 'current': {
+                    const currentIdx = parseInt((this.activeTab as string).replace('tab-', ''))
+                    this.tabs.splice(currentIdx, 1)
+                    this.activeTab = 'browser'
                     index = this.iFrameContainers.findIndex((iframe: any) => iframe.item?.routerId === this.selectedItem?.item.routerId)
                     if (index !== -1) this.iFrameContainers.splice(index, 1)
                     this.$router.push('/document-browser')
                     break
-                case 'other':
-                    this.tabs = [this.tabs[this.activeIndex - 1]]
-                    this.activeIndex = 1
+                }
+                case 'other': {
+                    const currentIdx = parseInt((this.activeTab as string).replace('tab-', ''))
+                    this.tabs = [this.tabs[currentIdx]]
+                    this.activeTab = 'tab-0'
                     this.iFrameContainers = this.iFrameContainers.filter((iframe: any) => iframe.item?.routerId === this.selectedItem?.item.routerId)
                     break
-                case 'right':
-                    this.tabs.splice(this.activeIndex)
+                }
+                case 'right': {
+                    const currentIdx = parseInt((this.activeTab as string).replace('tab-', ''))
+                    this.tabs.splice(currentIdx + 1)
                     index = this.iFrameContainers.findIndex((iframe: any) => iframe.item?.routerId === this.selectedItem?.item.routerId)
                     if (index !== -1) this.iFrameContainers.splice(index + 1)
                     break
+                }
                 case 'all':
                     this.$router.push('/document-browser')
                     this.tabs = []
-                    this.activeIndex = 0
+                    this.activeTab = 'browser'
                     this.iFrameContainers = []
             }
         },
@@ -226,7 +253,8 @@ export default defineComponent({
             await this.$router.push(`/document-browser/document-composite/${cockpit.DOCUMENT_LABEL}?documentMode=edit`)
             setTimeout(() => {}, 2000)
             this.selectedItem = { item: { ...cockpit, routerId: crypto.randomUUID(), name: cockpit.DOCUMENT_NAME, label: cockpit.DOCUMENT_LABEL, showMode: 'execute' }, mode: 'execute' }
-            this.tabs[this.activeIndex - 1] = this.selectedItem
+            const currentIdx = parseInt((this.activeTab as string).replace('tab-', ''))
+            this.tabs[currentIdx] = this.selectedItem
         },
         getTabName(tab: any) {
             if (tab.item && tab.item.name) {
@@ -247,40 +275,20 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-#document-browser-tab-view .p-tabview-panels {
+.doc-browser-tabs {
+    flex: 0 0 auto;
+}
+
+.doc-browser-panels .q-tab-panel {
     padding: 0;
-}
-
-#document-browser-tab-icon-container {
-    position: absolute;
-    top: 0.8rem;
-    right: 2rem;
-}
-
-#document-browser-tab-icon {
-    font-size: 1.2rem;
-    color: rgba(0, 0, 0, 0.6);
-    cursor: pointer;
-}
-
-.document-browser-tab-container {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-}
-
-.document-browser-tab-container .p-tabview .p-tabview-panel,
-.document-browser-tab-container .p-tabview .p-tabview-panels {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
+    height: 100%;
 }
 
 .document-browser-cockpit-iframe {
     position: absolute;
-    top: 39px;
+    top: 0;
     width: 100%;
-    height: calc(100% - 39px);
+    height: 100%;
     border: none;
 }
 </style>

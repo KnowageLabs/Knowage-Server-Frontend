@@ -1,42 +1,34 @@
 <template>
-    <Breadcrumb :home="home" :model="items" class="kn-breadcrumb border-bottom">
-        <template #item="{item}">
-            <span class="breadcrumbs-item" :data-test="'breadcrumb-' + item.label" @click="selectBreadcrumb">{{ item.label }}</span>
+    <div class="row items-center doc-breadcrumb">
+        <q-btn flat dense round icon="home" size="xs" color="grey-3" @click="selectAt(0)" />
+        <template v-for="(item, i) in items" :key="item.label">
+            <q-icon name="chevron_right" size="xs" color="grey-5" />
+            <span class="cursor-pointer q-px-xs text-subtitle2" :class="i === items.length - 1 ? 'text-white text-weight-medium' : 'text-grey-4'" :data-test="'breadcrumb-' + item.label" @click="selectAt(i)">{{ item.label }}</span>
         </template>
-    </Breadcrumb>
+    </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Breadcrumb from 'primevue/breadcrumb'
 
 export default defineComponent({
     name: 'document-browser-breadcrumb',
-    components: { Breadcrumb },
     props: { breadcrumbs: { type: Array } },
     emits: ['breadcrumbClicked'],
     data() {
-        return {
-            home: { icon: 'pi pi-home' },
-            items: [] as any[]
-        }
+        return { items: [] as any[] }
     },
     watch: {
         breadcrumbs() {
-            this.loadBreadcrumbs()
+            this.items = this.breadcrumbs as any[]
         }
     },
     created() {
-        this.loadBreadcrumbs()
+        this.items = this.breadcrumbs as any[]
     },
     methods: {
-        loadBreadcrumbs() {
-            this.items = this.breadcrumbs as any[]
-        },
-        selectBreadcrumb(event: any) {
-            const index = this.items.findIndex((el: any) => el.label === event.target.textContent)
-
-            if (index !== -1) {
+        selectAt(index: number) {
+            if (index < this.items.length) {
                 this.$emit('breadcrumbClicked', this.items[index])
                 this.items.splice(index + 1)
             }
@@ -44,9 +36,3 @@ export default defineComponent({
     }
 })
 </script>
-
-<style lang="scss">
-.p-breadcrumb ul li:nth-child(2) {
-    display: none;
-}
-</style>

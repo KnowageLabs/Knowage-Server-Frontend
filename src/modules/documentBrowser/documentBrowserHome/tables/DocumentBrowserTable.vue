@@ -1,32 +1,36 @@
 <template>
-    <div class="p-d-flex p-flex-row p-jc-center">
-        <Message v-if="searchMode" id="documents-found-hint" class="p-m-2" severity="info" :closable="false" :style="documentBrowserTableDescriptor.styles.message">
-            {{ documents.length + ' ' + $t('documentBrowser.documentsFound') }}
-        </Message>
-    </div>
-    <div v-if="!searchMode" class="table-header p-d-flex row">
-        <q-input class="q-ma-md col-6" dense filled v-model="filter" :label="$t('documentBrowser.selectedFolderSearch')">
-            <template v-slot:prepend>
-                <q-icon name="search" />
+    <div class="kn-flex" style="overflow: hidden">
+        <q-table class="kn-table" flat dense virtual-scroll :virtual-scroll-sticky-size-start="28" :rows-per-page-options="[0]" :filter="filter" :visible-columns="visibleColumns" :rows="documents" :columns="documentBrowserTableDescriptor.quasarColumns as any" row-key="id" :style="{ 'max-height': tableHeight }" @row-click="(e, row) => $emit('selected', row)">
+            <template #top>
+                <q-input v-model="filter" outlined dense hide-bottom-space clearable :label="$t('documentBrowser.selectedFolderSearch')" class="full-width">
+                    <template #prepend><q-icon name="search" size="xs" /></template>
+                </q-input>
             </template>
-        </q-input>
-    </div>
-
-    <div class="kn-flex">
-        <q-table class="q-mb-lg" flat dense :pagination="{ rowsPerPage: 0, page: 1 }" :filter="filter" hide-pagination :visible-columns="visibleColumns" :rows="documents" :columns="documentBrowserTableDescriptor.quasarColumns" row-key="name" @row-click="(e, row) => $emit('selected', row)">
             <template #no-data>
-                <div class="full-width row flex-center text-accent q-gutter-sm">
-                    <Message class="p-m-2" severity="info" :closable="false" :style="documentBrowserTableDescriptor.styles.message" data-test="no-documents-hint">
-                        {{ $t('documentBrowser.noDocumentsHint') }}
-                    </Message>
+                <div class="full-width row flex-center text-orange q-pa-md q-gutter-sm">
+                    <q-icon name="info" size="sm" />
+                    <span>{{ $t('documentBrowser.noDocumentsHint') }}</span>
                 </div>
             </template>
-            <template v-slot:header="props">
+            <template #header="props">
                 <q-tr :props="props">
                     <q-th v-for="col in props.cols" :key="col.name" :props="props" class="text-capitalize">
                         {{ $t(col.label) }}
                     </q-th>
                 </q-tr>
+            </template>
+            <template #body-cell-typeCode="props">
+                <q-td>
+                    <q-chip dense :color="getTypeColor(props.value)" text-color="white" size="sm" class="q-ma-none">
+                        <q-icon :name="getTypeIcon(props.value)" size="xs" class="q-mr-xs" />
+                        {{ props.value }}
+                    </q-chip>
+                </q-td>
+            </template>
+            <template #body-cell-stateCodeStr="props">
+                <q-td>
+                    <q-badge :color="getStatusColor(props.row.stateCode)" :label="props.value" />
+                </q-td>
             </template>
             <template #body-cell="props">
                 <q-td class="kn-truncated">
@@ -58,9 +62,6 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Column from 'primevue/column'
-import DataTable from 'primevue/datatable'
-import Message from 'primevue/message'
 import documentBrowserTableDescriptor from './DocumentBrowserTableDescriptor.json'
 import mainStore from '../../../../App.store'
 import { mapState } from 'pinia'
@@ -69,7 +70,6 @@ import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 
 export default defineComponent({
     name: 'document-browser-table',
-    components: { Column, DataTable, Message },
     props: { propDocuments: { type: Array }, searchMode: { type: Boolean } },
     emits: ['itemSelected', 'selected'],
     data() {
@@ -78,7 +78,8 @@ export default defineComponent({
             documents: [] as any[],
             filter: '' as string,
             first: 0,
-            visibleColumns: [] as string[]
+            visibleColumns: [] as string[],
+            tableHeight: '500px'
         }
     },
     computed: {
@@ -94,7 +95,23 @@ export default defineComponent({
         this.loadDocuments()
         this.first = 0
     },
+    mounted() {
+        this.updateTableHeight()
+        window.addEventListener('resize', this.updateTableHeight)
+    },
+    unmounted() {
+        window.removeEventListener('resize', this.updateTableHeight)
+    },
     methods: {
+        updateTableHeight() {
+            this.$nextTick(() => {
+                const el = this.$el?.querySelector('.q-table__container') || this.$el
+                if (el) {
+                    const top = el.getBoundingClientRect().top
+                    this.tableHeight = `${Math.max(window.innerHeight - top, 100)}px`
+                }
+            })
+        },
         loadDocuments() {
             this.documents = this.propDocuments?.map((el: any) => {
                 if (el.field === 'status') el.style = documentBrowserTableDescriptor.table.smallmessage
@@ -111,21 +128,40 @@ export default defineComponent({
         getTranslatedValue(value: string, fieldType: string) {
             if (fieldType !== 'name' && fieldType !== 'label') return value
             return (this as any).$internationalization(value)
+        },
+        getTypeColor(typeCode: string): string {
+            const map: Record<string, string> = { DASHBOARD: 'indigo-5', REPORT: 'teal-6', DOCUMENT_COMPOSITE: 'purple-5', KPI: 'orange-7', MAP: 'green-6', COCKPIT: 'blue-5' }
+            return map[typeCode] ?? 'grey-6'
+        },
+        getTypeIcon(typeCode: string): string {
+            const map: Record<string, string> = { DASHBOARD: 'dashboard', REPORT: 'description', DOCUMENT_COMPOSITE: 'layers', KPI: 'speed', MAP: 'map', COCKPIT: 'widgets' }
+            return map[typeCode] ?? 'article'
+        },
+        getStatusColor(stateCode: string): string {
+            const map: Record<string, string> = { DEV: 'blue-4', TEST: 'orange-6', REL: 'positive', SUSPENDED: 'grey-6', SUSP: 'grey-6' }
+            return map[stateCode] ?? 'grey-6'
         }
     }
 })
 </script>
 
 <style lang="scss" scoped>
-#documents-found-hint {
-    flex: 0.5;
-}
+.kn-table {
+    :deep(.q-table__top) {
+        padding: 8px;
+    }
 
-#documents-datatable {
-    :deep(.p-datatable-wrapper) {
-        flex: 1 0 0;
-        height: unset;
-        overflow: auto;
+    height: 100%;
+    :deep(thead tr th) {
+        position: sticky;
+        z-index: 1;
+        background-color: #ffffff;
+        top: 0;
+    }
+
+    /* prevent scrolling behind sticky top row on focus */
+    :deep(tbody) {
+        scroll-margin-top: 48px;
     }
 }
 </style>
