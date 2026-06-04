@@ -1,9 +1,10 @@
 <template>
-    <!-- <q-layout view="lHr LpR lFr" container style="height: 100%"> -->
+    <!-- <q-layout view="lHr Lpr lFr" container> -->
     <q-layout view="hHr Lpr lFr" container>
         <q-header bordered>
             <q-toolbar class="kn-toolbar kn-toolbar--primary">
                 <q-btn flat round dense :icon="drawerOpen ? 'menu_open' : 'menu'" class="q-mr-sm" @click="drawerOpen = !drawerOpen" />
+                <q-separator class="q-mr-sm" vertical inset color="white"></q-separator>
                 <DocumentBrowserBreadcrumb v-if="breadcrumbs.length" :breadcrumbs="breadcrumbs" @breadcrumbClicked="setSelectedBreadcrumb" />
                 <span v-else class="text-subtitle1 text-weight-medium">{{ $t('documentBrowser.title') }}</span>
                 <q-space />
@@ -12,7 +13,7 @@
                         <q-icon name="search" size="xs" />
                     </template>
                 </q-input>
-                <q-btn-dropdown v-if="(isSuperAdmin || canAddNewDocument) && selectedFolder && selectedFolder.parentId && selectedFolder.codType !== 'USER_FUNCT'" color="pink-6" size="sm" dropdown-icon="add">
+                <q-btn-dropdown v-if="(isSuperAdmin || canAddNewDocument) && selectedFolder && selectedFolder.parentId && selectedFolder.codType !== 'USER_FUNCT'" unelevated color="accent" size="sm" dropdown-icon="add">
                     <q-list dense style="min-width: 200px">
                         <q-item v-for="item in items" :key="item.label" v-close-popup clickable @click="item.command">
                             <q-item-section>

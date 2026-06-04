@@ -7,7 +7,7 @@
                 </q-input>
             </template>
             <template #no-data>
-                <div class="full-width row flex-center text-orange q-pa-md q-gutter-sm">
+                <div class="full-width row flex-center text-primary q-pa-md q-gutter-sm">
                     <q-icon name="info" size="sm" />
                     <span>{{ $t('documentBrowser.noDocumentsHint') }}</span>
                 </div>
@@ -21,7 +21,7 @@
             </template>
             <template #body-cell-typeCode="props">
                 <q-td>
-                    <q-chip dense :color="getTypeColor(props.value)" text-color="white" size="sm" class="q-ma-none">
+                    <q-chip :color="getTypeColor(props.value)" text-color="white" size="sm" class="q-ma-none">
                         <q-icon :name="getTypeIcon(props.value)" size="xs" class="q-mr-xs" />
                         {{ props.value }}
                     </q-chip>
