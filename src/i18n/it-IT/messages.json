@@ -24,6 +24,14 @@
     "ai": {
         "disclaimer": "L'assistente virtuale genera risposte in tempo reale con l'IA. Consulta altre fonti, se necessario.",
         "error": "Mi dispiace, al momento non riesco ad aiutarti. Per favore riprova più tardi.",
+        "newChat": "Nuova conversazione",
+        "sessionError": "Impossibile inizializzare la sessione AI. Controlla la configurazione e riprova.",
+        "sessionLoading": "Avvio sessione…",
+        "sessionNotReady": "La sessione non è ancora pronta. Attendi un momento.",
+        "sessionSettings": "Impostazioni sessione",
+        "selectModel": "Modello di Business",
+        "startSession": "Avvia sessione",
+        "streamError": "Si è verificato un errore durante la ricezione della risposta. Riprova.",
         "message": {
             "limitReached": "Hai raggiunto il numero massimo di messaggi consentiti dalla tua licenza.",
             "placeholder": "Scrivi qui il tuo messaggio"
@@ -34,7 +42,16 @@
             "start": "Avvia input vocale",
             "stop": "Interrompi input vocale"
         },
-        "welcomeMessage": "Benvenuto nell'assitente virtuale di Knowage! Fammi una domanda e farò del mio meglio per aiutarti."
+        "welcomeMessage": "Benvenuto nell'assitente virtuale di Knowage! Fammi una domanda e farò del mio meglio per aiutarti.",
+        "sidePanel": {
+            "title": "Artefatti",
+            "toggle": "Mostra / nascondi artefatti",
+            "noArtifacts": "Nessun artefatto ancora. Invia un messaggio per iniziare.",
+            "sql": "Query SQL",
+            "python": "Codice Python",
+            "csvTruncated": "Visualizzazione delle prime {n} righe.",
+            "csvEmpty": "Nessun dato in questo file."
+        }
     },
     "common": {
         "active": "Attivo",

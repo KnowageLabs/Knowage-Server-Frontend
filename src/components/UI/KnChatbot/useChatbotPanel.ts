@@ -7,6 +7,7 @@ export function useChatbotPanel() {
     const { locale } = useI18n()
     const showAlert = ref(false)
     const minimized = ref(false)
+    const minimizedToCard = ref(false)
 
     const posX = ref(Math.round(window.innerWidth * 0.2))
     const posY = ref(Math.round(window.innerHeight * 0.2))
@@ -95,8 +96,8 @@ export function useChatbotPanel() {
     }
 
     function onResizeMove(e: MouseEvent) {
-        panelWidth.value = Math.max(400, resizeStartW + (e.clientX - resizeStartX))
-        panelHeight.value = Math.max(300, resizeStartH + (e.clientY - resizeStartY))
+        panelWidth.value = Math.min(Math.round(window.innerWidth * 0.95), Math.max(400, resizeStartW + (e.clientX - resizeStartX)))
+        panelHeight.value = Math.min(Math.round(window.innerHeight * 0.95), Math.max(300, resizeStartH + (e.clientY - resizeStartY)))
     }
 
     function onResizeEnd() {
@@ -114,15 +115,28 @@ export function useChatbotPanel() {
         panelHeight.value = Math.round(window.innerHeight * 0.6)
     }
 
+    function minimizeToCard() {
+        minimizedToCard.value = true
+    }
+
+    function restoreFromCard() {
+        minimizedToCard.value = false
+        minimized.value = false
+        if (!showAlert.value) showAlert.value = true
+    }
+
     function closePanel() {
         showAlert.value = false
+        minimizedToCard.value = false
         resetPanelGeometry()
     }
 
     function toggleChatbot() {
-        if (showAlert.value) {
+        if (showAlert.value && !minimizedToCard.value) {
             showAlert.value = false
             resetPanelGeometry()
+        } else if (minimizedToCard.value) {
+            restoreFromCard()
         } else {
             showAlert.value = true
             minimized.value = false
@@ -148,6 +162,9 @@ export function useChatbotPanel() {
         startDrag,
         startResize,
         closePanel,
+        minimizedToCard,
+        minimizeToCard,
+        restoreFromCard,
         toggleChatbot
     }
 }
