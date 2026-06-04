@@ -11,7 +11,7 @@
         </q-toolbar>
 
         <div class="document-details-tab-container column kn-flex">
-            <q-tabs v-model="activeTab" dense align="left" class="kn-tabs" @update:model-value="onTabChange" style="border-bottom: 1px solid black">
+            <q-tabs v-model="activeTab" dense align="left" class="kn-tabs" @update:model-value="onTabChange" style="border-bottom: 1px solid #ccc">
                 <q-tab name="informations" :label="$t('documentExecution.documentDetails.info.infoTitle')" />
                 <q-tab v-if="selectedDocument?.id" name="drivers">
                     <span :class="{ 'details-warning-color': invalidDrivers }">{{ $t('documentExecution.documentDetails.drivers.title') }}</span>
@@ -437,5 +437,54 @@ export default defineComponent({
 
 .details-warning-color {
     color: red;
+}
+
+/* ── Shared DocumentDetails tab styles ────────────────────────── */
+.dd-section-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #9e9e9e;
+}
+
+.dd-scroll {
+    flex: 1;
+    height: 100%;
+}
+
+.dd-list {
+    .q-item:last-child {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    }
+}
+
+.dd-tab-layout {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+.dd-tab-list-col {
+    width: 280px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.dd-tab-detail-scroll {
+    background-color: #f3f3f3;
+}
+
+.dd-list-header {
+    min-height: 40px;
+}
+
+.kn-list-item--selected {
+    background-color: #f3f3f3;
+    color: inherit;
 }
 </style>

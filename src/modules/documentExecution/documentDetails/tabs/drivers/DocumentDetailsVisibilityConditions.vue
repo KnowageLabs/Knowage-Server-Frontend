@@ -1,92 +1,84 @@
 <template>
-    <div class="kn-remove-card-padding p-col">
-        <Toolbar class="kn-toolbar kn-toolbar--default">
-            <template #start>
-                {{ $t('documentExecution.documentDetails.drivers.visibilityTitle') }}
-            </template>
-            <template #end>
-                <Button :label="$t('managers.businessModelManager.addCondition')" class="p-button-text p-button-rounded p-button-plain kn-white-color" @click="openVisibilityConditionDialog('newCondition')" />
-            </template>
-        </Toolbar>
-        <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
-        <Listbox class="kn-list data-condition-list" :options="visusalDependencyObjects" @change="openVisibilityConditionDialog($event.value)">
-            <template #empty>{{ $t('documentExecution.documentDetails.drivers.noVisCond') }}</template>
-            <template #option="slotProps">
-                <div class="kn-list-item">
-                    <div class="kn-list-item-text">
-                        <span v-tooltip.top="slotProps.option.viewLabel + ' ' + slotProps.option.parFatherUrlName + ' ' + slotProps.option.operation + slotProps.option.compareValue" class="kn-truncated">
-                            <b>{{ slotProps.option.viewLabel }}</b> {{ slotProps.option.parFatherUrlName }} {{ slotProps.option.operation }}{{ slotProps.option.compareValue }}
-                        </span>
+    <q-card class="q-mb-md">
+        <q-card-section class="q-py-sm row items-center">
+            <div class="dd-section-label col">{{ $t('documentExecution.documentDetails.drivers.visibilityTitle') }}</div>
+            <q-btn :label="$t('managers.businessModelManager.addCondition')" flat dense icon="add" color="primary" size="sm" @click="openVisibilityConditionDialog('newCondition')">
+                <q-tooltip>{{ $t('managers.businessModelManager.addCondition') }}</q-tooltip>
+            </q-btn>
+        </q-card-section>
+        <q-separator />
+        <q-linear-progress v-if="loading" indeterminate color="primary" />
+        <q-list separator>
+            <q-item v-for="(cond, i) in visusalDependencyObjects" :key="i" clickable @click="openVisibilityConditionDialog(cond)">
+                <q-item-section>
+                    <q-item-label class="text-body2 ellipsis">
+                        <b>{{ cond.viewLabel }}</b> {{ cond.parFatherUrlName }} {{ cond.operation }}{{ cond.compareValue }}
+                    </q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                    <q-btn flat round dense icon="delete" size="sm" color="negative" @click.stop="deleteCondition(cond)">
+                        <q-tooltip>{{ $t('common.delete') }}</q-tooltip>
+                    </q-btn>
+                </q-item-section>
+            </q-item>
+            <q-item v-if="visusalDependencyObjects.length === 0">
+                <q-item-section class="text-grey-6">{{ $t('documentExecution.documentDetails.drivers.noVisCond') }}</q-item-section>
+            </q-item>
+        </q-list>
+    </q-card>
+
+    <q-dialog :model-value="showVisibilityConditionDialog" persistent @hide="showVisibilityConditionDialog = false">
+        <q-card style="min-width: 600px">
+            <q-toolbar class="kn-toolbar kn-toolbar--primary">
+                <q-toolbar-title>{{ $t('documentExecution.documentDetails.drivers.visualizationTitle') }}</q-toolbar-title>
+            </q-toolbar>
+            <q-card-section>
+                <div class="row q-col-gutter-sm">
+                    <div class="col-12">
+                        <q-input outlined dense v-model="v$.selectedCondition.viewLabel.$model" hide-bottom-space :label="$t('common.title') + ' *'" :error="v$.selectedCondition.viewLabel.$invalid && v$.selectedCondition.viewLabel.$dirty" :error-message="getValidationErrorMessage(v$.selectedCondition.viewLabel, $t('common.title'))" @blur="v$.selectedCondition.viewLabel.$touch()" />
                     </div>
-                    <Button icon="far fa-trash-alt" class="p-button-text p-button-rounded p-button-plain" @click.stop="deleteCondition(slotProps.option)" />
+                    <div class="col-12 col-md-4">
+                        <q-select
+                            hide-bottom-space
+                            outlined
+                            dense
+                            emit-value
+                            map-options
+                            v-model="v$.selectedCondition.parFatherId.$model"
+                            :options="availableDrivers"
+                            option-label="label"
+                            option-value="id"
+                            :label="$t('managers.businessModelManager.analyticalDriver') + ' *'"
+                            :error="v$.selectedCondition.parFatherId.$invalid && v$.selectedCondition.parFatherId.$dirty"
+                            :error-message="getValidationErrorMessage(v$.selectedCondition.parFatherId, $t('managers.businessModelManager.analyticalDriver'))"
+                            @blur="v$.selectedCondition.parFatherId.$touch()"
+                            @update:model-value="setParFatherUrlName"
+                        />
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <q-select
+                            hide-bottom-space
+                            outlined
+                            dense
+                            v-model="v$.selectedCondition.operation.$model"
+                            :options="availableOperators"
+                            :label="$t('managers.businessModelManager.filterOperator') + ' *'"
+                            :error="v$.selectedCondition.operation.$invalid && v$.selectedCondition.operation.$dirty"
+                            :error-message="getValidationErrorMessage(v$.selectedCondition.operation, $t('managers.businessModelManager.filterOperator'))"
+                            @blur="v$.selectedCondition.operation.$touch()"
+                        />
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <q-input hide-bottom-space outlined dense v-model="v$.selectedCondition.compareValue.$model" :label="$t('common.value') + ' *'" :error="v$.selectedCondition.compareValue.$invalid && v$.selectedCondition.compareValue.$dirty" :error-message="getValidationErrorMessage(v$.selectedCondition.compareValue, $t('common.value'))" @blur="v$.selectedCondition.compareValue.$touch()" />
+                    </div>
                 </div>
-            </template>
-        </Listbox>
-    </div>
-    <Dialog class="remove-padding" :style="driversDescriptor.style.conditionDialog" :visible="showVisibilityConditionDialog" :modal="true" :closable="false">
-        <template #header>
-            <Toolbar class="kn-toolbar kn-toolbar--primary kn-width-full">
-                <template #start>
-                    {{ $t('documentExecution.documentDetails.drivers.visualizationTitle') }}
-                </template>
-            </Toolbar>
-        </template>
-
-        <InlineMessage severity="info" class="p-m-2 kn-width-full">{{ $t('documentExecution.documentDetails.drivers.visualizationHint') }}</InlineMessage>
-
-        <form class="p-fluid p-formgrid p-grid p-m-2">
-            <div class="p-field p-col-12 p-mt-2">
-                <span class="p-float-label">
-                    <InputText id="title" v-model="v$.selectedCondition.viewLabel.$model" class="kn-material-input" :class="{ 'p-invalid': v$.selectedCondition.viewLabel.$invalid && v$.selectedCondition.viewLabel.$dirty }" @blur="v$.selectedCondition.viewLabel.$touch()" />
-                    <label for="title" class="kn-material-input-label"> {{ $t('common.title') }} *</label>
-                </span>
-                <KnValidationMessages class="p-mt-1" :v-comp="v$.selectedCondition.viewLabel" :additional-translate-params="{ fieldName: $t('common.title') }" />
-            </div>
-            <div class="p-field p-col-12 p-md-4">
-                <span class="p-float-label">
-                    <Dropdown
-                        id="driver"
-                        v-model="v$.selectedCondition.parFatherId.$model"
-                        class="kn-material-input"
-                        :options="availableDrivers"
-                        option-label="label"
-                        option-value="id"
-                        :class="{ 'p-invalid': v$.selectedCondition.parFatherId.$invalid && v$.selectedCondition.parFatherId.$dirty }"
-                        @blur="v$.selectedCondition.parFatherId.$touch()"
-                        @change="setParFatherUrlName"
-                    />
-                    <label for="driver" class="kn-material-input-label"> {{ $t('managers.businessModelManager.analyticalDriver') }} *</label>
-                </span>
-                <KnValidationMessages class="p-mt-1" :v-comp="v$.selectedCondition.parFatherId" :additional-translate-params="{ fieldName: $t('managers.businessModelManager.analyticalDriver') }" />
-            </div>
-            <div class="p-field p-col-12 p-md-4">
-                <span class="p-float-label">
-                    <Dropdown
-                        id="operator"
-                        v-model="v$.selectedCondition.operation.$model"
-                        class="kn-material-input"
-                        :options="availableOperators"
-                        :class="{ 'p-invalid': v$.selectedCondition.operation.$invalid && v$.selectedCondition.operation.$dirty }"
-                        @blur="v$.selectedCondition.operation.$touch()"
-                    />
-                    <label for="operator" class="kn-material-input-label"> {{ $t('managers.businessModelManager.analyticalDriver') }} *</label>
-                </span>
-                <KnValidationMessages class="p-mt-1" :v-comp="v$.selectedCondition.operation" :additional-translate-params="{ fieldName: $t('managers.businessModelManager.analyticalDriver') }" />
-            </div>
-            <div class="p-field p-col-12 p-md-4">
-                <span class="p-float-label">
-                    <InputText id="title" v-model="v$.selectedCondition.compareValue.$model" class="kn-material-input" :class="{ 'p-invalid': v$.selectedCondition.compareValue.$invalid && v$.selectedCondition.compareValue.$dirty }" @blur="v$.selectedCondition.compareValue.$touch()" />
-                    <label for="title" class="kn-material-input-label"> {{ $t('common.value') }} *</label>
-                </span>
-                <KnValidationMessages class="p-mt-1" :v-comp="v$.selectedCondition.compareValue" :additional-translate-params="{ fieldName: $t('common.value') }" />
-            </div>
-        </form>
-
-        <template #footer>
-            <Button class="p-button-text kn-button" :label="$t('common.cancel')" data-test="close-button" @click=";(showVisibilityConditionDialog = false), (selectedCondition = {})" />
-            <Button class="kn-button kn-button--primary" :label="$t('common.save')" data-test="save-button" :disabled="v$.$invalid" @click="saveCondition" />
-        </template>
-    </Dialog>
+            </q-card-section>
+            <q-card-actions align="right">
+                <q-btn flat :label="$t('common.cancel')" @click=";((showVisibilityConditionDialog = false), (selectedCondition = {} as iVisualDependency))" />
+                <q-btn color="primary" :label="$t('common.save')" :disable="v$.$invalid" @click="saveCondition" />
+            </q-card-actions>
+        </q-card>
+    </q-dialog>
 </template>
 
 <script lang="ts">
@@ -95,18 +87,12 @@ import { defineComponent, PropType } from 'vue'
 import { createValidations, ICustomValidatorMap } from '@/helpers/commons/validationHelper'
 import { AxiosResponse } from 'axios'
 import useValidate from '@vuelidate/core'
-import mainDescriptor from '@/modules/documentExecution/documentDetails/DocumentDetailsDescriptor.json'
 import driversDescriptor from './DocumentDetailsDriversDescriptor.json'
-import KnValidationMessages from '@/components/UI/KnValidatonMessages.vue'
-import Listbox from 'primevue/listbox'
-import Dialog from 'primevue/dialog'
-import Dropdown from 'primevue/dropdown'
-import InlineMessage from 'primevue/inlinemessage'
 import mainStore from '../../../../../App.store'
 
 export default defineComponent({
-    name: 'document-drivers',
-    components: { Listbox, Dialog, Dropdown, KnValidationMessages, InlineMessage },
+    name: 'document-visibility-conditions',
+    components: {},
     props: { selectedDocument: { type: Object as PropType<iDocument>, required: true }, availableDrivers: { type: Array as PropType<iDriver[]>, required: true }, selectedDriver: { type: Object as PropType<iDriver>, required: true } },
     emits: ['driversChanged'],
     setup() {
@@ -116,8 +102,6 @@ export default defineComponent({
     data() {
         return {
             v$: useValidate() as any,
-            mainDescriptor,
-            driversDescriptor,
             selectedCondition: {} as iVisualDependency,
             visusalDependencyObjects: [] as iVisualDependency[],
             availableOperators: driversDescriptor.availableOperators,
@@ -155,10 +139,15 @@ export default defineComponent({
             condition != 'newCondition' ? (this.selectedCondition = { ...condition }) : (this.selectedCondition = { parId: this.selectedDriver.id, prog: this.visusalDependencyObjects.length + 1 } as iVisualDependency)
             this.showVisibilityConditionDialog = true
         },
-        setParFatherUrlName(event) {
+        setParFatherUrlName(value) {
             this.availableDrivers.filter((driver) => {
-                driver.id === event.value ? (this.selectedCondition.parFatherUrlName = driver.parameterUrlName) : ''
+                driver.id === value ? (this.selectedCondition.parFatherUrlName = driver.parameterUrlName) : ''
             })
+        },
+        getValidationErrorMessage(field: any, fieldName: string): string {
+            if (!field.$invalid || !field.$dirty || !field.$errors.length) return ''
+            const error = field.$errors[0]
+            return this.$t(`common.validation.${error.$validator}`, { ...error.$params, fieldName })
         },
         async saveCondition() {
             await this.saveRequest()
@@ -192,9 +181,4 @@ export default defineComponent({
     }
 })
 </script>
-<style lang="scss" scoped>
-.kn-remove-card-padding .data-condition-list {
-    border: 1px solid var(--kn-color-borders);
-    border-top: none;
-}
-</style>
+<style lang="scss" scoped></style>
