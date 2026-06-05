@@ -16,6 +16,17 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
     const businessModels = ref<any[]>([])
     const selectedBm = ref<any>(null)
 
+    function resolveSelectedBmDbId(model: any): string {
+        const prioritizedKeys = ['db_id', 'dbId', 'name', 'label', 'id']
+        for (const key of prioritizedKeys) {
+            const value = model?.[key]
+            if (value !== null && value !== undefined && String(value).trim() !== '') {
+                return String(value)
+            }
+        }
+        return ''
+    }
+
     async function loadBusinessModels() {
         try {
             const res = await axios.get(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/2.0/businessmodels`)
@@ -47,12 +58,18 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
         sessionReady.value = false
         sessionLoading.value = true
         sessionAttempted.value = true
+        const dbId = resolveSelectedBmDbId(selectedBm.value)
+        if (!dbId) {
+            pushErrorMessage(t('ai.sessionError'))
+            sessionLoading.value = false
+            return
+        }
         const userId: string = store.user?.userId ?? store.user?.userUniqueIdentifier ?? store.user?.userID ?? 'user'
         try {
             await axios.post(
                 `${baseUrl}/apps/eng_gpt_data_agent/users/${encodeURIComponent(userId)}/sessions/${encodeURIComponent(sessionId.value)}`,
                 {
-                    db_ids: [String(selectedBm.value.id ?? selectedBm.value.name)],
+                    db_ids: [dbId],
                     knowage_tenant: store.user?.organization ?? '',
                     knowage_role: store.user?.defaultRole ?? (store.user?.roles?.[0] ?? ''),
                     knowage_token: localStorage.getItem('token') ?? '',

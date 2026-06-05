@@ -200,9 +200,7 @@ const {
     confirmNewChat,
     followLink,
     formatTime,
-    sendMessage,
-    initSession,
-    newChat
+    sendMessage
 } = useAiChat(showAlert, minimized, minimizedToCard)
 
 const { listening, toggleVoice } = useVoiceInput(userMessage)
