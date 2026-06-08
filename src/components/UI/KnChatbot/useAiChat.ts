@@ -69,7 +69,7 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
             await axios.post(
                 `${baseUrl}/apps/eng_gpt_data_agent/users/${encodeURIComponent(userId)}/sessions/${encodeURIComponent(sessionId.value)}`,
                 {
-                    db_ids: [dbId],
+                    model_ids: [dbId],
                     knowage_tenant: store.user?.organization ?? '',
                     knowage_role: store.user?.defaultRole ?? (store.user?.roles?.[0] ?? ''),
                     knowage_token: localStorage.getItem('token') ?? '',
