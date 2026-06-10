@@ -12,7 +12,7 @@
                 class="col-3"
                 v-model="filter.rightType"
                 :label="$t('qbe.filters.targetType')"
-                :options="['STARTS WITH', 'NOT STARTS WITH', 'ENDS WITH', 'NOT ENDS WITH', 'CONTAINS', 'NOT CONTAINS', 'BETWEEN', 'NOT BETWEEN'].includes(filter.operator) ? [targetValues[0]] : targetValues"
+                :options="['STARTS WITH', 'NOT STARTS WITH', 'ENDS WITH', 'NOT ENDS WITH', 'CONTAINS', 'NOT CONTAINS', 'BETWEEN', 'NOT BETWEEN'].includes(filter.operator) ? [targetValues[0]] : availableTargetValues"
                 option-value="value"
                 option-label="label"
                 map-options
@@ -141,6 +141,14 @@ export default defineComponent({
     components: { Calendar, CascadeSelect, Chip, Chips, Dropdown, QBEFilterValuesTable },
     props: { propFilter: { type: Object as PropType<iFilter> }, id: { type: String }, propEntities: { type: Array }, subqueries: { type: Array, required: true }, field: { type: Object, required: true }, propParameters: { type: Array } },
     emits: ['removeFilter'],
+    computed: {
+        availableTargetValues(): any[] {
+            if (this.field?.type === 'inline.calculated.field') {
+                return this.targetValues.filter((t) => t.value !== 'valueOfField')
+            }
+            return this.targetValues
+        }
+    },
     data() {
         return {
             QBEFilterDialogDescriptor,
