@@ -324,7 +324,6 @@ function onStartSession() {
     width: 100%;
     border-collapse: collapse;
     border: 1px solid #e5e7eb;
-    border-radius: 8px;
     overflow: hidden;
     margin: 6px 0;
     font-size: 0.78rem;
@@ -333,7 +332,7 @@ function onStartSession() {
 .kn-chatbot-messages :deep(th),
 .kn-chatbot-messages :deep(td) {
     border: 1px solid #eef2f7;
-    padding: 6px 8px;
+    padding: 2px 4px;
     text-align: left;
     vertical-align: top;
 }

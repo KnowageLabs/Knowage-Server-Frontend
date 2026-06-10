@@ -19,7 +19,7 @@
 
                     <template v-for="item in dateGroup.items" :key="item.id">
                         <!-- SQL Query -->
-                        <q-card v-if="item.type === 'sql_query'" flat bordered class="kn-artifact-card q-mb-sm">
+                        <q-card v-if="item.type === 'sql_query'" flat bordered class="kn-artifact-card q-mb-sm" :class="{ 'kn-artifact-card-new': item.id === highlightedItemId }">
                             <q-card-section class="q-pa-sm">
                                 <div class="row items-center q-mb-xs no-wrap">
                                     <q-icon name="storage" size="xs" color="deep-purple-5" class="q-mr-xs" />
@@ -31,7 +31,7 @@
 
                         <!-- Artifacts -->
                         <template v-if="item.type === 'artifacts'">
-                            <q-card v-for="file in item.files" :key="item.id + '-' + file.name + '-' + file.path" flat bordered class="kn-artifact-card q-mb-sm">
+                            <q-card v-for="file in item.files" :key="item.id + '-' + file.name + '-' + file.path" flat bordered class="kn-artifact-card q-mb-sm" :class="{ 'kn-artifact-card-new': item.id === highlightedItemId }">
                                 <q-card-section class="q-pa-sm">
                                     <!-- PNG image -->
                                     <template v-if="file.ext === 'png'">
@@ -69,7 +69,7 @@
                         </template>
 
                         <!-- Python code -->
-                        <q-card v-if="item.type === 'python_code'" flat bordered class="kn-artifact-card q-mb-sm">
+                        <q-card v-if="item.type === 'python_code'" flat bordered class="kn-artifact-card q-mb-sm" :class="{ 'kn-artifact-card-new': item.id === highlightedItemId }">
                             <q-card-section class="q-pa-sm">
                                 <div class="row items-center q-mb-xs no-wrap">
                                     <q-icon name="code" size="xs" color="green-7" class="q-mr-xs" />
@@ -81,6 +81,8 @@
                     </template>
                 </template>
             </template>
+
+            <div ref="latestArtifactAnchor"></div>
         </div>
 
         <div v-if="!isMobile" class="kn-side-panel-resize-handle" @mousedown="emit('start-resize', $event)"></div>
@@ -88,7 +90,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import KnCsvPreview from './KnCsvPreview.vue'
 import type { IChatBlock } from './KnChatbot'
 
@@ -102,6 +104,44 @@ const emit = defineEmits<{
     (e: 'close'): void
     (e: 'start-resize', event: MouseEvent): void
 }>()
+
+const latestArtifactAnchor = ref<HTMLElement | null>(null)
+const highlightedItemId = ref('')
+let highlightTimeout: ReturnType<typeof setTimeout> | null = null
+
+function highlightLatestItem(itemId: string) {
+    highlightedItemId.value = itemId
+    if (highlightTimeout) clearTimeout(highlightTimeout)
+    highlightTimeout = setTimeout(() => {
+        highlightedItemId.value = ''
+        highlightTimeout = null
+    }, 1800)
+}
+
+function scrollToLatestArtifact() {
+    nextTick(() => latestArtifactAnchor.value?.scrollIntoView({ behavior: 'smooth', block: 'end' }))
+}
+
+watch(
+    () => props.items.length,
+    (newLength, oldLength) => {
+        if (newLength > oldLength) {
+            const lastItem = props.items[newLength - 1]
+            if (lastItem?.id) highlightLatestItem(lastItem.id)
+            scrollToLatestArtifact()
+        }
+    }
+)
+
+onMounted(() => {
+    if (props.items.length > 0) {
+        scrollToLatestArtifact()
+    }
+})
+
+onUnmounted(() => {
+    if (highlightTimeout) clearTimeout(highlightTimeout)
+})
 
 function getDateKey(value: Date): string {
     const year = value.getFullYear()
@@ -231,6 +271,12 @@ const groupedItems = computed(() => {
     }
 }
 
+.kn-artifact-card-new {
+    border-color: #93c5fd;
+    box-shadow: 0 0 0 1px rgba(147, 197, 253, 0.5), 0 3px 10px rgba(59, 130, 246, 0.18);
+    animation: kn-artifact-highlight 1.8s ease;
+}
+
 .kn-code-block {
     background: #1e1e2e;
     color: #cdd6f4;
@@ -284,6 +330,17 @@ const groupedItems = computed(() => {
     to {
         transform: translateX(0);
         opacity: 1;
+    }
+}
+
+@keyframes kn-artifact-highlight {
+    0% {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.4), 0 6px 16px rgba(59, 130, 246, 0.22);
+    }
+    100% {
+        border-color: #e2e8f0;
+        box-shadow: none;
     }
 }
 </style>
