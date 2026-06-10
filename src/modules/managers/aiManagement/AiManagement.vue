@@ -265,7 +265,7 @@ async function loadBusinessModels() {
         .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/businessmodels')
         .then(async (response) => {
             businessModels.value = response.data || []
-            businessModels.value.forEach((bm) => { bmEnabled.value[bm.id] = true })
+            businessModels.value.forEach((bm) => { bmEnabled.value[bm.id] = bm.isForAi === true })
             await Promise.all(businessModels.value.map((bm) => loadGoldQueries(bm.id)))
         })
         .finally(() => { loadingBm.value = false })
