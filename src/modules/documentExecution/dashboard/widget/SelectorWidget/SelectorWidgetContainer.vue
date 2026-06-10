@@ -1,5 +1,5 @@
 <template>
-    <div class="selector-widget-container">
+    <div class="selector-widget-container" @mouseenter="isWidgetHovered = true" @mouseleave="isWidgetHovered = false">
         <GridLayout :key="gridLayoutKey" v-model:layout="responsiveLayouts[currentScreenSize]" :responsive-layouts="responsiveLayouts" :cols="colSizes" :row-height="30" :is-draggable="!isFinalUser" :is-resizable="!isFinalUser" :vertical-compact="false" :use-css-transforms="false" :margin="[0, 0]" :responsive="true" :auto-size="false" @breakpoint-changed="onBreakpointChanged" @layout-updated="onLayoutUpdated">
             <template #item="{ item }">
                 <div class="selector-column-wrapper" @mouseenter="onColumnMouseEnter(item.columnName)" @mouseleave="onColumnMouseLeave(item.columnName)" @mousemove="onColumnMouseMove(item.columnName)" @scroll.capture="onColumnScroll(item.columnName)" @contextmenu.prevent="onColumnRightClick(item.columnName)">
@@ -21,6 +21,14 @@
         <q-inner-loading :showing="loading">
             <q-spinner-grid color="primary" size="3rem" />
         </q-inner-loading>
+
+        <transition name="widget-lock-overlay-fade">
+            <div v-if="selectionIsLocked && isWidgetHovered" class="widget-lock-overlay" @mousemove.stop>
+                <q-btn flat color="info" icon="lock_open" size="lg" @click.stop="$emit('unlock-selection')">
+                    <q-tooltip>{{ $t('dashboard.selectorWidget.clearSelection') }}</q-tooltip>
+                </q-btn>
+            </div>
+        </transition>
     </div>
 </template>
 
@@ -49,7 +57,7 @@ export default defineComponent({
         datasets: { type: Array as PropType<IDataset[]>, required: true },
         selectionIsLocked: { type: Boolean, required: true }
     },
-    emits: ['close'],
+    emits: ['close', 'unlock-selection'],
     data() {
         return {
             localSelections: {} as any,
@@ -64,7 +72,8 @@ export default defineComponent({
             slowHoverColumn: null as string | null,
             rightClickColumn: null as string | null,
             ctrlPressed: false,
-            loading: false
+            loading: false,
+            isWidgetHovered: false
         }
     },
     computed: {
@@ -424,6 +433,28 @@ export default defineComponent({
     gap: 12px;
     height: 100%;
     overflow-y: auto;
+
+    .widget-lock-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.35);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 20;
+        border-radius: 4px;
+        pointer-events: auto;
+    }
+
+    .widget-lock-overlay-fade-enter-active,
+    .widget-lock-overlay-fade-leave-active {
+        transition: opacity 0.15s ease;
+    }
+
+    .widget-lock-overlay-fade-enter-from,
+    .widget-lock-overlay-fade-leave-to {
+        opacity: 0;
+    }
 
     :deep(.vgl-layout) {
         overflow-y: auto;

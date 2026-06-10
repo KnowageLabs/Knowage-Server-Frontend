@@ -15,6 +15,7 @@
             :widget-loading="widgetLoading"
             @reload-data="reloadWidgetData"
             @launch-selection="launchSelection"
+            @unlock-selection="unlockSelection"
             @mouseover="toggleFocus"
             @mouseleave="startUnfocusTimer(500)"
             @loading="customChartLoading = $event"

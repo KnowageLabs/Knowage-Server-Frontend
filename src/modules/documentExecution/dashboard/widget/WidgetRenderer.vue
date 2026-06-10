@@ -7,8 +7,8 @@
         <div class="widget-container-renderer" :style="getWidgetPadding()">
             <TableWidget v-if="widget.type == 'table'" :prop-widget="widget" :datasets="datasets" :data-to-show="dataToShow" :editor-mode="false" :prop-active-selections="activeSelections" :dashboard-id="dashboardId" :prop-variables="variables" @page-changed="$emit('reloadData')" @sorting-changed="$emit('reloadData')" @launch-selection="$emit('launchSelection', $event)" @dataset-interaction-preview="$emit('datasetInteractionPreview', $event)" />
             <!-- <SelectorWidgetContainer v-if="widget.type == 'selector'" :prop-widget="widget" :data-to-show="dataToShow" :widget-initial-data="widgetInitialData" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" :datasets="datasets" :selection-is-locked="selectionIsLocked" :variables="variables" /> -->
-            <SelectorWidgetContainer v-if="widget.type == 'selector' && selectorNeedsContainer" :prop-widget="widget" :data-to-show="dataToShow" :widget-initial-data="widgetInitialData" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" :datasets="datasets" :selection-is-locked="selectionIsLocked" />
-            <SelectorWidget v-else-if="widget.type == 'selector'" :prop-widget="widget" :data-to-show="getSingleSelectorData()" :widget-initial-data="getSingleSelectorInitialData()" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" :datasets="datasets" :selection-is-locked="selectionIsLocked" :local-mode="false" />
+            <SelectorWidgetContainer v-if="widget.type == 'selector' && selectorNeedsContainer" :prop-widget="widget" :data-to-show="dataToShow" :widget-initial-data="widgetInitialData" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" :datasets="datasets" :selection-is-locked="selectionIsLocked" @unlock-selection="$emit('unlockSelection')" />
+            <SelectorWidget v-else-if="widget.type == 'selector'" :prop-widget="widget" :data-to-show="getSingleSelectorData()" :widget-initial-data="getSingleSelectorInitialData()" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" :datasets="datasets" :selection-is-locked="selectionIsLocked" :local-mode="false" @unlock-selection="$emit('unlockSelection')" />
             <ActiveSelectionsWidget v-if="widget.type == 'selection'" :prop-widget="widget" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" />
             <WebComponentContainer v-if="!widgetLoading && (widget.type == 'html' || widget.type == 'text')" :prop-widget="widget" :widget-data="dataToShow" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" :variables="variables" @dataset-interaction-preview="$emit('datasetInteractionPreview', $event)"></WebComponentContainer>
             <HighchartsContainer v-if="widget.type === 'highcharts' && isEnterprise" :widget-model="widget" :datasets="datasets" :data-to-show="widgetData" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" :prop-variables="variables" @dataset-interaction-preview="$emit('datasetInteractionPreview', $event)"></HighchartsContainer>
@@ -81,7 +81,7 @@ export default defineComponent({
         propActiveSelections: { type: Array as PropType<ISelection[]>, required: true },
         variables: { type: Array as PropType<IVariable[]>, required: true }
     },
-    emits: ['interaction', 'launchSelection', 'reloadData', 'loading', 'datasetInteractionPreview'],
+    emits: ['interaction', 'launchSelection', 'reloadData', 'loading', 'datasetInteractionPreview', 'unlockSelection'],
     data() {
         return {
             dataToShow: {} as any,
