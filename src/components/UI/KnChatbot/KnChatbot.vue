@@ -46,7 +46,7 @@
                                 dense
                                 outlined
                                 class="q-mb-sm kn-bm-select"
-                                :popup-content-style="{ zIndex: 9700 }"
+                                :popup-content-style="{ zIndex: '9700' }"
                                 @update:model-value="onBmChange"
                             />
                             <q-btn
@@ -115,8 +115,13 @@
                             :sent="message.role === 'user'"
                             :bg-color="message.isError ? 'red-1' : undefined"
                         >
-                            <div v-if="message.isLive && message.content === ''" class="row items-center">
-                                <q-spinner-dots size="1.5rem" color="primary" />
+                            <div v-if="message.isLive && message.content === ''" class="row items-center kn-thinking-state">
+                                <q-spinner-dots size="1.2rem" color="primary" class="q-mr-sm" />
+                                <span class="text-caption">{{ $t('ai.thinking') }}</span>
+                            </div>
+                            <div v-else-if="message.isStreamError" class="row items-start kn-stream-error">
+                                <q-icon name="warning_amber" color="negative" size="sm" class="q-mr-xs q-mt-xs" />
+                                <vue-markdown-it :source="message.content"></vue-markdown-it>
                             </div>
                             <vue-markdown-it v-else :source="message.content"></vue-markdown-it>
                         </q-chat-message>
@@ -295,6 +300,14 @@ function onStartSession() {
     color: #9ca3af;
     margin-top: -6px;
     margin-bottom: 4px;
+}
+
+.kn-thinking-state {
+    color: #475569;
+}
+
+.kn-stream-error {
+    color: #b91c1c;
 }
 
 // ── Input area ─────────────────────────────────────────────────────────────

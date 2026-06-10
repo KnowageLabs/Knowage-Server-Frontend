@@ -31,6 +31,7 @@
         "sessionSettings": "Impostazioni sessione",
         "selectModel": "Modello di Business",
         "startSession": "Avvia sessione",
+        "thinking": "Sto pensando...",
         "streamError": "Si è verificato un errore durante la ricezione della risposta. Riprova.",
         "message": {
             "limitReached": "Hai raggiunto il numero massimo di messaggi consentiti dalla tua licenza.",

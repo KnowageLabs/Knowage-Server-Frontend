@@ -32,6 +32,7 @@
         "sessionSettings": "Session settings",
         "selectModel": "Business Model",
         "startSession": "Start session",
+        "thinking": "I am thinking...",
         "streamError": "An error occurred while receiving the response. Please try again.",
         "message": {
             "limitReached": "You have reached the maximum number of messages allowed by your license.",

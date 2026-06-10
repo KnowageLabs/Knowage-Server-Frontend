@@ -178,7 +178,8 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
             content: msg,
             turnId: turnId.value++,
             timestamp: new Date(),
-            isError: true
+            isError: true,
+            isStreamError: false
         })
         scrollToBottom()
     }
@@ -356,6 +357,7 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
                 turnId: turnId.value++,
                 timestamp: new Date(),
                 isError: true,
+                isStreamError: true,
                 isLive: false
             }
             scrollToBottom()

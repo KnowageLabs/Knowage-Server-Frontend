@@ -8,6 +8,7 @@ export interface IChat {
     timestamp?: Date
     isLive?: boolean
     isError?: boolean
+    isStreamError?: boolean
 }
 
 export interface IChatArtifactFile {
