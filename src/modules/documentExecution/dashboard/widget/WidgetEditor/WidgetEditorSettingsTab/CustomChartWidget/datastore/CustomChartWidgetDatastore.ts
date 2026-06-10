@@ -2,6 +2,8 @@ import { IVariable } from '@/modules/documentExecution/dashboard/Dashboard'
 import deepcopy from 'deepcopy'
 import { filter } from './CustomChartWidgetFilter'
 import mainStore from '@/App.store'
+import { getActivePinia } from 'pinia'
+import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 
 export class CustomChartDatastore {
     data: any = {}
@@ -11,9 +13,11 @@ export class CustomChartDatastore {
     state: any = {}
     drivers: any = {}
     currentSelections: any[] = []
+    private dashboardId: string | null = null
 
-    constructor(data) {
+    constructor(data, dashboardId?: string) {
         this.data = data
+        this.dashboardId = dashboardId ?? null
     }
 
     setData(data) {
@@ -24,6 +28,10 @@ export class CustomChartDatastore {
         this.drivers = drivers
     }
 
+     /**
+     * @deprecated Selections are now read live from the dashboard store when a dashboardId is provided.
+     * This method is kept for backward compatibility only.
+     */
     setCurrentSelections(currentSelections) {
         this.currentSelections = currentSelections
     }
@@ -69,6 +77,13 @@ export class CustomChartDatastore {
     }
 
     getSelections() {
+        if (this.dashboardId) {
+            const pinia = getActivePinia()
+            if (pinia) {
+                const store = dashboardStore(pinia)
+                return store.getSelections(this.dashboardId)
+            }
+        }
         return this.currentSelections
     }
 
@@ -258,7 +273,6 @@ export class CustomChartDatastore {
 
             var datastore = deepcopy(data)
             for (var i = 0; i < datastore.rows.length; i++) {
-                var obj = {}
                 for (var prop in datastore.rows[i]) {
                     if (args.measures != undefined) {
                         if (args.levels.indexOf(prop) == -1 && !args.measures.hasOwnProperty(prop)) {
@@ -272,7 +286,6 @@ export class CustomChartDatastore {
                 }
             }
             for (var i = 0; i < datastore.rows.length; i++) {
-                var obj = {}
                 var newArray = [] as any[]
                 var counter = 0
 
