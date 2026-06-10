@@ -320,6 +320,34 @@ function onStartSession() {
     color: #b91c1c;
 }
 
+.kn-chatbot-messages :deep(table) {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 6px 0;
+    font-size: 0.78rem;
+}
+
+.kn-chatbot-messages :deep(th),
+.kn-chatbot-messages :deep(td) {
+    border: 1px solid #eef2f7;
+    padding: 6px 8px;
+    text-align: left;
+    vertical-align: top;
+}
+
+.kn-chatbot-messages :deep(th) {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 600;
+}
+
+.kn-chatbot-messages :deep(tbody tr:nth-child(even)) {
+    background: #fbfdff;
+}
+
 // ── Input area ─────────────────────────────────────────────────────────────
 
 .kn-chatbot-input-area {
