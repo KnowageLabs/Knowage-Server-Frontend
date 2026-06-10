@@ -506,7 +506,6 @@ export default defineComponent({
         },
         async iframeEventsListener(event) {
             if (!this.document) {
-                console.error('iframeEventsListener: this.document is null')
                 return
             }
             if (event.data.type === 'crossNavigation') {

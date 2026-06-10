@@ -138,7 +138,14 @@ export const addParametersToData = (dataset, dashboardId, dataToSend, associativ
                         const rawValue = associativeResponseSelections[dataset.dsLabel][paramKey][0]
                         const cleanValue = rawValue.replace(/[()']/g, '')
 
-                        dataToSend.parameters[param.name] = cleanValue
+                        if (cleanValue.includes(',')) {
+                            dataToSend.parameters[param.name] = cleanValue
+                                .split(',')
+                                .map((v) => v.trim())
+                                .filter((v) => v !== '')
+                        } else {
+                            dataToSend.parameters[param.name] = cleanValue
+                        }
                     }
                 }
             }
