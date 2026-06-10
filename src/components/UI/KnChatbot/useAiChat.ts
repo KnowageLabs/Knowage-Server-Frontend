@@ -35,6 +35,7 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
         try {
             const res = await axios.get(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/2.0/businessmodels`)
             businessModels.value = Array.isArray(res.data) ? res.data : []
+            businessModels.value = businessModels.value.filter((bm) => bm.isForAi === true)
             if (businessModels.value.length > 0 && !selectedBm.value) {
                 selectedBm.value = businessModels.value[0]
             }
