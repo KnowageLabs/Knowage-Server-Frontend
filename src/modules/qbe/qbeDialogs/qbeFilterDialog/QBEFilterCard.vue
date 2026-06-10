@@ -58,7 +58,7 @@
             <div v-if="filter.rightType === 'valueOfField' && ['IN', 'NOT IN'].includes(filter.operator) && field.dataType !== 'java.sql.Timestamp'" class="col">
                 <Chip v-for="(selectedValue, index) in selectedValues" :key="index" class="p-mr-1">{{ selectedValue }}</Chip>
             </div>
-            <q-select v-if="filter.rightType === 'subquery' && !['IN', 'NOT IN'].includes(filter.operator)" filled v-model="filter.rightOperandDescription" class="col" :options="subqueries" option-value="name" option-label="name" map-options emit-value @update:model-value="onSubqeryTargetChange" />
+            <q-select v-if="filter.rightType === 'subquery'" filled v-model="filter.rightOperandDescription" class="col" :options="subqueries" option-value="name" option-label="name" map-options emit-value @update:model-value="onSubqeryTargetChange" />
 
             <q-select v-if="filter.rightType === 'parameter' && !['IN', 'NOT IN'].includes(filter.operator)" filled v-model="filter.rightOperandDescription" class="col" :options="parameters" option-value="name" option-label="name" map-options emit-value @update:model-value="onParameterTargetChange" />
 

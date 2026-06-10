@@ -122,7 +122,8 @@
             @save="onCalcFieldSave"
             @cancel="calcFieldDialogVisible = false"
         >
-            <template #additionalInputs>
+            <template #additionalInputs
+                >x
                 <div class="p-field" :class="[selectedCalcField.type === 'DATE' ? 'p-col-3' : 'p-col-4']">
                     <span class="p-float-label">
                         <Dropdown id="type" v-model="selectedCalcField.type" class="kn-material-input" :options="qbeDescriptor.types" option-label="label" option-value="name" append-to="self" />
