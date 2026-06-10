@@ -25,35 +25,35 @@
         "dashboardLink": "Dashboard Link",
         "disclaimer": "The virtual assistant generates real-time responses using AI. Please consult other sources if necessary.",
         "error": "Sorry, I cannot help you with that right now. Please try again later.",
-        "newChat": "New conversation",
-        "sessionError": "Unable to initialise the AI session. Please check the configuration and try again.",
-        "sessionLoading": "Starting session…",
-        "sessionNotReady": "The session is not ready yet. Please wait a moment.",
-        "sessionSettings": "Session settings",
-        "selectModel": "Business Model",
-        "startSession": "Start session",
-        "thinking": "I am thinking...",
-        "streamError": "An error occurred while receiving the response. Please try again.",
         "message": {
             "limitReached": "You have reached the maximum number of messages allowed by your license.",
             "placeholder": "Type your message"
         },
+        "newChat": "New conversation",
         "newConversationConfirm": "Are you sure you want to start a new conversation? All the current conversation will be lost.",
+        "selectModel": "Business Model",
+        "sessionError": "Unable to initialise the AI session. Please check the configuration and try again.",
+        "sessionLoading": "Starting session…",
+        "sessionNotReady": "The session is not ready yet. Please wait a moment.",
+        "sessionSettings": "Session settings",
+        "sidePanel": {
+            "csvEmpty": "No data in this file.",
+            "csvTruncated": "Showing first {n} rows.",
+            "noArtifacts": "No artifacts yet. Send a message to start.",
+            "python": "Python Code",
+            "sql": "SQL Query",
+            "title": "Artifacts",
+            "toggle": "Show / hide artifacts"
+        },
+        "startSession": "Start session",
+        "streamError": "An error occurred while receiving the response. Please try again.",
+        "thinking": "I am thinking...",
         "title": "Virtual Assistant",
         "voice": {
             "start": "Start voice input",
             "stop": "Stop voice input"
         },
-        "welcomeMessage": "Welcome to the Knowage Virtual Assistant! Ask me anything and I will do my best to help you.",
-        "sidePanel": {
-            "title": "Artifacts",
-            "toggle": "Show / hide artifacts",
-            "noArtifacts": "No artifacts yet. Send a message to start.",
-            "sql": "SQL Query",
-            "python": "Python Code",
-            "csvTruncated": "Showing first {n} rows.",
-            "csvEmpty": "No data in this file."
-        }
+        "welcomeMessage": "Welcome to the Knowage Virtual Assistant! Ask me anything and I will do my best to help you."
     },
     "common": {
         "active": "Active",
@@ -879,7 +879,8 @@
             "drillSortingColumn": "Drill sorting column",
             "drillSortingOrder": "Drill sorting order",
             "drilldown": {
-                "title": "Drilldown"
+                "title": "Drilldown",
+                "enable": "Enable Drilldown"
             },
             "editor": "Editor",
             "editorTags": {
@@ -1831,6 +1832,13 @@
             "widgetTheme": "Widget Theme",
             "xAxis": "X Axis",
             "yAxis": "Y Axis"
+        },
+        "widgetInteractions": {
+            "crossNavigation": "Cross Navigation",
+            "drilldown": "Drilldown",
+            "link": "Link",
+            "preview": "Preview",
+            "selection": "Selection"
         },
         "widgets": {
             "chart": {
