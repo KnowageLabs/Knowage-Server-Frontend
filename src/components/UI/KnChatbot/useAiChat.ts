@@ -1,10 +1,14 @@
 import mainStore from '@/App.store'
 import axios from 'axios'
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import type { Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import type { IChat, IChatBlock } from './KnChatbot'
+
+const SIDE_PANEL_WIDTH_KEY = 'chatbot_side_panel_width_v1'
+const SIDE_PANEL_MIN_WIDTH = 260
+const SIDE_PANEL_MAX_WIDTH = 600
 
 export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, minimizedToCard: Ref<boolean>) {
     const router = useRouter()
@@ -95,11 +99,60 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
 
     const confirm = ref(false)
     const turnId = ref(0)
+    const conversationId = ref(1)
     const awaitingReply = ref(false)
     const userMessage = ref('')
     const sideItems = ref<IChatBlock[]>([])
     const sidePanelVisible = ref(false)
+    const sidePanelWidth = ref(getInitialSidePanelWidth())
     const unreadCount = ref(0)
+
+    let sideResizeStartX = 0
+    let sideResizeStartW = 0
+
+    function clampSidePanelWidth(value: number): number {
+        return Math.max(SIDE_PANEL_MIN_WIDTH, Math.min(SIDE_PANEL_MAX_WIDTH, value))
+    }
+
+    function getInitialSidePanelWidth(): number {
+        const saved = Number(localStorage.getItem(SIDE_PANEL_WIDTH_KEY))
+        if (Number.isNaN(saved) || saved <= 0) return 380
+        return clampSidePanelWidth(saved)
+    }
+
+    function persistSidePanelWidth() {
+        localStorage.setItem(SIDE_PANEL_WIDTH_KEY, String(sidePanelWidth.value))
+    }
+
+    function onSidePanelResizeMove(e: MouseEvent) {
+        const nextWidth = clampSidePanelWidth(sideResizeStartW - (e.clientX - sideResizeStartX))
+        sidePanelWidth.value = nextWidth
+    }
+
+    function onSidePanelResizeEnd() {
+        document.body.style.userSelect = ''
+        document.removeEventListener('mousemove', onSidePanelResizeMove)
+        document.removeEventListener('mouseup', onSidePanelResizeEnd)
+        persistSidePanelWidth()
+    }
+
+    function startSidePanelResize(e: MouseEvent) {
+        e.stopPropagation()
+        sideResizeStartX = e.clientX
+        sideResizeStartW = sidePanelWidth.value
+        document.body.style.userSelect = 'none'
+        document.addEventListener('mousemove', onSidePanelResizeMove)
+        document.addEventListener('mouseup', onSidePanelResizeEnd)
+    }
+
+    function decorateSideBlock(block: IChatBlock): IChatBlock {
+        return {
+            ...block,
+            id: crypto.randomUUID(),
+            conversationId: conversationId.value,
+            createdAt: new Date()
+        }
+    }
 
     const welcomeMessage = computed<IChat>(() => ({
         role: 'assistant',
@@ -189,7 +242,7 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
     function newChat() {
         chat.value = [{ ...welcomeMessage.value, timestamp: new Date() }]
         turnId.value = 0
-        sideItems.value = []
+        conversationId.value++
         sidePanelVisible.value = false
         sessionReady.value = false
         sessionAttempted.value = false
@@ -338,7 +391,7 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
                         let block: any
                         try { block = JSON.parse(rawPayload) } catch { continue }
                         if (['sql_query', 'artifacts', 'python_code'].includes(block?.type)) {
-                            sideItems.value.push(block as IChatBlock)
+                            sideItems.value.push(decorateSideBlock(block as IChatBlock))
                             if (!sidePanelVisible.value) sidePanelVisible.value = true
                         }
                     }
@@ -375,6 +428,11 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
         loadBusinessModels()
     })
 
+    onUnmounted(() => {
+        document.removeEventListener('mousemove', onSidePanelResizeMove)
+        document.removeEventListener('mouseup', onSidePanelResizeEnd)
+    })
+
     return {
         confirm,
         awaitingReply,
@@ -385,6 +443,7 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
         messageInput,
         sideItems,
         sidePanelVisible,
+        sidePanelWidth,
         businessModels,
         selectedBm,
         sessionReady,
@@ -395,6 +454,7 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
         formatTime,
         sendMessage,
         initSession,
+        startSidePanelResize,
         newChat,
         loadBusinessModels
     }

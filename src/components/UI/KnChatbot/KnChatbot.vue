@@ -163,7 +163,15 @@
 
             <!-- Side panel (slide in) -->
             <Transition name="kn-slide-right">
-                <KnChatSidePanel v-if="sidePanelVisible" :items="sideItems" class="kn-side-panel-slot" @close="sidePanelVisible = false" />
+                <KnChatSidePanel
+                    v-if="sidePanelVisible"
+                    :items="sideItems"
+                    :width="sidePanelWidth"
+                    :is-mobile="isMobile"
+                    class="kn-side-panel-slot"
+                    @close="sidePanelVisible = false"
+                    @start-resize="startSidePanelResize"
+                />
             </Transition>
         </div>
 
@@ -197,6 +205,7 @@ const {
     messageInput,
     sideItems,
     sidePanelVisible,
+    sidePanelWidth,
     businessModels,
     selectedBm,
     sessionReady,
@@ -205,7 +214,8 @@ const {
     confirmNewChat,
     followLink,
     formatTime,
-    sendMessage
+    sendMessage,
+    startSidePanelResize
 } = useAiChat(showAlert, minimized, minimizedToCard)
 
 const { listening, toggleVoice } = useVoiceInput(userMessage)

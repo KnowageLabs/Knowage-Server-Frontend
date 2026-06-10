@@ -105,6 +105,8 @@ watch(() => props.url, load)
 }
 
 .kn-csv-table-wrapper {
+    width: 100%;
+    min-width: 0;
     overflow-x: auto;
     overflow-y: auto;
     max-height: 220px;
@@ -114,9 +116,10 @@ watch(() => props.url, load)
 
 .kn-csv-table {
     width: 100%;
+    table-layout: fixed;
     border-collapse: collapse;
     font-size: 0.7rem;
-    white-space: nowrap;
+    white-space: normal;
 
     thead tr {
         background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
@@ -132,6 +135,8 @@ watch(() => props.url, load)
             max-width: 140px;
             overflow: hidden;
             text-overflow: ellipsis;
+            word-break: break-word;
+            overflow-wrap: anywhere;
         }
     }
 
@@ -152,6 +157,8 @@ watch(() => props.url, load)
                 max-width: 140px;
                 overflow: hidden;
                 text-overflow: ellipsis;
+                word-break: break-word;
+                overflow-wrap: anywhere;
             }
         }
     }
