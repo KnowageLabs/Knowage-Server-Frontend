@@ -38,6 +38,7 @@
             "placeholder": "Scrivi qui il tuo messaggio"
         },
         "newConversationConfirm": "Sei sicuro di voler iniziare una nuova conversazione? Tutti i messaggi precedenti andranno persi.",
+        "openDashboard": "Apri Dashboard",
         "title": "Assistente Virtuale",
         "voice": {
             "start": "Avvia input vocale",

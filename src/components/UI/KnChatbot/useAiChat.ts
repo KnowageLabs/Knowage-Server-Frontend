@@ -319,10 +319,6 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
         newChat()
     }
 
-    function followLink(url: string) {
-        router.push(url)
-    }
-
     function formatTime(date?: Date): string {
         if (!date) return ''
         return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -526,7 +522,6 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
         sessionLoading,
         unreadCount,
         confirmNewChat,
-        followLink,
         formatTime,
         messageHasArtifacts,
         openArtifactsForMessage,
