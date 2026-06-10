@@ -19,53 +19,57 @@
 
                     <template v-for="item in dateGroup.items" :key="item.id">
                         <!-- SQL Query -->
-                        <q-card v-if="item.type === 'sql_query'" flat bordered class="kn-artifact-card q-mb-sm" :class="{ 'kn-artifact-card-new': item.id === highlightedItemId }">
-                            <q-card-section class="q-pa-sm">
-                                <div class="row items-center q-mb-xs no-wrap">
-                                    <q-icon name="storage" size="xs" color="deep-purple-5" class="q-mr-xs" />
-                                    <span class="text-caption text-weight-bold" style="color: #7c3aed">{{ $t('ai.sidePanel.sql') }}</span>
-                                </div>
-                                <pre class="kn-code-block">{{ item.query }}</pre>
-                            </q-card-section>
-                        </q-card>
+                        <div v-if="item.type === 'sql_query'" :ref="(el) => setItemRef(item.id, el)">
+                            <q-card flat bordered class="kn-artifact-card q-mb-sm" :class="{ 'kn-artifact-card-new': isItemHighlighted(item.id) }">
+                                <q-card-section class="q-pa-sm">
+                                    <div class="row items-center q-mb-xs no-wrap">
+                                        <q-icon name="storage" size="xs" color="deep-purple-5" class="q-mr-xs" />
+                                        <span class="text-caption text-weight-bold" style="color: #7c3aed">{{ $t('ai.sidePanel.sql') }}</span>
+                                    </div>
+                                    <pre class="kn-code-block">{{ item.query }}</pre>
+                                </q-card-section>
+                            </q-card>
+                        </div>
 
                         <!-- Artifacts -->
                         <template v-if="item.type === 'artifacts'">
-                            <q-card v-for="file in item.files" :key="item.id + '-' + file.name + '-' + file.path" flat bordered class="kn-artifact-card q-mb-sm" :class="{ 'kn-artifact-card-new': item.id === highlightedItemId }">
-                                <q-card-section class="q-pa-sm">
-                                    <!-- PNG image -->
-                                    <template v-if="file.ext === 'png'">
-                                        <div class="row items-center q-mb-xs no-wrap">
-                                            <q-icon name="image" size="xs" color="teal-6" class="q-mr-xs" />
-                                            <span class="text-caption text-weight-bold col kn-artifact-title" style="color: #0d9488">{{ file.title }}</span>
-                                            <q-btn flat round dense size="xs" icon="download" color="grey-6" tag="a" :href="file.path" target="_blank" />
-                                        </div>
-                                        <p v-if="file.description" class="text-caption text-grey-6 q-mb-xs q-mt-none kn-artifact-text">{{ file.description }}</p>
-                                        <img :src="file.path" class="kn-artifact-img" alt="" />
-                                    </template>
+                            <div :ref="(el) => setItemRef(item.id, el)">
+                                <q-card v-for="file in item.files" :key="item.id + '-' + file.name + '-' + file.path" flat bordered class="kn-artifact-card q-mb-sm" :class="{ 'kn-artifact-card-new': isItemHighlighted(item.id) }">
+                                    <q-card-section class="q-pa-sm">
+                                        <!-- PNG image -->
+                                        <template v-if="file.ext === 'png'">
+                                            <div class="row items-center q-mb-xs no-wrap">
+                                                <q-icon name="image" size="xs" color="teal-6" class="q-mr-xs" />
+                                                <span class="text-caption text-weight-bold col kn-artifact-title" style="color: #0d9488">{{ file.title }}</span>
+                                                <q-btn flat round dense size="xs" icon="download" color="grey-6" tag="a" :href="file.path" target="_blank" />
+                                            </div>
+                                            <p v-if="file.description" class="text-caption text-grey-6 q-mb-xs q-mt-none kn-artifact-text">{{ file.description }}</p>
+                                            <img :src="file.path" class="kn-artifact-img" alt="" />
+                                        </template>
 
-                                    <!-- CSV -->
-                                    <template v-else-if="file.ext === 'csv'">
-                                        <div class="row items-center q-mb-xs no-wrap">
-                                            <q-icon name="table_view" size="xs" color="blue-6" class="q-mr-xs" />
-                                            <span class="text-caption text-weight-bold col kn-artifact-title" style="color: #2563eb">{{ file.title }}</span>
-                                            <q-btn flat round dense size="xs" icon="download" color="grey-6" tag="a" :href="file.path" target="_blank" />
-                                        </div>
-                                        <p v-if="file.description" class="text-caption text-grey-6 q-mb-xs q-mt-none kn-artifact-text">{{ file.description }}</p>
-                                        <KnCsvPreview :url="file.path" />
-                                    </template>
+                                        <!-- CSV -->
+                                        <template v-else-if="file.ext === 'csv'">
+                                            <div class="row items-center q-mb-xs no-wrap">
+                                                <q-icon name="table_view" size="xs" color="blue-6" class="q-mr-xs" />
+                                                <span class="text-caption text-weight-bold col kn-artifact-title" style="color: #2563eb">{{ file.title }}</span>
+                                                <q-btn flat round dense size="xs" icon="download" color="grey-6" tag="a" :href="file.path" target="_blank" />
+                                            </div>
+                                            <p v-if="file.description" class="text-caption text-grey-6 q-mb-xs q-mt-none kn-artifact-text">{{ file.description }}</p>
+                                            <KnCsvPreview :url="file.path" />
+                                        </template>
 
-                                    <!-- Other (json, etc.) -->
-                                    <template v-else>
-                                        <div class="row items-center q-mb-xs no-wrap">
-                                            <q-icon name="insert_drive_file" size="xs" color="orange-6" class="q-mr-xs" />
-                                            <span class="text-caption text-weight-bold col kn-artifact-title" style="color: #d97706">{{ file.title }}</span>
-                                            <q-btn flat round dense size="xs" icon="download" color="grey-6" tag="a" :href="file.path" target="_blank" />
-                                        </div>
-                                        <p v-if="file.description" class="text-caption text-grey-6 q-mt-none kn-artifact-text">{{ file.description }}</p>
-                                    </template>
-                                </q-card-section>
-                            </q-card>
+                                        <!-- Other (json, etc.) -->
+                                        <template v-else>
+                                            <div class="row items-center q-mb-xs no-wrap">
+                                                <q-icon name="insert_drive_file" size="xs" color="orange-6" class="q-mr-xs" />
+                                                <span class="text-caption text-weight-bold col kn-artifact-title" style="color: #d97706">{{ file.title }}</span>
+                                                <q-btn flat round dense size="xs" icon="download" color="grey-6" tag="a" :href="file.path" target="_blank" />
+                                            </div>
+                                            <p v-if="file.description" class="text-caption text-grey-6 q-mt-none kn-artifact-text">{{ file.description }}</p>
+                                        </template>
+                                    </q-card-section>
+                                </q-card>
+                            </div>
                         </template>
 
                     </template>
@@ -81,14 +85,20 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import type { ComponentPublicInstance } from 'vue'
 import KnCsvPreview from './KnCsvPreview.vue'
 import type { IChatBlock } from './KnChatbot'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     items: IChatBlock[]
     width: number
     isMobile: boolean
-}>()
+    targetItemId?: string
+    highlightedItemIds?: string[]
+}>(), {
+    targetItemId: '',
+    highlightedItemIds: () => []
+})
 
 const emit = defineEmits<{
     (e: 'close'): void
@@ -96,16 +106,37 @@ const emit = defineEmits<{
 }>()
 
 const latestArtifactAnchor = ref<HTMLElement | null>(null)
-const highlightedItemId = ref('')
+const highlightedItemIdsState = ref<string[]>([])
+const itemRefs = new Map<string, HTMLElement>()
 let highlightTimeout: ReturnType<typeof setTimeout> | null = null
 
-function highlightLatestItem(itemId: string) {
-    highlightedItemId.value = itemId
+function highlightItems(itemIds: string[]) {
+    highlightedItemIdsState.value = [...itemIds]
     if (highlightTimeout) clearTimeout(highlightTimeout)
     highlightTimeout = setTimeout(() => {
-        highlightedItemId.value = ''
+        highlightedItemIdsState.value = []
         highlightTimeout = null
     }, 1800)
+}
+
+function isItemHighlighted(itemId: string): boolean {
+    return highlightedItemIdsState.value.includes(itemId)
+}
+
+function resolveItemElement(element: Element | ComponentPublicInstance | null): HTMLElement | null {
+    if (!element) return null
+    if (element instanceof HTMLElement) return element
+    const componentElement = (element as ComponentPublicInstance).$el
+    return componentElement instanceof HTMLElement ? componentElement : null
+}
+
+function setItemRef(itemId: string, element: Element | ComponentPublicInstance | null) {
+    const resolvedElement = resolveItemElement(element)
+    if (!resolvedElement) {
+        itemRefs.delete(itemId)
+        return
+    }
+    itemRefs.set(itemId, resolvedElement)
 }
 
 function isAllowedArtifactFileExt(ext?: string): boolean {
@@ -138,14 +169,42 @@ function scrollToLatestArtifact() {
     nextTick(() => latestArtifactAnchor.value?.scrollIntoView({ behavior: 'smooth', block: 'end' }))
 }
 
+function scrollToItem(itemId: string) {
+    nextTick(() => itemRefs.get(itemId)?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
+}
+
 watch(
     () => visibleItems.value.length,
     (newLength, oldLength) => {
         if (newLength > oldLength) {
             const lastItem = visibleItems.value[newLength - 1]
-            if (lastItem?.id) highlightLatestItem(lastItem.id)
+            if (lastItem?.id) highlightItems([lastItem.id])
             scrollToLatestArtifact()
         }
+    }
+)
+
+watch(
+    () => props.highlightedItemIds,
+    (itemIds) => {
+        if (!itemIds.length) {
+            highlightedItemIdsState.value = []
+            if (highlightTimeout) {
+                clearTimeout(highlightTimeout)
+                highlightTimeout = null
+            }
+            return
+        }
+
+        highlightItems(itemIds)
+    }
+)
+
+watch(
+    () => props.targetItemId,
+    (itemId) => {
+        if (!itemId) return
+        scrollToItem(itemId)
     }
 )
 

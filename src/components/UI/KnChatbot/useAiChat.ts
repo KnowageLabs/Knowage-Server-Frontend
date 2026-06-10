@@ -106,9 +106,12 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
     const sidePanelVisible = ref(false)
     const sidePanelWidth = ref(getInitialSidePanelWidth())
     const unreadCount = ref(0)
+    const artifactNavigationTargetId = ref('')
+    const artifactHighlightedItemIds = ref<string[]>([])
 
     let sideResizeStartX = 0
     let sideResizeStartW = 0
+    let artifactHighlightTimeout: ReturnType<typeof setTimeout> | null = null
 
     function clampSidePanelWidth(value: number): number {
         return Math.max(SIDE_PANEL_MIN_WIDTH, Math.min(SIDE_PANEL_MAX_WIDTH, value))
@@ -145,13 +148,69 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
         document.addEventListener('mouseup', onSidePanelResizeEnd)
     }
 
-    function decorateSideBlock(block: IChatBlock): IChatBlock {
+    function clearArtifactNavigation() {
+        artifactNavigationTargetId.value = ''
+        artifactHighlightedItemIds.value = []
+        if (artifactHighlightTimeout) {
+            clearTimeout(artifactHighlightTimeout)
+            artifactHighlightTimeout = null
+        }
+    }
+
+    function decorateSideBlock(block: IChatBlock, invocationId?: string): IChatBlock {
         return {
             ...block,
             id: crypto.randomUUID(),
             conversationId: conversationId.value,
-            createdAt: new Date()
+            createdAt: new Date(),
+            invocationId
         }
+    }
+
+    function isAllowedArtifactFileExt(ext?: string): boolean {
+        if (!ext) return false
+        const normalized = ext.toLowerCase()
+        return normalized === 'csv' || normalized === 'png'
+    }
+
+    function isRenderableSideItem(item: IChatBlock): boolean {
+        if (item.type === 'sql_query') return true
+        if (item.type === 'artifacts') return item.files.some((file) => isAllowedArtifactFileExt(file.ext))
+        return false
+    }
+
+    function getLinkedRenderableItems(invocationId?: string): IChatBlock[] {
+        if (!invocationId) return []
+        return sideItems.value.filter((item) => item.invocationId === invocationId && isRenderableSideItem(item))
+    }
+
+    function messageHasArtifacts(message: IChat): boolean {
+        if (message.role !== 'assistant' || message.isError || !message.invocationId) return false
+        return getLinkedRenderableItems(message.invocationId).length > 0
+    }
+
+    async function openArtifactsForMessage(message: IChat) {
+        const linkedItems = getLinkedRenderableItems(message.invocationId)
+        if (linkedItems.length === 0) return
+
+        clearArtifactNavigation()
+        if (!sidePanelVisible.value) sidePanelVisible.value = true
+
+        await nextTick()
+
+        artifactNavigationTargetId.value = linkedItems[0].id
+        artifactHighlightedItemIds.value = linkedItems.map((item) => item.id)
+        artifactHighlightTimeout = setTimeout(() => {
+            artifactNavigationTargetId.value = ''
+            artifactHighlightedItemIds.value = []
+            artifactHighlightTimeout = null
+        }, 1800)
+    }
+
+    function resolveInvocationId(evt: any): string {
+        const candidate = evt?.invocationId ?? evt?.invocation_id ?? evt?.metadata?.invocationId ?? evt?.metadata?.invocation_id
+        if (candidate === null || candidate === undefined) return ''
+        return String(candidate)
     }
 
     const welcomeMessage = computed<IChat>(() => ({
@@ -245,6 +304,7 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
         conversationId.value++
         sideItems.value = []
         sidePanelVisible.value = false
+        clearArtifactNavigation()
         sessionReady.value = false
         sessionAttempted.value = false
         unreadCount.value = 0
@@ -320,7 +380,8 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
         nextTick(() => setTimeout(scrollToBottom, 50))
 
         // Live streaming entry
-        const liveEntry: IChat = { role: 'assistant', content: '', turnId: turnId.value, timestamp: new Date(), isLive: true }
+        let activeInvocationId: string = crypto.randomUUID()
+        const liveEntry: IChat = { role: 'assistant', content: '', turnId: turnId.value, timestamp: new Date(), isLive: true, invocationId: activeInvocationId }
         chat.value.push(liveEntry)
         const liveIndex = chat.value.length - 1
 
@@ -365,12 +426,20 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
                     const author: string = evt.author ?? ''
                     const partial: boolean = evt.partial ?? false
                     const parts: any[] = evt.content?.parts ?? []
+                    const eventInvocationId = resolveInvocationId(evt)
+
+                    if (eventInvocationId) {
+                        activeInvocationId = eventInvocationId
+                        if (chat.value[liveIndex]) {
+                            chat.value[liveIndex] = { ...chat.value[liveIndex], invocationId: activeInvocationId }
+                        }
+                    }
 
                     if (author === 'knowage_assistant') {
                         const textPart: string = parts.find((p: any) => typeof p.text === 'string')?.text ?? ''
                         if (partial) {
                             liveText += textPart
-                            chat.value[liveIndex] = { ...chat.value[liveIndex], content: liveText }
+                            chat.value[liveIndex] = { ...chat.value[liveIndex], content: liveText, invocationId: activeInvocationId }
                             scrollToBottom()
                         } else {
                             const finalText = textPart || liveText
@@ -380,7 +449,8 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
                                     content: finalText,
                                     turnId: turnId.value++,
                                     timestamp: new Date(),
-                                    isLive: false
+                                    isLive: false,
+                                    invocationId: activeInvocationId
                                 }
                                 liveText = ''
                                 scrollToBottom()
@@ -392,7 +462,7 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
                         let block: any
                         try { block = JSON.parse(rawPayload) } catch { continue }
                         if (['sql_query', 'artifacts', 'python_code'].includes(block?.type)) {
-                            sideItems.value.push(decorateSideBlock(block as IChatBlock))
+                            sideItems.value.push(decorateSideBlock(block as IChatBlock, activeInvocationId))
                             if (!sidePanelVisible.value) sidePanelVisible.value = true
                         }
                     }
@@ -401,7 +471,7 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
 
             // Finalize live entry if not yet replaced
             if (chat.value[liveIndex]?.isLive) {
-                chat.value[liveIndex] = { ...chat.value[liveIndex], isLive: false, turnId: turnId.value++ }
+                chat.value[liveIndex] = { ...chat.value[liveIndex], isLive: false, turnId: turnId.value++, invocationId: activeInvocationId }
             }
         } catch (err: any) {
             if (err?.name === 'AbortError') return
@@ -412,7 +482,8 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
                 timestamp: new Date(),
                 isError: true,
                 isStreamError: true,
-                isLive: false
+                isLive: false,
+                invocationId: activeInvocationId
             }
             scrollToBottom()
         } finally {
@@ -430,6 +501,7 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
     })
 
     onUnmounted(() => {
+        clearArtifactNavigation()
         document.removeEventListener('mousemove', onSidePanelResizeMove)
         document.removeEventListener('mouseup', onSidePanelResizeEnd)
     })
@@ -445,6 +517,8 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
         sideItems,
         sidePanelVisible,
         sidePanelWidth,
+        artifactNavigationTargetId,
+        artifactHighlightedItemIds,
         businessModels,
         selectedBm,
         sessionReady,
@@ -453,6 +527,8 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
         confirmNewChat,
         followLink,
         formatTime,
+        messageHasArtifacts,
+        openArtifactsForMessage,
         sendMessage,
         initSession,
         startSidePanelResize,

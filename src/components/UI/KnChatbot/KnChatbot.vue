@@ -115,15 +115,31 @@
                             :sent="message.role === 'user'"
                             :bg-color="message.isError ? 'red-1' : undefined"
                         >
-                            <div v-if="message.isLive && message.content === ''" class="row items-center kn-thinking-state">
-                                <q-spinner-dots size="1.2rem" color="primary" class="q-mr-sm" />
-                                <span class="text-caption">{{ $t('ai.thinking') }}</span>
+                            <div class="kn-chatbot-message-content" :class="{ 'kn-chatbot-message-content--with-artifacts': messageHasArtifacts(message) }">
+                                <q-btn
+                                    v-if="messageHasArtifacts(message)"
+                                    flat
+                                    round
+                                    dense
+                                    size="xs"
+                                    icon="inventory_2"
+                                    color="primary"
+                                    class="kn-chatbot-artifacts-btn"
+                                    @click.stop="openArtifactsForMessage(message)"
+                                >
+                                    <q-tooltip :delay="500" anchor="top middle" self="bottom middle">{{ $t('ai.sidePanel.title') }}</q-tooltip>
+                                </q-btn>
+
+                                <div v-if="message.isLive && message.content === ''" class="row items-center kn-thinking-state">
+                                    <q-spinner-dots size="1.2rem" color="primary" class="q-mr-sm" />
+                                    <span class="text-caption">{{ $t('ai.thinking') }}</span>
+                                </div>
+                                <div v-else-if="message.isStreamError" class="row items-start kn-stream-error">
+                                    <q-icon name="warning_amber" color="negative" size="sm" class="q-mr-xs q-mt-xs" />
+                                    <vue-markdown-it :source="message.content"></vue-markdown-it>
+                                </div>
+                                <vue-markdown-it v-else :source="message.content"></vue-markdown-it>
                             </div>
-                            <div v-else-if="message.isStreamError" class="row items-start kn-stream-error">
-                                <q-icon name="warning_amber" color="negative" size="sm" class="q-mr-xs q-mt-xs" />
-                                <vue-markdown-it :source="message.content"></vue-markdown-it>
-                            </div>
-                            <vue-markdown-it v-else :source="message.content"></vue-markdown-it>
                         </q-chat-message>
 
                         <q-chip v-if="message.url" clickable class="kn-dashboard-link" size="sm" color="accent" text-color="white" icon="open_in_new" @click="followLink(message.url)">
@@ -168,6 +184,8 @@
                     :items="sideItems"
                     :width="sidePanelWidth"
                     :is-mobile="isMobile"
+                    :target-item-id="artifactNavigationTargetId"
+                    :highlighted-item-ids="artifactHighlightedItemIds"
                     class="kn-side-panel-slot"
                     @close="sidePanelVisible = false"
                     @start-resize="startSidePanelResize"
@@ -206,6 +224,8 @@ const {
     sideItems,
     sidePanelVisible,
     sidePanelWidth,
+    artifactNavigationTargetId,
+    artifactHighlightedItemIds,
     businessModels,
     selectedBm,
     sessionReady,
@@ -214,6 +234,8 @@ const {
     confirmNewChat,
     followLink,
     formatTime,
+    messageHasArtifacts,
+    openArtifactsForMessage,
     sendMessage,
     startSidePanelResize
 } = useAiChat(showAlert, minimized, minimizedToCard)
@@ -318,6 +340,22 @@ function onStartSession() {
 
 .kn-stream-error {
     color: #b91c1c;
+}
+
+.kn-chatbot-message-content {
+    position: relative;
+}
+
+.kn-chatbot-message-content--with-artifacts {
+    padding-right: 28px;
+    min-height: 22px;
+}
+
+.kn-chatbot-artifacts-btn {
+    position: absolute;
+    top: -2px;
+    right: -4px;
+    z-index: 1;
 }
 
 .kn-chatbot-messages :deep(table) {

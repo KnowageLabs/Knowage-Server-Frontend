@@ -4,6 +4,7 @@ export interface IChat {
     url?: string
     image?: string
     turnId: number
+    invocationId?: string
     dashboard?: any
     timestamp?: Date
     isLive?: boolean
@@ -26,6 +27,7 @@ export interface IChatBlockSql {
     id: string
     conversationId: number
     createdAt: Date
+    invocationId?: string
 }
 
 export interface IChatBlockArtifacts {
@@ -34,6 +36,7 @@ export interface IChatBlockArtifacts {
     id: string
     conversationId: number
     createdAt: Date
+    invocationId?: string
 }
 
 export interface IChatBlockPython {
@@ -42,6 +45,7 @@ export interface IChatBlockPython {
     id: string
     conversationId: number
     createdAt: Date
+    invocationId?: string
 }
 
 export type IChatBlock = IChatBlockSql | IChatBlockArtifacts | IChatBlockPython
