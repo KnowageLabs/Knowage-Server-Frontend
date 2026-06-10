@@ -243,6 +243,7 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
         chat.value = [{ ...welcomeMessage.value, timestamp: new Date() }]
         turnId.value = 0
         conversationId.value++
+        sideItems.value = []
         sidePanelVisible.value = false
         sessionReady.value = false
         sessionAttempted.value = false

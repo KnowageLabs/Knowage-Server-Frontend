@@ -6,7 +6,7 @@
             <q-btn flat round dense icon="close" color="white" size="xs" @click="emit('close')" />
         </div>
         <div class="kn-side-panel-body col q-pa-sm">
-            <div v-if="items.length === 0" class="kn-side-panel-empty column items-center justify-center">
+            <div v-if="visibleItems.length === 0" class="kn-side-panel-empty column items-center justify-center">
                 <q-icon name="analytics" size="2.5rem" color="grey-4" class="q-mb-sm" />
                 <div class="text-caption text-grey-5">{{ $t('ai.sidePanel.noArtifacts') }}</div>
             </div>
@@ -68,16 +68,6 @@
                             </q-card>
                         </template>
 
-                        <!-- Python code -->
-                        <q-card v-if="item.type === 'python_code'" flat bordered class="kn-artifact-card q-mb-sm" :class="{ 'kn-artifact-card-new': item.id === highlightedItemId }">
-                            <q-card-section class="q-pa-sm">
-                                <div class="row items-center q-mb-xs no-wrap">
-                                    <q-icon name="code" size="xs" color="green-7" class="q-mr-xs" />
-                                    <span class="text-caption text-weight-bold" style="color: #15803d">{{ $t('ai.sidePanel.python') }}</span>
-                                </div>
-                                <pre class="kn-code-block">{{ item.code }}</pre>
-                            </q-card-section>
-                        </q-card>
                     </template>
                 </template>
             </template>
@@ -118,15 +108,41 @@ function highlightLatestItem(itemId: string) {
     }, 1800)
 }
 
+function isAllowedArtifactFileExt(ext?: string): boolean {
+    if (!ext) return false
+    const normalized = ext.toLowerCase()
+    return normalized === 'csv' || normalized === 'png'
+}
+
+const visibleItems = computed<IChatBlock[]>(() => {
+    const filtered: IChatBlock[] = []
+
+    props.items.forEach((item) => {
+        if (item.type === 'sql_query') {
+            filtered.push(item)
+            return
+        }
+
+        if (item.type === 'artifacts') {
+            const files = item.files.filter((file) => isAllowedArtifactFileExt(file.ext))
+            if (files.length > 0) {
+                filtered.push({ ...item, files })
+            }
+        }
+    })
+
+    return filtered
+})
+
 function scrollToLatestArtifact() {
     nextTick(() => latestArtifactAnchor.value?.scrollIntoView({ behavior: 'smooth', block: 'end' }))
 }
 
 watch(
-    () => props.items.length,
+    () => visibleItems.value.length,
     (newLength, oldLength) => {
         if (newLength > oldLength) {
-            const lastItem = props.items[newLength - 1]
+            const lastItem = visibleItems.value[newLength - 1]
             if (lastItem?.id) highlightLatestItem(lastItem.id)
             scrollToLatestArtifact()
         }
@@ -134,7 +150,7 @@ watch(
 )
 
 onMounted(() => {
-    if (props.items.length > 0) {
+    if (visibleItems.value.length > 0) {
         scrollToLatestArtifact()
     }
 })
@@ -165,7 +181,7 @@ function formatDateLabel(value: Date): string {
 const groupedItems = computed(() => {
     const conversations = new Map<number, { id: number; label: number; dateGroupsMap: Map<string, { id: string; label: string; firstDate: Date; items: IChatBlock[] }> }>()
 
-    props.items.forEach((item) => {
+    visibleItems.value.forEach((item) => {
         const currentConversationId = item.conversationId ?? 0
         if (!conversations.has(currentConversationId)) {
             conversations.set(currentConversationId, {
