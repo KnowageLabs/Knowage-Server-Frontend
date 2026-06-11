@@ -171,7 +171,7 @@
                         outlined
                         dense
                         :placeholder="$t('ai.message.placeholder')"
-                        v-model.trim="userMessage"
+                        v-model="userMessage"
                         :disable="awaitingReply || sessionLoading || !sessionReady"
                         @keyup.enter="sendMessage"
                     >
