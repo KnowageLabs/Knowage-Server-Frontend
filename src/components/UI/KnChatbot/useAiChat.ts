@@ -8,7 +8,7 @@ import type { IChat, IChatArtifactFile, IChatBlock, IChatBlockArtifacts } from '
 
 const SIDE_PANEL_WIDTH_KEY = 'chatbot_side_panel_width_v1'
 const SIDE_PANEL_MIN_WIDTH = 260
-const SIDE_PANEL_MAX_WIDTH = 600
+const SIDE_PANEL_MAX_WIDTH = 800
 
 export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, minimizedToCard: Ref<boolean>) {
     const router = useRouter()
