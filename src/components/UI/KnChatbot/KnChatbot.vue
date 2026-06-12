@@ -142,9 +142,20 @@
                             </div>
                         </q-chat-message>
 
-                        <q-chip v-if="message.url" clickable class="kn-dashboard-link" size="sm" color="accent" text-color="white" icon="open_in_new" @click="followLink(message.url)">
-                            {{ $t('ai.dashboardLink') }}
-                        </q-chip>
+                        <div v-for="dashboardLink in extractDashboardLinks(message)" :key="dashboardLink.url" class="kn-dashboard-buttons-container">
+                            <q-btn
+                                unelevated
+                                size="sm"
+                                color="primary"
+                                :label="dashboardLink.title"
+                                icon-right="open_in_new"
+                                class="kn-dashboard-link-btn"
+                                @click="openDashboard(dashboardLink.url)"
+                            >
+                                <q-tooltip :delay="500" anchor="top middle" self="bottom middle">{{ $t('ai.openDashboard') }}</q-tooltip>
+                            </q-btn>
+                        </div>
+
                         <div v-if="message.timestamp" class="text-caption kn-chatbot-timestamp" :class="message.role === 'user' ? 'text-right q-pr-xs' : 'text-left q-pl-xs'">
                             {{ formatTime(message.timestamp) }}
                         </div>
@@ -160,7 +171,7 @@
                         outlined
                         dense
                         :placeholder="$t('ai.message.placeholder')"
-                        v-model.trim="userMessage"
+                        v-model="userMessage"
                         :disable="awaitingReply || sessionLoading || !sessionReady"
                         @keyup.enter="sendMessage"
                     >
@@ -209,6 +220,7 @@ import { VueMarkdownIt } from '@f3ve/vue-markdown-it'
 import { useChatbotPanel } from './useChatbotPanel'
 import { useAiChat } from './useAiChat'
 import { useVoiceInput } from './useVoiceInput'
+import { useRouter } from 'vue-router'
 import KnChatSidePanel from './KnChatSidePanel.vue'
 
 const { showAlert, minimized, minimizedToCard, isMobile, panelStyle, startDrag, startResize, closePanel, toggleChatbot, minimizeToCard, restoreFromCard } = useChatbotPanel()
@@ -232,7 +244,6 @@ const {
     sessionLoading,
     unreadCount,
     confirmNewChat,
-    followLink,
     formatTime,
     messageHasArtifacts,
     openArtifactsForMessage,
@@ -241,6 +252,34 @@ const {
 } = useAiChat(showAlert, minimized, minimizedToCard)
 
 const { listening, toggleVoice } = useVoiceInput(userMessage)
+const router = useRouter()
+
+function extractDashboardLinks(message: any): Array<{ title: string; url: string }> {
+    const links: Array<{ title: string; url: string }> = []
+    if (!message || !message.content || typeof message.content !== 'string') return links
+
+    try {
+        const parsed = JSON.parse(message.content)
+        if (parsed.type === 'artifacts' && Array.isArray(parsed.files)) {
+            parsed.files.forEach((file: any) => {
+                if (file.ext === 'url' && file.url && file.title) {
+                    links.push({
+                        title: file.title,
+                        url: file.url
+                    })
+                }
+            })
+        }
+    } catch {
+        // Content is not JSON, skip dashboard link extraction
+    }
+
+    return links
+}
+
+function openDashboard(url: string) {
+    router.push(url)
+}
 
 function onBmChange() {
     // BM changed via dropdown — will be confirmed via Start Session button
@@ -406,6 +445,21 @@ function onStartSession() {
     margin-left: 44px;
     margin-top: -4px;
     margin-bottom: 4px;
+}
+
+// ── Dashboard buttons container ────────────────────────────────────────────
+
+.kn-dashboard-buttons-container {
+    margin-left: 44px;
+    margin-top: 6px;
+    margin-bottom: 4px;
+}
+
+.kn-dashboard-link-btn {
+    border-radius: 6px;
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    min-height: auto;
 }
 
 // ── Session loading banner ─────────────────────────────────────────────────

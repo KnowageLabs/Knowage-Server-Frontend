@@ -53,7 +53,14 @@
                                 </q-btn>
 
                                 <!-- Toggle -->
-                                <q-toggle v-model="bmEnabled[bm.id]" color="primary" dense :title="$t('managers.ai.businessModels.enabledToggle')" />
+                                <q-toggle
+                                    v-model="bmEnabled[bm.id]"
+                                    color="primary"
+                                    dense
+                                    :disable="loadingBm"
+                                    :title="$t('managers.ai.businessModels.enabledToggle')"
+                                    @click.stop.prevent="saveBMisForAi(bm)"
+                                />
                             </div>
                         </div>
                     </div>
@@ -169,12 +176,14 @@
 import mainStore from '@/App.store'
 import axios from 'axios'
 import { computed, onMounted, onUnmounted, ref, Ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import AiManagementGoldQueriesDialog from './AiManagementGoldQueriesDialog.vue'
 import { iBusinessModel } from '@/modules/managers/businessModelCatalogue/BusinessModelCatalogue'
 import { IGoldQuery } from './AiManagement'
 import ProgressBar from 'primevue/progressbar'
 
 const store = mainStore()
+const { t } = useI18n()
 const polling: Ref<number | null> = ref(null)
 const update: Ref<Date | string | null> = ref(null)
 const loading: Ref<boolean> = ref(false)
@@ -256,7 +265,7 @@ async function loadBusinessModels() {
         .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/businessmodels')
         .then(async (response) => {
             businessModels.value = response.data || []
-            businessModels.value.forEach((bm) => { bmEnabled.value[bm.id] = true })
+            businessModels.value.forEach((bm) => { bmEnabled.value[bm.id] = bm.isForAi === true })
             await Promise.all(businessModels.value.map((bm) => loadGoldQueries(bm.id)))
         })
         .finally(() => { loadingBm.value = false })
@@ -344,6 +353,24 @@ function getLastUpdate() {
             loading.value = response.data.status === 'In process'
         })
         .catch((error) => { updateError.value = error.data || 'No data available' })
+}
+
+async function saveBMisForAi(bm: iBusinessModel) {
+    store.setLoading(true)
+    loadingBm.value = true
+    await axios
+        .put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/businessmodels/${bm.id}`, {
+            ...bm,
+            isForAi: bmEnabled.value[bm.id]
+        })
+        .then(async () => {
+            await loadBusinessModels()
+            store.setInfo({ title: t('common.toast.updateTitle'), msg: t('common.toast.updateSuccess') })
+        })
+        .finally(() => {
+            loadingBm.value = false
+            store.setLoading(false)
+        })
 }
 </script>
 

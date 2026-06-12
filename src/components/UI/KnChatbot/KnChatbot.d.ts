@@ -19,6 +19,7 @@ export interface IChatArtifactFile {
     title: string
     description: string
     sql_query?: string
+    edit?: boolean
 }
 
 export interface IChatBlockSql {
@@ -33,6 +34,7 @@ export interface IChatBlockSql {
 export interface IChatBlockArtifacts {
     type: 'artifacts'
     files: IChatArtifactFile[]
+    edit?: boolean
     id: string
     conversationId: number
     createdAt: Date

@@ -4,7 +4,7 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import type { Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import type { IChat, IChatBlock } from './KnChatbot'
+import type { IChat, IChatArtifactFile, IChatBlock, IChatBlockArtifacts } from './KnChatbot'
 
 const SIDE_PANEL_WIDTH_KEY = 'chatbot_side_panel_width_v1'
 const SIDE_PANEL_MIN_WIDTH = 260
@@ -35,6 +35,7 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
         try {
             const res = await axios.get(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/2.0/businessmodels`)
             businessModels.value = Array.isArray(res.data) ? res.data : []
+            businessModels.value = businessModels.value.filter((bm) => bm.isForAi === true)
             if (businessModels.value.length > 0 && !selectedBm.value) {
                 selectedBm.value = businessModels.value[0]
             }
@@ -165,6 +166,45 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
             createdAt: new Date(),
             invocationId
         }
+    }
+
+    function upsertArtifactFilesByName(existingFiles: IChatArtifactFile[], incomingFiles: IChatArtifactFile[]): IChatArtifactFile[] {
+        const mergedFiles = [...existingFiles]
+
+        incomingFiles.forEach((incomingFile) => {
+            const existingIndex = mergedFiles.findIndex((file) => file.name === incomingFile.name)
+            if (existingIndex >= 0) {
+                mergedFiles[existingIndex] = { ...mergedFiles[existingIndex], ...incomingFile }
+            } else {
+                mergedFiles.push(incomingFile)
+            }
+        })
+
+        return mergedFiles
+    }
+
+    function upsertArtifactsBlock(block: IChatBlockArtifacts, invocationId: string) {
+        const decoratedBlock = decorateSideBlock(block, invocationId) as IChatBlockArtifacts
+        if (!Array.isArray(decoratedBlock.files)) return
+
+        const existingBlockIndex = sideItems.value.findIndex((item) => item.type === 'artifacts' && item.invocationId === invocationId)
+
+        if (existingBlockIndex < 0) {
+            sideItems.value.push(decoratedBlock)
+            return
+        }
+
+        if (!decoratedBlock.edit) {
+            sideItems.value.push(decoratedBlock)
+            return
+        }
+
+        const existingBlock = sideItems.value[existingBlockIndex] as IChatBlockArtifacts
+        const updatedBlock: IChatBlockArtifacts = {
+            ...existingBlock,
+            files: upsertArtifactFilesByName(existingBlock.files, decoratedBlock.files)
+        }
+        sideItems.value[existingBlockIndex] = updatedBlock
     }
 
     function isAllowedArtifactFileExt(ext?: string): boolean {
@@ -318,10 +358,6 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
         newChat()
     }
 
-    function followLink(url: string) {
-        router.push(url)
-    }
-
     function formatTime(date?: Date): string {
         if (!date) return ''
         return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -462,7 +498,11 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
                         let block: any
                         try { block = JSON.parse(rawPayload) } catch { continue }
                         if (['sql_query', 'artifacts', 'python_code'].includes(block?.type)) {
-                            sideItems.value.push(decorateSideBlock(block as IChatBlock, activeInvocationId))
+                            if (block.type === 'artifacts' && Array.isArray(block.files)) {
+                                upsertArtifactsBlock(block as IChatBlockArtifacts, activeInvocationId)
+                            } else {
+                                sideItems.value.push(decorateSideBlock(block as IChatBlock, activeInvocationId))
+                            }
                             if (!sidePanelVisible.value) sidePanelVisible.value = true
                         }
                     }
@@ -525,7 +565,6 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
         sessionLoading,
         unreadCount,
         confirmNewChat,
-        followLink,
         formatTime,
         messageHasArtifacts,
         openArtifactsForMessage,
