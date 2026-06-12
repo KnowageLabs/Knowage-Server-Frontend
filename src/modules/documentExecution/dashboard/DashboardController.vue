@@ -305,7 +305,11 @@ export default defineComponent({
             this.setDashboardDrivers(this.dashboardId, this.drivers)
 
             await this.fetchAllSelectorDefaultValues()
-            await this.store.setSelections(this.dashboardId, this.model.configuration.selections, this.$http)
+
+            const baseSelections = this.model.configuration.selections ?? []
+            const injectedSelections = this.buildSelectionsFromCrossNavigation()
+            const allSelections = injectedSelections.length > 0 ? [...baseSelections, ...injectedSelections] : baseSelections
+            await this.store.setSelections(this.dashboardId, allSelections, this.$http)
             this.store.setDashboardDocument(this.dashboardId, this.document)
             this.store.setExecutionTime(this.dashboardId, new Date())
 

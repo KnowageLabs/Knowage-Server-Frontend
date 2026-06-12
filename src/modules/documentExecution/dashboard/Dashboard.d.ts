@@ -255,6 +255,7 @@ export interface IWidgetInteractionParameter {
     dataset?: string
     json?: string
     useAsResource?: boolean
+    propagateAsSelection?: boolean
 }
 
 export interface IWidgetPreview {
