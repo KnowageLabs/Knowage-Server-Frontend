@@ -533,7 +533,6 @@
                 "enableWidgetMenu": "Enable widget menu",
                 "enableXlsxStyle": "Enable XLSX style",
                 "showExcelExport": "Show excel export functionality on widgets",
-                "enableXlsxStyle": "Enable XLSX style",
                 "showScreenshot": "Enable screenshot functionality on widgets",
                 "showSelectionButton": "Always show selection button",
                 "title": "Menu & Widgets"
@@ -789,6 +788,7 @@
             "drillSortingColumn": "Drill sorting column",
             "drillSortingOrder": "Drill sorting order",
             "drilldown": {
+                "enable": "Enable Drilldown",
                 "title": "Drilldown"
             },
             "editor": "Editor",
@@ -1371,6 +1371,7 @@
                 "configuration": {
                     "colsExpanded": "Columns Expanded",
                     "disableExpandAll": "Disable Expand All",
+                    "excludedFromSubTotals": "Excluded From Sub Totals",
                     "fieldPanel": "Field Panel",
                     "fieldPanelOptions": {
                         "disableDragging": "Disable dragging",

@@ -91,6 +91,7 @@ export interface IPivotRowsConfiguration {
     grandTotalLabel: string
     subTotalLabel: string
     rowsExpanded?: boolean
+    excludedFromSubTotals?: string[]
 }
 
 export interface IPivotColumnsConfiguration {
@@ -99,6 +100,7 @@ export interface IPivotColumnsConfiguration {
     grandTotalLabel: string
     subTotalLabel: string
     colsExpanded?: boolean
+    excludedFromSubTotals?: string[]
 }
 
 export interface IPivotFieldPicker {
