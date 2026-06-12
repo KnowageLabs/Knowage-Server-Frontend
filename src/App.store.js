@@ -6,6 +6,7 @@ const store = defineStore('store', {
         return {
             configurations: {},
             user: {},
+            userReady: false,
             error: {},
             info: {},
             warning: {},
@@ -62,10 +63,12 @@ const store = defineStore('store', {
             return this.user
         },
         setUser(user) {
-            localStorage.setItem('organization', user.organization)
-            if (user.userId === `public-${user.organization}`) localStorage.setItem('public', true)
+            if (user?.organization) localStorage.setItem('organization', user.organization)
+            else localStorage.removeItem('organization')
+            if (user?.userId && user.userId === `public-${user.organization}`) localStorage.setItem('public', true)
             else localStorage.removeItem('public')
-            this.user = user
+            this.user = user || {}
+            this.userReady = !!(user && Object.keys(user).length > 0)
         },
         setError(error) {
             this.error = error

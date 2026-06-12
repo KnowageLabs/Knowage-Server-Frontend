@@ -14,8 +14,22 @@ import { loadLanguageAsync } from '@/App.i18n.js'
 import mainStore from '@/App.store'
 import { authReady } from '@/helpers/commons/authState'
 
-function sleep(ms) {
+const AUTH_READY_TIMEOUT_MS = 3000
+const USER_READY_TIMEOUT_MS = 3000
+
+function wait(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+async function waitForAuthReadyWithTimeout() {
+    await Promise.race([authReady, wait(AUTH_READY_TIMEOUT_MS)])
+}
+
+async function waitForUserReady(store) {
+    const startedAt = Date.now()
+    while (!store.userReady && Date.now() - startedAt < USER_READY_TIMEOUT_MS) {
+        await wait(50)
+    }
 }
 
 const baseRoutes = [
@@ -89,7 +103,7 @@ router.beforeEach(async (to, from, next) => {
     const store = mainStore()
 
     const checkRequired = !('/' == to.fullPath && '/' == from.fullPath)
-    const loggedIn = sessionStorage.getItem('token')
+    let loggedIn = sessionStorage.getItem('token')
 
     // Check custom session timeout before proceeding so that lastResponseTimestamp
     // is not refreshed before the check runs.
@@ -114,8 +128,9 @@ router.beforeEach(async (to, from, next) => {
             // New tab: no token in sessionStorage yet — wait for App.vue to
             // receive the /currentuser response and store the token, then
             // re-evaluate rather than immediately redirecting to login.
-            await authReady
-            if (sessionStorage.getItem('token')) {
+            await waitForAuthReadyWithTimeout()
+            loggedIn = sessionStorage.getItem('token')
+            if (loggedIn) {
                 next()
             } else {
                 authHelper.handleUnauthorized()
@@ -124,11 +139,17 @@ router.beforeEach(async (to, from, next) => {
             authHelper.handleUnauthorized()
         }
     } else {
-        if (to.meta?.functionality) {
-            if (from.path === '/' && !store.user?.functionalities?.includes(to.meta?.functionality)) await sleep(1000)
+        if (loggedIn && !to.meta.public && !store.userReady) {
+            await waitForUserReady(store)
         }
-        if (!store.user?.isSuperadmin && to.meta?.functionality && !store.user?.functionalities?.includes(to.meta?.functionality)) next({ replace: true, name: '404' })
-        else next()
+        if (to.meta?.functionality) {
+            const hasFunctionality = store.user?.functionalities?.includes(to.meta?.functionality)
+            if (!store.user?.isSuperadmin && !hasFunctionality) {
+                next({ replace: true, name: '404' })
+                return
+            }
+        }
+        next()
     }
 })
 
