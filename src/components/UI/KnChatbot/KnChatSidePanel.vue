@@ -24,9 +24,10 @@
                                 <q-card-section class="q-pa-sm">
                                     <div class="row items-center q-mb-xs no-wrap">
                                         <q-icon name="storage" size="xs" color="deep-purple-5" class="q-mr-xs" />
-                                        <span class="text-caption text-weight-bold" style="color: #7c3aed">{{ $t('ai.sidePanel.sql') }}</span>
+                                        <span class="text-caption text-weight-bold col" style="color: #7c3aed">{{ $t('ai.sidePanel.sql') }}</span>
+                                        <q-btn flat round dense size="xs" :icon="isMinimized(item.id) ? 'unfold_more' : 'unfold_less'" color="grey-6" @click="toggleMinimize(item.id)" />
                                     </div>
-                                    <pre class="kn-code-block">{{ item.query }}</pre>
+                                    <pre v-if="!isMinimized(item.id)" class="kn-code-block">{{ item.query }}</pre>
                                 </q-card-section>
                             </q-card>
                         </div>
@@ -114,16 +115,16 @@ const minimizedCards = ref<Set<string>>(new Set())
 const itemRefs = new Map<string, HTMLElement>()
 let highlightTimeout: ReturnType<typeof setTimeout> | null = null
 
-function getFileKey(itemId: string, filePath: string): string {
-    return `${itemId}-${filePath}`
+function getMinimizeKey(itemId: string, filePath?: string): string {
+    return filePath ? `${itemId}-${filePath}` : itemId
 }
 
-function isMinimized(itemId: string, filePath: string): boolean {
-    return minimizedCards.value.has(getFileKey(itemId, filePath))
+function isMinimized(itemId: string, filePath?: string): boolean {
+    return minimizedCards.value.has(getMinimizeKey(itemId, filePath))
 }
 
-function toggleMinimize(itemId: string, filePath: string): void {
-    const key = getFileKey(itemId, filePath)
+function toggleMinimize(itemId: string, filePath?: string): void {
+    const key = getMinimizeKey(itemId, filePath)
     if (minimizedCards.value.has(key)) {
         minimizedCards.value.delete(key)
     } else {
