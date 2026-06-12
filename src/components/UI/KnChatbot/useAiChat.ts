@@ -354,8 +354,11 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
     }
 
     function confirmNewChat() {
+        // Preserve unsent message when creating new chat
+        const savedMessage = userMessage.value
         confirm.value = false
         newChat()
+        userMessage.value = savedMessage
     }
 
     function formatTime(date?: Date): string {
@@ -444,10 +447,11 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
             const decoder = new TextDecoder()
             let buffer = ''
             let liveText = ''
+            let shouldBreakReading = false
 
             while (true) {
                 const { done, value } = await reader.read()
-                if (done) break
+                if (done || shouldBreakReading) break
                 buffer += decoder.decode(value, { stream: true })
                 const lines = buffer.split('\n')
                 buffer = lines.pop() ?? ''
@@ -458,6 +462,22 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
                     if (!rawData) continue
                     let evt: any
                     try { evt = JSON.parse(rawData) } catch { continue }
+
+                    // Check for error in the stream response
+                    if (evt.error) {
+                        chat.value[liveIndex] = {
+                            role: 'assistant',
+                            content: evt.error,
+                            turnId: turnId.value++,
+                            timestamp: new Date(),
+                            isError: true,
+                            isStreamError: true,
+                            isLive: false,
+                            invocationId: activeInvocationId
+                        }
+                        shouldBreakReading = true
+                        break
+                    }
 
                     const author: string = evt.author ?? ''
                     const partial: boolean = evt.partial ?? false

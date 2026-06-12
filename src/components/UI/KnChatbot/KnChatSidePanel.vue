@@ -41,10 +41,11 @@
                                             <div class="row items-center q-mb-xs no-wrap">
                                                 <q-icon name="image" size="xs" color="teal-6" class="q-mr-xs" />
                                                 <span class="text-caption text-weight-bold col kn-artifact-title" style="color: #0d9488">{{ file.title }}</span>
-                                                <q-btn flat round dense size="xs" icon="download" color="grey-6" tag="a" :href="file.path" target="_blank" />
+                                                <q-btn flat round dense size="xs" icon="download" color="grey-6" tag="a" :href="file.path" target="_blank" class="q-mr-xs" />
+                                                <q-btn flat round dense size="xs" :icon="isMinimized(item.id, file.path) ? 'unfold_more' : 'unfold_less'" color="grey-6" @click="toggleMinimize(item.id, file.path)" />
                                             </div>
-                                            <p v-if="file.description" class="text-caption text-grey-6 q-mb-xs q-mt-none kn-artifact-text">{{ file.description }}</p>
-                                            <img :src="file.path" class="kn-artifact-img" alt="" />
+                                            <p v-if="file.description && !isMinimized(item.id, file.path)" class="text-caption text-grey-6 q-mb-xs q-mt-none kn-artifact-text">{{ file.description }}</p>
+                                            <img v-if="!isMinimized(item.id, file.path)" :src="file.path" class="kn-artifact-img" alt="" />
                                         </template>
 
                                         <!-- CSV -->
@@ -52,10 +53,11 @@
                                             <div class="row items-center q-mb-xs no-wrap">
                                                 <q-icon name="table_view" size="xs" color="blue-6" class="q-mr-xs" />
                                                 <span class="text-caption text-weight-bold col kn-artifact-title" style="color: #2563eb">{{ file.title }}</span>
-                                                <q-btn flat round dense size="xs" icon="download" color="grey-6" tag="a" :href="file.path" target="_blank" />
+                                                <q-btn flat round dense size="xs" icon="download" color="grey-6" tag="a" :href="file.path" target="_blank" class="q-mr-xs" />
+                                                <q-btn flat round dense size="xs" :icon="isMinimized(item.id, file.path) ? 'unfold_more' : 'unfold_less'" color="grey-6" @click="toggleMinimize(item.id, file.path)" />
                                             </div>
-                                            <p v-if="file.description" class="text-caption text-grey-6 q-mb-xs q-mt-none kn-artifact-text">{{ file.description }}</p>
-                                            <KnCsvPreview :url="file.path" />
+                                            <p v-if="file.description && !isMinimized(item.id, file.path)" class="text-caption text-grey-6 q-mb-xs q-mt-none kn-artifact-text">{{ file.description }}</p>
+                                            <KnCsvPreview v-if="!isMinimized(item.id, file.path)" :url="file.path" />
                                         </template>
 
                                         <!-- Other (json, etc.) -->
@@ -63,9 +65,10 @@
                                             <div class="row items-center q-mb-xs no-wrap">
                                                 <q-icon name="insert_drive_file" size="xs" color="orange-6" class="q-mr-xs" />
                                                 <span class="text-caption text-weight-bold col kn-artifact-title" style="color: #d97706">{{ file.title }}</span>
-                                                <q-btn flat round dense size="xs" icon="download" color="grey-6" tag="a" :href="file.path" target="_blank" />
+                                                <q-btn flat round dense size="xs" icon="download" color="grey-6" tag="a" :href="file.path" target="_blank" class="q-mr-xs" />
+                                                <q-btn flat round dense size="xs" :icon="isMinimized(item.id, file.path) ? 'unfold_more' : 'unfold_less'" color="grey-6" @click="toggleMinimize(item.id, file.path)" />
                                             </div>
-                                            <p v-if="file.description" class="text-caption text-grey-6 q-mt-none kn-artifact-text">{{ file.description }}</p>
+                                            <p v-if="file.description && !isMinimized(item.id, file.path)" class="text-caption text-grey-6 q-mt-none kn-artifact-text">{{ file.description }}</p>
                                         </template>
                                     </q-card-section>
                                 </q-card>
@@ -107,8 +110,26 @@ const emit = defineEmits<{
 
 const latestArtifactAnchor = ref<HTMLElement | null>(null)
 const highlightedItemIdsState = ref<string[]>([])
+const minimizedCards = ref<Set<string>>(new Set())
 const itemRefs = new Map<string, HTMLElement>()
 let highlightTimeout: ReturnType<typeof setTimeout> | null = null
+
+function getFileKey(itemId: string, filePath: string): string {
+    return `${itemId}-${filePath}`
+}
+
+function isMinimized(itemId: string, filePath: string): boolean {
+    return minimizedCards.value.has(getFileKey(itemId, filePath))
+}
+
+function toggleMinimize(itemId: string, filePath: string): void {
+    const key = getFileKey(itemId, filePath)
+    if (minimizedCards.value.has(key)) {
+        minimizedCards.value.delete(key)
+    } else {
+        minimizedCards.value.add(key)
+    }
+}
 
 function highlightItems(itemIds: string[]) {
     highlightedItemIdsState.value = [...itemIds]
