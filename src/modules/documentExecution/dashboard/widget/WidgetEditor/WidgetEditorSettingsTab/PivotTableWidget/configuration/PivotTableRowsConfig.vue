@@ -12,6 +12,10 @@
                 <InputText v-model="responsiveModel[`${field}Label`]" class="kn-material-input p-inputtext-sm" />
             </div>
         </div>
+        <div class="p-col-12 p-d-flex p-flex-column p-pt-3">
+            <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.pivot.configuration.excludedFromSubTotals') }}</label>
+            <MultiSelect v-model="responsiveModel.excludedFromSubTotals" :options="rowFields" option-label="alias" option-value="id" class="kn-material-input" />
+        </div>
         <div class="p-col-12 p-grid p-d-flex p-flex-row p-jc-start p-pt-3">
             <div class="p-sm-12 p-md-2">
                 <q-checkbox v-model="responsiveModel.rowsExpanded" :label="$t('dashboard.widgetEditor.pivot.configuration.rowsExpanded')" dense />
@@ -22,20 +26,26 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IPivotRowsConfiguration } from '@/modules/documentExecution/dashboard/interfaces/pivotTable/DashboardPivotTableWidget'
 import descriptor from './PivotTableConfigDescriptor.json'
 import InputSwitch from 'primevue/inputswitch'
 import InputText from 'primevue/inputtext'
+import MultiSelect from 'primevue/multiselect'
 
 export default defineComponent({
     name: 'widget-responsive',
-    components: { InputSwitch, InputText },
+    components: { InputSwitch, InputText, MultiSelect },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {
             descriptor,
             responsiveModel: null as IPivotRowsConfiguration | null
+        }
+    },
+    computed: {
+        rowFields(): IWidgetColumn[] {
+            return this.widgetModel.fields?.rows ?? []
         }
     },
     created() {

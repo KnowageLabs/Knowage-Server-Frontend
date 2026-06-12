@@ -879,8 +879,8 @@
             "drillSortingColumn": "Drill sorting column",
             "drillSortingOrder": "Drill sorting order",
             "drilldown": {
-                "title": "Drilldown",
-                "enable": "Enable Drilldown"
+                "enable": "Enable Drilldown",
+                "title": "Drilldown"
             },
             "editor": "Editor",
             "editorTags": {
@@ -1568,6 +1568,7 @@
                 "configuration": {
                     "colsExpanded": "Columns Expanded",
                     "disableExpandAll": "Disable Expand All",
+                    "excludedFromSubTotals": "Excluded From Sub Totals",
                     "fieldPanel": "Field Panel",
                     "fieldPanelOptions": {
                         "disableDragging": "Disable dragging",
