@@ -311,7 +311,10 @@ const getFormattedSelectionOutputParameter = (crossNavigationParameter: IWidgetI
         multivalue: activeSelection.value.length > 1,
         type: 'fromSourceDocumentOutputParameter',
         parameterType: getDriverParameterTypeFromOutputParameterType(crossNavigationParameter.dataType),
-        outputDriverName: crossNavigationParameter.name
+        outputDriverName: crossNavigationParameter.name,
+        propagateAsSelection: crossNavigationParameter.propagateAsSelection ?? false,
+        sourceDatasetLabel: crossNavigationParameter.dataset,
+        sourceColumnName: crossNavigationParameter.column
     } as ICrossNavigationParameter
 }
 

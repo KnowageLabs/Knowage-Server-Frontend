@@ -1,63 +1,53 @@
 <template>
-    <div class="p-grid">
-        <div v-for="(parameter, index) in parameters" :key="index" class="p-grid p-col-12 p-ai-center p-p-2">
-            <div class="p-sm-6 p-md-1 p-ai-center">
-                <div class="kn-flex p-mx-4 p-my-2">
-                    <InputSwitch v-model="parameter.enabled" :disabled="disabled" @change="parametersChanged"></InputSwitch>
-                </div>
-            </div>
-            <div class="p-sm-6 p-md-2 p-d-flex p-flex-column kn-flex">
+    <div>
+        <div v-for="(parameter, index) in parameters" :key="index" class="p-d-flex p-flex-row p-ai-center p-flex-wrap p-col-12 p-p-2" style="gap: 0.5rem">
+            <InputSwitch v-model="parameter.enabled" :disabled="disabled" @change="parametersChanged"></InputSwitch>
+            <div class="p-d-flex p-flex-column" style="flex: 1 1 120px; min-width: 100px">
                 <label class="kn-material-input-label">{{ $t('common.parameter') }}</label>
                 <InputText v-model="parameter.name" class="kn-material-input p-inputtext-sm" :disabled="true" />
             </div>
-            <div class="p-sm-6 p-md-2 p-d-flex p-flex-column kn-flex p-p-2 value-type-dropdown">
-                <label class="kn-material-input-label"> {{ $t('common.type') }}</label>
+            <div class="p-d-flex p-flex-column" style="flex: 1 1 120px; min-width: 100px">
+                <label class="kn-material-input-label">{{ $t('common.type') }}</label>
                 <Dropdown v-model="parameter.type" class="kn-material-input" :options="outputParameterTypeOptions" option-value="value" :disabled="disabled" @change="onParameterTypeChanged(parameter)">
                     <template #value="slotProps">
-                        <div>
-                            <span>{{ getTranslatedLabel(slotProps.value, descriptor.outputParameterTypeOptions, $t) }}</span>
-                        </div>
+                        <span>{{ getTranslatedLabel(slotProps.value, descriptor.outputParameterTypeOptions, $t) }}</span>
                     </template>
                     <template #option="slotProps">
-                        <div>
-                            <span>{{ $t(slotProps.option.label) }}</span>
-                        </div>
+                        <span>{{ $t(slotProps.option.label) }}</span>
                     </template>
                 </Dropdown>
             </div>
-            <div v-if="parameter.type === 'static'" class="p-sm-12 p-md-7 p-d-flex p-flex-column kn-flex">
+            <div v-if="parameter.type === 'static'" class="p-d-flex p-flex-column" style="flex: 2 1 200px; min-width: 120px">
                 <label class="kn-material-input-label">{{ $t('common.value') }}</label>
                 <InputText v-model="parameter.value" class="kn-material-input p-inputtext-sm" :disabled="disabled" @change="parametersChanged" />
             </div>
-            <div v-else-if="parameter.type === 'dynamic' && ['table', 'highcharts', 'chartJS', 'static-pivot-table', 'discovery', 'map', 'ce-pivot-table'].includes(widgetType)" class="p-sm-12 p-md-7 p-d-flex p-flex-row p-ai-center kn-flex">
-                <div class="p-d-flex p-flex-column kn-flex">
-                    <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
-                    <Dropdown v-if="['table', 'discovery', 'static-pivot-table', 'ce-pivot-table'].includes(widgetType)" v-model="parameter.column" class="kn-material-input" :options="['table', 'discovery'].includes(widgetType) ? widgetModel.columns : pivotTableFields" option-label="alias" option-value="columnName" :disabled="disabled" @change="parametersChanged"></Dropdown>
-                    <Dropdown v-else-if="widgetType === 'map'" v-model="parameter.column" class="kn-material-input" :options="mapDynamicOptions" :option-value="getTargetLayerType(crossNavigationConfig ?? previewConfig) === 'layer' ? 'property' : 'name'" :option-label="getTargetLayerType(crossNavigationConfig ?? previewConfig) === 'layer' ? 'property' : 'name'" :disabled="disabled" @change="parametersChanged"></Dropdown>
-                    <Dropdown v-else v-model="parameter.column" class="kn-material-input" :options="chartColumnOptions" option-value="value" :disabled="disabled" @change="parametersChanged">
-                        <template #value="slotProps">
-                            <span>{{ getTranslatedLabel(slotProps.value, chartColumnOptions, $t) }}</span>
-                        </template>
-                        <template #option="slotProps">
-                            <span>{{ $t(slotProps.option.label) }}</span>
-                        </template>
-                    </Dropdown>
-                </div>
+            <div v-else-if="parameter.type === 'dynamic' && ['table', 'highcharts', 'chartJS', 'static-pivot-table', 'discovery', 'map', 'ce-pivot-table'].includes(widgetType)" class="p-d-flex p-flex-column" style="flex: 2 1 200px; min-width: 120px">
+                <label class="kn-material-input-label">{{ $t('common.column') }}</label>
+                <Dropdown v-if="['table', 'discovery', 'static-pivot-table', 'ce-pivot-table'].includes(widgetType)" v-model="parameter.column" class="kn-material-input" :options="['table', 'discovery'].includes(widgetType) ? widgetModel.columns : pivotTableFields" option-label="alias" option-value="columnName" :disabled="disabled" @change="parametersChanged"></Dropdown>
+                <Dropdown v-else-if="widgetType === 'map'" v-model="parameter.column" class="kn-material-input" :options="mapDynamicOptions" :option-value="getTargetLayerType(crossNavigationConfig ?? previewConfig) === 'layer' ? 'property' : 'name'" :option-label="getTargetLayerType(crossNavigationConfig ?? previewConfig) === 'layer' ? 'property' : 'name'" :disabled="disabled" @change="parametersChanged"></Dropdown>
+                <Dropdown v-else v-model="parameter.column" class="kn-material-input" :options="chartColumnOptions" option-value="value" :disabled="disabled" @change="parametersChanged">
+                    <template #value="slotProps">
+                        <span>{{ getTranslatedLabel(slotProps.value, chartColumnOptions, $t) }}</span>
+                    </template>
+                    <template #option="slotProps">
+                        <span>{{ $t(slotProps.option.label) }}</span>
+                    </template>
+                </Dropdown>
             </div>
-            <div v-else-if="parameter.type === 'selection'" class="p-grid p-sm-12 p-md-7 p-d-flex p-flex-row p-ai-center kn-flex">
-                <div class="p-sm-12 p-md-6 p-ai-center">
-                    <div class="p-d-flex p-flex-column kn-flex">
-                        <label class="kn-material-input-label"> {{ $t('common.dataset') }}</label>
-                        <Dropdown v-model="parameter.dataset" class="kn-material-input" :options="selectedDatasetNames" :disabled="disabled" @change="onDatasetChanged(parameter)"> </Dropdown>
-                    </div>
+            <template v-else-if="parameter.type === 'selection'">
+                <div class="p-d-flex p-flex-column" style="flex: 1 1 140px; min-width: 100px">
+                    <label class="kn-material-input-label">{{ $t('common.dataset') }}</label>
+                    <Dropdown v-model="parameter.dataset" class="kn-material-input" :options="selectedDatasetNames" :disabled="disabled" @change="onDatasetChanged(parameter)"></Dropdown>
                 </div>
-                <div class="p-sm-12 p-md-6 p-ai-center">
-                    <div class="p-d-flex p-flex-column kn-flex">
-                        <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
-                        <Dropdown v-model="parameter.column" class="kn-material-input" :options="getSelectionDatasetColumnOptions(parameter)" :disabled="disabled" @change="parametersChanged"> </Dropdown>
-                    </div>
+                <div class="p-d-flex p-flex-column" style="flex: 1 1 140px; min-width: 100px">
+                    <label class="kn-material-input-label">{{ $t('common.column') }}</label>
+                    <Dropdown v-model="parameter.column" class="kn-material-input" :options="getSelectionDatasetColumnOptions(parameter)" :disabled="disabled" @change="parametersChanged"></Dropdown>
                 </div>
-            </div>
+                <div class="p-d-flex p-ai-center" style="gap: 0.4rem; padding-top: 1.1rem">
+                    <InputSwitch v-model="parameter.propagateAsSelection" :disabled="disabled" @change="parametersChanged"></InputSwitch>
+                    <label class="kn-material-input-label" style="white-space: nowrap">{{ $t('dashboard.widgetEditor.interactions.propagateSelections') }}</label>
+                </div>
+            </template>
         </div>
     </div>
 </template>
@@ -140,15 +130,18 @@ export default defineComponent({
                     parameter.value = ''
                     delete parameter.column
                     delete parameter.dataset
+                    delete parameter.propagateAsSelection
                     break
                 case 'dynamic':
                     parameter.value = 'Static'
                     parameter.column = ''
                     delete parameter.dataset
+                    delete parameter.propagateAsSelection
                     break
                 case 'selection':
                     parameter.value = 'Static'
                     parameter.column = ''
+                    parameter.propagateAsSelection = false
                     break
             }
             this.parametersChanged()

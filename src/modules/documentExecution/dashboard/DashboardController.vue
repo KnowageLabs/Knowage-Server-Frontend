@@ -306,11 +306,44 @@ export default defineComponent({
             this.setDashboardDrivers(this.dashboardId, this.drivers)
 
             await this.fetchAllSelectorDefaultValues()
-            await this.store.setSelections(this.dashboardId, this.model.configuration.selections, this.$http)
+
+            const baseSelections = this.model.configuration.selections ?? []
+            const injectedSelections = this.buildSelectionsFromCrossNavigation()
+            const allSelections = injectedSelections.length > 0 ? [...baseSelections, ...injectedSelections] : baseSelections
+            await this.store.setSelections(this.dashboardId, allSelections, this.$http)
             this.store.setDashboardDocument(this.dashboardId, this.document)
             this.store.setExecutionTime(this.dashboardId, new Date())
 
             this.updateVariableValuesWithDriverValuesAfterExecution()
+        },
+        buildSelectionsFromCrossNavigation() {
+            const crossNavParams = this.document?.formattedCrossNavigationParameters
+            if (!crossNavParams?.length) return []
+            const injected: any[] = []
+            crossNavParams.forEach((param: any) => {
+                if (!param.propagateAsSelection || !param.sourceDatasetLabel || !param.sourceColumnName) return
+                // this.datasets is IDataset[] with id.dsId (number) and label (string) — fully loaded
+                const fullDataset = this.datasets.find((ds: any) => ds.label === param.sourceDatasetLabel)
+                if (!fullDataset) {
+                    console.log(
+                        '[CrossNav] buildSelectionsFromCrossNavigation | no dataset found for label:',
+                        param.sourceDatasetLabel,
+                        '| available labels:',
+                        this.datasets.map((d: any) => d.label)
+                    )
+                    return
+                }
+                const selection = {
+                    datasetId: fullDataset.id.dsId,
+                    datasetLabel: fullDataset.label,
+                    columnName: param.sourceColumnName,
+                    value: param.parameterValue.map((pv: any) => pv.value),
+                    aggregated: false,
+                    timestamp: Date.now()
+                }
+                injected.push(selection)
+            })
+            return injected
         },
         async sleep(time) {
             return new Promise((resolve) => setTimeout(resolve, time))

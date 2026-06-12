@@ -181,6 +181,7 @@ export default defineComponent({
                     temp.dataType = modelParameter.dataType
                     if (modelParameter.column) temp.column = modelParameter.column
                     if (modelParameter.dataset) temp.dataset = modelParameter.dataset
+                    if (modelParameter.propagateAsSelection) temp.propagateAsSelection = modelParameter.propagateAsSelection
                 }
                 this.parameterList.push(temp)
             }
