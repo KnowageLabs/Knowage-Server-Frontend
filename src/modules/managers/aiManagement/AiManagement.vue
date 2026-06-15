@@ -301,7 +301,7 @@ async function syncronizeBusinessModels() {
     await axios
         .post(store.configurations['KNOWAGE.AI.URL'] + '/register_metadata_knowage', {
             tenant: store.user.organization,
-            token: localStorage.getItem('token'),
+            token: sessionStorage.getItem('token'),
             businessModelIds: enabledIds
         })
         .then(() => { getBmLastUpdate() })
@@ -314,7 +314,7 @@ function getBmLastUpdate() {
     axios
         .post(store.configurations['KNOWAGE.AI.URL'] + '/bm_sync_status', {
             tenant: store.user.organization,
-            token: localStorage.getItem('token')
+            token: sessionStorage.getItem('token')
         })
         .then((response) => {
             if (response.data?.status === 'Loaded') bmSyncUpdate.value = response.data?.data?.lastUpdate
@@ -333,7 +333,7 @@ async function syncronize() {
         axios
             .post(store.configurations['KNOWAGE.AI.URL'] + '/load_data', {
                 tenant: store.user.organization,
-                token: localStorage.getItem('token'),
+                token: sessionStorage.getItem('token'),
                 urlExcel: { key: folderKey, selectedFilesNames: ['ai.xlsx'] }
             })
             .then(() => { getLastUpdate() })
@@ -345,7 +345,7 @@ function getLastUpdate() {
     axios
         .post(store.configurations['KNOWAGE.AI.URL'] + '/last_update', {
             tenant: store.user.organization,
-            token: localStorage.getItem('token')
+            token: sessionStorage.getItem('token')
         })
         .then((response) => {
             if (response.data.status === 'Loaded') update.value = response.data.data.lastKBUpdate

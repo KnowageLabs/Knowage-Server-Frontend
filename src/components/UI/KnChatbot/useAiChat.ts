@@ -77,7 +77,7 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
                     model_ids: [dbId],
                     knowage_tenant: store.user?.organization ?? '',
                     knowage_role: store.user?.defaultRole ?? (store.user?.roles?.[0] ?? ''),
-                    knowage_token: localStorage.getItem('token') ?? '',
+                    knowage_token: sessionStorage.getItem('token') ?? '',
                     knowage_project_description: ''
                 }
             )

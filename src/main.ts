@@ -87,7 +87,4 @@ app.use(VueAxios, interceptor)
     .component('GridLayout', GridLayout)
     .component('GridItem', GridItem)
 
-// Wait for router to be ready before mounting to ensure initial navigation is resolved
-router.isReady().then(() => {
-    app.mount('#app')
-})
+app.mount('#app')

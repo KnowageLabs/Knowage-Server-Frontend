@@ -14,8 +14,11 @@ import { loadLanguageAsync } from '@/App.i18n.js'
 import mainStore from '@/App.store'
 import pinia from '@/pinia'
 import axios from '@/axios.js'
+import { authReady } from '@/helpers/commons/authState'
 
-function sleep(ms) {
+const AUTH_READY_TIMEOUT_MS = 3000
+
+function wait(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
@@ -24,7 +27,7 @@ let userLoadPromise = null
 async function ensureUserLoaded(store) {
     if (store.userLoaded || (store.user && Object.keys(store.user).length > 0)) return true
 
-    const token = localStorage.getItem('token')
+    const token = sessionStorage.getItem('token')
     if (!token) return false
 
     if (!userLoadPromise) {
@@ -126,7 +129,7 @@ router.beforeEach(async (to, from, next) => {
     const store = mainStore(pinia)
 
     const checkRequired = !('/' == to.fullPath && '/' == from.fullPath)
-    let loggedIn = localStorage.getItem('token')
+    let loggedIn = sessionStorage.getItem('token')
 
     // Check custom session timeout before any API call so that the lastResponseTimestamp
     // is not refreshed by ensureUserLoaded before the check runs.
@@ -134,7 +137,7 @@ router.beforeEach(async (to, from, next) => {
         const elapsed = Date.now() - Number(localStorage.getItem('lastResponseTimestamp'))
         const timeout = Number(localStorage.getItem('sessionTimeoutMs') || import.meta.env.VITE_SESSION_TIMEOUT || 1800000)
         if (timeout > 0 && elapsed >= timeout) {
-            localStorage.removeItem('token')
+            sessionStorage.removeItem('token')
             localStorage.removeItem('lastResponseTimestamp')
             localStorage.removeItem('sessionTimeoutMs')
             next({ name: 'login', query: { logout: 'sessionExpired', redirect: to.fullPath } })
@@ -152,6 +155,15 @@ router.beforeEach(async (to, from, next) => {
 
     // Se l'utente non è autenticato e sta cercando di accedere a una pagina protetta
     if (checkRequired && !to.meta.public && !loggedIn && !to.query.public) {
+        if (from.name === undefined) {
+            await Promise.race([authReady, wait(AUTH_READY_TIMEOUT_MS)])
+            loggedIn = sessionStorage.getItem('token')
+            if (loggedIn) {
+                await ensureUserLoaded(store)
+                next()
+                return
+            }
+        }
         // Redirect alla pagina di login locale invece del servlet esterno
         next({
             name: 'login',
@@ -169,12 +181,12 @@ router.beforeEach(async (to, from, next) => {
     if (to.meta?.functionality) {
         const hasFunctionality = store.user?.functionalities?.includes(to.meta?.functionality)
 
-        if (store.user && Object.keys(store.user).length > 0 && !hasFunctionality) {
+        if (!store.user?.isSuperadmin && !hasFunctionality) {
             next({ replace: true, name: '404' })
             return
         }
-        if (!store.user?.isSuperadmin && to.meta?.functionality && !store.user?.functionalities?.includes(to.meta?.functionality)) next({ replace: true, name: '404' })
-        else next()
+        next()
+        return
     }
 
     next()

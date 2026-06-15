@@ -45,7 +45,7 @@ export const useAuthFlows = () => {
     // Login principale
     const completeLogin = async (token: string, requiresPasswordChange: boolean) => {
         // Salva il token JWT in localStorage
-        localStorage.setItem('token', token)
+        sessionStorage.setItem('token', token)
 
         // Chiama l'endpoint /currentuser per ottenere le informazioni complete dell'utente
         const userResponse = await axios.get(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/2.0/currentuser`)
@@ -108,7 +108,7 @@ export const useAuthFlows = () => {
             console.error('Errore durante il login:', err)
 
             // Pulisci il token se il login fallisce
-            localStorage.removeItem('token')
+            sessionStorage.removeItem('token')
 
             error.value = err.response?.data?.message || t('common.loginPage.loginError')
         } finally {
