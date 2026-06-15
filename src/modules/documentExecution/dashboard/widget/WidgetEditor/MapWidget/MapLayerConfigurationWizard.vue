@@ -846,6 +846,21 @@ const getDefaultVisualizationData = () => ({
     properties: [] as any[]
 })
 
+const getDefaultSingleConnectionState = () => ({
+    targetMeasure: undefined as string | undefined,
+    targetProperty: null as string | null,
+    chartMeasures: [] as string[]
+})
+
+const getDefaultJoinConnectionState = () => ({
+    targetDataset: undefined as string | undefined,
+    targetMeasure: undefined as string | undefined,
+    targetProperty: null as string | null,
+    targetDatasetForeignKeyColumn: undefined as string | undefined,
+    chartMeasures: [] as string[],
+    targetDatasetMeasures: [] as string[]
+})
+
 const getDefaultVisualizationConfig = () => ({
     classificationMethod: 'CLASSIFY_BY_EQUAL_INTERVALS',
     numberOfClasses: 5,
@@ -892,6 +907,8 @@ export default defineComponent({
             availableLayersOptions: [] as { layerId: string | null; name: string }[],
             propertiesCache: new Map<string, any[]>(),
             visualizationData: getDefaultVisualizationData(),
+            singleConnectionState: getDefaultSingleConnectionState(),
+            joinConnectionState: getDefaultJoinConnectionState(),
             layerConfig: {
                 name: '',
                 sourceType: '',
@@ -1078,9 +1095,43 @@ export default defineComponent({
     },
     methods: {
         ...mapActions(appStore, ['setLoading']),
+        runWithoutLiveSync(callback: () => void) {
+            const previousInitializationState = this.isInitializing
+            this.isInitializing = true
+
+            try {
+                callback()
+            } finally {
+                this.isInitializing = previousInitializationState
+            }
+        },
+        resetConnectionStates() {
+            this.singleConnectionState = getDefaultSingleConnectionState()
+            this.joinConnectionState = getDefaultJoinConnectionState()
+        },
+        cacheCurrentConnectionState() {
+            if (this.visualizationData.connectionType === 'join') {
+                this.joinConnectionState = {
+                    targetDataset: this.visualizationData.targetDataset,
+                    targetMeasure: this.visualizationData.targetMeasure,
+                    targetProperty: this.visualizationData.targetProperty,
+                    targetDatasetForeignKeyColumn: this.visualizationData.targetDatasetForeignKeyColumn,
+                    chartMeasures: deepcopy(this.visualizationData.chartMeasures ?? []),
+                    targetDatasetMeasures: deepcopy(this.visualizationData.targetDatasetMeasures ?? [])
+                }
+                return
+            }
+
+            this.singleConnectionState = {
+                targetMeasure: this.visualizationData.targetMeasure,
+                targetProperty: this.visualizationData.targetProperty,
+                chartMeasures: deepcopy(this.visualizationData.chartMeasures ?? [])
+            }
+        },
         resetWizardState() {
             this.visualizationData = getDefaultVisualizationData()
             this.visualizationConfig = getDefaultVisualizationConfig()
+            this.resetConnectionStates()
             this.selectedVisualizationType = 'choropleth'
             this.currentStep = 1
             this.rangesDialogVisible = false
@@ -1202,6 +1253,8 @@ export default defineComponent({
                     break
                 }
             }
+
+            this.cacheCurrentConnectionState()
         },
         getSelectedLayerType() {
             if (!this.visualizationData.target) return 'dataset'
@@ -1209,15 +1262,35 @@ export default defineComponent({
             return targetLayer ? targetLayer.type : 'dataset'
         },
         setConnectionType(value: string) {
-            this.visualizationData.connectionType = value as 'single' | 'join'
-            this.onConnectionTypeChange()
+            const nextConnectionType = value as 'single' | 'join'
+            if (this.visualizationData.connectionType === nextConnectionType) return
+
+            this.runWithoutLiveSync(() => {
+                this.cacheCurrentConnectionState()
+                this.visualizationData.connectionType = nextConnectionType
+                this.onConnectionTypeChange(nextConnectionType)
+            })
+
+            this.hasUnsavedChanges = true
+            this.liveSync()
         },
-        onConnectionTypeChange() {
-            // Reset fields when connection type changes
+        onConnectionTypeChange(connectionType: 'single' | 'join') {
+            if (connectionType === 'join') {
+                this.visualizationData.targetDataset = this.joinConnectionState.targetDataset
+                this.visualizationData.targetMeasure = this.joinConnectionState.targetMeasure
+                this.visualizationData.targetProperty = this.joinConnectionState.targetProperty
+                this.visualizationData.targetDatasetForeignKeyColumn = this.joinConnectionState.targetDatasetForeignKeyColumn
+                this.visualizationData.chartMeasures = deepcopy(this.joinConnectionState.chartMeasures)
+                this.visualizationData.targetDatasetMeasures = deepcopy(this.joinConnectionState.targetDatasetMeasures)
+                return
+            }
+
             this.visualizationData.targetDataset = undefined
-            this.visualizationData.targetMeasure = undefined
-            this.visualizationData.targetProperty = null
+            this.visualizationData.targetMeasure = this.singleConnectionState.targetMeasure
+            this.visualizationData.targetProperty = this.singleConnectionState.targetProperty
             this.visualizationData.targetDatasetForeignKeyColumn = undefined
+            this.visualizationData.chartMeasures = deepcopy(this.singleConnectionState.chartMeasures)
+            this.visualizationData.targetDatasetMeasures = []
         },
         availableMeasuresForSingle() {
             if (!this.visualizationData.target) return []
@@ -1273,17 +1346,23 @@ export default defineComponent({
             }
         },
         async onTargetChange(id: string) {
-            this.visualizationData.targetDataset = undefined
-            this.visualizationData.targetMeasure = undefined
-            this.visualizationData.targetProperty = null
-            this.visualizationData.targetDatasetForeignKeyColumn = undefined
-            this.visualizationData.chartMeasures = []
-            this.visualizationData.targetDatasetMeasures = []
-
             const target = this.widgetModel.layers?.find((layer: any) => id === layer.layerId)
-            this.visualizationData.targetType = target?.type === 'layer' ? 'property' : 'column'
-            if (!target || target.type !== 'layer' || this.propertiesCache.has(id)) {
+
+            this.runWithoutLiveSync(() => {
+                this.resetConnectionStates()
+                this.visualizationData.targetDataset = undefined
+                this.visualizationData.targetMeasure = undefined
+                this.visualizationData.targetProperty = null
+                this.visualizationData.targetDatasetForeignKeyColumn = undefined
+                this.visualizationData.chartMeasures = []
+                this.visualizationData.targetDatasetMeasures = []
+                this.visualizationData.targetType = target?.type === 'layer' ? 'property' : 'column'
                 this.visualizationData.properties = this.propertiesCache.get(id) || []
+            })
+
+            this.hasUnsavedChanges = true
+
+            if (!target || target.type !== 'layer' || this.propertiesCache.has(id)) {
                 return
             }
             await this.loadAvailableProperties(id)
