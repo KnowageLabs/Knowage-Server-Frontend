@@ -5,6 +5,7 @@ import type { Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import type { IChat, IChatArtifactFile, IChatBlock, IChatBlockArtifacts } from './KnChatbot'
+import { getRandomStreamingMessage } from './AiToolsStreamingMessages'
 
 const SIDE_PANEL_WIDTH_KEY = 'chatbot_side_panel_width_v1'
 const SIDE_PANEL_MIN_WIDTH = 260
@@ -113,6 +114,14 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
     let sideResizeStartX = 0
     let sideResizeStartW = 0
     let artifactHighlightTimeout: ReturnType<typeof setTimeout> | null = null
+
+    /**
+     * Get the current locale in the format required by AI_TOOLS_STREAMING_MESSAGES (e.g., 'it_IT', 'en_US')
+     */
+    function getCurrentLocale(): string {
+        const locale = store.locale || 'en_US'
+        return locale.replace('-', '_')
+    }
 
     function clampSidePanelWidth(value: number): number {
         return Math.max(SIDE_PANEL_MIN_WIDTH, Math.min(SIDE_PANEL_MAX_WIDTH, value))
@@ -488,6 +497,17 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
                         activeInvocationId = eventInvocationId
                         if (chat.value[liveIndex]) {
                             chat.value[liveIndex] = { ...chat.value[liveIndex], invocationId: activeInvocationId }
+                        }
+                    }
+
+                    // Check for functionCall with tool name to replace "thinking" message
+                    const functionCall = evt?.functionCall || evt?.function_call || evt?.metadata?.functionCall || evt?.metadata?.function_call
+                    const toolName = functionCall?.name || functionCall?.function_name
+                    if (toolName && chat.value[liveIndex]?.content === '') {
+                        const locale = getCurrentLocale()
+                        const streamingMessage = getRandomStreamingMessage(toolName, locale)
+                        if (streamingMessage) {
+                            chat.value[liveIndex] = { ...chat.value[liveIndex], content: streamingMessage, invocationId: activeInvocationId }
                         }
                     }
 

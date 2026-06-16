@@ -130,10 +130,12 @@
                                     <q-tooltip :delay="500" anchor="top middle" self="bottom middle">{{ $t('ai.sidePanel.title') }}</q-tooltip>
                                 </q-btn>
 
-                                <div v-if="message.isLive && message.content === ''" class="row items-center kn-thinking-state">
-                                    <q-spinner-dots size="1.2rem" color="primary" class="q-mr-sm" />
-                                    <span class="text-caption">{{ $t('ai.thinking') }}</span>
-                                </div>
+                                <Transition v-if="message.isLive" name="kn-message-slide">
+                                    <div :key="message.content || 'thinking'" class="row items-center kn-thinking-state">
+                                        <q-spinner-dots size="1.2rem" color="primary" class="q-mr-sm" />
+                                        <span class="text-caption">{{ message.content || $t('ai.thinking') }}</span>
+                                    </div>
+                                </Transition>
                                 <div v-else-if="message.isStreamError" class="row items-start kn-stream-error">
                                     <q-icon name="warning_amber" color="negative" size="sm" class="q-mr-xs q-mt-xs" />
                                     <vue-markdown-it :source="message.content"></vue-markdown-it>
@@ -602,6 +604,23 @@ function onStartSession() {
 .kn-card-pop-enter-from,
 .kn-card-pop-leave-to {
     transform: scale(0.7) translateY(16px);
+    opacity: 0;
+}
+
+// ── Message content slide transition (for streaming updates) ─────────────
+
+.kn-message-slide-enter-active,
+.kn-message-slide-leave-active {
+    transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kn-message-slide-enter-from {
+    transform: translateY(12px);
+    opacity: 0;
+}
+
+.kn-message-slide-leave-to {
+    transform: translateY(-12px);
     opacity: 0;
 }
 </style>
