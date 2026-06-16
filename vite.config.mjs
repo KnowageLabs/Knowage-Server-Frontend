@@ -8,6 +8,7 @@ import loadVersion from 'vite-plugin-package-version'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 
 const build = {
+    target: 'esnext',
     rollupOptions: {
         input: {
             'knowage-vue': new URL('./index.html', import.meta.url).href
@@ -39,9 +40,7 @@ export default defineConfig((command, mode) => {
                     navigateFallback: null,
                     runtimeCaching: [
                         {
-                            urlPattern: ({ url }) =>
-                                /^(cdn\.|cdnjs\.|unpkg\.|esm\.)/.test(url.hostname) ||
-                                ['cdnjs.cloudflare.com', 'unpkg.com', 'esm.sh', 'cdn.jsdelivr.net', 'cdn.skypack.dev', 'fonts.googleapis.com', 'fonts.gstatic.com', 'code.highcharts.com'].includes(url.hostname),
+                            urlPattern: ({ url }) => /^(cdn\.|cdnjs\.|unpkg\.|esm\.)/.test(url.hostname) || ['cdnjs.cloudflare.com', 'unpkg.com', 'esm.sh', 'cdn.jsdelivr.net', 'cdn.skypack.dev', 'fonts.googleapis.com', 'fonts.gstatic.com', 'code.highcharts.com'].includes(url.hostname),
                             handler: 'CacheFirst',
                             options: {
                                 cacheName: 'cdn-resources',

@@ -15,7 +15,8 @@
             <ChartJSContainer v-if="widget.type === 'chartJS'" :widget-model="widget" :data-to-show="widgetData" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId"></ChartJSContainer>
             <ImageWidget v-if="widget.type === 'image'" :widget-model="widget" :dashboard-id="dashboardId" :editor-mode="false" :prop-variables="variables" />
             <CustomChartWidget v-if="widget.type == 'customchart'" :prop-widget="widget" :widget-data="widgetData" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" :variables="variables" @loading="$emit('loading', $event)" @dataset-interaction-preview="$emit('datasetInteractionPreview', $event)"></CustomChartWidget>
-            <PivotWidget v-if="widget.type == 'static-pivot-table' && !widgetLoading" :prop-widget="widget" :datasets="datasets" :data-to-show="dataToShow" :editor-mode="false" :prop-active-selections="activeSelections" :dashboard-id="dashboardId" :prop-variables="variables" />
+            <PivotWidget v-if="widget.type == 'static-pivot-table-old' && !widgetLoading" :prop-widget="widget" :datasets="datasets" :data-to-show="dataToShow" :editor-mode="false" :prop-active-selections="activeSelections" :dashboard-id="dashboardId" :prop-variables="variables" />
+            <PivotWidgetPerspective v-if="widget.type == 'static-pivot-table' && !widgetLoading" :prop-widget="widget" :datasets="datasets" :data-to-show="dataToShow" :editor-mode="false" :prop-active-selections="activeSelections" :dashboard-id="dashboardId" :prop-variables="variables" />
             <MapWidget v-if="widget.type == 'map' && !widgetLoading" :prop-widget="widget" :datasets="datasets" :data-to-show="dataToShow" :prop-active-selections="activeSelections" :dashboard-id="dashboardId" :prop-variables="variables" />
             <CEPivotWidget v-if="widget.type == 'ce-pivot-table' && !widgetLoading" :prop-widget="widget" :datasets="datasets" :data-to-show="dataToShow" :editor-mode="false" :prop-active-selections="activeSelections" :dashboard-id="dashboardId" />
             <DiscoveryWidget
@@ -56,6 +57,7 @@ import HighchartsContainer from '../widget/ChartWidget/Highcharts/HighchartsCont
 import ChartJSContainer from '../widget/ChartWidget/ChartJS/ChartJSContainer.vue'
 import ImageWidget from '../widget/ImageWidget/ImageWidget.vue'
 import PivotWidget from '@/workspaces/PivotWidget/PivotWidget.vue'
+import PivotWidgetPerspective from '@/workspaces/PivotWidget/PivotWidgetPerspective.vue'
 import CEPivotWidget from '../widget/cePivotWidget/cePivotWidget.vue'
 import CustomChartWidget from '../widget/CustomChartWidget/CustomChartWidget.vue'
 import DiscoveryWidget from '../widget/DiscoveryWidget/DiscoveryWidget.vue'
@@ -69,7 +71,7 @@ import { replaceVariablesAndDriversPlaceholders } from './interactionsHelpers/In
 
 export default defineComponent({
     name: 'widget-renderer',
-    components: { TableWidget, SelectorWidget, SelectorWidgetContainer, ActiveSelectionsWidget, WebComponentContainer, HighchartsContainer, ChartJSContainer, ImageWidget, CustomChartWidget, PivotWidget, DiscoveryWidget, CEPivotWidget, PythonWidgetContainer, MapWidget, SpacerWidget },
+    components: { TableWidget, SelectorWidget, SelectorWidgetContainer, ActiveSelectionsWidget, WebComponentContainer, HighchartsContainer, ChartJSContainer, ImageWidget, CustomChartWidget, PivotWidget, PivotWidgetPerspective, DiscoveryWidget, CEPivotWidget, PythonWidgetContainer, MapWidget, SpacerWidget },
     props: {
         widget: { required: true, type: Object as any },
         widgetLoading: { required: true, type: Boolean as any },
