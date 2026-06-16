@@ -23,17 +23,19 @@ function start(configurations: Record<string, any>): void {
     if (localStorage.getItem('public')) return
 
     // Read configured timeout — explicit 0 (or negative) means "disabled"
+    const envTimeout = Number(import.meta.env.VITE_SESSION_TIMEOUT || 1800000)
+    const defaultTimeout = Number.isFinite(envTimeout) ? envTimeout : 1800000
     const rawTimeout = configurations['KNOWAGE.SESSION_TIMEOUT']
-    const timeout =
-        rawTimeout !== undefined && rawTimeout !== null && rawTimeout !== ''
-            ? Number(rawTimeout)
-            : Number(import.meta.env.VITE_SESSION_TIMEOUT || 1800000)
+    const parsedTimeout = Number(rawTimeout)
+    const hasConfiguredTimeout = rawTimeout !== undefined && rawTimeout !== null && rawTimeout !== ''
+    const timeout = hasConfiguredTimeout && Number.isFinite(parsedTimeout) ? parsedTimeout : defaultTimeout
 
     localStorage.setItem('sessionTimeoutMs', String(timeout))
 
     if (timeout <= 0) return  // feature disabled by configuration
 
-    const warningAdvance = Number(configurations['KNOWAGE.SESSION_WARNING_ADVANCE'] || 300000)
+    const parsedWarningAdvance = Number(configurations['KNOWAGE.SESSION_WARNING_ADVANCE'])
+    const warningAdvance = Number.isFinite(parsedWarningAdvance) ? parsedWarningAdvance : 300000
 
     stop()
 

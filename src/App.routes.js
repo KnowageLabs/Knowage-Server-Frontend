@@ -135,7 +135,9 @@ router.beforeEach(async (to, from, next) => {
     // is not refreshed by ensureUserLoaded before the check runs.
     if (loggedIn && !localStorage.getItem('public') && localStorage.getItem('lastResponseTimestamp') && to.name !== 'login') {
         const elapsed = Date.now() - Number(localStorage.getItem('lastResponseTimestamp'))
-        const timeout = Number(localStorage.getItem('sessionTimeoutMs') || import.meta.env.VITE_SESSION_TIMEOUT || 1800000)
+        const storedTimeout = Number(localStorage.getItem('sessionTimeoutMs'))
+        const envTimeout = Number(import.meta.env.VITE_SESSION_TIMEOUT || 1800000)
+        const timeout = Number.isFinite(storedTimeout) ? storedTimeout : Number.isFinite(envTimeout) ? envTimeout : 1800000
         if (timeout > 0 && elapsed >= timeout) {
             sessionStorage.removeItem('token')
             localStorage.removeItem('lastResponseTimestamp')
