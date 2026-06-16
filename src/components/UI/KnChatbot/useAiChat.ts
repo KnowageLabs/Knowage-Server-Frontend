@@ -262,6 +262,26 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
         return String(candidate)
     }
 
+    function resolveToolNameFromEvent(evt: any): string {
+        const directFunctionCall = evt?.functionCall ?? evt?.function_call ?? evt?.metadata?.functionCall ?? evt?.metadata?.function_call
+        const directName = directFunctionCall?.name ?? directFunctionCall?.function_name
+        if (directName !== null && directName !== undefined && String(directName).trim() !== '') {
+            return String(directName)
+        }
+
+        const parts: any[] = evt?.content?.parts ?? []
+        for (const part of parts) {
+            const fromFunctionCall = part?.functionCall ?? part?.function_call
+            const fromFunctionResponse = part?.functionResponse ?? part?.function_response
+            const candidate = fromFunctionCall?.name ?? fromFunctionCall?.function_name ?? fromFunctionResponse?.name ?? fromFunctionResponse?.function_name
+            if (candidate !== null && candidate !== undefined && String(candidate).trim() !== '') {
+                return String(candidate)
+            }
+        }
+
+        return ''
+    }
+
     const welcomeMessage = computed<IChat>(() => ({
         role: 'assistant',
         content: t('ai.welcomeMessage'),
@@ -457,6 +477,7 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
             let buffer = ''
             let liveText = ''
             let shouldBreakReading = false
+            let activeStreamingToolName = ''
 
             while (true) {
                 const { done, value } = await reader.read()
@@ -500,14 +521,15 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
                         }
                     }
 
-                    // Check for functionCall with tool name to replace "thinking" message
-                    const functionCall = evt?.functionCall || evt?.function_call || evt?.metadata?.functionCall || evt?.metadata?.function_call
-                    const toolName = functionCall?.name || functionCall?.function_name
-                    if (toolName && chat.value[liveIndex]?.content === '') {
+                    // If the event carries tool execution metadata, show a tool-specific live status.
+                    const toolName = resolveToolNameFromEvent(evt)
+                    if (toolName && toolName !== activeStreamingToolName && liveText === '' && chat.value[liveIndex]?.isLive) {
+                        activeStreamingToolName = toolName
                         const locale = getCurrentLocale()
                         const streamingMessage = getRandomStreamingMessage(toolName, locale)
                         if (streamingMessage) {
                             chat.value[liveIndex] = { ...chat.value[liveIndex], content: streamingMessage, invocationId: activeInvocationId }
+                            scrollToBottom()
                         }
                     }
 

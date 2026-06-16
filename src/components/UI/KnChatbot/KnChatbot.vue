@@ -130,12 +130,15 @@
                                     <q-tooltip :delay="500" anchor="top middle" self="bottom middle">{{ $t('ai.sidePanel.title') }}</q-tooltip>
                                 </q-btn>
 
-                                <Transition v-if="message.isLive" name="kn-message-slide">
-                                    <div :key="message.content || 'thinking'" class="row items-center kn-thinking-state">
-                                        <q-spinner-dots size="1.2rem" color="primary" class="q-mr-sm" />
-                                        <span class="text-caption">{{ message.content || $t('ai.thinking') }}</span>
-                                    </div>
-                                </Transition>
+                                <div v-if="message.isLive" class="row items-center kn-thinking-state">
+                                    <q-spinner-dots size="1.2rem" color="primary" class="q-mr-sm" />
+                                    <span class="text-caption kn-thinking-text-shell">
+                                        <Transition v-if="isToolStreamingMessage(message.content || '')" name="kn-message-slide" mode="out-in">
+                                            <span :key="message.content || 'thinking'" class="kn-thinking-text">{{ message.content || $t('ai.thinking') }}</span>
+                                        </Transition>
+                                        <span v-else class="kn-thinking-text">{{ message.content || $t('ai.thinking') }}</span>
+                                    </span>
+                                </div>
                                 <div v-else-if="message.isStreamError" class="row items-start kn-stream-error">
                                     <q-icon name="warning_amber" color="negative" size="sm" class="q-mr-xs q-mt-xs" />
                                     <vue-markdown-it :source="message.content"></vue-markdown-it>
@@ -224,6 +227,7 @@ import { useAiChat } from './useAiChat'
 import { useVoiceInput } from './useVoiceInput'
 import { useRouter } from 'vue-router'
 import KnChatSidePanel from './KnChatSidePanel.vue'
+import { AI_TOOLS_STREAMING_MESSAGES } from './AiToolsStreamingMessages'
 
 const { showAlert, minimized, minimizedToCard, isMobile, panelStyle, startDrag, startResize, closePanel, toggleChatbot, minimizeToCard, restoreFromCard } = useChatbotPanel()
 
@@ -255,6 +259,12 @@ const {
 
 const { listening, toggleVoice } = useVoiceInput(userMessage)
 const router = useRouter()
+
+const toolStreamingMessagesSet = new Set(Object.values(AI_TOOLS_STREAMING_MESSAGES).flatMap((entry) => [...entry.it_IT, ...entry.en_US]))
+
+function isToolStreamingMessage(content: string): boolean {
+    return toolStreamingMessagesSet.has(content)
+}
 
 function extractDashboardLinks(message: any): Array<{ title: string; url: string }> {
     const links: Array<{ title: string; url: string }> = []
@@ -377,6 +387,15 @@ function onStartSession() {
 
 .kn-thinking-state {
     color: #475569;
+}
+
+.kn-thinking-text-shell {
+    display: inline-block;
+    line-height: 1.2;
+}
+
+.kn-thinking-text {
+    display: inline-block;
 }
 
 .kn-stream-error {
