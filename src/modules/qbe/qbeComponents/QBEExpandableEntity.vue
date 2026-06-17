@@ -1,6 +1,6 @@
 <template>
     <div v-for="(entity, index) in entities" :key="index" class="expandable-entities">
-        <h4 class="entity-item-container" :style="{ 'border-left': `10px solid ${entity.color}` }" draggable="true" :data-test="'entity-container-' + entity.id" @dragstart="onDragStart($event, entity)">
+        <h4 v-tooltip.top="getTooltipText(entity)" class="entity-item-container" :style="{ 'border-left': `10px solid ${entity.color}` }" draggable="true" :data-test="'entity-container-' + entity.id" @dragstart="onDragStart($event, entity)">
             <i v-tooltip.top="$t(`qbe.entities.types.${entity.attributes.iconCls}`)" :class="getIconCls(entity.attributes.iconCls)" class="p-mx-2" />
             <span class="kn-flex" :data-test="'expand-' + entity.id" @click="expandEntity(entity)">{{ entity.text }}</span>
             <Button v-tooltip.top="$t('qbe.entities.relations')" icon="fas fa-info" class="p-button-text p-button-rounded p-button-plain" @click="$emit('showRelationDialog', entity)" />
@@ -8,7 +8,7 @@
             <Button v-else icon="pi pi-chevron-down" class="p-button-text p-button-rounded p-button-plain" @click="entity.expanded = true" />
         </h4>
         <ul v-show="entity.expanded">
-            <li v-for="(child, index) in entity.children" :key="index" :style="{ 'border-left': `5px solid ${child.color}` }" draggable="true" @click="$emit('entityChildClicked', child)" @dragstart="onDragStart($event, child)">
+            <li v-for="(child, index) in entity.children" :key="index" v-tooltip.top="getTooltipText(child)" :style="{ 'border-left': `5px solid ${child.color}` }" draggable="true" @click="$emit('entityChildClicked', child)" @dragstart="onDragStart($event, child)">
                 <i v-tooltip.top="$t(`qbe.entities.types.${child.attributes.iconCls}`)" :class="getIconCls(child.attributes.iconCls)" class="p-mx-2" />
                 <span :data-test="'entity-' + entity.id">{{ child.text }}</span>
                 <Button icon="fas fa-filter" :class="{ 'qbe-active-filter-icon': fieldHasFilters(child) }" class="p-button-text p-button-rounded p-button-plain p-ml-auto" :data-test="'child-' + child.id" @click.stop="openFiltersDialog(child)" />
@@ -82,6 +82,9 @@ export default defineComponent({
                 default:
                     return 'fas fa-cube'
             }
+        },
+        getTooltipText(item: any) {
+            return item?.attributes?.longDescription || item?.description || item?.qtip || item?.text || ''
         },
         onDragStart(event, entity) {
             event.dataTransfer.setData('text', JSON.stringify(entity))
