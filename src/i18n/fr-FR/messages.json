@@ -938,12 +938,62 @@
     },
     "locale": {
         "dateFormat": "Mm/jj/aa ",
-        "dayNames": ["Dimanche ", "Lundi ", "Mardi: ", "Mercredi ", "Jeudi: ", "Vendredi ", "Samedi "],
-        "dayNamesMin": ["Su ", "Mo ", "Tu ", "Nous ", "Th ", "R ", "Sa "],
-        "dayNamesShort": ["Soleil ", "Lun ", "Mar ", "Wed ", "Thu ", "Fri ", "Sat "],
+        "dayNames": [
+            "Dimanche ",
+            "Lundi ",
+            "Mardi: ",
+            "Mercredi ",
+            "Jeudi: ",
+            "Vendredi ",
+            "Samedi "
+        ],
+        "dayNamesMin": [
+            "Su ",
+            "Mo ",
+            "Tu ",
+            "Nous ",
+            "Th ",
+            "R ",
+            "Sa "
+        ],
+        "dayNamesShort": [
+            "Soleil ",
+            "Lun ",
+            "Mar ",
+            "Wed ",
+            "Thu ",
+            "Fri ",
+            "Sat "
+        ],
         "firstDayOfWeek": 0,
-        "monthNames": ["Janvier ", "Février ", "Mars ", "Avril ", "Mai ", "Juin ", "Juillet ", "Août ", "Septembre ", "Octobre ", "Novembre ", "Décembre "],
-        "monthNamesShort": ["Jan ", "Fév. ", "Mar ", "Avril ", "Mai ", "Juin ", "Jul ", "Août ", "Sep ", "Oct ", "Nov. ", "Déc "],
+        "monthNames": [
+            "Janvier ",
+            "Février ",
+            "Mars ",
+            "Avril ",
+            "Mai ",
+            "Juin ",
+            "Juillet ",
+            "Août ",
+            "Septembre ",
+            "Octobre ",
+            "Novembre ",
+            "Décembre "
+        ],
+        "monthNamesShort": [
+            "Jan ",
+            "Fév. ",
+            "Mar ",
+            "Avril ",
+            "Mai ",
+            "Juin ",
+            "Jul ",
+            "Août ",
+            "Sep ",
+            "Oct ",
+            "Nov. ",
+            "Déc "
+        ],
         "today": "Aujourd'hui ",
         "weekHeader": "Wk "
     },
@@ -2571,6 +2621,16 @@
             "oldSchedulationsMessage": "Dans le tableau suivant, vous trouverez toutes les schedulations exécutées à partir du travail sélectionné. ",
             "ranSchedulations": "Afficher les schedulations d'exécution ",
             "title": "Schedulations"
+        }
+    },
+    "dashboard": {
+        "generalSettings": {
+            "menuWidgets": {
+                "pdfExportFileName": "Dashboard PDF export file name",
+                "xlsxExportFileName": "Dashboard XLSX export file name",
+                "exportFileNameHint": "Supports placeholders like $P{driver} and $V{variable}, for example \"pippo $P{cane} $V{varia}\".",
+                "exportFileName": "Dashboard export file name"
+            }
         }
     }
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createDashboardSpreadsheetExportBody, createWidgetExportBody, getDashboardXlsxStyleEnabled } from '../DashboardExportHelper'
+import { createDashboardSpreadsheetExportBody, createWidgetExportBody, getDashboardExportFileNameTemplate, getDashboardExportVariables, getDashboardXlsxStyleEnabled } from '../DashboardExportHelper'
 
 const createDashboard = (overrides = {}) =>
     ({
@@ -17,6 +17,7 @@ const createDashboard = (overrides = {}) =>
             menuWidgets: {
                 showExcelExport: true,
                 xlsxStyleEnabled: true,
+                exportFileName: 'dashboard $P{year} $V{region}',
                 showScreenshot: true,
                 showSelectionButton: true,
                 enableWidgetMenu: true,
@@ -51,12 +52,25 @@ describe('getDashboardXlsxStyleEnabled', () => {
     })
 })
 
+describe('getDashboardExportFileNameTemplate', () => {
+    it('returns the configured shared export filename template', () => {
+        expect(getDashboardExportFileNameTemplate(createDashboard())).toBe('dashboard $P{year} $V{region}')
+    })
+})
+
+describe('getDashboardExportVariables', () => {
+    it('returns the current dashboard variables', () => {
+        expect(getDashboardExportVariables(createDashboard())).toEqual([{ name: 'region', type: 'static', value: 'EMEA' }])
+    })
+})
+
 describe('createDashboardSpreadsheetExportBody', () => {
     it('removes currentView and adds the top-level xlsxStyleEnabled flag', () => {
         const body = createDashboardSpreadsheetExportBody(createDashboard())
 
         expect(body.currentView).toBeUndefined()
         expect(body.xlsxStyleEnabled).toBe(true)
+        expect(body.configuration.menuWidgets.exportFileName).toBe('dashboard $P{year} $V{region}')
         expect(body.configuration.menuWidgets.xlsxStyleEnabled).toBe(true)
     })
 })

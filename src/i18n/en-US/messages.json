@@ -535,7 +535,11 @@
                 "showExcelExport": "Show excel export functionality on widgets",
                 "showScreenshot": "Enable screenshot functionality on widgets",
                 "showSelectionButton": "Always show selection button",
-                "title": "Menu & Widgets"
+                "title": "Menu & Widgets",
+                "pdfExportFileName": "Dashboard PDF export file name",
+                "xlsxExportFileName": "Dashboard XLSX export file name",
+                "exportFileNameHint": "Supports placeholders like $P{driver} and $V{variable}, for example \"pippo $P{cane} $V{varia}\".",
+                "exportFileName": "Dashboard export file name"
             },
             "profile": "Profile",
             "themes": {
@@ -2387,12 +2391,62 @@
     },
     "locale": {
         "dateFormat": "mm/dd/yy",
-        "dayNames": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-        "dayNamesMin": ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
-        "dayNamesShort": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+        "dayNames": [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday"
+        ],
+        "dayNamesMin": [
+            "Su",
+            "Mo",
+            "Tu",
+            "We",
+            "Th",
+            "Fr",
+            "Sa"
+        ],
+        "dayNamesShort": [
+            "Sun",
+            "Mon",
+            "Tue",
+            "Wed",
+            "Thu",
+            "Fri",
+            "Sat"
+        ],
         "firstDayOfWeek": 0,
-        "monthNames": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-        "monthNamesShort": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        "monthNames": [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
+        ],
+        "monthNamesShort": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec"
+        ],
         "today": "Today",
         "weekHeader": "Wk"
     },

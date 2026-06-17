@@ -938,12 +938,62 @@
     },
     "locale": {
         "dateFormat": "mm/dd/yy ",
-        "dayNames": ["Domingo ", "Segunda-feira ", "Terça-feira ", "Quarta ", "Quinta ", "Sexta-feira ", "Sábado "],
-        "dayNamesMin": ["Su ", "Mo ", "Tu ", "Nós ", "Th ", "Fr ", "Sa "],
-        "dayNamesShort": ["Sol ", "Mão ", "Tue ", "Qua ", "Thu ", "Fri ", "Sat "],
+        "dayNames": [
+            "Domingo ",
+            "Segunda-feira ",
+            "Terça-feira ",
+            "Quarta ",
+            "Quinta ",
+            "Sexta-feira ",
+            "Sábado "
+        ],
+        "dayNamesMin": [
+            "Su ",
+            "Mo ",
+            "Tu ",
+            "Nós ",
+            "Th ",
+            "Fr ",
+            "Sa "
+        ],
+        "dayNamesShort": [
+            "Sol ",
+            "Mão ",
+            "Tue ",
+            "Qua ",
+            "Thu ",
+            "Fri ",
+            "Sat "
+        ],
         "firstDayOfWeek": 0,
-        "monthNames": ["Janeiro ", "Fevereiro ", "Março ", "Abril ", "Maio ", "Junho ", "Julho ", "Agosto ", "Setembro ", "Outubro ", "Novembro ", "Dezembro "],
-        "monthNamesShort": ["Jan ", "Feb ", "Mar ", "Apr ", "Maio ", "Jun ", "Jul ", "Ago ", "Sep ", "Outubro ", "Nov ", "Dec "],
+        "monthNames": [
+            "Janeiro ",
+            "Fevereiro ",
+            "Março ",
+            "Abril ",
+            "Maio ",
+            "Junho ",
+            "Julho ",
+            "Agosto ",
+            "Setembro ",
+            "Outubro ",
+            "Novembro ",
+            "Dezembro "
+        ],
+        "monthNamesShort": [
+            "Jan ",
+            "Feb ",
+            "Mar ",
+            "Apr ",
+            "Maio ",
+            "Jun ",
+            "Jul ",
+            "Ago ",
+            "Sep ",
+            "Outubro ",
+            "Nov ",
+            "Dec "
+        ],
         "today": "Hoje ",
         "weekHeader": "Wk "
     },
@@ -2571,6 +2621,16 @@
             "oldSchedulationsMessage": "Na tabela a seguir você encontrará todas as programações executadas a partir de tarefas selecionadas. ",
             "ranSchedulations": "Visualizar planejamentos de ran ",
             "title": "Agendações"
+        }
+    },
+    "dashboard": {
+        "generalSettings": {
+            "menuWidgets": {
+                "pdfExportFileName": "Dashboard PDF export file name",
+                "xlsxExportFileName": "Dashboard XLSX export file name",
+                "exportFileNameHint": "Supports placeholders like $P{driver} and $V{variable}, for example \"pippo $P{cane} $V{varia}\".",
+                "exportFileName": "Dashboard export file name"
+            }
         }
     }
 }

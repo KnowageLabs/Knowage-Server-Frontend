@@ -938,12 +938,62 @@
     },
     "locale": {
         "dateFormat": "aa/gg/yy ",
-        "dayNames": ["Pazar ", "Pazartesi ", "Salı ", "Çarşamba ", "Perşembe ", "Cuma ", "Cumartesi "],
-        "dayNamesMin": ["Pzr ", "Pzt ", "Tu ", "Biz ", "E ", "Fr ", "Ct "],
-        "dayNamesShort": ["Paz ", "Pzt ", "Sal ", "Çar ", "Thu ", "Fri ", "Cts "],
+        "dayNames": [
+            "Pazar ",
+            "Pazartesi ",
+            "Salı ",
+            "Çarşamba ",
+            "Perşembe ",
+            "Cuma ",
+            "Cumartesi "
+        ],
+        "dayNamesMin": [
+            "Pzr ",
+            "Pzt ",
+            "Tu ",
+            "Biz ",
+            "E ",
+            "Fr ",
+            "Ct "
+        ],
+        "dayNamesShort": [
+            "Paz ",
+            "Pzt ",
+            "Sal ",
+            "Çar ",
+            "Thu ",
+            "Fri ",
+            "Cts "
+        ],
         "firstDayOfWeek": 0,
-        "monthNames": ["Ocak ", "Şubat ", "Mart ", "Nisan ", "Mayıs ", "Haziran ", "Temmuz ", "Ağustos ", "Eylül ", "Ekim ", "Kasım ", "Aralık "],
-        "monthNamesShort": ["Oca ", "Şub ", "Mar ", "Nis ", "Mayıs ", "Haz ", "Jul ", "Ağu ", "Eyl ", "Eki ", "Kas ", "Ara "],
+        "monthNames": [
+            "Ocak ",
+            "Şubat ",
+            "Mart ",
+            "Nisan ",
+            "Mayıs ",
+            "Haziran ",
+            "Temmuz ",
+            "Ağustos ",
+            "Eylül ",
+            "Ekim ",
+            "Kasım ",
+            "Aralık "
+        ],
+        "monthNamesShort": [
+            "Oca ",
+            "Şub ",
+            "Mar ",
+            "Nis ",
+            "Mayıs ",
+            "Haz ",
+            "Jul ",
+            "Ağu ",
+            "Eyl ",
+            "Eki ",
+            "Kas ",
+            "Ara "
+        ],
         "today": "Bugün ",
         "weekHeader": "Wk "
     },
@@ -2571,6 +2621,16 @@
             "oldSchedulationsMessage": "Aşağıdaki tabloda, seçilen işten tüm yürütülen zamanlamaları bulacaksınız. ",
             "ranSchedulations": "Koşulan zamanlamaları görüntüle ",
             "title": "Zamanlamalar"
+        }
+    },
+    "dashboard": {
+        "generalSettings": {
+            "menuWidgets": {
+                "pdfExportFileName": "Dashboard PDF export file name",
+                "xlsxExportFileName": "Dashboard XLSX export file name",
+                "exportFileNameHint": "Supports placeholders like $P{driver} and $V{variable}, for example \"pippo $P{cane} $V{varia}\".",
+                "exportFileName": "Dashboard export file name"
+            }
         }
     }
 }
