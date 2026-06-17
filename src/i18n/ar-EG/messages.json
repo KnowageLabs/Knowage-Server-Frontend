@@ -938,11 +938,61 @@
     },
     "locale": {
         "dateFormat": "mm/dd/yy",
-        "dayNames": ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"],
-        "dayNamesMin": ["سو", "Mo", "u", "نحن", "الخميس", "الجمعة", "Sa"],
-        "dayNamesShort": ["شمس", "Mon", "ثلاe", "مللت", "الرو", "جمعة", "Sat"],
-        "monthNames": ["كانون الثاني /", "شباط / فبراير", "آذار / مارس", "نيسان / أبريل", "أيار / مايو", "حزيران / يونيه", "يوليو", "آب / أغسطس", "أيلول / سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"],
-        "monthNamesShort": ["يناير", "فبراير", "ar", "ابريل", "أيار / مايو", "يونية", "جول", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"],
+        "dayNames": [
+            "الأحد",
+            "الاثنين",
+            "الثلاثاء",
+            "الأربعاء",
+            "الخميس",
+            "الجمعة",
+            "السبت"
+        ],
+        "dayNamesMin": [
+            "سو",
+            "Mo",
+            "u",
+            "نحن",
+            "الخميس",
+            "الجمعة",
+            "Sa"
+        ],
+        "dayNamesShort": [
+            "شمس",
+            "Mon",
+            "ثلاe",
+            "مللت",
+            "الرو",
+            "جمعة",
+            "Sat"
+        ],
+        "monthNames": [
+            "كانون الثاني /",
+            "شباط / فبراير",
+            "آذار / مارس",
+            "نيسان / أبريل",
+            "أيار / مايو",
+            "حزيران / يونيه",
+            "يوليو",
+            "آب / أغسطس",
+            "أيلول / سبتمبر",
+            "أكتوبر",
+            "نوفمبر",
+            "ديسمبر"
+        ],
+        "monthNamesShort": [
+            "يناير",
+            "فبراير",
+            "ar",
+            "ابريل",
+            "أيار / مايو",
+            "يونية",
+            "جول",
+            "أغسطس",
+            "سبتمبر",
+            "أكتوبر",
+            "نوفمبر",
+            "ديسمبر"
+        ],
         "today": "اليوم",
         "weekHeader": "(ك)"
     },
@@ -2570,6 +2620,16 @@
             "oldSchedulationsMessage": "في الجدول التالي ستقوم بايجاد كل عمليات الجدولة التي تم تنفيذها من خلال العملية المحددة.",
             "ranSchedulations": "مشاهدة schedulctions",
             "title": "الجداول"
+        }
+    },
+    "dashboard": {
+        "generalSettings": {
+            "menuWidgets": {
+                "pdfExportFileName": "Dashboard PDF export file name",
+                "xlsxExportFileName": "Dashboard XLSX export file name",
+                "exportFileNameHint": "Supports placeholders like $P{driver} and $V{variable}, for example \"pippo $P{cane} $V{varia}\".",
+                "exportFileName": "Dashboard export file name"
+            }
         }
     }
 }

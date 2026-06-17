@@ -938,12 +938,62 @@
     },
     "locale": {
         "dateFormat": "Hh/nn/éé ",
-        "dayNames": ["Vasárnap ", "Hétfő ", "Kedd ", "Szerda ", "Csütörtök ", "Péntek ", "Szombat "],
-        "dayNamesMin": ["Su ", "Mó ", "Tu ", "Mi ", "Th ", "Fr ", "Sa "],
-        "dayNamesShort": ["Nap ", "H ", "Tue ", "Wed ", "Thu ", "Fri ", "Sat "],
+        "dayNames": [
+            "Vasárnap ",
+            "Hétfő ",
+            "Kedd ",
+            "Szerda ",
+            "Csütörtök ",
+            "Péntek ",
+            "Szombat "
+        ],
+        "dayNamesMin": [
+            "Su ",
+            "Mó ",
+            "Tu ",
+            "Mi ",
+            "Th ",
+            "Fr ",
+            "Sa "
+        ],
+        "dayNamesShort": [
+            "Nap ",
+            "H ",
+            "Tue ",
+            "Wed ",
+            "Thu ",
+            "Fri ",
+            "Sat "
+        ],
         "firstDayOfWeek": 0,
-        "monthNames": ["Január ", "Február ", "Március ", "Április ", "Május ", "Június ", "Július ", "Augusztus ", "Szeptember ", "Októberi ", "November ", "December "],
-        "monthNamesShort": ["Jan ", "Feb ", "Mar ", "Apr ", "Május ", "Jun ", "Jul ", "Ölelés ", "Szep ", "Okt ", "Nov ", "Dec "],
+        "monthNames": [
+            "Január ",
+            "Február ",
+            "Március ",
+            "Április ",
+            "Május ",
+            "Június ",
+            "Július ",
+            "Augusztus ",
+            "Szeptember ",
+            "Októberi ",
+            "November ",
+            "December "
+        ],
+        "monthNamesShort": [
+            "Jan ",
+            "Feb ",
+            "Mar ",
+            "Apr ",
+            "Május ",
+            "Jun ",
+            "Jul ",
+            "Ölelés ",
+            "Szep ",
+            "Okt ",
+            "Nov ",
+            "Dec "
+        ],
         "today": "Ma ",
         "weekHeader": "Wk "
     },
@@ -2572,6 +2622,16 @@
             "oldSchedulationsMessage": "Az alábbi táblázatban megtalálja a kiválasztott job összes végrehajtott ütemezését. ",
             "ranSchedulations": "A futtatott ütemezések megtekintése ",
             "title": "Ütemezések"
+        }
+    },
+    "dashboard": {
+        "generalSettings": {
+            "menuWidgets": {
+                "pdfExportFileName": "Dashboard PDF export file name",
+                "xlsxExportFileName": "Dashboard XLSX export file name",
+                "exportFileNameHint": "Supports placeholders like $P{driver} and $V{variable}, for example \"pippo $P{cane} $V{varia}\".",
+                "exportFileName": "Dashboard export file name"
+            }
         }
     }
 }

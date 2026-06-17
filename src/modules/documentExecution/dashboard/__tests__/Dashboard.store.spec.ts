@@ -99,6 +99,7 @@ const makeDashboard = (id = 'dash1') => ({
         menuWidgets: {
             showExcelExport: true,
             xlsxStyleEnabled: false,
+            exportFileName: '',
             showScreenshot: true,
             showSelectionButton: true,
             enableWidgetMenu: true,

@@ -22,6 +22,14 @@ export const getDashboardXlsxStyleEnabled = (dashboard: Pick<IDashboard, 'config
     return dashboard?.configuration?.menuWidgets?.xlsxStyleEnabled ?? false
 }
 
+export const getDashboardExportFileNameTemplate = (dashboard: Pick<IDashboard, 'configuration'> | null | undefined) => {
+    return dashboard?.configuration?.menuWidgets?.exportFileName ?? ''
+}
+
+export const getDashboardExportVariables = (dashboard: Pick<IDashboard, 'configuration'> | null | undefined) => {
+    return dashboard?.configuration?.variables ?? []
+}
+
 export const createDashboardSpreadsheetExportBody = (dashboard: IDashboardExportState) => {
     const body = deepcopy(dashboard) as IDashboardExportState & { xlsxStyleEnabled?: boolean }
     delete body.currentView

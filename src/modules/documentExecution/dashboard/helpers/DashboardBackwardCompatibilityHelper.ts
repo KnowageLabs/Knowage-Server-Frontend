@@ -88,6 +88,7 @@ const getFormattedMenuAndWidgets = (model: any) => {
     const formattedMenuAndWIdgets = {
         showExcelExport: modelConfig.showExcelExport ?? true,
         xlsxStyleEnabled: modelConfig.xlsxStyleEnabled ?? false,
+        exportFileName: modelConfig.exportFileName ?? '',
         showScreenshot: modelConfig.showScreenshot ?? true,
         showSelectionButton: modelConfig.showSelectionButton ?? true,
         enableChartChange: true,

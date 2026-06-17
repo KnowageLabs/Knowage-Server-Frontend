@@ -135,7 +135,7 @@ import EnginesConstants from '@/EnginesConstants.json'
 import DashboardSaveViewDialog from '../dashboard/DashboardViews/DashboardSaveViewDialog/DashboardSaveViewDialog.vue'
 import DashboardSavedViewsDialog from '../dashboard/DashboardViews/DashboardSavedViewsDialog/DashboardSavedViewsDialog.vue'
 import DatasetEditorPreview from '../dashboard/dataset/DatasetEditorDataTab/DatasetEditorPreview.vue'
-import { createDashboardSpreadsheetExportBody } from '../dashboard/helpers/DashboardExportHelper'
+import { createDashboardSpreadsheetExportBody, getDashboardExportFileNameTemplate, getDashboardExportVariables } from '../dashboard/helpers/DashboardExportHelper'
 import { enrichDashboardBodyWithPivotSortState } from '@/modules/documentExecution/dashboard/widget/PivotWidget/PivotWidgetExportHelper'
 
 let seeAsFinalUserWarning
@@ -719,6 +719,7 @@ export default defineComponent({
         },
         async dashboardExport(format) {
             this.setLoading(true)
+            const currentDashboard = this.document.dashboardId ? this.dashboards[this.document.dashboardId] : null
             let body = new URLSearchParams()
             body.set('DOCUMENT_LABEL', this.document.label)
             body.set('SBI_EXECUTION_ROLE', this.userRole || '')
@@ -727,8 +728,8 @@ export default defineComponent({
             let url = import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + `/api/1.0/pages/execute/${format}`
             if (format.includes('xls')) {
                 format = 'spreadsheet'
-                if (this.document.dashboardId && this.dashboards[this.document.dashboardId]) {
-                    body = createDashboardSpreadsheetExportBody(this.dashboards[this.document.dashboardId])
+                if (currentDashboard) {
+                    body = createDashboardSpreadsheetExportBody(currentDashboard)
                     enrichDashboardBodyWithPivotSortState(body)
                 }
             }
@@ -739,6 +740,7 @@ export default defineComponent({
 
             if (['pdf'].includes(format)) {
                 url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/dashboardExport/callPuppeteer'
+                const structuredParameters = this.filtersData && this.filtersData.filterStatus ? JSON.stringify(this.getStructuredParametersForExport()) : ''
                 //it's a get, set the body properties as params
                 await this.$http
                     .get(url, {
@@ -748,7 +750,9 @@ export default defineComponent({
                             user_id: this.user.userUniqueIdentifier || '',
                             document: this.document.id || '',
                             outputType: format,
-                            parameters: this.filtersData && this.filtersData.filterStatus ? JSON.stringify(this.getStructuredParametersForExport()) : ''
+                            parameters: structuredParameters,
+                            exportFileName: getDashboardExportFileNameTemplate(currentDashboard),
+                            dashboardVariables: JSON.stringify(getDashboardExportVariables(currentDashboard))
                         },
                         responseType: 'blob'
                     })

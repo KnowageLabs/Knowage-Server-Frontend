@@ -938,12 +938,62 @@
     },
     "locale": {
         "dateFormat": "mm/dd/aa",
-        "dayNames": ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"],
-        "dayNamesMin": ["Su", "M", "TTU", "Nosotros", "H", "Fr", "SA"],
-        "dayNamesShort": ["Sol", "LON", "Tue", "Mié", "Jue", "Fri", "Sat"],
+        "dayNames": [
+            "Domingo",
+            "Lunes",
+            "Martes",
+            "Miércoles",
+            "Jueves",
+            "Viernes",
+            "Sábado"
+        ],
+        "dayNamesMin": [
+            "Su",
+            "M",
+            "TTU",
+            "Nosotros",
+            "H",
+            "Fr",
+            "SA"
+        ],
+        "dayNamesShort": [
+            "Sol",
+            "LON",
+            "Tue",
+            "Mié",
+            "Jue",
+            "Fri",
+            "Sat"
+        ],
         "firstDayOfWeek": 0,
-        "monthNames": ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
-        "monthNamesShort": ["Jan", "Feb.", "Mar", "Abr.", "Mayo", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
+        "monthNames": [
+            "Enero",
+            "Febrero",
+            "Marzo",
+            "Abril",
+            "Mayo",
+            "Junio",
+            "Julio",
+            "Agosto",
+            "Septiembre",
+            "Octubre",
+            "Noviembre",
+            "Diciembre"
+        ],
+        "monthNamesShort": [
+            "Jan",
+            "Feb.",
+            "Mar",
+            "Abr.",
+            "Mayo",
+            "Jun",
+            "Jul",
+            "Ago",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dic"
+        ],
         "today": "Hoy",
         "weekHeader": "Wk"
     },
@@ -2571,6 +2621,16 @@
             "oldSchedulationsMessage": "En la tabla siguiente encontrará todas las programaciones ejecutadas del trabajo seleccionado.",
             "ranSchedulations": "Ver las programaciones de ejecución",
             "title": "Schedulations"
+        }
+    },
+    "dashboard": {
+        "generalSettings": {
+            "menuWidgets": {
+                "pdfExportFileName": "Dashboard PDF export file name",
+                "xlsxExportFileName": "Dashboard XLSX export file name",
+                "exportFileNameHint": "Supports placeholders like $P{driver} and $V{variable}, for example \"pippo $P{cane} $V{varia}\".",
+                "exportFileName": "Dashboard export file name"
+            }
         }
     }
 }
