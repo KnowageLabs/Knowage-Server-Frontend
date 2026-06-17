@@ -17,13 +17,24 @@
                     </span>
                     <div class="sidebar-tree">
                         <div v-for="(tableDef, tableName) in filteredStructure" :key="tableName" class="tree-table-block">
-                            <div class="tree-table-row" @click="toggleTable(String(tableName))">
+                            <div
+                                class="tree-table-row tree-table-row--draggable"
+                                draggable="true"
+                                @click="toggleTable(String(tableName))"
+                                @dragstart="onSchemaDragStart($event, { type: 'table', table: String(tableName), value: String(tableName) })"
+                            >
                                 <i :class="expandedTables[String(tableName)] ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" class="tree-arrow" />
                                 <i class="pi pi-table tree-table-icon" />
                                 <span class="tree-label">{{ tableName }}</span>
                             </div>
                             <div v-if="expandedTables[String(tableName)]" class="tree-columns">
-                                <div v-for="col in getColumns(tableDef)" :key="col" class="tree-col-row">
+                                <div
+                                    v-for="col in getColumns(tableDef)"
+                                    :key="col"
+                                    class="tree-col-row tree-col-row--draggable"
+                                    draggable="true"
+                                    @dragstart="onSchemaDragStart($event, { type: 'column', table: String(tableName), value: `${String(tableName)}.${col}` })"
+                                >
                                     <i class="pi pi-minus tree-col-icon" />
                                     <span class="tree-col-label">{{ col }}</span>
                                 </div>
@@ -57,7 +68,15 @@
                         <p>{{ $t('managers.ai.goldQueries.noQueries') }}</p>
                     </div>
 
-                    <div v-for="(query, idx) in queries" :key="idx" class="query-item" :class="{ 'query-item--open': openIndex === idx }">
+                    <div
+                        v-for="(query, idx) in queries"
+                        :key="idx"
+                        class="query-item"
+                        :class="{ 'query-item--open': openIndex === idx, 'query-item--drop-target': dragOverIndex === idx }"
+                        @dragover.prevent="onQueryDragOver(idx, $event)"
+                        @dragleave="onQueryDragLeave(idx, $event)"
+                        @drop.prevent="onQueryDrop(idx, $event)"
+                    >
                         <!-- Accordion header -->
                         <div class="query-item-header" @click="toggleAccordion(idx)">
                             <div class="query-header-left">
@@ -109,8 +128,11 @@
                                     <MultiSelect
                                         v-model="query.tables"
                                         :options="tableOptions"
+                                        option-label="label"
+                                        option-value="value"
                                         :placeholder="$t('managers.ai.goldQueries.addTables')"
                                         :filter="true"
+                                        filter-by="label"
                                         display="chip"
                                         class="chips-multiselect"
                                         append-to="body"
@@ -136,9 +158,12 @@
                                     <Chip v-for="c in query.columns" :key="c" :label="c" removable class="query-chip query-chip--column" @remove="removeColumn(idx, c)" />
                                     <MultiSelect
                                         v-model="query.columns"
-                                       :options="getColumnOptionsForQuery(query)"
+                                        :options="getColumnOptionsForQuery(query)"
+                                        option-label="label"
+                                        option-value="value"
                                         :placeholder="$t('managers.ai.goldQueries.addColumns')"
                                         :filter="true"
+                                        filter-by="label"
                                         display="chip"
                                         class="chips-multiselect"
                                         append-to="body"
@@ -203,6 +228,7 @@ export default defineComponent({
             queries: [] as IGoldQuery[],
             datasourceStructure: {} as Record<string, any>,
             expandedTables: {} as Record<string, boolean>,
+            dragOverIndex: null as number | null,
             treeFilter: '' as string,
             loadingStructure: false,
             saving: false,
@@ -228,12 +254,12 @@ export default defineComponent({
             return result
         },
         tableOptions(): string[] {
-            return Object.keys(this.datasourceStructure)
+            return Object.keys(this.datasourceStructure).map((tableName) => ({ label: tableName, value: tableName })) as any
         },
         columnOptions(): string[] {
-            const cols: string[] = []
+            const cols: Array<{ label: string; value: string }> = []
             for (const [tableName, tableDef] of Object.entries(this.datasourceStructure)) {
-                this.getColumns(tableDef).forEach((c) => cols.push(`${tableName}.${c}`))
+                this.getColumns(tableDef).forEach((c) => cols.push({ label: `${tableName}.${c}`, value: `${tableName}.${c}` }))
             }
             return cols
         }
@@ -311,12 +337,58 @@ export default defineComponent({
         getColumnOptionsForQuery(query: IGoldQuery): string[] {
             // If tables are selected, show only columns from those tables; else show all
             if (!query.tables.length) return this.columnOptions
-            const cols: string[] = []
+            const cols: Array<{ label: string; value: string }> = []
             for (const tableName of query.tables) {
                 const tableDef = this.datasourceStructure[tableName]
-                if (tableDef) this.getColumns(tableDef).forEach((c) => cols.push(`${tableName}.${c}`))
+                if (tableDef) this.getColumns(tableDef).forEach((c) => cols.push({ label: `${tableName}.${c}`, value: `${tableName}.${c}` }))
             }
             return cols
+        },
+        onSchemaDragStart(event: DragEvent, payload: { type: 'table' | 'column'; table: string; value: string }) {
+            if (!event.dataTransfer) return
+            event.dataTransfer.effectAllowed = 'copy'
+            event.dataTransfer.setData('application/x-knowage-gold-query-item', JSON.stringify(payload))
+            event.dataTransfer.setData('text/plain', payload.value)
+        },
+        getDraggedSchemaItem(event: DragEvent): { type: 'table' | 'column'; table: string; value: string } | null {
+            if (!event.dataTransfer) return null
+            const raw = event.dataTransfer.getData('application/x-knowage-gold-query-item')
+            if (!raw) return null
+            try {
+                const parsed = JSON.parse(raw)
+                if (!parsed || !parsed.type || !parsed.table || !parsed.value) return null
+                if (parsed.type !== 'table' && parsed.type !== 'column') return null
+                return parsed
+            } catch {
+                return null
+            }
+        },
+        onQueryDragOver(idx: number, event: DragEvent) {
+            if (!this.getDraggedSchemaItem(event)) return
+            this.dragOverIndex = idx
+            if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy'
+        },
+        onQueryDragLeave(idx: number, event: DragEvent) {
+            const currentTarget = event.currentTarget as HTMLElement | null
+            const relatedTarget = event.relatedTarget as Node | null
+            if (currentTarget && relatedTarget && currentTarget.contains(relatedTarget)) return
+            if (this.dragOverIndex === idx) this.dragOverIndex = null
+        },
+        onQueryDrop(idx: number, event: DragEvent) {
+            const draggedItem = this.getDraggedSchemaItem(event)
+            this.dragOverIndex = null
+            if (!draggedItem) return
+
+            const query = this.queries[idx]
+            this.openIndex = idx
+
+            if (draggedItem.type === 'table') {
+                if (!query.tables.includes(draggedItem.table)) query.tables.push(draggedItem.table)
+                return
+            }
+
+            if (!query.tables.includes(draggedItem.table)) query.tables.push(draggedItem.table)
+            if (!query.columns.includes(draggedItem.value)) query.columns.push(draggedItem.value)
         },
         onEditorSetup({ monaco }: { editor: any; monaco: any }) {
             // Register a single SQL completion provider for the lifetime of this dialog
@@ -521,6 +593,10 @@ export default defineComponent({
     }
 }
 
+.tree-table-row--draggable {
+    cursor: grab;
+}
+
 .tree-arrow {
     font-size: 0.6rem;
     color: #888;
@@ -552,6 +628,10 @@ export default defineComponent({
     padding: 3px 8px;
     border-radius: 3px;
     margin: 0 4px;
+}
+
+.tree-col-row--draggable {
+    cursor: grab;
 }
 
 .tree-col-icon {
@@ -660,6 +740,11 @@ export default defineComponent({
     &--open {
         border-color: var(--kn-color-primary, #3b82f6);
         box-shadow: 0 2px 12px rgba(59, 130, 246, 0.1);
+    }
+
+    &--drop-target {
+        border-color: var(--kn-color-primary, #3b82f6);
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
     }
 }
 
