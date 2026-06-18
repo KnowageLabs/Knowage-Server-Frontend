@@ -23,7 +23,7 @@
                 </div>
                 <div class="p-my-4">
                     <span class="p-float-label">
-                        <AutoComplete id="category" v-model="target.category" :suggestions="filteredCategory" field="valueName" @complete="searchCategory($event)" @input="valueChanged('category', $event.target.value)" @item-select="valueChanged('category', $event.value)" />
+                        <Dropdown id="category" v-model="target.category" :options="categories" option-label="valueName" :data-key="'valueId'" :show-clear="true" class="kn-material-input kn-width-full" @change="valueChanged('category', $event.value)" />
                         <label for="category" class="kn-material-input-label"> {{ $t('kpi.targetDefinition.kpiCategory') }}</label>
                     </span>
                 </div>
@@ -76,14 +76,14 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { iCategory, iTargetDefinition } from './TargetDefinition'
-import AutoComplete from 'primevue/autocomplete'
+import Dropdown from 'primevue/dropdown'
 import Calendar from 'primevue/calendar'
 import KnValidationMessages from '@/components/UI/KnValidatonMessages.vue'
 
 export default defineComponent({
     name: 'target-definition-form',
     components: {
-        AutoComplete,
+        Dropdown,
         Calendar,
         KnValidationMessages
     },
@@ -99,38 +99,27 @@ export default defineComponent({
     emits: ['touched', 'valueChanged'],
     data() {
         return {
-            target: {} as iTargetDefinition,
-            filteredCategory: [] as iCategory[]
+            target: {} as iTargetDefinition
         }
     },
     watch: {
         selectedTarget() {
             this.target = { ...this.selectedTarget }
+            this.matchCategory()
         },
         categories() {
-            this.loadCategories()
+            this.matchCategory()
         }
     },
-    created() {
-        this.loadCategories()
-    },
     methods: {
-        loadCategories() {
-            this.filteredCategory = [...(this.categories as iCategory[])]
+        matchCategory() {
+            if (this.target.category && this.categories) {
+                const match = (this.categories as iCategory[]).find((c) => c.valueId === (this.target.category as iCategory)?.valueId)
+                if (match) this.target.category = match
+            }
         },
         valueChanged(fieldName: string, value: any) {
             this.$emit('valueChanged', { fieldName, value })
-        },
-        searchCategory(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.filteredCategory = [...(this.categories as iCategory[])]
-                } else {
-                    this.filteredCategory = this.categories?.filter((category: any) => {
-                        return category.valueName && category.valueName.toLowerCase().startsWith(event.query.toLowerCase())
-                    }) as iCategory[]
-                }
-            }, 250)
         }
     }
 })
