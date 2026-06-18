@@ -87,6 +87,4 @@ app.use(VueAxios, interceptor)
     .component('GridItem', GridItem)
     .component('AgGridVue', AgGridVue)
 
-router.isReady().then(() => {
-    app.mount('#app')
-})
+app.mount('#app')

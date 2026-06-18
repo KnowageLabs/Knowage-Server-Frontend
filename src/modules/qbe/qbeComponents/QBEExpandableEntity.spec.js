@@ -249,7 +249,7 @@ const mockedEntities = [
         attributes: {
             iconCls: 'dimension',
             type: 'entity',
-            londDescription: 'Product',
+            longDescription: 'Product',
             linkedToWords: false
         },
         children: [
@@ -541,7 +541,7 @@ const mockedEntities = [
         attributes: {
             iconCls: 'dimension',
             type: 'entity',
-            londDescription: 'Product class',
+            longDescription: 'Product class',
             linkedToWords: false
         },
         children: [

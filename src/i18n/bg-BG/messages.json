@@ -790,12 +790,62 @@
     },
     "locale": {
         "dateFormat": "мм/д/гг ",
-        "dayNames": ["Неделя. ", "Понеделник. ", "Вторник. ", "Сряда. ", "Четвъртък. ", "Петък. ", "Събота. "],
-        "dayNamesMin": ["Су ... ", "Мо! ", "Ти ... ", "Ние ... ", "- ... ", "Fr ", "Sa "],
-        "dayNamesShort": ["Слънце ... ", "Мон! ", "Туе. ", "! ", "Ту. ", "Fri ", "Седях ... "],
+        "dayNames": [
+            "Неделя. ",
+            "Понеделник. ",
+            "Вторник. ",
+            "Сряда. ",
+            "Четвъртък. ",
+            "Петък. ",
+            "Събота. "
+        ],
+        "dayNamesMin": [
+            "Су ... ",
+            "Мо! ",
+            "Ти ... ",
+            "Ние ... ",
+            "- ... ",
+            "Fr ",
+            "Sa "
+        ],
+        "dayNamesShort": [
+            "Слънце ... ",
+            "Мон! ",
+            "Туе. ",
+            "! ",
+            "Ту. ",
+            "Fri ",
+            "Седях ... "
+        ],
         "firstDayOfWeek": 0,
-        "monthNames": ["Януари. ", "Февруари. ", "Марш! ", "Април. ", "Май. ", "Юни. ", "Юли. ", "Август. ", "Септември. ", "Октомври. ", "Ноември. ", "Декември. "],
-        "monthNamesShort": ["Джан. ", "Февруари. ", "Мар. ", "Apr. ", "Май. ", "Джун! ", "Юли ", "Ог. ", "Сеп. ", "Oct ", "No. ", "Дев. "],
+        "monthNames": [
+            "Януари. ",
+            "Февруари. ",
+            "Марш! ",
+            "Април. ",
+            "Май. ",
+            "Юни. ",
+            "Юли. ",
+            "Август. ",
+            "Септември. ",
+            "Октомври. ",
+            "Ноември. ",
+            "Декември. "
+        ],
+        "monthNamesShort": [
+            "Джан. ",
+            "Февруари. ",
+            "Мар. ",
+            "Apr. ",
+            "Май. ",
+            "Джун! ",
+            "Юли ",
+            "Ог. ",
+            "Сеп. ",
+            "Oct ",
+            "No. ",
+            "Дев. "
+        ],
         "today": "Днес ... ",
         "weekHeader": "К. "
     },
@@ -2344,6 +2394,16 @@
             "oldSchedulationsMessage": "В следващата таблица ще намерите всички изпълнени schedulations от избрана работа. ",
             "ranSchedulations": "Преглед на стартирани schedulations ",
             "title": "Schedulations"
+        }
+    },
+    "dashboard": {
+        "generalSettings": {
+            "menuWidgets": {
+                "pdfExportFileName": "Dashboard PDF export file name",
+                "xlsxExportFileName": "Dashboard XLSX export file name",
+                "exportFileNameHint": "Supports placeholders like $P{driver} and $V{variable}, for example \"pippo $P{cane} $V{varia}\".",
+                "exportFileName": "Dashboard export file name"
+            }
         }
     }
 }

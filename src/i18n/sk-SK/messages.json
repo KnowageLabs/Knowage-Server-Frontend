@@ -415,7 +415,11 @@
                 "enableXlsxStyle": "Enable XLSX style",
                 "showScreenshot": "Povoliť funkciu snímok obrazovky na Widgetoch",
                 "showSelectionButton": "Vždy zobraziť tlačidlo výberu",
-                "title": "Menu a Widgety"
+                "title": "Menu a Widgety",
+                "pdfExportFileName": "Dashboard PDF export file name",
+                "xlsxExportFileName": "Dashboard XLSX export file name",
+                "exportFileNameHint": "Supports placeholders like $P{driver} and $V{variable}, for example \"pippo $P{cane} $V{varia}\".",
+                "exportFileName": "Dashboard export file name"
             },
             "profile": "Profile",
             "themes": {
@@ -1997,12 +2001,62 @@
     },
     "locale": {
         "dateFormat": "mm/dd/rr",
-        "dayNames": ["nedeľa", "pondelok", "utorok", "streda", "štvrtok", "piatok", "sobota"],
-        "dayNamesMin": ["Ne", "Po", "Ut", "My", "Št", "Fr", "So"],
-        "dayNamesShort": ["Ne", "Po", "Utorok", "Str", "Štv", "Pia", "So"],
+        "dayNames": [
+            "nedeľa",
+            "pondelok",
+            "utorok",
+            "streda",
+            "štvrtok",
+            "piatok",
+            "sobota"
+        ],
+        "dayNamesMin": [
+            "Ne",
+            "Po",
+            "Ut",
+            "My",
+            "Št",
+            "Fr",
+            "So"
+        ],
+        "dayNamesShort": [
+            "Ne",
+            "Po",
+            "Utorok",
+            "Str",
+            "Štv",
+            "Pia",
+            "So"
+        ],
         "firstDayOfWeek": 0,
-        "monthNames": ["január", "február", "marec", "apríl", "máj", "jún", "júl", "august", "september", "október", "november", " December"],
-        "monthNamesShort": ["jan", "feb", "mar", "apr", "máj", "jún", "júl", "aug.", "sep", "okt", "nov", " dec"],
+        "monthNames": [
+            "január",
+            "február",
+            "marec",
+            "apríl",
+            "máj",
+            "jún",
+            "júl",
+            "august",
+            "september",
+            "október",
+            "november",
+            " December"
+        ],
+        "monthNamesShort": [
+            "jan",
+            "feb",
+            "mar",
+            "apr",
+            "máj",
+            "jún",
+            "júl",
+            "aug.",
+            "sep",
+            "okt",
+            "nov",
+            " dec"
+        ],
         "today": "dnes",
         "weekHeader": "Týž"
     },
