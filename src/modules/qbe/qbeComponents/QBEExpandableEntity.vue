@@ -84,7 +84,7 @@ export default defineComponent({
             }
         },
         getTooltipText(item: any) {
-            return item?.attributes?.longDescription || item?.description || item?.qtip || item?.text || ''
+            return item?.qtip || item?.attributes?.longDescription || item?.description || item?.text || ''
         },
         onDragStart(event, entity) {
             event.dataTransfer.setData('text', JSON.stringify(entity))
