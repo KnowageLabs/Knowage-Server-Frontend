@@ -1,52 +1,67 @@
 <template>
     <q-card-section>
-        <div class="text-h6 text-center q-mb-md">{{ $t('common.loginPage.registrationTitle') }}</div>
+        <div class="text-h6 text-center q-mb-xs">{{ $t('common.loginPage.registrationTitle') }}</div>
         <div class="text-caption text-grey-7 text-center q-mb-md">{{ $t('common.loginPage.registrationSubtitle') }}</div>
 
-        <q-form @submit="onSubmit" class="q-gutter-sm">
-            <q-input v-model="name" :label="$t('common.loginPage.name')" square dense outlined :rules="[(val) => !!val || $t('common.loginPage.nameRequired')]" autocomplete="given-name">
-                <template v-slot:prepend>
-                    <q-icon name="person" />
-                </template>
-            </q-input>
+        <q-form @submit="onSubmit">
+            <!-- Name + Surname -->
+            <div class="row q-col-gutter-sm q-mb-sm">
+                <div class="col-6">
+                    <q-input v-model="name" :label="$t('common.loginPage.name')" dense outlined :rules="[(val) => !!val || $t('common.loginPage.nameRequired')]" autocomplete="given-name">
+                        <template v-slot:prepend>
+                            <q-icon name="person" />
+                        </template>
+                    </q-input>
+                </div>
+                <div class="col-6">
+                    <q-input v-model="surname" :label="$t('common.loginPage.surname')" dense outlined :rules="[(val) => !!val || $t('common.loginPage.surnameRequired')]" autocomplete="family-name">
+                        <template v-slot:prepend>
+                            <q-icon name="person" />
+                        </template>
+                    </q-input>
+                </div>
+            </div>
 
-            <q-input v-model="surname" :label="$t('common.loginPage.surname')" square dense outlined :rules="[(val) => !!val || $t('common.loginPage.surnameRequired')]" autocomplete="family-name">
-                <template v-slot:prepend>
-                    <q-icon name="person" />
-                </template>
-            </q-input>
-
-            <q-input v-model="email" :label="$t('common.loginPage.email')" type="email" square dense outlined :rules="[(val) => !!val || $t('common.loginPage.emailRequired'), (val) => /.+@.+\..+/.test(val) || $t('common.loginPage.emailInvalid')]" autocomplete="email">
+            <!-- Email -->
+            <q-input v-model="email" :label="$t('common.loginPage.email')" type="email" dense outlined class="q-mb-sm" :rules="[(val) => !!val || $t('common.loginPage.emailRequired'), (val) => /.+@.+\..+/.test(val) || $t('common.loginPage.emailInvalid')]" autocomplete="email">
                 <template v-slot:prepend>
                     <q-icon name="email" />
                 </template>
             </q-input>
 
-            <q-input v-model="username" :label="$t('common.loginPage.username')" square dense outlined :rules="[(val) => !!val || $t('common.loginPage.usernameRequired')]" autocomplete="username">
+            <!-- Username -->
+            <q-input v-model="username" :label="$t('common.loginPage.username')" dense outlined class="q-mb-sm" :rules="[(val) => !!val || $t('common.loginPage.usernameRequired')]" autocomplete="username">
                 <template v-slot:prepend>
                     <q-icon name="person" />
                 </template>
             </q-input>
 
-            <q-input v-model="password" :type="isPwd ? 'password' : 'text'" :label="$t('common.loginPage.newPassword')" square dense outlined :rules="[(val) => !!val || $t('common.loginPage.passwordRequired'), (val) => val.length >= 8 || $t('common.loginPage.passwordMinLength')]" autocomplete="new-password">
-                <template v-slot:prepend>
-                    <q-icon name="lock" />
-                </template>
-                <template v-slot:append>
-                    <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPwd = !isPwd" />
-                </template>
-            </q-input>
+            <!-- Password + Confirm -->
+            <div class="row q-col-gutter-sm q-mb-sm">
+                <div class="col-6">
+                    <q-input v-model="password" :type="isPwd ? 'password' : 'text'" :label="$t('common.loginPage.newPassword')" dense outlined :rules="[(val) => !!val || $t('common.loginPage.passwordRequired'), (val) => val.length >= 8 || $t('common.loginPage.passwordMinLength')]" autocomplete="new-password">
+                        <template v-slot:prepend>
+                            <q-icon name="lock" />
+                        </template>
+                        <template v-slot:append>
+                            <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPwd = !isPwd" />
+                        </template>
+                    </q-input>
+                </div>
+                <div class="col-6">
+                    <q-input v-model="confirmPassword" :type="isConfirmPwd ? 'password' : 'text'" :label="$t('common.loginPage.confirmPassword')" dense outlined :rules="[(val) => !!val || $t('common.loginPage.confirmPasswordRequired'), (val) => val === password || $t('common.loginPage.passwordsMustMatch')]" autocomplete="new-password">
+                        <template v-slot:prepend>
+                            <q-icon name="lock" />
+                        </template>
+                        <template v-slot:append>
+                            <q-icon :name="isConfirmPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isConfirmPwd = !isConfirmPwd" />
+                        </template>
+                    </q-input>
+                </div>
+            </div>
 
-            <q-input v-model="confirmPassword" :type="isConfirmPwd ? 'password' : 'text'" :label="$t('common.loginPage.confirmPassword')" square dense outlined :rules="[(val) => !!val || $t('common.loginPage.confirmPasswordRequired'), (val) => val === password || $t('common.loginPage.passwordsMustMatch')]" autocomplete="new-password">
-                <template v-slot:prepend>
-                    <q-icon name="lock" />
-                </template>
-                <template v-slot:append>
-                    <q-icon :name="isConfirmPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isConfirmPwd = !isConfirmPwd" />
-                </template>
-            </q-input>
-
-            <div v-if="captchaImage" class="captcha-container">
+            <!-- Captcha -->
+            <div v-if="captchaImage" class="captcha-container q-mb-sm">
                 <div class="text-caption text-grey-7 q-mb-sm">{{ $t('common.loginPage.captchaLabel') }}</div>
                 <div class="captcha-image-wrapper">
                     <img :src="captchaImage" alt="Captcha" class="captcha-image" />
@@ -54,20 +69,19 @@
                         <q-tooltip>{{ $t('common.loginPage.refreshCaptcha') }}</q-tooltip>
                     </q-btn>
                 </div>
-                <q-input v-model="captchaInput" :label="$t('common.loginPage.captchaInput')" square outlined :rules="[(val) => !!val || $t('common.loginPage.captchaRequired')]" class="q-mt-sm">
+                <q-input v-model="captchaInput" :label="$t('common.loginPage.captchaInput')" dense outlined class="q-mt-sm" :rules="[(val) => !!val || $t('common.loginPage.captchaRequired')]">
                     <template v-slot:prepend>
                         <q-icon name="security" />
                     </template>
                 </q-input>
             </div>
 
-            <div>
-                <q-btn :label="$t('common.loginPage.register')" type="submit" color="primary" class="full-width" :loading="loading" />
-            </div>
+            <!-- Submit -->
+            <q-btn :label="$t('common.loginPage.register')" type="submit" color="primary" class="full-width" :loading="loading" />
         </q-form>
     </q-card-section>
 
-    <q-card-section class="text-center q-pt-none">
+    <q-card-section class="text-center q-pt-sm q-pb-md">
         <div class="text-caption text-grey-7">
             <a href="#" class="text-primary" @click.prevent="$emit('back')">{{ $t('common.loginPage.backToLogin') }}</a>
         </div>
