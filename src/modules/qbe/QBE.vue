@@ -7,7 +7,9 @@
                 </template>
                 <template #end>
                     <Button v-if="isParameterSidebarVisible" v-tooltip.bottom="$t('common.filter')" icon="pi pi-filter" class="p-button-text p-button-rounded p-button-plain" @click="parameterSidebarVisible = !parameterSidebarVisible" />
-                    <Button v-tooltip.bottom="$t('common.save')" icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" data-test="save-button" @click="openSavingDialog" />
+                    <span v-tooltip.bottom="qbeAdvancedSaving ? $t('common.save') : $t('qbe.missingSavePermissions')">
+                        <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="!qbeAdvancedSaving" data-test="save-button" @click="openSavingDialog" />
+                    </span>
                     <Button v-tooltip.bottom="$t('common.close')" icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="$emit('close')" />
                 </template>
             </Toolbar>
@@ -191,6 +193,7 @@ import calcFieldDescriptor from './QBECalcFieldDescriptor.json'
 import KnBlockly from '@/components/UI/KnBlockly/KnBlockly.vue'
 import Dropdown from 'primevue/dropdown'
 import mainStore from '../../App.store'
+import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 import deepcopy from 'deepcopy'
 import { getCorrectRolesForExecution } from '@/helpers/commons/roleHelper'
 import { getFormattedQBECatalogueForAPI, getInvalidCalculatedFieldAggregation } from './QBEHelper'
@@ -279,6 +282,9 @@ export default defineComponent({
         }
     },
     computed: {
+        qbeAdvancedSaving(): boolean {
+            return (this.store.$state as any).user.functionalities.includes(UserFunctionalitiesConstants.QBE_ADVANCED_SAVING)
+        },
         isParameterSidebarVisible(): boolean {
             let parameterVisible = false
             for (let i = 0; i < this.filtersData?.filterStatus?.length; i++) {
