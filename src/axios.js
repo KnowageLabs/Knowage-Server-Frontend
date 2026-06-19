@@ -81,7 +81,20 @@ axios.interceptors.response.use(
         const store = mainStore(pinia)
         if (error.response && error.response.status) {
             if (error.response.status === 401) {
-                if (router.currentRoute.value.name !== 'login') authHelper.handleUnauthorized()
+                const routeName = router.currentRoute.value.name
+                const routePath = router.currentRoute.value.path || ''
+                const loginCallbackParams = new URLSearchParams(window.location.search)
+                const hasOidcCallback =
+                    loginCallbackParams.has('code') ||
+                    loginCallbackParams.has('state') ||
+                    loginCallbackParams.has('authToken') ||
+                    loginCallbackParams.has('error') ||
+                    window.location.hash.includes('id_token=') ||
+                    window.location.hash.includes('access_token=') ||
+                    window.location.hash.includes('error=')
+
+                const isLoginRoute = routeName === 'login' || routePath === '/login'
+                if (!isLoginRoute && !hasOidcCallback) authHelper.handleUnauthorized()
             }
             if ([400, 500].includes(error.response.status)) {
                 let obj = error.response.data

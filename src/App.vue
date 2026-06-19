@@ -143,6 +143,9 @@ export default defineComponent({
 
         const locationParams = new URL(location).searchParams
         let token = sessionStorage.getItem('token')
+        const isLoginRoute = this.$route.name === 'login' || this.$route.path === '/login'
+        const hasOidcQueryCallback = locationParams.has('code') || locationParams.has('state') || locationParams.has('authToken') || locationParams.has('error')
+        const hasOidcHashCallback = window.location.hash.includes('id_token=') || window.location.hash.includes('access_token=') || window.location.hash.includes('error=')
 
         // Gestione pagina pubblica
         if (!token && locationParams.get('public')) {
@@ -177,6 +180,13 @@ export default defineComponent({
 
         // Se non c'è token e non è una pagina pubblica, carica almeno il tema di default
         if (!token) {
+            // Do not interrupt OIDC callback handling on /login; Login.vue must process code/hash first.
+            if (isLoginRoute && (hasOidcQueryCallback || hasOidcHashCallback)) {
+                markAuthReady()
+                this.setLoading(false)
+                return
+            }
+
             // Carica il tema di default per la pagina di login
             if (Object.keys(this.defaultTheme).length === 0) {
                 this.setDefaultTheme(this.themeHelper.getDefaultKnowageTheme())

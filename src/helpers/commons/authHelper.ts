@@ -27,7 +27,10 @@ export default {
         await axios
             .post(endpoint)
             .then((response) => {
-                invalidateSession(response.data.urlEnginesInvalidate, response.data.redirectUrl?.replace('${id_token}', sessionStorage.getItem('idToken') || ''), query, redirectPath)
+                const idToken = sessionStorage.getItem('idToken') || ''
+                const candidateRedirect = response.data.redirectUrl?.replace('${id_token}', idToken)
+                const hasMissingIdTokenHint = !!candidateRedirect && /[?&]id_token_hint=(?:&|$)/.test(candidateRedirect)
+                invalidateSession(response.data.urlEnginesInvalidate, hasMissingIdTokenHint ? '' : candidateRedirect, query, redirectPath)
             })
             .finally(() => {
                 localStorage.clear()
