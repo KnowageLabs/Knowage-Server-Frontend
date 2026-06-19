@@ -60,7 +60,7 @@
             </div>
             <q-select v-if="filter.rightType === 'subquery'" filled v-model="filter.rightOperandDescription" class="col" :options="subqueries" option-value="name" option-label="name" map-options emit-value @update:model-value="onSubqeryTargetChange" />
 
-            <q-select v-if="filter.rightType === 'parameter' && !['IN', 'NOT IN'].includes(filter.operator)" filled v-model="filter.rightOperandDescription" class="col" :options="parameters" option-value="name" option-label="name" map-options emit-value @update:model-value="onParameterTargetChange" />
+            <q-select v-if="filter.rightType === 'parameter'" filled v-model="filter.rightOperandDescription" class="col" :options="parameters" option-value="name" option-label="name" map-options emit-value @update:model-value="onParameterTargetChange" />
 
             <template v-if="filter.rightType === 'manual' && (field.dataType === 'java.sql.Timestamp' || field.dataType === 'java.sql.Date') && filter.operator !== 'IS NULL' && filter.operator !== 'NOT NULL'">
                 <q-input filled v-model="targetDate" class="col" @update:model-value="onManualTimestampChange">
