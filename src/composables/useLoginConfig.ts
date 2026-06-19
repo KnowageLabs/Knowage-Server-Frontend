@@ -25,6 +25,10 @@ export const useLoginConfig = () => {
         const response = await axios.get(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/loginconfig`)
         loginConfig.value = response.data
 
+        if (loginConfig.value?.items?.[0]?.clientId) {
+            sessionStorage.setItem('oidcClientId', loginConfig.value.items[0].clientId)
+        }
+
         // Imposta il background personalizzato se presente
         if (loginConfig.value?.items?.[0]?.backgroundUrl) {
             const customBg = loginConfig.value.items[0].backgroundUrl

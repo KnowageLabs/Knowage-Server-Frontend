@@ -50,8 +50,9 @@ export const useTokenVerification = (error: any, success: any) => {
             // Scegli endpoint in base al flow
             const endpoint = flowType === 'implicit' ? '/restful-services/login/oidc/implicit' : '/restful-services/login/oidc/authorization_code'
             const response = await axios.post(`${import.meta.env.VITE_KNOWAGE_CONTEXT}${endpoint}`, payload)
-            if (response.data?.idToken) {
-                sessionStorage.setItem('idToken', response.data.idToken)
+            const idToken = response.data?.idToken || response.data?.id_token
+            if (idToken) {
+                sessionStorage.setItem('idToken', idToken)
             }
             return response.data?.token || ''
         } catch (err: any) {

@@ -31,7 +31,7 @@ import { driver } from 'driver.js'
 import 'driver.js/dist/driver.css'
 import { useServiceWorker } from '@/composables/useServiceWorker'
 import { decodeJWT, isTokenExpired } from '@/helpers/commons/jwtHelper'
-import { markAuthReady } from '@/helpers/commons/authState'
+import { isAuthCallbackInProgress, isLoginRouteByLocation, markAuthReady } from '@/helpers/commons/authState'
 
 export default defineComponent({
     components: { ConfirmDialog, KnOverlaySpinnerPanel, KnRotate, MainMenu, Toast },
@@ -143,6 +143,8 @@ export default defineComponent({
 
         const locationParams = new URL(location).searchParams
         let token = sessionStorage.getItem('token')
+        const isLoginRoute = this.$route.name === 'login' || isLoginRouteByLocation()
+        const isAuthCallbackRoute = isAuthCallbackInProgress()
 
         // Gestione pagina pubblica
         if (!token && locationParams.get('public')) {
@@ -172,6 +174,15 @@ export default defineComponent({
                     markAuthReady()
                     this.setLoading(false)
                 })
+            return
+        }
+
+        if (!token && isAuthCallbackRoute) {
+            if (Object.keys(this.defaultTheme).length === 0) {
+                this.setDefaultTheme(this.themeHelper.getDefaultKnowageTheme())
+            }
+            this.setLoading(false)
+            markAuthReady()
             return
         }
 
@@ -216,7 +227,7 @@ export default defineComponent({
                 this.setLoading(false)
                 markAuthReady()
                 // Redirect al login se non siamo già lì
-                if (this.$route.name !== 'login' && !this.$route.meta?.public) {
+                if (!isLoginRoute && !this.$route.meta?.public) {
                     this.$router.push({ name: 'login', query: { redirect: this.$route.fullPath } })
                 }
                 return
@@ -224,8 +235,11 @@ export default defineComponent({
             token = sessionStorage.getItem('token')
         }
 
-        // Verifica se il token è scaduto
-        if (isTokenExpired(token)) {
+        const decodedToken = decodeJWT(token)
+
+        // Verifica la scadenza solo per token JWT con claim exp; i token opachi
+        // ricostruiti dalla sessione server devono essere validati dal backend.
+        if (decodedToken?.exp && isTokenExpired(token)) {
             console.warn('Token scaduto')
             sessionStorage.removeItem('token')
             this.setLoading(false)

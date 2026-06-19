@@ -3,6 +3,7 @@ import router from './App.routes.js'
 import mainStore from './App.store.js'
 import pinia from './pinia'
 import authHelper from '@/helpers/commons/authHelper'
+import { isLoginRouteByLocation } from '@/helpers/commons/authState'
 import { useCookies } from 'vue3-cookies'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -81,7 +82,8 @@ axios.interceptors.response.use(
         const store = mainStore(pinia)
         if (error.response && error.response.status) {
             if (error.response.status === 401) {
-                if (router.currentRoute.value.name !== 'login') authHelper.handleUnauthorized()
+                const isLoginRoute = router.currentRoute.value.name === 'login' || isLoginRouteByLocation()
+                if (!isLoginRoute) authHelper.handleUnauthorized()
             }
             if ([400, 500].includes(error.response.status)) {
                 let obj = error.response.data

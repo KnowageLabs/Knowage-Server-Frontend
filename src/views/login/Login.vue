@@ -236,6 +236,8 @@ onMounted(async () => {
                 return
             }
 
+            window.sessionStorage.setItem('idToken', idToken)
+
             // Exchange ID Token with backend for Knowage token (OIDC_IMPLICIT)
             const token = await exchangeAuthorizationCode(idToken, undefined, 'implicit')
             if (!token) {
