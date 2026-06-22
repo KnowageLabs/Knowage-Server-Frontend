@@ -12,7 +12,7 @@
                 class="col-3"
                 v-model="filter.rightType"
                 :label="$t('qbe.filters.targetType')"
-                :options="['STARTS WITH', 'NOT STARTS WITH', 'ENDS WITH', 'NOT ENDS WITH', 'CONTAINS', 'NOT CONTAINS', 'BETWEEN', 'NOT BETWEEN'].includes(filter.operator) ? [targetValues[0]] : targetValues"
+                :options="['STARTS WITH', 'NOT STARTS WITH', 'ENDS WITH', 'NOT ENDS WITH', 'CONTAINS', 'NOT CONTAINS', 'BETWEEN', 'NOT BETWEEN'].includes(filter.operator) ? [targetValues[0]] : availableTargetValues"
                 option-value="value"
                 option-label="label"
                 map-options
@@ -58,9 +58,9 @@
             <div v-if="filter.rightType === 'valueOfField' && ['IN', 'NOT IN'].includes(filter.operator) && field.dataType !== 'java.sql.Timestamp'" class="col">
                 <Chip v-for="(selectedValue, index) in selectedValues" :key="index" class="p-mr-1">{{ selectedValue }}</Chip>
             </div>
-            <q-select v-if="filter.rightType === 'subquery' && !['IN', 'NOT IN'].includes(filter.operator)" filled v-model="filter.rightOperandDescription" class="col" :options="subqueries" option-value="name" option-label="name" map-options emit-value @update:model-value="onSubqeryTargetChange" />
+            <q-select v-if="filter.rightType === 'subquery'" filled v-model="filter.rightOperandDescription" class="col" :options="subqueries" option-value="name" option-label="name" map-options emit-value @update:model-value="onSubqeryTargetChange" />
 
-            <q-select v-if="filter.rightType === 'parameter' && !['IN', 'NOT IN'].includes(filter.operator)" filled v-model="filter.rightOperandDescription" class="col" :options="parameters" option-value="name" option-label="name" map-options emit-value @update:model-value="onParameterTargetChange" />
+            <q-select v-if="filter.rightType === 'parameter'" filled v-model="filter.rightOperandDescription" class="col" :options="parameters" option-value="name" option-label="name" map-options emit-value @update:model-value="onParameterTargetChange" />
 
             <template v-if="filter.rightType === 'manual' && (field.dataType === 'java.sql.Timestamp' || field.dataType === 'java.sql.Date') && filter.operator !== 'IS NULL' && filter.operator !== 'NOT NULL'">
                 <q-input filled v-model="targetDate" class="col" @update:model-value="onManualTimestampChange">
@@ -141,6 +141,14 @@ export default defineComponent({
     components: { Calendar, CascadeSelect, Chip, Chips, Dropdown, QBEFilterValuesTable },
     props: { propFilter: { type: Object as PropType<iFilter> }, id: { type: String }, propEntities: { type: Array }, subqueries: { type: Array, required: true }, field: { type: Object, required: true }, propParameters: { type: Array } },
     emits: ['removeFilter'],
+    computed: {
+        availableTargetValues(): any[] {
+            if (this.field?.type === 'inline.calculated.field') {
+                return this.targetValues.filter((t) => t.value !== 'valueOfField')
+            }
+            return this.targetValues
+        }
+    },
     data() {
         return {
             QBEFilterDialogDescriptor,
@@ -281,6 +289,7 @@ export default defineComponent({
 
                     this.filter.hasParam = false
                     this.filter.paramName = ''
+                    await this.loadFilterValues()
                     break
                 case 'anotherEntity':
                     this.filter.rightOperandType = 'Field Content'
@@ -345,11 +354,7 @@ export default defineComponent({
                 this.firstOperand = ''
                 this.secondOperand = ''
                 this.multiManualValues = []
-                this.formatFilter()
-
-                if (this.filter.rightType === 'valueOfField') {
-                    await this.loadFilterValues()
-                }
+                await this.formatFilter()
             }
         },
         resetFilterRightOperandValues() {

@@ -161,6 +161,13 @@ export default defineComponent({
             this.loading = true
             const postData = { ...this.dataset }
             postData.start = this.pagination.start
+            postData.limit = this.pagination.limit
+            if (this.sort) {
+                postData.sorting = this.sort
+            }
+            if (this.filter) {
+                postData.filters = this.filter
+            }
             if (this.filtersData.filterStatus?.length > 0) {
                 postData.DRIVERS = this.formatDriversForPreviewData()
             }
@@ -310,10 +317,12 @@ export default defineComponent({
         },
         async onSort(event: any) {
             this.sort = event
+            this.pagination.start = 0
             this.loadFromDatasetManagement ? await this.loadPreSavePreview() : await this.loadPreviewData()
         },
         async onFilter(event: any) {
             this.filter = event
+            this.pagination.start = 0
             this.loadFromDatasetManagement ? await this.loadPreSavePreview() : await this.loadPreviewData()
         },
         setPreviewColumns(data: any) {

@@ -116,7 +116,10 @@ const formatWebComponentModelForService = (dashboardId: any, dashboardConfig: ID
 
             const measureToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, funct: column.aggregation, orderColumn: column.alias, orderType: '' } as any
             column.id === widget.settings?.sortingColumn ? (measureToPush.orderType = widget.settings?.sortingOrder) : ''
-            if (column.formula) measureToPush.formula = addVariablesToFormula(column, dashboardConfig)
+            if (column.formula) {
+                measureToPush.formula = addVariablesToFormula(column, dashboardConfig)
+                measureToPush.funct = 'NONE'
+            }
 
             dataToSend.aggregations.measures.push(measureToPush)
         } else {

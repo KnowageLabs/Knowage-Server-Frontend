@@ -1,147 +1,104 @@
-<template>
-    <Toolbar class="kn-toolbar kn-toolbar--secondary p-p-0 p-m-0">
-        <template #end>
-            <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="buttonDisabled" data-test="save-button" @click="hadleSave" />
-            <Button class="p-button-text p-button-rounded p-button-plain" icon="pi pi-times" data-test="close-button" @click="closeTemplate" />
-        </template>
-    </Toolbar>
-    <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
-    <div class="p-grid p-m-0 p-fluid p-jc-center" style="overflow: auto">
-        <Card class="p-m-2">
-            <template #content>
-                <form class="p-fluid p-formgrid p-grid">
-                    <div class="p-field p-col-6 p-mb-3">
-                        <span class="p-float-label">
-                            <InputText
-                                id="name"
-                                v-model.trim="v$.simpleNavigation.name.$model"
-                                class="kn-material-input"
-                                type="text"
-                                max-length="40"
-                                :class="{
-                                    'p-invalid': v$.simpleNavigation.name.$invalid && v$.simpleNavigation.name.$dirty
-                                }"
-                                @blur="v$.simpleNavigation.name.$touch()"
-                                @input="setDirty"
-                            />
-                            <label for="name" class="kn-material-input-label">{{ $t('common.name') }} * </label>
-                        </span>
-                        <KnValidationMessages class="p-mt-1" :v-comp="v$.simpleNavigation.name" :additional-translate-params="{ fieldName: $t('common.name') }"></KnValidationMessages>
-                    </div>
-                    <div :class="simpleNavigation.type === 2 ? 'p-field p-col-2 p-mb-3' : 'p-field p-col-6 p-mb-3'">
-                        <span class="p-float-label">
-                            <Dropdown id="type" v-model="simpleNavigation.type" class="kn-material-input" :options="crossModes" option-value="value" option-label="name" @change="handleDropdown" />
-                            <label for="type" class="kn-material-input-label"> {{ $t('managers.crossNavigationManagement.modality') }} </label>
-                        </span>
-                    </div>
-                    <div v-if="simpleNavigation.type === 2" class="p-field p-col-2 p-mb-3">
-                        <span class="p-float-label">
-                            <InputNumber id="width" v-model="simpleNavigation.popupOptions.width" input-class="kn-material-input" :min="0" :use-grouping="false" @input="setDirty" />
-                            <label for="width" class="kn-material-input-label">{{ $t('managers.crossNavigationManagement.width') }} </label>
-                        </span>
-                        <small id="width-help">{{ $t('managers.crossNavigationManagement.widthHelp') }}</small>
-                    </div>
-                    <div v-if="simpleNavigation.type === 2" class="p-field p-col-2 p-mb-3">
-                        <span class="p-float-label">
-                            <InputNumber id="height" v-model="simpleNavigation.popupOptions.height" input-class="kn-material-input" :min="0" :use-grouping="false" @input="setDirty" />
-                            <label for="height" class="kn-material-input-label">{{ $t('managers.crossNavigationManagement.height') }} </label>
-                        </span>
-                        <small id="height-help">{{ $t('managers.crossNavigationManagement.heightHelp') }}</small>
-                    </div>
-                    <div class="p-field p-col-6 p-mb-3">
-                        <span class="p-input-icon-right">
-                            <span class="p-float-label">
-                                <InputText id="description" v-model.trim="simpleNavigation.description" class="kn-material-input" type="text" max-length="200" @input="setDirty" />
-                                <label for="description" class="kn-material-input-label">{{ $t('common.description') }} </label>
-                            </span>
-                            <i class="pi pi-info-circle" @click="hintDialog('desc')" />
-                        </span>
-                    </div>
-                    <div class="p-field p-col-6 p-mb-3">
-                        <span class="p-input-icon-right">
-                            <span class="p-float-label">
-                                <InputText id="breadcrumb" v-model.trim="simpleNavigation.breadcrumb" class="kn-material-input" type="text" max-length="200" @input="setDirty" />
-                                <label for="breadcrumb" class="kn-material-input-label">{{ $t('managers.crossNavigationManagement.breadCrumbs') }} </label>
-                            </span>
-                            <i class="pi pi-info-circle" @click="hintDialog('bread')" />
-                        </span>
-                    </div>
-                    <div class="p-field p-col-4 p-mb-3">
-                        <span class="p-float-label">
-                            <InputText id="origin" v-model.trim="simpleNavigation.fromDoc" class="kn-material-input" type="text" disabled />
-                            <label for="origin" class="kn-material-input-label">{{ $t('managers.crossNavigationManagement.originDoc') }} </label>
-                        </span>
-                    </div>
-                    <div class="p-field p-col-2 p-mb-3">
-                        <Button :label="$t('common.select')" class="kn-button kn-button--primary" @click="selectDoc('origin')" />
-                    </div>
-                    <div class="p-field p-col-4 p-mb-3">
-                        <span class="p-float-label">
-                            <InputText id="target" v-model.trim="simpleNavigation.toDoc" class="kn-material-input" type="text" disabled />
-                            <label for="target" class="kn-material-input-label">{{ $t('managers.crossNavigationManagement.targetDoc') }} </label>
-                        </span>
-                    </div>
-                    <div class="p-field p-col-2 p-mb-3">
-                        <Button :label="$t('common.select')" class="kn-button kn-button--primary" @click="selectDoc('target')" />
-                    </div>
-                    <DocParameters :selected-navigation="navigation" @touched="setDirty"></DocParameters>
-                </form>
-            </template>
-        </Card>
-        <DocDialog :dialog-visible="dialogVisible" :selected-doc="docId" @close="dialogVisible = false" @apply="hadleDoc"></DocDialog>
-        <HintDialog :dialog-visible="hintDialogVisiable" :message="hintDialogMessage" :title="hintDialogTitle" @close="hintDialogVisiable = false"></HintDialog>
-    </div>
+﻿<template>
+    <q-layout view="hHh lpR fFf" container>
+        <q-header>
+            <q-toolbar :class="['kn-toolbar', secondary ? 'kn-toolbar--secondary' : 'kn-toolbar--primary']">
+                <q-btn flat round dense icon="menu_open" @click="$emit('toggleDrawer')">
+                    <q-tooltip>{{ $t('common.toggle') }}</q-tooltip>
+                </q-btn>
+                <q-toolbar-title>{{ simpleNavigation.name || $t('managers.crossNavigationManagement.newNavigation') }}</q-toolbar-title>
+                <q-space />
+                <q-btn flat round dense icon="close" data-test="close-button" @click="closeTemplate">
+                    <q-tooltip>{{ $t('common.close') }}</q-tooltip>
+                </q-btn>
+            </q-toolbar>
+        </q-header>
+
+        <q-page-container>
+            <q-linear-progress v-if="loading" indeterminate color="primary" class="kn-progress-bar" />
+            <q-page class="column no-wrap">
+                <q-stepper ref="stepper" v-model="currentStep" class="col crossnav-stepper q-pa-none" color="primary" animated flat keep-alive header-nav vertical>
+                    <q-step :name="0" :title="$t('managers.crossNavigationManagement.step1Title')" :caption="$t('managers.crossNavigationManagement.step1Caption')" icon="description" :done="step1Done" :header-nav="true">
+                        <CrossNavStep1Docs :simple-navigation="simpleNavigation" :loading="loadingDocs" @doc-selected="handleDocSelected" @touched="setDirty" />
+                        <q-stepper-navigation class="row q-gutter-sm">
+                            <q-btn unelevated color="primary" :label="$t('common.next')" :disable="!step1Done" @click="currentStep = 1" />
+                        </q-stepper-navigation>
+                    </q-step>
+
+                    <q-step :name="1" :title="$t('managers.crossNavigationManagement.step2Title')" :caption="$t('managers.crossNavigationManagement.step2Caption')" icon="link" :done="currentStep > 1" :header-nav="step1Done">
+                        <CrossNavStep2Params :navigation="navigation" @touched="setDirty" />
+                        <q-stepper-navigation class="row q-gutter-sm">
+                            <q-btn unelevated color="primary" :label="$t('common.next')" @click="currentStep = 2" />
+                            <q-btn flat color="secondary" :label="$t('common.back')" @click="currentStep = 0" />
+                        </q-stepper-navigation>
+                    </q-step>
+
+                    <q-step :name="2" :title="$t('managers.crossNavigationManagement.step3Title')" :caption="$t('managers.crossNavigationManagement.step3Caption')" icon="info" :header-nav="step1Done">
+                        <CrossNavStep3Details :simple-navigation="simpleNavigation" :v$="v$" @touched="setDirty" @hint-dialog="hintDialog" />
+                        <q-stepper-navigation class="row q-gutter-sm">
+                            <q-btn unelevated color="primary" :label="$t('common.save')" :disable="buttonDisabled" data-test="save-button" @click="handleSave" />
+                            <q-btn flat color="secondary" :label="$t('common.back')" @click="currentStep = 1" />
+                        </q-stepper-navigation>
+                    </q-step>
+                </q-stepper>
+            </q-page>
+        </q-page-container>
+
+        <HintDialog :dialog-visible="hintDialogVisible" :message="hintDialogMessage" :title="hintDialogTitle" @close="hintDialogVisible = false" />
+    </q-layout>
 </template>
+
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { createValidations } from '@/helpers/commons/validationHelper'
 import { AxiosResponse } from 'axios'
-import Dropdown from 'primevue/dropdown'
-import InputNumber from 'primevue/inputnumber'
+import { useQuasar } from 'quasar'
+import { useRouter } from 'vue-router'
 import useValidate from '@vuelidate/core'
-import KnValidationMessages from '@/components/UI/KnValidatonMessages.vue'
-import DocDialog from './dialogs/CrossNavigationManagementDocDialog.vue'
+import CrossNavStep1Docs from './steps/CrossNavStep1Docs.vue'
+import CrossNavStep2Params from './steps/CrossNavStep2Params.vue'
+import CrossNavStep3Details from './steps/CrossNavStep3Details.vue'
 import HintDialog from './dialogs/CrossNavigationManagementHintDialog.vue'
-import DocParameters from './dialogs/CrossNavigationManagementDocParameters.vue'
 import crossNavigationManagementValidator from './CrossNavigationManagementValidator.json'
 import crossNavigationDescriptor from './CrossNavigationManagementDescriptor.json'
 import mainStore from '../../../App.store'
 
 export default defineComponent({
     name: 'cross-navigation-detail',
-    components: { Dropdown, DocDialog, DocParameters, HintDialog, KnValidationMessages, InputNumber },
+    components: { CrossNavStep1Docs, CrossNavStep2Params, CrossNavStep3Details, HintDialog },
     props: {
-        id: {
-            type: String
-        }
+        id: { type: String },
+        secondary: { type: Boolean, default: false },
+        presetOriginDoc: { type: Object, default: undefined }
     },
+    emits: ['close', 'touched', 'saved', 'toggleDrawer'],
     setup() {
         const store = mainStore()
-        return { store }
+        const $q = useQuasar()
+        const router = useRouter()
+        return { store, $q, router }
     },
     data() {
         return {
             navigation: {} as any,
             simpleNavigation: {} as any,
             loading: false,
-            dialogVisible: false,
-            hintDialogVisiable: false,
+            loadingDocs: false,
+            currentStep: 0,
+            hintDialogVisible: false,
             hintDialogTitle: '',
             hintDialogMessage: '',
-            docType: 'origin',
-            docId: null,
             operation: 'insert',
             originParams: [] as any[],
+            autoGeneratedName: '' as string,
             crossNavigationDescriptor,
-            crossModes: [
-                { name: this.$t('managers.crossNavigationManagement.normal'), value: 3 },
-                { name: this.$t('managers.crossNavigationManagement.popUp'), value: 1 }
-            ],
             v$: useValidate() as any
         }
     },
     computed: {
-        buttonDisabled(): any {
+        step1Done(): boolean {
+            return !!(this.simpleNavigation.fromDocId && this.simpleNavigation.toDocId)
+        },
+        buttonDisabled(): boolean {
             return this.v$.$invalid
         }
     },
@@ -153,30 +110,41 @@ export default defineComponent({
                     this.navigation.fromPars = this.originParams
                     this.originParams = []
                 }
-            } else this.initNew()
+            } else {
+                this.initNew()
+            }
+        },
+        'simpleNavigation.fromDoc'() {
+            this.tryAutoName()
+        },
+        'simpleNavigation.toDoc'() {
+            this.tryAutoName()
         }
     },
     created() {
         if (this.id) {
             this.loadNavigation()
-        } else this.initNew()
+        } else {
+            this.initNew()
+        }
     },
     validations() {
-        const validationObject = {
+        return {
             simpleNavigation: createValidations('simpleNavigation', crossNavigationManagementValidator.validations.simpleNavigation)
         }
-        return validationObject
     },
     methods: {
-        closeTemplate() {
-            this.$emit('close')
-        },
-        setDirty(): void {
-            this.$emit('touched')
-        },
         initNew() {
             this.navigation = {}
             this.simpleNavigation = { type: 3 }
+            this.autoGeneratedName = ''
+            this.currentStep = 0
+            if (this.presetOriginDoc) {
+                this.handleDocSelected('origin', this.presetOriginDoc)
+            }
+        },
+        setDirty(): void {
+            this.$emit('touched')
         },
         async loadNavigation() {
             this.loading = true
@@ -184,15 +152,72 @@ export default defineComponent({
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/crossNavigation/' + this.id + '/load/')
                 .then((response: AxiosResponse<any>) => {
                     this.navigation = response.data
-                    if (this.navigation.simpleNavigation.type === 0 || this.navigation.simpleNavigation.type === 2) this.navigation.simpleNavigation.type = 3
-                    this.simpleNavigation = this.navigation.simpleNavigation
-                    if (this.simpleNavigation.popupOptions) {
-                        this.simpleNavigation.popupOptions = JSON.parse(this.simpleNavigation.popupOptions)
+                    if (this.navigation.simpleNavigation.type === 0 || this.navigation.simpleNavigation.type === 2) {
+                        this.navigation.simpleNavigation.type = 3
                     }
+                    this.simpleNavigation = this.navigation.simpleNavigation
                 })
                 .finally(() => (this.loading = false))
         },
-        hadleSave() {
+        async handleDocSelected(docType: string, doc: any) {
+            this.loadingDocs = true
+            this.setDirty()
+            switch (docType) {
+                case 'origin':
+                    this.simpleNavigation.fromDocId = doc.DOCUMENT_ID
+                    this.simpleNavigation.fromDoc = doc.DOCUMENT_LABEL
+                    this.navigation.simpleNavigation = this.simpleNavigation
+                    await this.loadInputParams(doc.DOCUMENT_LABEL).then((response) => (this.navigation.fromPars = response))
+                    await this.loadOutputParams(doc.DOCUMENT_ID).then((response) => (this.navigation.fromPars = this.navigation.fromPars.concat(response)))
+                    this.removeAllLink()
+                    this.autoLinkParams()
+                    break
+                case 'target':
+                    this.simpleNavigation.toDocId = doc.DOCUMENT_ID
+                    this.simpleNavigation.toDoc = doc.DOCUMENT_LABEL
+                    this.navigation.simpleNavigation = this.simpleNavigation
+                    await this.loadInputParams(doc.DOCUMENT_LABEL).then((response) => (this.navigation.toPars = response))
+                    this.autoLinkParams()
+                    break
+            }
+            this.loadingDocs = false
+        },
+        async loadInputParams(label: string) {
+            let params: any[] = []
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/documents/' + label + '/parameters').then((response: AxiosResponse<any>) => (params = response.data.results.map((param: any) => ({ id: param.id, name: param.label, type: 1, parType: param.parType }))))
+            return params
+        },
+        async loadOutputParams(id: number) {
+            let params: any[] = []
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/documents/' + id + '/listOutParams').then((response: AxiosResponse<any>) => (params = response.data.map((param: any) => ({ id: param.id, name: param.name, type: 0, parType: param.type.valueCd }))))
+            return params
+        },
+        removeAllLink() {
+            this.navigation.toPars?.forEach((param: any) => {
+                param.links = []
+            })
+        },
+        tryAutoName() {
+            const from = this.simpleNavigation.fromDoc
+            const to = this.simpleNavigation.toDoc
+            if (!from || !to) return
+            const candidate = `${from}-${to}`
+            if (!this.simpleNavigation.name || this.simpleNavigation.name === this.autoGeneratedName) {
+                this.simpleNavigation.name = candidate
+                this.autoGeneratedName = candidate
+            }
+        },
+        autoLinkParams() {
+            if (!this.navigation.fromPars?.length || !this.navigation.toPars?.length) return
+            this.navigation.toPars.forEach((toPar: any) => {
+                if (toPar.links?.length) return
+                const fromPar = this.navigation.fromPars.find((f: any) => f.name.toLowerCase() === toPar.name.toLowerCase())
+                if (fromPar && (fromPar.type === 2 || fromPar.parType === toPar.parType)) {
+                    toPar.links = [fromPar]
+                }
+            })
+        },
+        handleSave() {
             this.navigation.simpleNavigation = this.simpleNavigation
             if (this.navigation.simpleNavigation.id === undefined) {
                 this.operation = 'insert'
@@ -202,10 +227,7 @@ export default defineComponent({
                 this.operation = 'update'
                 this.originParams = []
             }
-            if (this.navigation.simpleNavigation.type === 2) {
-                this.navigation.simpleNavigation.popupOptions = JSON.stringify(this.navigation.simpleNavigation.popupOptions)
-            } else delete this.navigation.simpleNavigation.popupOptions
-
+            delete this.navigation.simpleNavigation.popupOptions
             if (this.navigation.simpleNavigation.type === 3) {
                 this.navigation.simpleNavigation.type = 0
             }
@@ -225,73 +247,13 @@ export default defineComponent({
                     })
                 })
                 .finally(() => {
-                    if (this.navigation.simpleNavigation.type === 2) {
-                        this.navigation.simpleNavigation.popupOptions = JSON.parse(this.navigation.simpleNavigation.popupOptions)
-                    }
                     if (this.navigation.simpleNavigation.type === 0) {
                         this.navigation.simpleNavigation.type = 3
                     }
                 })
         },
-        handleDropdown() {
-            if (!this.simpleNavigation.popupOptions) this.simpleNavigation.popupOptions = {}
-        },
-        selectDoc(type) {
-            this.docType = type
-            switch (type) {
-                case 'origin':
-                    this.docId = this.simpleNavigation.fromDocId
-                    break
-                case 'target':
-                    this.docId = this.simpleNavigation.toDocId
-                    break
-            }
-            this.dialogVisible = true
-        },
-        async hadleDoc(doc) {
-            this.dialogVisible = false
-            switch (this.docType) {
-                case 'origin':
-                    this.simpleNavigation.fromDocId = doc.DOCUMENT_ID
-                    this.simpleNavigation.fromDoc = doc.DOCUMENT_LABEL
-                    this.navigation.simpleNavigation = this.simpleNavigation
-                    await this.loadInputParams(doc.DOCUMENT_LABEL).then((response) => (this.navigation.fromPars = response))
-                    await this.loadOutputParams(doc.DOCUMENT_ID).then((response) => (this.navigation.fromPars = this.navigation.fromPars.concat(response)))
-                    this.removeAllLink()
-                    break
-                case 'target':
-                    this.simpleNavigation.toDocId = doc.DOCUMENT_ID
-                    this.simpleNavigation.toDoc = doc.DOCUMENT_LABEL
-                    this.navigation.simpleNavigation = this.simpleNavigation
-                    await this.loadInputParams(doc.DOCUMENT_LABEL).then((response) => (this.navigation.toPars = response))
-                    break
-            }
-            this.setDirty()
-        },
-        async loadInputParams(label) {
-            let params = []
-            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/documents/' + label + '/parameters').then(
-                (response: AxiosResponse<any>) =>
-                    (params = response.data.results.map((param: any) => {
-                        return { id: param.id, name: param.label, type: 1, parType: param.parType }
-                    }))
-            )
-            return params
-        },
-        async loadOutputParams(id) {
-            let params = []
-            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/documents/' + id + '/listOutParams').then(
-                (response: AxiosResponse<any>) =>
-                    (params = response.data.map((param: any) => {
-                        return { id: param.id, name: param.name, type: 0, parType: param.type.valueCd }
-                    }))
-            )
-            return params
-        },
-        removeAllLink() {
-            this.navigation.toPars?.forEach((param) => {
-                param.links = []
-            })
+        closeTemplate() {
+            this.$emit('close')
         },
         hintDialog(type: string) {
             switch (type) {
@@ -302,8 +264,9 @@ export default defineComponent({
                 case 'bread':
                     this.hintDialogTitle = this.$t('managers.crossNavigationManagement.hindBread')
                     this.hintDialogMessage = this.$t('managers.crossNavigationManagement.hindBreadMessage')
+                    break
             }
-            this.hintDialogVisiable = true
+            this.hintDialogVisible = true
         }
     }
 })

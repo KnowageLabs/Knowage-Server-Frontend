@@ -15,6 +15,7 @@
             :widget-loading="widgetLoading"
             @reload-data="reloadWidgetData"
             @launch-selection="launchSelection"
+            @unlock-selection="unlockSelection"
             @mouseover="toggleFocus"
             @mouseleave="startUnfocusTimer(500)"
             @loading="customChartLoading = $event"
@@ -63,6 +64,7 @@ import DatasetEditorPreview from '../dataset/DatasetEditorDataTab/DatasetEditorP
 import { formatParameterForPreview } from '@/modules/documentExecution/dashboard/widget/interactionsHelpers/PreviewHelper'
 import { quickWidgetCreateChartFromTable, quickWidgetCreateTableFromChart } from './WidgetControllerHelpers'
 import { createWidgetExportBody } from '../helpers/DashboardExportHelper'
+import { enrichPivotWidgetWithSortState } from '@/modules/documentExecution/dashboard/widget/PivotWidget/PivotWidgetExportHelper'
 
 export default defineComponent({
     name: 'widget-manager',
@@ -352,13 +354,24 @@ export default defineComponent({
         },
         async widgetExport(type: string) {
             this.setLoading(true)
-            const body = createWidgetExportBody(type, this.widgetModel, this.dashStore.$state.dashboards[this.dashboardId], this.document?.creationUser, this.locale)
+            const widgetToExport = this.widgetModel.type === 'static-pivot-table' ? enrichPivotWidgetWithSortState(this.widgetModel) : this.widgetModel
+            const body = createWidgetExportBody(type, widgetToExport, this.dashStore.$state.dashboards[this.dashboardId], this.document?.creationUser, this.locale)
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/dashboardExport/${type}`, body, {
                     responseType: 'blob',
                     headers: { Accept: 'text/html,application/xhtml+xml,application/xml;application/pdf;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9' }
                 })
                 .then((response) => {
+                    if (!response.headers['content-disposition']) {
+                        response.data.text().then((text) => {
+                            let message = text
+                            try {
+                                message = JSON.parse(text)?.message ?? text
+                            } catch {}
+                            this.setError({ title: this.$t('common.toast.errorTitle'), msg: message })
+                        })
+                        return
+                    }
                     downloadDirectFromResponse(response)
                 })
                 .finally(() => this.setLoading(false))

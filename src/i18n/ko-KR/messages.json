@@ -790,12 +790,62 @@
     },
     "locale": {
         "dateFormat": "mm/dd/yy",
-        "dayNames": ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"],
-        "dayNamesMin": ["수양", "모", "타우", "우리는", "Th", "Fr", "Sa"],
-        "dayNamesShort": ["선", "몬", "Tue", "웨드", "투우", "프레이", "Sat Sat"],
+        "dayNames": [
+            "일요일",
+            "월요일",
+            "화요일",
+            "수요일",
+            "목요일",
+            "금요일",
+            "토요일"
+        ],
+        "dayNamesMin": [
+            "수양",
+            "모",
+            "타우",
+            "우리는",
+            "Th",
+            "Fr",
+            "Sa"
+        ],
+        "dayNamesShort": [
+            "선",
+            "몬",
+            "Tue",
+            "웨드",
+            "투우",
+            "프레이",
+            "Sat Sat"
+        ],
         "firstDayOfWeek": 0,
-        "monthNames": ["1 월", "2 월", "3 월", "4 월", "5 월", "6 월", "7 월", "8 월", "9 월", "10 월", "11 월", "12 월"],
-        "monthNamesShort": ["잰", "2 월", "마르", "Apr", "5 월", "준", "주얼", "8 월", "세프", "10 월", "11 월", "12 월"],
+        "monthNames": [
+            "1 월",
+            "2 월",
+            "3 월",
+            "4 월",
+            "5 월",
+            "6 월",
+            "7 월",
+            "8 월",
+            "9 월",
+            "10 월",
+            "11 월",
+            "12 월"
+        ],
+        "monthNamesShort": [
+            "잰",
+            "2 월",
+            "마르",
+            "Apr",
+            "5 월",
+            "준",
+            "주얼",
+            "8 월",
+            "세프",
+            "10 월",
+            "11 월",
+            "12 월"
+        ],
         "today": "오늘",
         "weekHeader": "Wk"
     },
@@ -2344,6 +2394,16 @@
             "oldSchedulationsMessage": "다음 테이블에서는 선택한 작업에서 실행된 모든 스케줄을 찾을 수 있습니다.",
             "ranSchedulations": "실행된 스케줄러 보기",
             "title": "스케줄"
+        }
+    },
+    "dashboard": {
+        "generalSettings": {
+            "menuWidgets": {
+                "pdfExportFileName": "Dashboard PDF export file name",
+                "xlsxExportFileName": "Dashboard XLSX export file name",
+                "exportFileNameHint": "Supports placeholders like $P{driver} and $V{variable}, for example \"pippo $P{cane} $V{varia}\".",
+                "exportFileName": "Dashboard export file name"
+            }
         }
     }
 }

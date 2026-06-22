@@ -62,7 +62,7 @@
             <div class="wizard-separator"></div>
 
             <!-- Step Content -->
-            <div class="wizard-content" :class="{ 'no-scroll': currentStep === 1 }">
+            <div class="wizard-content">
                 <!-- Step 1: Visualization Type Selection -->
                 <div v-show="currentStep === 1" class="step-content">
                     <div class="viz-section">
@@ -106,7 +106,7 @@
                                 <div
                                     class="chart-type-option"
                                     :class="{ selected: visualizationConfig.chartType === 'pies' }"
-                                    @click="visualizationConfig.chartType = 'pies'"
+                                    @click="setChartType('pies')"
                                 >
                                     <q-icon name="pie_chart" size="md" />
                                     <span>{{ $t('dashboard.widgetEditor.map.chartTypes.pies') }}</span>
@@ -120,7 +120,7 @@
                                 <div
                                     class="chart-type-option"
                                     :class="{ selected: visualizationConfig.chartType === 'bar' }"
-                                    @click="visualizationConfig.chartType = 'bar'"
+                                    @click="setChartType('bar')"
                                 >
                                     <q-icon name="bar_chart" size="md" />
                                     <span>{{ $t('dashboard.widgetEditor.map.chartTypes.bar') }}</span>
@@ -131,6 +131,10 @@
                                         class="check-icon"
                                     />
                                 </div>
+                            </div>
+
+                            <div class="p-mt-3">
+                                <MapVisualizatonChartsColorPicker :prop-visualization-type="visualizationConfig.chartPalette"></MapVisualizatonChartsColorPicker>
                             </div>
                         </div>
 
@@ -371,10 +375,12 @@
                                 />
 
                                 <WidgetEditorColorPicker
+                                    v-if="!isRangeClassificationSelected"
                                     :initial-value="visualizationConfig.toColor"
                                     :label="$t('dashboard.widgetEditor.map.toColor')"
                                     @change="(newColor) => { visualizationConfig.toColor = newColor }"
                                 />
+                                <div v-else></div>
 
                                 <WidgetEditorColorPicker
                                     :initial-value="visualizationConfig.borderColor"
@@ -408,7 +414,17 @@
                                     </template>
                                 </q-select>
 
+                                <q-btn
+                                    v-if="isRangeClassificationSelected"
+                                    unelevated
+                                    color="primary"
+                                    class="ranges-button"
+                                    :label="$t('dashboard.widgetEditor.map.manageRanges')"
+                                    @click="openRangesDialog"
+                                />
+
                                 <q-input
+                                    v-else
                                     v-model.number="visualizationConfig.numberOfClasses"
                                     outlined
                                     type="number"
@@ -466,7 +482,17 @@
                                     </template>
                                 </q-select>
 
+                                <q-btn
+                                    v-if="isRangeClassificationSelected"
+                                    unelevated
+                                    color="primary"
+                                    class="ranges-button"
+                                    :label="$t('dashboard.widgetEditor.map.manageRanges')"
+                                    @click="openRangesDialog"
+                                />
+
                                 <q-input
+                                    v-else
                                     v-model.number="visualizationConfig.numberOfClasses"
                                     outlined
                                     type="number"
@@ -779,6 +805,14 @@
             />
         </div>
     </Teleport>
+
+    <MapVisualizationRangesDialog
+        v-if="rangesDialogVisible"
+        :visible="rangesDialogVisible"
+        :prop-ranges="visualizationConfig.thresholds"
+        @setRanges="onSetRanges"
+        @close="rangesDialogVisible = false"
+    />
 </template>
 
 <script lang="ts">
@@ -786,19 +820,77 @@ import { defineComponent, PropType } from 'vue'
 import { mapActions } from 'pinia'
 import appStore from '@/App.store'
 import deepcopy from 'deepcopy'
-import { IMapWidgetLayer } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
+import { IMapWidgetLayer, IMapWidgetVisualizationThreshold } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { IDataset } from '@/modules/documentExecution/dashboard/Dashboard'
 import { getPropertiesByLayerLabel } from '../../MapWidget/MapWidgetDataProxy'
 import WidgetEditorColorPicker from '../WidgetEditorSettingsTab/common/WidgetEditorColorPicker.vue'
 import WidgetEditorStyleIconPickerDialog from '../WidgetEditorSettingsTab/common/styleToolbar/WidgetEditorStyleIconPickerDialog.vue'
 import MapVisualizationImagePickerDialog from '../WidgetEditorSettingsTab/MapWidget/visualization/markers/MapVisualizationImagePickerDialog.vue'
+import MapVisualizationRangesDialog from '../WidgetEditorSettingsTab/MapWidget/visualization/configuration/MapVisualizationRangesDialog.vue'
+import MapVisualizatonChartsColorPicker from '../WidgetEditorSettingsTab/MapWidget/visualization/configuration/MapVisualizatonChartsColorPicker.vue'
+import { normalizeMapWidgetBalloonsConfiguration, normalizeMapWidgetChoroplethConfiguration, normalizeMapWidgetClusterConfiguration } from '../helpers/mapWidget/MapWidgetVisualizationConfigurationHelper'
+import * as mapWidgetDefaultValues from '../helpers/mapWidget/MapWidgetDefaultValues'
+
+const getDefaultVisualizationData = () => ({
+    label: '',
+    target: '',
+    connectionType: 'single' as 'single' | 'join',
+    visible: true,
+    targetType: 'column' as 'column' | 'property',
+    targetDataset: undefined as string | undefined,
+    targetMeasure: undefined as string | undefined,
+    targetProperty: null as string | null,
+    targetDatasetForeignKeyColumn: undefined as string | undefined,
+    targetDatasetMeasures: [] as string[],
+    chartMeasures: [] as string[],
+    properties: [] as any[]
+})
+
+const getDefaultSingleConnectionState = () => ({
+    targetMeasure: undefined as string | undefined,
+    targetProperty: null as string | null,
+    chartMeasures: [] as string[]
+})
+
+const getDefaultJoinConnectionState = () => ({
+    targetDataset: undefined as string | undefined,
+    targetMeasure: undefined as string | undefined,
+    targetProperty: null as string | null,
+    targetDatasetForeignKeyColumn: undefined as string | undefined,
+    chartMeasures: [] as string[],
+    targetDatasetMeasures: [] as string[]
+})
+
+const getDefaultVisualizationConfig = () => ({
+    classificationMethod: 'CLASSIFY_BY_EQUAL_INTERVALS',
+    numberOfClasses: 5,
+    color: 'rgba(59, 130, 246, 1)',
+    toColor: 'rgba(236, 72, 153, 1)',
+    borderColor: 'rgba(255, 255, 255, 1)',
+    borderWidth: 1,
+    chartType: 'pies' as 'pies' | 'bar',
+    markerType: 'default',
+    markerSize: 20,
+    clusterRadius: 40,
+    opacity: 75,
+    heatmapRadius: 25,
+    heatmapBlur: 15,
+    heatmapMaxZoom: 18,
+    iconClass: 'fa fa-map-marker',
+    iconUrl: '',
+    iconImg: '',
+    chartPalette: mapWidgetDefaultValues.getDefaultVisualizationPieConfiguration(),
+    thresholds: [] as IMapWidgetVisualizationThreshold[]
+})
 
 export default defineComponent({
     name: 'map-layer-configuration-wizard',
     components: {
         WidgetEditorColorPicker,
         WidgetEditorStyleIconPickerDialog,
-        MapVisualizationImagePickerDialog
+        MapVisualizationImagePickerDialog,
+        MapVisualizationRangesDialog,
+        MapVisualizatonChartsColorPicker
     },
     props: {
         visible: { type: Boolean, required: true },
@@ -814,20 +906,9 @@ export default defineComponent({
             hasUnsavedChanges: false,
             availableLayersOptions: [] as { layerId: string | null; name: string }[],
             propertiesCache: new Map<string, any[]>(),
-            visualizationData: {
-                label: '',
-                target: '',
-                connectionType: 'single' as 'single' | 'join',
-                visible: true,
-                targetType: 'column' as 'column' | 'property',
-                targetDataset: undefined as string | undefined,
-                targetMeasure: undefined as string | undefined,
-                targetProperty: null as string | null,
-                targetDatasetForeignKeyColumn: undefined as string | undefined,
-                targetDatasetMeasures: [] as string[],
-                chartMeasures: [] as string[],
-                properties: [] as any[]
-            },
+            visualizationData: getDefaultVisualizationData(),
+            singleConnectionState: getDefaultSingleConnectionState(),
+            joinConnectionState: getDefaultJoinConnectionState(),
             layerConfig: {
                 name: '',
                 sourceType: '',
@@ -838,27 +919,10 @@ export default defineComponent({
                 latitudeColumn: ''
             },
             selectedVisualizationType: 'choropleth',
-            visualizationConfig: {
-                classificationMethod: 'CLASSIFY_BY_EQUAL_INTERVALS',
-                numberOfClasses: 5,
-                color: 'rgba(59, 130, 246, 1)',
-                toColor: 'rgba(236, 72, 153, 1)',
-                borderColor: 'rgba(255, 255, 255, 1)',
-                borderWidth: 1,
-                chartType: 'pies' as 'pies' | 'bar',
-                markerType: 'default',
-                markerSize: 20,
-                clusterRadius: 40,
-                opacity: 75,
-                heatmapRadius: 25,
-                heatmapBlur: 15,
-                heatmapMaxZoom: 18,
-                iconClass: 'fa fa-map-marker',
-                iconUrl: '',
-                iconImg: ''
-            },
+            visualizationConfig: getDefaultVisualizationConfig(),
             iconPickerVisible: false,
             imagePickerVisible: false,
+            rangesDialogVisible: false,
             pendingId: null as string | null,
             originalBackup: null as any,
             isInitializing: false,
@@ -962,6 +1026,9 @@ export default defineComponent({
                 ]
             }
         },
+        isRangeClassificationSelected() {
+            return this.visualizationConfig.classificationMethod === 'CLASSIFY_BY_RANGES' && (this.selectedVisualizationType === 'choropleth' || this.selectedVisualizationType === 'balloons')
+        },
         canProceed() {
             if (this.currentStep === 1) {
                 // Step 1: Must select visualization type
@@ -991,6 +1058,8 @@ export default defineComponent({
             if (newVal) {
                 this.loadWizardData()
                 this.hasUnsavedChanges = false
+            } else {
+                this.rangesDialogVisible = false
             }
             // Live sync handles real-time persistence; no auto-save needed on close
         },
@@ -1026,8 +1095,50 @@ export default defineComponent({
     },
     methods: {
         ...mapActions(appStore, ['setLoading']),
+        runWithoutLiveSync(callback: () => void) {
+            const previousInitializationState = this.isInitializing
+            this.isInitializing = true
+
+            try {
+                callback()
+            } finally {
+                this.isInitializing = previousInitializationState
+            }
+        },
+        resetConnectionStates() {
+            this.singleConnectionState = getDefaultSingleConnectionState()
+            this.joinConnectionState = getDefaultJoinConnectionState()
+        },
+        cacheCurrentConnectionState() {
+            if (this.visualizationData.connectionType === 'join') {
+                this.joinConnectionState = {
+                    targetDataset: this.visualizationData.targetDataset,
+                    targetMeasure: this.visualizationData.targetMeasure,
+                    targetProperty: this.visualizationData.targetProperty,
+                    targetDatasetForeignKeyColumn: this.visualizationData.targetDatasetForeignKeyColumn,
+                    chartMeasures: deepcopy(this.visualizationData.chartMeasures ?? []),
+                    targetDatasetMeasures: deepcopy(this.visualizationData.targetDatasetMeasures ?? [])
+                }
+                return
+            }
+
+            this.singleConnectionState = {
+                targetMeasure: this.visualizationData.targetMeasure,
+                targetProperty: this.visualizationData.targetProperty,
+                chartMeasures: deepcopy(this.visualizationData.chartMeasures ?? [])
+            }
+        },
+        resetWizardState() {
+            this.visualizationData = getDefaultVisualizationData()
+            this.visualizationConfig = getDefaultVisualizationConfig()
+            this.resetConnectionStates()
+            this.selectedVisualizationType = 'choropleth'
+            this.currentStep = 1
+            this.rangesDialogVisible = false
+        },
         loadWizardData() {
             this.isInitializing = true
+            this.resetWizardState()
             this.loadLayersOptions()
 
             // If editing existing visualization, load it
@@ -1053,10 +1164,23 @@ export default defineComponent({
         loadExistingVisualization() {
             if (!this.selectedVisualization) return
 
+            const selectedTargetLayer = this.widgetModel.layers?.find((layer: any) => layer.layerId === this.selectedVisualization.target)
+
             // Load base data
             Object.assign(this.visualizationData, {
-                ...this.selectedVisualization,
-                connectionType: this.selectedVisualization.targetDataset ? 'join' : 'single'
+                label: this.selectedVisualization.label ?? '',
+                target: this.selectedVisualization.target ?? '',
+                connectionType: this.selectedVisualization.targetDataset ? 'join' : 'single',
+                visible: this.selectedVisualization.visible ?? true,
+                targetType: this.selectedVisualization.targetType ?? (selectedTargetLayer?.type === 'layer' ? 'property' : 'column'),
+                targetDataset: this.selectedVisualization.targetDataset,
+                targetMeasure: this.selectedVisualization.targetMeasure,
+                targetProperty: this.selectedVisualization.targetProperty ?? null,
+                targetDatasetForeignKeyColumn: this.selectedVisualization.targetDatasetForeignKeyColumn,
+                targetDatasetMeasures: this.selectedVisualization.targetDatasetMeasures ?? [],
+                chartMeasures: this.selectedVisualization.chartMeasures ?? [],
+                properties: this.selectedVisualization.properties ?? [],
+                filter: this.selectedVisualization.filter
             })
 
             // Load visualization type
@@ -1066,76 +1190,71 @@ export default defineComponent({
             }
 
             // Load type-specific configuration
-            if (this.selectedVisualization.analysisConf) {
-                const conf = this.selectedVisualization.analysisConf
-                this.visualizationConfig.classificationMethod = conf.method || 'CLASSIFY_BY_EQUAL_INTERVALS'
-                this.visualizationConfig.numberOfClasses = conf.classes || 5
-                if (conf.style) {
-                    // style.color is the main property
-                    this.visualizationConfig.color = conf.style.color || 'rgba(59, 130, 246, 1)'
-                    this.visualizationConfig.toColor = conf.style.toColor || 'rgba(236, 72, 153, 1)'
-                    this.visualizationConfig.borderColor = conf.style.borderColor || 'rgba(255, 255, 255, 1)'
+            switch (this.selectedVisualizationType) {
+                case 'choropleth': {
+                    const conf = normalizeMapWidgetChoroplethConfiguration(this.selectedVisualization.analysisConf)
+                    this.visualizationConfig.classificationMethod = conf.method
+                    this.visualizationConfig.numberOfClasses = conf.classes
+                    this.visualizationConfig.color = conf.style.color ?? this.visualizationConfig.color
+                    this.visualizationConfig.toColor = conf.style.toColor ?? this.visualizationConfig.toColor
+                    this.visualizationConfig.borderColor = conf.style.borderColor ?? this.visualizationConfig.borderColor
+                    this.visualizationConfig.borderWidth = conf.style.borderWidth ?? this.visualizationConfig.borderWidth
+                    this.visualizationConfig.thresholds = deepcopy(conf.properties?.thresholds ?? [])
+                    break
                 }
-                this.visualizationConfig.borderWidth = conf.borderWidth || 1
+                case 'markers': {
+                    if (!this.selectedVisualization.markerConf) break
+                    const conf = this.selectedVisualization.markerConf
+                    const normalizedType = conf.type === 'circle' ? 'default' : conf.type === 'image' ? 'img' : conf.type
+                    this.visualizationConfig.markerType = normalizedType ?? 'default'
+                    this.visualizationConfig.markerSize = conf.size ?? 20
+                    this.visualizationConfig.opacity = conf.opacity ?? 75
+
+                    if (conf.icon?.className) this.visualizationConfig.iconClass = conf.icon.className
+                    if (conf.img) this.visualizationConfig.iconImg = conf.img
+                    if (conf.url) this.visualizationConfig.iconUrl = conf.url
+                    if (conf.style?.color) this.visualizationConfig.color = conf.style.color
+                    break
+                }
+                case 'charts': {
+                    if (!this.selectedVisualization.pieConf) break
+                    const defaultChartPalette = mapWidgetDefaultValues.getDefaultVisualizationPieConfiguration()
+                    const conf = this.selectedVisualization.pieConf
+                    this.setChartType(conf.type === 'pie' ? 'pies' : 'bar')
+                    this.visualizationConfig.chartPalette = {
+                        ...defaultChartPalette,
+                        ...conf,
+                        colors: [...(conf.colors?.length ? conf.colors : defaultChartPalette.colors)]
+                    }
+                    if (this.selectedVisualization.chartMeasures) this.visualizationData.chartMeasures = this.selectedVisualization.chartMeasures
+                    else if (conf.measures) this.visualizationData.chartMeasures = conf.measures
+                    break
+                }
+                case 'balloons': {
+                    const conf = normalizeMapWidgetBalloonsConfiguration(this.selectedVisualization.balloonConf)
+                    this.visualizationConfig.classificationMethod = conf.method
+                    this.visualizationConfig.numberOfClasses = conf.classes
+                    this.visualizationConfig.color = conf.style.color ?? this.visualizationConfig.color
+                    this.visualizationConfig.thresholds = deepcopy(conf.properties?.thresholds ?? [])
+                    break
+                }
+                case 'heatmap': {
+                    if (!this.selectedVisualization.heatmapConf) break
+                    const conf = this.selectedVisualization.heatmapConf
+                    this.visualizationConfig.heatmapRadius = conf.radius ?? 25
+                    this.visualizationConfig.heatmapBlur = conf.blur ?? 15
+                    this.visualizationConfig.heatmapMaxZoom = conf.maxZoom ?? 1
+                    break
+                }
+                case 'clusters': {
+                    const conf = normalizeMapWidgetClusterConfiguration(this.selectedVisualization.clusterConf)
+                    this.visualizationConfig.clusterRadius = conf.maxClusterRadius ?? 40
+                    this.visualizationConfig.color = conf.style['background-color'] ?? this.visualizationConfig.color
+                    break
+                }
             }
 
-            if (this.selectedVisualization.markerConf) {
-                const conf = this.selectedVisualization.markerConf
-                const normalizedType = conf.type === 'circle' ? 'default' : conf.type === 'image' ? 'img' : conf.type
-                this.visualizationConfig.markerType = normalizedType || 'default'
-                this.visualizationConfig.markerSize = conf.size || 20
-                this.visualizationConfig.opacity = conf.opacity || 75
-
-                // Load icon/img/url based on type
-                if (conf.icon?.className) {
-                    this.visualizationConfig.iconClass = conf.icon.className
-                }
-                if (conf.img) {
-                    this.visualizationConfig.iconImg = conf.img
-                }
-                if (conf.url) {
-                    this.visualizationConfig.iconUrl = conf.url
-                }
-
-                if (conf.style) {
-                    this.visualizationConfig.color = conf.style.color || 'rgba(59, 130, 246, 1)'
-                }
-            }
-
-            if (this.selectedVisualization.pieConf) {
-                const conf = this.selectedVisualization.pieConf
-                // Convert 'pie' → 'pies' for UI consistency
-                this.visualizationConfig.chartType = conf.type === 'pie' ? 'pies' : 'bar'
-                // Load chartMeasures if available
-                if (this.selectedVisualization.chartMeasures) {
-                    this.visualizationData.chartMeasures = this.selectedVisualization.chartMeasures
-                } else if (conf.measures) {
-                    this.visualizationData.chartMeasures = conf.measures
-                }
-            }
-
-            if (this.selectedVisualization.balloonConf) {
-                const conf = this.selectedVisualization.balloonConf
-                this.visualizationConfig.classificationMethod = conf.method || 'CLASSIFY_BY_EQUAL_INTERVALS'
-                this.visualizationConfig.numberOfClasses = conf.classes || 5
-                if (conf.style) {
-                    this.visualizationConfig.color = conf.style.color || 'rgba(59, 130, 246, 1)'
-                }
-            }
-
-            if (this.selectedVisualization.heatmapConf) {
-                const conf = this.selectedVisualization.heatmapConf
-                this.visualizationConfig.heatmapRadius = conf.radius || 25
-                this.visualizationConfig.heatmapBlur = conf.blur || 15
-                this.visualizationConfig.heatmapMaxZoom = conf.maxZoom || 1
-            }
-
-            if (this.selectedVisualization.clusterConf) {
-                this.visualizationConfig.clusterRadius = this.selectedVisualization.clusterConf.clusterRadius || 40
-                if (this.selectedVisualization.clusterConf.style) {
-                    this.visualizationConfig.color = this.selectedVisualization.clusterConf.style.color || 'rgba(59, 130, 246, 1)'
-                }
-            }
+            this.cacheCurrentConnectionState()
         },
         getSelectedLayerType() {
             if (!this.visualizationData.target) return 'dataset'
@@ -1143,15 +1262,35 @@ export default defineComponent({
             return targetLayer ? targetLayer.type : 'dataset'
         },
         setConnectionType(value: string) {
-            this.visualizationData.connectionType = value as 'single' | 'join'
-            this.onConnectionTypeChange()
+            const nextConnectionType = value as 'single' | 'join'
+            if (this.visualizationData.connectionType === nextConnectionType) return
+
+            this.runWithoutLiveSync(() => {
+                this.cacheCurrentConnectionState()
+                this.visualizationData.connectionType = nextConnectionType
+                this.onConnectionTypeChange(nextConnectionType)
+            })
+
+            this.hasUnsavedChanges = true
+            this.liveSync()
         },
-        onConnectionTypeChange() {
-            // Reset fields when connection type changes
+        onConnectionTypeChange(connectionType: 'single' | 'join') {
+            if (connectionType === 'join') {
+                this.visualizationData.targetDataset = this.joinConnectionState.targetDataset
+                this.visualizationData.targetMeasure = this.joinConnectionState.targetMeasure
+                this.visualizationData.targetProperty = this.joinConnectionState.targetProperty
+                this.visualizationData.targetDatasetForeignKeyColumn = this.joinConnectionState.targetDatasetForeignKeyColumn
+                this.visualizationData.chartMeasures = deepcopy(this.joinConnectionState.chartMeasures)
+                this.visualizationData.targetDatasetMeasures = deepcopy(this.joinConnectionState.targetDatasetMeasures)
+                return
+            }
+
             this.visualizationData.targetDataset = undefined
-            this.visualizationData.targetMeasure = undefined
-            this.visualizationData.targetProperty = null
+            this.visualizationData.targetMeasure = this.singleConnectionState.targetMeasure
+            this.visualizationData.targetProperty = this.singleConnectionState.targetProperty
             this.visualizationData.targetDatasetForeignKeyColumn = undefined
+            this.visualizationData.chartMeasures = deepcopy(this.singleConnectionState.chartMeasures)
+            this.visualizationData.targetDatasetMeasures = []
         },
         availableMeasuresForSingle() {
             if (!this.visualizationData.target) return []
@@ -1207,17 +1346,23 @@ export default defineComponent({
             }
         },
         async onTargetChange(id: string) {
-            this.visualizationData.targetDataset = undefined
-            this.visualizationData.targetMeasure = undefined
-            this.visualizationData.targetProperty = null
-            this.visualizationData.targetType = 'column'
-            this.visualizationData.targetDatasetForeignKeyColumn = undefined
-            this.visualizationData.chartMeasures = []
-            this.visualizationData.targetDatasetMeasures = []
-
             const target = this.widgetModel.layers?.find((layer: any) => id === layer.layerId)
-            if (!target || target.type !== 'layer' || this.propertiesCache.has(id)) {
+
+            this.runWithoutLiveSync(() => {
+                this.resetConnectionStates()
+                this.visualizationData.targetDataset = undefined
+                this.visualizationData.targetMeasure = undefined
+                this.visualizationData.targetProperty = null
+                this.visualizationData.targetDatasetForeignKeyColumn = undefined
+                this.visualizationData.chartMeasures = []
+                this.visualizationData.targetDatasetMeasures = []
+                this.visualizationData.targetType = target?.type === 'layer' ? 'property' : 'column'
                 this.visualizationData.properties = this.propertiesCache.get(id) || []
+            })
+
+            this.hasUnsavedChanges = true
+
+            if (!target || target.type !== 'layer' || this.propertiesCache.has(id)) {
                 return
             }
             await this.loadAvailableProperties(id)
@@ -1229,11 +1374,16 @@ export default defineComponent({
                 this.visualizationData.targetDataset = undefined
             }
         },
+        setChartType(value: 'pies' | 'bar') {
+            this.visualizationConfig.chartType = value
+            this.visualizationConfig.chartPalette.type = value === 'pies' ? 'pie' : 'bar'
+        },
         getTargetLayerType() {
             const targetLayer = this.widgetModel.layers?.find((layer: any) => this.visualizationData.target === layer.layerId)
             return targetLayer ? targetLayer.type : 'dataset'
         },
         closeDialog() {
+            this.rangesDialogVisible = false
             this.revertChanges()
             this.currentStep = 1
             this.$emit('close')
@@ -1261,27 +1411,44 @@ export default defineComponent({
             this.visualizationConfig.iconImg = `${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services` + image.url
             this.imagePickerVisible = false
         },
+        openRangesDialog() {
+            this.rangesDialogVisible = true
+        },
+        onSetRanges(ranges: IMapWidgetVisualizationThreshold[]) {
+            this.visualizationConfig.thresholds = deepcopy(ranges)
+            this.rangesDialogVisible = false
+        },
         handleSaveClick() {
             (this as any).saveConfiguration(false)
         },
         buildBaseConfig(): any {
+            const { analysisConf, markerConf, balloonConf, pieConf, clusterConf, heatmapConf, ...baseVisualizationData } = deepcopy(this.visualizationData) as any
+            const resolvedTargetType = this.getSelectedLayerType() === 'layer' ? 'property' : 'column'
             const baseConfig: any = {
-                ...this.visualizationData,
+                ...baseVisualizationData,
+                targetType: resolvedTargetType,
                 // For charts, use 'pies' as the type for map rendering compatibility
                 type: this.selectedVisualizationType === 'charts' ? 'pies' : this.selectedVisualizationType
             }
 
             // Add type-specific configuration
             if (this.selectedVisualizationType === 'choropleth') {
+                const existingConfiguration = normalizeMapWidgetChoroplethConfiguration(this.selectedVisualization?.analysisConf)
                 baseConfig.analysisConf = {
+                    ...existingConfiguration,
                     method: this.visualizationConfig.classificationMethod,
                     classes: this.visualizationConfig.numberOfClasses,
+                    borderColor: this.visualizationConfig.borderColor,
+                    properties: {
+                        thresholds: deepcopy(this.visualizationConfig.thresholds ?? existingConfiguration.properties?.thresholds ?? [])
+                    },
                     style: {
+                        ...existingConfiguration.style,
                         color: this.visualizationConfig.color,
                         toColor: this.visualizationConfig.toColor,
-                        borderColor: this.visualizationConfig.borderColor
-                    },
-                    borderWidth: this.visualizationConfig.borderWidth
+                        borderColor: this.visualizationConfig.borderColor,
+                        borderWidth: this.visualizationConfig.borderWidth
+                    }
                 }
             } else if (this.selectedVisualizationType === 'markers') {
                 baseConfig.markerConf = {
@@ -1306,19 +1473,23 @@ export default defineComponent({
                 baseConfig.pieConf = {
                     type: this.visualizationConfig.chartType === 'pies' ? 'pie' : 'bar',
                     measures: this.visualizationData.chartMeasures || [],
-                    colors: ['rgba(59, 130, 246, 1)', 'rgba(236, 72, 153, 1)', 'rgba(16, 185, 129, 1)', 'rgba(245, 158, 11, 1)', 'rgba(139, 92, 246, 1)', 'rgba(236, 252, 203, 1)']
+                    colors: [...(this.visualizationConfig.chartPalette?.colors?.length ? this.visualizationConfig.chartPalette.colors : mapWidgetDefaultValues.getDefaultVisualizationPieConfiguration().colors)]
                 }
                 baseConfig.chartMeasures = this.visualizationData.chartMeasures
                 if (this.visualizationData.connectionType === 'join' && this.visualizationData.targetDataset) {
                     baseConfig.targetDatasetMeasures = this.visualizationData.chartMeasures
                 }
             } else if (this.selectedVisualizationType === 'balloons') {
+                const existingConfiguration = normalizeMapWidgetBalloonsConfiguration(this.selectedVisualization?.balloonConf)
                 baseConfig.balloonConf = {
-                    method: this.visualizationConfig.classificationMethod || 'CLASSIFY_BY_EQUAL_INTERVALS',
-                    classes: this.visualizationConfig.numberOfClasses || 5,
-                    minSize: 10,
-                    maxSize: 40,
+                    ...existingConfiguration,
+                    method: this.visualizationConfig.classificationMethod || existingConfiguration.method,
+                    classes: this.visualizationConfig.numberOfClasses || existingConfiguration.classes,
+                    properties: {
+                        thresholds: deepcopy(this.visualizationConfig.thresholds ?? existingConfiguration.properties?.thresholds ?? [])
+                    },
                     style: {
+                        ...existingConfiguration.style,
                         color: this.visualizationConfig.color
                     }
                 }
@@ -1329,10 +1500,13 @@ export default defineComponent({
                     maxZoom: this.visualizationConfig.heatmapMaxZoom || 1
                 }
             } else if (this.selectedVisualizationType === 'clusters') {
+                const existingConfiguration = normalizeMapWidgetClusterConfiguration(this.selectedVisualization?.clusterConf)
                 baseConfig.clusterConf = {
-                    clusterRadius: this.visualizationConfig.clusterRadius,
+                    ...existingConfiguration,
+                    maxClusterRadius: this.visualizationConfig.clusterRadius,
                     style: {
-                        color: this.visualizationConfig.color
+                        ...existingConfiguration.style,
+                        'background-color': this.visualizationConfig.color
                     }
                 }
             }
@@ -1575,12 +1749,9 @@ export default defineComponent({
 
 .wizard-content {
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
     padding: 32px;
-
-    &.no-scroll {
-        overflow-y: hidden;
-    }
     background: #f8f9fa;
 
     &::-webkit-scrollbar {
@@ -1651,6 +1822,11 @@ export default defineComponent({
     grid-template-columns: repeat(3, 1fr);
     gap: 12px;
     align-items: center;
+}
+
+.ranges-button {
+    width: 100%;
+    min-height: 40px;
 }
 
 @media (max-width: 900px) {
@@ -2049,4 +2225,3 @@ export default defineComponent({
     padding-right: 8px !important;
 }
 </style>
-

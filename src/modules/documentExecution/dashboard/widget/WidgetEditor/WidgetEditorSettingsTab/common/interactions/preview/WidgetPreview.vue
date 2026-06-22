@@ -200,7 +200,7 @@ export default defineComponent({
                 })
         },
         onPreviewEnabledChange() {
-            if (this.widget && this.previewModel?.enabled && this.widgetType !== 'table') {
+            if (this.widget && this.previewModel?.enabled && this.widgetType !== 'table' && this.widgetType !== 'highcharts') {
                 if (this.widget.settings.interactions.selection) this.widget.settings.interactions.selection.enabled = false
                 if (this.widget.settings.interactions.link) this.widget.settings.interactions.link.enabled = false
                 if (this.widget.settings.interactions.crossNavigation) this.widget.settings.interactions.crossNavigation.enabled = false
@@ -209,7 +209,7 @@ export default defineComponent({
         },
         toggleMultiselect() {
             const interactions = this.widgetModel?.settings?.interactions as IWidgetInteractions
-            if (interactions) {
+            if (interactions && this.widgetType !== 'highcharts') {
                 Object.entries(interactions).forEach(([key, interaction]) => {
                     if (key !== 'preview' && interaction?.enabled) interaction.enabled = false
                 })

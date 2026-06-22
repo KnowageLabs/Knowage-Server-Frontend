@@ -1,9 +1,29 @@
+import deepcopy from 'deepcopy'
+
 interface Config {
     alias: string
+    blocklyXml?: any
     expression: string
     format?: string
+    formulaEditor?: string
     nature: string
     type: string
+}
+
+interface FormulaField {
+    alias: string
+    id: unknown
+}
+
+interface CalculatedFieldLike {
+    type?: string
+    formula?: string
+    formulaEditor?: string
+    expression?: string
+    id?: {
+        expression?: string
+        expressionSimple?: string
+    }
 }
 
 export function buildCalculatedField(calcFieldOutput, selectedQueryFields) {
@@ -14,7 +34,7 @@ export function buildCalculatedField(calcFieldOutput, selectedQueryFields) {
     addedParameters.type = calcFieldOutput.type
     addedParameters.nature = calcFieldOutput.nature
     addedParameters.expressionSimple = calcFieldOutput.expression
-    addedParameters.expression = formatCalcFieldFormula(calcFieldOutput.expression, selectedQueryFields)
+    addedParameters.expression = getCalculatedFieldExpressionForAPI(calcFieldOutput.expression, selectedQueryFields)
     addedParameters.type === 'DATE' ? (addedParameters.format = calcFieldOutput.format) : ''
 
     calculatedField.id = addedParameters
@@ -36,7 +56,9 @@ export function buildCalculatedField(calcFieldOutput, selectedQueryFields) {
     calculatedField.id.expressionSimple = cleanExpression(calculatedField.id.expressionSimple)
     calculatedField.formula = cleanExpression(addedParameters.expression)
     calculatedField.expression = cleanExpression(addedParameters.expressionSimple)
+    calculatedField.formulaEditor = cleanExpression(calcFieldOutput.formulaEditor ?? addedParameters.expressionSimple)
     calculatedField.longDescription = cleanExpression(addedParameters.alias + ' : ' + addedParameters.alias)
+    if (calcFieldOutput.blocklyXml) calculatedField.blocklyXml = deepcopy(calcFieldOutput.blocklyXml)
 
     return calculatedField
 }
@@ -49,7 +71,7 @@ export function updateCalculatedField(fieldToUpdate, calcFieldOutput, selectedQu
     addedParameters.type = calcFieldOutput.type
     addedParameters.nature = calcFieldOutput.nature
     addedParameters.expressionSimple = calcFieldOutput.expression
-    addedParameters.expression = formatCalcFieldFormula(calcFieldOutput.expression, selectedQueryFields)
+    addedParameters.expression = getCalculatedFieldExpressionForAPI(calcFieldOutput.expression, selectedQueryFields)
     addedParameters.type === 'DATE' ? (addedParameters.format = calcFieldOutput.format) : ''
 
     calculatedField.id = addedParameters
@@ -71,38 +93,40 @@ export function updateCalculatedField(fieldToUpdate, calcFieldOutput, selectedQu
     calculatedField.id.expressionSimple = cleanExpression(calculatedField.id.expressionSimple)
     calculatedField.formula = cleanExpression(addedParameters.expression)
     calculatedField.expression = cleanExpression(addedParameters.expressionSimple)
+    calculatedField.formulaEditor = cleanExpression(calcFieldOutput.formulaEditor ?? addedParameters.expressionSimple)
     calculatedField.longDescription = cleanExpression(addedParameters.alias + ' : ' + addedParameters.alias)
     calculatedField.uniqueID = fieldToUpdate.uniqueID
     calculatedField.iconCls = fieldToUpdate.iconCls
+    if (calcFieldOutput.blocklyXml) calculatedField.blocklyXml = deepcopy(calcFieldOutput.blocklyXml)
 
     return calculatedField
 }
 
-function formatCalcFieldFormula(formula, selectedQueryFields) {
-    var fullRegex = /(\$F\{[a-zA-Z0-9\s\->]*\}){1}/g
-    var regEx = /(\$F\{[a-zA-Z0-9\s\->]*\}){1}/
-    var regExGroups = /(\$F\{)([a-zA-Z0-9\s\->]*)(\}){1}/
+export function normalizeCalculatedFieldForAPI(calculatedField: CalculatedFieldLike, selectedQueryFields: FormulaField[]) {
+    if (!calculatedField || calculatedField.type !== 'inline.calculated.field') return calculatedField
 
-    if (formula.match(fullRegex)) {
-        var fieldsNum = formula.match(fullRegex).length
-    }
+    const sourceExpression =
+        calculatedField.formulaEditor ??
+        calculatedField.id?.expressionSimple ??
+        calculatedField.expression ??
+        calculatedField.formula ??
+        calculatedField.id?.expression ??
+        ''
+    const backendExpression = getCalculatedFieldExpressionForAPI(sourceExpression, selectedQueryFields)
 
-    for (var i = 0; i < fieldsNum; i++) {
-        var tempReplace = ''
-        var match = regExGroups.exec(formula) as any
-        selectedQueryFields.forEach((value) => {
-            if (value.alias == match[2]) {
-                tempReplace = value.id
-                return
-            }
-        })
+    if (calculatedField.id) calculatedField.id.expression = backendExpression
+    calculatedField.formula = backendExpression
 
-        formula = formula.replace(regEx, tempReplace)
-    }
-    return formula
+    return calculatedField
 }
 
-function cleanExpression(expression) {
-    expression = expression.replaceAll(/\u00a0/g, ' ')
-    return expression
+function getCalculatedFieldExpressionForAPI(formula: string, selectedQueryFields: FormulaField[]) {
+    return cleanExpression(formula).replace(/\$F\{([^}]+)\}/g, (match, fieldAlias) => {
+        const fieldToReplace = selectedQueryFields.find((value) => value.alias === fieldAlias)
+        return typeof fieldToReplace?.id === 'string' ? fieldToReplace.id : match
+    })
+}
+
+function cleanExpression(expression: string | undefined) {
+    return String(expression ?? '').replaceAll(/\u00a0/g, ' ')
 }

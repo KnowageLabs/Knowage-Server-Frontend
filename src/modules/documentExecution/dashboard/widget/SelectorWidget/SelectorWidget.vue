@@ -1,5 +1,5 @@
 <template>
-    <div v-if="options" :class="['selector-widget', 'dashboard-scrollbar', { 'selector-widget--impossible': hasImpossibleSelection }]">
+    <div v-if="options" :class="['selector-widget', 'dashboard-scrollbar', { 'selector-widget--impossible': hasImpossibleSelection }]" @mouseenter="isWidgetHovered = true" @mouseleave="isWidgetHovered = false">
         <RadioSelector v-if="widgetType === 'singleValue'" :model-value="selectedValue" :options="singleValueOptions" :radio-style="propWidget.settings.style.radio" @update:model-value="radioSelectorChanged" />
 
         <CheckboxSelector v-if="widgetType === 'multiValue'" :model-value="selectedValues" :options="multiValueOptions" :checkbox-style="propWidget.settings.style.checkbox" @update:model-value="checkboxSelectorChanged" />
@@ -21,6 +21,14 @@
         <TreeSelector v-else-if="widgetType === 'tree'" :model-value="selectedValue" :nodes="treeNodes" :tree-style="propWidget.settings.style.tree" @update:model-value="treeSelectorChanged" />
 
         <MultiTreeSelector v-else-if="widgetType === 'multiTree'" :model-value="selectedValues" :nodes="treeNodes" :tree-style="propWidget.settings.style.multiTree" @update:model-value="multiTreeSelectorChanged" />
+
+        <transition name="widget-lock-overlay-fade">
+            <div v-if="selectionIsLocked && !localMode && isWidgetHovered" class="widget-lock-overlay" @mousemove.stop>
+                <q-btn flat color="info" icon="lock_open" size="lg" @click.stop="$emit('unlock-selection')">
+                    <q-tooltip>{{ $t('dashboard.selectorWidget.clearSelection') }}</q-tooltip>
+                </q-btn>
+            </div>
+        </transition>
     </div>
 </template>
 
@@ -62,7 +70,7 @@ export default defineComponent({
         editorMode: { type: Boolean },
         localMode: { type: Boolean, default: false }
     },
-    emits: ['close', 'selectionChanged'],
+    emits: ['close', 'selectionChanged', 'unlock-selection'],
     data() {
         return {
             dashboardDescriptor,
@@ -78,7 +86,8 @@ export default defineComponent({
             endDate: null as any,
             selectedRange: [0, 0] as number[],
             activeSelections: [] as ISelection[],
-            multiValueDebounceTimer: null as ReturnType<typeof setTimeout> | null
+            multiValueDebounceTimer: null as ReturnType<typeof setTimeout> | null,
+            isWidgetHovered: false
         }
     },
     computed: {
@@ -521,9 +530,32 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .selector-widget {
+    position: relative;
     display: flex;
     flex-direction: column;
     height: 100%;
+
+    .widget-lock-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.35);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        border-radius: 4px;
+        pointer-events: auto;
+    }
+
+    .widget-lock-overlay-fade-enter-active,
+    .widget-lock-overlay-fade-leave-active {
+        transition: opacity 0.15s ease;
+    }
+
+    .widget-lock-overlay-fade-enter-from,
+    .widget-lock-overlay-fade-leave-to {
+        opacity: 0;
+    }
 
     &--impossible {
         outline: 2px solid var(--kn-color-warning, #f59e0b);

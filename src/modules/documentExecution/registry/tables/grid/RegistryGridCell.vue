@@ -62,9 +62,9 @@ const tdRef = ref<HTMLElement | null>(null)
 const cellType = computed(() => getCellType(props.col))
 
 function getCellType(col: any): string {
+    if (col?.editorType === 'COMBO') return 'dropdown'
     if (!col?.columnInfo) return 'text'
     if (col.editorType === 'TEXT' && col.columnInfo.type === 'boolean') return 'checkbox'
-    if (col.editorType === 'COMBO') return 'dropdown'
     if (col.columnInfo.type === 'date' || col.columnInfo.type === 'timestamp') return 'temporal'
     if (setInputDataType(col.columnInfo.type) === 'number') return 'number'
     return 'text'

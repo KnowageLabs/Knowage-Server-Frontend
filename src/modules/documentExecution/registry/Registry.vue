@@ -166,8 +166,15 @@ function loadColumnMap() {
 }
 
 function loadColumnsInfo() {
+    const fieldsByHeader: Record<string, any> = {}
     for (let i = 1; i < registry.value.metaData.fields.length; i++) {
-        columns.value[i - 1].columnInfo = registry.value.metaData.fields[i]
+        const f = registry.value.metaData.fields[i]
+        fieldsByHeader[f.header] = f
+    }
+    for (const col of columns.value) {
+        if (col.field && fieldsByHeader[col.field]) {
+            col.columnInfo = fieldsByHeader[col.field]
+        }
     }
 }
 

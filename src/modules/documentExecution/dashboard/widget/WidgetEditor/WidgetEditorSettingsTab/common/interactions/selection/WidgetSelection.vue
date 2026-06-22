@@ -91,7 +91,7 @@ export default defineComponent({
         },
         selectionChanged() {
             const interactions = this.widgetModel?.settings?.interactions as IWidgetInteractions
-            if (this.selectionModel?.multiselection?.enabled && interactions) {
+            if (this.selectionModel?.multiselection?.enabled && interactions && this.widgetType !== 'highcharts') {
                 Object.entries(interactions).forEach(([key, interaction]) => {
                     if (key !== 'selection' && interaction?.enabled) {
                         interaction.enabled = false

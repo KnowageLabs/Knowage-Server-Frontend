@@ -1,5 +1,8 @@
 <template>
-    <div v-if="menuWidgetsConfig" class="q-pa-md column">
+    <div v-if="menuWidgetsConfig" class="q-px-md q-pb-md column">
+        <div class="col-12 q-mb-md">
+            <q-input v-model="menuWidgetsConfig.exportFileName" outlined dense clearable :label="$t('dashboard.generalSettings.menuWidgets.exportFileName')" hide-bottom-space />
+        </div>
         <div class="column q-gutter-sm">
             <q-toggle v-model="menuWidgetsConfig.showExcelExport" :label="$t('dashboard.generalSettings.menuWidgets.showExcelExport')" dense />
             <q-toggle v-model="menuWidgetsConfig.xlsxStyleEnabled" :label="$t('dashboard.generalSettings.menuWidgets.enableXlsxStyle')" dense />

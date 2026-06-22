@@ -1,111 +1,85 @@
 <template>
-    <div v-if="!loading" class="kn-remove-card-padding p-col">
-        <Toolbar class="kn-toolbar kn-toolbar--default">
-            <template #start>
-                {{ $t('documentExecution.documentDetails.drivers.conditionsTitle') }}
-            </template>
-            <template #end>
-                <Button :label="$t('managers.businessModelManager.addCondition')" class="p-button-text p-button-rounded p-button-plain kn-white-color" @click="showForm" />
-            </template>
-        </Toolbar>
-        <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
-        <Listbox class="kn-list data-condition-list" :options="conditions" @change="showForm">
-            <template #empty>{{ $t('documentExecution.documentDetails.drivers.noDataCond') }} </template>
-            <template #option="slotProps">
-                <div class="kn-list-item">
-                    <div class="kn-list-item-text">
-                        <span v-tooltip.top="slotProps.option.filterOperation + $t('documentExecution.documentDetails.drivers.dataConditionsValue') + slotProps.option.parFatherUrlName" class="kn-truncated">
-                            <b>{{ slotProps.option.filterOperation }} {{ $t('documentExecution.documentDetails.drivers.dataConditionsValue') }}</b> {{ slotProps.option.parFatherUrlName }}
-                        </span>
+    <q-card v-if="!loading" class="q-mb-md">
+        <q-card-section class="q-py-sm row items-center">
+            <div class="dd-section-label col">{{ $t('documentExecution.documentDetails.drivers.conditionsTitle') }}</div>
+            <q-btn :label="$t('managers.businessModelManager.addCondition')" flat dense icon="add" color="primary" size="sm" @click="showForm">
+                <q-tooltip>{{ $t('managers.businessModelManager.addCondition') }}</q-tooltip>
+            </q-btn>
+        </q-card-section>
+        <q-separator />
+        <q-linear-progress v-if="loading" indeterminate color="primary" />
+        <q-list separator>
+            <q-item v-for="(cond, i) in conditions" :key="i" clickable @click="showForm({ value: cond })">
+                <q-item-section>
+                    <q-item-label class="text-body2 ellipsis">
+                        <b>{{ cond.filterOperation }} {{ $t('documentExecution.documentDetails.drivers.dataConditionsValue') }}</b> {{ cond.parFatherUrlName }}
+                    </q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                    <q-btn flat round dense icon="delete" size="sm" color="negative" @click.stop="deleteConditions(cond)">
+                        <q-tooltip>{{ $t('common.delete') }}</q-tooltip>
+                    </q-btn>
+                </q-item-section>
+            </q-item>
+            <q-item v-if="conditions.length === 0">
+                <q-item-section class="text-grey-6">{{ $t('documentExecution.documentDetails.drivers.noDataCond') }}</q-item-section>
+            </q-item>
+        </q-list>
+    </q-card>
+
+    <q-dialog :model-value="conditionFormVisible" persistent @hide="conditionFormVisible = false">
+        <q-card style="min-width: 600px">
+            <q-toolbar class="kn-toolbar kn-toolbar--primary">
+                <q-toolbar-title>{{ $t('documentExecution.documentDetails.drivers.visualizationTitle') }}</q-toolbar-title>
+            </q-toolbar>
+            <q-card-section>
+                <div class="row q-col-gutter-sm">
+                    <div class="col-4">
+                        <q-select outlined dense emit-value map-options v-model="condition.parFatherId" :options="excludeCurrentDriverFromList()" option-label="label" option-value="id" :label="$t('documentExecution.documentDetails.drivers.ad') + ' ' + $t('documentExecution.documentDetails.drivers.adDepends')" @update:model-value="setParFatherUrlName" />
                     </div>
-                    <Button icon="far fa-trash-alt" class="p-button-text p-button-rounded p-button-plain" @click.stop="deleteConditions(slotProps.option)" />
+                    <div class="col-4">
+                        <q-select outlined dense v-model="condition.filterOperation" :options="availableOperators" :label="$t('managers.businessModelManager.filterOperator')">
+                            <template #append>
+                                <q-icon name="info" color="grey" size="xs">
+                                    <q-tooltip>{{ $t('documentExecution.documentDetails.drivers.dataHint') }}</q-tooltip>
+                                </q-icon>
+                            </template>
+                        </q-select>
+                    </div>
+                    <div class="col-4">
+                        <q-select outlined dense v-model="condition.logicOperator" :options="connectingOperators" :label="$t('managers.businessModelManager.logicOperator')" />
+                    </div>
                 </div>
-            </template>
-        </Listbox>
-
-        <Dialog class="remove-padding" :style="driversDescriptor.style.conditionDialog" :visible="conditionFormVisible" :modal="true" :closable="false">
-            <template #header>
-                <Toolbar class="kn-toolbar kn-toolbar--primary kn-width-full">
-                    <template #start>
-                        {{ $t('documentExecution.documentDetails.drivers.visualizationTitle') }}
-                    </template>
-                </Toolbar>
-            </template>
-            <div id="form-container" class="p-m-1">
-                <div>
-                    <InlineMessage severity="info" class="kn-width-full">{{ $t('documentExecution.documentDetails.drivers.dataHint') }}</InlineMessage>
+                <q-separator class="q-mt-md q-mb-sm"></q-separator>
+                <div v-for="mode in modes" :key="mode.useID">
+                    <div class="text-subtitle1 q-mb-xs text-weight-medium">{{ $t('managers.businessModelManager.modality') + ': ' + mode.name }}</div>
+                    <div class="row q-col-gutter-sm items-center">
+                        <div class="col">
+                            <q-select outlined dense v-model="modalities[mode.useID]" :options="getLovs(mode.idLov)" :label="$t('managers.businessModelManager.lovsColumn')" :placeholder="$t('managers.businessModelManager.lovsColumnSelect')" />
+                        </div>
+                        <div class="col-auto">
+                            <q-checkbox v-model="selectedModes" :val="mode.useID" :label="$t('managers.businessModelManager.check')" dense />
+                        </div>
+                    </div>
                 </div>
-
-                <form class="p-fluid p-formgrid p-grid p-mx-2 p-mt-5">
-                    <div class="p-field p-col-12 p-md-4">
-                        <span class="p-float-label">
-                            <Dropdown id="driver" v-model="condition.parFatherId" class="kn-material-input" :options="excludeCurrentDriverFromList()" option-label="label" option-value="id" @change="setParFatherUrlName" />
-                            <label for="driver" class="kn-material-input-label"> {{ $t('documentExecution.documentDetails.drivers.ad') }} {{ $t('documentExecution.documentDetails.drivers.adDepends') }} </label>
-                        </span>
-                    </div>
-                    <div class="p-field p-col-12 p-md-4">
-                        <span class="p-float-label">
-                            <Dropdown id="filterOp" v-model="condition.filterOperation" class="kn-material-input" :options="availableOperators" />
-                            <label for="filterOp" class="kn-material-input-label"> {{ $t('managers.businessModelManager.filterOperator') }} </label>
-                        </span>
-                    </div>
-                    <div class="p-field p-col-12 p-md-4">
-                        <span class="p-float-label">
-                            <Dropdown id="logicalOp" v-model="condition.logicOperator" class="kn-material-input" :options="connectingOperators" />
-                            <label for="logicalOp" class="kn-material-input-label"> {{ $t('managers.businessModelManager.logicOperator') }} </label>
-                        </span>
-                    </div>
-                    <div v-for="mode in modes" :key="mode.useID" class="p-col-12 p-mb-4">
-                        <form class="p-fluid p-formgrid p-grid">
-                            <p class="p-col-12 p-m-0">{{ $t('managers.businessModelManager.modality') + ': ' + mode.name }}</p>
-                            <div class="mode-inputs p-col-4" :style="driversDescriptor.style.modalityCheckbox">
-                                <Checkbox v-model="selectedModes" class="p-mr-2" :value="mode.useID" :disabled="readonly" />
-                                <label>{{ $t('managers.businessModelManager.check') }}</label>
-                            </div>
-                            <div class="mode-inputs p-col-8">
-                                <label class="kn-material-input-label">{{ $t('managers.businessModelManager.lovsColumn') }}</label>
-                                <Dropdown id="parFather" v-model="modalities[mode.useID]" class="kn-material-input" :options="getLovs(mode.idLov)" :placeholder="$t('managers.businessModelManager.lovsColumnSelect')">
-                                    <template #value="slotProps">
-                                        <div v-if="slotProps.value">
-                                            <span>{{ slotProps.value }}</span>
-                                        </div>
-                                    </template>
-                                    <template #option="slotProps">
-                                        <div>
-                                            <span>{{ slotProps.option }}</span>
-                                        </div>
-                                    </template>
-                                </Dropdown>
-                            </div>
-                        </form>
-                    </div>
-                </form>
-            </div>
-
-            <template #footer>
-                <Button class="p-button-text kn-button" :label="$t('common.cancel')" data-test="close-button" @click="conditionFormVisible = false" />
-                <Button class="kn-button kn-button--primary" :label="$t('common.save')" data-test="save-button" @click="handleSubmit" />
-            </template>
-        </Dialog>
-    </div>
+            </q-card-section>
+            <q-card-actions align="right">
+                <q-btn flat :label="$t('common.cancel')" @click="conditionFormVisible = false" />
+                <q-btn color="primary" :label="$t('common.save')" @click="handleSubmit" />
+            </q-card-actions>
+        </q-card>
+    </q-dialog>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { iDriver, iDocument } from '@/modules/documentExecution/documentDetails/DocumentDetails'
 import { AxiosResponse } from 'axios'
-import mainDescriptor from '@/modules/documentExecution/documentDetails/DocumentDetailsDescriptor.json'
 import driversDescriptor from './DocumentDetailsDriversDescriptor.json'
-import Listbox from 'primevue/listbox'
-import Dialog from 'primevue/dialog'
-import Dropdown from 'primevue/dropdown'
-import Checkbox from 'primevue/checkbox'
-import InlineMessage from 'primevue/inlinemessage'
 import mainStore from '../../../../../App.store'
 
 export default defineComponent({
-    name: 'document-drivers',
-    components: { Listbox, Dialog, Dropdown, Checkbox, InlineMessage },
+    name: 'document-data-conditions',
     props: { availableDrivers: { type: Array as PropType<iDriver[]>, required: true }, selectedDocument: { type: Object as PropType<iDocument>, required: true }, selectedDriver: { type: Object as PropType<iDriver>, required: true } },
     emits: ['driversChanged'],
     setup() {
@@ -114,8 +88,6 @@ export default defineComponent({
     },
     data() {
         return {
-            mainDescriptor,
-            driversDescriptor,
             availableOperators: driversDescriptor.dataOperators,
             connectingOperators: driversDescriptor.connectingOperators,
             modes: [] as any,
@@ -208,9 +180,9 @@ export default defineComponent({
         excludeCurrentDriverFromList() {
             return this.availableDrivers.filter((driver) => driver.id != this.selectedDriver.id)
         },
-        setParFatherUrlName(event) {
+        setParFatherUrlName(value) {
             this.availableDrivers.filter((driver) => {
-                driver.id === event.value ? (this.condition.parFatherUrlName = driver.parameterUrlName) : ''
+                driver.id === value ? (this.condition.parFatherUrlName = driver.parameterUrlName) : ''
             })
         },
         showAnalyticalDropdownConfirm() {
@@ -354,9 +326,4 @@ export default defineComponent({
     }
 })
 </script>
-<style lang="scss" scoped>
-.kn-remove-card-padding .data-condition-list {
-    border: 1px solid var(--kn-color-borders);
-    border-top: none;
-}
-</style>
+<style lang="scss" scoped></style>

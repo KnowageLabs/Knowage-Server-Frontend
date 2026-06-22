@@ -3,6 +3,7 @@ import router from './App.routes.js'
 import mainStore from './App.store.js'
 import pinia from './pinia'
 import authHelper from '@/helpers/commons/authHelper'
+import { isLoginRouteByLocation } from '@/helpers/commons/authState'
 import { useCookies } from 'vue3-cookies'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -15,7 +16,7 @@ async function refreshPublicInstance() {
     const response = await fetch(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/3.0/public-user?organization=${localStorage.getItem('organization')}`)
     if (response.status === 200) {
         const responseJson = await response.json()
-        localStorage.setItem('token', responseJson.userUniqueIdentifier)
+        sessionStorage.setItem('token', responseJson.userUniqueIdentifier)
         localStorage.setItem('lastResponseTimestamp', new Date().getTime())
     } else store.setError({ title: 'common.error.generic', msg: 'common.error.refresh' })
     localStorage.removeItem('sessionRefreshPending')
@@ -56,7 +57,7 @@ axios.interceptors.request.use(
             }
         }
 
-        if (localStorage.getItem('token') && !config.headers['x-session-polling']) config.headers[import.meta.env.VITE_DEFAULT_AUTH_HEADER] = 'Bearer ' + localStorage.getItem('token')
+        if (sessionStorage.getItem('token') && !config.headers['x-session-polling']) config.headers[import.meta.env.VITE_DEFAULT_AUTH_HEADER] = 'Bearer ' + sessionStorage.getItem('token')
         if (config.headers['x-session-polling']) delete config.headers['x-session-polling']
         if (localStorage.getItem('locale')) config.headers['Accept-Language'] = localStorage.getItem('locale')
         return config
@@ -81,7 +82,8 @@ axios.interceptors.response.use(
         const store = mainStore(pinia)
         if (error.response && error.response.status) {
             if (error.response.status === 401) {
-                if (router.currentRoute.value.name !== 'login') authHelper.handleUnauthorized()
+                const isLoginRoute = router.currentRoute.value.name === 'login' || isLoginRouteByLocation()
+                if (!isLoginRoute) authHelper.handleUnauthorized()
             }
             if ([400, 500].includes(error.response.status)) {
                 let obj = error.response.data

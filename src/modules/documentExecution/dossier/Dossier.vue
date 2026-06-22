@@ -139,6 +139,7 @@ export default defineComponent({
                 label: this.$t('common.creationDate'),
                 align: 'left',
                 sortable: true,
+                format: (value) => this.formatDate(value),
                 style: { width: '20%' }
             },
             {

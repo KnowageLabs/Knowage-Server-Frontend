@@ -65,4 +65,10 @@ export const formatPivotTableSettings = (widget: IWidget) => {
     } else if (!widget.settings.configuration.fieldPanel.fieldDragOverrides) {
         widget.settings.configuration.fieldPanel.fieldDragOverrides = pivotTableDefaultValues.getDefaultFieldDragOverrides()
     }
+    if (!widget.settings.configuration.rows.excludedFromSubTotals) {
+        widget.settings.configuration.rows.excludedFromSubTotals = []
+    }
+    if (!widget.settings.configuration.columns.excludedFromSubTotals) {
+        widget.settings.configuration.columns.excludedFromSubTotals = []
+    }
 }

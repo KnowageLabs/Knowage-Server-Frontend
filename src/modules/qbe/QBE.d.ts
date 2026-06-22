@@ -53,6 +53,7 @@ export interface iQuery {
 
 export interface iField {
     alias: string
+    blocklyXml?: any
     color: string
     dataType: string
     distinct: boolean
@@ -60,16 +61,18 @@ export interface iField {
     field: string
     fieldType: string
     format: string
+    formulaEditor?: string
     funct: string
     group: boolean
     iconCls: string
-    id: string
+    id: any
     inUse: boolean
     include: boolean
     leaf: boolean
     longDescription: string
     order: string
     type: string
+    uniqueID?: string
     visible: boolean
     attributes?: any
     originalId?: string

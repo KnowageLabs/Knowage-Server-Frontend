@@ -92,7 +92,8 @@
         "grandTotalLabel": "",
         "rowsExpanded": false,
         "subTotal": false,
-        "subTotalLabel": ""
+        "subTotalLabel": "",
+        "excludedFromSubTotals": []
     },
     "defaultTotals": {
         "enabled": false,

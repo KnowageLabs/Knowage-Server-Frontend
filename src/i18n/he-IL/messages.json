@@ -938,12 +938,62 @@
     },
     "locale": {
         "dateFormat": "Mm/dd/yy ",
-        "dayNames": ["יום ראשון ", "יום שני ", "יום שלישי ", "יום רביעי ", "יום חמישי ", "יום שישי ", "שבת "],
-        "dayNamesMin": ["סו ", "מו ", "טו ", "אנו ", "ה ", "Fr ", "Sa "],
-        "dayNamesShort": ["יום ראשון ", "Mon ", "טל ", "Wed ", "טו ", "Fri ", "ש "],
+        "dayNames": [
+            "יום ראשון ",
+            "יום שני ",
+            "יום שלישי ",
+            "יום רביעי ",
+            "יום חמישי ",
+            "יום שישי ",
+            "שבת "
+        ],
+        "dayNamesMin": [
+            "סו ",
+            "מו ",
+            "טו ",
+            "אנו ",
+            "ה ",
+            "Fr ",
+            "Sa "
+        ],
+        "dayNamesShort": [
+            "יום ראשון ",
+            "Mon ",
+            "טל ",
+            "Wed ",
+            "טו ",
+            "Fri ",
+            "ש "
+        ],
         "firstDayOfWeek": 0,
-        "monthNames": ["ינואר ", "פברואר ", "מרץ ", "אפריל ", "מאי ", "יוני ", "יולי ", "אוגוסט ", "ספטמבר ", "אוקטובר ", "נובמבר ", "דצמבר "],
-        "monthNamesShort": ["ג ' ן ", "פב ", "מאר ", "אפר ", "מאי ", "יוני ", "ג ' ול ", "אוג ", "פ \" פ ", "עו \" ד ", "נוב ", "דק "],
+        "monthNames": [
+            "ינואר ",
+            "פברואר ",
+            "מרץ ",
+            "אפריל ",
+            "מאי ",
+            "יוני ",
+            "יולי ",
+            "אוגוסט ",
+            "ספטמבר ",
+            "אוקטובר ",
+            "נובמבר ",
+            "דצמבר "
+        ],
+        "monthNamesShort": [
+            "ג ' ן ",
+            "פב ",
+            "מאר ",
+            "אפר ",
+            "מאי ",
+            "יוני ",
+            "ג ' ול ",
+            "אוג ",
+            "פ \" פ ",
+            "עו \" ד ",
+            "נוב ",
+            "דק "
+        ],
         "today": "היום ",
         "weekHeader": "Wk "
     },
@@ -2572,6 +2622,16 @@
             "oldSchedulationsMessage": "בטבלה שלהלן תוכלו למצוא את כל התזמויים שבוצעו מהמשרה שנבחרה. ",
             "ranSchedulations": "הצגת תזמון הרצת ",
             "title": "לוחות זמנים"
+        }
+    },
+    "dashboard": {
+        "generalSettings": {
+            "menuWidgets": {
+                "pdfExportFileName": "Dashboard PDF export file name",
+                "xlsxExportFileName": "Dashboard XLSX export file name",
+                "exportFileNameHint": "Supports placeholders like $P{driver} and $V{variable}, for example \"pippo $P{cane} $V{varia}\".",
+                "exportFileName": "Dashboard export file name"
+            }
         }
     }
 }

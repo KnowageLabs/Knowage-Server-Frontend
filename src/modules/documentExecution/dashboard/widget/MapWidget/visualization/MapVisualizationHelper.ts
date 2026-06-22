@@ -3,6 +3,7 @@ import { IVariable, IWidget } from '../../../Dashboard'
 import { ILayerFeature, IMapWidgetConditionalStyle, IMapWidgetLayer, IMapWidgetLayerFilter, IMapWidgetVisualizationThreshold, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import { replaceVariablesPlaceholdersByVariableName } from '../../interactionsHelpers/InteractionsParserHelper'
 import { getColumnDataIndex, resolveLayerByTarget } from '../LeafletHelper'
+import { getMapInfoColumnName } from '../MapWidgetInfoSettingsHelper'
 
 export const transformDataUsingForeginKey = (rows: any, pivotColumnIndex: string, valueColumnIndex: string) => {
     return rows.reduce((acc: number, row: any) => {
@@ -61,18 +62,37 @@ export const getQuantiles = (rows: number[] | null, numQuantiles: number, valueC
     return quantiles
 }
 
-export const getNumericPropertyValues = (geojson: any, propertyName: string): number[] => {
+const getMapLayerPropertyName = (propertyName: any): string => {
+    return getMapInfoColumnName(propertyName)
+}
+
+const getNumericPropertyValue = (value: unknown, propertyName: string): number => {
+    if (typeof value === 'number' && !Number.isNaN(value)) return value
+
+    if (typeof value === 'string') {
+        const trimmedValue = value.trim()
+        const numericValue = Number(trimmedValue)
+        if (trimmedValue.length > 0 && !Number.isNaN(numericValue)) return numericValue
+    }
+
+    throw new Error(`Property "${propertyName}" contains a non-numeric value: ${value}`)
+}
+
+export const getNumericPropertyValues = (geojson: any, propertyName: any): number[] => {
+    const normalizedPropertyName = getMapLayerPropertyName(propertyName)
+    if (!normalizedPropertyName) {
+        throw new Error('Property name is required to extract numeric layer values')
+    }
+
     const values = geojson.features.map((feature: ILayerFeature) => {
-        const value = feature.properties[propertyName]
-
-        if (typeof value !== 'number') {
-            throw new Error(`Property "${propertyName}" contains a non-numeric value: ${value}`)
-        }
-
-        return value
+        return getNumericPropertyValue(feature.properties?.[normalizedPropertyName], normalizedPropertyName)
     })
 
     return values
+}
+
+export const isSingleLayerPropertyVisualization = (layerVisualizationSettings: IMapWidgetVisualizationType): boolean => {
+    return !layerVisualizationSettings.targetDataset && !!getMapLayerPropertyName(layerVisualizationSettings.targetProperty)
 }
 
 export const getQuantilesFromLayersData = (rows: number[], numQuantiles: number): number[] => {
@@ -270,6 +290,132 @@ export const transformDataUsingForeignKeyReturningAllColumns = (rows: any[], piv
     }, {})
 }
 
+const addDataRowValuesToDataMap = (row: Record<string, any>, data: any, dataMap: Record<string, any>) => {
+    if (!row || !data?.metaData?.fields) return
+
+    data.metaData.fields.forEach((field: any) => {
+        if (!field?.dataIndex) return
+        const value = row[field.dataIndex]
+        if (typeof value === 'undefined') return
+
+        if (field.name) dataMap[field.name] = value
+        if (field.header) dataMap[field.header] = value
+    })
+}
+
+const addDataRowValuesToAggregatedMap = (row: Record<string, any>, data: any, dataMap: Record<string, Set<any>>) => {
+    if (!row || !data?.metaData?.fields) return
+
+    data.metaData.fields.forEach((field: any) => {
+        if (!field?.dataIndex) return
+        const value = row[field.dataIndex]
+        if (value === undefined || value === null || value === '') return
+
+        if (field.name) {
+            if (!dataMap[field.name]) dataMap[field.name] = new Set<any>()
+            dataMap[field.name].add(value)
+        }
+
+        if (field.header) {
+            if (!dataMap[field.header]) dataMap[field.header] = new Set<any>()
+            dataMap[field.header].add(value)
+        }
+    })
+}
+
+const collapseAggregatedDataMapValues = (dataMap: Record<string, Set<any>>) => {
+    return Object.entries(dataMap).reduce((accumulator, [fieldName, values]) => {
+        const uniqueValues = Array.from(values ?? [])
+        if (!uniqueValues.length) return accumulator
+
+        accumulator[fieldName] = uniqueValues.length === 1 ? uniqueValues[0] : uniqueValues.map((value) => `${value}`).join(', ')
+        return accumulator
+    }, {} as Record<string, any>)
+}
+
+const addMissingDataMapValues = (sourceDataMap: Record<string, any> | null | undefined, targetDataMap: Record<string, any>) => {
+    if (!sourceDataMap) return
+
+    Object.entries(sourceDataMap).forEach(([key, value]) => {
+        if (targetDataMap[key] !== undefined && targetDataMap[key] !== null && targetDataMap[key] !== '') return
+        if (value === undefined || value === null || value === '') return
+        targetDataMap[key] = value
+    })
+}
+
+export const transformDataUsingForeignKeyReturningAggregatedColumns = (rows: any[], pivotColumnIndex: string, data: any) => {
+    const aggregatedDataMap = rows.reduce((accumulator: Record<string, Record<string, Set<any>>>, row: any) => {
+        const key = row?.[pivotColumnIndex]
+        if (key === undefined || key === null || key === '') return accumulator
+
+        if (!accumulator[key]) accumulator[key] = {}
+        addDataRowValuesToAggregatedMap(row, data, accumulator[key])
+
+        return accumulator
+    }, {})
+
+    return Object.entries(aggregatedDataMap).reduce((accumulator, [key, fieldValues]) => {
+        accumulator[key] = collapseAggregatedDataMapValues(fieldValues)
+        return accumulator
+    }, {} as Record<string, Record<string, any>>)
+}
+
+export const getInteractionDataMap = (source: ILayerFeature | Record<string, any> | null | undefined, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData?: Record<string, any> | null, targetDatasetData?: any, sourceData?: any, additionalMappedData?: Record<string, Record<string, any>> | null): Record<string, any> => {
+    if (!source) return {}
+
+    const dataMap = {} as Record<string, any>
+    const isFeatureSource = typeof source === 'object' && source !== null && 'properties' in source
+    const targetProperty = getMapLayerPropertyName(layerVisualizationSettings.targetProperty)
+
+    if (isFeatureSource) {
+        Object.assign(dataMap, (source as ILayerFeature).properties ?? {})
+    } else {
+        Object.assign(dataMap, source)
+        addDataRowValuesToDataMap(source as Record<string, any>, sourceData, dataMap)
+    }
+
+    if (mappedData && isFeatureSource && targetDatasetData && targetProperty) {
+        const joinValue = (source as ILayerFeature).properties?.[targetProperty]
+        if (joinValue != null) {
+            const targetDatasetRow = mappedData[joinValue]
+            if (targetDatasetRow) addDataRowValuesToDataMap(targetDatasetRow, targetDatasetData, dataMap)
+            addMissingDataMapValues(additionalMappedData?.[joinValue], dataMap)
+        }
+    }
+
+    return dataMap
+}
+
+const hasResolvedFilterValue = (value: any) => value !== undefined && value !== null && value !== ''
+
+export const getFilterValueFromDatasetRow = (row: Record<string, any>, data: any, layerVisualizationSettings: IMapWidgetVisualizationType, fallbackValue?: any) => {
+    const filterColumn = getMapLayerPropertyName(layerVisualizationSettings.filter?.column)
+    if (!filterColumn) return fallbackValue
+
+    const filterValue = getInteractionDataMap(row, layerVisualizationSettings, null, null, data)[filterColumn]
+    return hasResolvedFilterValue(filterValue) ? filterValue : fallbackValue
+}
+
+export const getFilterValueFromLayerFeature = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData?: Record<string, any> | null, targetDatasetData?: any, fallbackValue?: any, additionalMappedData?: Record<string, Record<string, any>> | null) => {
+    const filterColumn = getMapLayerPropertyName(layerVisualizationSettings.filter?.column)
+    if (!filterColumn) return fallbackValue
+
+    const filterValue = getInteractionDataMap(feature, layerVisualizationSettings, mappedData, targetDatasetData, null, additionalMappedData)[filterColumn]
+    return hasResolvedFilterValue(filterValue) ? filterValue : fallbackValue
+}
+
+export const doesMapFilterMatchDatasetRow = (row: Record<string, any>, data: any, layerVisualizationSettings: IMapWidgetVisualizationType, fallbackValue?: any) => {
+    const filter = layerVisualizationSettings.filter
+    if (!filter?.enabled) return true
+    return isConditionMet(filter, getFilterValueFromDatasetRow(row, data, layerVisualizationSettings, fallbackValue))
+}
+
+export const doesMapFilterMatchLayerFeature = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData?: Record<string, any> | null, targetDatasetData?: any, fallbackValue?: any, additionalMappedData?: Record<string, Record<string, any>> | null) => {
+    const filter = layerVisualizationSettings.filter
+    if (!filter?.enabled) return true
+    return isConditionMet(filter, getFilterValueFromLayerFeature(feature, layerVisualizationSettings, mappedData, targetDatasetData, fallbackValue, additionalMappedData))
+}
+
 export const getTargetDataColumn = (data: any, layerVisualizationSettings: IMapWidgetVisualizationType, dataColumn: string) => {
     const filter = layerVisualizationSettings.filter
 
@@ -285,8 +431,8 @@ export const getTargetDataColumn = (data: any, layerVisualizationSettings: IMapW
 export const getTargetProperty = (layerVisualizationSettings: IMapWidgetVisualizationType) => {
     const filter = layerVisualizationSettings.filter
 
-    let targetProperty = layerVisualizationSettings.targetProperty
-    if (filter?.enabled) targetProperty = filter.column
+    let targetProperty = getMapLayerPropertyName(layerVisualizationSettings.targetProperty)
+    if (filter?.enabled) targetProperty = getMapLayerPropertyName(filter.column)
 
     return targetProperty
 }
@@ -300,14 +446,18 @@ export const getRowValues = (row: any, dataColumn: string, layerVisualizationSet
 }
 
 export const getFeatureValues = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, dataColumnIndex: string | null | undefined): { value: any; originalVisualizationTypeValue: any } => {
-    const layerTargetProperty = mappedData ? layerVisualizationSettings.targetProperty : getTargetProperty(layerVisualizationSettings)
-    const valueKey = feature.properties[layerTargetProperty]
+    const originalTargetProperty = getMapLayerPropertyName(layerVisualizationSettings.targetProperty)
+    const layerTargetProperty = mappedData ? originalTargetProperty : getTargetProperty(layerVisualizationSettings)
+
+    if (!layerTargetProperty || !originalTargetProperty) return { value: null, originalVisualizationTypeValue: null }
+
+    const valueKey = feature.properties?.[layerTargetProperty]
 
     if (mappedData && !mappedData[valueKey]) return { value: null, originalVisualizationTypeValue: null }
-    const value = mappedData && dataColumnIndex ? mappedData[valueKey][dataColumnIndex] : valueKey
+    const value = mappedData && dataColumnIndex ? mappedData[valueKey]?.[dataColumnIndex] : valueKey
 
-    const originalVisualizationTypeValueKey = feature.properties[layerVisualizationSettings.targetProperty]
-    const originalVisualizationTypeValue = mappedData && dataColumnIndex ? mappedData[originalVisualizationTypeValueKey][dataColumnIndex] : feature.properties[layerVisualizationSettings.targetProperty]
+    const originalVisualizationTypeValueKey = feature.properties?.[originalTargetProperty]
+    const originalVisualizationTypeValue = mappedData && dataColumnIndex ? mappedData[originalVisualizationTypeValueKey]?.[dataColumnIndex] : originalVisualizationTypeValueKey
 
     return { value, originalVisualizationTypeValue }
 }

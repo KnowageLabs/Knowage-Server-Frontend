@@ -3,6 +3,7 @@ import deepcopy from 'deepcopy'
 import { filter } from './CustomChartWidgetFilter'
 import mainStore from '@/App.store'
 import pinia from '@/pinia'
+import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 
 export class CustomChartDatastore {
     data: any = {}
@@ -12,9 +13,11 @@ export class CustomChartDatastore {
     state: any = {}
     drivers: any = {}
     currentSelections: any[] = []
+    private dashboardId: string | null = null
 
-    constructor(data) {
+    constructor(data, dashboardId?: string) {
         this.data = data
+        this.dashboardId = dashboardId ?? null
     }
 
     setData(data) {
@@ -25,6 +28,10 @@ export class CustomChartDatastore {
         this.drivers = drivers
     }
 
+    /**
+     * @deprecated Selections are now read live from the dashboard store when a dashboardId is provided.
+     * This method is kept for backward compatibility only.
+     */
     setCurrentSelections(currentSelections) {
         this.currentSelections = currentSelections
     }
@@ -70,6 +77,10 @@ export class CustomChartDatastore {
     }
 
     getSelections() {
+        if (this.dashboardId) {
+            const store = dashboardStore(pinia)
+            return store.getSelections(this.dashboardId)
+        }
         return this.currentSelections
     }
 

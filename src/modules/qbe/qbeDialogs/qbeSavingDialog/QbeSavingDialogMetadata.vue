@@ -55,7 +55,17 @@ export default defineComponent({
             rowIndex: 0 as number,
             columns: [
                 { name: 'fieldAlias', label: this.$t('managers.datasetManagement.fieldAlias'), align: 'left', field: 'fieldAlias', sortable: true },
-                { name: 'type', label: this.$t('common.type'), align: 'left', field: 'Type', sortable: true, format: (val) => this.valueTypes.find((item) => item.name === val).value },
+                {
+                    name: 'type',
+                    label: this.$t('common.type'),
+                    align: 'left',
+                    field: 'Type',
+                    sortable: true,
+                    format: (val) => {
+                        const match = this.valueTypes.find((item) => item.name === val)
+                        return match?.value ?? val
+                    }
+                },
                 { name: 'fieldType', label: this.$t('managers.datasetManagement.fieldType'), align: 'left', field: 'fieldType', sortable: true, style: 'width: 400px' },
                 { name: 'description', label: this.$t('common.description'), align: 'center', field: 'description', style: 'width: 100px' }
             ] as any

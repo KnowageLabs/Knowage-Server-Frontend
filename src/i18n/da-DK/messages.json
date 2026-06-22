@@ -938,12 +938,62 @@
     },
     "locale": {
         "dateFormat": "mm/dd/åå ",
-        "dayNames": ["Søndag ", "Mandag ", "Tirsdag ", "Onsdag ", "Torsdag ", "Fredag ", "Lørdag "],
-        "dayNamesMin": ["Su ", "Mo. ", "Tu ", "Vi ... ", "Th ", "Fr ", "Sa "],
-        "dayNamesShort": ["Sun ", "Mon ", "Tir ", "Wed ", "Thu ", "Fre ", "Sat "],
+        "dayNames": [
+            "Søndag ",
+            "Mandag ",
+            "Tirsdag ",
+            "Onsdag ",
+            "Torsdag ",
+            "Fredag ",
+            "Lørdag "
+        ],
+        "dayNamesMin": [
+            "Su ",
+            "Mo. ",
+            "Tu ",
+            "Vi ... ",
+            "Th ",
+            "Fr ",
+            "Sa "
+        ],
+        "dayNamesShort": [
+            "Sun ",
+            "Mon ",
+            "Tir ",
+            "Wed ",
+            "Thu ",
+            "Fre ",
+            "Sat "
+        ],
         "firstDayOfWeek": 0,
-        "monthNames": ["Januar ", "Februar ", "Marts ", "April ", "Maj ", "Juni ", "Juli ", "August ", "September ", "Oktober ", "November ", "December "],
-        "monthNamesShort": ["-Jan. ", "Feb ", "Mar ", "Apr ", "Maj ", "Jun ", "Jul ", "Aug ", "Sep ", "Okt ", "Nov ", "Dec "],
+        "monthNames": [
+            "Januar ",
+            "Februar ",
+            "Marts ",
+            "April ",
+            "Maj ",
+            "Juni ",
+            "Juli ",
+            "August ",
+            "September ",
+            "Oktober ",
+            "November ",
+            "December "
+        ],
+        "monthNamesShort": [
+            "-Jan. ",
+            "Feb ",
+            "Mar ",
+            "Apr ",
+            "Maj ",
+            "Jun ",
+            "Jul ",
+            "Aug ",
+            "Sep ",
+            "Okt ",
+            "Nov ",
+            "Dec "
+        ],
         "today": "I dag ",
         "weekHeader": "Wk "
     },
@@ -2571,6 +2621,16 @@
             "oldSchedulationsMessage": "I følgende tabel finder du alle udførte planlagte beregninger fra det valgte job. ",
             "ranSchedulations": "Vis udførte planlagte beregninger ",
             "title": "Skemabestemmelser"
+        }
+    },
+    "dashboard": {
+        "generalSettings": {
+            "menuWidgets": {
+                "pdfExportFileName": "Dashboard PDF export file name",
+                "xlsxExportFileName": "Dashboard XLSX export file name",
+                "exportFileNameHint": "Supports placeholders like $P{driver} and $V{variable}, for example \"pippo $P{cane} $V{varia}\".",
+                "exportFileName": "Dashboard export file name"
+            }
         }
     }
 }

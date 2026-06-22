@@ -128,6 +128,7 @@ export default defineComponent({
         },
         propVariables() {
             this.loadVariables()
+            this.refreshColumnsIfVariableConditionsExist()
         }
     },
     beforeMount() {
@@ -177,6 +178,15 @@ export default defineComponent({
         },
         loadVariables() {
             this.variables = this.propVariables
+        },
+        refreshColumnsIfVariableConditionsExist() {
+            const visCond = this.widgetModel.settings?.visualization?.visibilityConditions
+            if (!visCond?.enabled) return
+            const hasVariableCondition = visCond.conditions.some((condition) => condition.condition.type === 'variable')
+            if (!hasVariableCondition) return
+            const gridColumns = this.createGridColumns(this.tableData?.metaData?.fields)
+            this.gridApi?.setGridOption('columnDefs', gridColumns)
+            this.gridApi?.redrawRows()
         },
         setSelectedCellForMultiselected(columnName: string) {
             if (!columnName || !this.tableData || !this.tableData.metaData) this.selectedColumn = ''

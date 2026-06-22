@@ -139,7 +139,10 @@ export const addMeasuresAndCategoriesByCount = (widget: IWidget, dashboardConfig
                 continue
             }
             const measureToPush = { id: `${measure.alias}`, alias: `${measure.alias}`, columnName: measure.columnName, funct: measure.aggregation, orderColumn: measure?.orderColumn ?? measure.columnName, orderType: measure.orderType ?? '' } as any
-            if (measure.formula) measureToPush.formula = addVariablesToFormula(measure, dashboardConfig)
+            if (measure.formula) {
+                measureToPush.formula = addVariablesToFormula(measure, dashboardConfig)
+                measureToPush.funct = 'NONE'
+            }
 
             dataToSend.aggregations.measures.push(measureToPush)
         }

@@ -78,7 +78,7 @@ export default defineComponent({
             if (!this.dashboards[this.dashboardId as string]) return false
 
             for (const widget of this.dashboards[this.dashboardId as string].widgets) {
-                if (widget.dataset === datasetId) return true
+                if (widget.dataset === datasetId || (Array.isArray(widget.layers) && widget.layers.some((layer) => layer.type === 'dataset' && layer.id === datasetId))) return true
             }
 
             return false

@@ -89,6 +89,21 @@ const getParameterValueForCrossNavigation = (vueComponent: any, parameterLabel: 
     return index !== -1 && vueComponent.filtersData.filterStatus[index].parameterValue[0] ? vueComponent.filtersData.filterStatus[index].parameterValue[0].value : ''
 }
 
+const parseCompoundNavigationValue = (value: any): { mainValue: any; additionalParams: Record<string, string> } => {
+    if (typeof value !== 'string' || !value.includes('&')) return { mainValue: value, additionalParams: {} }
+    const ampIdx = value.indexOf('&')
+    const continuation = value.substring(ampIdx + 1)
+    // Only treat as compound if the continuation looks like URL key=value pairs
+    if (!/\w+=/.test(continuation)) return { mainValue: value, additionalParams: {} }
+    const mainValue = value.substring(0, ampIdx)
+    const additionalParams: Record<string, string> = {}
+    continuation.split('&').forEach((pair) => {
+        const eqIdx = pair.indexOf('=')
+        if (eqIdx > 0) additionalParams[pair.substring(0, eqIdx)] = pair.substring(eqIdx + 1)
+    })
+    return { mainValue, additionalParams }
+}
+
 const formatNavigationParams = (vueComponent: any, otherOutputParameters: any[], navigationParams: any) => {
     const formatedParams = {} as any
 
@@ -105,8 +120,27 @@ const formatNavigationParams = (vueComponent: any, otherOutputParameters: any[],
         }
 
         if (found) {
-            formatedParams[label] = el[Object.keys(el)[0]]
-            formatedParams[label + '_field_visible_description'] = el[Object.keys(el)[0]]
+            const rawValue = el[Object.keys(el)[0]]
+            const { mainValue, additionalParams } = parseCompoundNavigationValue(rawValue)
+            formatedParams[label] = mainValue
+            formatedParams[label + '_field_visible_description'] = mainValue
+            // Map additional params extracted from compound value to their target navigation keys.
+            // Prefer an explicit entry in otherOutputParameters over the compound-extracted value
+            // (e.g. when the user clicked a specific row among multiple selected rows).
+            Object.entries(additionalParams).forEach(([k, v]) => {
+                const explicitEntry = otherOutputParameters.find((e: any) => Object.keys(e)[0] === k)
+                const valueToUse = explicitEntry !== undefined ? explicitEntry[k] : v
+                let additionalNavKey = ''
+                for (const navKey of Object.keys(navigationParams)) {
+                    if (navigationParams[navKey].value.label === k) {
+                        additionalNavKey = navKey
+                        break
+                    }
+                }
+                const targetKey = additionalNavKey || k
+                formatedParams[targetKey] = valueToUse
+                formatedParams[targetKey + '_field_visible_description'] = valueToUse
+            })
         }
     })
 
@@ -142,7 +176,25 @@ const addDocumentOtherParametersToNavigationParamas = (vueComponent: any, naviga
                 newKey = documentNavigationParamsKeys[j]
             }
         }
-        if (newKey) navigationParams[newKey] = angularData.outputParameters[tempKey]
+        if (newKey) {
+            const rawValue = angularData.outputParameters[tempKey]
+            const { mainValue, additionalParams } = parseCompoundNavigationValue(rawValue)
+            navigationParams[newKey] = mainValue
+            // Also propagate any additional params embedded in the compound value.
+            // Prefer an explicit key in outputParameters over the compound-extracted value
+            // (e.g. when the user clicked a specific row among multiple selected rows).
+            Object.entries(additionalParams).forEach(([k, v]) => {
+                const explicitValue = k in angularData.outputParameters ? angularData.outputParameters[k] : v
+                let additionalNavKey = ''
+                for (const navKey of documentNavigationParamsKeys) {
+                    if (crossNavigationDocument.navigationParams[navKey].value?.label === k) {
+                        additionalNavKey = navKey
+                        break
+                    }
+                }
+                navigationParams[additionalNavKey || k] = explicitValue
+            })
+        }
     }
 
     addSourceDocumentParameterValuesFromDocumentNavigationParameters(vueComponent, navigationParams, crossNavigationDocument)

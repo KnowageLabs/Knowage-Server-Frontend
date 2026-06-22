@@ -1,81 +1,44 @@
 <template>
-    <div class="p-grid p-m-0 kn-flex">
-        <div class="p-d-flex p-flex-column kn-flex">
-            <Toolbar class="kn-toolbar kn-toolbar--secondary">
-                <template #start>
-                    {{ $t('documentExecution.documentDetails.dataLineage.title') }}
-                </template>
-            </Toolbar>
-            <div class="kn-flex kn-relative">
-                <div :style="mainDescriptor.style.absoluteScroll">
-                    <div id="driver-details-container" class="p-m-2">
-                        <Toolbar class="kn-toolbar kn-toolbar--default">
-                            <template #start>
-                                {{ $t('managers.datasetManagement.availableTables') }}
-                            </template>
-                        </Toolbar>
-                        <Card>
-                            <template #content>
-                                <div class="p-field p-col-12">
-                                    <span class="p-float-label">
-                                        <Dropdown id="dataSource" v-model="dataSource" class="kn-material-input kn-width-full" :options="metaSourceResource" option-label="name" @change="getTablesBySourceID" />
-                                        <label for="dataSource" class="kn-material-input-label"> {{ $t('documentExecution.documentDetails.dataLineage.selectSource') }} </label>
-                                    </span>
-                                </div>
-                                <div v-if="metaSourceResource.length == 0">
-                                    <InlineMessage severity="info" class="kn-width-full">{{ $t('documentExecution.documentDetails.dataLineage.noDatasources') }}</InlineMessage>
-                                </div>
-                                <div v-if="dataSource && tablesList.length == 0 && metaSourceResource.length != 0">
-                                    <InlineMessage severity="info" class="kn-width-full">{{ $t('documentExecution.documentDetails.dataLineage.noTables') }}</InlineMessage>
-                                </div>
-                                <ProgressBar v-if="loading" class="kn-progress-bar" mode="indeterminate" data-test="progress-bar" />
-                                <DataTable
-                                    v-if="dataSource && tablesList.length > 0 && !loading"
-                                    v-model:selection="selectedTables"
-                                    v-model:filters="filters"
-                                    class="p-datatable-sm kn-table"
-                                    :value="tablesList"
-                                    data-key="tableId"
-                                    responsive-layout="scroll"
-                                    :global-filter-fields="globalFilterFields"
-                                    @rowSelect="peristTable"
-                                    @rowUnselect="deleteTable"
-                                >
-                                    <template #header>
-                                        <div class="table-header p-d-flex p-ai-center">
-                                            <span id="search-container" class="p-input-icon-left p-mr-3">
-                                                <i class="pi pi-search" />
-                                                <InputText v-model="filters['global'].value" class="kn-material-input" :placeholder="$t('common.search')" data-test="search-input" />
-                                            </span>
-                                        </div>
-                                    </template>
-                                    <Column class="lineage-table-header" selection-mode="multiple" :header-style="mainDescriptor.style.tableHeader"> </Column>
-                                    <Column field="name" :header="$t('managers.datasetManagement.flatTableName')" :sortable="true"></Column>
-                                </DataTable>
-                            </template>
-                        </Card>
-                    </div>
-                </div>
-            </div>
+    <q-scroll-area class="dd-scroll dd-tab-detail-scroll">
+        <div class="dd-lineage-container">
+            <q-card flat bordered>
+                <q-card-section class="q-py-sm">
+                    <div class="dd-section-label">{{ $t('managers.datasetManagement.availableTables') }}</div>
+                </q-card-section>
+                <q-separator />
+                <q-card-section class="q-pa-none">
+                    <q-select class="q-mx-md q-my-md" outlined dense v-model="dataSource" :options="metaSourceResource" option-label="name" :label="$t('documentExecution.documentDetails.dataLineage.selectSource')" @update:model-value="getTablesBySourceID" />
+                    <q-separator v-if="dataSource && tablesList.length > 0 && !loading" class="q-mb-sm"></q-separator>
+                    <q-banner v-if="metaSourceResource.length === 0" class="bg-info text-black q-ma-md" dense rounded>
+                        {{ $t('documentExecution.documentDetails.dataLineage.noDatasources') }}
+                    </q-banner>
+                    <q-banner v-if="dataSource && tablesList.length === 0 && metaSourceResource.length !== 0 && !loading" class="bg-info text-black q-ma-md" dense rounded>
+                        {{ $t('documentExecution.documentDetails.dataLineage.noTables') }}
+                    </q-banner>
+
+                    <q-linear-progress v-if="loading" indeterminate class="q-mb-sm" data-test="progress-bar" />
+
+                    <q-table v-if="dataSource && tablesList.length > 0 && !loading" v-model:selected="selectedTables" :rows="tablesList" :columns="tableColumns" :filter="filterText" :rows-per-page-options="[10, 25, 50, 0]" :pagination="{ rowsPerPage: 10 }" row-key="tableId" selection="multiple" dense flat @update:selected="onSelectionChange">
+                        <template #top>
+                            <q-input v-model="filterText" outlined dense :placeholder="$t('common.search')" class="full-width q-pa-none q-ma-none" data-test="search-input">
+                                <template #prepend><q-icon name="search" /></template>
+                            </q-input>
+                        </template>
+                    </q-table>
+                </q-card-section>
+            </q-card>
         </div>
-    </div>
+    </q-scroll-area>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { iDocument, iMetaSource, iTableSmall } from '@/modules/documentExecution/documentDetails/DocumentDetails'
 import { AxiosResponse } from 'axios'
-import { filterDefault } from '@/helpers/commons/filterHelper'
-import mainDescriptor from '@/modules/documentExecution/documentDetails/DocumentDetailsDescriptor.json'
-import Dropdown from 'primevue/dropdown'
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
-import InlineMessage from 'primevue/inlinemessage'
 import mainStore from '../../../../../App.store'
 
 export default defineComponent({
     name: 'data-lineage',
-    components: { Dropdown, DataTable, Column, InlineMessage },
     props: { selectedDocument: { type: Object as PropType<iDocument>, required: true }, metaSourceResource: { type: Array as PropType<iMetaSource[]>, required: true }, savedTables: { type: Array as PropType<iTableSmall[]>, required: true } },
     emits: [],
     setup() {
@@ -84,47 +47,48 @@ export default defineComponent({
     },
     data() {
         return {
-            mainDescriptor,
-            dataSource: {} as iMetaSource,
+            dataSource: null as iMetaSource | null,
             tablesList: [] as iTableSmall[],
             selectedTables: [] as iTableSmall[],
             loading: false,
-            filters: { global: [filterDefault] } as Object,
-            globalFilterFields: ['name']
+            filterText: '',
+            tableColumns: [{ name: 'name', label: this.$t('managers.datasetManagement.flatTableName'), field: 'name', sortable: true, align: 'left' as const }]
         }
     },
-    created() {},
     methods: {
         async getTablesBySourceID() {
+            if (!this.dataSource) return
             this.loading = true
             this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/metaSourceResource/${this.dataSource.sourceId}/metatables`)
                 .then((response: AxiosResponse<any>) => {
                     this.tablesList = response.data as iTableSmall[]
+                    this.selectedTables = []
                     this.setCheckedTables()
                 })
                 .finally(() => (this.loading = false))
         },
         setCheckedTables() {
-            for (let i = 0; i < this.tablesList.length; i++) {
-                for (let j = 0; j < this.savedTables.length; j++) {
-                    if (this.tablesList[i].tableId == this.savedTables[j].tableId) {
-                        this.selectedTables.push(this.tablesList[i])
-                    }
-                }
-            }
+            this.selectedTables = this.tablesList.filter((t) => this.savedTables.some((s) => s.tableId === t.tableId))
         },
-        peristTable(event) {
+        onSelectionChange(newSelection: readonly iTableSmall[]) {
+            const added = newSelection.filter((t) => !this.selectedTables.find((s) => s.tableId === t.tableId))
+            const removed = this.selectedTables.filter((t) => !newSelection.find((s) => s.tableId === t.tableId))
+            added.forEach((t) => this.persistTable(t))
+            removed.forEach((t) => this.deleteTable(t))
+            this.selectedTables = [...newSelection]
+        },
+        persistTable(table: iTableSmall) {
             this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/metaDocumetRelationResource/${this.selectedDocument.id}`, event.data, {
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/metaDocumetRelationResource/${this.selectedDocument.id}`, table, {
                     headers: { 'X-Disable-Errors': 'true' }
                 })
                 .then(() => this.store.setInfo({ title: this.$t('common.save'), msg: this.$t('documentExecution.documentDetails.dataLineage.persistOk') }))
                 .catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.dataLineage.persistError') }))
         },
-        deleteTable(event) {
+        deleteTable(table: iTableSmall) {
             this.$http
-                .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/metaDocumetRelationResource/${this.selectedDocument.id}/${event.data.tableId}`, {
+                .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/metaDocumetRelationResource/${this.selectedDocument.id}/${table.tableId}`, {
                     headers: { 'X-Disable-Errors': 'true' }
                 })
                 .then(() => this.store.setInfo({ title: this.$t('common.save'), msg: this.$t('documentExecution.documentDetails.dataLineage.deleteOk') }))
@@ -133,8 +97,12 @@ export default defineComponent({
     }
 })
 </script>
-<style lang="scss">
-.lineage-table-header .p-column-header-content {
-    display: none;
+
+<style lang="scss" scoped>
+.dd-lineage-container {
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 16px;
 }
 </style>

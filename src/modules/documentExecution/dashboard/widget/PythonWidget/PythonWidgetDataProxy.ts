@@ -97,7 +97,10 @@ const formatPythonModelForGet = (dashboardId: any, dashboardConfig: IDashboardCo
                 continue
             }
             const measureToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, funct: column.aggregation, orderColumn: column.alias } as any
-            if (column.formula) measureToPush.formula = addVariablesToFormula(column, dashboardConfig)
+            if (column.formula) {
+                measureToPush.formula = addVariablesToFormula(column, dashboardConfig)
+                measureToPush.funct = 'NONE'
+            }
 
             dataToSend.aggregations.measures.push(measureToPush)
         } else {

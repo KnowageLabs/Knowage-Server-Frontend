@@ -7,6 +7,7 @@
             "background": {
                 "imageBackgroundSize": "",
                 "imageBackgroundUrl": "",
+                "sheetsBackgroundStyle": "",
                 "sheetsBackgroundColor": "",
                 "showGrid": true
             },

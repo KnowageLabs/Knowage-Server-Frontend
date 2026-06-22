@@ -9,46 +9,44 @@
         </div>
 
         <div v-for="field in layerFields" :key="field.name" class="dynamic-form-item p-grid p-col-12 p-ai-center">
-            <div class="p-grid p-ai-center p-mt-3 kn-width-full">
-                <div class="p-col-12 p-d-flex p-flex-row">
-                    <div class="p-float-label kn-flex">
-                        <InputText v-model="field.alias" class="kn-material-input kn-width-full" :disabled="true" />
-                        <label class="kn-material-input-label">{{ $t('common.column') }}</label>
+                <div class="p-grid p-ai-center p-mt-3 kn-width-full">
+                    <div class="p-col-12 p-d-flex p-flex-row">
+                        <div class="p-float-label kn-flex">
+                            <InputText v-model="field.alias" class="kn-material-input kn-width-full" :disabled="true" />
+                            <label class="kn-material-input-label">{{ $t('common.column') }}</label>
                     </div>
                     <div class="p-field p-float-label p-fluid kn-flex p-ml-2">
                         <Dropdown v-model="field.fieldType" class="kn-material-input" :options="descriptor.columnTypeOptions" :disabled="true"></Dropdown>
                         <label class="kn-material-input-label">{{ $t('common.type') }}</label>
+                        </div>
+                        <div v-if="field.fieldType === 'MEASURE' && !field.formula" class="p-field p-float-label p-fluid kn-flex p-ml-2">
+                            <Dropdown v-model="field.aggregationSelected" class="kn-material-input" :options="descriptor.columnAggregationOptions" option-value="value" option-label="label" @change="onFieldConfigurationChanged"></Dropdown>
+                            <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.aggregation') }}</label>
+                        </div>
+                        <div v-if="showAggregateByToggle(field)" class="p-d-flex p-ai-center p-ml-3 p-mb-2">
+                            <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.map.metadata.aggregateBy') }}</label>
+                            <InputSwitch v-model="field.properties.aggregateBy" @change="onFieldConfigurationChanged"></InputSwitch>
+                        </div>
+                        <div v-if="field.fieldType !== 'SPATIAL_ATTRIBUTE'" class="p-d-flex p-flex-row p-jc-between p-ai-center p-ml-3 p-mb-2">
+                            <i v-if="field.formula" class="pi pi-pencil kn-cursor-pointer p-mr-2" @click="editField(field)"></i>
+                            <i class="pi pi-trash kn-cursor-pointer" @click="removeField(field)"></i>
+                        </div>
                     </div>
-                    <div v-if="field.fieldType === 'MEASURE' && !field.formula" class="p-field p-float-label p-fluid kn-flex p-ml-2">
-                        <Dropdown v-model="field.aggregationSelected" class="kn-material-input" :options="descriptor.columnAggregationOptions" option-value="value" option-label="label"></Dropdown>
-                        <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.aggregation') }}</label>
-                    </div>
-                    <div v-if="field.fieldType !== 'SPATIAL_ATTRIBUTE'" class="p-d-flex p-flex-row p-jc-between p-ai-center p-ml-3 p-mb-2">
-                        <i v-if="field.formula" class="pi pi-pencil kn-cursor-pointer p-mr-2" @click="editField(field)"></i>
-                        <i class="pi pi-trash kn-cursor-pointer" @click="removeField(field)"></i>
-                    </div>
-                </div>
             </div>
         </div>
 
         <MapWidgetMetadataNewFieldDialog v-if="addNewFieldDialogVisible" :visible="addNewFieldDialogVisible" :prop-fields="fields" @addSelectedFields="onAddSelectedFields" @close="addNewFieldDialogVisible = false"></MapWidgetMetadataNewFieldDialog>
-        <KnCalculatedField
+        <KnBlockly
             v-if="calcFieldDialogVisible"
-            v-model:template="selectedCalcField"
-            v-model:visibility="calcFieldDialogVisible"
             :fields="calcFieldColumns"
-            :validation="true"
             :variables="variables"
-            :descriptor="calcFieldDescriptor"
-            :prop-calc-field-functions="availableFunctions"
-            :read-only="false"
-            :valid="true"
-            source="dashboard"
-            :prop-nullif-function="datasetFunctions.nullifFunction"
+            :field-name="selectedCalcField?.alias || ''"
+            :initial-state="getCalcFieldInitialState(selectedCalcField)"
+            :lock-saved-mode="shouldLockCalcFieldMode(selectedCalcField)"
+            v-model:visibility="calcFieldDialogVisible"
             @save="onCalcFieldSave"
             @cancel="calcFieldDialogVisible = false"
-        >
-        </KnCalculatedField>
+        ></KnBlockly>
     </div>
 </template>
 
@@ -56,22 +54,17 @@
 import { PropType, defineComponent } from 'vue'
 import { IMapWidgetLayer, IWidgetMapLayerColumn } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
-import { AxiosResponse } from 'axios'
 import { removeColumnFromModel } from '../MapWidgetLayersTabListHelper'
-import { mapActions } from 'pinia'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import descriptor from './MapWidgetMetadataDescriptor.json'
 import Dropdown from 'primevue/dropdown'
 import InputSwitch from 'primevue/inputswitch'
 import MapWidgetMetadataNewFieldDialog from './MapWidgetMetadataNewFieldDialog.vue'
-import KnCalculatedField from '@/components/functionalities/KnCalculatedField/KnCalculatedField.vue'
-import calcFieldDescriptor from './MapWidgetMetadataFieldsCalcFieldDescriptor.json'
-import appStore from '@/App.store'
-import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
+import KnBlockly from '@/components/UI/KnBlockly/KnBlockly.vue'
 
 export default defineComponent({
     name: 'map-widget-metadata-fields',
-    components: { Dropdown, InputSwitch, MapWidgetMetadataNewFieldDialog, KnCalculatedField },
+    components: { Dropdown, InputSwitch, MapWidgetMetadataNewFieldDialog, KnBlockly },
     props: {
         propFields: {
             type: Array as PropType<IWidgetMapLayerColumn[]>,
@@ -84,18 +77,12 @@ export default defineComponent({
     data() {
         return {
             descriptor,
-            calcFieldDescriptor,
             widgetModel: null as IWidget | null,
             fields: [] as IWidgetMapLayerColumn[],
             addNewFieldDialogVisible: false,
             calcFieldDialogVisible: false,
-            calcFieldColumns: [] as any,
-            selectedCalcField: null as any,
-            datasetFunctions: {} as {
-                availableFunctions: string[]
-                nullifFunction: string[]
-            },
-            availableFunctions: [] as any
+            calcFieldColumns: [] as string[],
+            selectedCalcField: null as any
         }
     },
     computed: {
@@ -111,22 +98,41 @@ export default defineComponent({
             this.loadFields()
         }
     },
-    async created() {
+    created() {
         this.loadWidgetModel()
         this.loadFields()
-        await this.loadAvailableFunctions()
     },
     methods: {
-        ...mapActions(appStore, ['setLoading']),
-        ...mapActions(dashboardStore, ['getAllDatasets']),
         loadWidgetModel() {
             this.widgetModel = this.propWidget
         },
         loadFields() {
             this.fields = this.propFields
+            this.fields.forEach((field: IWidgetMapLayerColumn) => this.initializeFieldConfiguration(field))
         },
         addField() {
             this.addNewFieldDialogVisible = true
+        },
+        initializeFieldConfiguration(field: IWidgetMapLayerColumn) {
+            if (!field.properties) {
+                field.properties = {
+                    aggregateBy: field.fieldType !== 'MEASURE',
+                    coordType: '',
+                    coordFormat: '',
+                    showTooltip: false,
+                    modal: false
+                }
+            } else if (field.fieldType !== 'MEASURE' && typeof field.properties.aggregateBy === 'undefined') {
+                field.properties.aggregateBy = true
+            }
+
+            if (field.fieldType === 'MEASURE' && !field.aggregationSelected) field.aggregationSelected = 'NONE'
+        },
+        showAggregateByToggle(field: IWidgetMapLayerColumn) {
+            return this.selectedLayer?.type === 'dataset' && field.fieldType !== 'MEASURE'
+        },
+        onFieldConfigurationChanged() {
+            emitter.emit('mapFieldsUpdated')
         },
         removeField(field: IWidgetMapLayerColumn) {
             const index = this.fields.findIndex((tempField: IWidgetMapLayerColumn) => tempField.name === field.name)
@@ -144,38 +150,25 @@ export default defineComponent({
             this.addNewFieldDialogVisible = false
             emitter.emit('mapFieldsUpdated')
         },
-        async loadAvailableFunctions() {
-            if (!this.selectedLayer) return
-
-            this.setLoading(true)
-
-            const datasets = this.getAllDatasets()
-            const datasetForType = datasets?.filter((x) => x.label == this.selectedLayer?.name)
-            if (datasetForType && datasetForType.length > 0) {
-                const datasetType = datasetForType[0].type
-                this.availableFunctions = JSON.parse(JSON.stringify(calcFieldDescriptor.availableFunctions)).filter((x) => !x.exclude?.includes(datasetType))
-            } else {
-                this.availableFunctions = JSON.parse(JSON.stringify(calcFieldDescriptor.availableFunctions))
+        getCalcFieldInitialState(calcField: IWidgetMapLayerColumn | null) {
+            if (!calcField) return null
+            if (calcField.blocklyXml) return calcField.blocklyXml
+            const savedDsl = calcField.formulaEditor ?? calcField.formula
+            if (savedDsl) {
+                return {
+                    dsl: savedDsl,
+                    mode: 'text'
+                }
             }
 
-            await this.$http
-                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/datasets/availableFunctions/${this.selectedLayer.id}?useCache=false`)
-                .then((response: AxiosResponse<any>) => {
-                    this.datasetFunctions = response.data
-
-                    calcFieldDescriptor.additionalFunctions.forEach((x: any) => {
-                        if (this.datasetFunctions.availableFunctions.includes(x.name)) {
-                            this.availableFunctions.push(x)
-                        }
-                    })
-                })
-                .catch(() => {})
-
-            this.setLoading(false)
+            return null
+        },
+        shouldLockCalcFieldMode(calcField: IWidgetMapLayerColumn | null) {
+            return !!this.getCalcFieldInitialState(calcField)
         },
         createNewCalcField() {
             this.createCalcFieldColumns()
-            this.selectedCalcField = { alias: '', expression: '', format: undefined, nature: 'ATTRIBUTE', type: 'STRING' } as any
+            this.selectedCalcField = { alias: '', blocklyXml: null, formula: '', formulaEditor: '' } as any
             this.calcFieldDialogVisible = true
         },
         editField(field: IWidgetMapLayerColumn) {
@@ -190,19 +183,21 @@ export default defineComponent({
             this.calcFieldColumns = []
 
             this.fields.forEach((field) => {
-                if (field.fieldType === 'MEASURE' && !field.formula) this.calcFieldColumns.push({ fieldAlias: `${field.alias}`, fieldLabel: field.alias })
+                if (field.fieldType === 'MEASURE' && !field.formula) this.calcFieldColumns.push(field.alias)
             })
         },
-        onCalcFieldSave(calcFieldOutput: { colName: string; formula: string }) {
+        onCalcFieldSave(calcFieldOutput: { name: string; dsl: string; state: any }) {
             if (this.selectedCalcField.id) {
-                this.selectedCalcField.newCalculatedField = calcFieldOutput.colName
-                this.selectedCalcField.alias = calcFieldOutput.colName
-                this.selectedCalcField.formula = calcFieldOutput.formula
+                this.selectedCalcField.alias = calcFieldOutput.name
+                this.selectedCalcField.aliasToShow = calcFieldOutput.name
+                this.selectedCalcField.formula = calcFieldOutput.dsl
+                this.selectedCalcField.formulaEditor = calcFieldOutput.dsl
+                this.selectedCalcField.blocklyXml = calcFieldOutput.state
             } else {
                 const newCalculatedField = {
                     id: crypto.randomUUID(),
-                    name: calcFieldOutput.colName,
-                    alias: calcFieldOutput.colName,
+                    name: calcFieldOutput.name,
+                    alias: calcFieldOutput.name,
                     type: 'java.lang.Double',
                     properties: {
                         aggregateBy: false,
@@ -218,8 +213,10 @@ export default defineComponent({
                     personal: false,
                     decrypt: false,
                     subjectId: false,
-                    aliasToShow: calcFieldOutput.colName,
-                    formula: calcFieldOutput.formula,
+                    aliasToShow: calcFieldOutput.name,
+                    formula: calcFieldOutput.dsl,
+                    formulaEditor: calcFieldOutput.dsl,
+                    blocklyXml: calcFieldOutput.state,
                     isCalculatedField: true
                 }
                 this.fields.push(newCalculatedField)

@@ -26,7 +26,7 @@
 
             <q-card-actions align="right" class="q-pa-md">
                 <q-btn flat :label="$t('common.cancel')" @click="$emit('update:visible', false)" />
-                <q-btn color="primary" :label="$t('common.confirm')" @click="confirm" />
+                <q-btn color="primary" :label="$t('common.ok')" @click="confirm" />
             </q-card-actions>
         </q-card>
     </q-dialog>

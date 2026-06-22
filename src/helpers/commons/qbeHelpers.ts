@@ -3,7 +3,7 @@ export function createNewField(editQueryObj, field) {
         id: field.attributes.type === 'inLineCalculatedField' ? field.attributes.formState : field.id,
         alias: field.attributes.field,
         type: field.attributes.type === 'inLineCalculatedField' ? 'inline.calculated.field' : 'datamartField',
-        fieldType: field.attributes.iconCls,
+        fieldType: field.attributes.type === 'inLineCalculatedField' ? (field.attributes.formState?.nature?.toLowerCase() ?? 'attribute') : field.attributes.iconCls,
         entity: field.attributes.entity,
         field: field.attributes.field,
         decrypt: field.attributes.decrypt,
@@ -40,15 +40,31 @@ export function createNewField(editQueryObj, field) {
 }
 
 export function creatNewMetadataFromField(newField) {
+    let resolvedType = newField.dataType
+    if (!resolvedType && newField.iconCls === 'calculation') {
+        const formStateType = newField.id?.type ?? newField.id?.nature
+        switch ((formStateType ?? '').toUpperCase()) {
+            case 'NUMBER':
+                resolvedType = 'java.lang.Long'
+                break
+            case 'DATE':
+                resolvedType = 'java.sql.Date'
+                break
+            default:
+                resolvedType = 'java.lang.String'
+                break
+        }
+    }
+
     var newMetadata = {
         uniqueID: newField.uniqueID,
         column: newField.alias,
         fieldAlias: newField.field,
-        Type: newField.dataType,
-        fieldType: newField.iconCls.toUpperCase(),
-        decrypt: newField.decrypt,
-        personal: newField.personal,
-        subjectId: newField.subjectId,
+        Type: resolvedType,
+        fieldType: (newField.fieldType ?? newField.iconCls).toUpperCase(),
+        decrypt: newField.decrypt ?? false,
+        personal: newField.personal ?? false,
+        subjectId: newField.subjectId ?? false,
         format: newField.format
     } as any
 

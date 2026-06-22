@@ -24,6 +24,9 @@ const mountComponent = (widgetModel: any, props: { type: string; axis: string })
     shallowMount(HighchartsAxisGridSettings, {
         props: { widgetModel, ...props },
         global: {
+            mocks: {
+                $t: (key: string) => key
+            },
             stubs: {
                 InputNumber: true,
                 Dropdown: true,

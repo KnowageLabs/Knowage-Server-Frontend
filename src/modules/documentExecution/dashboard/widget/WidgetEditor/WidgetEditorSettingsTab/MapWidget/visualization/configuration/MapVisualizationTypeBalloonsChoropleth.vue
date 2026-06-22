@@ -62,6 +62,7 @@ import MapVisualizationRangesDialog from './MapVisualizationRangesDialog.vue'
 import deepcopy from 'deepcopy'
 import Slider from 'primevue/slider'
 import * as mapWidgetDefaultValues from '../../../../helpers/mapWidget/MapWidgetDefaultValues'
+import { normalizeMapWidgetBalloonsConfiguration, normalizeMapWidgetChoroplethConfiguration } from '../../../../helpers/mapWidget/MapWidgetVisualizationConfigurationHelper'
 
 export default defineComponent({
     name: 'map-visualization-type-choropleth',
@@ -83,7 +84,7 @@ export default defineComponent({
         }
     },
     watch: {
-        propChoroplethConfiguration() {
+        propVisualizationTypeConfiguration() {
             this.loadChoroplethConfiguration()
         }
     },
@@ -93,6 +94,11 @@ export default defineComponent({
     methods: {
         loadChoroplethConfiguration() {
             this.visualizationTypeConfiguration = this.propVisualizationTypeConfiguration
+            if (!this.visualizationTypeConfiguration) return
+
+            const normalizedConfiguration = this.type === 'choropleth' ? normalizeMapWidgetChoroplethConfiguration(this.visualizationTypeConfiguration as IMapWidgetVisualizationTypeChoropleth) : normalizeMapWidgetBalloonsConfiguration(this.visualizationTypeConfiguration as IMapWidgetVisualizationTypeBalloons)
+            Object.assign(this.visualizationTypeConfiguration, normalizedConfiguration)
+
             if (this.visualizationTypeConfiguration && !this.visualizationTypeConfiguration.style) this.visualizationTypeConfiguration.style = { color: mapWidgetDefaultValues.getDefaultVisualizationBalloonsConfiguration().style.color }
             if (this.type === 'balloons') this.loadRangeValue()
         },

@@ -1,16 +1,10 @@
 <template>
-    <div class="pivot-widget-container p-d-flex p-d-row kn-flex dx-viewport">
-        <DxPivotGrid id="pivotgrid" ref="grid" :data-source="dataSource" v-bind="pivotConfig" @initialized="onGridInitialization">
-            <DxFieldChooser v-bind="fieldPickerConfig" />
-            <DxFieldPanel v-bind="fieldPanelConfig" />
-            <DxScrolling mode="virtual" />
-        </DxPivotGrid>
-    </div>
+    <div class="pivot-widget-container p-d-flex p-d-row kn-flex">Pivot Widget Goes Here</div>
 </template>
 
 <script lang="ts">
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
-import { IDataset, ISelection, IWidget, ITableWidgetColumnStyles, ITableWidgetConditionalStyles, ITableWidgetVisualizationTypes, IDashboardView, IVariable } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IDataset, ISelection, IWidget, ITableWidgetColumnStyles, ITableWidgetConditionalStyles, ITableWidgetVisualizationTypes, IVariable } from '@/modules/documentExecution/dashboard/Dashboard'
 import { defineComponent, PropType } from 'vue'
 import mainStore from '@/App.store'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
@@ -18,17 +12,13 @@ import { getWidgetStyleByType, replaceTooltipConfigurationVariablesAndParameters
 import { IPivotTooltips } from '@/modules/documentExecution/dashboard/interfaces/pivotTable/DashboardPivotTableWidget.d'
 import { getFormattedClickedValueForCrossNavigation, createPivotTableSelection } from './PivotWidgetHelpers'
 import { updateAllStoreSelections, executePivotTableWidgetCrossNavigation } from '@/modules/documentExecution/dashboard/widget/interactionsHelpers/InteractionHelper'
-import { openNewLinkImageWidget } from '@/modules/documentExecution/dashboard/widget/interactionsHelpers/InteractionLinkHelper'
 import { mapActions } from 'pinia'
 import { formatNumberWithLocale } from '@/helpers/commons/localeHelper'
 import { getColumnConditionalStyles } from '@/modules/documentExecution/dashboard/widget/PivotWidget/PivotWidgetConditionalHelper'
-import { DxPivotGrid, DxFieldChooser, DxFieldPanel, DxScrolling } from 'devextreme-vue/pivot-grid'
-import PivotGridDataSource from 'devextreme/ui/pivot_grid/data_source'
-import 'devextreme/dist/css/dx.light.css'
 
 export default defineComponent({
     name: 'table-widget',
-    components: { DxPivotGrid, DxFieldChooser, DxFieldPanel, DxScrolling },
+    components: {},
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         editorMode: { type: Boolean, required: false },
@@ -45,25 +35,19 @@ export default defineComponent({
         return { store, appStore }
     },
     data() {
-        const dataSource = new PivotGridDataSource({
-            fields: this.getFormattedFieldsFromModel(),
-            store: this.getPivotData()
-        })
         return {
-            dataSource,
             tableData: [] as any,
             pivotConfig: {} as any,
             fieldPickerConfig: {} as any,
             fieldPanelConfig: {} as any,
             gridInstance: null as any,
             activeSelections: [] as ISelection[],
-            pivotState: {} as any,
             variables: [] as IVariable[]
         }
     },
     computed: {
         dataFields() {
-            return this.dataSource.fields().filter((field) => field.area == 'data')
+            return []
         },
         pivotFields() {
             return this.gridInstance.getDataSource()._descriptions
@@ -93,7 +77,7 @@ export default defineComponent({
     },
 
     methods: {
-        ...mapActions(dashboardStore, ['setSelections', 'getDashboardDrivers']),
+        ...mapActions(dashboardStore, ['setSelections']),
         setEventListeners() {
             emitter.on('widgetResized', this.resizePivot)
             emitter.on('savePivotStates', this.saveState)
@@ -110,9 +94,7 @@ export default defineComponent({
         loadActiveSelections() {
             this.activeSelections = this.propActiveSelections
         },
-        resizePivot() {
-            this.gridInstance.repaint()
-        },
+        resizePivot() {},
         setPivotConfiguration() {
             const widgetConfig = this.propWidget.settings.configuration
             this.pivotConfig = {
@@ -246,7 +228,7 @@ export default defineComponent({
             const tooltipsConfig = this.propWidget.settings.tooltips as IPivotTooltips[]
             const parentField = this.getCellParent(cellEvent)
 
-            let cellTooltipConfig = null as IPivotTooltips | null
+            let cellTooltipConfig = null as unknown as IPivotTooltips
             if (parentField?.id && tooltipsConfig.length > 1) cellTooltipConfig = tooltipsConfig.find((tooltipConfig) => tooltipConfig.target.includes(parentField.id)) as IPivotTooltips
             else if (tooltipsConfig[0].enabled) cellTooltipConfig = tooltipsConfig[0] as IPivotTooltips
 
@@ -337,8 +319,6 @@ export default defineComponent({
             if (this.propWidget.settings.interactions.crossNavigation.enabled) {
                 const formattedOutputParameters = getFormattedClickedValueForCrossNavigation(cellEvent, this.dataFields, this.propWidget.settings.interactions.crossNavigation)
                 if (formattedOutputParameters) executePivotTableWidgetCrossNavigation(formattedOutputParameters, this.propWidget.settings.interactions.crossNavigation, this.dashboardId)
-            } else if (this.propWidget.settings.interactions.link?.enabled) {
-                openNewLinkImageWidget(this.propWidget.settings.interactions.link, this.dashboardId, this.variables)
             } else if (this.propWidget.settings.interactions.selection.enabled) {
                 const selections = createPivotTableSelection(cellEvent, this.propWidget, this.datasets)
                 if (selections) updateAllStoreSelections(selections, this.activeSelections, this.dashboardId, this.setSelections, this.$http)
@@ -347,23 +327,14 @@ export default defineComponent({
         //#endregion ===============================================================================================
 
         //#region ===================== State Management For Views ====================================================
-        saveState() {
-            const dashboardViews = this.store.getCurrentDashboardView(this.dashboardId) as IDashboardView
-            const widgetId = this.propWidget.id as string
-            const pivotState = this.dataSource.state()
-            dashboardViews.settings.states[widgetId] = pivotState
-        },
-        loadState(stateToLoad) {
-            const widgetId = this.propWidget.id as string
-            const savedState = stateToLoad.settings.states[widgetId]
-            if (savedState) this.dataSource.state(savedState)
-        }
+        saveState() {},
+        loadState() {}
         //#endregion ===============================================================================================
     }
 })
 </script>
 <style lang="scss">
 .pivot-widget-container {
-    overflow: hidden;
+    overflow: auto;
 }
 </style>

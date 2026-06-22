@@ -2,22 +2,35 @@
     <div v-if="background" class="q-px-md q-pb-xs">
         <div class="row q-col-gutter-sm q-mb-sm">
             <div class="col-6">
-                <WidgetEditorColorPicker class="col-6" :initial-value="background.sheetsBackgroundColor" :label="'dashboard.generalSettings.background.sheetsColor'" @change="background.sheetsBackgroundColor = $event" />
+                <WidgetEditorColorPicker :initial-value="background.sheetsBackgroundColor" :label="'dashboard.generalSettings.background.sheetsColor'" @change="background.sheetsBackgroundColor = $event" />
             </div>
             <div class="col-6">
                 <q-toggle v-model="background.showGrid" :label="$t('dashboard.generalSettings.background.showGrid')" />
             </div>
             <div class="col-6">
-                <q-input v-model="background.imageBackgroundUrl" class="col-6" outlined dense :label="$t('dashboard.generalSettings.background.sheetsImage')" :hint="$t('dashboard.generalSettings.background.sheetsImageHint')" hide-bottom-space>
+                <q-input v-model="background.imageBackgroundUrl" class="col-6" outlined dense :label="$t('dashboard.generalSettings.background.sheetsImage')" hide-bottom-space>
                     <template #append>
-                        <q-icon name="close" class="cursor-pointer" data-test="close-button" @click="background.imageBackgroundUrl = ''" />
+                        <q-icon name="help_outline" size="xs" class="cursor-pointer text-grey-5">
+                            <q-tooltip>{{ $t('dashboard.generalSettings.background.sheetsImageHint') }}</q-tooltip>
+                        </q-icon>
                     </template>
                 </q-input>
             </div>
             <div class="col-6">
-                <q-input v-model="background.imageBackgroundSize" class="col-6" outlined dense :label="$t('dashboard.generalSettings.background.sheetsSize')" :hint="$t('dashboard.generalSettings.background.sheetsSizeHint')" hide-bottom-space>
+                <q-input v-model="background.imageBackgroundSize" class="col-6" outlined dense :label="$t('dashboard.generalSettings.background.sheetsSize')" hide-bottom-space>
                     <template #append>
-                        <q-icon name="close" class="cursor-pointer" @click="background.imageBackgroundSize = ''" />
+                        <q-icon name="help_outline" size="xs" class="cursor-pointer text-grey-5">
+                            <q-tooltip>{{ $t('dashboard.generalSettings.background.sheetsSize') }}</q-tooltip>
+                        </q-icon>
+                    </template>
+                </q-input>
+            </div>
+            <div class="col-12">
+                <q-input v-model="background.sheetsBackgroundStyle" type="textarea" rows="2" outlined dense clearable :label="$t('dashboard.generalSettings.background.sheetsStyle')" hide-bottom-space>
+                    <template #append>
+                        <q-icon name="help_outline" size="xs" class="cursor-pointer text-grey-5">
+                            <q-tooltip>{{ $t('dashboard.generalSettings.background.sheetsStyleHint') }}</q-tooltip>
+                        </q-icon>
                     </template>
                 </q-input>
             </div>
@@ -56,7 +69,8 @@ export default defineComponent({
     methods: {
         loadProps() {
             this.dashboard = this.dashboardModelProp
-            if (!this.dashboard.configuration?.background) this.dashboard.configuration.background = { sheetsBackgroundColor: '', imageBackgroundUrl: '', imageBackgroundSize: '', showGrid: true } as IBackground
+            if (!this.dashboard.configuration?.background) this.dashboard.configuration.background = { sheetsBackgroundColor: '', imageBackgroundUrl: '', imageBackgroundSize: '', sheetsBackgroundStyle: '', showGrid: true } as IBackground
+            else if (this.dashboard.configuration.background.sheetsBackgroundStyle === undefined) this.dashboard.configuration.background.sheetsBackgroundStyle = ''
             this.background = this.dashboard.configuration.background as IBackground
         }
     }

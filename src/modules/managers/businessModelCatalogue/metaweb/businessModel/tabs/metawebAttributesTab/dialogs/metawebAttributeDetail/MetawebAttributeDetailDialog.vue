@@ -52,7 +52,7 @@
                     </span>
                 </div>
 
-                <div class="p-field p-col-12 p-md-6 p-mt-2">
+                <div v-if="properties['behavioural.notEnabledRoles']" class="p-field p-col-12 p-md-6 p-mt-2">
                     <span class="p-float-label">
                         <MultiSelect v-model="properties['behavioural.notEnabledRoles'].value" class="kn-material-input" :options="roleOptions" option-label="name" option-value="name" :filter="true" @change="updateAttribute('behavioural.notEnabledRoles')" />
                         <label class="kn-material-input-label"> {{ properties['behavioural.notEnabledRoles'].propertyType.name }}</label>
@@ -60,7 +60,7 @@
                     </span>
                 </div>
 
-                <div class="p-field p-col-12 p-md-6 p-mt-2">
+                <div v-if="properties['structural.attribute']" class="p-field p-col-12 p-md-6 p-mt-2">
                     <span class="p-float-label">
                         <Dropdown v-model="properties['structural.attribute'].value" class="kn-material-input" :options="profileAttributes" @change="updateAttribute('structural.attribute')" />
                         <label class="kn-material-input-label"> {{ properties['structural.attribute'].propertyType.name }}</label>
@@ -68,7 +68,7 @@
                     </span>
                 </div>
 
-                <div class="p-field p-col-12 p-md-6 p-mt-2">
+                <div v-if="properties['physical.physicaltable']" class="p-field p-col-12 p-md-6 p-mt-2">
                     <span class="p-float-label">
                         <InputText v-model.trim="properties['physical.physicaltable'].value" class="kn-material-input" :disabled="true" />
                         <label class="kn-material-input-label"> {{ properties['physical.physicaltable'].propertyType.name }}</label>
@@ -84,7 +84,7 @@
                     </span>
                 </div>
 
-                <div class="p-field p-col-12 p-md-6 p-mt-2">
+                <div v-if="properties['structural.filtercondition']" class="p-field p-col-12 p-md-6 p-mt-2">
                     <span class="p-float-label">
                         <Dropdown v-model="properties['structural.filtercondition'].value" class="kn-material-input" :options="properties['structural.filtercondition'].propertyType.admissibleValues" @change="updateAttribute('structural.filtercondition')" />
                         <label class="kn-material-input-label"> {{ properties['structural.filtercondition'].propertyType.name }}</label>
@@ -92,7 +92,7 @@
                     </span>
                 </div>
 
-                <div v-if="properties['structural.datatype'].value === 'DATE' || properties['structural.datatype'].value === 'TIMESTAMP' || properties['structural.datatype'].value === 'TIME'" class="p-field p-col-12 p-md-6 p-mt-2">
+                <div v-if="properties['structural.dateformat'] && (properties['structural.datatype'].value === 'DATE' || properties['structural.datatype'].value === 'TIMESTAMP' || properties['structural.datatype'].value === 'TIME')" class="p-field p-col-12 p-md-6 p-mt-2">
                     <span class="p-float-label">
                         <Dropdown v-model="properties['structural.dateformat'].value" class="kn-material-input" :options="properties['structural.dateformat'].propertyType.admissibleValues" @change="updateAttribute('structural.dateformat')">
                             <template #option="slotProps">
@@ -107,7 +107,7 @@
                     </span>
                 </div>
 
-                <div v-if="['INTEGER', 'DOUBLE', 'DECIMAL', 'BIGINT', 'FLOAT'].indexOf(properties['structural.datatype'].value) !== -1" class="p-field p-col-12 p-md-6 p-mt-2">
+                <div v-if="properties['structural.format'] && ['INTEGER', 'DOUBLE', 'DECIMAL', 'BIGINT', 'FLOAT'].indexOf(properties['structural.datatype'].value) !== -1" class="p-field p-col-12 p-md-6 p-mt-2">
                     <span class="p-float-label">
                         <Dropdown v-model="properties['structural.format'].value" class="kn-material-input" :options="properties['structural.format'].propertyType.admissibleValues" @change="updateAttribute('structural.format')" />
                         <label class="kn-material-input-label"> {{ properties['structural.format'].propertyType.name }}</label>
@@ -115,7 +115,7 @@
                     </span>
                 </div>
 
-                <div class="p-field p-col-12 p-md-6 p-mt-2">
+                <div v-if="properties['structural.customFunction']" class="p-field p-col-12 p-md-6 p-mt-2">
                     <span class="p-float-label">
                         <InputText v-model.trim="properties['structural.customFunction'].value" class="kn-material-input" @change="updateAttribute('structural.customFunction')" />
                         <label class="kn-material-input-label"> {{ properties['structural.customFunction'].propertyType.name }}</label>
@@ -231,7 +231,6 @@ export default defineComponent({
                     this.properties[key] = property[key]
                 })
             }
-
             if (this.properties['behavioural.notEnabledRoles']?.value && typeof this.properties['behavioural.notEnabledRoles'].value === 'string') {
                 this.properties['behavioural.notEnabledRoles'].value = this.properties['behavioural.notEnabledRoles'].value?.split(';')
             }

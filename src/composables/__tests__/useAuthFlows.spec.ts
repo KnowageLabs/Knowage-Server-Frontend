@@ -323,7 +323,7 @@ describe('useAuthFlows — onSubmit', () => {
     })
 
     it('sets error and removes token from localStorage on network failure', async () => {
-        localStorage.setItem('token', 'pre-existing-token')
+        sessionStorage.setItem('token', 'pre-existing-token')
         mockAxiosPost.mockRejectedValueOnce({ response: { data: { message: 'Wrong credentials' } } })
 
         const { onSubmit, error, username, password } = useAuthFlows()
@@ -333,7 +333,7 @@ describe('useAuthFlows — onSubmit', () => {
         await onSubmit()
 
         expect(error.value).toBe('Wrong credentials')
-        expect(localStorage.getItem('token')).toBeNull()
+        expect(sessionStorage.getItem('token')).toBeNull()
     })
 
     it('uses i18n fallback when backend provides no error message', async () => {
@@ -362,7 +362,7 @@ describe('useAuthFlows — completeLogin', () => {
         const { completeLogin } = useAuthFlows()
         await completeLogin('my-jwt')
 
-        expect(localStorage.getItem('token')).toBe('my-jwt')
+        expect(sessionStorage.getItem('token')).toBe('my-jwt')
     })
 
     it('fetches /currentuser and initializes store', async () => {

@@ -31,13 +31,20 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
+import { IWidget } from '../../../Dashboard'
 import { IMapWidgetLegend, IMapWidgetVisualizationTypeLegendSettings } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import MapLegendVisualization from './MapLegendVisualization.vue'
+import { normalizeMapLegendSettings } from '../MapWidgetInfoSettingsHelper'
 
 export default defineComponent({
     name: 'map-legend',
     components: { MapLegendVisualization },
     props: {
+        widgetModel: {
+            type: Object as PropType<IWidget>,
+            required: false,
+            default: null
+        },
         propMapWidgetLegend: {
             type: Object as PropType<IMapWidgetLegend>,
             required: true
@@ -97,7 +104,7 @@ export default defineComponent({
     },
     methods: {
         loadLegend() {
-            this.legend = this.propMapWidgetLegend
+            this.legend = this.widgetModel ? normalizeMapLegendSettings(this.widgetModel, this.propMapWidgetLegend) : this.propMapWidgetLegend
             this.legendWidth = this.legend?.width ?? 200
             this.loadPosition()
         },

@@ -18,20 +18,7 @@
                             <span>{{ $t('kpi.measureDefinition.query') }}</span>
                         </template>
 
-                        <MeasureDefinitionQueryCard
-                            :rule="rule"
-                            :datasources-list="datasourcesList"
-                            :aliases="availableAliasList"
-                            :placeholders="placeholdersList"
-                            :columns="columns"
-                            :rows="rows"
-                            :code-input="codeInput"
-                            :preview="preview"
-                            :active-tab="activeTab"
-                            @queryChanged="queryChanged = true"
-                            @loadPreview="previewQuery(false, true, true)"
-                            @closePreview="preview = false"
-                        ></MeasureDefinitionQueryCard>
+                        <MeasureDefinitionQueryCard :rule="rule" :datasources-list="datasourcesList" :aliases="availableAliasList" :placeholders="placeholdersList" :columns="columns" :rows="rows" :code-input="codeInput" :preview="preview" :active-tab="activeTab" @queryChanged="queryChanged = true" @loadPreview="previewQuery(false, true, true)" @closePreview="preview = false"></MeasureDefinitionQueryCard>
                     </TabPanel>
 
                     <TabPanel :disabled="metadataDisabled">
@@ -54,16 +41,7 @@
 
     <MeasureDefinitionSubmitDialog v-if="showSaveDialog" :rule-name="rule.name" :new-alias="newAlias" :reused-alias="reusedAlias" :new-placeholder="newPlaceholder" :reused-placeholder="reusedPlaceholder" @close="showSaveDialog = false" @save="saveRule($event)"></MeasureDefinitionSubmitDialog>
 
-    <Dialog
-        :auto-z-index="false"
-        :style="metadataDefinitionTabViewDescriptor.errorDialog.style"
-        :content-style="metadataDefinitionTabViewDescriptor.errorDialog.contentStyle"
-        :modal="true"
-        :visible="errorDialogVisible"
-        :header="errorTitle"
-        class="p-fluid kn-dialog--toolbar--primary error-dialog"
-        :closable="false"
-    >
+    <Dialog :auto-z-index="false" :style="metadataDefinitionTabViewDescriptor.errorDialog.style" :content-style="metadataDefinitionTabViewDescriptor.errorDialog.contentStyle" :modal="true" :visible="errorDialogVisible" :header="errorTitle" class="p-fluid kn-dialog--toolbar--primary error-dialog" :closable="false">
         <p>{{ errorMessage }}</p>
         <template #footer>
             <Button class="kn-button kn-button--secondary" :label="$t('common.close')" @click="closeErrorMessageDialog"></Button>
@@ -309,7 +287,16 @@ export default defineComponent({
             }
 
             if ((this.rule.placeholders && this.rule.placeholders.length === 0) || hasPlaceholders) {
-                const postData = { rule: this.rule, maxItem: 10 }
+                const postData = {
+                    rule: {
+                        ...this.rule,
+                        placeholders: this.rule.placeholders.map((p: any) => ({
+                            ...p,
+                            value: p.value && !p.value.startsWith("'") ? `'${p.value}'` : p.value
+                        }))
+                    },
+                    maxItem: 10
+                }
 
                 await this.$http
                     .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/kpi/queryPreview', postData, { headers: { 'X-Disable-Errors': 'true' } })

@@ -26,10 +26,12 @@ import themeHelper from '@/helpers/themeHelper/themeHelper'
 import { primeVueDate, getLocale } from '@/helpers/commons/localeHelper'
 import { loadLanguageAsync } from '@/App.i18n.js'
 import auth from '@/helpers/commons/authHelper'
+import sessionTimeoutHelper from '@/helpers/commons/sessionTimeoutHelper'
 import { driver } from 'driver.js'
 import 'driver.js/dist/driver.css'
 import { useServiceWorker } from '@/composables/useServiceWorker'
 import { decodeJWT, isTokenExpired } from '@/helpers/commons/jwtHelper'
+import { isAuthCallbackInProgress, isLoginRouteByLocation, markAuthReady } from '@/helpers/commons/authState'
 
 export default defineComponent({
     components: { ConfirmDialog, KnOverlaySpinnerPanel, KnRotate, MainMenu, Toast },
@@ -140,7 +142,9 @@ export default defineComponent({
         this.swRefresh = useServiceWorker()
 
         const locationParams = new URL(location).searchParams
-        const token = localStorage.getItem('token')
+        let token = sessionStorage.getItem('token')
+        const isLoginRoute = this.$route.name === 'login' || isLoginRouteByLocation()
+        const isAuthCallbackRoute = isAuthCallbackInProgress()
 
         // Gestione pagina pubblica
         if (!token && locationParams.get('public')) {
@@ -151,7 +155,7 @@ export default defineComponent({
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + userEndpoint)
                 .then(async (response) => {
                     const currentUser = response.data
-                    localStorage.setItem('token', response.data.userUniqueIdentifier)
+                    sessionStorage.setItem('token', response.data.userUniqueIdentifier)
                     this.initializeUser(currentUser)
 
                     const responseLocale = response.data.locale
@@ -166,7 +170,19 @@ export default defineComponent({
                     console.error('Errore caricamento utente pubblico:', error)
                     auth.logout()
                 })
-                .finally(() => this.setLoading(false))
+                .finally(() => {
+                    markAuthReady()
+                    this.setLoading(false)
+                })
+            return
+        }
+
+        if (!token && isAuthCallbackRoute) {
+            if (Object.keys(this.defaultTheme).length === 0) {
+                this.setDefaultTheme(this.themeHelper.getDefaultKnowageTheme())
+            }
+            this.setLoading(false)
+            markAuthReady()
             return
         }
 
@@ -176,19 +192,58 @@ export default defineComponent({
             if (Object.keys(this.defaultTheme).length === 0) {
                 this.setDefaultTheme(this.themeHelper.getDefaultKnowageTheme())
             }
-            this.setLoading(false)
-            // Redirect al login se non siamo già lì
-            if (this.$route.name !== 'login' && !this.$route.meta?.public) {
-                this.$router.push({ name: 'login', query: { redirect: this.$route.fullPath } })
+            // In nuova tab, prova a ricostruire l'utente dalla sessione server
+            // prima di forzare il redirect al login.
+            const restored = await this.$http
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/currentuser')
+                .then(async (response) => {
+                    const currentUser = response.data
+                    if (currentUser?.userUniqueIdentifier) sessionStorage.setItem('token', currentUser.userUniqueIdentifier)
+
+                    if (localStorage.getItem('sessionRole')) {
+                        currentUser.sessionRole = localStorage.getItem('sessionRole')
+                    } else if (currentUser.defaultRole) {
+                        currentUser.sessionRole = currentUser.defaultRole
+                    }
+
+                    this.initializeUser(currentUser)
+
+                    const responseLocale = currentUser.locale || 'en_US'
+                    let storedLocale = responseLocale.replace('_', '-')
+                    if (localStorage.getItem('locale')) {
+                        storedLocale = localStorage.getItem('locale')
+                    }
+                    localStorage.setItem('locale', storedLocale)
+                    this.setLocale(storedLocale)
+                    this.$i18n.locale = storedLocale
+
+                    await loadLanguageAsync(storedLocale)
+                    this.$primevue.config.locale.dateFormat = primeVueDate(getLocale(true))
+                    return true
+                })
+                .catch(() => false)
+
+            if (!restored) {
+                this.setLoading(false)
+                markAuthReady()
+                // Redirect al login se non siamo già lì
+                if (!isLoginRoute && !this.$route.meta?.public) {
+                    this.$router.push({ name: 'login', query: { redirect: this.$route.fullPath } })
+                }
+                return
             }
-            return
+            token = sessionStorage.getItem('token')
         }
 
-        // Verifica se il token è scaduto
-        if (isTokenExpired(token)) {
+        const decodedToken = decodeJWT(token)
+
+        // Verifica la scadenza solo per token JWT con claim exp; i token opachi
+        // ricostruiti dalla sessione server devono essere validati dal backend.
+        if (decodedToken?.exp && isTokenExpired(token)) {
             console.warn('Token scaduto')
-            localStorage.removeItem('token')
+            sessionStorage.removeItem('token')
             this.setLoading(false)
+            markAuthReady()
             this.$router.push({ name: 'login' })
             return
         }
@@ -227,11 +282,13 @@ export default defineComponent({
                 })
                 .catch((error) => {
                     console.error('Errore caricamento currentUser:', error)
-                    localStorage.removeItem('token')
+                    sessionStorage.removeItem('token')
+                    markAuthReady()
                     this.$router.push({ name: 'login' })
                 })
         }
 
+        markAuthReady()
         await this.loadUserConfigsAndInitialize()
     },
 
@@ -245,6 +302,7 @@ export default defineComponent({
 
     beforeUnmounted() {
         clearInterval(this.pollingInterval)
+        sessionTimeoutHelper.stop()
     },
 
     methods: {
@@ -289,6 +347,7 @@ export default defineComponent({
                 }
 
                 this.onLoad()
+                sessionTimeoutHelper.start(this.configurations)
             })
         },
         closeDialog() {

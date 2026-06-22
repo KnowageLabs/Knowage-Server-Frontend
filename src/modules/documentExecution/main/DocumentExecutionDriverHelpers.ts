@@ -7,6 +7,7 @@ import { IDashboardView } from '../dashboard/Dashboard'
 import { IURLDriver } from './DocumentExecution'
 import store from '@/App.store.js'
 import i18n from '@/App.i18n'
+import deepcopy from 'deepcopy'
 
 const { t } = i18n.global
 const mainStore = store()
@@ -67,7 +68,7 @@ const updateFiltersDataIsReadyForExecution = (filtersData: { filterStatus: iPara
 }
 
 const loadFiltersFromParametersMap = (document: any, tabKey: string, filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }, breadcrumbs: any) => {
-    filtersData = mainStore.documentExecution.parameterValuesMap[document.label + '-' + tabKey]
+    filtersData = deepcopy(mainStore.documentExecution.parameterValuesMap[document.label + '-' + tabKey])
     setFiltersForBreadcrumbItem(breadcrumbs, filtersData, document)
     return filtersData
 }

@@ -1,77 +1,125 @@
 <template>
-    <DataTable
+    <q-table
         id="preview-datatable"
-        v-model:first="first"
-        v-model:filters="filters"
-        :value="rows"
-        :lazy="true"
-        :paginator="lazyParams.size > 15"
-        :rows="15"
-        :total-records="lazyParams.size"
-        paginator-template="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
-        class="p-datatable-sm kn-table kn-flex"
-        filter-display="menu"
-        :current-page-report-template="$t('common.table.footer.paginated', { first: '{first}', last: '{last}', totalRecords: '{totalRecords}' })"
-        striped-rows
-        responsive-layout="stack"
-        breakpoint="960px"
-        @page="onPage($event)"
-        @sort="onSort"
+        v-model:pagination="tablePagination"
+        :rows="rows"
+        :columns="qColumns"
+        :rows-per-page-options="[15]"
+        :hide-pagination="(lazyParams.size ?? 0) <= 15"
+        :pagination-label="getPaginationLabel"
+        :row-key="getRowKey"
+        class="kn-table kn-flex dataset-preview-table"
+        flat
+        dense
+        binary-state-sort
+        separator="horizontal"
+        @request="onRequest"
     >
-        <template #empty>
-            <div id="noFunctionsFound">
+        <template #header-cell="props">
+            <q-th :props="props" class="kn-truncated" :style="datasetPreviewTableDescriptor.columnStyle">
+                <div class="dataset-preview-header">
+                    <div class="dataset-preview-header__text" :class="{ 'dataset-preview-header__text--interactive': previewType !== 'dataset' }" @click="previewType !== 'dataset' && onSortClick(props.col.field)">
+                        <p class="q-ma-none">{{ props.col.label }}</p>
+                        <small class="dataset-preview-header__type">
+                            <q-icon :name="getTypeIcon(props.col.type)" size="14px" />
+                            <span>{{ props.col.type }}</span>
+                        </small>
+                    </div>
+                    <div v-if="previewType !== 'dataset'" class="dataset-preview-header__actions">
+                        <q-btn flat round dense size="sm" :icon="getSortIcon(props.col.field)" :color="tablePagination.sortBy === props.col.field ? 'primary' : 'grey-7'" @click.stop="onSortClick(props.col.field)" />
+                        <q-btn flat round dense size="sm" icon="filter_alt" :color="searchInput[props.col.field] ? 'pink-8' : 'grey-7'">
+                            <q-menu v-model="searchVisible[props.col.field]" anchor="bottom right" self="top right">
+                                <div class="q-pa-sm dataset-preview-filter-menu">
+                                    <q-input v-model="searchInput[props.col.field]" outlined dense clearable debounce="1000" :placeholder="$t('common.search')" @update:model-value="onFilter(props.col)">
+                                        <template #prepend>
+                                            <q-icon name="search" />
+                                        </template>
+                                    </q-input>
+                                </div>
+                            </q-menu>
+                        </q-btn>
+                    </div>
+                </div>
+            </q-th>
+        </template>
+
+        <template #body-cell="props">
+            <q-td :props="props">
+                <span class="dataset-preview-cell ellipsis" :title="getCellValue(props.row, props.col.field)">
+                    {{ getCellValue(props.row, props.col.field) }}
+                </span>
+            </q-td>
+        </template>
+
+        <template #no-data>
+            <div id="noFunctionsFound" class="full-width row flex-center q-pa-md">
                 {{ $t('common.info.noDataFound') }}
             </div>
         </template>
-        <Column v-for="col of columns" :key="col.field" class="kn-truncated" :style="datasetPreviewTableDescriptor.columnStyle" :field="col.field" :sortable="previewType === 'dataset' ? false : true">
-            <template #header>
-                <div class="dropdown">
-                    <div clas="p-d-flex p-flex-column">
-                        <p class="p-m-0">{{ col.header }}</p>
-                        <small>{{ col.type }}</small>
-                    </div>
-                    <div v-if="previewType !== 'dataset'" class="dropdown-icon-container">
-                        <i class="pi pi-filter-icon pi-filter p-ml-5" :class="{ 'filter-icon-active': searchInput[col.field] }" @click="searchVisible[col.field] = !searchVisible[col.field]" />
-                        <div v-if="searchVisible[col.field]" class="dropdown-content">
-                            <InputText v-model="searchInput[col.field]" class="p-inputtext-sm p-column-filter" @input="onFilter(col)"></InputText>
-                        </div>
-                    </div>
-                </div>
-            </template>
-            <template #body="slotProps">
-                <span v-tooltip.top="slotProps.data[col.field]">{{ slotProps.data[col.field] }}</span>
-            </template>
-        </Column>
-    </DataTable>
+    </q-table>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import { FilterOperator } from 'primevue/api'
-import { filterDefault } from '@/helpers/commons/filterHelper'
-import Column from 'primevue/column'
-import DataTable from 'primevue/datatable'
+import { defineComponent, PropType } from 'vue'
+import { QBtn, QIcon, QInput, QMenu, QTable, QTd, QTh } from 'quasar'
 import datasetPreviewTableDescriptor from './DatasetPreviewTableDescriptor.json'
+
+interface IPreviewColumn {
+    header: string
+    field: string
+    type?: string
+    label?: string
+}
+
+interface IPreviewPagination {
+    start: number
+    limit: number
+    size?: number
+}
+
+interface ITablePagination {
+    page: number
+    rowsPerPage: number
+    rowsNumber?: number
+    sortBy: string | null
+    descending: boolean
+}
 
 export default defineComponent({
     name: 'function-catalog-preview-table',
-    components: { Column, DataTable },
-    props: { previewColumns: { type: Array }, previewRows: { type: Array }, pagination: { type: Object }, previewType: String },
+    components: { QTable, QTh, QTd, QBtn, QMenu, QInput, QIcon },
+    props: {
+        previewColumns: { type: Array as PropType<IPreviewColumn[]>, default: () => [] },
+        previewRows: { type: Array as PropType<Record<string, unknown>[]>, default: () => [] },
+        pagination: { type: Object as PropType<IPreviewPagination>, default: () => ({ start: 0, limit: 15, size: 0 }) },
+        previewType: { type: String, default: '' }
+    },
     emits: ['pageChanged', 'sort', 'filter'],
     data() {
         return {
             datasetPreviewTableDescriptor,
-            columns: [] as any[],
-            rows: [] as any[],
-            filters: { global: [filterDefault] } as Object,
-            globalFilterFields: [] as string[],
-            lazyParams: {} as any,
-            sorted: 'ASC',
-            timer: null as any,
-            searchInput: {} as any,
-            searchVisible: {} as any,
-            customFilters: [] as any,
-            first: 0
+            columns: [] as IPreviewColumn[],
+            rows: [] as Record<string, unknown>[],
+            lazyParams: { start: 0, limit: 15, size: 0 } as IPreviewPagination,
+            searchInput: {} as Record<string, string>,
+            searchVisible: {} as Record<string, boolean>,
+            customFilters: [] as { column: string; value: string }[],
+            tablePagination: { page: 1, rowsPerPage: 15, rowsNumber: 0, sortBy: null, descending: false } as ITablePagination,
+            syncingPagination: true
+        }
+    },
+    computed: {
+        qColumns(): any[] {
+            return this.columns.map((column: IPreviewColumn) => ({
+                name: column.field,
+                field: column.field,
+                label: column.header,
+                type: column.type,
+                align: 'left',
+                sortable: false,
+                style: datasetPreviewTableDescriptor.columnStyle,
+                headerStyle: datasetPreviewTableDescriptor.columnStyle
+            }))
         }
     },
     watch: {
@@ -81,8 +129,11 @@ export default defineComponent({
         previewRows() {
             this.loadRows()
         },
-        pagination() {
-            this.loadPagination()
+        pagination: {
+            handler() {
+                this.loadPagination()
+            },
+            deep: true
         }
     },
     created() {
@@ -93,89 +144,232 @@ export default defineComponent({
     methods: {
         loadColumns() {
             this.columns = []
-            this.previewColumns?.forEach((el: any) => {
+            this.previewColumns?.forEach((el: IPreviewColumn) => {
                 this.columns.push(el)
-                this.globalFilterFields.push(el.field)
-                this.filters[el.field] = { operator: FilterOperator.AND, constraints: [filterDefault] }
+                if (!(el.field in this.searchInput)) {
+                    this.searchInput[el.field] = ''
+                }
+                if (!(el.field in this.searchVisible)) {
+                    this.searchVisible[el.field] = false
+                }
             })
         },
         loadRows() {
-            this.rows = this.previewRows as any[]
+            this.rows = this.previewRows as Record<string, unknown>[]
         },
         loadPagination() {
-            this.lazyParams = this.pagination as any
+            const pagination = this.pagination as IPreviewPagination
+            const rowsPerPage = pagination?.limit || 15
+            const start = pagination?.start || 0
+            this.lazyParams = pagination
+            this.syncingPagination = true
+            this.tablePagination = {
+                ...this.tablePagination,
+                page: Math.floor(start / rowsPerPage) + 1,
+                rowsPerPage,
+                rowsNumber: pagination?.size || 0
+            }
+            setTimeout(() => {
+                this.syncingPagination = false
+            })
         },
-        onPage(event: any) {
-            this.lazyParams = { paginationStart: event.first, paginationLimit: event.rows, paginationEnd: event.first + event.rows, size: this.lazyParams.size }
-            this.$emit('pageChanged', this.lazyParams)
+        onRequest(event: { pagination: ITablePagination }) {
+            const previousPagination = { ...this.tablePagination }
+            const nextPagination = {
+                ...this.tablePagination,
+                ...event.pagination,
+                rowsNumber: this.lazyParams.size || 0
+            }
+
+            this.tablePagination = nextPagination
+
+            if (this.syncingPagination) {
+                return
+            }
+
+            const pageChanged = previousPagination.page !== nextPagination.page || previousPagination.rowsPerPage !== nextPagination.rowsPerPage
+
+            if (pageChanged) {
+                const paginationStart = (nextPagination.page - 1) * nextPagination.rowsPerPage
+                this.$emit('pageChanged', {
+                    paginationStart,
+                    paginationLimit: nextPagination.rowsPerPage,
+                    paginationEnd: paginationStart + nextPagination.rowsPerPage,
+                    size: this.lazyParams.size
+                })
+            }
         },
-        onSort(event: any) {
+        onSortClick(field: string) {
+            let descending = false
+
+            if (this.tablePagination.sortBy === field) {
+                descending = !this.tablePagination.descending
+            }
+
+            this.tablePagination = {
+                ...this.tablePagination,
+                sortBy: field,
+                descending
+            }
+
+            this.emitSort(field, descending)
+        },
+        emitSort(sortField: string | null, descending: boolean) {
+            if (!sortField) return
+
             let column = ''
-            const index = this.columns.findIndex((el: any) => el.field === event.sortField)
+            const index = this.columns.findIndex((el: IPreviewColumn) => el.field === sortField)
             if (index !== -1) {
                 column = this.columns[index].header
             }
-            const order = event.sortOrder === 1 ? 'asc' : 'desc'
-            this.$emit('sort', { column: column, order: order })
+
+            this.$emit('sort', { column, order: descending ? 'desc' : 'asc' })
         },
-        onFilter(column: any) {
-            if (this.timer) {
-                clearTimeout(this.timer)
-                this.timer = null
+        getSortIcon(field: string) {
+            if (this.tablePagination.sortBy !== field) {
+                return 'unfold_more'
             }
 
-            this.timer = setTimeout(() => {
-                const filter = { column: column.header, value: this.searchInput[column.field] }
-                const index = this.customFilters.findIndex((el: any) => el.column === column.header)
+            return this.tablePagination.descending ? 'south' : 'north'
+        },
+        getTypeIcon(type?: string) {
+            const normalizedType = type?.toLowerCase() ?? ''
 
-                if (index !== -1) {
-                    if (!filter.value) {
-                        this.customFilters.splice(index, 1)
-                    } else {
-                        this.customFilters[index] = filter
-                    }
+            if (normalizedType.includes('date') || normalizedType.includes('time')) {
+                return 'event'
+            }
+
+            if (normalizedType.includes('bool')) {
+                return 'toggle_on'
+            }
+
+            if (
+                normalizedType.includes('int') ||
+                normalizedType.includes('number') ||
+                normalizedType.includes('decimal') ||
+                normalizedType.includes('double') ||
+                normalizedType.includes('float') ||
+                normalizedType.includes('long') ||
+                normalizedType.includes('short')
+            ) {
+                return 'tag'
+            }
+
+            if (normalizedType.includes('binary') || normalizedType.includes('blob')) {
+                return 'attachment'
+            }
+
+            return 'abc'
+        },
+        onFilter(column: IPreviewColumn) {
+            const filter = { column: column.label ?? column.header, value: this.searchInput[column.field] }
+            const index = this.customFilters.findIndex((el: { column: string; value: string }) => el.column === filter.column)
+
+            if (index !== -1) {
+                if (!filter.value) {
+                    this.customFilters.splice(index, 1)
                 } else {
-                    this.customFilters.push(filter)
+                    this.customFilters[index] = filter
                 }
-                this.$emit('filter', this.customFilters)
-            }, 1000)
+            } else if (filter.value) {
+                this.customFilters.push(filter)
+            }
+
+            this.$emit('filter', [...this.customFilters])
+        },
+        getCellValue(row: Record<string, unknown>, field: string) {
+            const value = row?.[field]
+            return value === null || value === undefined ? '' : String(value)
+        },
+        getRowKey(row: Record<string, unknown>) {
+            return this.columns.map((column: IPreviewColumn) => String(row?.[column.field] ?? '')).join('|')
+        },
+        getPaginationLabel(firstRowIndex: number, endRowIndex: number, totalRows: number) {
+            return this.$t('common.table.footer.paginated', { first: firstRowIndex, last: endRowIndex, totalRecords: totalRows })
         }
     }
 })
 </script>
 
 <style lang="scss">
-#preview-datatable .p-datatable-wrapper {
+#preview-datatable {
+    height: 100%;
+}
+
+#preview-datatable :deep(.q-table__middle) {
     height: auto;
 }
 
-.dropdown {
-    position: relative;
+#preview-datatable :deep(.q-table thead tr th) {
+    padding: 4px 8px;
+}
+
+#preview-datatable :deep(.q-table tbody tr) {
+    height: 22px;
+}
+
+#preview-datatable :deep(.q-table tbody tr td) {
+    padding: 1px 6px;
+    height: 22px;
+    vertical-align: middle;
+}
+
+.dataset-preview-header {
     display: flex;
     flex-direction: row;
+    flex-wrap: nowrap;
     align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
     font-size: 0.9rem;
+}
+
+.dataset-preview-header__text {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+    cursor: default;
+
+    &.dataset-preview-header__text--interactive {
+        cursor: pointer;
+    }
+
     small {
+        display: inline-flex;
+        align-items: center;
         color: var(--kn-color-default);
         border-top: 1px solid var(--kn-color-borders);
+        font-size: 0.75rem;
     }
 }
 
-.dropdown-icon-container {
-    position: relative;
+
+
+.dataset-preview-header__type {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
 }
 
-.dropdown-content {
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 50px;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-    z-index: 5000;
+.dataset-preview-header__actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.25rem;
+    flex-shrink: 0;
 }
 
-.filter-icon-active {
-    color: var(--kn-color-primary);
+.dataset-preview-filter-menu {
+    min-width: 220px;
+}
+
+.dataset-preview-cell {
+    display: inline-block;
+    max-width: 100%;
+    font-size: 0.72rem;
+    line-height: 1.1;
+    vertical-align: middle;
 }
 </style>

@@ -24,17 +24,36 @@
     "ai": {
         "disclaimer": "L'assistente virtuale genera risposte in tempo reale con l'IA. Consulta altre fonti, se necessario.",
         "error": "Mi dispiace, al momento non riesco ad aiutarti. Per favore riprova più tardi.",
+        "newChat": "Nuova conversazione",
+        "sessionError": "Impossibile inizializzare la sessione AI. Controlla la configurazione e riprova.",
+        "sessionLoading": "Avvio sessione…",
+        "sessionNotReady": "La sessione non è ancora pronta. Attendi un momento.",
+        "sessionSettings": "Impostazioni sessione",
+        "selectModel": "Modello di Business",
+        "startSession": "Avvia sessione",
+        "thinking": "Sto pensando...",
+        "streamError": "Si è verificato un errore durante la ricezione della risposta. Riprova.",
         "message": {
             "limitReached": "Hai raggiunto il numero massimo di messaggi consentiti dalla tua licenza.",
             "placeholder": "Scrivi qui il tuo messaggio"
         },
         "newConversationConfirm": "Sei sicuro di voler iniziare una nuova conversazione? Tutti i messaggi precedenti andranno persi.",
+        "openDashboard": "Apri Dashboard",
         "title": "Assistente Virtuale",
         "voice": {
             "start": "Avvia input vocale",
             "stop": "Interrompi input vocale"
         },
-        "welcomeMessage": "Benvenuto nell'assitente virtuale di Knowage! Fammi una domanda e farò del mio meglio per aiutarti."
+        "welcomeMessage": "Benvenuto nell'assitente virtuale di Knowage! Fammi una domanda e farò del mio meglio per aiutarti.",
+        "sidePanel": {
+            "title": "Artefatti",
+            "toggle": "Mostra / nascondi artefatti",
+            "noArtifacts": "Nessun artefatto ancora. Invia un messaggio per iniziare.",
+            "sql": "Query SQL",
+            "python": "Codice Python",
+            "csvTruncated": "Visualizzazione delle prime {n} righe.",
+            "csvEmpty": "Nessun dato in questo file."
+        }
     },
     "common": {
         "active": "Attivo",
@@ -276,6 +295,11 @@
         "sendByEmail": "invia tramite e-mail",
         "sendMail": "invia mail",
         "sendMailSuccess": "mail inviata",
+        "session": {
+            "expiring": "La tua sessione sta per scadere. Clicca 'Rimani connesso' per continuare.",
+            "expired": "La tua sessione è scaduta. Effettua nuovamente il login.",
+            "stayConnected": "Rimani connesso"
+        },
         "set": "imposta",
         "settings": "impostazioni",
         "share": "condividi",
@@ -489,6 +513,8 @@
                 "sheetsImageHint": "Incolla l'indirizzo dell'immagine o il codice base64",
                 "sheetsSize": "Dimensione sfondo dei fogli",
                 "sheetsSizeHint": "Usa px, % o proprietà CSS come 'contain' o 'cover'",
+                "sheetsStyle": "CSS sfondo dei fogli",
+                "sheetsStyleHint": "Incolla l'intero valore della proprietà CSS background, ad esempio gradienti, immagine, repeat e position",
                 "showGrid": "Mostra griglia in modifica"
             },
             "css": "Editor CSS",
@@ -497,7 +523,11 @@
                 "enableXlsxStyle": "Abilita stile XLSX",
                 "showScreenshot": "Abilita la funzionalità screenshot nei widget",
                 "showSelectionButton": "Mostra sempre il pulsante selezioni",
-                "title": "Menu & Widget"
+                "title": "Menu & Widget",
+                "pdfExportFileName": "Nome file export PDF dashboard",
+                "xlsxExportFileName": "Nome file export XLSX dashboard",
+                "exportFileNameHint": "Supporta placeholder come $P{driver} e $V{variabile}, ad esempio \"pippo $P{cane} $V{varia}\".",
+                "exportFileName": "Nome file export dashboard"
             },
             "profile": "Profilo",
             "themes": {
@@ -1060,6 +1090,10 @@
                 "baseLayer": {
                     "autoCentering": "Auto centering",
                     "selectBackgroundLayer": "Select Background Layer",
+                    "osmStandard": "OpenStreetMap standard",
+                    "cartoLight": "CARTO light",
+                    "cartoDark": "CARTO dark",
+                    "esriSatellite": "Esri satellite",
                     "showScale": "Show scale",
                     "title": "Enable Base Layer",
                     "zoomFactor": "Zoom factor"
@@ -1966,6 +2000,7 @@
             "missingRoot": "Manca il blocco root (Calculated field).",
             "multipleRoots": "Ci sono più root block: deve essercene uno solo.",
             "rootNoExpression": "Il root block non ha un'espressione collegata.",
+            "singleArgumentAggregation": "In QBE, {functionName} accetta un solo argomento. Usa operatori aritmetici per combinare più campi.",
             "variableNotSelected": "Un blocco variabile non ha una variabile selezionata."
         },
         "validationTitle": "Validazione"
@@ -2219,12 +2254,62 @@
     },
     "locale": {
         "dateFormat": "mm/dd/yy",
-        "dayNames": ["Domenica", "Lunedi", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"],
-        "dayNamesMin": ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
-        "dayNamesShort": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+        "dayNames": [
+            "Domenica",
+            "Lunedi",
+            "Martedì",
+            "Mercoledì",
+            "Giovedì",
+            "Venerdì",
+            "Sabato"
+        ],
+        "dayNamesMin": [
+            "Su",
+            "Mo",
+            "Tu",
+            "We",
+            "Th",
+            "Fr",
+            "Sa"
+        ],
+        "dayNamesShort": [
+            "Sun",
+            "Mon",
+            "Tue",
+            "Wed",
+            "Thu",
+            "Fri",
+            "Sat"
+        ],
         "firstDayOfWeek": 0,
-        "monthNames": ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"],
-        "monthNamesShort": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        "monthNames": [
+            "Gennaio",
+            "Febbraio",
+            "Marzo",
+            "Aprile",
+            "Maggio",
+            "Giugno",
+            "Luglio",
+            "Agosto",
+            "Settembre",
+            "Ottobre",
+            "Novembre",
+            "Dicembre"
+        ],
+        "monthNamesShort": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec"
+        ],
         "today": "Today",
         "weekHeader": "Wk"
     },
@@ -2232,7 +2317,31 @@
         "ai": {
             "hint": " AI functionalities management allows you to manage the AI functionalities of the platform. You can enable or disable them, and update the tenant definitions for the AI engine.",
             "syncronize": "Sincronizza Tenant",
-            "title": "Gestione funzionalità AI"
+            "title": "Gestione funzionalità AI",
+            "businessModels": {
+                "title": "Business Model",
+                "syncronize": "Sincronizza Business Model",
+                "enabledToggle": "Includi nell'AI"
+            },
+            "goldQueries": {
+                "title": "Query Gold – {name}",
+                "editTitle": "Modifica Query Gold",
+                "editor": "Editor JSON",
+                "tablesColumns": "Tabelle e Colonne",
+                "insertTable": "Inserisci nome tabella",
+                "insertColumn": "Inserisci riferimento colonna",
+                "invalidJson": "JSON non valido",
+                "addQuery": "Aggiungi Query",
+                "newQuery": "Nuova query…",
+                "noQueries": "Nessuna query gold presente. Aggiungine una per iniziare.",
+                "queries": "query",
+                "naturalLanguage": "Linguaggio Naturale",
+                "naturalLanguagePlaceholder": "es. Qual è il fatturato totale per negozio?",
+                "tables": "Tabelle",
+                "columns": "Colonne",
+                "addTables": "Aggiungi tabelle",
+                "addColumns": "Aggiungi colonne"
+            }
         },
         "bml": {
             "drivers": "Analytical Drivers",
@@ -3391,6 +3500,15 @@
             "title": "Users Management",
             "unlockUser": "Unlock user",
             "userId": "User ID",
+            "import": {
+                "errors": "Errori",
+                "fromFile": "Importa da file",
+                "importedUsers": "Utenti importati",
+                "selectFile": "Seleziona file XLS o CSV",
+                "serviceError": "Non è stato possibile caricare gli utenti, controllare la struttura del file o riprovare più tardi",
+                "title": "Importa utenti da file"
+            },
+            "newUser": "Nuovo utente",
             "validation": {
                 "sameAsPassword": "Different password values"
             },

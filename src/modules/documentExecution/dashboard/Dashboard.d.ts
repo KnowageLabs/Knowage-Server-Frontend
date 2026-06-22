@@ -255,6 +255,7 @@ export interface IWidgetInteractionParameter {
     dataset?: string
     json?: string
     useAsResource?: boolean
+    propagateAsSelection?: boolean
 }
 
 export interface IWidgetPreview {
@@ -525,6 +526,7 @@ export interface IWidgetColumn {
     drillOrder?: IDrillOrderItem
     orderColumn?: string
     orderType?: string
+    orderBySummaryPath?: any[]
     sort?: string
     serieType?: string
     axis?: string
@@ -683,12 +685,14 @@ interface IBackground {
     sheetsBackgroundColor: string
     imageBackgroundUrl: string
     imageBackgroundSize: string
+    sheetsBackgroundStyle?: string
     showGrid: boolean
 }
 
 interface IMenuAndWidgets {
     showExcelExport: boolean
     xlsxStyleEnabled: boolean
+    exportFileName: string
     showScreenshot: boolean
     showSelectionButton: boolean
     enableChartChange: boolean

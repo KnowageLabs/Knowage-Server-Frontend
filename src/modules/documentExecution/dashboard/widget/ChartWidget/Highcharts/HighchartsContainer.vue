@@ -1,74 +1,49 @@
 <template>
     <div class="highcharts-container">
         <div v-show="!error" :id="chartID" style="width: 100%; height: 100%; margin: 0 auto"></div>
-        <div
-            v-if="showMeasureTogglePanel"
-            class="measure-toggle-panel"
-            :class="{ 'is-dragging': isDragging }"
-            :style="panelStyle"
-            @mousedown="startDrag"
-        >
-            <button
-                type="button"
-                class="measure-toggle-panel__header"
-                @click="togglePanel"
-            >
+        <div v-if="showMeasureTogglePanel" class="measure-toggle-panel" :class="{ 'is-dragging': isDragging }" :style="panelStyle" @mousedown="startDrag">
+            <button type="button" class="measure-toggle-panel__header" @click="togglePanel">
                 <span class="measure-toggle-panel__drag-handle">⋮⋮</span>
                 <span>{{ $t('dashboard.widgetEditor.measureToggle.title') }}</span>
                 <span class="measure-toggle-panel__chevron">{{ showMeasurePanel ? '▾' : '▸' }}</span>
             </button>
             <div v-show="showMeasurePanel" class="measure-toggle-panel__body">
                 <!-- Single measure selection (for pie, gauge, etc.) -->
-                <select
-                    v-if="isSingleMeasureChart"
-                    v-model="activeMeasureNames[0]"
-                    class="measure-toggle-panel__select"
-                    @change="onSingleMeasureChange"
-                    @mousedown.stop
-                >
-                    <option
-                        v-for="option in measureOptions"
-                        :key="option.column.id || option.column.columnName"
-                        :value="option.seriesName"
-                    >
+                <select v-if="isSingleMeasureChart" v-model="activeMeasureNames[0]" class="measure-toggle-panel__select" @change="onSingleMeasureChange" @mousedown.stop>
+                    <option v-for="option in measureOptions" :key="option.column.id || option.column.columnName" :value="option.seriesName">
                         {{ option.label }}
                     </option>
                 </select>
 
                 <!-- Multiple measure selection (for bar, line, etc.) -->
                 <template v-else>
-                    <label
-                        v-for="option in measureOptions"
-                        :key="option.column.id || option.column.columnName"
-                        class="measure-toggle-panel__item"
-                    >
+                    <label v-for="option in measureOptions" :key="option.column.id || option.column.columnName" class="measure-toggle-panel__item">
                         <span class="measure-toggle-panel__item-main">
-                            <input
-                                type="checkbox"
-                                :checked="activeMeasureNames.includes(option.seriesName)"
-                                @change="onMeasureToggle(option.seriesName, ($event.target as HTMLInputElement).checked)"
-                            />
+                            <input type="checkbox" :checked="activeMeasureNames.includes(option.seriesName)" @change="onMeasureToggle(option.seriesName, ($event.target as HTMLInputElement).checked)" />
                             <span>{{ option.label }}</span>
                         </span>
-                        <select
-                            v-if="isAxisAssignableMeasureChart && activeMeasureNames.includes(option.seriesName)"
-                            class="measure-toggle-panel__axis-select"
-                            :value="measureAxisAssignments[option.seriesName]"
-                            @change="onMeasureAxisChange(option.seriesName, ($event.target as HTMLSelectElement).value)"
-                            @mousedown.stop
-                        >
+                        <select v-if="isAxisAssignableMeasureChart && activeMeasureNames.includes(option.seriesName)" class="measure-toggle-panel__axis-select" :value="measureAxisAssignments[option.seriesName]" @change="onMeasureAxisChange(option.seriesName, ($event.target as HTMLSelectElement).value)" @mousedown.stop>
                             <option v-for="axisOption in axisOptionsForMeasureChart" :key="axisOption" :value="axisOption">{{ axisOption }}</option>
                         </select>
                     </label>
                 </template>
             </div>
         </div>
+        <div ref="menuAnchor" class="chart-interaction-menu-anchor" :style="{ left: menuPosition.x + 'px', top: menuPosition.y + 'px' }">
+            <q-menu v-model="interactionMenuVisible" no-parent-event>
+                <q-list dense style="min-width: 150px">
+                    <q-item v-for="item in interactionsMenuItems" :key="item.label" v-ripple dense clickable v-close-popup @click="item.command()">
+                        <q-item-section>{{ item.label }}</q-item-section>
+                    </q-item>
+                </q-list>
+            </q-menu>
+        </div>
     </div>
     <HighchartsSonificationControls v-if="chartModel?.sonification?.enabled" @playSonify="playSonify" @pauseSonify="pauseSonify" @cancelSonify="cancelSonify"></HighchartsSonificationControls>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent, PropType, nextTick } from 'vue'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { IDashboardDataset, ISelection, IVariable, IWidget, IWidgetColumn } from '../../../Dashboard'
 import { IHighchartsChartModel } from '../../../interfaces/highcharts/DashboardHighchartsWidget'
@@ -166,7 +141,10 @@ export default defineComponent({
             isDragging: false,
             panelPosition: { x: 0, y: 0 },
             dragStart: { x: 0, y: 0 },
-            thresholdMessageShown: false
+            thresholdMessageShown: false,
+            interactionsMenuItems: [] as any[],
+            interactionMenuVisible: false,
+            menuPosition: { x: 0, y: 0 }
         }
     },
     watch: {
@@ -205,9 +183,7 @@ export default defineComponent({
 
             // For single-measure charts, show if we have at least 1 measure option
             // For multi-measure charts, show if we have more than 1 measure option
-            const hasEnoughOptions = this.isSingleMeasureChart
-                ? this.measureOptions.length >= 1
-                : this.measureOptions.length > 1
+            const hasEnoughOptions = this.isSingleMeasureChart ? this.measureOptions.length >= 1 : this.measureOptions.length > 1
 
             return isEnabled && hasEnoughOptions
         },
@@ -277,7 +253,6 @@ export default defineComponent({
             window.addEventListener('mouseup', handleMouseUp)
         },
         updateChartModel() {
-
             if (!this.chartModel) return
 
             const chartContainer = document.getElementById(this.chartID)
@@ -354,7 +329,6 @@ export default defineComponent({
             formatChartAnnotations(modelToRender, this.variables, this.getDashboardDrivers(this.dashboardId))
 
             try {
-
                 // Destroy existing chart instance if it exists
                 if (this.highchartsInstance && typeof this.highchartsInstance.destroy === 'function') {
                     try {
@@ -474,11 +448,7 @@ export default defineComponent({
 
             const axesToAutoNormalize = runtimeAxes.filter((runtimeAxis: any, index: number) => {
                 const sourceAxis = sourceAxes[index]
-                return (
-                    runtimeAxis?.options?.labels &&
-                    sourceAxis?.labels?.align === 'left' &&
-                    (sourceAxis.labels.x == null || sourceAxis.labels.x >= 0 || Number(sourceAxis.labels.x) === -defaultLeftAxisLabelGap)
-                )
+                return runtimeAxis?.options?.labels && sourceAxis?.labels?.align === 'left' && (sourceAxis.labels.x == null || sourceAxis.labels.x >= 0 || Number(sourceAxis.labels.x) === -defaultLeftAxisLabelGap)
             })
             if (!axesToAutoNormalize.length) return false
 
@@ -574,60 +544,116 @@ export default defineComponent({
             this.setSeriesEvents()
             setTimeout(() => this.normalizeDrilldownPresentation(), 0)
         },
+        getActiveChartInteractions(event: any): string[] {
+            const active: string[] = []
+            const interactions = this.widgetModel.settings.interactions
+
+            if (interactions.drilldown?.enabled) {
+                const numberOfAttributeColumns = this.getNumberOfAttributeColumnsFromWidgetModel()
+                if (event.point && numberOfAttributeColumns - 1 > this.drillLevel) active.push('drilldown')
+            }
+            if (interactions.crossNavigation?.enabled && event.point) active.push('crossNavigation')
+            if (interactions.preview?.enabled) active.push('preview')
+            if (interactions.link?.enabled) active.push('link')
+            if (interactions.selection?.enabled) active.push('selection')
+
+            return active
+        },
+        createChartInteractionsMenuItems(event: any, activeInteractions: string[]) {
+            this.interactionsMenuItems = activeInteractions.map((interactionType) => ({
+                label: this.$t(`dashboard.widgetInteractions.${interactionType}`) || interactionType,
+                command: () => this.executeSingleChartInteraction(interactionType, event)
+            }))
+        },
+        async executeSingleChartInteraction(interactionType: string, event: any) {
+            switch (interactionType) {
+                case 'drilldown':
+                    await this.executeDrilldown(event)
+                    break
+                case 'crossNavigation': {
+                    const formattedOutputParameters = formatForCrossNavigation(event, this.widgetModel.settings.interactions.crossNavigation, this.dataToShow, this.chartModel.chart.type)
+                    executeChartCrossNavigation(formattedOutputParameters, this.widgetModel.settings.interactions.crossNavigation, this.dashboardId)
+                    break
+                }
+                case 'preview': {
+                    const formattedChartValues = getFormattedChartValues(event, this.dataToShow, this.chartModel.chart.type)
+                    this.$emit('datasetInteractionPreview', { formattedChartValues: formattedChartValues, previewSettings: this.widgetModel.settings.interactions.preview })
+                    break
+                }
+                case 'link': {
+                    const formattedChartValues = getFormattedChartValues(event, this.dataToShow, this.chartModel.chart.type)
+                    openNewLinkChartWidget(formattedChartValues, this.widgetModel.settings.interactions.link, this.dashboardId, this.variables)
+                    break
+                }
+                case 'selection':
+                    this.setSelection(event)
+                    break
+            }
+        },
+        async executeDrilldown(event: any) {
+            const tempDataLabelSettings = this.widgetModel.settings.chartModel?.model?.series[0] && this.widgetModel.settings.chartModel.model.series[0].data[0] ? this.widgetModel.settings.chartModel.model.series[0].data[0].dataLabels : null
+            const numberOfAttributeColumns = this.getNumberOfAttributeColumnsFromWidgetModel()
+            if (!event.point || numberOfAttributeColumns - 1 === this.drillLevel) return
+            const dashboardDatasets = this.getDashboardDatasets(this.dashboardId)
+            this.drillLevel++
+            if (this.drillLevel === 1 && event.point.series.name) {
+                this.currentDrillNavigationItem = event.point.series.name
+            }
+            const category = this.widgetModel.columns[this.drillLevel - 1]
+
+            this.drilldown.push({ [category.columnName]: event.point.name })
+            const formattedDrilldown = this.formatDrilldown(this.drilldown)
+
+            this.highchartsInstance.showLoading(this.$t('common.info.dataLoading'))
+
+            const tempData = await getWidgetData(this.dashboardId, this.widgetModel, dashboardDatasets, this.$http, false, this.propActiveSelections, { searchText: '', searchColumns: [] }, this.dashboards[this.dashboardId].configuration, null, false, null, this.drillLevel, formattedDrilldown)
+            tempData.initialCall = false
+            const newSeries = this.widgetModel.settings.chartModel.setData(tempData, this.widgetModel, this.variables, this.drillLevel)
+
+            this.highchartsInstance.hideLoading()
+
+            const newSerieToAdd = newSeries.find((serie: any) => serie.name === this.currentDrillNavigationItem)
+            this.highchartsInstance.addSeriesAsDrilldown(event.point, {
+                id: newSerieToAdd.id,
+                data: newSerieToAdd.data,
+                name: event.point.name,
+                dataLabels: tempDataLabelSettings
+            })
+            //TODO: Leave it for now, maybe we need to revert back to forEach, but it has to be tested first
+            // newSeries.forEach((serie: any) => {
+            //     this.highchartsInstance.addSeriesAsDrilldown(event.point, {
+            //         id: serie.id,
+            //         data: serie.data,
+            //         name: event.point.name,
+            //         dataLabels: tempDataLabelSettings
+            //     })
+            // })
+            if (!['heatmap', 'dependencywheel', 'sankey', 'spline'].includes(this.chartModel.chart.type)) this.widgetModel.settings.chartModel.updateSeriesLabelSettings(this.widgetModel)
+            this.setSeriesEvents()
+            this.scheduleDrilldownPresentationNormalization()
+        },
         async executeInteractions(event: any) {
             if (this.editorMode) return
-            if (this.widgetModel.settings.interactions.drilldown?.enabled) {
-                const tempDataLabelSettings = this.widgetModel.settings.chartModel?.model?.series[0] && this.widgetModel.settings.chartModel.model.series[0].data[0] ? this.widgetModel.settings.chartModel.model.series[0].data[0].dataLabels : null
-                const numberOfAttributeColumns = this.getNumberOfAttributeColumnsFromWidgetModel()
-                if (!event.point || numberOfAttributeColumns - 1 === this.drillLevel) return
-                const dashboardDatasets = this.getDashboardDatasets(this.dashboardId)
-                this.drillLevel++
-                if (this.drillLevel === 1 && event.point.series.name) {
-                    this.currentDrillNavigationItem = event.point.series.name
-                }
-                const category = this.widgetModel.columns[this.drillLevel - 1]
 
-                this.drilldown.push({ [category.columnName]: event.point.name })
-                const formattedDrilldown = this.formatDrilldown(this.drilldown)
+            const activeInteractions = this.getActiveChartInteractions(event)
 
-                this.highchartsInstance.showLoading(this.$t('common.info.dataLoading'))
+            if (activeInteractions.length > 1) {
+                this.createChartInteractionsMenuItems(event, activeInteractions)
+                const nativeEvent = event.originalEvent ?? event
+                this.interactionMenuVisible = false
+                this.menuPosition = { x: nativeEvent.clientX, y: nativeEvent.clientY }
+                await nextTick()
+                this.interactionMenuVisible = true
+                return
+            }
 
-                const tempData = await getWidgetData(this.dashboardId, this.widgetModel, dashboardDatasets, this.$http, false, this.propActiveSelections, { searchText: '', searchColumns: [] }, this.dashboards[this.dashboardId].configuration, null, false, null, this.drillLevel, formattedDrilldown)
-                tempData.initialCall = false
-                const newSeries = this.widgetModel.settings.chartModel.setData(tempData, this.widgetModel, this.variables, this.drillLevel)
+            if (activeInteractions.length === 1) {
+                await this.executeSingleChartInteraction(activeInteractions[0], event)
+                return
+            }
 
-                this.highchartsInstance.hideLoading()
-
-                const newSerieToAdd = newSeries.find((serie: any) => serie.name === this.currentDrillNavigationItem)
-                this.highchartsInstance.addSeriesAsDrilldown(event.point, {
-                    id: newSerieToAdd.id,
-                    data: newSerieToAdd.data,
-                    name: event.point.name,
-                    dataLabels: tempDataLabelSettings
-                })
-                //TODO: Leave it for now, maybe we need to revert back to forEach, but it has to be tested first
-                // newSeries.forEach((serie: any) => {
-                //     this.highchartsInstance.addSeriesAsDrilldown(event.point, {
-                //         id: serie.id,
-                //         data: serie.data,
-                //         name: event.point.name,
-                //         dataLabels: tempDataLabelSettings
-                //     })
-                // })
-                if (!['heatmap', 'dependencywheel', 'sankey', 'spline'].includes(this.chartModel.chart.type)) this.widgetModel.settings.chartModel.updateSeriesLabelSettings(this.widgetModel)
-                this.setSeriesEvents()
-                this.scheduleDrilldownPresentationNormalization()
-            } else if (this.widgetModel.settings.interactions.crossNavigation.enabled) {
-                if (!event.point) return
-                const formattedOutputParameters = formatForCrossNavigation(event, this.widgetModel.settings.interactions.crossNavigation, this.dataToShow, this.chartModel.chart.type)
-                executeChartCrossNavigation(formattedOutputParameters, this.widgetModel.settings.interactions.crossNavigation, this.dashboardId)
-            } else if (this.widgetModel.settings.interactions.preview.enabled) {
-                const formattedChartValues = getFormattedChartValues(event, this.dataToShow, this.chartModel.chart.type)
-                this.$emit('datasetInteractionPreview', { formattedChartValues: formattedChartValues, previewSettings: this.widgetModel.settings.interactions.preview })
-            } else if (this.widgetModel.settings.interactions.link.enabled) {
-                const formattedChartValues = getFormattedChartValues(event, this.dataToShow, this.chartModel.chart.type)
-                openNewLinkChartWidget(formattedChartValues, this.widgetModel.settings.interactions.link, this.dashboardId, this.variables)
-            } else if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap', 'dependencywheel', 'spline', 'pictorial', 'sankey', 'funnel', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall', 'wordcloud'].includes(this.chartModel.chart.type)) {
+            // Fallback: no interaction explicitly enabled — try selection
+            if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap', 'dependencywheel', 'spline', 'pictorial', 'sankey', 'funnel', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall', 'wordcloud'].includes(this.chartModel.chart.type)) {
                 this.setSelection(event)
             }
         },
@@ -778,11 +804,7 @@ export default defineComponent({
         syncMeasureOptions() {
             const seriesAliases = this.widgetModel.settings?.series?.aliases ?? []
             const availableMeasures = this.widgetModel.settings?.series?.availableMeasures ?? []
-            const selectableWidgetMeasures = this.widgetModel.columns.filter(
-                (column: IWidgetColumn) =>
-                    column.fieldType === 'MEASURE' &&
-                    (this.isAxisAssignableMeasureChart || !column.axis || ['Y', 'start'].includes(column.axis))
-            )
+            const selectableWidgetMeasures = this.widgetModel.columns.filter((column: IWidgetColumn) => column.fieldType === 'MEASURE' && (this.isAxisAssignableMeasureChart || !column.axis || ['Y', 'start'].includes(column.axis)))
 
             // Get all measures to show based on availableMeasures setting
             let measuresToShow: IWidgetColumn[] = []
@@ -797,16 +819,12 @@ export default defineComponent({
 
                 if (currentDataset && currentDataset.metadata && currentDataset.metadata.fieldsMeta) {
                     // Get dataset measures that are in availableMeasures
-                    const datasetMeasureFields = currentDataset.metadata.fieldsMeta.filter(
-                        (field: any) => field.fieldType === 'MEASURE' && availableMeasures.includes(field.name)
-                    )
+                    const datasetMeasureFields = currentDataset.metadata.fieldsMeta.filter((field: any) => field.fieldType === 'MEASURE' && availableMeasures.includes(field.name))
 
                     // Map to widget column format
                     const datasetMeasures = datasetMeasureFields.map((field: any) => {
                         // Check if measure already exists in widget columns
-                        const existingColumn = this.widgetModel.columns.find(
-                            (col: IWidgetColumn) => col.columnName === field.name
-                        )
+                        const existingColumn = this.widgetModel.columns.find((col: IWidgetColumn) => col.columnName === field.name)
 
                         if (existingColumn) {
                             return existingColumn
@@ -857,18 +875,13 @@ export default defineComponent({
             this.ensureAxisAssignmentsAreValid()
 
             if (!this.measureSelectionInitialized) {
-
                 // Store the original widget measures (for data availability check)
-                const widgetMeasureNames = this.widgetModel.columns
-                    .filter((col: IWidgetColumn) => col.fieldType === 'MEASURE')
-                    .map((col: IWidgetColumn) => getColumnAlias(col, seriesAliases) || col.columnName)
+                const widgetMeasureNames = this.widgetModel.columns.filter((col: IWidgetColumn) => col.fieldType === 'MEASURE').map((col: IWidgetColumn) => getColumnAlias(col, seriesAliases) || col.columnName)
 
                 this.originalWidgetMeasures = [...widgetMeasureNames]
                 // ALWAYS activate only measures that exist in the widget model
                 // The panel will show ALL measures from availableMeasures, but only widget measures are initially active
-                const measuresToActivate = this.measureOptions
-                    .filter((option) => widgetMeasureNames.includes(option.seriesName))
-                    .map((option) => option.seriesName)
+                const measuresToActivate = this.measureOptions.filter((option) => widgetMeasureNames.includes(option.seriesName)).map((option) => option.seriesName)
 
                 // For single-measure charts (pie, gauge), select only the first measure with data
                 if (this.isSingleMeasureChart && measuresToActivate.length > 0) {
@@ -917,9 +930,7 @@ export default defineComponent({
                 } else {
                     // Measure is in original model
                     // If we have cached data, check if we need to refetch or can use original data
-                    const hasNonOriginalMeasures = this.activeMeasureNames.some(
-                        (name) => !this.originalWidgetMeasures.includes(name)
-                    )
+                    const hasNonOriginalMeasures = this.activeMeasureNames.some((name) => !this.originalWidgetMeasures.includes(name))
 
                     if (hasNonOriginalMeasures && !this.cachedData) {
                         // We have some non-original measures selected but no cached data yet
@@ -934,9 +945,7 @@ export default defineComponent({
                 this.activeMeasureNames = this.activeMeasureNames.filter((name) => name !== seriesName)
 
                 // Check if all remaining active measures are in the original model
-                const allActiveInOriginal = this.activeMeasureNames.every(
-                    (name) => this.originalWidgetMeasures.includes(name)
-                )
+                const allActiveInOriginal = this.activeMeasureNames.every((name) => this.originalWidgetMeasures.includes(name))
 
                 // If all remaining measures are in original model, we can clear the cache and use original data
                 if (allActiveInOriginal) {
@@ -973,40 +982,22 @@ export default defineComponent({
             this.updateChartModel()
         },
         async fetchDataWithMeasures(measureNames: string[]) {
-
             try {
                 // Create a temporary widget model with all requested measures
                 const tempWidgetModel = deepcopy(this.widgetModel)
 
                 // Get all non-measure columns
-                const nonMeasureColumns = this.widgetModel.columns.filter(
-                    (col: IWidgetColumn) => col.fieldType !== 'MEASURE'
-                )
+                const nonMeasureColumns = this.widgetModel.columns.filter((col: IWidgetColumn) => col.fieldType !== 'MEASURE')
 
                 // Get measure columns for the requested measures
                 const measureColumns = this.buildActiveMeasureColumns(measureNames)
-
 
                 // Update temp model columns
                 tempWidgetModel.columns = [...nonMeasureColumns, ...measureColumns]
 
                 // Fetch data with the new columns
                 const dashboardDatasets = this.getDashboardDatasets(this.dashboardId)
-                const newData = await getWidgetData(
-                    this.dashboardId,
-                    tempWidgetModel,
-                    dashboardDatasets,
-                    this.$http,
-                    false,
-                    this.propActiveSelections,
-                    { searchText: '', searchColumns: [] },
-                    this.dashboards[this.dashboardId].configuration,
-                    null,
-                    false,
-                    null,
-                    this.drillLevel,
-                    null
-                )
+                const newData = await getWidgetData(this.dashboardId, tempWidgetModel, dashboardDatasets, this.$http, false, this.propActiveSelections, { searchText: '', searchColumns: [] }, this.dashboards[this.dashboardId].configuration, null, false, null, this.drillLevel, null)
 
                 // Store the fetched data
                 this.cachedData = newData
@@ -1102,16 +1093,12 @@ export default defineComponent({
                 if (!condition.category) continue
 
                 // Trova la colonna categoria nel widget model
-                const categoryColumn = this.widgetModel.columns?.find(
-                    (col) => col.columnName === condition.category && col.fieldType === 'ATTRIBUTE'
-                )
+                const categoryColumn = this.widgetModel.columns?.find((col) => col.columnName === condition.category && col.fieldType === 'ATTRIBUTE')
 
                 if (!categoryColumn) continue
 
                 // Trova il field corrispondente nei metaData per ottenere il dataIndex (column_X)
-                const fieldMeta = data.metaData?.fields?.find(
-                    (field: any) => field.header === (categoryColumn.alias || categoryColumn.columnName)
-                )
+                const fieldMeta = data.metaData?.fields?.find((field: any) => field.header === (categoryColumn.alias || categoryColumn.columnName))
 
                 if (!fieldMeta) continue
 
@@ -1134,10 +1121,10 @@ export default defineComponent({
             // Applica l'operatore logico
             if (operator === 'AND') {
                 // AND: nascondi il grafico se TUTTE le condizioni falliscono
-                return results.length > 0 && results.every(failed => failed)
+                return results.length > 0 && results.every((failed) => failed)
             } else {
                 // OR: nascondi il grafico se ALMENO UNA condizione fallisce
-                return results.some(failed => failed)
+                return results.some((failed) => failed)
             }
         },
         showCategoryThresholdMessage() {
@@ -1197,6 +1184,13 @@ export default defineComponent({
     position: relative;
     width: 100%;
     height: 100%;
+}
+
+.chart-interaction-menu-anchor {
+    position: fixed;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
 }
 
 .measure-toggle-panel {
@@ -1291,7 +1285,7 @@ export default defineComponent({
     margin-top: 4px;
     cursor: pointer;
 
-    input[type="checkbox"] {
+    input[type='checkbox'] {
         cursor: pointer;
     }
 }

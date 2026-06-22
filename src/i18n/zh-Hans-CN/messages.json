@@ -938,12 +938,62 @@
     },
     "locale": {
         "dateFormat": "mm/dd/yy",
-        "dayNames": ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
-        "dayNamesMin": ["苏", "莫", "兔", "我们", "第", "Fr", "佐伊"],
-        "dayNamesShort": ["孙", "我的", "图埃", "韦德", "图", "弗里", "萨特"],
+        "dayNames": [
+            "星期日",
+            "星期一",
+            "星期二",
+            "星期三",
+            "星期四",
+            "星期五",
+            "星期六"
+        ],
+        "dayNamesMin": [
+            "苏",
+            "莫",
+            "兔",
+            "我们",
+            "第",
+            "Fr",
+            "佐伊"
+        ],
+        "dayNamesShort": [
+            "孙",
+            "我的",
+            "图埃",
+            "韦德",
+            "图",
+            "弗里",
+            "萨特"
+        ],
         "firstDayOfWeek": 0,
-        "monthNames": ["1月", "2月", "马奇", "4月", "梅", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
-        "monthNamesShort": ["然", "", "马尔", "阿普尔", "梅", "君", "尤尔", "", "塞普", "", "诺夫", "代克"],
+        "monthNames": [
+            "1月",
+            "2月",
+            "马奇",
+            "4月",
+            "梅",
+            "6月",
+            "7月",
+            "8月",
+            "9月",
+            "10月",
+            "11月",
+            "12月"
+        ],
+        "monthNamesShort": [
+            "然",
+            "",
+            "马尔",
+            "阿普尔",
+            "梅",
+            "君",
+            "尤尔",
+            "",
+            "塞普",
+            "",
+            "诺夫",
+            "代克"
+        ],
         "today": "今天",
         "weekHeader": "Wk"
     },
@@ -2571,6 +2621,16 @@
             "oldSchedulationsMessage": "在下表中，您将从所选作业中找到所有已执行的调度。",
             "ranSchedulations": "查看运行调度",
             "title": "调度"
+        }
+    },
+    "dashboard": {
+        "generalSettings": {
+            "menuWidgets": {
+                "pdfExportFileName": "Dashboard PDF export file name",
+                "xlsxExportFileName": "Dashboard XLSX export file name",
+                "exportFileNameHint": "Supports placeholders like $P{driver} and $V{variable}, for example \"pippo $P{cane} $V{varia}\".",
+                "exportFileName": "Dashboard export file name"
+            }
         }
     }
 }

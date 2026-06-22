@@ -8,7 +8,7 @@
             </div> -->
         </div>
 
-        <template v-if="columnOptions.length > 1">
+        <template v-if="showColumnTypeOverrides">
             <q-separator class="q-my-md q-pa-none" />
 
             <div class="row items-center justify-between q-mb-sm">
@@ -25,7 +25,7 @@
                         <q-select v-model="config.selectorType" :options="columnTypeOptions(config)" option-value="value" option-label="label" option-disable="disable" emit-value map-options dense outlined class="col" :label="$t('dashboard.widgetEditor.selectorWidget.type')" />
                     </div>
                     <div v-if="supportsAlignment(config.selectorType)" class="row items-center">
-                        <q-radio v-for="layout in descriptor.layouts" :key="layout.value" v-model="config.alignment" :val="layout.value" :label="layout.name" />
+                        <q-radio v-for="layout in descriptor.layouts" class="q-mr-md q-mt-xs" size="md" dense :key="layout.value" v-model="config.alignment" :val="layout.value" :label="layout.name" />
                         <q-input v-if="showGridColumnSize" class="q-ml-md" v-model="config.columnSize" dense :label="$t('dashboard.widgetEditor.valuesManagement.colNumber')" />
                     </div>
                 </div>
@@ -72,6 +72,12 @@ export default defineComponent({
         },
         selectorTypeOptions(): { label: string; value: string; disable: boolean }[] {
             return this.descriptor.selectorTypes.map((t) => ({ label: t.label, value: t.value, disable: (t.value === 'tree' || t.value === 'multiTree') && this.columnOptions.length < 2 }))
+        },
+        showColumnTypeOverrides(): boolean {
+            if (this.columnOptions.length <= 1) return false
+            const modality = this.model.settings?.configuration?.selectorType?.modality
+            if ((modality === 'tree' || modality === 'multiTree') && this.columnOptions.length <= 2) return false
+            return true
         },
         showGridColumnSize(): boolean {
             const cfg = this.model.settings?.configuration?.selectorType

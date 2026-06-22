@@ -153,7 +153,7 @@ export default defineComponent({
                 .finally(() => (this.loadingAllKpi = false))
         },
         async loadCategory() {
-            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/domains/listByCode/KPI_TARGET_CATEGORY').then((response: AxiosResponse<any>) => (this.categories = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/3.0/category/listByCode/KPI_TARGET_CATEGORY').then((response: AxiosResponse<any>) => (this.categories = response.data))
         },
         async saveTemplate() {
             if (this.kpi.length < 1) {
@@ -179,15 +179,10 @@ export default defineComponent({
                     targetId: kpi.targetId
                 }
             })
-            if (typeof this.target.category !== 'object') {
-                const valueCd = this.target.category
-                this.target.category = {
-                    valueCd: valueCd
-                }
-            }
+            const categoryToSend = this.target.category ? { valueCd: (this.target.category as iCategory).valueCd } : undefined
             const operation = this.target.id ? 'update' : 'insert'
 
-            await this.$http.post(url, this.target).then((response: AxiosResponse<any>) => {
+            await this.$http.post(url, { ...this.target, category: categoryToSend }).then((response: AxiosResponse<any>) => {
                 if (response.data.errors != undefined && response.data.errors.length > 0) {
                     this.categoryDialogVisiable = false
                     this.store.setError({

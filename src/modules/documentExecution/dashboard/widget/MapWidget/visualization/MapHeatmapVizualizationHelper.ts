@@ -1,6 +1,6 @@
 import { getColumnName, getCoordinates, LEGEND_DATA_TYPE, VisualizationDataType } from '../LeafletHelper'
 import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
-import { getCoordinatesFromWktPointFeature, getMinMaxByName, getNumericPropertyValues, getTargetDataColumn, getTargetProperty, incrementColumnName, isConditionMet, transformDataUsingForeignKeyReturningAllColumns, validateNumber } from './MapVisualizationHelper'
+import { doesMapFilterMatchDatasetRow, doesMapFilterMatchLayerFeature, getCoordinatesFromWktPointFeature, getMinMaxByName, getNumericPropertyValues, getTargetDataColumn, getTargetProperty, incrementColumnName, isSingleLayerPropertyVisualization, transformDataUsingForeignKeyReturningAllColumns, validateNumber } from './MapVisualizationHelper'
 import * as mapWidgetDefaultValues from '../../WidgetEditor/helpers/mapWidget/MapWidgetDefaultValues'
 import L from 'leaflet'
 import 'leaflet.heat'
@@ -34,30 +34,31 @@ const createHeatmapVisualizationLayers = (map: any, layersData: any, target: IMa
 
         mappedData = transformDataUsingForeignKeyReturningAllColumns(targetDatasetData.rows, foreignKeyColumnName)
         dataColumnIndex = getTargetDataColumn(targetDatasetData, layerVisualizationSettings, dataColumn)
-    } else if (layersData && layerVisualizationSettings.targetType === 'property' && layerVisualizationSettings.targetProperty) {
+    } else if (layersData && isSingleLayerPropertyVisualization(layerVisualizationSettings)) {
         layerTargetProperty = getTargetProperty(layerVisualizationSettings)
-        if (!layerTargetProperty) layerTargetProperty = layerVisualizationSettings.targetProperty
         const layerPropertyValues = layerTargetProperty ? getNumericPropertyValues(layersData, layerTargetProperty) : []
         max = Math.max(...layerPropertyValues) ?? 0
     }
 
     layersData.features.forEach((feature: ILayerFeature) => {
         if (feature.geometry?.type === 'Point') {
-            addHeatmapPointUsingLayers(feature, layerVisualizationSettings, mappedData, heatMapData, null, layerTargetProperty, dataColumnIndex)
+            addHeatmapPointUsingLayers(feature, layerVisualizationSettings, mappedData, heatMapData, null, layerTargetProperty, dataColumnIndex, targetDatasetData)
         } else if (feature.geometry?.type === 'MultiPoint') {
             feature.geometry.coordinates?.forEach((coord: any) => {
-                addHeatmapPointUsingLayers(feature, layerVisualizationSettings, mappedData, heatMapData, coord, layerTargetProperty, dataColumnIndex)
+                addHeatmapPointUsingLayers(feature, layerVisualizationSettings, mappedData, heatMapData, coord, layerTargetProperty, dataColumnIndex, targetDatasetData)
             })
         }
     })
+
+    if (heatMapData.length > 0) max = Math.max(...heatMapData.map((row: number[]) => row[2] ?? 0))
 
     createHeatLayer(map, heatMapData, layerVisualizationSettings, max, target.layerId, centerMap)
 
     return { heatMapData, type: LEGEND_DATA_TYPE.HEATMAP }
 }
 
-const addHeatmapPointUsingLayers = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, heatMapData: number[][], coord: any[] | null, layerTargetProperty: string | null, dataColumnIndex: string | null | undefined) => {
-    const valueKey = feature.properties[layerTargetProperty ?? layerVisualizationSettings.targetProperty]
+const addHeatmapPointUsingLayers = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, heatMapData: number[][], coord: any[] | null, layerTargetProperty: string | null, dataColumnIndex: string | null | undefined, targetDatasetData?: any) => {
+    const valueKey = feature.properties[layerTargetProperty ?? getTargetProperty(layerVisualizationSettings)]
     let value = null as string | number | null
     if (mappedData && dataColumnIndex) {
         value = mappedData[valueKey] ? mappedData[valueKey][dataColumnIndex] : null
@@ -66,6 +67,7 @@ const addHeatmapPointUsingLayers = (feature: ILayerFeature, layerVisualizationSe
     }
 
     if (!value) return
+    if (!doesMapFilterMatchLayerFeature(feature, layerVisualizationSettings, mappedData, targetDatasetData, value)) return
     validateNumber(value)
 
     const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
@@ -80,6 +82,7 @@ const createHeatmapVisualizationFromData = (map: any, data: any, target: IMapWid
     data[target.id].rows.forEach((row: any) => {
         const dataColumnIndex = getTargetDataColumn(data[target.id], layerVisualizationSettings, dataColumn)
         const value = row[dataColumnIndex ?? dataColumn]
+        if (!doesMapFilterMatchDatasetRow(row, data[target.id], layerVisualizationSettings, value)) return
 
         const coordinates = getCoordinates(spatialAttribute, row[geoColumn], null)
         if (!coordinates) return
@@ -100,11 +103,6 @@ const createHeatLayer = (map: any, heatMapData: number[][], layerVisualizationSe
             map.invalidateSize()
 
             let tempHeatMapData = heatMapData
-
-            const filter = layerVisualizationSettings.filter
-            if (filter?.enabled && filter.operator && filter.value != null) {
-                tempHeatMapData = filterHeatmapData(tempHeatMapData, filter.operator, filter.value)
-            }
 
             const heatLayer = L.heatLayer(tempHeatMapData, {
                 radius: layerVisualizationSettings.heatmapConf?.radius ?? defaultVisualizationHeatmapConfiguration.radius,
@@ -137,8 +135,4 @@ const fitBoundsForMapCentering = (map: any, heatMapData: number[][]) => {
         const bounds = L.latLngBounds(heatMapData.map((point) => [point[0], point[1]]))
         map.fitBounds(bounds)
     }
-}
-
-const filterHeatmapData = (data: number[][], operator: string, valueToCompare: string): number[][] => {
-    return data.filter((row) => row.length === 3 && isConditionMet({ operator, value: valueToCompare }, '' + row[2]))
 }

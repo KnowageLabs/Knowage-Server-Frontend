@@ -6,13 +6,16 @@
                 <q-input v-model="responsiveModel[`${field}Label`]" :label="getLabel(`${field}Label`)" outlined dense :disable="!responsiveModel[field]" />
             </div>
         </div>
+        <div class="q-mb-sm">
+            <q-select v-model="responsiveModel.excludedFromSubTotals" :options="rowFields" :label="$t('dashboard.widgetEditor.pivot.configuration.excludedFromSubTotals')" option-label="alias" option-value="id" multiple emit-value map-options outlined dense />
+        </div>
         <q-toggle v-model="responsiveModel.rowsExpanded" :label="$t('dashboard.widgetEditor.pivot.configuration.rowsExpanded')" dense />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IPivotRowsConfiguration } from '@/modules/documentExecution/dashboard/interfaces/pivotTable/DashboardPivotTableWidget'
 import descriptor from './PivotTableConfigDescriptor.json'
 
@@ -23,6 +26,11 @@ export default defineComponent({
         return {
             descriptor,
             responsiveModel: null as IPivotRowsConfiguration | null
+        }
+    },
+    computed: {
+        rowFields(): IWidgetColumn[] {
+            return this.widgetModel.fields?.rows ?? []
         }
     },
     created() {

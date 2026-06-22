@@ -135,7 +135,8 @@ import EnginesConstants from '@/EnginesConstants.json'
 import DashboardSaveViewDialog from '../dashboard/DashboardViews/DashboardSaveViewDialog/DashboardSaveViewDialog.vue'
 import DashboardSavedViewsDialog from '../dashboard/DashboardViews/DashboardSavedViewsDialog/DashboardSavedViewsDialog.vue'
 import DatasetEditorPreview from '../dashboard/dataset/DatasetEditorDataTab/DatasetEditorPreview.vue'
-import { createDashboardSpreadsheetExportBody } from '../dashboard/helpers/DashboardExportHelper'
+import { createDashboardSpreadsheetExportBody, getDashboardExportFileNameTemplate, getDashboardExportVariables } from '../dashboard/helpers/DashboardExportHelper'
+import { enrichDashboardBodyWithPivotSortState } from '@/modules/documentExecution/dashboard/widget/PivotWidget/PivotWidgetExportHelper'
 
 let seeAsFinalUserWarning
 // @ts-ignore
@@ -356,6 +357,7 @@ export default defineComponent({
         }
     },
     async activated() {
+        window.addEventListener('message', this.iframeEventsListener)
         if (this.mode === 'iframe' && this.$route.name !== 'new-dashboard') this.userRole ? await this.loadPage(true) : (this.parameterSidebarVisible = true)
     },
     deactivated() {
@@ -502,6 +504,9 @@ export default defineComponent({
                 .catch(() => {})
         },
         async iframeEventsListener(event) {
+            if (!this.document) {
+                return
+            }
             if (event.data.type === 'crossNavigation') {
                 let crossNavigation = {} as any
                 await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/crossNavigation/${this.document.label}/loadCrossNavigationByDocument`).then((response: AxiosResponse<any>) => {
@@ -714,6 +719,7 @@ export default defineComponent({
         },
         async dashboardExport(format) {
             this.setLoading(true)
+            const currentDashboard = this.document.dashboardId ? this.dashboards[this.document.dashboardId] : null
             let body = new URLSearchParams()
             body.set('DOCUMENT_LABEL', this.document.label)
             body.set('SBI_EXECUTION_ROLE', this.userRole || '')
@@ -722,8 +728,9 @@ export default defineComponent({
             let url = import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + `/api/1.0/pages/execute/${format}`
             if (format.includes('xls')) {
                 format = 'spreadsheet'
-                if (this.document.dashboardId && this.dashboards[this.document.dashboardId]) {
-                    body = createDashboardSpreadsheetExportBody(this.dashboards[this.document.dashboardId])
+                if (currentDashboard) {
+                    body = createDashboardSpreadsheetExportBody(currentDashboard)
+                    enrichDashboardBodyWithPivotSortState(body)
                 }
             }
 
@@ -733,6 +740,7 @@ export default defineComponent({
 
             if (['pdf'].includes(format)) {
                 url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/dashboardExport/callPuppeteer'
+                const structuredParameters = this.filtersData && this.filtersData.filterStatus ? JSON.stringify(this.getStructuredParametersForExport()) : ''
                 //it's a get, set the body properties as params
                 await this.$http
                     .get(url, {
@@ -742,7 +750,9 @@ export default defineComponent({
                             user_id: this.user.userUniqueIdentifier || '',
                             document: this.document.id || '',
                             outputType: format,
-                            parameters: this.filtersData && this.filtersData.filterStatus ? JSON.stringify(this.getStructuredParametersForExport()) : ''
+                            parameters: structuredParameters,
+                            exportFileName: getDashboardExportFileNameTemplate(currentDashboard),
+                            dashboardVariables: JSON.stringify(getDashboardExportVariables(currentDashboard))
                         },
                         responseType: 'blob'
                     })
@@ -873,7 +883,7 @@ export default defineComponent({
             this.embed = this.$route.path.includes('embed')
             if (this.embed) this.setDocumentExecutionEmbed()
             if (this.$route.params?.mode && ['registry', 'dossier', 'olap', 'dashboard'].includes(this.$route.params.mode)) this.mode = this.$route.params.mode
-            else if (this.$route.name === 'new-dashboard' || this.$route.name === 'dashboard-new') this.mode = 'dashboard'
+            else if (this.$route.name === 'new-dashboard' || this.$route.name === 'dashboard-new' || this.$route.name === 'dashboard-execution') this.mode = 'dashboard'
             else this.mode = 'iframe'
             this.$q.loading.hide()
         },
@@ -912,7 +922,7 @@ export default defineComponent({
             if (this.document.typeCode === 'DATAMART') this.mode = 'registry'
             else if (this.document.typeCode === 'DOSSIER') this.mode = 'dossier'
             else if (this.document.typeCode === 'OLAP') this.mode = 'olap'
-            else if ((this.document.typeCode === 'DOCUMENT_COMPOSITE' && this.$route.params?.mode === 'dashboard') || this.document.typeCode === 'DASHBOARD') {
+            else if ((this.document.typeCode === 'DOCUMENT_COMPOSITE' && this.$route.params?.mode === 'dashboard' && !this.document.navigationFromDashboard) || this.document.typeCode === 'DASHBOARD') {
                 this.mode = 'dashboard'
                 if (refresh) this.reloadTrigger = !this.reloadTrigger
             } else this.mode = 'iframe'
@@ -927,7 +937,12 @@ export default defineComponent({
                       document: this.document,
                       dashboardReady: false
                   })
-            if (this.mode === 'iframe' && this.document.typeCode === 'DASHBOARD') this.mode = 'dashboard'
+            if (this.document.typeCode === 'DASHBOARD' && this.$route.name === 'document-execution' && this.$route.params?.mode === 'document-composite') {
+                this.mode = 'dashboard'
+                this.$router.replace(`/dashboard/${this.document.label}`)
+            } else if (this.mode === 'iframe' && this.document.typeCode === 'DASHBOARD') {
+                this.mode = 'dashboard'
+            }
         },
         async loadView() {
             this.loading = true
@@ -1091,7 +1106,7 @@ export default defineComponent({
 
             this.hiddenFormData.append('documentMode', this.documentMode)
             if (this.document.typeCode === 'DASHBOARD') return
-            this.document.typeCode === 'DATAMART' || this.document.typeCode === 'DOSSIER' || this.document.typeCode === 'OLAP' || (['DOCUMENT_COMPOSITE'].includes(this.document.typeCode) && this.mode === 'dashboard') ? await this.sendHiddenFormData() : postForm.submit()
+            this.document.typeCode === 'DATAMART' || this.document.typeCode === 'DOSSIER' || this.document.typeCode === 'OLAP' || (['DOCUMENT_COMPOSITE'].includes(this.document.typeCode) && this.mode === 'dashboard' && !this.document.navigationFromDashboard) ? await this.sendHiddenFormData() : postForm.submit()
             const index = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name)
             if (index !== -1) this.breadcrumbs[index].hiddenFormData = this.hiddenFormData
         },

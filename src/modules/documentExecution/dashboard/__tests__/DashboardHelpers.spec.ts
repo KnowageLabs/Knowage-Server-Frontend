@@ -111,7 +111,7 @@ const makeDashboard = (overrides: Partial<IDashboard> = {}): IDashboard => ({
         selections: [],
         theme: {},
         background: { imageBackgroundSize: '', imageBackgroundUrl: '', sheetsBackgroundColor: '', showGrid: true },
-        menuWidgets: { showExcelExport: true, xlsxStyleEnabled: false, showScreenshot: true, showSelectionButton: true, enableWidgetMenu: true, enableChartChange: true, enableCaching: true, enableCustomHeader: false }
+        menuWidgets: { showExcelExport: true, xlsxStyleEnabled: false, exportFileName: '', showScreenshot: true, showSelectionButton: true, enableWidgetMenu: true, enableChartChange: true, enableCaching: true, enableCustomHeader: false }
     },
     version: '8.2.0',
     ...overrides
@@ -329,6 +329,7 @@ describe('addMissingMenuWidgetsConfiguration', () => {
         expect(dashboard.configuration.menuWidgets).toBeDefined()
         expect(dashboard.configuration.menuWidgets.showExcelExport).toBe(true)
         expect(dashboard.configuration.menuWidgets.xlsxStyleEnabled).toBe(false)
+        expect(dashboard.configuration.menuWidgets.exportFileName).toBe('')
         expect(dashboard.configuration.menuWidgets.enableWidgetMenu).toBe(true)
     })
 
@@ -337,6 +338,13 @@ describe('addMissingMenuWidgetsConfiguration', () => {
         delete (dashboard.configuration.menuWidgets as any).xlsxStyleEnabled
         addMissingMenuWidgetsConfiguration(dashboard)
         expect(dashboard.configuration.menuWidgets.xlsxStyleEnabled).toBe(false)
+    })
+
+    it('fills in dashboard export file name when undefined', () => {
+        const dashboard = makeDashboard()
+        delete (dashboard.configuration.menuWidgets as any).exportFileName
+        addMissingMenuWidgetsConfiguration(dashboard)
+        expect(dashboard.configuration.menuWidgets.exportFileName).toBe('')
     })
 
     it('fills in showSelectionButton when undefined', () => {

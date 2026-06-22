@@ -7,7 +7,9 @@
                 </template>
                 <template #end>
                     <Button v-if="isParameterSidebarVisible" v-tooltip.bottom="$t('common.filter')" icon="pi pi-filter" class="p-button-text p-button-rounded p-button-plain" @click="parameterSidebarVisible = !parameterSidebarVisible" />
-                    <Button v-tooltip.bottom="$t('common.save')" icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" data-test="save-button" @click="openSavingDialog" />
+                    <span v-tooltip.bottom="qbeAdvancedSaving ? $t('common.save') : $t('qbe.missingSavePermissions')">
+                        <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="!qbeAdvancedSaving" data-test="save-button" @click="openSavingDialog" />
+                    </span>
                     <Button v-tooltip.bottom="$t('common.close')" icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="$emit('close')" />
                 </template>
             </Toolbar>
@@ -108,17 +110,30 @@
         <QBESavingDialog :visible="savingDialogVisible" :prop-dataset="qbe" :prop-metadata="qbeMetadata" @close="savingDialogVisible = false" @datasetSaved="$emit('datasetSaved')" />
         <QBEJoinDefinitionDialog v-if="joinDefinitionDialogVisible" :id="uniqueID" :visible="joinDefinitionDialogVisible" :qbe="qbe" :prop-entities="entities?.entities" :selected-query="selectedQuery" @close="onJoinDefinitionDialogClose"></QBEJoinDefinitionDialog>
 
-        <KnCalculatedField v-if="calcFieldDialogVisible" v-model:template="selectedCalcField" v-model:visibility="calcFieldDialogVisible" :fields="calcFieldColumns" :descriptor="calcFieldDescriptor" :prop-calc-field-functions="calcFieldFunctionsToShow" :read-only="false" :valid="true" source="QBE" @save="onCalcFieldSave" @cancel="calcFieldDialogVisible = false">
+        <KnBlockly
+            v-if="calcFieldDialogVisible"
+            v-model:visibility="calcFieldDialogVisible"
+            :editor-type="'qbe'"
+            :field-name="selectedCalcField?.alias || ''"
+            :fields="calcFieldColumns.map((field) => ({ label: field.fieldLabel, value: field.fieldLabel }))"
+            :function-definitions="calcFieldFunctionsToShow"
+            :initial-state="getCalcFieldInitialState(selectedCalcField)"
+            :lock-saved-mode="shouldLockCalcFieldMode(selectedCalcField)"
+            :show-outputs="false"
+            :validation-fields="calcFieldColumns.map((field) => ({ name: field.fieldLabel, alias: field.fieldAlias }))"
+            @save="onCalcFieldSave"
+            @cancel="calcFieldDialogVisible = false"
+        >
             <template #additionalInputs>
                 <div class="p-field" :class="[selectedCalcField.type === 'DATE' ? 'p-col-3' : 'p-col-4']">
                     <span class="p-float-label">
-                        <Dropdown id="type" v-model="selectedCalcField.type" class="kn-material-input" :options="qbeDescriptor.types" option-label="label" option-value="name" />
+                        <Dropdown id="type" v-model="selectedCalcField.type" class="kn-material-input" :options="qbeDescriptor.types" option-label="label" option-value="name" append-to="self" />
                         <label for="type" class="kn-material-input-label"> {{ $t('components.knCalculatedField.type') }} </label>
                     </span>
                 </div>
                 <div v-if="selectedCalcField.type === 'DATE'" class="p-field p-col-3">
                     <span class="p-float-label">
-                        <Dropdown id="type" v-model="selectedCalcField.format" class="kn-material-input" :options="qbeDescriptor.admissibleDateFormats">
+                        <Dropdown id="type" v-model="selectedCalcField.format" class="kn-material-input" :options="qbeDescriptor.admissibleDateFormats" append-to="self">
                             <template #value>
                                 <span>{{ selectedCalcField.format ? moment().format(selectedCalcField.format) : '' }}</span>
                             </template>
@@ -131,12 +146,12 @@
                 </div>
                 <div class="p-field" :class="[selectedCalcField.type === 'DATE' ? 'p-col-3' : 'p-col-4']">
                     <span class="p-float-label">
-                        <Dropdown id="columnType" v-model="selectedCalcField.nature" class="kn-material-input" :options="qbeDescriptor.columnTypes" option-label="label" option-value="name" />
+                        <Dropdown id="columnType" v-model="selectedCalcField.nature" class="kn-material-input" :options="qbeDescriptor.columnTypes" option-label="label" option-value="name" append-to="self" />
                         <label for="columnType" class="kn-material-input-label"> {{ $t('managers.functionsCatalog.columnType') }} </label>
                     </span>
                 </div>
             </template>
-        </KnCalculatedField>
+        </KnBlockly>
 
         <Menu id="optionsMenu" ref="optionsMenu" :model="menuButtons" data-test="menu" />
     </Dialog>
@@ -175,12 +190,13 @@ import KnParameterSidebar from '@/components/UI/KnParameterSidebar/KnParameterSi
 import QBEPreviewDialog from './qbeDialogs/qbePreviewDialog/QBEPreviewDialog.vue'
 import qbeDescriptor from './QBEDescriptor.json'
 import calcFieldDescriptor from './QBECalcFieldDescriptor.json'
-import KnCalculatedField from '@/components/functionalities/KnCalculatedField/KnCalculatedField.vue'
+import KnBlockly from '@/components/UI/KnBlockly/KnBlockly.vue'
 import Dropdown from 'primevue/dropdown'
 import mainStore from '../../App.store'
+import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 import deepcopy from 'deepcopy'
 import { getCorrectRolesForExecution } from '@/helpers/commons/roleHelper'
-import { getFormattedQBECatalogueForAPI } from './QBEHelper'
+import { getFormattedQBECatalogueForAPI, getInvalidCalculatedFieldAggregation } from './QBEHelper'
 
 export default defineComponent({
     name: 'qbe',
@@ -204,7 +220,7 @@ export default defineComponent({
         KnParameterSidebar,
         QBEPreviewDialog,
         QBESmartTable,
-        KnCalculatedField,
+        KnBlockly,
         Dropdown
     },
     props: { visible: { type: Boolean }, dataset: { type: Object }, returnQueryMode: { type: Boolean }, getQueryFromDatasetProp: { type: Boolean }, sourceDataset: { type: Object }, fromDsManagement: { type: Boolean, default: false } },
@@ -261,10 +277,14 @@ export default defineComponent({
             /* CONST */
             DERIVED_CONST: 'Derived',
             showWarning: false as boolean,
-            correctRolesForExecution: null as string[] | null
+            correctRolesForExecution: null as string[] | null,
+            componentActive: true
         }
     },
     computed: {
+        qbeAdvancedSaving(): boolean {
+            return (this.store.$state as any).user.functionalities.includes(UserFunctionalitiesConstants.QBE_ADVANCED_SAVING)
+        },
         isParameterSidebarVisible(): boolean {
             let parameterVisible = false
             for (let i = 0; i < this.filtersData?.filterStatus?.length; i++) {
@@ -284,6 +304,9 @@ export default defineComponent({
         async sourceDataset() {
             await this.loadPage()
         }
+    },
+    beforeUnmount() {
+        this.componentActive = false
     },
     async created() {
         this.uniqueID = crypto.randomUUID()
@@ -324,11 +347,23 @@ export default defineComponent({
                     }
                 })
                 .catch(() => this.$emit('close'))
-        } else await this.loadPage()
+        } else {
+            this.correctRolesForExecution = this.user.roles ?? []
+            if (!this.userRole) {
+                if (this.correctRolesForExecution.length === 1) {
+                    this.userRole = this.correctRolesForExecution[0]
+                } else if (this.correctRolesForExecution.length > 1) {
+                    this.parameterSidebarVisible = true
+                    return
+                }
+            }
+            await this.loadPage()
+        }
     },
     methods: {
         //#region ===================== Load QBE and format data ====================================================
         async loadPage() {
+            if (!this.componentActive) return
             this.store.setLoading(true)
 
             if (this.dataset && !this.dataset.dataSourceId && !this.dataset.federation_id) {
@@ -584,6 +619,16 @@ export default defineComponent({
             if (!this.qbe) return
             if (this.qbe.qbeJSONQuery && this.qbe.qbeJSONQuery.catalogue.queries[0].fields.length == 0) return
 
+            const invalidCalculatedField = getInvalidCalculatedFieldAggregation(this.qbe?.qbeJSONQuery?.catalogue.queries)
+            if (invalidCalculatedField) {
+                if (showPreview) this.qbePreviewDialogVisible = false
+                this.store.setError({
+                    title: this.$t('common.toast.error'),
+                    msg: `${invalidCalculatedField.fieldAlias}: ${this.$t('knBlockly.validation.singleArgumentAggregation', { functionName: invalidCalculatedField.functionName.toUpperCase() })}`
+                })
+                return
+            }
+
             this.store.setLoading(true)
             const postData = { catalogue: getFormattedQBECatalogueForAPI(this.qbe?.qbeJSONQuery?.catalogue.queries, filters), meta: this.formatQbeMeta(), pars: this.qbe?.pars, qbeJSONQuery: {}, schedulingCronLine: '0 * * * * ?' }
             await this.$http
@@ -690,7 +735,7 @@ export default defineComponent({
         //#region ===================== Calc Fields Logic ===========================================================
         createNewCalcField() {
             this.createCalcFieldColumns()
-            this.selectedCalcField = { alias: '', expression: '', format: undefined, nature: 'ATTRIBUTE', type: 'STRING' } as any
+            this.selectedCalcField = { alias: '', blocklyXml: null, expression: '', format: undefined, formulaEditor: '', nature: 'ATTRIBUTE', type: 'STRING' } as any
             this.calcFieldDialogVisible = true
         },
         editCalcField(calcField) {
@@ -698,12 +743,29 @@ export default defineComponent({
             this.selectedCalcField = this.formatCalcFieldForComponent(calcField)
             this.calcFieldDialogVisible = true
         },
+        getCalcFieldInitialState(calcField) {
+            if (!calcField) return null
+            if (calcField.blocklyXml) return calcField.blocklyXml
+            if (calcField.expression) {
+                return {
+                    dsl: calcField.expression,
+                    mode: 'text'
+                }
+            }
+
+            return null
+        },
+        shouldLockCalcFieldMode(calcField) {
+            return !!this.getCalcFieldInitialState(calcField)
+        },
         formatCalcFieldForComponent(calcField) {
             const formatField = {
                 uniqueID: calcField.uniqueID,
                 alias: calcField.id.alias,
+                blocklyXml: calcField.blocklyXml,
                 type: calcField.id.type,
                 expression: calcField.id.expressionSimple,
+                formulaEditor: calcField.formulaEditor ?? calcField.id.expressionSimple,
                 nature: calcField.id.nature,
                 format: calcField.id.format
             } as any
@@ -717,8 +779,10 @@ export default defineComponent({
         },
         onCalcFieldSave(calcFieldOutput) {
             let calculatedField = {} as any
-            this.selectedCalcField.alias = calcFieldOutput.colName
-            this.selectedCalcField.expression = calcFieldOutput.formula
+            this.selectedCalcField.alias = calcFieldOutput.name
+            this.selectedCalcField.blocklyXml = calcFieldOutput.state
+            this.selectedCalcField.expression = calcFieldOutput.dsl
+            this.selectedCalcField.formulaEditor = calcFieldOutput.dsl
 
             if (this.selectedCalcField.uniqueID) {
                 this.updateExistingCalculatedField(this.selectedCalcField)
@@ -816,7 +880,7 @@ export default defineComponent({
             item.currentQueryId = 'q1'
             item.ambiguousFieldsPaths = []
             item.ambiguousRoles = []
-            item.pars = JSON.stringify(this.qbe?.pars)
+            item.pars = JSON.stringify((this.qbe?.pars ?? []).map((par: any) => ({ ...par, value: par.value ?? par.defaultValue ?? '' })))
 
             const conf = {} as any
             conf.headers = { 'Content-Type': 'application/x-www-form-urlencoded' } as any
@@ -878,7 +942,16 @@ export default defineComponent({
             let fileName = ''
             mimeType == 'csv' ? (fileName = 'report.csv') : (fileName = 'report.xlsx')
 
-            const postData = { catalogue: this.qbe?.qbeJSONQuery?.catalogue.queries, meta: this.formatQbeMeta(), pars: this.qbe?.pars, qbeJSONQuery: {}, schedulingCronLine: '0 * * * * ?' }
+            const invalidCalculatedField = getInvalidCalculatedFieldAggregation(this.qbe?.qbeJSONQuery?.catalogue.queries)
+            if (invalidCalculatedField) {
+                this.store.setError({
+                    title: this.$t('common.toast.error'),
+                    msg: `${invalidCalculatedField.fieldAlias}: ${this.$t('knBlockly.validation.singleArgumentAggregation', { functionName: invalidCalculatedField.functionName.toUpperCase() })}`
+                })
+                return
+            }
+
+            const postData = { catalogue: getFormattedQBECatalogueForAPI(this.qbe?.qbeJSONQuery?.catalogue.queries), meta: this.formatQbeMeta(), pars: this.qbe?.pars, qbeJSONQuery: {}, schedulingCronLine: '0 * * * * ?' }
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGEQBE_CONTEXT + `/restful-services/qbequery/export/?SBI_EXECUTION_ID=${this.uniqueID}&currentQueryId=${this.selectedQuery.id}&outputType=${mimeType}`, postData, { responseType: 'blob' })
                 .then((response: AxiosResponse<any>) => {
@@ -1051,8 +1124,7 @@ export default defineComponent({
             const actualDropIndex = this.selectedQuery.fields.indexOf(dropField)
 
             const [removed] = this.selectedQuery.fields.splice(actualDragIndex, 1)
-            const adjustedDropIndex = actualDropIndex > actualDragIndex ? actualDropIndex - 1 : actualDropIndex
-            this.selectedQuery.fields.splice(adjustedDropIndex, 0, removed)
+            this.selectedQuery.fields.splice(actualDropIndex, 0, removed)
 
             this.updateSmartView()
         },
@@ -1087,13 +1159,7 @@ export default defineComponent({
         async onRoleChange(role: string) {
             this.userRole = role as any
             this.filtersData = {}
-            if (this.dataset && !this.dataset.dataSourceId && !this.dataset.federation_id) {
-                await this.loadDataset()
-            } else {
-                this.qbe = this.getQBEFromModel()
-            }
-            this.loadQuery()
-            if (!this.dataset?.federation_id) await this.loadDatasetDrivers()
+            await this.loadPage()
         },
         //#endregion ================================================================================================
         async openSavingDialog() {

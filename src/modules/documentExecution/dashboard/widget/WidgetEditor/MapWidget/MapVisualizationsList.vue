@@ -228,7 +228,7 @@ export default defineComponent({
         },
         confirmDelete(viz: IMapWidgetVisualizationType, index: number) {
             this.$q.dialog({
-                title: this.$t('common.confirm'),
+                title: this.$t('common.ok'),
                 message: this.$t('common.confirmDelete'),
                 cancel: true,
                 persistent: true

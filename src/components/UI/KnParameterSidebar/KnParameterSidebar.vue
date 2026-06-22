@@ -312,6 +312,7 @@ export default defineComponent({
 
         this.user = (this.store.$state as any).user
         this.role = this.userRole as string
+        this.loadAvailableRolesForExecution()
         this.loadDocument()
         this.loadParameters()
         this.userDateFormat = this.dateFormat as string
@@ -641,6 +642,7 @@ export default defineComponent({
             if (index !== -1) this.viewpoints.splice(index, 1)
         },
         getVisibleChips(parameter: any): any[] {
+            if (!parameter.parameterValue) return []
             if (this.expandedChips[parameter.id]) return parameter.parameterValue
             return parameter.parameterValue.slice(0, this.chipsThreshold)
         },

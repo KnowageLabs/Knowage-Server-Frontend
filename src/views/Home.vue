@@ -1,7 +1,7 @@
 <template>
     <iframe v-if="!homePage.loading && homePage.type === 'dynamic' && dynamicSrcdoc" ref="dynamicHomeFrame" :srcdoc="dynamicSrcdoc" style="border:0;width:100%;height:100%;" @load="bindDynamicHomeFrameInteractions"></iframe>
-    <iframe v-else-if="!homePage.loading && homePage.label && completeUrl" :src="`${completeUrl}`"></iframe>
-    <div v-if="!homePage.loading && homePage.type !== 'dynamic'" class="homeContainer">
+    <iframe v-else-if="showIframe" v-show="iframeLoaded" :src="`${completeUrl}`" @load="onIframeLoad"></iframe>
+    <div v-if="showDefaultHome" class="homeContainer">
         <div class="upperSection p-d-flex">
             <div class="p-d-flex p-flex-column kn-flex">
                 <div class="logo">
@@ -13,7 +13,7 @@
             </div>
             <div class="buttons p-d-flex">
                 <a href="https://knowage-suite.readthedocs.io/" target="_blank">{{ $t('home.button.documentation') }}</a>
-                <a href="https://github.com/KnowageLabs/Knowage-Server/discussions" target="_blank">{{ $t('home.button.qa') }}</a>
+                <a href="https://github.com/KnowageLabs/Knowage/discussions" target="_blank">{{ $t('home.button.qa') }}</a>
             </div>
         </div>
     </div>
@@ -53,7 +53,9 @@ export default defineComponent({
     name: 'home',
     data() {
         return {
-            completeUrl: false as string | false,
+            completeUrl: '',
+            iframeLoaded: false,
+            isManagingGlobalLoading: false,
             logo: logo,
             dynamicSrcdoc: '' as string,
             dynamicMenuNodes: [] as IMenuNode[],
@@ -64,11 +66,12 @@ export default defineComponent({
     mounted() {
         this.loadHomePage()
     },
-    unmounted() {
+    beforeUnmount() {
+        this.stopGlobalLoading()
         this.unbindDynamicHomeFrameInteractions()
     },
     methods: {
-        ...mapActions(mainStore, ['setHomePage']),
+        ...mapActions(mainStore, ['setHomePage', 'setLoading']),
         bindDynamicHomeFrameInteractions() {
             this.unbindDynamicHomeFrameInteractions()
             const dynamicHomeFrame = this.$refs.dynamicHomeFrame as HTMLIFrameElement | undefined
@@ -103,24 +106,28 @@ export default defineComponent({
             this.navigateDynamicHomeElement(target)
         },
         getDynamicHomeNavigationElement(target: EventTarget | null): Element | null {
-            if (!(target instanceof Element)) return null
-            return target.closest(DYNAMIC_HOME_NAVIGATION_SELECTOR)
+            const targetNode = target as (Node & { closest?: (selector: string) => Element | null }) | null
+            if (!targetNode || targetNode.nodeType !== Node.ELEMENT_NODE || typeof targetNode.closest !== 'function') return null
+
+            return targetNode.closest(DYNAMIC_HOME_NAVIGATION_SELECTOR)
         },
         navigateDynamicHomeElement(element: Element) {
+            const router = (this as any).$router
             const navigationType = element.getAttribute('data-kn-menu-navigation-type')
             const navigationTarget = element.getAttribute('data-kn-menu-navigation')
             if (!navigationType || !navigationTarget) return
 
             if (navigationType === 'to') {
-                this.$router.push(normalizeMenuRoute(navigationTarget))
+                router.push(normalizeMenuRoute(navigationTarget))
                 return
             }
 
             if (navigationType === 'url') {
-                this.$router.push({ name: 'externalUrl', query: { url: navigationTarget } })
+                router.push({ name: 'externalUrl', query: { url: navigationTarget } })
             }
         },
         resolveRoleName(): string | null {
+            if (this.user.sessionRole) return this.user.sessionRole
             if (this.user.defaultRole) return this.user.defaultRole
             const raw: string = this.user.attributes?.roles ?? ''
             // format may be "'role1','role2'" — strip quotes and split
@@ -128,7 +135,7 @@ export default defineComponent({
             return first || null
         },
         resolveMenuLocale(): string {
-            const fallbackLocale = this.$i18n.fallbackLocale.toString()
+            const fallbackLocale = ((this.$i18n as any).fallbackLocale ?? 'en-US').toString()
             const currentLocale = localStorage.getItem('locale') || this.locale || fallbackLocale
             return normalizeMenuLocale(currentLocale, fallbackLocale)
         },
@@ -223,16 +230,6 @@ export default defineComponent({
             }
         },
         async loadHomePage() {
-            // Resolve numeric roleId from role name
-            let roleId: number | null = null
-            try {
-                const roleName = this.resolveRoleName()
-                const rolesRes = await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/roles')
-                const matched = rolesRes.data.find((r: any) => r.name === roleName)
-                if (matched) roleId = matched.id
-            } catch (e) {
-                // ignore, fall back to default
-            }
 
             const fetchConfig = async (id: number | string) => {
                 const res = await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/homepage/' + id, { headers: { 'X-Disable-Errors': 'true' } })
@@ -240,17 +237,18 @@ export default defineComponent({
             }
 
             let config: any = null
+            const roleName = this.resolveRoleName()
             try {
-                config = await fetchConfig(roleId ?? 'default')
+                config = await fetchConfig(roleName ?? 'default')
             } catch (e) {
-                if (roleId !== null) {
+                if (roleName !== null) {
                     try { config = await fetchConfig('default') } catch (e2) { /* ignore */ }
                 }
             }
 
             const homePage: any = { loading: false }
             if (config && config.type && config.type !== 'default') {
-                homePage.roleId = roleId
+                homePage.roleName = roleName
                 switch (config.type) {
                     case 'document': {
                         const documentNavigation = await this.resolveHomepageDocumentNavigation(config)
@@ -279,24 +277,63 @@ export default defineComponent({
 
             this.setHomePage(homePage)
         },
-        async setCompleteUrl() {
+        async resolveHomeTarget() {
+            this.completeUrl = ''
+            this.iframeLoaded = false
+            this.stopGlobalLoading()
+
+            if (this.homePage?.loading) return
+
+            const homeButtonUrl = this.user?.configuration?.['home.button.url']
+            if (homeButtonUrl) {
+                this.startGlobalLoading()
+                location.replace(homeButtonUrl)
+                return
+            }
+
             if (this.homePage?.type === 'dynamic') {
                 await this.buildDynamicSrcdoc()
                 return
             }
+
             this.unbindDynamicHomeFrameInteractions()
             this.dynamicSrcdoc = ''
             this.dynamicMenuNodes = []
-            if (this.homePage?.url || this.homePage?.to) {
-                this.completeUrl = this.homePage.url
-                if (this.homePage.to) {
-                    const to = normalizeMenuRoute(this.homePage.to)
-                    // @ts-ignore
-                    if (this.isFunctionality(to) || this.isADocument(to) || this.isHTML(to)) this.$router.push(to)
-                    else this.completeUrl = import.meta.env.VITE_HOST_URL + this.homePage.to.replaceAll('\\/', '/')
+
+            if (!this.hasConfiguredHomeTarget) return
+
+            this.startGlobalLoading()
+
+            if (this.homePage?.to) {
+                const router = (this as any).$router
+                const to = normalizeMenuRoute(this.homePage.to)
+                // @ts-ignore
+                if (this.isFunctionality(to) || this.isADocument(to) || this.isHTML(to)) {
+                    await router.replace(to)
+                    this.stopGlobalLoading()
+                    return
                 }
-            } else {
-                this.completeUrl = false
+
+                this.completeUrl = import.meta.env.VITE_HOST_URL + this.homePage.to.replaceAll('\\/', '/')
+                return
+            }
+
+            this.completeUrl = this.homePage.url || ''
+        },
+        onIframeLoad() {
+            this.iframeLoaded = true
+            this.stopGlobalLoading()
+        },
+        startGlobalLoading() {
+            if (!this.isManagingGlobalLoading) {
+                this.setLoading(true)
+                this.isManagingGlobalLoading = true
+            }
+        },
+        stopGlobalLoading() {
+            if (this.isManagingGlobalLoading) {
+                this.setLoading(false)
+                this.isManagingGlobalLoading = false
             }
         },
         async buildDynamicSrcdoc() {
@@ -308,7 +345,7 @@ export default defineComponent({
             }
 
             this.unbindDynamicHomeFrameInteractions()
-            const roleSegment = this.homePage.roleId ?? 'default'
+            const roleSegment = this.homePage.roleName ?? 'default'
             const [endUserRes, previewRes] = await Promise.all([
                 axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/3.0/menu/enduser?locale=' + encodeURIComponent(this.resolveMenuLocale())),
                 axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/menu/preview/' + roleSegment)
@@ -345,13 +382,29 @@ export default defineComponent({
             homePage: 'homePage',
             user: 'user',
             locale: 'locale'
-        })
+        }),
+        hasConfiguredHomeTarget(): boolean {
+            return !!(this.homePage?.url || this.homePage?.to)
+        },
+        showDefaultHome(): boolean {
+            return this.homePage?.loading === false && this.homePage?.type !== 'dynamic' && !this.hasConfiguredHomeTarget && !this.user?.configuration?.['home.button.url']
+        },
+        showIframe(): boolean {
+            return this.homePage?.loading === false && !!this.completeUrl
+        }
     },
     watch: {
-        'homePage.loading'(newLoading, oldLoading) {
-            if (oldLoading === true && newLoading === false) {
-                this.setCompleteUrl()
-            }
+        homePage: {
+            async handler() {
+                await this.resolveHomeTarget()
+            },
+            deep: true
+        },
+        user: {
+            async handler() {
+                await this.resolveHomeTarget()
+            },
+            deep: true
         }
     }
 })

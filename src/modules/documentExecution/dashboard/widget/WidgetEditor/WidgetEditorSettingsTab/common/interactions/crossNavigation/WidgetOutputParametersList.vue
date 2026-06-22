@@ -1,5 +1,4 @@
 <template>
-    {{ parameters }}
     <div v-for="(parameter, index) in parameters" :key="index" class="param-row row no-wrap q-mb-sm">
         <!-- Handle: enable toggle -->
         <div class="kn-action-handle row items-center justify-center" :class="disabled ? 'kn-action-handle-disabled' : ''" style="width: 22px">
@@ -55,13 +54,17 @@
                     </div>
                 </template>
 
-                <!-- Selection: dataset + column, side by side -->
+                <!-- Selection: dataset + column + propagate toggle -->
                 <template v-else-if="parameter.type === 'selection'">
                     <div class="col-3">
                         <q-select v-model="parameter.dataset" :options="selectedDatasetNames" :label="$t('common.dataset')" outlined dense :disable="!parameter.enabled || disabled" @update:model-value="onDatasetChanged(parameter)" />
                     </div>
                     <div class="col-3">
                         <q-select v-model="parameter.column" :options="getSelectionDatasetColumnOptions(parameter)" :label="$t('common.column')" outlined dense :disable="!parameter.enabled || disabled" @update:model-value="parametersChanged" />
+                    </div>
+                    <div class="col-auto row items-center q-gutter-x-sm">
+                        <q-checkbox v-model="parameter.propagateAsSelection" size="sm" :disable="!parameter.enabled || disabled" dense @update:model-value="parametersChanged" />
+                        <span class="text-caption">{{ $t('dashboard.widgetEditor.interactions.propagateSelections') }}</span>
                     </div>
                 </template>
             </div>
@@ -145,15 +148,18 @@ export default defineComponent({
                     parameter.value = ''
                     delete parameter.column
                     delete parameter.dataset
+                    delete parameter.propagateAsSelection
                     break
                 case 'dynamic':
                     parameter.value = 'Static'
                     parameter.column = ''
                     delete parameter.dataset
+                    delete parameter.propagateAsSelection
                     break
                 case 'selection':
                     parameter.value = 'Static'
                     parameter.column = ''
+                    parameter.propagateAsSelection = false
                     break
             }
             this.parametersChanged()

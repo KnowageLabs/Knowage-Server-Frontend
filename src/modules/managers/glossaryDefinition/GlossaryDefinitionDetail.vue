@@ -30,19 +30,7 @@
                     <div class="p-field p-d-flex p-ai-center">
                         <div id="glossary-select-container" class="p-d-flex p-flex-column p-mr-2">
                             <label for="glossary" class="kn-material-input-label">{{ $t('managers.glossary.glossaryDefinition.title') }}</label>
-                            <Dropdown
-                                id="glossary"
-                                v-model="selectedGlossaryId"
-                                class="kn-material-input"
-                                :options="glossaries"
-                                option-label="GLOSSARY_NM"
-                                option-value="GLOSSARY_ID"
-                                :editable="selectedGlossary"
-                                :placeholder="$t('managers.glossary.glossaryDefinition.glossary')"
-                                @change="loadGlossaryInfo($event.value, null)"
-                                @input="updateGlossaryName($event.target.value)"
-                                @blur="handleSaveGlossary"
-                            />
+                            <Dropdown id="glossary" v-model="selectedGlossaryId" class="kn-material-input" :options="glossaries" option-label="GLOSSARY_NM" option-value="GLOSSARY_ID" :editable="selectedGlossary" :placeholder="$t('managers.glossary.glossaryDefinition.glossary')" @change="loadGlossaryInfo($event.value, null)" @input="updateGlossaryName($event.target.value)" @blur="handleSaveGlossary" />
                             <small id="glossary-help">{{ $t('managers.glossary.glossaryDefinition.glossaryHint') }}</small>
                         </div>
                         <div v-if="selectedGlossary" id="code-container">
@@ -71,11 +59,11 @@
                     <div class="p-d-flex p-flex-row p-m-3">
                         <InputText id="search-input" v-model="searchWord" class="kn-material-input" :placeholder="$t('common.search')" data-test="search-input" @input="filterGlossaryTree" />
                     </div>
-                    <Tree id="glossary-tree" :value="nodes" :expanded-keys="expandedKeys" @nodeExpand="listContents(selectedGlossary.GLOSSARY_ID, $event)">
+                    <Tree id="glossary-tree" :value="nodes" :expanded-keys="expandedKeys" @nodeExpand="listContents(selectedGlossary.GLOSSARY_ID, $event)" @dragover.prevent>
                         <template #default="slotProps">
                             <div
-                                class="p-d-flex p-flex-row p-ai-center"
-                                :class="{ dropzone: dropzoneActive[slotProps.node.key] }"
+                                class="p-d-flex p-flex-row p-ai-center node-content"
+                                :class="{ dropzone: dropzoneActive[slotProps.node.key], 'possible-dropzone': dragging && isValidDropTarget(slotProps.node) }"
                                 @mouseover="buttonVisible[slotProps.node.key] = true"
                                 @mouseleave="buttonVisible[slotProps.node.key] = false"
                                 @drop="saveWordConfirm($event, slotProps.node)"
@@ -85,13 +73,7 @@
                             >
                                 <span class="node-label p-mr-2">{{ slotProps.node.label }}</span>
                                 <div v-show="buttonVisible[slotProps.node.key]">
-                                    <Button
-                                        v-if="!slotProps.node.data.HAVE_WORD_CHILD && slotProps.node.data.CONTENT_NM"
-                                        v-tooltip.top="$t('managers.glossary.glossaryDefinition.addNode')"
-                                        icon="pi pi-bars"
-                                        class="p-button-link p-button-sm p-p-0"
-                                        @click.stop="showNodeDialog(slotProps.node, 'new')"
-                                    />
+                                    <Button v-if="!slotProps.node.data.HAVE_WORD_CHILD && slotProps.node.data.CONTENT_NM" v-tooltip.top="$t('managers.glossary.glossaryDefinition.addNode')" icon="pi pi-bars" class="p-button-link p-button-sm p-p-0" @click.stop="showNodeDialog(slotProps.node, 'new')" />
                                     <Button v-if="!slotProps.node.data.HAVE_CONTENTS_CHILD && slotProps.node.data.CONTENT_NM" v-tooltip.top="$t('managers.glossary.glossaryDefinition.addWord')" icon="pi pi-book" class="p-button-link p-button-sm p-p-0" @click.stop="addWord(slotProps.node)" />
                                     <Button v-if="slotProps.node.data.CONTENT_NM" v-tooltip.top="$t('common.edit')" icon="pi pi-pencil" class="p-button-link p-button-sm p-p-0" @click.stop="showNodeDialog(slotProps.node, 'edit')" />
                                     <Button v-tooltip.top="$t('managers.glossary.glossaryDefinition.showInfo')" icon="pi pi-info-circle" class="p-button-link p-button-sm p-p-0" @click.stop="$emit('infoClicked', slotProps.node.data)" />
@@ -133,7 +115,7 @@ export default defineComponent({
         Message,
         Tree
     },
-    props: { reloadTree: { type: Boolean } },
+    props: { reloadTree: { type: Boolean }, dragging: { type: Boolean, default: false } },
     emits: ['addWord', 'infoClicked'],
     setup() {
         const store = mainStore()
@@ -583,6 +565,9 @@ export default defineComponent({
             if (node.data.CONTENT_ID && !node.data.HAVE_CONTENTS_CHILD) {
                 this.dropzoneActive[node.key] = value
             }
+        },
+        isValidDropTarget(node: any): boolean {
+            return !!node.data.CONTENT_ID && !node.data.HAVE_CONTENTS_CHILD
         }
     }
 })
@@ -612,9 +597,15 @@ export default defineComponent({
 .dropzone {
     background-color: #c2c2c2;
     color: white;
-    width: 200px;
-    height: 30px;
     border: 1px dashed;
+    border-radius: 4px;
+}
+
+.possible-dropzone {
+    border: 1px dashed #aaa;
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.04);
+    padding: 2px 6px;
 }
 
 .node-label {
@@ -624,5 +615,13 @@ export default defineComponent({
     &:hover:enabled {
         color: white !important;
     }
+}
+
+:deep(.p-treenode-label) {
+    flex: 1;
+}
+
+.node-content {
+    width: 100%;
 }
 </style>

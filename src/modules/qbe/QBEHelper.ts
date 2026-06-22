@@ -1,12 +1,14 @@
 import { localeDate } from '@/helpers/commons/localeHelper'
+import { normalizeCalculatedFieldForAPI } from '@/helpers/commons/buildQbeCalculatedField'
+import { getInvalidQbeAggregationNamesFromFormula } from '@/components/UI/KnBlockly/validation/qbeFunctionSemantics'
 import { iFilter } from './QBE'
 import moment from 'moment'
 import deepcopy from 'deepcopy'
 
 export const getFormattedQBECatalogueForAPI = (qbeCatalogue: any, filters: iFilter[] | undefined) => {
-    if (!filters) return qbeCatalogue
-
     const tempCatalogue = deepcopy(qbeCatalogue)
+    normalizeCalculatedFields(tempCatalogue)
+    if (!filters) return tempCatalogue
 
     const filtersCopy = filters.map((filter) => ({ ...filter }))
 
@@ -17,6 +19,39 @@ export const getFormattedQBECatalogueForAPI = (qbeCatalogue: any, filters: iFilt
     })
 
     return tempCatalogue
+}
+
+export const getInvalidCalculatedFieldAggregation = (qbeCatalogue: any[] | undefined) => {
+    if (!Array.isArray(qbeCatalogue)) return null
+
+    for (const catalogue of qbeCatalogue) {
+        if (!Array.isArray(catalogue?.fields)) continue
+
+        for (const field of catalogue.fields) {
+            if (field?.type !== 'inline.calculated.field') continue
+
+            const sourceExpression = field.formulaEditor ?? field.id?.expressionSimple ?? field.expression ?? field.formula ?? field.id?.expression
+            const invalidAggregations = getInvalidQbeAggregationNamesFromFormula(sourceExpression)
+
+            if (invalidAggregations.length > 0) {
+                return {
+                    fieldAlias: field.alias,
+                    functionName: invalidAggregations[0]
+                }
+            }
+        }
+    }
+
+    return null
+}
+
+const normalizeCalculatedFields = (qbeCatalogue: any[]) => {
+    if (!Array.isArray(qbeCatalogue)) return
+
+    qbeCatalogue.forEach((catalogue) => {
+        if (!Array.isArray(catalogue?.fields)) return
+        catalogue.fields.forEach((field) => normalizeCalculatedFieldForAPI(field, catalogue.fields))
+    })
 }
 
 const formatManualDate = (filter: iFilter, qbeCatalogue: any) => {

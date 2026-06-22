@@ -3,18 +3,50 @@ import pinia from '@/pinia'
 import axios from '@/axios.js'
 import router from '@/App.routes'
 
-async function invalidateSession(jsps: string[] = [], redirectURI: string, query: string): Promise<void> {
+function resolveLogoutRedirectURI(redirectURI?: string): string {
+    if (!redirectURI) return ''
+
+    try {
+        const logoutUrl = new URL(redirectURI, window.location.origin)
+        const idToken = sessionStorage.getItem('idToken')
+
+        if (logoutUrl.searchParams.has('id_token_hint')) {
+            if (idToken) {
+                logoutUrl.searchParams.set('id_token_hint', idToken)
+                return logoutUrl.toString()
+            }
+
+            const oidcClientId = sessionStorage.getItem('oidcClientId')
+            if (!oidcClientId) return ''
+
+            logoutUrl.searchParams.delete('id_token_hint')
+            logoutUrl.searchParams.set('client_id', oidcClientId)
+            return logoutUrl.toString()
+        }
+
+        return logoutUrl.toString()
+    } catch (error) {
+        console.warn('Unable to resolve logout redirect URI', error)
+        return ''
+    }
+}
+
+async function invalidateSession(jsps: string[] = [], redirectURI: string, query: string, redirectPath?: string): Promise<void> {
     const jspPromises = jsps.map((p) => {
         return axios.get(p)
     })
 
     await Promise.allSettled([...jspPromises])
     if (redirectURI) window.location.href = redirectURI
-    else router.replace({ path: '/login', query: { logout: query }, hash: '' })
+    else {
+        const loginQuery: Record<string, string> = { logout: query }
+        if (redirectPath) loginQuery.redirect = redirectPath
+        router.replace({ path: '/login', query: loginQuery, hash: '' })
+    }
 }
 
 export default {
-    async logout(unauthorized, query): Promise<void> {
+    async logout(unauthorized, query, redirectPath?: string): Promise<void> {
         const store = mainStore(pinia)
         store.setLoading(true)
         const host = window.location.origin
@@ -23,7 +55,7 @@ export default {
         await axios
             .post(endpoint)
             .then((response) => {
-                invalidateSession(response.data.urlEnginesInvalidate, response.data.redirectUrl?.replace('${id_token}', sessionStorage.getItem('idToken') || ''), query)
+                invalidateSession(response.data.urlEnginesInvalidate, resolveLogoutRedirectURI(response.data.redirectUrl), query, redirectPath)
             })
             .finally(() => {
                 localStorage.clear()

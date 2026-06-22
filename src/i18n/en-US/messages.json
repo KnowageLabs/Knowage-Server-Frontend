@@ -29,7 +29,26 @@
             "limitReached": "You have reached the maximum number of messages allowed by your license.",
             "placeholder": "Type your message"
         },
+        "newChat": "New conversation",
         "newConversationConfirm": "Are you sure you want to start a new conversation? All the current conversation will be lost.",
+        "openDashboard": "Open Dashboard",
+        "selectModel": "Business Model",
+        "sessionError": "Unable to initialise the AI session. Please check the configuration and try again.",
+        "sessionLoading": "Starting session…",
+        "sessionNotReady": "The session is not ready yet. Please wait a moment.",
+        "sessionSettings": "Session settings",
+        "sidePanel": {
+            "csvEmpty": "No data in this file.",
+            "csvTruncated": "Showing first {n} rows.",
+            "noArtifacts": "No artifacts yet. Send a message to start.",
+            "python": "Python Code",
+            "sql": "SQL Query",
+            "title": "Artifacts",
+            "toggle": "Show / hide artifacts"
+        },
+        "startSession": "Start session",
+        "streamError": "An error occurred while receiving the response. Please try again.",
+        "thinking": "I am thinking...",
         "title": "Virtual Assistant",
         "voice": {
             "start": "Start voice input",
@@ -84,6 +103,7 @@
         "columns": "Columns",
         "comment": "Comment",
         "condition": "Condition",
+        "configuration": "Configuration",
         "confirmPassword": "Confirm Password",
         "continue": "Continue",
         "conversation": "Conversation",
@@ -266,6 +286,7 @@
         "max": "Max",
         "measure": "measure",
         "measures": "measures",
+        "media": "Media",
         "medium": "Medium",
         "menu": "Menu",
         "message": "Message",
@@ -336,6 +357,11 @@
         "sendByEmail": "Send by e-mail",
         "sendMail": "Send Mail",
         "sendMailSuccess": "Email Sent",
+        "session": {
+            "expired": "Your session has expired. Please log in again.",
+            "expiring": "Your session is about to expire. Click 'Stay Connected' to continue.",
+            "stayConnected": "Stay Connected"
+        },
         "set": "Set",
         "settings": "Settings",
         "share": "Share",
@@ -583,6 +609,8 @@
                 "sheetsImageHint": "Paste the image URL or base64 code here",
                 "sheetsSize": "Sheets Background Size",
                 "sheetsSizeHint": "Use px, % or CSS keywords like 'contain' or 'cover'",
+                "sheetsStyle": "Sheets Background CSS",
+                "sheetsStyleHint": "Paste the full CSS background value, for example gradients, image, repeat and position",
                 "showGrid": "Show Grid on edit"
             },
             "createVariable": "Create Variable",
@@ -598,10 +626,14 @@
                 "enableCustomHeader": "Enable custom header",
                 "enableWidgetMenu": "Enable widget menu",
                 "enableXlsxStyle": "Enable XLSX style",
+                "exportFileName": "Dashboard export file name",
+                "exportFileNameHint": "Supports placeholders like $P{driver} and $V{variable}, for example \"pippo $P{cane} $V{varia}\".",
+                "pdfExportFileName": "Dashboard PDF export file name",
                 "showExcelExport": "Show excel export functionality on widgets",
                 "showScreenshot": "Enable screenshot functionality on widgets",
                 "showSelectionButton": "Always show selection button",
-                "title": "Menu & Widgets"
+                "title": "Menu & Widgets",
+                "xlsxExportFileName": "Dashboard XLSX export file name"
             },
             "profile": "Profile",
             "themes": {
@@ -858,6 +890,7 @@
             "drillSortingColumn": "Drill sorting column",
             "drillSortingOrder": "Drill sorting order",
             "drilldown": {
+                "enable": "Enable Drilldown",
                 "title": "Drilldown"
             },
             "editor": "Editor",
@@ -1292,6 +1325,7 @@
                 "openInSamePage": "Open in the same page",
                 "outputParameter": "Output Parameter",
                 "preview": "Preview",
+                "propagateSelections": "Propagate selections to target dashboard",
                 "selection": "Selection",
                 "static": "Static",
                 "title": "Interactions"
@@ -1315,6 +1349,10 @@
                 "balloonsDesc": "Display scaled circles based on values",
                 "baseLayer": {
                     "autoCentering": "Auto centering",
+                    "cartoDark": "CARTO dark",
+                    "cartoLight": "CARTO light",
+                    "esriSatellite": "Esri satellite",
+                    "osmStandard": "OpenStreetMap standard",
                     "selectBackgroundLayer": "Select Background Layer",
                     "showScale": "Show scale",
                     "title": "Map",
@@ -1543,6 +1581,7 @@
                 "configuration": {
                     "colsExpanded": "Columns Expanded by Default",
                     "disableExpandAll": "Disable Expand All",
+                    "excludedFromSubTotals": "Excluded From Sub Totals",
                     "fieldPanel": "Field Panel",
                     "fieldPanelOptions": {
                         "disableDragging": "Disable dragging",
@@ -1812,6 +1851,13 @@
             "xAxis": "X Axis",
             "yAxis": "Y Axis"
         },
+        "widgetInteractions": {
+            "crossNavigation": "Cross Navigation",
+            "drilldown": "Drilldown",
+            "link": "Link",
+            "preview": "Preview",
+            "selection": "Selection"
+        },
         "widgets": {
             "chart": {
                 "description": "Custom chart with binding to datasources data. Pie chart, bar chart and scatter chart available.",
@@ -1894,8 +1940,8 @@
         "development": "Development",
         "documentsFound": "Documents found",
         "documentsSearch": "Search for documents",
-        "editDocument": "Edit Document",
-        "executeDocument": "Execute Document",
+        "editDocument": "Edit",
+        "executeDocument": "Execute",
         "genericDocument": "Generic document",
         "hint": "No folder is selected",
         "moveDownDocumentState": "Move Down State Document",
@@ -1903,7 +1949,7 @@
         "noDocumentsHint": "No documents to display",
         "selectedFolderSearch": "Search in selected folder",
         "title": "Document browser",
-        "wholeBrowserSearch": "Search in the whole document browser"
+        "wholeBrowserSearch": "Search for document"
     },
     "documentExecution": {
         "documentDetails": {
@@ -1942,7 +1988,10 @@
                 "detailsTitle": "Driver's details",
                 "dropdownSearchHint": "Search for Analytical Driver",
                 "noDataCond": "No data condition selected",
-                "noDriverSelected": "No Drivers Selected",
+                "noDriverSelected": "Select a Driver",
+                "noDriverSelectedHint": "Select the driver from the list on the left or click on + button to create a new one. Drivers are updated automatically without a need to save the document",
+                "noParamSelected": "Select a Parameter",
+                "noParamSelectedHint": "Select the parameter from the list on the left or click on + button to create a new one.",
                 "noVisCond": "No visibility condition selected",
                 "paramValue": " value of the parameter ",
                 "parameterUrlName": "Url Name",
@@ -1962,7 +2011,8 @@
                 "listHint": "Upload new template here",
                 "listTitle": "Template History",
                 "template": "Template",
-                "templateHint": "Content of this file type cannot be shown",
+                "templateHint": "Select a template from the list on the left or click on the upload button to create a new one. If file type is supported, you are able to view and edit it. Only one template can be active at a time.",
+                "templateTitle": "Select a Template",
                 "title": "History",
                 "uploadError": "An error occured while uploading template"
             },
@@ -1983,6 +2033,7 @@
                 "refreshHint": "Select the number of milliseconds after the document will refresh",
                 "restrictionValueHint": "Enter Value",
                 "restrictionsTitle": "Visibility Restrictions",
+                "template": "Template",
                 "uploadTemplate": "Upload template",
                 "visibilityLocationTitle": "Select the functionalities where the document will be visible"
             },
@@ -2485,6 +2536,7 @@
             "missingRoot": "Missing root block (Calculated field).",
             "multipleRoots": "Multiple root blocks: there must be only one.",
             "rootNoExpression": "Root block has no expression connected.",
+            "singleArgumentAggregation": "In QBE, {functionName} accepts only one argument. Use arithmetic operators to combine multiple fields.",
             "variableNotSelected": "A variable block has no variable selected."
         },
         "validationTitle": "Validation"
@@ -2806,6 +2858,30 @@
     },
     "managers": {
         "ai": {
+            "businessModels": {
+                "enabledToggle": "Include in AI",
+                "syncronize": "Synchronize Business Models",
+                "title": "Business Models"
+            },
+            "goldQueries": {
+                "addColumns": "Add columns",
+                "addQuery": "Add Query",
+                "addTables": "Add tables",
+                "columns": "Columns",
+                "editTitle": "Edit Gold Queries",
+                "editor": "JSON Editor",
+                "insertColumn": "Insert column reference",
+                "insertTable": "Insert table name",
+                "invalidJson": "Invalid JSON",
+                "naturalLanguage": "Natural Language",
+                "naturalLanguagePlaceholder": "e.g. What is the total revenue by shop?",
+                "newQuery": "New query…",
+                "noQueries": "No gold queries yet. Add one to get started.",
+                "queries": "queries",
+                "tables": "Tables",
+                "tablesColumns": "Tables & Columns",
+                "title": "Gold Queries – {name}"
+            },
             "hint": " AI functionalities management allows you to manage the AI functionalities of the platform. You can enable or disable them, and update the tenant definitions for the AI engine.",
             "syncronize": "Synchronize Tenant",
             "title": "AI functionalities management"
@@ -2973,9 +3049,13 @@
             "type": "Check type"
         },
         "crossNavigationManagement": {
+            "autoLink": "Link parameters with same name",
             "availableIO": "Available Input/Output parameters",
             "availableInput": "Available Input parameters",
             "breadCrumbs": "Text to show on Bread Crumbs",
+            "filterBoth": "All",
+            "filterSource": "Source",
+            "filterTarget": "Target",
             "fixed": "Fixed value",
             "fixedValue": "Fixed value parameter",
             "height": "Window height",
@@ -2996,7 +3076,15 @@
             "popUp": "Pop-up",
             "popUpWindow": "Pop-up window",
             "selectDocument": "Select document",
+            "sourceParameter": "Source parameters",
+            "step1Caption": "Select the documents to link",
+            "step1Title": "Documents",
+            "step2Caption": "Connect source document output parameters to target document input parameters",
+            "step2Title": "Parameters",
+            "step3Caption": "Set the details of the cross navigation",
+            "step3Title": "Details",
             "targetDoc": "Target doc",
+            "targetParameter": "Target parameters",
             "title": "Cross Navigation",
             "width": "Window width",
             "widthHelp": "Width in px of the popup window."
@@ -4084,6 +4172,14 @@
             },
             "fullName": "Full Name",
             "hint": "Users management allows you to define different users roles and permissions. Click on one existing item from the list on the side, or press the \"+\" button to add one.",
+            "import": {
+                "errors": "Errors",
+                "fromFile": "Import from file",
+                "importedUsers": "Imported Users",
+                "selectFile": "Select XLS or CSV file",
+                "serviceError": "It was not possible to load the users, please check the file structure or try again later",
+                "title": "Import Users from File"
+            },
             "info": {
                 "createMessage": "User created successfully",
                 "createTitle": "Create user",
@@ -4092,6 +4188,7 @@
                 "resetSuccessful": "Multifactor authentication successfully reset"
             },
             "multifactor": "This user has multifactor authentication enabled. Click the button to reset it",
+            "newUser": "New user",
             "roles": "Roles",
             "title": "Users Management",
             "unlockUser": "Unlock user",
@@ -4495,6 +4592,7 @@
             "dialogTitle": "Relations between entities",
             "title": "Join Definitions"
         },
+        "missingSavePermissions": "Missing advanced save permissions.",
         "savingDialog": {
             "persistence": "Persistence",
             "title": "Saving QBE Dataset"

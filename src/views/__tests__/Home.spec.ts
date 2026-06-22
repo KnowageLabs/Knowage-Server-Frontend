@@ -24,7 +24,7 @@ describe('Home dynamic navigation', () => {
         return {
             ...methods,
             homePage: {
-                roleId: 7,
+                roleName: 'testRole',
                 template: {
                     html: '<div><button data-kn-menu><span data-kn-label>Menu Item</span></button></div>',
                     css: '',
@@ -126,7 +126,7 @@ describe('Home dynamic navigation', () => {
 
         methods.navigateDynamicHomeElement.call(context, button)
 
-        expect(context.$router.push).toHaveBeenCalledWith({ name: 'externalUrl', params: { url: 'https://example.com' } })
+        expect(context.$router.push).toHaveBeenCalledWith({ name: 'externalUrl', query: { url: 'https://example.com' } })
     })
 
     it('intercepts clicks from nested elements inside custom placeholders', () => {
@@ -145,6 +145,27 @@ describe('Home dynamic navigation', () => {
 
         expect(preventDefault).toHaveBeenCalled()
         expect(context.$router.push).toHaveBeenCalledWith('/workspace')
+    })
+
+    it('resolves navigation elements created in the iframe document realm', () => {
+        const context = createContext()
+        const iframe = document.createElement('iframe')
+        document.body.appendChild(iframe)
+
+        const iframeDocument = iframe.contentDocument
+        expect(iframeDocument).toBeTruthy()
+
+        const button = iframeDocument!.createElement('button')
+        button.setAttribute('data-kn-menu-navigation', '/workspace')
+        button.setAttribute('data-kn-menu-navigation-type', 'to')
+        const title = iframeDocument!.createElement('h2')
+        title.className = 'category-title'
+        button.appendChild(title)
+
+        const target = methods.getDynamicHomeNavigationElement.call(context, title)
+
+        expect(target).toBe(button)
+        iframe.remove()
     })
 
     it('builds homepage document routes using the resolved document type', async () => {
@@ -183,11 +204,22 @@ describe('Home dynamic navigation', () => {
         const context = createContext({
             homePage: {
                 to: '/dashboard/Sales'
+            },
+            hasConfiguredHomeTarget: true,
+            stopGlobalLoading: vi.fn(),
+            startGlobalLoading: vi.fn(),
+            unbindDynamicHomeFrameInteractions: vi.fn(),
+            isFunctionality: vi.fn().mockReturnValue(false),
+            isADocument: vi.fn().mockReturnValue(true),
+            isHTML: vi.fn().mockReturnValue(false),
+            $router: {
+                push: vi.fn(),
+                replace: vi.fn()
             }
         })
 
-        await methods.setCompleteUrl.call(context)
+        await methods.resolveHomeTarget.call(context)
 
-        expect(context.$router.push).toHaveBeenCalledWith('/dashboard/Sales')
+        expect(context.$router.replace).toHaveBeenCalledWith('/dashboard/Sales')
     })
 })

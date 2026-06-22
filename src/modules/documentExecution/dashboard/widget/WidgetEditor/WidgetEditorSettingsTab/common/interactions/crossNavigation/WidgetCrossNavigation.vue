@@ -187,6 +187,7 @@ export default defineComponent({
                     temp.dataType = modelParameter.dataType
                     if (modelParameter.column) temp.column = modelParameter.column
                     if (modelParameter.dataset) temp.dataset = modelParameter.dataset
+                    if (modelParameter.propagateAsSelection) temp.propagateAsSelection = modelParameter.propagateAsSelection
                 }
                 this.parameterList.push(temp)
             }
@@ -224,7 +225,7 @@ export default defineComponent({
             }
         },
         onCrossNavigationEnabledChange() {
-            if (this.widget && this.crossNavigationModel?.enabled && this.widgetType !== 'table') {
+            if (this.widget && this.crossNavigationModel?.enabled && this.widgetType !== 'table' && this.widgetType !== 'highcharts') {
                 if (this.widget.settings.interactions.selection) this.widget.settings.interactions.selection.enabled = false
                 if (this.widget.settings.interactions.link) this.widget.settings.interactions.link.enabled = false
                 if (this.widget.settings.interactions.preview) this.widget.settings.interactions.preview.enabled = false
@@ -233,7 +234,7 @@ export default defineComponent({
         },
         toggleMultiselect() {
             const interactions = this.widgetModel?.settings?.interactions as IWidgetInteractions
-            if (interactions) {
+            if (interactions && this.widgetType !== 'highcharts') {
                 Object.entries(interactions).forEach(([key, interaction]) => {
                     if (key !== 'crossNavigation' && interaction?.enabled) interaction.enabled = false
                 })

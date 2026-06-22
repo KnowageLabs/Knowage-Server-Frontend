@@ -2,7 +2,7 @@ import { ISelection, IVariable, IWidget } from '../../../Dashboard'
 import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import { getColumnName, getCoordinates, LEGEND_DATA_TYPE } from '../LeafletHelper'
 import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData } from './MapDialogHelper'
-import { getChartConditionalStyle, getCoordinatesFromWktPointFeature, isConditionMet, transformDataUsingForeignKeyReturningAllColumns } from './MapVisualizationHelper'
+import { doesMapFilterMatchDatasetRow, doesMapFilterMatchLayerFeature, getChartConditionalStyle, getCoordinatesFromWktPointFeature, isConditionMet, transformDataUsingForeignKeyReturningAllColumns } from './MapVisualizationHelper'
 import L from 'leaflet'
 import ChartJS from 'chart.js/auto'
 
@@ -13,11 +13,11 @@ interface IChartValuesRecord {
 
 export type ChartValuesRecord = Record<string, IChartValuesRecord>
 
-export const addMapCharts = (data: any, model: IWidget, target: IMapWidgetLayer, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], layersData: any, targetDatasetData: any, variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
+export const addMapCharts = (data: any, model: IWidget, target: IMapWidgetLayer, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], layersData: any, targetDatasetData: any, targetDatasetInfoMap: Record<string, Record<string, any>> | null, variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
     if (data && data[target.id] && !targetDatasetData) {
         return addMapChartsUsingData(data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, variables, activeSelections, dashboardId)
     } else {
-        return addMapChartsUsingLayer(layersData, layerGroup, layerVisualizationSettings, markerBounds, model, variables, activeSelections, dashboardId, targetDatasetData)
+        return addMapChartsUsingLayer(layersData, layerGroup, layerVisualizationSettings, markerBounds, model, variables, activeSelections, dashboardId, targetDatasetData, targetDatasetInfoMap)
     }
 }
 
@@ -33,6 +33,9 @@ const addMapChartsUsingData = (data: any, model: IWidget, target: IMapWidgetLaye
             const value = row[fieldMetadata[chartMeasure]]
             chartValuesRecord[chartMeasure] = { value: value, measureName: chartMeasure }
         })
+
+        const chartFilterFallbackValue = layerVisualizationSettings.filter?.column ? chartValuesRecord[layerVisualizationSettings.filter.column]?.value ?? null : null
+        if (!doesMapFilterMatchDatasetRow(row, data[target.id], layerVisualizationSettings, chartFilterFallbackValue)) continue
 
         const customIcon = L.divIcon({
             html: `<div id='${id}'></div>`,
@@ -57,7 +60,7 @@ const getFieldMapFromMetadata = (data: any) => {
     return Object.fromEntries(data.metaData?.fields?.filter((field: any) => typeof field === 'object' && field.header && field.name).map((field: any) => [field.header, field.name]))
 }
 
-const addMapChartsUsingLayer = (layersData: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], widgetModel: IWidget, variables: IVariable[], activeSelections: ISelection[], dashboardId: string, targetDatasetData?: any) => {
+const addMapChartsUsingLayer = (layersData: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], widgetModel: IWidget, variables: IVariable[], activeSelections: ISelection[], dashboardId: string, targetDatasetData?: any, targetDatasetInfoMap?: Record<string, Record<string, any>> | null) => {
     let mappedData: Record<string, number> | null = null
     let fieldMetadata: Record<string, string> | null = null
     const charts = [] as any[]
@@ -74,10 +77,10 @@ const addMapChartsUsingLayer = (layersData: any, layerGroup: any, layerVisualiza
 
     layersData.features.forEach((feature: ILayerFeature) => {
         if (feature.geometry?.type === 'Point') {
-            addChartsUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, widgetModel, markerBounds, null, fieldMetadata, variables, charts, activeSelections, dashboardId)
+            addChartsUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, widgetModel, markerBounds, null, fieldMetadata, variables, charts, activeSelections, dashboardId, targetDatasetData, targetDatasetInfoMap ?? null)
         } else if (feature.geometry?.type === 'MultiPoint') {
             feature.geometry.coordinates?.forEach((coord: any) => {
-                addChartsUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, widgetModel, markerBounds, coord, fieldMetadata, variables, charts, activeSelections, dashboardId)
+                addChartsUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, widgetModel, markerBounds, coord, fieldMetadata, variables, charts, activeSelections, dashboardId, targetDatasetData, targetDatasetInfoMap ?? null)
             })
         }
     })
@@ -85,7 +88,7 @@ const addMapChartsUsingLayer = (layersData: any, layerGroup: any, layerVisualiza
     return { charts: charts, type: LEGEND_DATA_TYPE.CHARTS }
 }
 
-const addChartsUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, widgetModel: IWidget, markerBounds: any[], coord: any[] | null, fieldMetadata: Record<string, string> | null, variables: IVariable[], charts: any[], activeSelections: ISelection[], dashboardId: string) => {
+const addChartsUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, widgetModel: IWidget, markerBounds: any[], coord: any[] | null, fieldMetadata: Record<string, string> | null, variables: IVariable[], charts: any[], activeSelections: ISelection[], dashboardId: string, targetDatasetData?: any, targetDatasetInfoMap?: Record<string, Record<string, any>> | null) => {
     const chartValuesRecord = {} as ChartValuesRecord
 
     let foreignKeyValue = null as string | null
@@ -106,6 +109,9 @@ const addChartsUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSet
         })
     }
 
+    const chartFilterFallbackValue = layerVisualizationSettings.filter?.column ? chartValuesRecord[layerVisualizationSettings.filter.column]?.value ?? null : null
+    if (!doesMapFilterMatchLayerFeature(feature, layerVisualizationSettings, mappedData, targetDatasetData, chartFilterFallbackValue, targetDatasetInfoMap ?? null)) return
+
     const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
     if (!coordinates) return
 
@@ -122,8 +128,8 @@ const addChartsUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSet
     const chart = createChart(chartValuesRecord, layerVisualizationSettings, marker._icon, variables, widgetModel)
     charts.push(chart)
 
-    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, chartValuesRecord, marker, activeSelections, dashboardId, variables, foreignKeyValue)
-    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, chartValuesRecord, marker, activeSelections, dashboardId, variables, foreignKeyValue)
+    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, chartValuesRecord, marker, activeSelections, dashboardId, variables, foreignKeyValue, targetDatasetData, mappedData, targetDatasetInfoMap ?? null)
+    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, chartValuesRecord, marker, activeSelections, dashboardId, variables, foreignKeyValue, targetDatasetData, mappedData, targetDatasetInfoMap ?? null)
 
     markerBounds.push(marker.getLatLng())
 }
@@ -203,7 +209,11 @@ const createChart = (chartValuesRecord: ChartValuesRecord, layerVisualizationSet
 const formatChartColorsAndData = (data: { category: string; value: number | string }[], layerVisualizationSettings: IMapWidgetVisualizationType, variables: IVariable[], widgetModel: IWidget) => {
     const defaultColors = ['red', 'blue', 'green']
     const chartData = data.map((item: { category: string; value: number | string }) => ({ category: item.category, value: item.value })) as { category: string; value: number }[]
-    const chartColors = (layerVisualizationSettings.pieConf?.colors ?? defaultColors).slice(0, chartData.length).concat(Array.from({ length: Math.max(0, chartData.length - defaultColors.length) }, (_, i) => defaultColors[i % defaultColors.length]))
+    const configuredColors = layerVisualizationSettings.pieConf?.colors?.filter((color: string) => !!color) ?? []
+    const baseColors = configuredColors.length > 0 ? configuredColors : defaultColors
+    const chartColors = baseColors
+        .slice(0, chartData.length)
+        .concat(Array.from({ length: Math.max(0, chartData.length - baseColors.length) }, (_, i) => defaultColors[i % defaultColors.length]))
     const chartDomains = chartData.map((item: { category: string; value: number | string }) => item.category)
 
     chartData?.forEach((data: { category: string; value: number }, index: number) => {

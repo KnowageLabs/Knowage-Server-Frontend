@@ -89,10 +89,13 @@ export interface IMapWidgetConfiguration {
     exports: IWidgetExports
 }
 
+export type IMapWidgetBaseLayerType = 'osmStandard' | 'cartoLight' | 'cartoDark' | 'esriSatellite'
+
 export interface IMapWidgetMapSettings {
     zoom: number | null
     showScale: boolean
     autoCentering: boolean
+    baseLayer?: IMapWidgetBaseLayerType
 }
 
 export interface IMapWidgetControlPanel {
@@ -263,12 +266,20 @@ export interface IMapTooltipSettings {
     visualizations: IMapTooltipSettingsVisualizations[]
 }
 
+export interface IMapInfoColumnSettings {
+    name: string
+    alias: string
+    prefix: string
+    suffix: string
+    precision: number | null
+}
+
 export interface IMapTooltipSettingsVisualizations {
     label: string
     prefix: string
     suffix: string
     precision: number
-    columns: any[]
+    columns: IMapInfoColumnSettings[]
 }
 
 export interface IMapWidgetStyle {
@@ -321,6 +332,7 @@ export interface IMapWidgetLayer {
 export interface IMapWidgetLayerFilter {
     enabled?: boolean
     column?: string | null
+    columns?: IMapNormalisedInteractionColumn[]
     operator?: string
     value?: string
     reloaded?: false
@@ -355,6 +367,8 @@ export interface IWidgetMapLayerColumn {
     aggregationSelected?: string
     deleted?: boolean
     formula?: string
+    formulaEditor?: string
+    blocklyXml?: any
     isCalculatedField?: boolean
 }
 
