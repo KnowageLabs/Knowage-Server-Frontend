@@ -200,5 +200,6 @@ export default defineComponent({
     margin: 0 auto;
     width: 100%;
     padding: 16px;
+    height: 100%;
 }
 </style>

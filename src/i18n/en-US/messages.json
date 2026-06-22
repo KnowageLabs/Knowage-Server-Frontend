@@ -625,14 +625,14 @@
                 "enableCustomHeader": "Enable custom header",
                 "enableWidgetMenu": "Enable widget menu",
                 "enableXlsxStyle": "Enable XLSX style",
+                "exportFileName": "Dashboard export file name",
+                "exportFileNameHint": "Supports placeholders like $P{driver} and $V{variable}, for example \"pippo $P{cane} $V{varia}\".",
+                "pdfExportFileName": "Dashboard PDF export file name",
                 "showExcelExport": "Show excel export functionality on widgets",
                 "showScreenshot": "Enable screenshot functionality on widgets",
                 "showSelectionButton": "Always show selection button",
                 "title": "Menu & Widgets",
-                "pdfExportFileName": "Dashboard PDF export file name",
-                "xlsxExportFileName": "Dashboard XLSX export file name",
-                "exportFileNameHint": "Supports placeholders like $P{driver} and $V{variable}, for example \"pippo $P{cane} $V{varia}\".",
-                "exportFileName": "Dashboard export file name"
+                "xlsxExportFileName": "Dashboard XLSX export file name"
             },
             "profile": "Profile",
             "themes": {
@@ -1307,7 +1307,6 @@
                 "enableClickOnSingleColumn": "Enable click on a single column",
                 "enableClickOnWholeRow": "Enable click on whole row",
                 "enableMultiselection": "Enable Multiselection",
-                "propagateSelections": "Propagate selections to target dashboard",
                 "iframeInteractionHint": {
                     "partOne": "Write the JSON message in the following editor. By clicking over the widget it will be propagated to a container window.",
                     "partTwo": "You can use $P{parameterPlaceholder}, $V{variablePlaceholder} and {value} placeholder to retrieve dynamic data."
@@ -1321,6 +1320,7 @@
                 "openInSamePage": "Open in the same page",
                 "outputParameter": "Output Parameter",
                 "preview": "Preview",
+                "propagateSelections": "Propagate selections to target dashboard",
                 "selection": "Selection",
                 "static": "Static",
                 "title": "Interactions"
@@ -1940,7 +1940,7 @@
         "noDocumentsHint": "No documents to display",
         "selectedFolderSearch": "Search in selected folder",
         "title": "Document browser",
-        "wholeBrowserSearch": "Search in the whole document browser"
+        "wholeBrowserSearch": "Search for document"
     },
     "documentExecution": {
         "documentDetails": {
@@ -4414,7 +4414,6 @@
         "warnings": "warnings"
     },
     "qbe": {
-        "missingSavePermissions": "Missing advanced save permissions.",
         "advancedFilters": {
             "advancedFilterVisualisation": "Advanced filter visualization",
             "group": "Group",
@@ -4533,6 +4532,7 @@
             "dialogTitle": "Relations between entities",
             "title": "Join Definitions"
         },
+        "missingSavePermissions": "Missing advanced save permissions.",
         "savingDialog": {
             "persistence": "Persistence",
             "title": "Saving QBE Dataset"

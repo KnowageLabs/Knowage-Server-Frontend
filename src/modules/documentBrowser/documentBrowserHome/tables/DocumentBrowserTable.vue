@@ -2,9 +2,12 @@
     <div class="kn-flex" style="overflow: hidden">
         <q-table class="kn-table" flat dense virtual-scroll :virtual-scroll-sticky-size-start="28" :rows-per-page-options="[0]" :filter="filter" :visible-columns="visibleColumns" :rows="documents" :columns="documentBrowserTableDescriptor.quasarColumns as any" row-key="id" :style="{ 'max-height': tableHeight }" @row-click="(e, row) => $emit('selected', row)">
             <template #top>
-                <q-input v-model="filter" outlined dense hide-bottom-space clearable :label="$t('documentBrowser.selectedFolderSearch')" class="full-width">
-                    <template #prepend><q-icon name="search" size="xs" /></template>
-                </q-input>
+                <div class="column full-width">
+                    <q-input v-model="filter" borderless dense hide-bottom-space clearable :placeholder="$t('documentBrowser.selectedFolderSearch')" class="full-width q-px-sm">
+                        <template #prepend><q-icon name="search" size="xs" /></template>
+                    </q-input>
+                    <q-separator></q-separator>
+                </div>
             </template>
             <template #no-data>
                 <div class="full-width row flex-center text-primary q-pa-md q-gutter-sm">
@@ -157,6 +160,9 @@ export default defineComponent({
         z-index: 1;
         background-color: #ffffff;
         top: 0;
+    }
+    :deep(.q-table__top) {
+        padding: 0;
     }
 
     /* prevent scrolling behind sticky top row on focus */

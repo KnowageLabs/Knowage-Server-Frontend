@@ -133,7 +133,7 @@
                                 <div v-if="isDataSourceVisible" class="col-6">
                                     <q-select outlined dense emit-value map-options v-model="document.dataSourceLabel" :options="availableDatasources" option-label="label" option-value="label" :label="$t('managers.businessModelManager.dataSource')" />
                                 </div>
-                                <div class="col-6">
+                                <div v-if="isDataSetVisible" class="col-6">
                                     <q-input outlined dense readonly :model-value="dataset.name" :label="$t('common.dataset')" @click="showDatasetDialog = true">
                                         <template #append>
                                             <q-btn flat round dense icon="search" size="sm" @click="showDatasetDialog = true" />

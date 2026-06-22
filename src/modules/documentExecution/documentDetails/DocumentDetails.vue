@@ -477,6 +477,9 @@ export default defineComponent({
 
 .dd-tab-detail-scroll {
     background-color: #f3f3f3;
+    .q-scrollarea__content {
+        height: 100%;
+    }
 }
 
 .dd-list-header {

@@ -4,16 +4,18 @@
         <q-header bordered>
             <q-toolbar class="kn-toolbar kn-toolbar--primary">
                 <q-btn flat round dense :icon="drawerOpen ? 'menu_open' : 'menu'" class="q-mr-sm" @click="drawerOpen = !drawerOpen" />
-                <q-separator class="q-mr-sm" vertical inset color="white"></q-separator>
+                <q-separator class="q-mr-sm" vertical color="grey-7"></q-separator>
                 <DocumentBrowserBreadcrumb v-if="breadcrumbs.length" :breadcrumbs="breadcrumbs" @breadcrumbClicked="setSelectedBreadcrumb" />
                 <span v-else class="text-subtitle1 text-weight-medium">{{ $t('documentBrowser.title') }}</span>
                 <q-space />
-                <q-input v-model="searchWord" dense dark standout clearable :placeholder="$t('documentBrowser.wholeBrowserSearch')" class="q-mr-md doc-search-input" @keydown.enter.prevent="loadSearchDocuments" @update:model-value="onSearchInput">
+                <q-separator vertical color="grey-7"></q-separator>
+                <q-input v-model="searchWord" dense dark clearable borderless :placeholder="$t('documentBrowser.wholeBrowserSearch')" class="q-mx-sm doc-search-input" @keydown.enter.prevent="loadSearchDocuments" @update:model-value="onSearchInput">
                     <template #prepend>
                         <q-icon name="search" size="xs" />
                     </template>
                 </q-input>
-                <q-btn-dropdown v-if="(isSuperAdmin || canAddNewDocument) && selectedFolder && selectedFolder.parentId && selectedFolder.codType !== 'USER_FUNCT'" unelevated color="accent" size="sm" dropdown-icon="add">
+                <q-separator vertical color="grey-7"></q-separator>
+                <q-btn-dropdown v-if="(isSuperAdmin || canAddNewDocument) && selectedFolder && selectedFolder.parentId && selectedFolder.codType !== 'USER_FUNCT'" class="q-ml-md" :label="$t('common.create')" unelevated color="accent" size="sm" dropdown-icon="add">
                     <q-list dense style="min-width: 200px">
                         <q-item v-for="item in items" :key="item.label" v-close-popup clickable @click="item.command">
                             <q-item-section>
@@ -27,22 +29,26 @@
                 </q-btn-dropdown>
             </q-toolbar>
             <q-linear-progress v-if="loading" indeterminate color="primary" class="kn-progress-bar" data-test="progress-bar" />
-            <q-banner v-if="isSearching" class="bg-blue-1 text-blue-9 q-px-md" dense>
+            <!-- <q-banner v-if="isSearching" class="bg-blue-1 text-blue-9" dense>
                 <template #avatar><q-icon name="search" color="blue-6" /></template>
                 {{ searchedDocuments.length }} {{ $t('documentBrowser.documentsFound') }}
                 <template #action>
                     <q-btn flat dense :label="$t('common.clear')" size="sm" @click="onSearchClear" />
                 </template>
-            </q-banner>
+            </q-banner> -->
         </q-header>
 
         <q-drawer v-model="drawerOpen" side="left" :width="300" :breakpoint="0" show-if-above bordered class="column no-wrap">
             <DocumentBrowserTree :prop-folders="folders" :selected-breadcrumb="selectedBreadcrumb" :selected-folder-prop="selectedFolder" @folderSelected="setSelectedFolder" />
         </q-drawer>
 
-        <q-drawer v-model="sidebarOpen" overlay elevated side="right" :width="300" :breakpoint="0" bordered class="column no-wrap">
+        <q-drawer v-model="sidebarOpen" overlay side="right" :width="320" :breakpoint="0" bordered class="column no-wrap doc-sidebar-drawer">
             <DocumentBrowserSidebar v-if="selectedDocument" :selected-document="selectedDocument" data-test="document-browser-sidebar" @documentCloneClick="cloneDocument" @documentDeleteClick="deleteDocument" @itemSelected="$emit('itemSelected', $event)" @documentChangeStateClicked="changeDocumentState" @showDocumentDetails="openDocumentDetails" @closePanel="closeSidebar" />
         </q-drawer>
+
+        <Transition name="doc-backdrop">
+            <div v-if="sidebarOpen" class="doc-sidebar-backdrop" @click="closeSidebar" />
+        </Transition>
 
         <q-page-container>
             <q-page class="row">
@@ -310,5 +316,30 @@ export default defineComponent({
 <style lang="scss" scoped>
 .doc-search-input {
     width: 240px;
+}
+
+.doc-sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 2000;
+    pointer-events: all;
+}
+
+.doc-backdrop-enter-active,
+.doc-backdrop-leave-active {
+    transition: opacity 0.25s ease;
+}
+.doc-backdrop-enter-from,
+.doc-backdrop-leave-to {
+    opacity: 0;
+}
+
+:deep(.doc-sidebar-drawer) {
+    z-index: 2001 !important;
+}
+
+:deep(.q-scrollarea__content) {
+    height: 100%;
 }
 </style>

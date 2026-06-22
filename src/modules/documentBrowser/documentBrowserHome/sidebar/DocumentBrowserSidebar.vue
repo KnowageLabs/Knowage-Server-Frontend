@@ -1,12 +1,12 @@
 <template>
     <q-card flat class="doc-sidebar-card column no-wrap full-height">
-        <!-- Sticky header: name + close -->
-        <div class="doc-sidebar-sticky-header row items-center no-wrap q-px-md q-py-sm">
-            <div class="col text-h6 text-weight-bold" style="line-height: 1.3">{{ document?.name }}</div>
-            <q-btn flat round dense icon="close" size="sm" class="q-ml-xs" @click="$emit('closePanel')" />
-        </div>
+        <!-- Sticky header: name + close + image + actions -->
+        <div class="doc-sidebar-sticky-header column no-wrap">
+            <div class="row items-center no-wrap q-px-md q-py-sm">
+                <div class="col text-h6 text-weight-bold" style="line-height: 1.3">{{ document?.name }}</div>
+                <q-btn flat round dense icon="close" size="sm" class="q-ml-xs" @click="$emit('closePanel')" />
+            </div>
 
-        <q-scroll-area class="col">
             <!-- Preview image -->
             <div v-if="selectedDocument?.previewFile && previewImage" class="doc-sidebar-preview">
                 <img :src="previewImage" class="doc-sidebar-img" />
@@ -45,7 +45,9 @@
             </div>
 
             <q-separator />
+        </div>
 
+        <q-scroll-area class="col">
             <!-- Details -->
             <div class="q-pa-md">
                 <div class="doc-section-title q-mb-md">{{ $t('common.details').toUpperCase() }}</div>

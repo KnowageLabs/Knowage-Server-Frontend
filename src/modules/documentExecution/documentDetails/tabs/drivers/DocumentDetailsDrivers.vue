@@ -349,6 +349,7 @@ export default defineComponent({
     margin: 0 auto;
     width: 100%;
     padding: 16px;
+    height: 100%;
 
     @media (max-width: 860px) {
         grid-template-columns: 1fr;

@@ -1,7 +1,7 @@
 <template>
     <div class="column no-wrap full-height">
-        <div class="q-pa-sm">
-            <q-input v-model="treeFilter" outlined dense clearable :placeholder="$t('common.search')">
+        <div class="q-px-sm">
+            <q-input v-model="treeFilter" dense borderless clearable :placeholder="$t('common.search')">
                 <template #prepend>
                     <q-icon name="search" size="xs" />
                 </template>
