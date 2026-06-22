@@ -175,7 +175,8 @@
                                 </div>
                                 <ul class="summary-list p-mt-0">
                                     <li v-for="(doc, index) in importData.summary.toCreateObjects.documents" :key="'new-doc-' + index" class="p-p-2">
-                                        {{ doc }}
+                                        <div class="summary-item-detail"><b>{{ $t('common.label') }}:</b> {{ getDocumentSummaryLabel(doc, 'new', index) }}</div>
+                                        <div class="summary-item-detail"><b>{{ $t('common.name') }}:</b> {{ getDocumentSummaryName(doc, 'new', index) }}</div>
                                     </li>
                                 </ul>
                             </div>
@@ -187,7 +188,8 @@
                                 </div>
                                 <ul class="summary-list p-mt-0">
                                     <li v-for="(doc, index) in importData.summary.existingObjects.documents" :key="'exist-doc-' + index" class="p-p-2">
-                                        {{ doc }}
+                                        <div class="summary-item-detail"><b>{{ $t('common.label') }}:</b> {{ getDocumentSummaryLabel(doc, 'existing', index) }}</div>
+                                        <div class="summary-item-detail"><b>{{ $t('common.name') }}:</b> {{ getDocumentSummaryName(doc, 'existing', index) }}</div>
                                     </li>
                                 </ul>
                             </div>
@@ -299,7 +301,8 @@
                                 </div>
                                 <ul class="summary-list p-mt-0">
                                     <li v-for="(func, index) in importData.summary.toCreateObjects.functionalities" :key="'new-func-' + index" class="p-p-2">
-                                        {{ func }}
+                                        <div v-if="getFunctionalitySummaryName(func, 'new', index)" class="summary-item-detail"><b>{{ $t('common.name') }}:</b> {{ getFunctionalitySummaryName(func, 'new', index) }}</div>
+                                        <div class="summary-item-detail"><b>{{ $t('common.path') }}:</b> {{ getFunctionalitySummaryPath(func, 'new', index) }}</div>
                                     </li>
                                 </ul>
                             </div>
@@ -311,7 +314,8 @@
                                 </div>
                                 <ul class="summary-list p-mt-0">
                                     <li v-for="(func, index) in importData.summary.existingObjects.functionalities" :key="'exist-func-' + index" class="p-p-2">
-                                        {{ func }}
+                                        <div v-if="getFunctionalitySummaryName(func, 'existing', index)" class="summary-item-detail"><b>{{ $t('common.name') }}:</b> {{ getFunctionalitySummaryName(func, 'existing', index) }}</div>
+                                        <div class="summary-item-detail"><b>{{ $t('common.path') }}:</b> {{ getFunctionalitySummaryPath(func, 'existing', index) }}</div>
                                     </li>
                                 </ul>
                             </div>
@@ -361,6 +365,16 @@
             </template>
         </q-stepper>
     </Dialog>
+    <Dialog :visible="warningDialogVisible" :modal="true" class="p-fluid kn-dialog--toolbar--primary import-docs-warning-dialog" :header="$t('common.warning')" :closable="false">
+        <div class="warning-dialog-content">
+            <Message v-for="(warning, index) in warningMessages" :key="'import-warning-' + index" class="p-mb-2" severity="warn" :closable="false">
+                {{ warning }}
+            </Message>
+        </div>
+        <template #footer>
+            <Button class="kn-button kn-button--primary" :label="$t('common.ok')" @click="confirmWarnings" />
+        </template>
+    </Dialog>
 </template>
 
 <script lang="ts">
@@ -370,10 +384,11 @@ import mainStore from '../../../../App.store'
 import Dialog from 'primevue/dialog'
 import { AxiosResponse } from 'axios'
 import Dropdown from 'primevue/dropdown'
+import Message from 'primevue/message'
 
 export default defineComponent({
     name: 'import-dialog',
-    components: { FileUpload, Dialog, Dropdown },
+    components: { FileUpload, Dialog, Dropdown, Message },
     props: {},
     emits: ['close', 'import'],
     setup() {
@@ -390,7 +405,9 @@ export default defineComponent({
             importData: {} as any,
             // server side import errors (returned in upload response)
             // example: { service: "", errors: [{ message: "..." }] }
-            importErrors: [] as any[]
+            importErrors: [] as any[],
+            warningDialogVisible: false,
+            warningMessages: [] as string[]
         }
     },
     computed: {
@@ -434,6 +451,12 @@ export default defineComponent({
     methods: {
         closeDialog() {
             this.$emit('close')
+        },
+        confirmWarnings() {
+            this.warningDialogVisible = false
+            this.warningMessages = []
+            this.store.setInfo({ title: this.$t('managers.importExportDocs.importComplete'), msg: `${this.importData.logFileName}` })
+            this.closeDialog()
         },
         emitImport(): void {
             this.$emit('import', { files: this.uploadedFiles })
@@ -652,10 +675,10 @@ export default defineComponent({
                         this.importData.logFileName = response.data.logFileName
                         this.importData.folderName = response.data.folderName
 
-                        if (response.data?.warnings?.length > 0) {
-                            response.data.warnings.forEach((i) => {
-                                this.store.setWarning({ title: this.$t('managers.importExportDocs.importComplete'), msg: `${this.$t(i.MESSAGE, { count: i.PARAMETERS?.length || 1, parameters: i.PARAMETERS?.toString() })}` })
-                            })
+                        this.warningMessages = this.getWarningMessages(this.extractWarnings(response.data))
+                        if (this.warningMessages.length > 0) {
+                            this.warningDialogVisible = true
+                            return
                         }
 
                         this.store.setInfo({ title: this.$t('managers.importExportDocs.importComplete'), msg: `${this.importData.logFileName}` })
@@ -679,6 +702,87 @@ export default defineComponent({
                 }
             }
             return false
+        },
+        normalizeWarnings(warnings: any): any[] {
+            if (!warnings) return []
+            if (Array.isArray(warnings)) return warnings
+            if (typeof warnings === 'string') return [warnings]
+            if (typeof warnings === 'object') {
+                if ('MESSAGE' in warnings || 'message' in warnings) return [warnings]
+                if (Array.isArray(warnings.warnings)) return warnings.warnings
+                return Object.values(warnings).flatMap((warning) => this.normalizeWarnings(warning))
+            }
+            return []
+        },
+        collectWarningsFromObject(payload: any): any[] {
+            if (!payload || typeof payload !== 'object') return []
+            return Object.entries(payload).flatMap(([key, value]) => {
+                if (/warning/i.test(key)) return this.normalizeWarnings(value)
+                if (value && typeof value === 'object') return this.collectWarningsFromObject(value)
+                return []
+            })
+        },
+        extractWarnings(payload: any) {
+            const candidates = [payload?.warnings, payload?.warning, payload?.WARNINGS, payload?.messages?.warnings, payload?.messages?.warning]
+            const normalizedCandidates = candidates.flatMap((candidate) => this.normalizeWarnings(candidate))
+            if (normalizedCandidates.length > 0) return normalizedCandidates
+            return this.collectWarningsFromObject(payload)
+        },
+        getWarningMessages(warnings: any[] = []) {
+            return warnings
+                .map((warning) => {
+                    if (typeof warning === 'string') return warning
+                    const messageKey = warning?.MESSAGE ?? warning?.message
+                    const parameters = warning?.PARAMETERS ?? warning?.parameters
+                    if (!messageKey) return ''
+                    return `${this.$t(messageKey, { count: parameters?.length || 1, parameters: parameters?.toString() })}`
+                })
+                .filter((warningMessage) => warningMessage)
+        },
+        getFirstNonEmptyValue(...values: any[]) {
+            return values.find((value) => value !== undefined && value !== null && value !== '') ?? ''
+        },
+        resolveDocumentSummaryItem(doc: any, type: 'new' | 'existing', index = 0) {
+            const candidate = type === 'existing' ? doc?.biobjExist : doc?.biobjExp
+            if (candidate) return candidate
+            if (doc && typeof doc === 'object' && !Array.isArray(doc)) return doc
+            if (!Array.isArray(this.importData.summary?.SbiObjects) || typeof doc !== 'string') return null
+
+            const legacyKey = type === 'existing' ? 'biobjExist' : 'biobjExp'
+            const legacyItems = this.importData.summary.SbiObjects.map((item: any) => item?.[legacyKey]).filter((item: any) => item)
+            const matchingItems = legacyItems.filter((item: any) => [item.label, item.name, item.documentLabel, item.documentName, item.biobjLabel, item.biobjName].includes(doc))
+            return matchingItems[index] ?? matchingItems[0] ?? legacyItems[index] ?? null
+        },
+        getDocumentSummaryLabel(doc: any, type: 'new' | 'existing', index = 0) {
+            const resolved = this.resolveDocumentSummaryItem(doc, type, index)
+            return this.getFirstNonEmptyValue(resolved?.label, resolved?.documentLabel, resolved?.biobjLabel, resolved?.name, resolved?.documentName, typeof doc === 'string' ? doc : '')
+        },
+        getDocumentSummaryName(doc: any, type: 'new' | 'existing', index = 0) {
+            const resolved = this.resolveDocumentSummaryItem(doc, type, index)
+            return this.getFirstNonEmptyValue(resolved?.name, resolved?.documentName, resolved?.biobjName, this.getDocumentSummaryLabel(doc, type, index))
+        },
+        resolveFunctionalitySummaryItem(func: any, type: 'new' | 'existing', index = 0) {
+            const candidate = type === 'existing' ? func?.functExist : func?.functExp
+            if (candidate) return candidate
+            if (func && typeof func === 'object' && !Array.isArray(func)) return func
+            if (!Array.isArray(this.importData.summary?.SbiFunctions) || typeof func !== 'string') return null
+
+            const legacyKey = type === 'existing' ? 'functExist' : 'functExp'
+            const matchingItems = this.importData.summary.SbiFunctions.map((item: any) => item?.[legacyKey]).filter((item: any) => {
+                if (!item) return false
+                const path = item.path ?? item.fullPath ?? item.completePath
+                const pathLeaf = path ? path.split('/').filter(Boolean).pop() : undefined
+                return [item.code, item.name, path, pathLeaf].includes(func)
+            })
+            return matchingItems[index] ?? matchingItems[0] ?? null
+        },
+        getFunctionalitySummaryName(func: any, type: 'new' | 'existing', index = 0) {
+            const resolved = this.resolveFunctionalitySummaryItem(func, type, index)
+            return resolved?.name ?? resolved?.code ?? ''
+        },
+        getFunctionalitySummaryPath(func: any, type: 'new' | 'existing', index = 0) {
+            const resolved = this.resolveFunctionalitySummaryItem(func, type, index)
+            return resolved?.path ?? resolved?.fullPath ?? resolved?.completePath ?? (typeof func === 'string' ? func : '')
         }
     }
 })
@@ -728,6 +832,17 @@ export default defineComponent({
 
 .datasource-dropdown-option {
     padding: 0.75em;
+}
+
+.import-docs-warning-dialog {
+    .p-dialog-content {
+        max-width: 700px;
+    }
+}
+
+.warning-dialog-content {
+    max-height: 400px;
+    overflow-y: auto;
 }
 
 .metadata-summary-container {
@@ -785,6 +900,10 @@ export default defineComponent({
             &:hover {
                 background-color: rgba(0, 0, 0, 0.03);
             }
+        }
+
+        .summary-item-detail + .summary-item-detail {
+            margin-top: 0.25rem;
         }
     }
 }
