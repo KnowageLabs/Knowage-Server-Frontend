@@ -1,39 +1,55 @@
 <template>
-    <div v-if="dialogSettings" class="p-m-3">
-        <WidgetEditorStyleToolbar class="p-my-3" :options="descriptor.toolbarStyleOptions" :prop-model="dialogSettings.style" :disabled="dialogSettingsDisabled" @change="onStyleToolbarChange"></WidgetEditorStyleToolbar>
-
-        <Message class="kn-width-full p-d-flex p-jc-center p-m-0 p-mx-2" severity="info" :closable="false">
-            {{ $t('dashboard.widgetEditor.map.dialogHint') }}
-        </Message>
-
-        <div v-for="(dialogProperty, index) in dialogSettings.visualizations" :key="index" class="dynamic-form-item p-grid p-col-12 p-ai-center p-m-0 p-pt-0">
-            <div v-show="dropzoneTopVisible[index]" class="p-col-12 form-list-item-dropzone-active" @drop.stop="onDropComplete($event, 'before', index)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
-            <div class="p-col-12 form-list-item-dropzone" :class="{ 'form-list-item-dropzone-active': dropzoneTopVisible[index] }" @drop.stop="onDropComplete($event, 'before', index)" @dragover.prevent @dragenter.prevent="displayDropzone('top', index)" @dragleave.prevent="hideDropzone('top', index)"></div>
-
-            <div class="p-col-12 p-d-flex p-flex-column" :draggable="true" @dragstart.stop="onDragStart($event, index)">
-                <div class="row items-center q-mb-sm">
-                    <i class="pi pi-th-large kn-cursor-pointer"></i>
-                    <q-select class="col-6" filled dense :model-value="dialogProperty.label" :disable="dialogSettingsDisabled" :options="getFilteredVisualizationTypeOptions(index)" option-label="label" option-value="label" emit-value map-options options-dense :label="$t('dashboard.widgetEditor.visualizationType.title')" @update:model-value="(val) => onVisualizationSelected(val, dialogProperty)"></q-select>
-                    <MultiSelect class="col-5 q-ml-sm" :model-value="getSelectedColumnNames(dialogProperty)" :disabled="dialogSettingsDisabled" :options="getColumnOptionsFromLayer(dialogProperty)" option-label="alias" option-value="name" display="chip" @update:model-value="(val) => onColumnsChanged(val, dialogProperty)" />
+    <div v-if="dialogSettings">
+        <div class="q-px-md q-pt-sm">
+            <WidgetEditorStyleToolbar :options="descriptor.toolbarStyleOptions" :prop-model="dialogSettings.style" :disabled="dialogSettingsDisabled" @change="onStyleToolbarChange"></WidgetEditorStyleToolbar>
+        </div>
+        <div class="q-px-md q-pb-xs">
+            <div class="kn-dropzone" :class="{ 'kn-dropzone-visible': isDragging, 'kn-dropzone-active': activeDropzone === 0 }" @drop.stop="onDropAtIndex($event, 0)" @dragover.prevent @dragenter.prevent="activeDropzone = 0" @dragleave.prevent="activeDropzone = -1"></div>
+            <div v-for="(dialogProperty, index) in dialogSettings.visualizations" :key="index">
+                <div class="dialog-viz-row row no-wrap q-mb-sm">
+                    <div class="kn-drag-handle row items-center justify-center" :draggable="!dialogSettingsDisabled" @dragstart.stop="onDragStart($event, index)" @dragend="isDragging = false">
+                        <q-icon name="drag_indicator" size="xs" />
+                    </div>
+                    <div class="col">
+                        <div class="q-pa-sm">
+                            <div class="row q-col-gutter-sm">
+                                <div class="col-6">
+                                    <q-select outlined dense :model-value="dialogProperty.label" :disable="dialogSettingsDisabled" :options="getFilteredVisualizationTypeOptions(index)" option-label="label" option-value="label" emit-value map-options :label="$t('dashboard.widgetEditor.visualizationType.title')" @update:model-value="(val) => onVisualizationSelected(val, dialogProperty)" />
+                                </div>
+                                <div class="col-6">
+                                    <q-select outlined dense :model-value="getSelectedColumnNames(dialogProperty)" :disable="dialogSettingsDisabled" :options="getColumnOptionsFromLayer(dialogProperty)" option-label="alias" option-value="name" emit-value map-options multiple :label="$t('common.columns')" @update:model-value="(val) => onColumnsChanged(val, dialogProperty)" />
+                                </div>
+                            </div>
+                        </div>
+                        <div v-for="column in getSelectedColumns(dialogProperty)" :key="column.name" class="dialog-col-row row q-ma-sm">
+                            <div class="kn-action-handle kn-action-handle-disabled" style="width: 5px"></div>
+                            <div class="col q-px-sm q-py-xs">
+                                <div class="text-weight-bold text-subtitle2 q-mb-xs">{{ getAvailableColumnAlias(column, dialogProperty) }}</div>
+                                <div class="row q-col-gutter-sm items-center">
+                                    <div class="col">
+                                        <q-input outlined dense v-model="column.alias" :label="$t('common.alias')" :disable="dialogSettingsDisabled" />
+                                    </div>
+                                    <div class="col">
+                                        <q-input outlined dense v-model="column.prefix" :label="$t('dashboard.widgetEditor.prefix')" :disable="dialogSettingsDisabled" />
+                                    </div>
+                                    <div class="col">
+                                        <q-input outlined dense v-model="column.suffix" :label="$t('dashboard.widgetEditor.suffix')" :disable="dialogSettingsDisabled" />
+                                    </div>
+                                    <div class="col">
+                                        <q-input outlined dense type="number" v-model.number="column.precision" :label="$t('dashboard.widgetEditor.precision')" :disable="dialogSettingsDisabled" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="kn-action-handle kn-action-handle-disabled" style="width: 5px"></div>
+                        </div>
+                    </div>
+                    <div class="kn-action-handle row items-center justify-center">
+                        <q-btn v-if="index === 0" flat round dense icon="add" size="sm" :disable="dialogSettingsDisabled" @click="addDialog()" />
+                        <q-btn flat round dense icon="delete" size="sm" :disable="dialogSettingsDisabled" @click.stop="removeDialog(index)" />
+                    </div>
                 </div>
-                <div class="q-col-gutter" style="gap: 0.5em; margin-left: auto">
-                    <i v-if="index === 0" class="pi pi-plus-circle kn-cursor-pointer" data-test="new-button" @click="addDialog()"></i>
-                    <i class="pi pi-trash kn-cursor-pointer" data-test="delete-button" @click="removeDialog(index)"></i>
-                </div>
+                <div class="kn-dropzone" :class="{ 'kn-dropzone-visible': isDragging, 'kn-dropzone-active': activeDropzone === index + 1 }" @drop.stop="onDropAtIndex($event, index + 1)" @dragover.prevent @dragenter.prevent="activeDropzone = index + 1" @dragleave.prevent="activeDropzone = -1"></div>
             </div>
-
-            <div v-if="getSelectedColumns(dialogProperty).length" class="p-col-12 p-mt-2">
-                <div v-for="column in getSelectedColumns(dialogProperty)" :key="column.name" class="p-grid p-ai-center p-mb-2 map-info-column-row">
-                    <div class="p-col-12 p-md-2 map-info-column-label">{{ getAvailableColumnAlias(column, dialogProperty) }}</div>
-                    <q-input dense class="p-col-12 p-md-3" filled v-model="column.alias" :label="$t('common.alias')" :disable="dialogSettingsDisabled" />
-                    <q-input dense class="p-col-12 p-md-2" filled v-model="column.prefix" :label="$t('dashboard.widgetEditor.prefix')" :disable="dialogSettingsDisabled" />
-                    <q-input dense class="p-col-12 p-md-2" filled v-model="column.suffix" :label="$t('dashboard.widgetEditor.suffix')" :disable="dialogSettingsDisabled" />
-                    <q-input dense class="p-col-12 p-md-3" type="number" filled v-model.number="column.precision" :label="$t('dashboard.widgetEditor.precision')" :disable="dialogSettingsDisabled" />
-                </div>
-            </div>
-
-            <div class="p-col-12 form-list-item-dropzone" :class="{ 'form-list-item-dropzone-active': dropzoneBottomVisible[index] }" @drop.stop="onDropComplete($event, 'after', index)" @dragover.prevent @dragenter.prevent="displayDropzone('bottom', index)" @dragleave.prevent="hideDropzone('bottom', index)"></div>
-            <div v-show="dropzoneBottomVisible[index]" class="p-col-12 form-list-item-dropzone-active" @drop.stop="onDropComplete($event, 'after', index)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
         </div>
     </div>
 </template>
@@ -45,9 +61,6 @@ import { IMapDialogSettings, IMapInfoColumnSettings, IMapWidgetLayer, IMapWidget
 import { mapActions } from 'pinia'
 import appStore from '@/App.store'
 import descriptor from './MapDialogSettingsDescriptor.json'
-import Dropdown from 'primevue/dropdown'
-import MultiSelect from 'primevue/multiselect'
-import Message from 'primevue/message'
 import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 import * as mapWidgetDefaultValues from '../../../helpers/mapWidget/MapWidgetDefaultValues'
 import { getPropertiesByLayerLabel } from '../../../../MapWidget/MapWidgetDataProxy'
@@ -56,14 +69,14 @@ import { createMapInfoColumnSettings, getMapInfoColumnName, normalizeMapInfoSett
 
 export default defineComponent({
     name: 'map-dialog-settings',
-    components: { Dropdown, MultiSelect, Message, WidgetEditorStyleToolbar },
+    components: { WidgetEditorStyleToolbar },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, dashboardId: { type: [String, Number], required: true } },
     data() {
         return {
             descriptor,
             dialogSettings: null as IMapDialogSettings | null,
-            dropzoneTopVisible: {},
-            dropzoneBottomVisible: {},
+            isDragging: false,
+            activeDropzone: -1,
             propertiesCache: new Map<string, { name: string; alias: string }[]>(),
             visualizationTypeOptions: [] as IMapWidgetVisualizationType[]
         }
@@ -124,26 +137,20 @@ export default defineComponent({
             }
         },
         onDragStart(event: any, index: number) {
+            this.isDragging = true
+            this.activeDropzone = -1
             event.dataTransfer.setData('text/plain', JSON.stringify(index))
             event.dataTransfer.dropEffect = 'move'
             event.dataTransfer.effectAllowed = 'move'
         },
-        onDropComplete(event: any, position: 'before' | 'after', index: number) {
-            this.hideDropzone('bottom', index)
-            this.hideDropzone('top', index)
-            const eventData = JSON.parse(event.dataTransfer.getData('text/plain'))
-            this.onRowsMove(eventData, index, position)
-        },
-        onRowsMove(sourceRowIndex: number, targetRowIndex: number, position: string) {
-            if (sourceRowIndex === targetRowIndex) return
-            const newIndex = sourceRowIndex > targetRowIndex && position === 'after' ? targetRowIndex + 1 : targetRowIndex
-            this.dialogSettings?.visualizations.splice(newIndex, 0, this.dialogSettings.visualizations.splice(sourceRowIndex, 1)[0])
-        },
-        displayDropzone(position: string, index: number) {
-            position === 'top' ? (this.dropzoneTopVisible[index] = true) : (this.dropzoneBottomVisible[index] = true)
-        },
-        hideDropzone(position: string, index: number) {
-            position === 'top' ? (this.dropzoneTopVisible[index] = false) : (this.dropzoneBottomVisible[index] = false)
+        onDropAtIndex(event: any, targetDropzoneIndex: number) {
+            this.isDragging = false
+            this.activeDropzone = -1
+            const sourceIndex = JSON.parse(event.dataTransfer.getData('text/plain'))
+            if (sourceIndex === targetDropzoneIndex || sourceIndex === targetDropzoneIndex - 1) return
+            const [removed] = this.dialogSettings!.visualizations.splice(sourceIndex, 1)
+            const insertAt = targetDropzoneIndex > sourceIndex ? targetDropzoneIndex - 1 : targetDropzoneIndex
+            this.dialogSettings!.visualizations.splice(insertAt, 0, removed)
         },
         getColumnOptionsFromLayer(dialogProperty: any) {
             if (!dialogProperty) return []
@@ -247,7 +254,7 @@ export default defineComponent({
 
             const selectedLabels = this.dialogSettings.visualizations
                 .map((visualizationConfig: any, index: number) => {
-                    return index !== currentIndex ? visualizationConfig.label ?? null : null
+                    return index !== currentIndex ? (visualizationConfig.label ?? null) : null
                 })
                 .filter((t): t is string => !!t)
 
@@ -261,24 +268,16 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.form-list-item-dropzone {
-    height: 20px;
-    width: 100%;
-    background-color: white;
+.dialog-viz-row {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 2px;
 }
 
-.form-list-item-dropzone-active {
-    height: 10px;
-    background-color: #aec1d3;
-}
-
-.map-info-column-row {
-    padding: 0.5rem 0;
-    border-top: 1px solid #e5e7eb;
-}
-
-.map-info-column-label {
-    font-weight: 600;
-    overflow-wrap: anywhere;
+.dialog-col-row {
+    border: 1px solid #f0f0f0;
+    border-radius: 4px;
+    overflow: hidden;
 }
 </style>

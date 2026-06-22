@@ -1,16 +1,24 @@
 <template>
-    <div class="p-grid p-jc-start p-ai-center p-p-4">
-        <form v-if="selectionConfiguration" class="p-fluid p-formgrid p-grid p-col-12 p-m-1">
-            <div class="p-col-12 p-d-flex p-flex-column">
-                <div v-for="(selectionConfig, index) in selectionConfiguration.selections" :key="index" class="row items-center q-mb-sm">
-                    <q-select filled dense class="col-6" v-model="selectionConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options options-dense option-label="label" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="selectionsDisabled" @update:modelValue="onVizualizationTypeChange(selectionConfig)"></q-select>
-                    <q-select filled dense class="col-5 q-ml-sm" v-model="selectionConfig.column" :options="availableAttributeColumns(selectionConfig.vizualizationType)" emit-value map-options option-label="name" options-dense :label="$t('common.column')" :disable="selectionsDisabled"></q-select>
-
-                    <Button v-if="index === 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" @click="addSelectionConfiguration" />
-                    <Button v-if="index !== 0" icon="pi pi-trash kn-cursor-pointer" class="p-button-text p-button-plain p-js-center p-ml-2" @click="removeSelectionConfiguration(index)" />
+    <div class="q-px-md q-pb-sm">
+        <div v-if="selectionConfiguration">
+            <div v-for="(selectionConfig, index) in selectionConfiguration.selections" :key="index" class="selection-row row no-wrap q-mb-sm">
+                <div class="kn-action-handle kn-action-handle-disabled"></div>
+                <div class="col q-pa-sm">
+                    <div class="row q-col-gutter-sm">
+                        <div class="col-6">
+                            <q-select outlined dense v-model="selectionConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options option-label="label" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="selectionsDisabled" @update:model-value="onVizualizationTypeChange(selectionConfig)" />
+                        </div>
+                        <div class="col-6">
+                            <q-select outlined dense v-model="selectionConfig.column" :options="availableAttributeColumns(selectionConfig.vizualizationType)" emit-value map-options option-label="name" :label="$t('common.column')" :disable="selectionsDisabled" />
+                        </div>
+                    </div>
+                </div>
+                <div class="kn-action-handle row items-center justify-center">
+                    <q-btn v-if="index === 0" flat round dense icon="add" size="sm" :disable="selectionsDisabled" @click="addSelectionConfiguration()" />
+                    <q-btn v-else flat round dense icon="delete" size="sm" :disable="selectionsDisabled" @click.stop="removeSelectionConfiguration(index)" />
                 </div>
             </div>
-        </form>
+        </div>
     </div>
 </template>
 
@@ -125,7 +133,7 @@ export default defineComponent({
 
             const selectedLabels = this.selectionConfiguration.selections
                 .map((visualizationConfig: any, index: number) => {
-                    return index !== currentIndex ? visualizationConfig.label ?? null : null
+                    return index !== currentIndex ? (visualizationConfig.label ?? null) : null
                 })
                 .filter((t): t is string => !!t)
 
@@ -149,10 +157,18 @@ export default defineComponent({
             ;(this as any).setLoading?.(true)
             const rawProperties = await getPropertiesByLayerLabel(targetLayer.label, this.dashboardId)
             ;(this as any).setLoading?.(false)
-            const properties = (rawProperties || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.property ?? p.name ?? p) } as any))
+            const properties = (rawProperties || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.property ?? p.name ?? p) }) as any)
             ;(this as any).propertiesCache?.set(targetLayer.layerId, properties)
             visualization.properties = properties
         }
     }
 })
 </script>
+
+<style lang="scss" scoped>
+.selection-row {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+</style>

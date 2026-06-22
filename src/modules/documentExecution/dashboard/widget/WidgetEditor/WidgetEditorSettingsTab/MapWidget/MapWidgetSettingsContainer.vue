@@ -35,7 +35,7 @@ export default defineComponent({
         isSearchActive(): boolean {
             return ((this.widgetSettingsSearch as any) ?? '').length >= 3
         },
-        activeSettings(): { title: string; type: string }[] | undefined {
+        activeSettings(): { title: string; type: string; toggleOnly?: boolean }[] | undefined {
             const search = (this.widgetSettingsSearch as any) ?? ''
             if (search.length >= 3 && this.descriptor?.settings) {
                 const seen = new Set<string>()

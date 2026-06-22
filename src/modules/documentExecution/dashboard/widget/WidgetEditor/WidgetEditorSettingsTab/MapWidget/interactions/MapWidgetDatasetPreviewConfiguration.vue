@@ -1,28 +1,38 @@
 <template>
-    <div class="p-grid p-jc-center p-ai-center p-p-4">
-        <form v-if="previewConfiguration" class="p-fluid p-formgrid p-grid p-col-12 p-m-1">
-            <div v-for="(previewConfig, index) in previewConfiguration.previewVizualizationTypes" :key="index" class="p-col-12 p-fluid p-formgrid p-grid">
-                <div class="p-col-12 p-fluid p-formgrid p-grid p-ai-center">
-                    <q-select filled dense class="p-sm-12 p-md-6" v-model="previewConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options options-dense option-label="label" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="previewDisabled" @update:modelValue="onVizualizationTypeChange(previewConfig)"></q-select>
-                    <div class="p-sm-12 p-md-6 p-px-2" style="display: flex; align-items: flex-start; gap: 6px">
-                        <q-select filled dense style="flex: 1" v-model="previewConfig.column" :options="availableColumns(previewConfig.vizualizationType)" emit-value map-options option-label="name" options-dense :label="$t('common.column')" :disable="previewDisabled"></q-select>
-                        <Button v-tooltip.top="{ value: $t('dashboard.widgetEditor.interactions.columnInteractionHint'), disabled: previewDisabled }" icon="pi pi-info-circle" class="p-button-text p-button-plain p-button-sm" />
+    <div class="q-px-md q-pb-sm">
+        <div v-if="previewConfiguration">
+            <div v-for="(previewConfig, index) in previewConfiguration.previewVizualizationTypes" :key="index" class="preview-row row no-wrap q-mb-sm">
+                <div class="kn-action-handle kn-action-handle-disabled"></div>
+                <div class="col q-pa-sm">
+                    <div class="row q-col-gutter-sm q-mb-sm">
+                        <div class="col-6">
+                            <q-select outlined dense v-model="previewConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options option-label="label" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="previewDisabled" @update:model-value="onVizualizationTypeChange(previewConfig)" />
+                        </div>
+                        <div class="col-6">
+                            <q-select outlined dense v-model="previewConfig.column" :options="availableColumns(previewConfig.vizualizationType)" emit-value map-options option-label="name" :label="$t('common.column')" :disable="previewDisabled">
+                                <template #append>
+                                    <q-icon name="help_outline" size="xs" class="cursor-pointer text-grey-5">
+                                        <q-tooltip>{{ $t('dashboard.widgetEditor.interactions.columnInteractionHint') }}</q-tooltip>
+                                    </q-icon>
+                                </template>
+                            </q-select>
+                        </div>
                     </div>
-
-                    <div class="p-col-12 p-d-flex p-jc-end p-ai-center" style="gap: 0.5em">
-                        <Button v-if="index === 0" icon="fas fa-plus-circle fa-1x" class="p-md-2 p-button-text p-button-plain p-js-center p-ml-2" @click="addPreviewConfiguration" />
-                        <Button v-if="index !== 0" icon="pi pi-trash kn-cursor-pointer" class="p-md-2 p-button-text p-button-plain p-js-center p-ml-2" @click="removePreviewConfiguration(index)" />
+                    <div class="row q-col-gutter-sm q-mb-sm">
+                        <div class="col-12">
+                            <q-select outlined dense v-model="previewConfig.dataset" :options="selectedDatasets" emit-value map-options option-label="name" :option-value="(opt) => opt.id?.dsId" :label="$t('common.dataset')" :disable="previewDisabled" @update:model-value="onDatasetChanged(previewConfig)" />
+                        </div>
+                    </div>
+                    <div v-if="previewConfig.vizualizationType?.id">
+                        <WidgetOutputParametersList :widget-model="widgetModel" :prop-parameters="previewConfig.parameters" :selected-datasets-columns-map="selectedDatasetColumnNameMap" :mapDynamicOptions="availableColumns(previewConfig.vizualizationType)" :preview-config="previewConfig" :dashboard-id="dashboardId" :disabled="previewDisabled" @change="onParametersChanged($event, previewConfig)" />
                     </div>
                 </div>
-                <div class="p-col-12 p-fluid p-formgrid p-grid p-ai-center">
-                    <q-select filled dense class="p-sm-12 p-md-12 p-px-2" v-model="previewConfig.dataset" :options="selectedDatasets" emit-value map-options option-label="name" :option-value="(opt) => opt.id?.dsId" options-dense :label="$t('common.dataset')" :disable="previewDisabled" @update:modelValue="onDatasetChanged(previewConfig)"></q-select>
-                </div>
-
-                <div v-if="previewConfig.vizualizationType?.id" class="p-col-12 p-d-flex p-flex-row p-ai-center p-p-2">
-                    <WidgetOutputParametersList class="kn-flex p-mr-2" :widget-model="widgetModel" :prop-parameters="previewConfig.parameters" :selected-datasets-columns-map="selectedDatasetColumnNameMap" :mapDynamicOptions="availableColumns(previewConfig.vizualizationType)" :preview-config="previewConfig" :dashboard-id="dashboardId" :disabled="previewDisabled" @change="onParametersChanged($event, previewConfig)"></WidgetOutputParametersList>
+                <div class="kn-action-handle row items-center justify-center">
+                    <q-btn v-if="index === 0" flat round dense icon="add" size="sm" :disable="previewDisabled" @click="addPreviewConfiguration()" />
+                    <q-btn v-else flat round dense icon="delete" size="sm" :disable="previewDisabled" @click.stop="removePreviewConfiguration(index)" />
                 </div>
             </div>
-        </form>
+        </div>
     </div>
 </template>
 
@@ -37,16 +47,12 @@ import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.stor
 import { mapActions } from 'pinia'
 import appStore from '@/App.store'
 import { IMapWidgetLayerProperty } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
-import Checkbox from 'primevue/checkbox'
-import Dropdown from 'primevue/dropdown'
 import WidgetOutputParametersList from '../../common/interactions/crossNavigation/WidgetOutputParametersList.vue'
 import deepcopy from 'deepcopy'
 
 export default defineComponent({
     name: 'map-widget-dataset-preview-configuration',
     components: {
-        Checkbox,
-        Dropdown,
         WidgetOutputParametersList
     },
     props: {
@@ -186,7 +192,7 @@ export default defineComponent({
 
             const selectedLabels = this.previewConfiguration.previewVizualizationTypes
                 .map((visualizationConfig: any, index: number) => {
-                    return index !== currentIndex ? visualizationConfig.label ?? null : null
+                    return index !== currentIndex ? (visualizationConfig.label ?? null) : null
                 })
                 .filter((t): t is string => !!t)
 
@@ -229,7 +235,7 @@ export default defineComponent({
                 this.setLoading(true)
                 const rawProperties = await getPropertiesByLayerLabel(targetLayer.label, this.dashboardId)
                 this.setLoading(false)
-                const properties: IMapWidgetLayerProperty[] = (rawProperties || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.property ?? p.name ?? p) } as any))
+                const properties: IMapWidgetLayerProperty[] = (rawProperties || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.property ?? p.name ?? p) }) as any)
                 this.propertiesCache.set(targetLayer.layerId, properties)
                 visualization.properties = properties
             }
@@ -296,3 +302,11 @@ export default defineComponent({
     }
 })
 </script>
+
+<style lang="scss" scoped>
+.preview-row {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+</style>

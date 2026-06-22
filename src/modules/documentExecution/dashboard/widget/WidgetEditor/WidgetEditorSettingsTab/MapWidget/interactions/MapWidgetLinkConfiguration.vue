@@ -1,52 +1,61 @@
 <template>
-    <div class="p-grid p-jc-start p-ai-center p-p-4">
-        <form v-if="linkConfiguration" class="p-fluid p-formgrid p-grid p-col-12 p-m-1">
-            <div class="p-col-12 p-fluid p-formgrid p-grid">
-                <div v-for="(linkConfig, index) in linkConfiguration.linkVizualizationTypes" :key="index" class="p-col-12 p-fluid p-formgrid p-grid">
-                    <div class="p-col-12 p-fluid p-formgrid p-grid p-ai-center">
-                        <q-select filled dense class="p-sm-12 p-md-5" v-model="linkConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options options-dense option-label="label" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="linksDisabled" @update:modelValue="onVizualizationTypeChange(linkConfig)"></q-select>
-                        <div class="p-sm-12 p-md-5 q-ml-sm" style="display: flex; align-items: flex-start; gap: 6px">
-                            <q-select filled dense style="flex: 1" v-model="linkConfig.column" :options="availableColumns(linkConfig.vizualizationType)" emit-value map-options option-label="name" options-dense :label="$t('common.column')" :disable="linksDisabled"></q-select>
-                            <Button v-tooltip.top="{ value: $t('dashboard.widgetEditor.interactions.columnInteractionHint'), disabled: linksDisabled }" icon="pi pi-info-circle" class="p-button-text p-button-plain p-button-sm" />
+    <div class="q-px-md q-pb-sm">
+        <div v-if="linkConfiguration">
+            <div v-for="(linkConfig, vizIndex) in linkConfiguration.linkVizualizationTypes" :key="vizIndex">
+                <div class="link-viz-row row no-wrap q-mb-sm">
+                    <div class="kn-action-handle kn-action-handle-disabled"></div>
+                    <div class="col q-pa-sm">
+                        <div class="row q-col-gutter-sm q-mb-sm">
+                            <div class="col-6">
+                                <q-select outlined dense v-model="linkConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(vizIndex)" emit-value map-options option-label="label" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="linksDisabled" @update:model-value="onVizualizationTypeChange(linkConfig)" />
+                            </div>
+                            <div class="col-6">
+                                <q-select outlined dense v-model="linkConfig.column" :options="availableColumns(linkConfig.vizualizationType)" emit-value map-options option-label="name" :label="$t('common.column')" :disable="linksDisabled">
+                                    <template #append>
+                                        <q-icon name="help_outline" size="xs" class="cursor-pointer text-grey-5">
+                                            <q-tooltip>{{ $t('dashboard.widgetEditor.interactions.columnInteractionHint') }}</q-tooltip>
+                                        </q-icon>
+                                    </template>
+                                </q-select>
+                            </div>
                         </div>
-
-                        <Button v-if="index === 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" @click="addLinkConfiguration" />
-                        <Button v-if="index !== 0" icon="pi pi-trash kn-cursor-pointer" class="p-button-text p-button-plain p-js-center p-ml-2" @click="removeLinkConfiguration(index)" />
+                        <div v-for="(link, linkIndex) in linkConfig.links" :key="linkIndex" class="link-item-row row no-wrap q-mb-xs">
+                            <div class="kn-action-handle kn-action-handle-disabled"></div>
+                            <div class="col q-pa-xs">
+                                <div class="row q-col-gutter-sm q-mb-xs">
+                                    <div class="col-6">
+                                        <q-input outlined dense v-model="link.baseurl" :label="$t('dashboard.widgetEditor.interactions.basicUrl')" :disable="linksDisabled" />
+                                    </div>
+                                    <div class="col-6">
+                                        <q-select outlined dense v-model="link.action" :options="widgetInteractionsLinkDescriptor.linkTypes" option-value="value" option-label="label" emit-value map-options :label="$t('dashboard.widgetEditor.interactions.linkType')" :disable="linksDisabled">
+                                            <template #selected-item="slotProps"
+                                                ><span>{{ getTranslatedLabel(slotProps.opt.value, widgetInteractionsLinkDescriptor.linkTypes, $t) }}</span></template
+                                            >
+                                            <template #option="slotProps"
+                                                ><q-item v-bind="slotProps.itemProps"
+                                                    ><q-item-section
+                                                        ><q-item-label>{{ $t(slotProps.opt.label) }}</q-item-label></q-item-section
+                                                    ></q-item
+                                                ></template
+                                            >
+                                        </q-select>
+                                    </div>
+                                </div>
+                                <WidgetLinkParameterList :widget-model="widgetModel" :prop-parameters="link.parameters" :selected-datasets-columns-map="selectedDatasetColumnNameMap" :disabled="linksDisabled" :dashboard-id="dashboardId" @change="onParametersChanged($event, link)" @addParameter="onAddParameter(link)" @delete="onParameterDelete($event, link)" />
+                            </div>
+                            <div class="kn-action-handle row items-center justify-center">
+                                <q-btn v-if="linkIndex === 0" flat round dense icon="add" size="sm" :disable="linksDisabled" @click="addLink(linkConfig)" />
+                                <q-btn v-else flat round dense icon="delete" size="sm" :disable="linksDisabled" @click.stop="removeLink(linkIndex, linkConfig)" />
+                            </div>
+                        </div>
                     </div>
-
-                    <div v-for="(link, index) in linkConfig.links" :key="index" class="p-sm-12 p-md-12 p-fluid p-formgrid p-grid p-ai-center">
-                        <div class="p-col-5 kn-flex p-d-flex p-flex-column p-pt-2 p-ml-2">
-                            <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.interactions.basicUrl') }}</label>
-                            <InputText v-model="link.baseurl" class="kn-material-input p-inputtext-sm" :disabled="linksDisabled" />
-                        </div>
-
-                        <div class="p-col-5 kn-flex p-d-flex p-flex-column p-mx-2">
-                            <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.interactions.linkType') }}</label>
-                            <Dropdown v-model="link.action" class="kn-material-input" :options="widgetInteractionsLinkDescriptor.linkTypes" option-value="value" :disabled="linksDisabled">
-                                <template #value="slotProps">
-                                    <div>
-                                        <span>{{ getTranslatedLabel(slotProps.value, widgetInteractionsLinkDescriptor.linkTypes, $t) }}</span>
-                                    </div>
-                                </template>
-                                <template #option="slotProps">
-                                    <div>
-                                        <span>{{ $t(slotProps.option.label) }}</span>
-                                    </div>
-                                </template>
-                            </Dropdown>
-                        </div>
-
-                        <div class="p-col-2 p-text-left p-mt-3 p-ml-3">
-                            <i :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash']" class="kn-cursor-pointer" @click="index === 0 ? addLink(linkConfig) : removeLink(index, linkConfig)"></i>
-                        </div>
-
-                        <div class="p-sm-12 p-md-12 p-mt-4">
-                            <WidgetLinkParameterList class="kn-flex p-mr-2" :widget-model="widgetModel" :prop-parameters="link.parameters" :selected-datasets-columns-map="selectedDatasetColumnNameMap" :disabled="linksDisabled" :dashboard-id="dashboardId" @change="onParametersChanged($event, link)" @addParameter="onAddParameter(link)" @delete="onParameterDelete($event, link)"></WidgetLinkParameterList>
-                        </div>
+                    <div class="kn-action-handle row items-center justify-center">
+                        <q-btn v-if="vizIndex === 0" flat round dense icon="add" size="sm" :disable="linksDisabled" @click="addLinkConfiguration()" />
+                        <q-btn v-else flat round dense icon="delete" size="sm" :disable="linksDisabled" @click.stop="removeLinkConfiguration(vizIndex)" />
                     </div>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
 </template>
 
@@ -62,13 +71,12 @@ import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import normalizeSelectOptions from '../helpers/MapWidgetOptionsHelper'
 import appStore from '@/App.store'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
-import Dropdown from 'primevue/dropdown'
 import widgetInteractionsLinkDescriptor from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/common/interactions/WidgetInteractionsDescriptor.json'
 import WidgetLinkParameterList from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/common/interactions/link/WidgetLinkParameterList.vue'
 
 export default defineComponent({
     name: 'map-widget-link-configuration',
-    components: { Dropdown, WidgetLinkParameterList },
+    components: { WidgetLinkParameterList },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, datasets: { type: Array as PropType<any[]> }, selectedDatasets: { type: Array as PropType<any[]> }, dashboardId: { type: String, required: true }, visible: { type: Boolean } },
     setup() {
         const store = dashboardStore()
@@ -200,7 +208,7 @@ export default defineComponent({
                 const rawProperties = await getPropertiesByLayerLabel(targetLayer.label, this.dashboardId)
                 this.setLoading(false)
                 // normalize properties into IMapWidgetLayerProperty shape ({ property: string, name: string, alias?: string })
-                const properties: IMapWidgetLayerProperty[] = (rawProperties || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.name ?? p.property ?? p), alias: String(p.alias ?? p.name ?? p.property ?? p) } as IMapWidgetLayerProperty))
+                const properties: IMapWidgetLayerProperty[] = (rawProperties || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.name ?? p.property ?? p), alias: String(p.alias ?? p.name ?? p.property ?? p) }) as IMapWidgetLayerProperty)
                 this.propertiesCache.set(targetLayer.layerId, properties)
                 visualization.properties = properties
             }
@@ -218,7 +226,7 @@ export default defineComponent({
 
             const selectedLabels = this.linkConfiguration.linkVizualizationTypes
                 .map((visualizationConfig: any, index: number) => {
-                    return index !== currentIndex ? visualizationConfig.label ?? null : null
+                    return index !== currentIndex ? (visualizationConfig.label ?? null) : null
                 })
                 .filter((t): t is string => !!t)
 
@@ -241,7 +249,7 @@ export default defineComponent({
             this.setLoading(true)
             const raw = await getPropertiesByLayerLabel(targetLayer.label, this.dashboardId)
             this.setLoading(false)
-            const properties = (raw || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.name ?? p.property ?? p), alias: String(p.alias ?? p.name ?? p.property ?? p) } as IMapWidgetLayerProperty))
+            const properties = (raw || []).map((p: any) => ({ property: String(p.property ?? p.name ?? p), name: String(p.name ?? p.property ?? p), alias: String(p.alias ?? p.name ?? p.property ?? p) }) as IMapWidgetLayerProperty)
             this.propertiesCache.set(targetLayer.layerId, properties)
             visualization.properties = properties
 
@@ -277,3 +285,17 @@ export default defineComponent({
     }
 })
 </script>
+
+<style lang="scss" scoped>
+.link-viz-row {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.link-item-row {
+    border: 1px solid #f0f0f0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+</style>

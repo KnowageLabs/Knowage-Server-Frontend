@@ -1,8 +1,11 @@
 <template>
-    <div v-if="widget?.settings?.style" class="q-pb-md kn-width-full">
-        <q-select v-model="widget.settings.style.themeId" :options="themes" :label="$t('dashboard.widgetEditor.widgetTheme')" option-label="themeName" option-value="id" emit-value map-options clearable outlined @update:model-value="onThemeSelected" />
+    <div v-if="widget?.settings?.style" class="q-pb-sm q-mx-sm">
+        <q-card>
+            <q-select class="q-mx-md" v-model="widget.settings.style.themeId" :options="themes" :label="$t('dashboard.widgetEditor.widgetTheme')" option-label="themeName" option-value="id" emit-value map-options clearable borderless dense @update:model-value="onThemeSelected" />
+        </q-card>
     </div>
 </template>
+2
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'

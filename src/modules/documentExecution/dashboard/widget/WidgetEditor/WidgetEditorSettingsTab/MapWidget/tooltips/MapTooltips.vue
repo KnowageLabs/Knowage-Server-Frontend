@@ -1,36 +1,52 @@
 <template>
-    <div v-if="tooltip" class="p-grid p-jc-center p-ai-center p-m-3">
-        <Message class="kn-width-full p-d-flex p-jc-center p-m-0 p-mx-2" severity="info" :closable="false">
-            {{ $t('dashboard.widgetEditor.map.tooltipHint') }}
-        </Message>
-        <div v-for="(tool, index) in tooltip.visualizations" :key="index" class="dynamic-form-item p-grid p-col-12 p-ai-center">
-            <div v-show="dropzoneTopVisible[index]" class="p-col-12 form-list-item-dropzone-active" @drop.stop="onDropComplete($event, 'before', index)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
-            <div class="p-col-12 form-list-item-dropzone" :class="{ 'form-list-item-dropzone-active': dropzoneTopVisible[index] }" @drop.stop="onDropComplete($event, 'before', index)" @dragover.prevent @dragenter.prevent="displayDropzone('top', index)" @dragleave.prevent="hideDropzone('top', index)"></div>
-
-            <div class="p-col-12 p-d-flex p-flex-column" :draggable="true" @dragstart.stop="onDragStart($event, index)">
-                <div class="row items-center q-mb-sm">
-                    <i class="pi pi-th-large kn-cursor-pointer"></i>
-                    <q-select class="col-6" filled dense :model-value="tool.label" :disable="tooltipsDisabled" :options="getFilteredVisualizationTypeOptions(index)" option-label="label" option-value="label" emit-value map-options option-dense :label="$t('dashboard.widgetEditor.visualizationType.title')" @update:model-value="(val) => onVisualizationSelected(val, tool)"></q-select>
-                    <MultiSelect class="col-5 q-ml-sm" :model-value="getSelectedColumnNames(tool)" :disabled="tooltipsDisabled" :options="getColumnOptionsFromLayer(tool)" option-label="alias" option-value="name" display="chip" @update:model-value="(val) => onColumnsChanged(val, tool)" />
+    <div v-if="tooltip">
+        <div class="q-px-md q-pb-xs">
+            <div class="kn-dropzone" :class="{ 'kn-dropzone-visible': isDragging, 'kn-dropzone-active': activeDropzone === 0 }" @drop.stop="onDropAtIndex($event, 0)" @dragover.prevent @dragenter.prevent="activeDropzone = 0" @dragleave.prevent="activeDropzone = -1"></div>
+            <div v-for="(tool, index) in tooltip.visualizations" :key="index">
+                <div class="tooltip-viz-row row no-wrap q-mb-sm">
+                    <div class="kn-drag-handle row items-center justify-center" :draggable="!tooltipsDisabled" @dragstart.stop="onDragStart($event, index)" @dragend="isDragging = false">
+                        <q-icon name="drag_indicator" size="xs" />
+                    </div>
+                    <div class="col">
+                        <div class="q-pa-sm">
+                            <div class="row q-col-gutter-sm">
+                                <div class="col-6">
+                                    <q-select outlined dense :model-value="tool.label" :disable="tooltipsDisabled" :options="getFilteredVisualizationTypeOptions(index)" option-label="label" option-value="label" emit-value map-options :label="$t('dashboard.widgetEditor.visualizationType.title')" @update:model-value="(val) => onVisualizationSelected(val, tool)" />
+                                </div>
+                                <div class="col-6">
+                                    <q-select outlined dense :model-value="getSelectedColumnNames(tool)" :disable="tooltipsDisabled" :options="getColumnOptionsFromLayer(tool)" option-label="alias" option-value="name" emit-value map-options multiple :label="$t('common.columns')" @update:model-value="(val) => onColumnsChanged(val, tool)" />
+                                </div>
+                            </div>
+                        </div>
+                        <div v-for="column in getSelectedColumns(tool)" :key="column.name" class="tooltip-col-row row q-ma-sm">
+                            <div class="kn-action-handle kn-action-handle-disabled" style="width: 5px"></div>
+                            <div class="col q-px-sm q-py-xs">
+                                <div class="text-weight-bold text-subtitle2 q-mb-xs">{{ getAvailableColumnAlias(column, tool) }}</div>
+                                <div class="row q-col-gutter-sm items-center">
+                                    <div class="col">
+                                        <q-input outlined dense v-model="column.alias" :label="$t('common.alias')" :disable="tooltipsDisabled" />
+                                    </div>
+                                    <div class="col">
+                                        <q-input outlined dense v-model="column.prefix" :label="$t('dashboard.widgetEditor.prefix')" :disable="tooltipsDisabled" />
+                                    </div>
+                                    <div class="col">
+                                        <q-input outlined dense v-model="column.suffix" :label="$t('dashboard.widgetEditor.suffix')" :disable="tooltipsDisabled" />
+                                    </div>
+                                    <div class="col">
+                                        <q-input outlined dense type="number" v-model.number="column.precision" :label="$t('dashboard.widgetEditor.precision')" :disable="tooltipsDisabled" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="kn-action-handle kn-action-handle-disabled" style="width: 5px"></div>
+                        </div>
+                    </div>
+                    <div class="kn-action-handle row items-center justify-center">
+                        <q-btn v-if="index === 0" flat round dense icon="add" size="sm" :disable="tooltipsDisabled" @click="addTooltip()" />
+                        <q-btn v-else flat round dense icon="delete" size="sm" :disable="tooltipsDisabled" @click.stop="removeTooltip(index)" />
+                    </div>
                 </div>
-                <div class="q-col-gutter" style="gap: 0.5em; margin-left: auto">
-                    <i v-if="index === 0" class="pi pi-plus-circle kn-cursor-pointer" data-test="new-button" @click="addTooltip()"></i>
-                    <i v-if="index !== 0" class="pi pi-trash kn-cursor-pointer" data-test="delete-button" @click="removeTooltip(index)"></i>
-                </div>
+                <div class="kn-dropzone" :class="{ 'kn-dropzone-visible': isDragging, 'kn-dropzone-active': activeDropzone === index + 1 }" @drop.stop="onDropAtIndex($event, index + 1)" @dragover.prevent @dragenter.prevent="activeDropzone = index + 1" @dragleave.prevent="activeDropzone = -1"></div>
             </div>
-
-            <div v-if="getSelectedColumns(tool).length" class="p-col-12 p-mt-2">
-                <div v-for="column in getSelectedColumns(tool)" :key="column.name" class="p-grid p-ai-center p-mb-2 map-info-column-row">
-                    <div class="p-col-12 p-md-2 map-info-column-label">{{ getAvailableColumnAlias(column, tool) }}</div>
-                    <q-input dense class="p-col-12 p-md-3" filled v-model="column.alias" :label="$t('common.alias')" :disable="tooltipsDisabled" />
-                    <q-input dense class="p-col-12 p-md-2" filled v-model="column.prefix" :label="$t('dashboard.widgetEditor.prefix')" :disable="tooltipsDisabled" />
-                    <q-input dense class="p-col-12 p-md-2" filled v-model="column.suffix" :label="$t('dashboard.widgetEditor.suffix')" :disable="tooltipsDisabled" />
-                    <q-input dense class="p-col-12 p-md-3" type="number" filled v-model.number="column.precision" :label="$t('dashboard.widgetEditor.precision')" :disable="tooltipsDisabled" />
-                </div>
-            </div>
-
-            <div class="p-col-12 form-list-item-dropzone" :class="{ 'form-list-item-dropzone-active': dropzoneBottomVisible[index] }" @drop.stop="onDropComplete($event, 'after', index)" @dragover.prevent @dragenter.prevent="displayDropzone('bottom', index)" @dragleave.prevent="hideDropzone('bottom', index)"></div>
-            <div v-show="dropzoneBottomVisible[index]" class="p-col-12 form-list-item-dropzone-active" @drop.stop="onDropComplete($event, 'after', index)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
         </div>
     </div>
 </template>
@@ -41,9 +57,6 @@ import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IMapInfoColumnSettings, IMapTooltipSettings, IMapTooltipSettingsVisualizations, IMapWidgetLayer, IMapWidgetLayerProperty, IMapWidgetVisualizationType } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { mapActions } from 'pinia'
 import appStore from '@/App.store'
-import Dropdown from 'primevue/dropdown'
-import MultiSelect from 'primevue/multiselect'
-import Message from 'primevue/message'
 import defaultsDescriptor from '../../../helpers/mapWidget/MapWidgetDefaultValuesDescriptor.json'
 import { getPropertiesByLayerLabel } from '../../../../MapWidget/MapWidgetDataProxy'
 import * as mapWidgetDefaultValues from '../../../helpers/mapWidget/MapWidgetDefaultValues'
@@ -52,14 +65,14 @@ import { createMapInfoColumnSettings, getMapInfoColumnName, normalizeMapInfoSett
 
 export default defineComponent({
     name: 'map-tooltips',
-    components: { Dropdown, MultiSelect, Message },
+    components: {},
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, dashboardId: { type: [String, Number], required: true } },
     data() {
         return {
             defaultsDescriptor,
             tooltip: null as IMapTooltipSettings | null,
-            dropzoneTopVisible: {},
-            dropzoneBottomVisible: {},
+            isDragging: false,
+            activeDropzone: -1,
             propertiesCache: new Map<string, { name: string; alias: string }[]>(),
             visualizationTypeOptions: [] as IMapWidgetVisualizationType[]
         }
@@ -116,26 +129,20 @@ export default defineComponent({
             this.tooltip.visualizations.splice(index, 1)
         },
         onDragStart(event: any, index: number) {
+            this.isDragging = true
+            this.activeDropzone = -1
             event.dataTransfer.setData('text/plain', JSON.stringify(index))
             event.dataTransfer.dropEffect = 'move'
             event.dataTransfer.effectAllowed = 'move'
         },
-        onDropComplete(event: any, position: 'before' | 'after', index: number) {
-            this.hideDropzone('bottom', index)
-            this.hideDropzone('top', index)
-            const eventData = JSON.parse(event.dataTransfer.getData('text/plain'))
-            this.onRowsMove(eventData, index, position)
-        },
-        onRowsMove(sourceRowIndex: number, targetRowIndex: number, position: string) {
-            if (sourceRowIndex === targetRowIndex) return
-            const newIndex = sourceRowIndex > targetRowIndex && position === 'after' ? targetRowIndex + 1 : targetRowIndex
-            this.tooltip?.visualizations.splice(newIndex, 0, this.tooltip.visualizations.splice(sourceRowIndex, 1)[0])
-        },
-        displayDropzone(position: string, index: number) {
-            position === 'top' ? (this.dropzoneTopVisible[index] = true) : (this.dropzoneBottomVisible[index] = true)
-        },
-        hideDropzone(position: string, index: number) {
-            position === 'top' ? (this.dropzoneTopVisible[index] = false) : (this.dropzoneBottomVisible[index] = false)
+        onDropAtIndex(event: any, targetDropzoneIndex: number) {
+            this.isDragging = false
+            this.activeDropzone = -1
+            const sourceIndex = JSON.parse(event.dataTransfer.getData('text/plain'))
+            if (sourceIndex === targetDropzoneIndex || sourceIndex === targetDropzoneIndex - 1) return
+            const [removed] = this.tooltip!.visualizations.splice(sourceIndex, 1)
+            const insertAt = targetDropzoneIndex > sourceIndex ? targetDropzoneIndex - 1 : targetDropzoneIndex
+            this.tooltip!.visualizations.splice(insertAt, 0, removed)
         },
         getColumnOptionsFromLayer(tooltip: IMapTooltipSettingsVisualizations) {
             if (!tooltip) return []
@@ -228,7 +235,7 @@ export default defineComponent({
 
             const selectedLabels = this.tooltip.visualizations
                 .map((visualizationConfig: any, index: number) => {
-                    return index !== currentIndex ? visualizationConfig.label ?? null : null
+                    return index !== currentIndex ? (visualizationConfig.label ?? null) : null
                 })
                 .filter((t): t is string => !!t)
 
@@ -242,24 +249,16 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.form-list-item-dropzone {
-    height: 20px;
-    width: 100%;
-    background-color: white;
+.tooltip-viz-row {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 2px;
 }
 
-.form-list-item-dropzone-active {
-    height: 10px;
-    background-color: #aec1d3;
-}
-
-.map-info-column-row {
-    padding: 0.5rem 0;
-    border-top: 1px solid #e5e7eb;
-}
-
-.map-info-column-label {
-    font-weight: 600;
-    overflow-wrap: anywhere;
+.tooltip-col-row {
+    border: 1px solid #f0f0f0;
+    border-radius: 4px;
+    overflow: hidden;
 }
 </style>
