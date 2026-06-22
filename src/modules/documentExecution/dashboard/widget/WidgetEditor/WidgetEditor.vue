@@ -35,8 +35,8 @@
 
         <q-page-container class="widget-page-container">
             <!-- with some ungodly hacking, this scroll area preserves the whole layout of the editor, i have no idea how it works -->
-            <q-scroll-area :style="{ height: scrollAreaHeight }">
-                <q-tab-panels v-model="activeTab" keep-alive class="kn-width-full kn-height-full column">
+            <q-scroll-area class="kn-background" :style="{ height: scrollAreaHeight }">
+                <q-tab-panels v-model="activeTab" keep-alive class="kn-width-full kn-height-full column kn-background">
                     <q-tab-panel v-if="hasDataTab" name="data" class="column" style="max-width: 850px !important; justify-self: center">
                         <MapWidgetLayersTab v-if="widget.type === 'map'" :prop-widget="widget" :datasets="datasets" :selected-datasets="selectedDatasets" :layers="layers" :variables="variables" :dashboard-id="dashboardId" :selected-layer="selectedLayer" @layerSelected="onLayerSelected" />
                         <WidgetEditorDataTab v-else :prop-widget="widget" :selected-dataset="selectedDataset" :selected-dataset-columns="selectedDatasetColumns" :list-drag-active="listDragActive" data-test="data-tab" />

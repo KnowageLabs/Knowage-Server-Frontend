@@ -2,49 +2,51 @@
     <div v-show="widgetModel">
         <Message v-if="themePropertyChanged" class="p-p-2 p-m-4" severity="warn" :closable="false">{{ $t('dashboard.widgetEditor.themeChangedWarning') }}</Message>
         <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker>
-        <q-list class="selector-expansion-list rounded-borders" bordered separator>
-            <template v-for="(accordion, index) in filteredSettings" :key="index">
-                <q-item v-if="accordion.toggleOnly">
-                    <TableWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged" />
-                </q-item>
-                <q-expansion-item v-else :model-value="activeIndex === index" expand-icon-class="col kn-width-full" hide-expand-icon @update:model-value="(val) => onExpansionChange(val, index)">
-                    <template #header>
-                        <TableWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></TableWidgetSettingsAccordionHeader>
-                    </template>
+        <q-card class="q-ma-sm">
+            <q-list class="selector-expansion-list" separator>
+                <template v-for="(accordion, index) in filteredSettings" :key="index">
+                    <q-item v-if="accordion.toggleOnly">
+                        <TableWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged" />
+                    </q-item>
+                    <q-expansion-item v-else :model-value="activeIndex === index" expand-icon-class="col kn-width-full" hide-expand-icon @update:model-value="(val) => onExpansionChange(val, index)">
+                        <template #header>
+                            <TableWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></TableWidgetSettingsAccordionHeader>
+                        </template>
 
-                    <TableWidgetRows v-if="accordion.type === 'Rows'" :widget-model="widgetModel"></TableWidgetRows>
-                    <TableWidgetSummaryRows v-else-if="accordion.type === 'SummaryRows'" :widget-model="widgetModel"></TableWidgetSummaryRows>
-                    <TableWidgetHeader v-else-if="accordion.type === 'Header'" :widget-model="widgetModel" :variables="variables" :dashboard-id="dashboardId"></TableWidgetHeader>
-                    <TableWidgetColumnGroups v-else-if="accordion.type === 'ColumnGroups'" :widget-model="widgetModel"></TableWidgetColumnGroups>
-                    <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
-                    <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
-                    <WidgetSelectionConfiguration v-else-if="accordion.type === 'SelectionConfiguration'" :widget-model="widgetModel"></WidgetSelectionConfiguration>
-                    <TableWidgetCustomMessages v-else-if="accordion.type === 'CustomMessages'" :widget-model="widgetModel"></TableWidgetCustomMessages>
-                    <TableWidgetVisualizationType v-else-if="accordion.type === 'VisualizationType'" :widget-model="widgetModel"></TableWidgetVisualizationType>
-                    <TableWidgetVisibilityConditions v-else-if="accordion.type === 'VisibilityConditions'" :widget-model="widgetModel" :variables="variables"></TableWidgetVisibilityConditions>
-                    <TableWidgetHeaders v-else-if="accordion.type === 'Headers'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></TableWidgetHeaders>
-                    <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" :dashboard-id="dashboardId" @styleChanged="onStyleChanged"></WidgetTitleStyle>
-                    <TableWidgetColumnStyle v-else-if="accordion.type === 'ColumnStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></TableWidgetColumnStyle>
-                    <TableWidgetColumnStyle v-else-if="accordion.type === 'ColumnGroupsStyle'" :widget-model="widgetModel" :theme-style="null" mode="columnGroups" @styleChanged="onStyleChanged"></TableWidgetColumnStyle>
-                    <WidgetRowsStyle v-else-if="accordion.type === 'RowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetRowsStyle>
-                    <TableWidgetSummaryStyle v-else-if="accordion.type === 'SummaryStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></TableWidgetSummaryStyle>
-                    <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
-                    <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>
-                    <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetPaddingStyle>
-                    <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetShadowsStyle>
-                    <TableWidgetConditions v-else-if="accordion.type === 'Conditions'" :widget-model="widgetModel" :variables="variables" :dashboard-id="dashboardId"></TableWidgetConditions>
-                    <TableWidgetTooltips v-else-if="accordion.type === 'Tooltips'" :widget-model="widgetModel"></TableWidgetTooltips>
-                    <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
-                    <WidgetSelection v-else-if="accordion.type === 'Selection'" :widget-model="widgetModel"></WidgetSelection>
-                    <WidgetCrossNavigation v-else-if="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetCrossNavigation>
-                    <WidgetInteractionsLinks v-else-if="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetInteractionsLinks>
-                    <WidgetPreview v-else-if="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetPreview>
-                    <WidgetInteractionsIframe v-else-if="accordion.type === 'IFrameInteraction'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetInteractionsIframe>
-                    <TableWidgetPaginator v-else-if="accordion.type === 'PaginatorStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></TableWidgetPaginator>
-                    <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
-                </q-expansion-item>
-            </template>
-        </q-list>
+                        <TableWidgetRows v-if="accordion.type === 'Rows'" :widget-model="widgetModel"></TableWidgetRows>
+                        <TableWidgetSummaryRows v-else-if="accordion.type === 'SummaryRows'" :widget-model="widgetModel"></TableWidgetSummaryRows>
+                        <TableWidgetHeader v-else-if="accordion.type === 'Header'" :widget-model="widgetModel" :variables="variables" :dashboard-id="dashboardId"></TableWidgetHeader>
+                        <TableWidgetColumnGroups v-else-if="accordion.type === 'ColumnGroups'" :widget-model="widgetModel"></TableWidgetColumnGroups>
+                        <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
+                        <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
+                        <WidgetSelectionConfiguration v-else-if="accordion.type === 'SelectionConfiguration'" :widget-model="widgetModel"></WidgetSelectionConfiguration>
+                        <TableWidgetCustomMessages v-else-if="accordion.type === 'CustomMessages'" :widget-model="widgetModel"></TableWidgetCustomMessages>
+                        <TableWidgetVisualizationType v-else-if="accordion.type === 'VisualizationType'" :widget-model="widgetModel"></TableWidgetVisualizationType>
+                        <TableWidgetVisibilityConditions v-else-if="accordion.type === 'VisibilityConditions'" :widget-model="widgetModel" :variables="variables"></TableWidgetVisibilityConditions>
+                        <TableWidgetHeaders v-else-if="accordion.type === 'Headers'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></TableWidgetHeaders>
+                        <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" :dashboard-id="dashboardId" @styleChanged="onStyleChanged"></WidgetTitleStyle>
+                        <TableWidgetColumnStyle v-else-if="accordion.type === 'ColumnStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></TableWidgetColumnStyle>
+                        <TableWidgetColumnStyle v-else-if="accordion.type === 'ColumnGroupsStyle'" :widget-model="widgetModel" :theme-style="null" mode="columnGroups" @styleChanged="onStyleChanged"></TableWidgetColumnStyle>
+                        <WidgetRowsStyle v-else-if="accordion.type === 'RowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetRowsStyle>
+                        <TableWidgetSummaryStyle v-else-if="accordion.type === 'SummaryStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></TableWidgetSummaryStyle>
+                        <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
+                        <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>
+                        <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetPaddingStyle>
+                        <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetShadowsStyle>
+                        <TableWidgetConditions v-else-if="accordion.type === 'Conditions'" :widget-model="widgetModel" :variables="variables" :dashboard-id="dashboardId"></TableWidgetConditions>
+                        <TableWidgetTooltips v-else-if="accordion.type === 'Tooltips'" :widget-model="widgetModel"></TableWidgetTooltips>
+                        <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
+                        <WidgetSelection v-else-if="accordion.type === 'Selection'" :widget-model="widgetModel"></WidgetSelection>
+                        <WidgetCrossNavigation v-else-if="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetCrossNavigation>
+                        <WidgetInteractionsLinks v-else-if="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetInteractionsLinks>
+                        <WidgetPreview v-else-if="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetPreview>
+                        <WidgetInteractionsIframe v-else-if="accordion.type === 'IFrameInteraction'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetInteractionsIframe>
+                        <TableWidgetPaginator v-else-if="accordion.type === 'PaginatorStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></TableWidgetPaginator>
+                        <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
+                    </q-expansion-item>
+                </template>
+            </q-list>
+        </q-card>
         <q-item v-if="isSearchActive && filteredSettings.length === 0" class="q-pa-md">
             <q-item-section class="text-grey-6">{{ $t('common.info.noAvailableItems') }}</q-item-section>
         </q-item>

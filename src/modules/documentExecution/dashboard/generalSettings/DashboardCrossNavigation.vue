@@ -2,7 +2,7 @@
     <q-layout view="hHh lpR fFf" container style="height: 100%; overflow: hidden">
         <q-page-container>
             <q-page class="row" style="position: unset">
-                <q-drawer v-model="drawerVisible" side="left" :width="400" :breakpoint="0" show-if-above class="column no-wrap">
+                <q-drawer v-model="drawerVisible" side="left" :width="300" :breakpoint="0" show-if-above class="column no-wrap">
                     <q-toolbar class="kn-toolbar kn-toolbar--secondary">
                         <q-toolbar-title>{{ $t('managers.crossNavigationManagement.title') }}</q-toolbar-title>
                         <KnFabButton icon="fas fa-plus" data-test="new-button" @click="showForm(-1)" />

@@ -2,43 +2,45 @@
     <div v-show="widgetModel">
         <Message v-if="themePropertyChanged" class="p-p-2 p-m-4" severity="warn" :closable="false">{{ $t('dashboard.widgetEditor.themeChangedWarning') }}</Message>
         <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker>
-        <q-list class="widget-editor-accordion rounded-borders" bordered separator>
-            <template v-for="(accordion, index) in filteredSettings" :key="index">
-                <q-item v-if="accordion.toggleOnly">
-                    <PivotTableSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged" />
-                </q-item>
-                <q-expansion-item v-else :model-value="activeIndex === index" expand-icon-class="col kn-width-full" hide-expand-icon @update:model-value="(val) => onExpansionChange(val, index)">
-                    <template #header>
-                        <PivotTableSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></PivotTableSettingsAccordionHeader>
-                    </template>
-                    <WidgetExport v-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
-                    <WidgetSelectionConfiguration v-else-if="accordion.type === 'SelectionConfiguration'" :widget-model="widgetModel"></WidgetSelectionConfiguration>
-                    <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" :dashboard-id="dashboardId" @styleChanged="onStyleChanged"></WidgetTitleStyle>
-                    <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
-                    <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>
-                    <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetPaddingStyle>
-                    <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetShadowsStyle>
-                    <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
-                    <WidgetSelection v-else-if="accordion.type === 'Selection'" :widget-model="widgetModel"></WidgetSelection>
-                    <WidgetCrossNavigation v-else-if="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetCrossNavigation>
-                    <WidgetInteractionsLinks v-else-if="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetInteractionsLinks>
-                    <PivotTableRowsConfig v-else-if="accordion.type === 'Rows'" :widget-model="widgetModel" />
-                    <PivotTableColumnsConfig v-else-if="accordion.type === 'Columns'" :widget-model="widgetModel" />
-                    <PivotTableFieldPicker v-else-if="accordion.type === 'FieldPicker'" :widget-model="widgetModel" />
-                    <PivotTableFieldPanel v-else-if="accordion.type === 'FieldPanel'" :widget-model="widgetModel" />
-                    <PivotTableMenuOverrides v-else-if="accordion.type === 'MenuOverrides'" :widget-model="widgetModel" />
-                    <PivotTableTooltips v-else-if="accordion.type === 'Tooltips'" :widget-model="widgetModel" />
-                    <PivotTableTotalsStyle v-else-if="accordion.type === 'Totals'" :widget-model="widgetModel" :toolbar-style-settings="descriptor.totalsToolbarStyleOptions" :total-type="accordion.type" :theme-style="null" @styleChanged="onStyleChanged" />
-                    <PivotTableTotalsStyle v-else-if="accordion.type === 'SubTotals'" :widget-model="widgetModel" :toolbar-style-settings="descriptor.totalsToolbarStyleOptions" :total-type="accordion.type" :theme-style="null" @styleChanged="onStyleChanged" />
-                    <PivotTableTotalsStyle v-else-if="accordion.type === 'CrossTabHeaders'" :widget-model="widgetModel" :toolbar-style-settings="descriptor.totalsToolbarStyleOptions" :total-type="accordion.type" :theme-style="null" @styleChanged="onStyleChanged" />
-                    <PivotTableFieldsStyle v-else-if="accordion.type === 'FieldsStyle'" :widget-model="widgetModel" :field-type="'fields'" :theme-style="null" @styleChanged="onStyleChanged" />
-                    <PivotTableFieldsStyle v-else-if="accordion.type === 'FieldHeadersStyle'" :widget-model="widgetModel" :field-type="'fieldHeaders'" :theme-style="null" @styleChanged="onStyleChanged" />
-                    <PivotTableConditionalStyle v-else-if="accordion.type === 'Conditions'" :widget-model="widgetModel"></PivotTableConditionalStyle>
-                    <PivotTableWidgetVisualizationType v-else-if="accordion.type === 'VisualizationType'" :widget-model="widgetModel"></PivotTableWidgetVisualizationType>
-                    <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
-                </q-expansion-item>
-            </template>
-        </q-list>
+        <q-card class="q-ma-sm">
+            <q-list class="widget-editor-accordion" separator>
+                <template v-for="(accordion, index) in filteredSettings" :key="index">
+                    <q-item v-if="accordion.toggleOnly">
+                        <PivotTableSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged" />
+                    </q-item>
+                    <q-expansion-item v-else :model-value="activeIndex === index" expand-icon-class="col kn-width-full" hide-expand-icon @update:model-value="(val) => onExpansionChange(val, index)">
+                        <template #header>
+                            <PivotTableSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></PivotTableSettingsAccordionHeader>
+                        </template>
+                        <WidgetExport v-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
+                        <WidgetSelectionConfiguration v-else-if="accordion.type === 'SelectionConfiguration'" :widget-model="widgetModel"></WidgetSelectionConfiguration>
+                        <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" :dashboard-id="dashboardId" @styleChanged="onStyleChanged"></WidgetTitleStyle>
+                        <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
+                        <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>
+                        <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetPaddingStyle>
+                        <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetShadowsStyle>
+                        <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
+                        <WidgetSelection v-else-if="accordion.type === 'Selection'" :widget-model="widgetModel"></WidgetSelection>
+                        <WidgetCrossNavigation v-else-if="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetCrossNavigation>
+                        <WidgetInteractionsLinks v-else-if="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetInteractionsLinks>
+                        <PivotTableRowsConfig v-else-if="accordion.type === 'Rows'" :widget-model="widgetModel" />
+                        <PivotTableColumnsConfig v-else-if="accordion.type === 'Columns'" :widget-model="widgetModel" />
+                        <PivotTableFieldPicker v-else-if="accordion.type === 'FieldPicker'" :widget-model="widgetModel" />
+                        <PivotTableFieldPanel v-else-if="accordion.type === 'FieldPanel'" :widget-model="widgetModel" />
+                        <PivotTableMenuOverrides v-else-if="accordion.type === 'MenuOverrides'" :widget-model="widgetModel" />
+                        <PivotTableTooltips v-else-if="accordion.type === 'Tooltips'" :widget-model="widgetModel" />
+                        <PivotTableTotalsStyle v-else-if="accordion.type === 'Totals'" :widget-model="widgetModel" :toolbar-style-settings="descriptor.totalsToolbarStyleOptions" :total-type="accordion.type" :theme-style="null" @styleChanged="onStyleChanged" />
+                        <PivotTableTotalsStyle v-else-if="accordion.type === 'SubTotals'" :widget-model="widgetModel" :toolbar-style-settings="descriptor.totalsToolbarStyleOptions" :total-type="accordion.type" :theme-style="null" @styleChanged="onStyleChanged" />
+                        <PivotTableTotalsStyle v-else-if="accordion.type === 'CrossTabHeaders'" :widget-model="widgetModel" :toolbar-style-settings="descriptor.totalsToolbarStyleOptions" :total-type="accordion.type" :theme-style="null" @styleChanged="onStyleChanged" />
+                        <PivotTableFieldsStyle v-else-if="accordion.type === 'FieldsStyle'" :widget-model="widgetModel" :field-type="'fields'" :theme-style="null" @styleChanged="onStyleChanged" />
+                        <PivotTableFieldsStyle v-else-if="accordion.type === 'FieldHeadersStyle'" :widget-model="widgetModel" :field-type="'fieldHeaders'" :theme-style="null" @styleChanged="onStyleChanged" />
+                        <PivotTableConditionalStyle v-else-if="accordion.type === 'Conditions'" :widget-model="widgetModel"></PivotTableConditionalStyle>
+                        <PivotTableWidgetVisualizationType v-else-if="accordion.type === 'VisualizationType'" :widget-model="widgetModel"></PivotTableWidgetVisualizationType>
+                        <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
+                    </q-expansion-item>
+                </template>
+            </q-list>
+        </q-card>
         <q-item v-if="isSearchActive && filteredSettings.length === 0" class="q-pa-md">
             <q-item-section class="text-grey-6">{{ $t('common.info.noAvailableItems') }}</q-item-section>
         </q-item>

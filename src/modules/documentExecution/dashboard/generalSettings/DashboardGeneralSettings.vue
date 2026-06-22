@@ -8,12 +8,12 @@
             </template>
         </Toolbar>
 
-        <div class="datasetEditor-container">
+        <div class="datasetEditor-container kn-background">
             <DashboardGeneralSettingsList :dashboard-model-prop="dashboardModel" :selected="selectedOption" @selected-option="setSelectedOption"></DashboardGeneralSettingsList>
-            <div v-if="selectedOption !== 'Custom Header'" class="general-settings-content">
+            <div v-if="selectedOption !== 'Custom Header' && selectedOption !== 'CrossNavigation'" class="general-settings-content">
                 <div class="general-settings-panel-wrapper">
                     <KnHint v-if="!selectedOption || selectedOption === 'General'" class="p-as-center" :title="'common.settings'" :hint="'dashboard.widgetEditor.settings.hint'"></KnHint>
-                    <q-list v-else-if="selectedOption !== 'Custom Header'" class="general-settings-accordion" bordered>
+                    <q-card v-else class="q-ma-sm">
                         <q-expansion-item v-model="accordionOpen" :label="selectedOptionLabel" header-class="general-settings-accordion-header">
                             <DashboardVariables v-if="selectedOption === 'Variables'" :dashboard-id="dashboardId" :prop-variables="variables" :selected-datasets="selectedDatasets" :selected-datasets-columns-map="selectedDatasetColumnsMap" :profile-attributes="profileAttributes" />
                             <DashboardInformation v-if="selectedOption === 'Information'" :dashboard-model-prop="dashboardModel" />
@@ -23,20 +23,19 @@
                             <DashboardThemes v-if="isEnterprise && selectedOption === 'Themes'" :dashboard-model-prop="dashboardModel" />
                             <AiSettings v-if="isEnterprise && selectedOption === 'aisettings'" :dashboard-model-prop="dashboardModel" @change="setAiModel" />
                         </q-expansion-item>
-                    </q-list>
+                    </q-card>
                 </div>
             </div>
-            <div v-if="customHeaderWidgetEditorVisible && customHeaderWidget" class="p-d-flex p-flex-column kn-flex q-ma-md" style="border: 1px solid rgba(0, 0, 0, 0.12); border-radius: 4px">
+            <div v-if="customHeaderWidgetEditorVisible && customHeaderWidget" class="p-d-flex p-flex-column kn-flex q-ma-md" style="border: 1px solid rgba(0, 0, 0, 0.12); border-radius: 4px; background-color: white">
                 <q-toggle v-model="menuWidgetsConfig.enableCustomHeader" :label="$t('dashboard.generalSettings.menuWidgets.enableCustomHeader')" />
                 <q-separator />
                 <WidgetEditor ref="widgetEditor" :dashboard-id="dashboardId" :datasets="datasets" :variables="variables" :prop-widget="customHeaderWidget" :class="{ 'editor-disabled': !menuWidgetsConfig.enableCustomHeader }"></WidgetEditor>
             </div>
             <AiSettings v-if="isEnterprise && selectedOption === 'aisettings'" :dashboard-model-prop="dashboardModel" @change="setAiModel" />
 
-            <!-- TODO: New field, adapt -->
-            <div v-if="selectedOption === 'CrossNavigation'" class="p-d-flex p-flex-column kn-flex dashboard-card-shadow q-ma-md">
+            <q-card v-if="selectedOption === 'CrossNavigation'" class="kn-flex q-ma-md column" style="overflow: hidden">
                 <DashboardCrossNavigation ref="crossNavRef" :dashboard-id="dashboardId" />
-            </div>
+            </q-card>
         </div>
     </div>
 </template>
@@ -216,11 +215,7 @@ export default defineComponent({
 </style>
 
 <style lang="scss">
-.general-settings-accordion {
-    border-radius: 4px;
-
-    .general-settings-accordion-header {
-        font-weight: 500;
-    }
+.general-settings-accordion-header {
+    font-weight: 500;
 }
 </style>
