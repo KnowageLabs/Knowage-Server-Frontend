@@ -159,7 +159,7 @@
     "defaultRowsConfiguration": {
         "indexColumn": false,
         "rowSpan": {
-            "column": "",
+            "columns": [],
             "enabled": false
         }
     },
