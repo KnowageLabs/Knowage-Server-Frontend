@@ -335,7 +335,8 @@ export default defineComponent({
                         }
 
                         //ROWSPAN MANAGEMENT
-                        if (this.widgetModel.settings.configuration.rows.rowSpan.enabled && this.widgetModel.settings.configuration.rows.rowSpan.column === this.widgetModel.columns[datasetColumn].id) {
+                        if (this.widgetModel.settings.configuration.rows.rowSpan.enabled && (this.widgetModel.settings.configuration.rows.rowSpan.columns ?? []).includes(this.widgetModel.columns[datasetColumn].id)) {
+                            const spanKey = `span_${this.widgetModel.columns[datasetColumn].id}`
                             let previousValue
                             let previousIndex
                             const tempRows = this.tableData.rows as any
@@ -343,19 +344,19 @@ export default defineComponent({
                                 if (previousValue != tempRows[r][responseFields[responseField].name]) {
                                     previousValue = tempRows[r][responseFields[responseField].name]
                                     previousIndex = r
-                                    tempRows[r].span = 1
+                                    tempRows[r][spanKey] = 1
                                 } else {
-                                    tempRows[previousIndex].span++
+                                    tempRows[previousIndex][spanKey]++
                                 }
                             }
                             tempCol.rowSpan = function RowSpanCalculator(params) {
-                                if (params.data.span > 1) {
-                                    return params.data.span
+                                if (params.data[spanKey] > 1) {
+                                    return params.data[spanKey]
                                 } else return 1
                             }
                             tempCol.cellClassRules = {
                                 'cell-span': function (params) {
-                                    return tempRows[params.rowIndex]?.span > 1
+                                    return tempRows[params.rowIndex]?.[spanKey] > 1
                                 }
                             }
                         }

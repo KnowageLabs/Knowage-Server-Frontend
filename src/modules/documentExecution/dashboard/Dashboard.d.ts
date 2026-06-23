@@ -176,7 +176,7 @@ export interface ITableWidgetRows {
     indexColumn: boolean
     rowSpan: {
         enabled: boolean
-        column: string
+        columns: string[]
     }
 }
 

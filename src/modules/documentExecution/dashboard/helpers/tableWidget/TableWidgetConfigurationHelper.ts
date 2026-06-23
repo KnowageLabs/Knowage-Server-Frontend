@@ -1,5 +1,5 @@
-import { ITableWidgetColumnGroup, ITableWidgetColumnGroups, ITableWidgetCustomMessages, ITableWidgetHeaders, ITableWidgetRows, ITableWidgetSummaryRows } from "../../Dashboard"
-import * as  tableWidgetDefaultValues from '../../widget/WidgetEditor/helpers/tableWidget/TableWidgetDefaultValues'
+import { ITableWidgetColumnGroup, ITableWidgetColumnGroups, ITableWidgetCustomMessages, ITableWidgetHeaders, ITableWidgetRows, ITableWidgetSummaryRows } from '../../Dashboard'
+import * as tableWidgetDefaultValues from '../../widget/WidgetEditor/helpers/tableWidget/TableWidgetDefaultValues'
 
 export const getFormattedConfiguration = (widget: any) => {
     return { columnGroups: getDefaultColumnGroups(widget), exports: getFormattedExport(widget), headers: getHeadersConfiguration(widget), rows: getFormattedRows(widget), summaryRows: getFormattedSummaryRows(widget), customMessages: getFormattedCustomMessages(widget) as ITableWidgetCustomMessages }
@@ -8,9 +8,8 @@ export const getFormattedConfiguration = (widget: any) => {
 const getDefaultColumnGroups = (widget: any) => {
     if (!widget.groups) return tableWidgetDefaultValues.getDefaultColumnGroups()
     const formattedColumnGroups = [] as ITableWidgetColumnGroup[]
-    widget.groups.forEach((group: { id: string, name: string }) => formattedColumnGroups.push({ id: group.id, label: group.name, columns: [] }))
+    widget.groups.forEach((group: { id: string; name: string }) => formattedColumnGroups.push({ id: group.id, label: group.name, columns: [] }))
     return { enabled: true, groups: formattedColumnGroups } as ITableWidgetColumnGroups
-
 }
 
 export const getFormattedExport = (widget: any) => {
@@ -21,7 +20,6 @@ export const getFormattedExport = (widget: any) => {
         formattedExport.showScreenshot = widget.style.showScreenshot ?? false
     }
     return formattedExport
-
 }
 
 const getHeadersConfiguration = (widget: any) => {
@@ -29,7 +27,7 @@ const getHeadersConfiguration = (widget: any) => {
 }
 
 const getFormattedRows = (widget: any) => {
-    return { indexColumn: widget.settings?.indexColumn, rowSpan: { enabled: false, column: '' } } as ITableWidgetRows
+    return { indexColumn: widget.settings?.indexColumn, rowSpan: { enabled: false, columns: [] } } as ITableWidgetRows
 }
 
 const getFormattedSummaryRows = (widget: any) => {
