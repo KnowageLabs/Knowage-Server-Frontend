@@ -58,7 +58,10 @@ const formatTableWidgetColumnStyles = (columnStyles: ITableWidgetColumnStyles) =
 
 const formatRowsConfiguration = (widgetConfiguration: ITableWidgetConfiguration) => {
     if (!widgetConfiguration.rows) return
-    widgetConfiguration.rows.rowSpan.column = getColumnName(widgetConfiguration.rows.rowSpan.column)
+    const rowSpan = widgetConfiguration.rows.rowSpan as any
+    if (Array.isArray(rowSpan.columns)) {
+        rowSpan.columns = rowSpan.columns.map((id: string) => getColumnName(id)).filter(Boolean)
+    }
 }
 
 const formatHeadersConfiguration = (widgetConfiguration: ITableWidgetConfiguration) => {

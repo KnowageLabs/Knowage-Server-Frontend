@@ -8,7 +8,7 @@
             <q-toggle v-model="rowsModel.rowSpan.enabled" :label="$t('dashboard.widgetEditor.rows.enableRowspan')" @update:model-value="onRowSpanChanged" dense />
         </div>
         <div class="col-12">
-            <q-select v-model="rowsModel.rowSpan.column" :options="widgetModel.columns" option-label="alias" option-value="id" emit-value map-options :label="$t('dashboard.widgetEditor.rows.rowSpanColumn')" outlined dense :disable="!rowsModel.rowSpan.enabled" @update:model-value="onRowSpanChanged" />
+            <q-select v-model="rowsModel.rowSpan.columns" :options="widgetModel.columns" option-label="alias" option-value="id" emit-value map-options multiple :label="$t('dashboard.widgetEditor.rows.rowSpanColumn')" outlined dense :disable="!rowsModel.rowSpan.enabled" @update:model-value="onRowSpanChanged" />
         </div>
     </div>
 </template>

@@ -61,8 +61,12 @@ export const removeColumnFromTableWidgetModel = (widgetModel: IWidget, column: I
 }
 
 const removeColumnFromRows = (widgetModel: IWidget, column: IWidgetColumn) => {
-    if (column.id === widgetModel.settings.configuration.rows.rowSpan.column) {
-        widgetModel.settings.configuration.rows.rowSpan.column = ''
+    const rowSpan = widgetModel.settings.configuration.rows.rowSpan
+    const columns: string[] = rowSpan.columns ?? []
+    const idx = columns.indexOf(column.id as string)
+    if (idx !== -1) {
+        columns.splice(idx, 1)
+        rowSpan.columns = columns
         emitter.emit('columnRemovedFromRows')
     }
 }
@@ -178,7 +182,16 @@ const formatTableWidgetColumnStyles = (columnStyles: ITableWidgetColumnStyles) =
 
 const formatRowsConfiguration = (widgetConfiguration: ITableWidgetConfiguration) => {
     if (!widgetConfiguration.rows) return
-    widgetConfiguration.rows.rowSpan.column = getColumnId(widgetConfiguration.rows.rowSpan.column)
+    const rowSpan = widgetConfiguration.rows.rowSpan as any
+    // Backward compatibility: migrate old single 'column' string to 'columns' array
+    if (rowSpan.column != null && rowSpan.column !== '') {
+        rowSpan.columns = [getColumnId(rowSpan.column)].filter(Boolean)
+        delete rowSpan.column
+    } else if (Array.isArray(rowSpan.columns)) {
+        rowSpan.columns = rowSpan.columns.map((col: string) => getColumnId(col)).filter(Boolean)
+    } else {
+        rowSpan.columns = []
+    }
 }
 
 const formatHeadersConfiguration = (widgetConfiguration: ITableWidgetConfiguration) => {
