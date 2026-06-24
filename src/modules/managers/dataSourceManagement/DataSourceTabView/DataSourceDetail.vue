@@ -79,6 +79,7 @@
                         <q-btn-toggle
                             v-model="jdbcOrJndi.type"
                             toggle-color="primary"
+                            @update:model-value="clearType"
                             :options="[
                                 { label: 'JDBC', value: 'JDBC', disabled: readOnly, title: $t('managers.dataSourceManagement.form.jdbcInfo') },
                                 { label: 'JNDI', value: 'JNDI', disabled: readOnly || !currentUser.isSuperadmin, title: $t('managers.dataSourceManagement.form.jndiInfo') }
@@ -102,6 +103,32 @@
                                 {{ $t('managers.dataSourceManagement.form.jndiHint') }}
                             </template>
                         </q-input>
+                    </div>
+                    <div v-if="jdbcOrJndi.type == 'JNDI'" class="row q-mt-sm q-col-gutter-sm">
+                        <div class="col-12">
+                            <q-checkbox
+                                v-model="datasource.multiSchema"
+                                size="sm"
+                                :disable="readOnly"
+                                :label="$t('managers.dataSourceManagement.form.multischema')"
+                                @update:model-value="onFieldChange"
+                                data-test="multischema-checkbox"
+                            />
+                        </div>
+                        <div v-if="datasource.multiSchema" class="col-12">
+                            <q-input
+                                filled
+                                dense
+                                v-model="v$.datasource.schemaAttribute.$model"
+                                maxlength="45"
+                                :disable="readOnly"
+                                :error="v$.datasource.schemaAttribute.$invalid && v$.datasource.schemaAttribute.$dirty"
+                                :label="$t('managers.dataSourceManagement.form.schemaAttribute')"
+                                @update:model-value="onFieldChange"
+                                data-test="schema-attribute-input"
+                            />
+                            <KnValidationMessages :v-comp="v$.datasource.schemaAttribute" :additional-translate-params="{ fieldName: $t('managers.dataSourceManagement.form.schemaAttribute') }" />
+                        </div>
                     </div>
                     <div v-if="jdbcOrJndi.type == 'JDBC'" class="row q-mt-md q-col-gutter-sm">
                         <q-input
@@ -155,6 +182,7 @@
 /* eslint-disable no-prototype-builtins */
 import { defineComponent } from 'vue'
 import { createValidations, ICustomValidatorMap } from '@/helpers/commons/validationHelper'
+import { extendedAlphanumeric } from '@/helpers/commons/regexHelper'
 import { AxiosResponse } from 'axios'
 import useValidate from '@vuelidate/core'
 import dataSourceDescriptor from '../DataSourceDescriptor.json'
@@ -274,10 +302,14 @@ export default defineComponent({
         const jndiTypeFormat = (value) => {
             return this.jdbcOrJndi.type != 'JNDI' || value.match(/java:comp\/env\/jdbc\/[A-Za-z\d\-_|#$]+/g)
         }
+        const schemaAttributeRegex = (value) => {
+            return this.jdbcOrJndi.type != 'JNDI' || !this.datasource.multiSchema || extendedAlphanumeric.test(value ?? '')
+        }
         const customValidators: ICustomValidatorMap = {
             'jndi-name-required': jndiTypeRequired('JNDI'),
             'jdbc-data-required': jndiTypeRequired('JDBC'),
-            'jndi-format': jndiTypeFormat
+            'jndi-format': jndiTypeFormat,
+            'schema-attribute-regex': schemaAttributeRegex
         }
         const validationObject = {
             datasource: createValidations('datasource', dataSourceDetailValidationDescriptor.validations.datasource, customValidators)
@@ -370,6 +402,7 @@ export default defineComponent({
                     }
                 }
             }
+            this.onFieldChange()
         },
 
         checkIfReadOnly() {
