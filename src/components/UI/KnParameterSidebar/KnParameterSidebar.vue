@@ -372,6 +372,16 @@ export default defineComponent({
                     this.parameters.filterStatus.push(el)
                 }
             })
+            // Reset dependency arrays before recomputing them to avoid duplicates when loadParameters() is called multiple times (e.g. both propDocument and filtersData watchers trigger).
+            // Without this reset, set*Dependency functions would push the same parameter references again into already-populated arrays, causing admissibleValues to be called N times per change.
+            this.parameters.filterStatus.forEach((el: any) => {
+                el.dataDependentParameters = undefined
+                el.dataDependsOnParameters = undefined
+                el.lovDependentParameters = undefined
+                el.lovDependsOnParameters = undefined
+                el.dependentParameters = undefined
+                el.dependsOnParameters = undefined
+            })
             this.parameters?.filterStatus.forEach((el: any) => setVisualDependency(this.parameters, el))
             this.parameters?.filterStatus.forEach((el: any) => setDataDependency(this.parameters, el))
             this.parameters?.filterStatus.forEach((el: any) => setLovsDependency(this.parameters, el))
