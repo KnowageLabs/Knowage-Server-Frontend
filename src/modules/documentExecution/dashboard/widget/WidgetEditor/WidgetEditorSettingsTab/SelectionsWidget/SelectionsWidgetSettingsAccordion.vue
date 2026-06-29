@@ -2,35 +2,45 @@
     <div v-show="widgetModel">
         <Message v-if="themePropertyChanged" class="p-p-2 p-m-4" severity="warn" :closable="false">{{ $t('dashboard.widgetEditor.themeChangedWarning') }}</Message>
         <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker>
-        <q-list class="selectorAccordion" bordered separator>
-            <q-expansion-item v-for="(accordion, index) in settings" :key="index" :model-value="activeIndex === index" :disable="accordionIsDisabled(accordion.type)" expand-icon-class="col kn-width-full" @update:model-value="(val) => onExpansionChange(val, index)">
-                <template #header>
-                    <SelectionsWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></SelectionsWidgetSettingsAccordionHeader>
+        <q-card class="q-ma-sm">
+            <q-list class="selector-expansion-list" separator>
+                <template v-for="(accordion, index) in filteredSettings" :key="index">
+                    <q-item v-if="accordion.toggleOnly">
+                        <SelectionsWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged" />
+                    </q-item>
+                    <q-expansion-item v-else :model-value="activeIndex === index" :disable="(accordion.type === 'RowsStyle' && selectionViewMode === 'chips') || (accordion.type === 'ChipsStyle' && selectionViewMode === 'list')" expand-icon-class="col kn-width-full" hide-expand-icon @update:model-value="(val) => onExpansionChange(val, index)">
+                        <template #header>
+                            <SelectionsWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></SelectionsWidgetSettingsAccordionHeader>
+                        </template>
+                        <SelectorWidgetType v-if="accordion.type === 'SelectorType'" :widget-model="widgetModel"></SelectorWidgetType>
+                        <SelectionsWidgetValuesManagement v-if="accordion.type === 'ValuesManagement'" :widget-model="widgetModel"></SelectionsWidgetValuesManagement>
+                        <SelectionsNoSelectionConfiguration v-else-if="accordion.type === 'NoSelections'" :widget-model="widgetModel"></SelectionsNoSelectionConfiguration>
+                        <WidgetSelectionConfiguration v-else-if="accordion.type === 'SelectionConfiguration'" :widget-model="widgetModel"></WidgetSelectionConfiguration>
+                        <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
+                        <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
+                        <SelectorWidgetFilter v-else-if="accordion.type === 'Filter'" :widget-model="widgetModel" :selectedDatasets="selectedDatasets"></SelectorWidgetFilter>
+                        <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" :dashboard-id="dashboardId" @styleChanged="onStyleChanged"></WidgetTitleStyle>
+                        <SelectionsWidgetChipsStyle v-else-if="accordion.type === 'ChipsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectionsWidgetChipsStyle>
+                        <WidgetRowsStyle v-else-if="accordion.type === 'RowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetRowsStyle>
+                        <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
+                        <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetPaddingStyle>
+                        <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>
+                        <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetShadowsStyle>
+                        <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
+                        <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
+                    </q-expansion-item>
                 </template>
-                <SelectorWidgetType v-if="accordion.type === 'SelectorType'" :widget-model="widgetModel"></SelectorWidgetType>
-                <SelectionsWidgetValuesManagement v-if="accordion.type === 'ValuesManagement'" :widget-model="widgetModel"></SelectionsWidgetValuesManagement>
-                <SelectionsNoSelectionConfiguration v-else-if="accordion.type === 'NoSelections'" :widget-model="widgetModel"></SelectionsNoSelectionConfiguration>
-                <WidgetSelectionConfiguration v-else-if="accordion.type === 'SelectionConfiguration'" :widget-model="widgetModel"></WidgetSelectionConfiguration>
-                <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
-                <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
-                <SelectorWidgetFilter v-else-if="accordion.type === 'Filter'" :widget-model="widgetModel" :selectedDatasets="selectedDatasets"></SelectorWidgetFilter>
-                <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" :dashboard-id="dashboardId" @styleChanged="onStyleChanged"></WidgetTitleStyle>
-                <SelectionsWidgetChipsStyle v-else-if="accordion.type === 'ChipsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectionsWidgetChipsStyle>
-                <WidgetRowsStyle v-else-if="accordion.type === 'RowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetRowsStyle>
-                <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
-                <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetPaddingStyle>
-                <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>
-                <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetShadowsStyle>
-                <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
-                <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
-            </q-expansion-item>
-        </q-list>
+            </q-list>
+        </q-card>
+        <q-item v-if="isSearchActive && filteredSettings.length === 0" class="q-pa-md">
+            <q-item-section class="text-grey-6">{{ $t('common.info.noAvailableItems') }}</q-item-section>
+        </q-item>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget, IDataset, IVariable } from '@/modules/documentExecution/Dashboard/Dashboard'
+import { IWidget, IDataset, IVariable } from '@/modules/documentExecution/dashboard/Dashboard'
 import { mapState } from 'pinia'
 import mainStore from '@/App.store'
 import descriptor from './SelectionsWidgetSettingsDescriptor.json'
@@ -80,13 +90,16 @@ export default defineComponent({
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
-        settings: { type: Array as PropType<{ title: string; type: string }[]> },
+        settings: { type: Array as PropType<{ title: string; type: string; toggleOnly?: boolean }[]> },
         datasets: { type: Array as PropType<IDataset[]> },
         selectedDatasets: { type: Array as PropType<IDataset[]> },
         variables: { type: Array as PropType<IVariable[]> },
         dashboardId: { type: String, required: true }
     },
 
+    inject: {
+        widgetSettingsSearch: { from: 'widgetSettingsSearch', default: null }
+    },
     data() {
         return {
             descriptor,
@@ -105,7 +118,20 @@ export default defineComponent({
             return this.widgetModel.settings?.configuration?.type ?? ''
         },
         showThemePicker() {
-            return this.isEnterprise && this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
+            return !this.isSearchActive && this.isEnterprise && this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
+        },
+        filteredSettings(): { title: string; type: string; toggleOnly?: boolean }[] {
+            if (!this.settings) return []
+            const search = (this.widgetSettingsSearch as any) ?? ''
+            let result = [...this.settings]
+            if (search.length >= 3) {
+                const lc = search.toLowerCase()
+                result = result.filter((s: { title: string; type: string }) => this.$t(s.title).toLowerCase().includes(lc))
+            }
+            return result
+        },
+        isSearchActive(): boolean {
+            return ((this.widgetSettingsSearch as any) ?? '').length >= 3
         }
     },
     watch: {
@@ -118,9 +144,6 @@ export default defineComponent({
         this.setActiveAccordion()
     },
     methods: {
-        accordionIsDisabled(accordionType: string) {
-            return (accordionType === 'RowsStyle' && this.selectionViewMode === 'chips') || (accordionType === 'ChipsStyle' && this.selectionViewMode === 'list')
-        },
         setActiveAccordion() {
             if (this.settings?.length === 1) this.activeIndex = 0
         },
@@ -138,14 +161,3 @@ export default defineComponent({
     }
 })
 </script>
-
-<style lang="scss">
-.selectorAccordion {
-    ::v-deep(.p-accordion-tab-active) {
-        margin: 0;
-    }
-    .p-accordion-content {
-        display: flex;
-    }
-}
-</style>

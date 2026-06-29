@@ -13,3 +13,39 @@
 .dashboard-scrollbar::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
+
+// Reusable card drag/action handles
+.kn-drag-handle {
+    width: 18px;
+    flex-shrink: 0;
+    cursor: grab;
+    background-color: #f0f0f0;
+    color: var(--kn-color-primary);
+}
+
+.kn-action-handle {
+    width: 18px;
+    flex-shrink: 0;
+    background-color: #f0f0f0;
+    color: var(--kn-color-primary);
+}
+
+// Drag-and-drop dropzones
+.kn-dropzone {
+    height: 12px;
+    width: 100%;
+    border-radius: 4px;
+    transition:
+        height 0.15s,
+        background-color 0.15s;
+}
+
+.kn-dropzone-visible {
+    height: 12px;
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+.kn-dropzone-active {
+    height: 14px;
+    background-color: #aec1d3;
+}

@@ -1,22 +1,32 @@
 <template>
-    <div v-if="viewMode === 'document-detail' || $route.name === 'document-details-new-document' || $route.name === 'document-details-edit-document'" id="document-details-container" class="p-d-flex p-flex-column kn-flex kn-height-full">
-        <Toolbar class="kn-toolbar kn-toolbar--primary p-p-0 p-m-0 p-col-12">
-            <template #start>
-                {{ $t('documentExecution.documentDetails.title') }}
-            </template>
-            <template #end>
-                <Button v-tooltip.bottom="$t('common.save')" icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="invalidDrivers > 0 || invalidOutputParams > 0 || invalidFunctionalities == 0 || v$.$invalid" data-test="submit-button" @click="saveDocument" />
-                <Button v-if="propMode === 'execution'" v-tooltip.bottom="$t('common.close')" icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="closeDocument" />
-            </template>
-        </Toolbar>
-        <ProgressSpinner v-if="loading" class="doc-details-spinner" :style="mainDescriptor.style.spinnerStyle" />
+    <div v-if="viewMode === 'document-detail' || route.name === 'document-details-new-document' || route.name === 'document-details-edit-document'" id="document-details-container" class="column kn-flex kn-height-full">
+        <q-toolbar class="kn-toolbar kn-toolbar--primary">
+            <q-toolbar-title>{{ $t('documentExecution.documentDetails.title') }}</q-toolbar-title>
+            <q-btn flat round dense icon="save" :disable="invalidDrivers > 0 || invalidOutputParams > 0 || invalidFunctionalities == 0 || v$.$invalid" data-test="submit-button" @click="saveDocument">
+                <q-tooltip>{{ $t('common.save') }}</q-tooltip>
+            </q-btn>
+            <q-btn v-if="propMode === 'execution'" flat round dense icon="close" data-test="close-button" @click="closeDocument">
+                <q-tooltip>{{ $t('common.close') }}</q-tooltip>
+            </q-btn>
+        </q-toolbar>
 
-        <div class="document-details-tab-container p-d-flex p-flex-column kn-flex">
-            <TabView class="document-details-tabview p-d-flex p-flex-column kn-flex" @tab-change="onTabChange">
-                <TabPanel>
-                    <template #header>
-                        <span>{{ $t('documentExecution.documentDetails.info.infoTitle') }}</span>
-                    </template>
+        <div class="document-details-tab-container column kn-flex">
+            <q-tabs v-model="activeTab" dense align="left" class="kn-tabs" @update:model-value="onTabChange" style="border-bottom: 1px solid #ccc">
+                <q-tab name="informations" :label="$t('documentExecution.documentDetails.info.infoTitle')" />
+                <q-tab v-if="selectedDocument?.id" name="drivers">
+                    <span :class="{ 'details-warning-color': invalidDrivers }">{{ $t('documentExecution.documentDetails.drivers.title') }}</span>
+                    <q-badge v-if="invalidDrivers > 0" color="negative" floating>{{ invalidDrivers }}</q-badge>
+                </q-tab>
+                <q-tab v-if="selectedDocument?.id" name="outputParams">
+                    <span :class="{ 'details-warning-color': invalidOutputParams }">{{ $t('documentExecution.documentDetails.outputParams.title') }}</span>
+                    <q-badge v-if="invalidOutputParams > 0" color="negative" floating>{{ invalidOutputParams }}</q-badge>
+                </q-tab>
+                <q-tab v-if="selectedDocument?.id && showDataLineageTab" name="dataLineage" :label="$t('documentExecution.documentDetails.dataLineage.title')" />
+                <q-tab v-if="selectedDocument?.id" name="history" :label="$t('documentExecution.documentDetails.history.title')" />
+                <q-tab v-if="selectedDocument?.id && selectedDocument?.typeCode == 'REPORT' && selectedDocument?.engine == 'knowagejasperreporte'" name="subreports" :label="$t('documentExecution.documentDetails.subreports.title')" />
+            </q-tabs>
+            <q-tab-panels v-model="activeTab" animated class="row kn-flex">
+                <q-tab-panel name="informations" class="q-pa-none kn-height-full row">
                     <InformationsTab
                         v-if="!loading"
                         :selected-document="selectedDocument"
@@ -33,42 +43,23 @@
                         @deleteImage="deleteImage"
                         @openDesignerDialog="openDesignerDialog"
                     />
-                </TabPanel>
-                <TabPanel v-if="selectedDocument?.id">
-                    <template #header>
-                        <span :class="{ 'details-warning-color': invalidDrivers }">{{ $t('documentExecution.documentDetails.drivers.title') }}</span>
-                        <Badge v-if="invalidDrivers > 0" :value="invalidDrivers" class="p-ml-2" severity="danger"></Badge>
-                    </template>
+                </q-tab-panel>
+                <q-tab-panel v-if="selectedDocument?.id" name="drivers" class="q-pa-none kn-height-full row">
                     <DriversTab :selected-document="selectedDocument" :available-drivers="drivers" :available-analytical-drivers="analyticalDrivers" :refresh="refreshDrivers" />
-                </TabPanel>
-                <TabPanel v-if="selectedDocument?.id">
-                    <template #header>
-                        <span :class="{ 'details-warning-color': invalidOutputParams }">{{ $t('documentExecution.documentDetails.outputParams.title') }}</span>
-                        <Badge v-if="invalidOutputParams > 0" :value="invalidOutputParams" class="p-ml-2" severity="danger"></Badge>
-                    </template>
+                </q-tab-panel>
+                <q-tab-panel v-if="selectedDocument?.id" name="outputParams" class="q-pa-none kn-height-full row">
                     <OutputParamsTab :selected-document="selectedDocument" :type-list="parTypes" :date-formats="dateFormats" />
-                </TabPanel>
-                <TabPanel v-if="selectedDocument?.id && showDataLineageTab">
-                    <template #header>
-                        <span>{{ $t('documentExecution.documentDetails.dataLineage.title') }}</span>
-                    </template>
-
+                </q-tab-panel>
+                <q-tab-panel v-if="selectedDocument?.id && showDataLineageTab" name="dataLineage" class="q-pa-none kn-height-full row">
                     <DataLineageTab :selected-document="selectedDocument" :meta-source-resource="metaSourceResource" :saved-tables="savedTables" />
-                </TabPanel>
-                <TabPanel v-if="selectedDocument?.id">
-                    <template #header>
-                        <span>{{ $t('documentExecution.documentDetails.history.title') }}</span>
-                    </template>
+                </q-tab-panel>
+                <q-tab-panel v-if="selectedDocument?.id" name="history" class="q-pa-none kn-height-full row">
                     <HistoryTab :selected-document="selectedDocument" @openDesignerDialog="openDesignerDialog" :refresh="refreshHistory" />
-                </TabPanel>
-                <TabPanel v-if="selectedDocument?.id && selectedDocument?.typeCode == 'REPORT' && selectedDocument?.engine == 'knowagejasperreporte'">
-                    <template #header>
-                        <span>{{ $t('documentExecution.documentDetails.subreports.title') }}</span>
-                    </template>
-
+                </q-tab-panel>
+                <q-tab-panel v-if="selectedDocument?.id && selectedDocument?.typeCode == 'REPORT' && selectedDocument?.engine == 'knowagejasperreporte'" name="subreports" class="q-pa-none kn-height-full row">
                     <SubreportsTab :selected-document="selectedDocument" :all-document-details-prop="allDocumentDetails" />
-                </TabPanel>
-            </TabView>
+                </q-tab-panel>
+            </q-tab-panels>
         </div>
 
         <DocumentDetailOlapDesignerDialog v-if="designerDialogVisible" :visible="designerDialogVisible" :selected-document="selectedDocument" @close="designerDialogVisible = false" @designerStarted="onDesignerStart"></DocumentDetailOlapDesignerDialog>
@@ -78,6 +69,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useQuasar } from 'quasar'
 import { AxiosResponse } from 'axios'
 import useValidate from '@vuelidate/core'
 import mainDescriptor from './DocumentDetailsDescriptor.json'
@@ -87,10 +80,6 @@ import OutputParamsTab from './tabs/outputParams/DocumentDetailsOutputParameters
 import DataLineageTab from './tabs/dataLineage/DocumentDetailsDataLineage.vue'
 import HistoryTab from './tabs/history/DocumentDetailsHistory.vue'
 import SubreportsTab from './tabs/subreports/DocumentDetailsSubreports.vue'
-import TabView from 'primevue/tabview'
-import Badge from 'primevue/badge'
-import TabPanel from 'primevue/tabpanel'
-import ProgressSpinner from 'primevue/progressspinner'
 import { iDataSource, iAnalyticalDriver, iDriver, iEngine, iTemplate, iAttribute, iParType, iDateFormat, iFolder, iTableSmall, iOutputParam, iDocumentType } from '@/modules/documentExecution/documentDetails/DocumentDetails'
 import DocumentDetailOlapDesignerDialog from './dialogs/olapDesignerDialog/DocumentDetailOlapDesignerDialog.vue'
 import DocumentDetailDossierDesignerDialog from './dialogs/dossierDesignerDialog/DocumentDetailDossierDesignerDialog.vue'
@@ -107,10 +96,6 @@ export default defineComponent({
         DataLineageTab,
         HistoryTab,
         SubreportsTab,
-        TabView,
-        TabPanel,
-        Badge,
-        ProgressSpinner,
         DocumentDetailOlapDesignerDialog,
         DocumentDetailDossierDesignerDialog
     },
@@ -118,7 +103,10 @@ export default defineComponent({
     emits: ['closeDetails', 'documentSaved'],
     setup() {
         const store = mainStore()
-        return { store }
+        const route = useRoute()
+        const router = useRouter()
+        const quasar = useQuasar()
+        return { store, route, router, quasar }
     },
     data() {
         return {
@@ -150,7 +138,8 @@ export default defineComponent({
             designerDialogVisible: false,
             dossierDesignerDialogVisible: false,
             refreshDrivers: false,
-            refreshHistory: false
+            refreshHistory: false,
+            activeTab: 'informations'
         }
     },
     computed: {
@@ -179,10 +168,14 @@ export default defineComponent({
     watch: {
         async propDocId() {
             await this.isForEdit()
+        },
+        loading(val: boolean) {
+            if (val) this.quasar.loading.show()
+            else this.quasar.loading.hide()
         }
     },
     async created() {
-        if (this.viewMode !== 'document-detail' && this.$route.name !== 'document-details-new-document' && this.$route.name !== 'document-details-edit-document') return
+        if (this.viewMode !== 'document-detail' && this.route.name !== 'document-details-new-document' && this.route.name !== 'document-details-edit-document') return
         await this.isForEdit()
     },
     activated() {
@@ -209,7 +202,7 @@ export default defineComponent({
                 this.docId = this.propDocId
                 this.folderId = this.propFolderId
             } else {
-                this.$route.params.docId ? (this.docId = this.$route.params.docId) : (this.folderId = this.$route.params.folderId)
+                this.route.params.docId ? (this.docId = this.route.params.docId) : (this.folderId = this.route.params.folderId)
             }
         },
         async isForEdit() {
@@ -224,20 +217,7 @@ export default defineComponent({
         },
         async loadPage(id) {
             this.loading = true
-            await Promise.all([
-                await this.getSelectedDocumentById(id),
-                this.getFunctionalities(),
-                this.getAnalyticalDrivers(),
-                this.getDatasources(),
-                this.getTypes(),
-                this.getEngines(),
-                this.getAttributes(),
-                this.getParTypes(),
-                this.getDateFormats(),
-                this.getSavedTablesByDocumentID(),
-                this.getDataset(),
-                this.getDataSources()
-            ])
+            await Promise.all([await this.getSelectedDocumentById(id), this.getFunctionalities(), this.getAnalyticalDrivers(), this.getDatasources(), this.getTypes(), this.getEngines(), this.getAttributes(), this.getParTypes(), this.getDateFormats(), this.getSavedTablesByDocumentID(), this.getDataset(), this.getDataSources()])
             this.loading = false
         },
         async getSelectedDocumentById(id) {
@@ -251,9 +231,9 @@ export default defineComponent({
         async getFunctionalities() {
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/folders?includeDocs=false`).then((response: AxiosResponse<any>) => {
                 this.availableFolders = response.data
-                if (this.$route.params.folderId) {
+                if (this.route.params.folderId) {
                     const sourceFolder = this.availableFolders.find((folder) => folder.id == parseInt(this.folderId)) as iFolder
-                    if (!this.selectedDocument.functionalities.includes(sourceFolder.path)) this.selectedDocument.functionalities.push(sourceFolder.path)
+                    if (sourceFolder && !this.selectedDocument.functionalities.includes(sourceFolder.path)) this.selectedDocument.functionalities.push(sourceFolder.path)
                 }
             })
         },
@@ -361,15 +341,11 @@ export default defineComponent({
                         delete parameter.numberOfErrors
                         delete parameter.tempId
                         delete parameter.isChanged
-                        this.$http
-                            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/outputparameters`, parameter, { headers: { 'X-Disable-Errors': 'true' } })
-                            .catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.outputParams.persistError') }))
+                        this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/outputparameters`, parameter, { headers: { 'X-Disable-Errors': 'true' } }).catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.outputParams.persistError') }))
                     } else if (parameter.isChanged) {
                         delete parameter.numberOfErrors
                         delete parameter.isChanged
-                        this.$http
-                            .put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/outputparameters/${parameter.id}`, parameter, { headers: { 'X-Disable-Errors': 'true' } })
-                            .catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.outputParams.persistError') }))
+                        this.$http.put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/outputparameters/${parameter.id}`, parameter, { headers: { 'X-Disable-Errors': 'true' } }).catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.outputParams.persistError') }))
                     }
                 })
             }
@@ -381,15 +357,11 @@ export default defineComponent({
                     if (!driver.id) {
                         delete driver.numberOfErrors
                         delete driver.isChanged
-                        this.$http
-                            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/drivers`, driver, { headers: { 'X-Disable-Errors': 'true' } })
-                            .catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.drivers.persistError') }))
+                        this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/drivers`, driver, { headers: { 'X-Disable-Errors': 'true' } }).catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.drivers.persistError') }))
                     } else if (driver.isChanged) {
                         delete driver.numberOfErrors
                         delete driver.isChanged
-                        this.$http
-                            .put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/drivers/${driver.id}`, driver, { headers: { 'X-Disable-Errors': 'true' } })
-                            .catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.drivers.persistError') }))
+                        this.$http.put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/drivers/${driver.id}`, driver, { headers: { 'X-Disable-Errors': 'true' } }).catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.drivers.persistError') }))
                     }
                 })
             }
@@ -418,20 +390,20 @@ export default defineComponent({
                     this.store.setInfo({ title: this.$t('common.save'), msg: this.$t('common.toast.updateSuccess') })
                     setTimeout(() => {
                         const path = `/document-details/${response.data.id}`
-                        !this.selectedDocument.id ? this.$router.push(path) : ''
+                        !this.selectedDocument.id ? this.router.push(path) : ''
                         this.$emit('documentSaved', { ...response.data, folderId: folderId })
                         this.loadPage(response.data.id)
                     }, 200)
                 })
                 .catch((error) => {
-                    this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: error.message }), (this.loading = false)
+                    ;(this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: error.message }), (this.loading = false))
                 })
         },
         closeDocument() {
             this.$emit('closeDetails')
         },
-        onTabChange(event) {
-            event.index === 5 ? this.getAllSubreports() : ''
+        onTabChange(tabName: string) {
+            if (tabName === 'subreports') this.getAllSubreports()
         },
         openDesignerDialog() {
             if (this.selectedDocument.engine === 'knowagedossierengine') {
@@ -445,7 +417,7 @@ export default defineComponent({
             }
         },
         onDesignerStart(document: any) {
-            this.$router.push(`/olap-designer/${document.sbiExecutionId}?olapId=${document.id}&olapName=${document.name}&olapLabel=${document.label}&noTemplate=${true}&reference=${document.reference}&engine=${document.engine}&artifactId=${document.artifactId}`)
+            this.router.push(`/olap-designer/${document.sbiExecutionId}?olapId=${document.id}&olapName=${document.name}&olapLabel=${document.label}&noTemplate=${true}&reference=${document.reference}&engine=${document.engine}&artifactId=${document.artifactId}`)
         },
         closeDossierDesignerDialog(refreshObj) {
             this.dossierDesignerDialogVisible = false
@@ -462,35 +434,60 @@ export default defineComponent({
 .right-border {
     border-right: 1px solid #ccc;
 }
-.document-details-tabview .p-tabview-panels {
-    padding: 0 !important;
-}
-
-.document-details-dialog.p-dialog {
-    max-height: 100%;
-    height: 80vh;
-    width: calc(100vw - var(--kn-mainmenu-width));
-    margin: 0;
-}
-
-.remove-padding.p-dialog .p-dialog-header,
-.remove-padding.p-dialog .p-dialog-content {
-    padding: 0;
-    margin: 0;
-}
-
-.document-details-tab-container .p-tabview .p-tabview-panel,
-.document-details-tab-container .p-tabview .p-tabview-panels {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-}
 
 .details-warning-color {
     color: red;
 }
 
-.doc-details-spinner .p-progress-spinner-svg {
-    width: 125px;
+/* ── Shared DocumentDetails tab styles ────────────────────────── */
+.dd-section-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #9e9e9e;
+}
+
+.dd-scroll {
+    flex: 1;
+    height: 100%;
+}
+
+.dd-list {
+    .q-item:last-child {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    }
+}
+
+.dd-tab-layout {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+.dd-tab-list-col {
+    width: 280px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.dd-tab-detail-scroll {
+    background-color: #f3f3f3;
+    .q-scrollarea__content {
+        height: 100%;
+    }
+}
+
+.dd-list-header {
+    min-height: 40px;
+}
+
+.kn-list-item--selected {
+    background-color: #f3f3f3;
+    color: inherit;
 }
 </style>

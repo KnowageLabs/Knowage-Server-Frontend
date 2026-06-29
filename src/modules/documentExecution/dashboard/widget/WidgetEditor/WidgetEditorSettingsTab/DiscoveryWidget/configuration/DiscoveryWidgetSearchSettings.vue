@@ -1,38 +1,35 @@
 <template>
-    <div v-if="searchSettings" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-12 p-d-flex p-flex-column p-p-2">
-            <label class="kn-material-input-label"> {{ $t('common.columns') }}</label>
-            <MultiSelect v-model="searchSettings.columns" :options="widgetModel.columns" optionLabel="columnName" optionValue="columnName" :disabled="searchSettingsDisabled" @change="searchSettingsChanged"> </MultiSelect>
+    <div v-if="searchSettings" class="q-px-md q-pb-md">
+        <div class="row q-col-gutter-sm q-mb-sm">
+            <div class="col-12">
+                <q-select v-model="searchSettings.columns" :options="widgetModel.columns" option-label="columnName" option-value="columnName" :label="$t('common.columns')" multiple use-chips outlined dense :disable="searchSettingsDisabled" @update:model-value="searchSettingsChanged" />
+            </div>
         </div>
-
-        <div class="p-col-12 p-md-3 p-grid p-ai-center p-pt-4">
-            <InputSwitch v-model="searchSettings.default" :disabled="searchSettingsDisabled" @change="searchSettingsChanged"></InputSwitch>
-            <label class="kn-material-input-label p-ml-2">{{ $t('dashboard.widgetEditor.discoveryWidget.search.defaultTextSearch') }}</label>
+        <div class="row q-col-gutter-sm q-mb-sm">
+            <div class="col-auto">
+                <q-toggle v-model="searchSettings.default" :label="$t('dashboard.widgetEditor.discoveryWidget.search.defaultTextSearch')" dense :disable="searchSettingsDisabled" @update:model-value="searchSettingsChanged" />
+            </div>
         </div>
-
-        <div class="p-col-12 p-md-9 p-grid p-ai-center">
-            <div class="p-sm-12 p-md-4 p-lg-2 p-d-flex p-flex-column p-p-2 value-type-dropdown">
-                <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.conditions.compareValueType') }}</label>
-                <Dropdown class="kn-material-input" v-model="searchSettings.defaultType" :options="descriptor.searchSettingsTypes" optionValue="value" :disabled="defaultSearchDisabled" @change="onDefaultTypeChanged">
-                    <template #value="slotProps">
-                        <div>
-                            <span>{{ getTranslatedLabel(slotProps.value, descriptor.searchSettingsTypes, $t) }}</span>
-                        </div>
+        <div class="row q-col-gutter-sm">
+            <div class="col-3">
+                <q-select v-model="searchSettings.defaultType" :options="descriptor.searchSettingsTypes" :label="$t('dashboard.widgetEditor.conditions.compareValueType')" option-value="value" option-label="label" emit-value map-options outlined dense :disable="defaultSearchDisabled" @update:model-value="onDefaultTypeChanged">
+                    <template #selected-item="slotProps">
+                        <span>{{ getTranslatedLabel(slotProps.opt.value, descriptor.searchSettingsTypes, $t) }}</span>
                     </template>
                     <template #option="slotProps">
-                        <div>
-                            <span>{{ $t(slotProps.option.label) }}</span>
-                        </div>
+                        <q-item v-bind="slotProps.itemProps">
+                            <q-item-section>
+                                <q-item-label>{{ $t(slotProps.opt.label) }}</q-item-label>
+                            </q-item-section>
+                        </q-item>
                     </template>
-                </Dropdown>
+                </q-select>
             </div>
-            <div v-if="searchSettings.defaultType === 'static'" class="p-sm-12 p-md-4 p-lg-8 p-d-flex p-flex-column kn-flex p-pl-2 p-pt-2">
-                <label class="kn-material-input-label">{{ $t('common.value') }}</label>
-                <InputText class="kn-material-input p-inputtext-sm" v-model="searchSettings.defaultValue" :disabled="defaultSearchDisabled" @change="searchSettingsChanged" />
+            <div v-if="searchSettings.defaultType === 'static'" class="col-9">
+                <q-input v-model="searchSettings.defaultValue" :label="$t('common.value')" outlined dense :disable="defaultSearchDisabled" @change="searchSettingsChanged" />
             </div>
-            <div v-else-if="searchSettings.defaultType === 'driver'" class="p-sm-12 p-md-4 p-lg-8 p-d-flex p-flex-column kn-flex p-pl-2">
-                <label class="kn-material-input-label">{{ $t('common.driver') }}</label>
-                <Dropdown class="kn-material-input" v-model="searchSettings.driverLabel" :options="drivers" optionLabel="name" optionValue="driverLabel" :disabled="defaultSearchDisabled" @change="onDriverChanged"> </Dropdown>
+            <div v-else-if="searchSettings.defaultType === 'driver'" class="col-9">
+                <q-select v-model="searchSettings.driverLabel" :options="drivers" :label="$t('common.driver')" option-label="name" option-value="driverLabel" emit-value map-options outlined dense :disable="defaultSearchDisabled" @update:model-value="onDriverChanged" />
             </div>
         </div>
     </div>
@@ -47,13 +44,9 @@ import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { mapActions } from 'pinia'
 import descriptor from '../DiscoveryWidgetSettingsDescriptor.json'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
-import Dropdown from 'primevue/dropdown'
-import InputSwitch from 'primevue/inputswitch'
-import MultiSelect from 'primevue/multiselect'
-
 export default defineComponent({
     name: 'discovery-widget-search-settings',
-    components: { Dropdown, InputSwitch, MultiSelect },
+    components: {},
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, dashboardId: { type: String, required: true } },
     data() {
         return {

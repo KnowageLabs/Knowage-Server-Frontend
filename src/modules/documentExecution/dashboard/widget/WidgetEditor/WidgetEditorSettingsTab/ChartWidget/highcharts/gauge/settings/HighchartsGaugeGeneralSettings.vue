@@ -1,29 +1,29 @@
 <template>
-    <div v-if="model" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-12 p-md-6 p-lg-6 p-d-flex p-flex-column kn-flex">
-            <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.paneSettings.startAngle') }}</label>
-            <div class="p-d-flex p-flex-row p-ai-center">
-                <InputNumber v-model="model.pane.startAngle" class="kn-material-input p-inputtext-sm" @blur="modelChanged" />
-                <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.paneSettings.startAngleHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+    <div v-if="model" class="q-px-md q-pb-md">
+        <div class="row q-col-gutter-sm">
+            <div class="col-6">
+                <q-input v-model.number="model.pane.startAngle" type="number" :label="$t('dashboard.widgetEditor.highcharts.paneSettings.startAngle')" outlined dense @blur="modelChanged">
+                    <template #append>
+                        <q-icon name="help_outline" size="xs" class="cursor-pointer text-grey-5">
+                            <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.paneSettings.startAngleHint') }}</q-tooltip>
+                        </q-icon>
+                    </template>
+                </q-input>
             </div>
-        </div>
-        <div class="p-col-12 p-md-6 p-lg-6 p-d-flex p-flex-column kn-flex">
-            <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.paneSettings.endAngle') }}</label>
-            <div class="p-d-flex p-flex-row p-ai-center">
-                <InputNumber v-model="model.pane.endAngle" class="kn-material-input p-inputtext-sm" @blur="modelChanged" />
-                <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.paneSettings.endAngleHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+            <div class="col-6">
+                <q-input v-model.number="model.pane.endAngle" type="number" :label="$t('dashboard.widgetEditor.highcharts.paneSettings.endAngle')" outlined dense @blur="modelChanged">
+                    <template #append>
+                        <q-icon name="help_outline" size="xs" class="cursor-pointer text-grey-5">
+                            <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.paneSettings.endAngleHint') }}</q-tooltip>
+                        </q-icon>
+                    </template>
+                </q-input>
             </div>
-        </div>
-        <div class="p-col-12 p-md-6 p-lg-6 p-d-flex p-flex-column kn-flex">
-            <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.paneSettings.centralHorizontalPosition') }}</label>
-            <div class="p-d-flex p-flex-row p-ai-center">
-                <InputNumber v-model="centralHorizontalPosition" class="kn-material-input p-inputtext-sm" @blur="onPositionChanged('horizontal')" />
+            <div class="col-6">
+                <q-input v-model.number="centralHorizontalPosition" type="number" :label="$t('dashboard.widgetEditor.highcharts.paneSettings.centralHorizontalPosition')" outlined dense @blur="onPositionChanged('horizontal')" />
             </div>
-        </div>
-        <div class="p-col-12 p-md-6 p-lg-6 p-d-flex p-flex-column kn-flex">
-            <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.paneSettings.centralVerticalPosition') }}</label>
-            <div class="p-d-flex p-flex-row p-ai-center">
-                <InputNumber v-model="centralVerticalPosition" class="kn-material-input p-inputtext-sm" @blur="onPositionChanged('vertical')" />
+            <div class="col-6">
+                <q-input v-model.number="centralVerticalPosition" type="number" :label="$t('dashboard.widgetEditor.highcharts.paneSettings.centralVerticalPosition')" outlined dense @blur="onPositionChanged('vertical')" />
             </div>
         </div>
     </div>
@@ -34,11 +34,10 @@ import { defineComponent, PropType } from 'vue'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IHighchartsChartModel } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
-import InputNumber from 'primevue/inputnumber'
 
 export default defineComponent({
     name: 'hihgcharts-gauge-geeneral-settings',
-    components: { InputNumber },
+    components: {},
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {

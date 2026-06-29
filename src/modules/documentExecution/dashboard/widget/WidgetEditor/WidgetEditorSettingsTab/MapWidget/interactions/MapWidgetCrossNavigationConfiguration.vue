@@ -1,29 +1,30 @@
 <template>
-    <div class="p-grid p-jc-start p-ai-center p-p-4">
-        <form v-if="crossNavigationConfiguration" class="p-fluid p-formgrid p-grid p-col-12 p-m-1">
-            <div v-for="(crossNavigationConfig, index) in crossNavigationConfiguration.crossNavigationVizualizationTypes" :key="index" class="p-col-12 p-fluid p-formgrid p-grid">
-                <div class="p-col-12 p-fluid p-formgrid p-grid p-ai-center">
-                    <q-select filled dense class="p-sm-12 p-md-4" v-model="crossNavigationConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options options-dense option-label="label" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="crossNavigationDisabled" @update:modelValue="onVizualizationTypeChange(crossNavigationConfig)"></q-select>
-                    <q-select filled dense class="p-col-3 q-ml-sm" v-model="crossNavigationConfig.id" :options="crossNavigationOptions" emit-value map-options option-label="name" option-value="id" options-dense :label="$t('dashboard.widgetEditor.interactions.crossNavigationName')" :disable="crossNavigationDisabled" @update:modelValue="onCrossNavigationSelected(crossNavigationConfig, $event)"></q-select>
-                    <q-select filled dense class="p-col-3" v-model="crossNavigationConfig.column" :options="availableColumns(crossNavigationConfig.vizualizationType)" emit-value map-options :option-label="getTargetLayerType(crossNavigationConfig) === 'layer' ? 'property' : 'name'" options-dense :label="$t('common.column')" :disable="crossNavigationDisabled"></q-select>
-
-                    <Button v-if="index === 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" @click="addCrossNavigationConfiguration" />
-                    <Button v-if="index !== 0" icon="pi pi-trash kn-cursor-pointer" class="p-button-text p-button-plain p-js-center p-ml-2" @click="removeCrossNavigationConfiguration(index)" />
+    <div class="q-px-md q-pb-sm">
+        <div v-if="crossNavigationConfiguration">
+            <div v-for="(crossNavigationConfig, index) in crossNavigationConfiguration.crossNavigationVizualizationTypes" :key="index" class="cross-nav-row row no-wrap q-mb-sm">
+                <div class="kn-action-handle kn-action-handle-disabled"></div>
+                <div class="col q-pa-sm">
+                    <div class="row q-col-gutter-sm">
+                        <div class="col-4">
+                            <q-select outlined dense v-model="crossNavigationConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options option-label="label" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="crossNavigationDisabled" @update:model-value="onVizualizationTypeChange(crossNavigationConfig)" />
+                        </div>
+                        <div class="col-4">
+                            <q-select outlined dense v-model="crossNavigationConfig.id" :options="crossNavigationOptions" emit-value map-options option-label="name" option-value="id" :label="$t('dashboard.widgetEditor.interactions.crossNavigationName')" :disable="crossNavigationDisabled" @update:model-value="onCrossNavigationSelected(crossNavigationConfig, $event)" />
+                        </div>
+                        <div class="col-4">
+                            <q-select outlined dense v-model="crossNavigationConfig.column" :options="availableColumns(crossNavigationConfig.vizualizationType)" emit-value map-options :option-label="getTargetLayerType(crossNavigationConfig) === 'layer' ? 'property' : 'name'" :label="$t('common.column')" :disable="crossNavigationDisabled" />
+                        </div>
+                    </div>
+                    <div v-if="crossNavigationConfig.vizualizationType?.id && parameterList[crossNavigationConfig.vizualizationType.id]">
+                        <WidgetOutputParametersList :widget-model="widgetModel" :prop-parameters="parameterList[crossNavigationConfig.vizualizationType.id]" :selected-datasets-columns-map="selectedDatasetsColumnsMap" :mapDynamicOptions="availableColumns(crossNavigationConfig.vizualizationType)" :crossNavigationConfig="crossNavigationConfig" :disabled="crossNavigationDisabled" @change="onParametersChanged($event, crossNavigationConfig)" />
+                    </div>
                 </div>
-                <div v-if="crossNavigationConfig.vizualizationType?.id && parameterList[crossNavigationConfig.vizualizationType.id]" class="p-col-12 p-d-flex p-flex-row p-ai-center p-p-2">
-                    <WidgetOutputParametersList
-                        class="kn-flex p-mr-2"
-                        :widget-model="widgetModel"
-                        :prop-parameters="parameterList[crossNavigationConfig.vizualizationType.id]"
-                        :selected-datasets-columns-map="selectedDatasetsColumnsMap"
-                        :mapDynamicOptions="availableColumns(crossNavigationConfig.vizualizationType)"
-                        :crossNavigationConfig="crossNavigationConfig"
-                        :disabled="crossNavigationDisabled"
-                        @change="onParametersChanged($event, crossNavigationConfig)"
-                    ></WidgetOutputParametersList>
+                <div class="kn-action-handle row items-center justify-center">
+                    <q-btn v-if="index === 0" flat round dense icon="add" size="sm" :disable="crossNavigationDisabled" @click="addCrossNavigationConfiguration()" />
+                    <q-btn v-else flat round dense icon="delete" size="sm" :disable="crossNavigationDisabled" @click.stop="removeCrossNavigationConfiguration(index)" />
                 </div>
             </div>
-        </form>
+        </div>
     </div>
 </template>
 
@@ -35,7 +36,6 @@ import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { mapActions } from 'pinia'
 import appStore from '@/App.store'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
-import Dropdown from 'primevue/dropdown'
 import WidgetOutputParametersList from '../../common/interactions/crossNavigation/WidgetOutputParametersList.vue'
 import deepcopy from 'deepcopy'
 import { getPropertiesByLayerLabel } from '../../../../MapWidget/MapWidgetDataProxy'
@@ -43,7 +43,7 @@ import { resolveLayerByTarget } from '../../../../MapWidget/LeafletHelper'
 
 export default defineComponent({
     name: 'map-widget-cross-navigation-configuration',
-    components: { Dropdown, WidgetOutputParametersList },
+    components: { WidgetOutputParametersList },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, datasets: { type: Array as PropType<any[]> }, selectedDatasets: { type: Array as PropType<any[]> }, dashboardId: { type: String, required: true }, visible: { type: Boolean } },
     setup() {
         const store = dashboardStore()
@@ -278,3 +278,11 @@ export default defineComponent({
     }
 })
 </script>
+
+<style lang="scss" scoped>
+.cross-nav-row {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+</style>

@@ -1,10 +1,22 @@
 <template>
     <div v-if="mapSettings">
-        <div class="row q-mx-md q-pb-lg items-center q-col-gutter-md">
-            <q-select class="col-12" v-model="mapSettings.baseLayer" :options="baseLayerOptions" emit-value map-options option-value="value" option-label="label" :label="$t('dashboard.widgetEditor.map.baseLayer.selectBackgroundLayer')" />
-            <q-input class="col-12 col-md-4" type="number" v-model="mapSettings.zoom" max="20" min="1" :label="$t('dashboard.widgetEditor.map.baseLayer.zoom')" :disable="mapSettings.autoCentering" />
-            <q-toggle class="col-12 col-md-4" v-model="mapSettings.showScale" :label="$t('dashboard.widgetEditor.map.baseLayer.showScale')" />
-            <q-toggle class="col-12 col-md-4" v-model="mapSettings.autoCentering" :label="$t('dashboard.widgetEditor.map.baseLayer.autoCentering')" />
+        <div class="q-px-md q-pb-sm">
+            <div class="row q-col-gutter-sm q-mb-sm">
+                <div class="col-12">
+                    <q-select v-model="mapSettings.baseLayer" :options="baseLayerOptions" emit-value map-options option-value="value" option-label="label" :label="$t('dashboard.widgetEditor.map.baseLayer.selectBackgroundLayer')" outlined dense />
+                </div>
+            </div>
+            <div class="row q-col-gutter-sm q-mb-sm items-center">
+                <div class="col-4">
+                    <q-input type="number" v-model="mapSettings.zoom" max="20" min="1" :label="$t('dashboard.widgetEditor.map.baseLayer.zoom')" :disable="mapSettings.autoCentering" outlined dense />
+                </div>
+                <div class="">
+                    <q-toggle v-model="mapSettings.autoCentering" :label="$t('dashboard.widgetEditor.map.baseLayer.autoCentering')" dense />
+                </div>
+                <div class="">
+                    <q-toggle v-model="mapSettings.showScale" :label="$t('dashboard.widgetEditor.map.baseLayer.showScale')" dense />
+                </div>
+            </div>
         </div>
     </div>
 </template>

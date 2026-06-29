@@ -1,33 +1,32 @@
 <template>
-    <div v-if="model && model.yAxis && model.yAxis[0]" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div v-if="!model.yAxis[0].stops || model.yAxis[0].stops.length === 0" class="p-grid p-col-12 p-pl-2">
-            <Message class="p-col-11" :closable="false">{{ $t('dashboard.widgetEditor.highcharts.stops.stopsHint') }}</Message>
-            <div class="p-col-1 p-text-right">
-                <i class="pi pi-plus-circle kn-cursor-pointer p-pt-4" @click="addStop()"></i>
-            </div>
+    <div v-if="model && model.yAxis && model.yAxis[0]" class="q-px-md q-pb-sm">
+        <div class="row no-wrap items-start q-mb-sm">
+            <span class="text-subtitle2">{{ $t('dashboard.widgetEditor.highcharts.stops.stopsHint') }}</span>
+            <q-btn flat round dense color="primary" icon="add" @click="addStop()" />
         </div>
 
-        <template v-else>
-            <div v-for="(stop, index) in model.yAxis[0].stops" :key="index" class="p-grid p-col-12 p-ai-center p-ai-center p-pt-2">
-                <div class="p-col-12 p-md-6 p-lg-6 p-d-flex p-flex-column kn-flex">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.stops.relativePosition') }}</label>
-                    <div class="p-d-flex p-flex-row p-ai-center">
-                        <InputNumber v-model="stop[0]" class="kn-material-input p-inputtext-sm" mode="decimal" :min="0" :max="1" :min-fraction-digits="2" @blur="onRelativePositionChange" />
-                        <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.stops.relativePositionHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+        <div v-for="(stop, index) in model.yAxis[0].stops" :key="index" class="column-type-row row no-wrap q-mb-sm">
+            <div class="kn-action-handle kn-action-handle-disabled"></div>
+            <div class="col q-pa-sm">
+                <div class="row q-col-gutter-sm">
+                    <div class="col-6">
+                        <q-input v-model.number="stop[0]" type="number" :label="$t('dashboard.widgetEditor.highcharts.stops.relativePosition')" outlined dense step="0.01" min="0" max="1" @blur="onRelativePositionChange">
+                            <template #append>
+                                <q-icon name="help_outline" size="xs" class="cursor-pointer text-grey-5">
+                                    <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.stops.relativePositionHint') }}</q-tooltip>
+                                </q-icon>
+                            </template>
+                        </q-input>
+                    </div>
+                    <div class="col-6">
+                        <WidgetEditorColorPicker :initial-value="stop[1]" :label="$t('common.color')" @change="onSelectionColorChanged($event, stop)" />
                     </div>
                 </div>
-
-                <div class="p-col-12 p-md-6 p-lg-6 p-d-flex p-flex-row p-ai-center p-px-2 p-pt-3">
-                    <WidgetEditorColorPicker class="kn-flex" :initial-value="stop[1]" :label="$t('common.color')" @change="onSelectionColorChanged($event, stop)"></WidgetEditorColorPicker>
-                    <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.stops.colorHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
-                </div>
-
-                <div class="p-col-1 p-d-flex p-flex-row p-jc-center p-ai-center p-pl-2">
-                    <i v-if="index === 0" class="pi pi-plus-circle kn-cursor-pointer p-pr-4 p-pt-2" @click="addStop()"></i>
-                    <i :class="'pi pi-trash'" class="kn-cursor-pointer p-pt-2" @click="deleteStop(index)"></i>
-                </div>
             </div>
-        </template>
+            <div class="kn-action-handle row items-center justify-center">
+                <q-btn flat round dense icon="delete" size="sm" @click="deleteStop(index)" />
+            </div>
+        </div>
     </div>
 </template>
 
@@ -37,13 +36,11 @@ import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IHighchartsChartModel } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import descriptor from '../../HighchartsWidgetSettingsDescriptor.json'
-import InputNumber from 'primevue/inputnumber'
-import Message from 'primevue/message'
 import WidgetEditorColorPicker from '../../../../common/WidgetEditorColorPicker.vue'
 
 export default defineComponent({
     name: 'hihgcharts-stops-settings',
-    components: { InputNumber, Message, WidgetEditorColorPicker },
+    components: { WidgetEditorColorPicker },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {
@@ -85,3 +82,11 @@ export default defineComponent({
     }
 })
 </script>
+
+<style lang="scss" scoped>
+.column-type-row {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+</style>

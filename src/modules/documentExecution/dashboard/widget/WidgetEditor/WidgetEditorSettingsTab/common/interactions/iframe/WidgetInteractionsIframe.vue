@@ -1,39 +1,40 @@
 <template>
-    <div v-if="iframeModel" class="p-grid p-p-4">
-        <Message class="p-col-12 p-mb-3" :closable="false">
-            {{ $t('dashboard.widgetEditor.interactions.iframeInteractionHint.partOne') }}
-            <br />
-            {{ $t('dashboard.widgetEditor.interactions.iframeInteractionHint.partTwo', { parameterPlaceholder: '{}', variablePlaceholder: '{}', value: '{value}' }) }}
-        </Message>
-        <div class="p-grid p-col-12 p-ai-center">
-            <div v-if="['table'].includes(widgetModel.type)" class="p-col-6 p-sm-12 p-md-6 p-d-flex p-flex-column kn-flex p-px-2">
-                <label class="kn-material-input-label"> {{ $t('common.type') }}</label>
-                <Dropdown v-model="iframeModel.type" class="kn-material-input" :options="descriptor.interactionTypes" option-value="value" :disabled="iframeDisabled" @change="onInteractionTypeChanged">
-                    <template #value="slotProps">
-                        <div>
-                            <span>{{ getTranslatedLabel(slotProps.value, descriptor.interactionTypes, $t) }}</span>
-                        </div>
+    <div v-if="iframeModel" class="q-px-md q-pb-md">
+        <div class="row q-col-gutter-sm">
+            <!-- Hint banner -->
+            <div class="col-12">
+                <q-banner dense rounded class="bg-grey-2 text-body2">
+                    {{ $t('dashboard.widgetEditor.interactions.iframeInteractionHint.partOne') }}<br />
+                    {{ $t('dashboard.widgetEditor.interactions.iframeInteractionHint.partTwo', { parameterPlaceholder: '{}', variablePlaceholder: '{}', value: '{value}' }) }}
+                </q-banner>
+            </div>
+
+            <!-- Type (table only, col-6) + Column (singleColumn, col-6) -->
+            <div v-if="['table'].includes(widgetModel.type)" class="col-6">
+                <q-select v-model="iframeModel.type" :options="descriptor.interactionTypes" :label="$t('common.type')" option-value="value" option-label="label" emit-value map-options outlined dense :disable="iframeDisabled" @update:model-value="onInteractionTypeChanged">
+                    <template #selected-item="slotProps">
+                        <span>{{ getTranslatedLabel(slotProps.opt.value, descriptor.interactionTypes, $t) }}</span>
                     </template>
                     <template #option="slotProps">
-                        <div>
-                            <span>{{ $t(slotProps.option.label) }}</span>
-                        </div>
+                        <q-item v-bind="slotProps.itemProps">
+                            <q-item-section
+                                ><q-item-label>{{ $t(slotProps.opt.label) }}</q-item-label></q-item-section
+                            >
+                        </q-item>
                     </template>
-                </Dropdown>
+                </q-select>
             </div>
-            <div v-if="['table'].includes(widgetModel.type) && iframeModel.type === 'singleColumn'" class="p-col-6 p-sm-12 p-md-6 p-d-flex p-flex-row p-ai-center p-px-2">
-                <div class="p-d-flex p-flex-column kn-flex">
-                    <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
-                    <Dropdown v-model="iframeModel.column" class="kn-material-input" :options="widgetModel.columns" option-label="alias" option-value="id" :disabled="iframeDisabled"> </Dropdown>
-                </div>
+            <div v-if="['table'].includes(widgetModel.type) && iframeModel.type === 'singleColumn'" class="col-6">
+                <q-select v-model="iframeModel.column" :options="widgetModel.columns" :label="$t('common.column')" option-label="alias" option-value="id" emit-value map-options outlined dense :disable="iframeDisabled" />
             </div>
-            <div v-if="iframeModel.type === 'icon'" class="p-col-2 p-p-4 p-mt-3">
-                <WidgetEditorStyleToolbar :options="[{ type: 'icon' }]" :prop-model="{ icon: iframeModel.icon }" :disabled="iframeDisabled" @change="onStyleToolbarChange($event)"> </WidgetEditorStyleToolbar>
+            <div v-if="iframeModel.type === 'icon'" class="col-6">
+                <WidgetEditorStyleToolbar :options="[{ type: 'icon' }]" :prop-model="{ icon: iframeModel.icon }" :disabled="iframeDisabled" @change="onStyleToolbarChange($event)" />
             </div>
-        </div>
 
-        <div v-if="iframeModel" class="p-col-12">
-            <KnMonaco ref="monacoEditor" v-model="iframeModel.json" style="height: 500px" :options="{ theme: 'vs-light' }" :language="'json'" :text-to-insert="''" />
+            <!-- JSON editor -->
+            <div class="col-12">
+                <KnMonaco ref="monacoEditor" v-model="iframeModel.json" style="height: 500px" :options="{ theme: 'vs-light' }" :language="'json'" :text-to-insert="''" />
+            </div>
         </div>
     </div>
 </template>
@@ -43,14 +44,12 @@ import { defineComponent, PropType } from 'vue'
 import { IWidget, IFrameInteractionSettings, IWidgetStyleToolbarModel } from '@/modules/documentExecution/dashboard/Dashboard'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import descriptor from '../WidgetInteractionsDescriptor.json'
-import Dropdown from 'primevue/dropdown'
-import Message from 'primevue/message'
 import KnMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
 import WidgetEditorStyleToolbar from '../../styleToolbar/WidgetEditorStyleToolbar.vue'
 
 export default defineComponent({
     name: 'widget-interactions-iframe',
-    components: { Dropdown, Message, KnMonaco, WidgetEditorStyleToolbar },
+    components: { KnMonaco, WidgetEditorStyleToolbar },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
         dashboardId: { type: String, required: true }

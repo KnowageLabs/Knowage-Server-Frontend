@@ -1,13 +1,10 @@
 <template>
-    <div v-if="customDashboardHeaderConfiguration" class="p-ai-center kn-flex p-p-4">
-        <form class="p-fluid p-formgrid p-grid">
-            <div class="p-field p-col-12 p-lg-12">
-                <span class="p-float-label">
-                    <InputText v-model="customDashboardHeaderConfiguration.height" class="kn-material-input p-inputtext-sm kn-flex" />
-                    <label class="kn-material-input-label p-mr-2">{{ $t('common.height') }}</label>
-                </span>
+    <div v-if="customDashboardHeaderConfiguration" class="q-px-md q-pb-md">
+        <div class="row q-col-gutter-sm">
+            <div class="col-6">
+                <q-input v-model="customDashboardHeaderConfiguration.height" outlined dense :label="$t('common.height')" hide-bottom-space />
             </div>
-        </form>
+        </div>
     </div>
 </template>
 

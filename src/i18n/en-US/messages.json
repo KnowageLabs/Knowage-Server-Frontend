@@ -103,6 +103,7 @@
         "columns": "Columns",
         "comment": "Comment",
         "condition": "Condition",
+        "configuration": "Configuration",
         "confirmPassword": "Confirm Password",
         "continue": "Continue",
         "conversation": "Conversation",
@@ -285,6 +286,7 @@
         "max": "Max",
         "measure": "measure",
         "measures": "measures",
+        "media": "Media",
         "medium": "Medium",
         "menu": "Menu",
         "message": "Message",
@@ -611,6 +613,7 @@
                 "sheetsStyleHint": "Paste the full CSS background value, for example gradients, image, repeat and position",
                 "showGrid": "Show Grid on edit"
             },
+            "createVariable": "Create Variable",
             "css": "CSS Editor",
             "customHeader": "Custom Header",
             "executionDate": "Execution Date",
@@ -623,14 +626,14 @@
                 "enableCustomHeader": "Enable custom header",
                 "enableWidgetMenu": "Enable widget menu",
                 "enableXlsxStyle": "Enable XLSX style",
+                "exportFileName": "Dashboard export file name",
+                "exportFileNameHint": "Supports placeholders like $P{driver} and $V{variable}, for example \"pippo $P{cane} $V{varia}\".",
+                "pdfExportFileName": "Dashboard PDF export file name",
                 "showExcelExport": "Show excel export functionality on widgets",
                 "showScreenshot": "Enable screenshot functionality on widgets",
                 "showSelectionButton": "Always show selection button",
                 "title": "Menu & Widgets",
-                "pdfExportFileName": "Dashboard PDF export file name",
-                "xlsxExportFileName": "Dashboard XLSX export file name",
-                "exportFileNameHint": "Supports placeholders like $P{driver} and $V{variable}, for example \"pippo $P{cane} $V{varia}\".",
-                "exportFileName": "Dashboard export file name"
+                "xlsxExportFileName": "Dashboard XLSX export file name"
             },
             "profile": "Profile",
             "themes": {
@@ -748,6 +751,7 @@
                     "rangeSelector": "Range Selector",
                     "zoom": "Zoom"
                 },
+                "perSeriesOverrides": "Per-series overrides",
                 "title": "Accessibility"
             },
             "addFunction": "Add Function",
@@ -829,6 +833,7 @@
             "compareValueType": "Compare value type",
             "conditionalStyle": "Conditional Style",
             "conditions": {
+                "addCondition": "Add Condition",
                 "applyToWholeRow": "Apply to whole row",
                 "compareValueType": "Value type",
                 "formulaHint": "Formula hint placeholder",
@@ -845,7 +850,8 @@
                 "totalDepth": "Total Depth",
                 "totalDepthHint": "The total depth of the chart.",
                 "viewDistance": "View Distance",
-                "viewDistanceHint": "Defines the distance the viewer is standing in front of the chart, this setting is important to calculate the perspective effect in column and scatter charts. It is not used for 3D pie charts."
+                "viewDistanceHint": "Defines the distance the viewer is standing in front of the chart, this setting is important to calculate the perspective effect in column and scatter charts. It is not used for 3D pie charts.",
+                "viewDistanceHintShort": "Defines the distance the viewer is standing in front of the chart"
             },
             "customHeaderTooltip": "Custom Header Tooltip",
             "customMessages": {
@@ -995,7 +1001,7 @@
                     "fromHint": "The start position of the plot band in axis units.",
                     "thickness": "Thickness",
                     "thicknessHint": "In a gauge chart, this option sets the width of the plot band stretching along the perimeter. It can be given as a percentage string, like \"10%\", or as a pixel number, like 10. The default value 10 is the same as the default tickLength, thus making the plot band act as a background for the tick markers.",
-                    "title": "bands",
+                    "title": "Bands",
                     "toHint": "The end position of the plot band in axis units."
                 },
                 "barchart": {
@@ -1285,6 +1291,7 @@
             "inputHintForTooltips": "This text will overwrite the column's header default tooltip. Variables and parameters placeholders are available.",
             "inside": "Inside",
             "interactions": {
+                "addLink": "Add Link",
                 "analyticalDriver": "Analytical Driver",
                 "basicUrl": "Basic Url",
                 "chartDynamicOptions": {
@@ -1305,7 +1312,6 @@
                 "enableClickOnSingleColumn": "Enable click on a single column",
                 "enableClickOnWholeRow": "Enable click on whole row",
                 "enableMultiselection": "Enable Multiselection",
-                "propagateSelections": "Propagate selections to target dashboard",
                 "iframeInteractionHint": {
                     "partOne": "Write the JSON message in the following editor. By clicking over the widget it will be propagated to a container window.",
                     "partTwo": "You can use $P{parameterPlaceholder}, $V{variablePlaceholder} and {value} placeholder to retrieve dynamic data."
@@ -1319,6 +1325,7 @@
                 "openInSamePage": "Open in the same page",
                 "outputParameter": "Output Parameter",
                 "preview": "Preview",
+                "propagateSelections": "Propagate selections to target dashboard",
                 "selection": "Selection",
                 "static": "Static",
                 "title": "Interactions"
@@ -1572,7 +1579,7 @@
             "percentage": "Percentage",
             "pivot": {
                 "configuration": {
-                    "colsExpanded": "Columns Expanded",
+                    "colsExpanded": "Columns Expanded by Default",
                     "disableExpandAll": "Disable Expand All",
                     "excludedFromSubTotals": "Excluded From Sub Totals",
                     "fieldPanel": "Field Panel",
@@ -1787,7 +1794,8 @@
             },
             "tooltipTextHint": "This text will overwrite the columns header default tooltip, variables and parameters placeholders ($V{placeholder} and $P{placeholder}) are available.",
             "tooltips": {
-                "customHeader": "Custom Header",
+                "addTooltip": "Add Tooltip",
+                "customHeader": "Custom Header Tooltip",
                 "title": "Tooltips"
             },
             "updateFromSelections": "Update From Selections",
@@ -1807,6 +1815,7 @@
                 "wrapTextHint": "Wrap text hint placeholder"
             },
             "visibilityConditions": {
+                "addCondition": "Add Condition",
                 "always": "Always",
                 "hideColumn": "Hide Column",
                 "hideFromSummary": "Hide Summary",
@@ -1825,9 +1834,11 @@
             },
             "visualizationType": {
                 "alignment": "Alignment",
+                "allCols": "All columns",
                 "bar": "Bar",
                 "barAndText": "Bar & Text",
                 "barColor": "Bar Color",
+                "columnOverrides": "Column overrides",
                 "maximumCharacters": "Maximum Characters",
                 "multilineText": "Multiline Text",
                 "pinned": "Pinned",
@@ -1929,8 +1940,8 @@
         "development": "Development",
         "documentsFound": "Documents found",
         "documentsSearch": "Search for documents",
-        "editDocument": "Edit Document",
-        "executeDocument": "Execute Document",
+        "editDocument": "Edit",
+        "executeDocument": "Execute",
         "genericDocument": "Generic document",
         "hint": "No folder is selected",
         "moveDownDocumentState": "Move Down State Document",
@@ -1938,7 +1949,7 @@
         "noDocumentsHint": "No documents to display",
         "selectedFolderSearch": "Search in selected folder",
         "title": "Document browser",
-        "wholeBrowserSearch": "Search in the whole document browser"
+        "wholeBrowserSearch": "Search for document"
     },
     "documentExecution": {
         "documentDetails": {
@@ -1956,6 +1967,7 @@
                 "addParameter": "Add Parameter",
                 "mondrian": "Mondrian",
                 "olapDesigner": "Olap Designer",
+                "parameters": "Parameters",
                 "selectCube": "Select Cube",
                 "selectMondrianSchema": "Select Mondrian Schema",
                 "templateType": "Select type of Template",
@@ -1976,7 +1988,10 @@
                 "detailsTitle": "Driver's details",
                 "dropdownSearchHint": "Search for Analytical Driver",
                 "noDataCond": "No data condition selected",
-                "noDriverSelected": "No Drivers Selected",
+                "noDriverSelected": "Select a Driver",
+                "noDriverSelectedHint": "Select the driver from the list on the left or click on + button to create a new one. Drivers are updated automatically without a need to save the document",
+                "noParamSelected": "Select a Parameter",
+                "noParamSelectedHint": "Select the parameter from the list on the left or click on + button to create a new one.",
                 "noVisCond": "No visibility condition selected",
                 "paramValue": " value of the parameter ",
                 "parameterUrlName": "Url Name",
@@ -1996,7 +2011,8 @@
                 "listHint": "Upload new template here",
                 "listTitle": "Template History",
                 "template": "Template",
-                "templateHint": "Content of this file type cannot be shown",
+                "templateHint": "Select a template from the list on the left or click on the upload button to create a new one. If file type is supported, you are able to view and edit it. Only one template can be active at a time.",
+                "templateTitle": "Select a Template",
                 "title": "History",
                 "uploadError": "An error occured while uploading template"
             },
@@ -2017,6 +2033,7 @@
                 "refreshHint": "Select the number of milliseconds after the document will refresh",
                 "restrictionValueHint": "Enter Value",
                 "restrictionsTitle": "Visibility Restrictions",
+                "template": "Template",
                 "uploadTemplate": "Upload template",
                 "visibilityLocationTitle": "Select the functionalities where the document will be visible"
             },
@@ -4407,7 +4424,6 @@
         "warnings": "warnings"
     },
     "qbe": {
-        "missingSavePermissions": "Missing advanced save permissions.",
         "advancedFilters": {
             "advancedFilterVisualisation": "Advanced filter visualization",
             "group": "Group",
@@ -4526,6 +4542,7 @@
             "dialogTitle": "Relations between entities",
             "title": "Join Definitions"
         },
+        "missingSavePermissions": "Missing advanced save permissions.",
         "savingDialog": {
             "persistence": "Persistence",
             "title": "Saving QBE Dataset"

@@ -1,26 +1,29 @@
 <template>
-    <div v-if="groupingSettings" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div v-if="['area', 'bar', 'column', 'line'].includes(chartType)" class="p-col-3 p-grid p-ai-center p-p-4">
-            <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.grouping.groupByCategories') }}</label>
-            <InputSwitch v-model="groupingSettings.enabled" :disabled="groupingDisabled"></InputSwitch>
-            <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.grouping.groupByCategoriesHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
-        </div>
+    <div v-if="groupingSettings" class="q-px-md q-pb-sm">
+        <div class="row q-col-gutter-sm q-mb-sm">
+            <div v-if="['area', 'bar', 'column', 'line'].includes(chartType)" class="col-auto row items-center">
+                <q-toggle v-model="groupingSettings.enabled" :disable="groupingDisabled" :label="$t('dashboard.widgetEditor.highcharts.grouping.groupByCategories')" dense>
+                    <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.grouping.groupByCategoriesHint') }}</q-tooltip>
+                </q-toggle>
+            </div>
 
-        <div v-if="['bar', 'column'].includes(chartType)" class="p-col-3 p-grid p-ai-center p-p-4">
-            <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.grouping.secondSerie') }}</label>
-            <InputSwitch v-model="groupingSettings.secondSeries.enabled" :disabled="seriesGroupingDisabled"></InputSwitch>
-            <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.grouping.secondSerieHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
-        </div>
+            <div class="col-12"><q-separator /></div>
 
-        <div class="p-col-3 p-grid p-ai-center p-p-4">
-            <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.grouping.secondCategory') }}</label>
-            <InputSwitch v-model="groupingSettings.secondDimension.enabled" :disabled="dimensionGroupingDisabled"></InputSwitch>
-            <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.grouping.secondCategoryHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+            <div v-if="['bar', 'column'].includes(chartType)" class="col-auto row items-center col-12">
+                <q-toggle v-model="groupingSettings.secondSeries.enabled" :disable="seriesGroupingDisabled" :label="$t('dashboard.widgetEditor.highcharts.grouping.secondSerie')" dense>
+                    <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.grouping.secondSerieHint') }}</q-tooltip>
+                </q-toggle>
+            </div>
+            <div class="col-auto row items-center">
+                <q-toggle v-model="groupingSettings.secondDimension.enabled" :disable="dimensionGroupingDisabled" :label="$t('dashboard.widgetEditor.highcharts.grouping.secondCategory')" dense>
+                    <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.grouping.secondCategoryHint') }}</q-tooltip>
+                </q-toggle>
+            </div>
         </div>
-
-        <div class="p-col-3 p-d-flex p-flex-column kn-flex p-pr-4">
-            <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.grouping.secondCategoryToUse') }}</label>
-            <Dropdown v-model="groupingSettings.secondDimension.serie" class="kn-material-input" :options="measureColumns" option-value="columnName" option-label="columnName" :disabled="secondDimensionDisabled"> </Dropdown>
+        <div class="row q-col-gutter-sm q-mb-sm">
+            <div class="col-6">
+                <q-select v-model="groupingSettings.secondDimension.serie" :label="$t('dashboard.widgetEditor.highcharts.grouping.secondCategoryToUse')" emit-value map-options outlined dense :options="measureColumns" option-value="columnName" option-label="columnName" :disable="secondDimensionDisabled" />
+            </div>
         </div>
     </div>
 </template>
@@ -28,12 +31,9 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
-import Dropdown from 'primevue/dropdown'
-import InputSwitch from 'primevue/inputswitch'
-
 export default defineComponent({
     name: 'highcharts-grouping-settings',
-    components: { Dropdown, InputSwitch },
+    components: {},
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {

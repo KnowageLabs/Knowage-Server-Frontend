@@ -1,43 +1,40 @@
 <template>
-    <div class="p-d-flex p-flex-column kn-flex p-mr-3 p-my-3 dashboard-card-shadow kn-overflow dashboard-scrollbar">
-        <label class="kn-material-input-label p-m-3"> {{ $t('dashboard.widgetEditor.background') }}</label>
-        <form v-if="background" class="p-fluid p-formgrid p-grid p-m-1">
-            <span class="p-col-12 p-sm-6 p-xl-3 p-mb-4">
-                <q-input v-model="background.imageBackgroundUrl" :label="$t('dashboard.generalSettings.background.sheetsImage')" :hint="$t('dashboard.generalSettings.background.sheetsImageHint')">
+    <div v-if="background" class="q-px-md q-pb-xs">
+        <div class="row q-col-gutter-sm q-mb-sm">
+            <div class="col-6">
+                <WidgetEditorColorPicker :initial-value="background.sheetsBackgroundColor" :label="'dashboard.generalSettings.background.sheetsColor'" @change="background.sheetsBackgroundColor = $event" />
+            </div>
+            <div class="col-6">
+                <q-toggle v-model="background.showGrid" :label="$t('dashboard.generalSettings.background.showGrid')" />
+            </div>
+            <div class="col-6">
+                <q-input v-model="background.imageBackgroundUrl" class="col-6" outlined dense :label="$t('dashboard.generalSettings.background.sheetsImage')" hide-bottom-space>
                     <template #append>
-                        <q-icon name="close" data-test="close-button" @click="background.imageBackgroundUrl = ''" />
-                    </template>
-                </q-input>
-            </span>
-            <span class="p-col-12 p-sm-6 p-xl-3 p-mb-4">
-                <q-input v-model="background.imageBackgroundSize" :label="$t('dashboard.generalSettings.background.sheetsSize')" :hint="$t('dashboard.generalSettings.background.sheetsSizeHint')">
-                    <template #append>
-                        <q-icon name="close" @click="background.imageBackgroundSize = ''" />
-                    </template>
-                </q-input>
-            </span>
-            <span class="p-col-12 p-sm-6 p-xl-3 p-mb-4">
-                <q-input v-model="background.sheetsBackgroundColor" :label="$t('dashboard.generalSettings.background.sheetsColor')">
-                    <template #append>
-                        <q-icon name="colorize" class="cursor-pointer">
-                            <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                                <q-color v-model="background.sheetsBackgroundColor" format-model="hexa" />
-                            </q-popup-proxy>
+                        <q-icon name="help_outline" size="xs" class="cursor-pointer text-grey-5">
+                            <q-tooltip>{{ $t('dashboard.generalSettings.background.sheetsImageHint') }}</q-tooltip>
                         </q-icon>
                     </template>
                 </q-input>
-            </span>
-            <span class="p-col-12 p-mb-4">
-                <q-input v-model="background.sheetsBackgroundStyle" type="textarea" autogrow :label="$t('dashboard.generalSettings.background.sheetsStyle')" :hint="$t('dashboard.generalSettings.background.sheetsStyleHint')">
+            </div>
+            <div class="col-6">
+                <q-input v-model="background.imageBackgroundSize" class="col-6" outlined dense :label="$t('dashboard.generalSettings.background.sheetsSize')" hide-bottom-space>
                     <template #append>
-                        <q-icon name="close" class="cursor-pointer" @click="background.sheetsBackgroundStyle = ''" />
+                        <q-icon name="help_outline" size="xs" class="cursor-pointer text-grey-5">
+                            <q-tooltip>{{ $t('dashboard.generalSettings.background.sheetsSize') }}</q-tooltip>
+                        </q-icon>
                     </template>
                 </q-input>
-            </span>
-            <span class="p-col-12 p-sm-6 p-xl-3 p-mb-4">
-                <q-toggle v-model="background.showGrid" :label="$t('dashboard.generalSettings.background.showGrid')" />
-            </span>
-        </form>
+            </div>
+            <div class="col-12">
+                <q-input v-model="background.sheetsBackgroundStyle" type="textarea" rows="2" outlined dense clearable :label="$t('dashboard.generalSettings.background.sheetsStyle')" hide-bottom-space>
+                    <template #append>
+                        <q-icon name="help_outline" size="xs" class="cursor-pointer text-grey-5">
+                            <q-tooltip>{{ $t('dashboard.generalSettings.background.sheetsStyleHint') }}</q-tooltip>
+                        </q-icon>
+                    </template>
+                </q-input>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -45,9 +42,11 @@
 import { defineComponent } from 'vue'
 import descriptor from '../DashboardGeneralSettingsDescriptor.json'
 import { IBackground } from '../../Dashboard'
+import WidgetEditorColorPicker from '../../widget/WidgetEditor/WidgetEditorSettingsTab/common/WidgetEditorColorPicker.vue'
 
 export default defineComponent({
-    name: 'dashboard-variables',
+    name: 'dashboard-background',
+    components: { WidgetEditorColorPicker },
     props: {
         dashboardModelProp: {
             type: Object as any,
@@ -73,10 +72,6 @@ export default defineComponent({
             if (!this.dashboard.configuration?.background) this.dashboard.configuration.background = { sheetsBackgroundColor: '', imageBackgroundUrl: '', imageBackgroundSize: '', sheetsBackgroundStyle: '', showGrid: true } as IBackground
             else if (this.dashboard.configuration.background.sheetsBackgroundStyle === undefined) this.dashboard.configuration.background.sheetsBackgroundStyle = ''
             this.background = this.dashboard.configuration.background as IBackground
-        },
-        onSelectionColorChanged(event: string | null) {
-            if (!event) return
-            else this.background.sheetsBackgroundColor = event
         }
     }
 })

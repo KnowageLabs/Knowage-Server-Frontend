@@ -1,36 +1,30 @@
 <template>
     <div v-if="controlPanelSettings">
-        <div class="p-formgrid p-grid p-p-3">
-            <span class="p-field p-col-12 p-lg-3 p-jc-center p-mt-3 p-pl-3">
-                <InputSwitch v-model="controlPanelSettings.alwaysShow" />
-                <label class="kn-material-input-label p-ml-3"> {{ $t('dashboard.widgetEditor.map.controlPanel.alwaysShow') }} </label>
-            </span>
-
-            <div class="p-col-12 p-lg-9 p-d-flex p-flex-row p-ai-center">
-                <div class="p-float-label kn-flex">
-                    <InputText v-model="controlPanelSettings.dimension" class="kn-material-input kn-width-full" />
-                    <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.map.controlPanel.dimension') }}</label>
+        <div class="q-px-md q-pb-sm">
+            <div class="row q-col-gutter-sm q-mb-sm items-center">
+                <div class="col-6">
+                    <q-input v-model="controlPanelSettings.dimension" :label="$t('dashboard.widgetEditor.map.controlPanel.dimension')" outlined dense>
+                        <template #append>
+                            <q-icon name="help_outline" size="xs" class="cursor-pointer text-grey-5">
+                                <q-tooltip>{{ $t('dashboard.widgetEditor.map.controlPanel.dimensionHint') }}</q-tooltip>
+                            </q-icon>
+                        </template>
+                    </q-input>
                 </div>
-                <i v-tooltip.top="$t('dashboard.widgetEditor.map.controlPanel.dimensionHint')" class="pi pi-question-circle kn-cursor-pointer p-mx-3"></i>
+                <div class="col-auto">
+                    <q-toggle v-model="controlPanelSettings.alwaysShow" :label="$t('dashboard.widgetEditor.map.controlPanel.alwaysShow')" dense />
+                </div>
             </div>
-
-            <div v-if="widgetModel?.settings?.visualizations?.length" class="p-col-12">
-                <label class="kn-material-input-label">{{ $t('common.fields') }}</label>
-
-                <div v-for="visualization in widgetModel.settings.visualizations" :key="visualization.id ?? visualization.label" class="p-grid p-ai-center p-col-12 p-px-0 p-mt-2 control-panel-visualization-row">
-                    <div class="p-col-12 p-lg-3 control-panel-visualization-label">{{ visualization.label }}</div>
-                    <div class="p-col-12 p-lg-9">
-                        <MultiSelect
-                            class="kn-width-full"
-                            :model-value="getSelectedFilterColumnNames(visualization)"
-                            :options="getAvailableFilterColumns(visualization)"
-                            option-label="alias"
-                            option-value="name"
-                            display="chip"
-                            :placeholder="$t('common.fields')"
-                            @update:model-value="(value) => onFilterColumnsChanged(value, visualization)"
-                        />
+            <q-separator v-if="widgetModel?.settings?.visualizations?.length" class="q-mb-sm"></q-separator>
+            <div v-if="widgetModel?.settings?.visualizations?.length">
+                <div class="text-subtitle2 q-mb-sm">{{ $t('common.fields') }}</div>
+                <div v-for="visualization in widgetModel.settings.visualizations" :key="visualization.id ?? visualization.label" class="control-panel-visualization-row row no-wrap q-mb-sm">
+                    <div class="kn-action-handle kn-action-handle-disabled"></div>
+                    <div class="col q-pa-sm">
+                        <div class="text-subtitle2 text-weight-bold q-mb-xs">{{ visualization.label }}</div>
+                        <q-select :model-value="getSelectedFilterColumnNames(visualization)" :options="getAvailableFilterColumns(visualization)" option-label="alias" option-value="name" emit-value map-options multiple use-chips :placeholder="$t('common.fields')" outlined dense @update:model-value="(value) => onFilterColumnsChanged(value, visualization)" />
                     </div>
+                    <div class="kn-action-handle kn-action-handle-disabled"></div>
                 </div>
             </div>
         </div>
@@ -41,8 +35,6 @@
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IMapNormalisedInteractionColumn, IMapWidgetControlPanel, IMapWidgetLayer, IMapWidgetVisualizationType } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { defineComponent, PropType } from 'vue'
-import InputSwitch from 'primevue/inputswitch'
-import MultiSelect from 'primevue/multiselect'
 import { mapActions } from 'pinia'
 import appStore from '@/App.store'
 import { getPropertiesByLayerLabel } from '../../../../MapWidget/MapWidgetDataProxy'
@@ -51,7 +43,7 @@ import { resolveLayerByTarget } from '../../../../MapWidget/LeafletHelper'
 
 export default defineComponent({
     name: 'map-control-panel-settings',
-    components: { InputSwitch, MultiSelect },
+    components: {},
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, dashboardId: { type: [String, Number], required: true } },
     data() {
         return {
@@ -108,11 +100,8 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .control-panel-visualization-row {
-    border-top: 1px solid #e5e7eb;
-}
-
-.control-panel-visualization-label {
-    font-weight: 600;
-    overflow-wrap: anywhere;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
 }
 </style>

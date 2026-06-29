@@ -1,6 +1,6 @@
 <template>
     <div class="kn-width-full">
-        <knMonaco v-model="code" :options="{ readOnly: props.disabled }" style="height: 200px" language="javascript" @blur="$emit('blur')" @change="onKeyUp"></knMonaco>
+        <knMonaco v-model="code" :options="{ readOnly: props.disabled }" style="height: 120px" language="javascript" @blur="$emit('blur')" @change="onKeyUp"></knMonaco>
     </div>
 </template>
 

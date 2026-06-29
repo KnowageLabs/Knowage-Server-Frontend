@@ -2,28 +2,33 @@
     <div v-show="widgetModel">
         <Message v-if="themePropertyChanged" class="p-p-2 p-m-4" severity="warn" :closable="false">{{ $t('dashboard.widgetEditor.themeChangedWarning') }}</Message>
         <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker>
-        <q-list class="widget-editor-accordion" bordered separator>
-            <q-expansion-item v-for="(accordion, index) in settings" :key="index" :model-value="activeIndex === index" expand-icon-class="col kn-width-full" @update:model-value="(val) => onExpansionChange(val, index)">
-                <template #header>
-                    <PythonWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></PythonWidgetSettingsAccordionHeader>
-                </template>
-                <WidgetExport v-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
-                <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
-                <WidgetSelectionConfiguration v-else-if="accordion.type === 'SelectionConfiguration'" :widget-model="widgetModel"></WidgetSelectionConfiguration>
-                <PythonWidgetEditor v-else-if="accordion.type === 'Python'" :widget-model="widgetModel" :dashboard-id="dashboardId" :selected-datasets="selectedDatasets"></PythonWidgetEditor>
-                <PythonEnvironmentSettings v-else-if="accordion.type === 'Environment'" :widget-model="widgetModel"></PythonEnvironmentSettings>
-                <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" :dashboard-id="dashboardId" @styleChanged="onStyleChanged"></WidgetTitleStyle>
-                <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
-                <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetPaddingStyle>
-                <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>
-                <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetShadowsStyle>
-                <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
-                <WidgetCrossNavigation v-else-if="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetCrossNavigation>
-                <WidgetInteractionsLinks v-else-if="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetInteractionsLinks>
-                <WidgetPreview v-else-if="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetPreview>
-                <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
-            </q-expansion-item>
-        </q-list>
+        <q-card class="q-ma-sm">
+            <q-list class="widget-editor-accordion" separator>
+                <q-expansion-item v-for="(accordion, index) in filteredSettings" :key="index" :model-value="activeIndex === index" expand-icon-class="col kn-width-full" @update:model-value="(val) => onExpansionChange(val, index)">
+                    <template #header>
+                        <PythonWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></PythonWidgetSettingsAccordionHeader>
+                    </template>
+                    <WidgetExport v-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
+                    <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
+                    <WidgetSelectionConfiguration v-else-if="accordion.type === 'SelectionConfiguration'" :widget-model="widgetModel"></WidgetSelectionConfiguration>
+                    <PythonWidgetEditor v-else-if="accordion.type === 'Python'" :widget-model="widgetModel" :dashboard-id="dashboardId" :selected-datasets="selectedDatasets"></PythonWidgetEditor>
+                    <PythonEnvironmentSettings v-else-if="accordion.type === 'Environment'" :widget-model="widgetModel"></PythonEnvironmentSettings>
+                    <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" :dashboard-id="dashboardId" @styleChanged="onStyleChanged"></WidgetTitleStyle>
+                    <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
+                    <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetPaddingStyle>
+                    <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>
+                    <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetShadowsStyle>
+                    <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
+                    <WidgetCrossNavigation v-else-if="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetCrossNavigation>
+                    <WidgetInteractionsLinks v-else-if="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetInteractionsLinks>
+                    <WidgetPreview v-else-if="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetPreview>
+                    <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
+                </q-expansion-item>
+            </q-list>
+        </q-card>
+        <q-item v-if="isSearchActive && filteredSettings.length === 0" class="q-pa-md">
+            <q-item-section class="text-grey-6">{{ $t('common.info.noAvailableItems') }}</q-item-section>
+        </q-item>
     </div>
 </template>
 
@@ -82,6 +87,9 @@ export default defineComponent({
         selectedDatasets: { type: Array as PropType<IDataset[]> },
         dashboardId: { type: String, required: true }
     },
+    inject: {
+        widgetSettingsSearch: { from: 'widgetSettingsSearch', default: null }
+    },
     data() {
         return {
             descriptor,
@@ -97,7 +105,19 @@ export default defineComponent({
             isEnterprise: 'isEnterprise'
         }),
         showThemePicker() {
-            return this.isEnterprise && this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
+            return !this.isSearchActive && this.isEnterprise && this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
+        },
+        isSearchActive(): boolean {
+            return ((this.widgetSettingsSearch as any) ?? '').length >= 3
+        },
+        filteredSettings(): { title: string; type: string }[] {
+            if (!this.settings) return []
+            const search = (this.widgetSettingsSearch as any) ?? ''
+            if (search.length >= 3) {
+                const lc = search.toLowerCase()
+                return this.settings.filter((s: { title: string; type: string }) => this.$t(s.title).toLowerCase().includes(lc))
+            }
+            return [...this.settings]
         }
     },
     watch: {

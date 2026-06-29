@@ -1,10 +1,11 @@
 <template>
-    <div class="p-grid">
-        <div class="p-col-12">
+    <div class="row">
+        <div class="col-12">
             <q-editor
                 ref="editor"
-                class="q-ma-sm"
                 v-model="model.settings.editor.text"
+                dense
+                flat
                 :toolbar="[
                     [
                         {
@@ -58,35 +59,7 @@
                                     <q-icon name="format_color_fill" />
                                 </q-item-section>
                                 <q-item-section>
-                                    <q-color
-                                        v-model="highlight"
-                                        default-view="palette"
-                                        no-header
-                                        no-footer
-                                        :palette="[
-                                            '#ffccccaa',
-                                            '#ffe6ccaa',
-                                            '#ffffccaa',
-                                            '#ccffccaa',
-                                            '#ccffe6aa',
-                                            '#ccffffaa',
-                                            '#cce6ffaa',
-                                            '#ccccffaa',
-                                            '#e6ccffaa',
-                                            '#ffccffaa',
-                                            '#ff0000aa',
-                                            '#ff8000aa',
-                                            '#ffff00aa',
-                                            '##00ff00aa',
-                                            '#00ff80aa',
-                                            '#00ffffaa',
-                                            '#0080ffaa',
-                                            '#0000ffaa',
-                                            '#8000ffaa',
-                                            '#ff00ffaa'
-                                        ]"
-                                        class="my-picker"
-                                    />
+                                    <q-color v-model="highlight" default-view="palette" no-header no-footer :palette="['#ffccccaa', '#ffe6ccaa', '#ffffccaa', '#ccffccaa', '#ccffe6aa', '#ccffffaa', '#cce6ffaa', '#ccccffaa', '#e6ccffaa', '#ffccffaa', '#ff0000aa', '#ff8000aa', '#ffff00aa', '##00ff00aa', '#00ff80aa', '#00ffffaa', '#0080ffaa', '#0000ffaa', '#8000ffaa', '#ff00ffaa']" class="my-picker" />
                                 </q-item-section>
                             </q-item>
                             <q-item tag="label" clickable data-test="list-item" @click="color('foreColor', foreColor)">
@@ -110,7 +83,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IVariable, IWidget, IDataset } from '@/modules/documentExecution/Dashboard/Dashboard'
+import { IVariable, IWidget, IDataset } from '@/modules/documentExecution/dashboard/Dashboard'
 import TextWidgetEditorDescriptor from './TextWidgetEditorDescriptor.json'
 import TieredMenu from 'primevue/tieredmenu'
 import TagsDialog from '../../common/editor/WidgetTagsDialog.vue'

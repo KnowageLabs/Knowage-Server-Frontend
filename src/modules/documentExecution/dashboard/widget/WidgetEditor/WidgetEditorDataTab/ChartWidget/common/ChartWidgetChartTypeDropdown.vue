@@ -1,43 +1,40 @@
 <template>
     <div v-if="widgetModel">
-        <div class="p-d-flex p-flex-row p-ai-center">
-            <Dropdown v-model="selectedType" class="kn-material-input kn-flex" :options="chartTypeOptions" option-value="value" @change="onChange">
-                <template #value="slotProps">
-                    <div class="p-d-flex p-flex-row p-ai-center">
-                        <img class="chart-type-image p-mr-2" :src="getImageSource(slotProps.value)" />
-                        <span>{{ getTranslatedLabel(slotProps.value, chartTypeOptions, $t) }}</span>
-                    </div>
-                </template>
-                <template #option="slotProps">
-                    <div class="p-d-flex p-flex-row p-ai-center">
-                        <img class="chart-type-image p-mr-2" :src="getImageSource(slotProps.option.value)" />
-                        <span>{{ $t(slotProps.option.label) }}</span>
-                    </div>
-                </template>
-            </Dropdown>
-        </div>
+        <q-select v-model="selectedType" class="kn-flex" :options="filteredOptions" :option-label="(opt) => $t(opt.label)" option-value="value" emit-value map-options outlined dense use-input hide-selected fill-input input-debounce="0" @filter="filterFn" @update:model-value="onChange">
+            <template #prepend>
+                <img v-if="selectedType" class="chart-type-image" :src="getImageSource(selectedType)" />
+            </template>
+            <template #option="slotProps">
+                <q-item v-bind="slotProps.itemProps">
+                    <q-item-section avatar>
+                        <img class="chart-type-image" :src="getImageSource(slotProps.opt.value)" />
+                    </q-item-section>
+                    <q-item-section>
+                        <q-item-label>{{ $t(slotProps.opt.label) }}</q-item-label>
+                    </q-item-section>
+                </q-item>
+            </template>
+        </q-select>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IDataset, IWidget } from '@/modules/documentExecution/Dashboard/Dashboard'
+import { IDataset, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { mapState } from 'pinia'
 import commonDescriptor from '../../common/WidgetCommonDescriptor.json'
-import Dropdown from 'primevue/dropdown'
 import mainStore from '@/App.store'
-import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 
 export default defineComponent({
     name: 'chart-widget-chart-type-dropdown',
-    components: { Dropdown },
+    components: {},
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, selectedDataset: { type: Object as PropType<IDataset | null> } },
     emits: ['selectedChartTypeChanged'],
     data() {
         return {
             commonDescriptor,
             selectedType: '',
-            getTranslatedLabel
+            filteredOptions: [] as any[]
         }
     },
     computed: {
@@ -49,6 +46,7 @@ export default defineComponent({
         }
     },
     async created() {
+        this.filteredOptions = this.chartTypeOptions
         this.loadSelectedType()
     },
 
@@ -67,6 +65,16 @@ export default defineComponent({
         },
         onChange() {
             this.$emit('selectedChartTypeChanged', this.selectedType)
+        },
+        filterFn(val: string, update: (fn: () => void) => void) {
+            update(() => {
+                if (!val.trim()) {
+                    this.filteredOptions = this.chartTypeOptions
+                } else {
+                    const needle = val.toLowerCase()
+                    this.filteredOptions = this.chartTypeOptions.filter((opt: any) => this.$t(opt.label).toLowerCase().includes(needle))
+                }
+            })
         }
     }
 })

@@ -1,6 +1,6 @@
 <template>
     <div v-show="widgetModel">
-        <Message v-if="themePropertyChanged" class="p-p-2 p-m-4" severity="warn" :closable="false">{{ $t('dashboard.widgetEditor.themeChangedWarning') }}</Message>
+        <q-banner v-if="themePropertyChanged" class="q-ma-sm bg-warning text-white" rounded dense>{{ $t('dashboard.widgetEditor.themeChangedWarning') }}</q-banner>
         <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker>
 
         <!-- Direct rendering for VisualizationType without accordion -->
@@ -9,33 +9,40 @@
         </template>
 
         <!-- Standard accordion for other types -->
-        <q-list v-if="!isVisualizationTypeOnly" class="widget-editor-accordion" bordered separator>
-            <q-expansion-item v-for="(accordion, index) in settings" :key="index" :model-value="activeIndex === index" expand-icon-class="col kn-width-full" @update:model-value="(val) => onExpansionChange(val, index)">
-                <template #header>
-                    <MapSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></MapSettingsAccordionHeader>
+        <q-card v-if="!isVisualizationTypeOnly" class="q-ma-sm">
+            <q-list class="widget-editor-accordion" bordered separator>
+                <template v-for="(accordion, index) in filteredSettings" :key="index">
+                    <q-item v-if="accordion.toggleOnly">
+                        <MapSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></MapSettingsAccordionHeader>
+                    </q-item>
+                    <q-expansion-item v-else :model-value="activeIndex === index" expand-icon-class="col kn-width-full" hide-expand-icon @update:model-value="(val) => onExpansionChange(val, index)">
+                        <template #header>
+                            <MapSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></MapSettingsAccordionHeader>
+                        </template>
+                        <WidgetTitleStyle v-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" :dashboard-id="dashboardId" @styleChanged="onStyleChanged"></WidgetTitleStyle>
+                        <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
+                        <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>
+                        <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetPaddingStyle>
+                        <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetShadowsStyle>
+                        <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
+                        <MapWidgetSelectionsConfiguration v-else-if="accordion.type === 'Selection'" :visible="accordion.type === 'Selection'" :widget-model="widgetModel" :dashboard-id="dashboardId"></MapWidgetSelectionsConfiguration>
+                        <MapWidgetCrossNavigationConfiguration v-else-if="accordion.type === 'CrossNavigation'" :visible="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></MapWidgetCrossNavigationConfiguration>
+                        <MapWidgetLinkConfiguration v-else-if="accordion.type === 'Link'" :visible="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></MapWidgetLinkConfiguration>
+                        <MapWidgetDatasetPreviewConfiguration v-else-if="accordion.type === 'Preview'" :visible="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></MapWidgetDatasetPreviewConfiguration>
+                        <MapTooltips v-else-if="accordion.type === 'Tooltips'" :widget-model="widgetModel" :dashboard-id="dashboardId"></MapTooltips>
+                        <MapDialogSettings v-else-if="accordion.type === 'DialogSettings'" :widget-model="widgetModel" :dashboard-id="dashboardId"></MapDialogSettings>
+                        <MapLegendSettings v-else-if="accordion.type === 'Legend'" :widget-model="widgetModel"></MapLegendSettings>
+                        <MapBaseLayerSettings v-else-if="accordion.type === 'Map'" :widget-model="widgetModel"></MapBaseLayerSettings>
+                        <MapControlPanelSettings v-else-if="accordion.type === 'ControlPanel'" :widget-model="widgetModel" :dashboard-id="dashboardId"></MapControlPanelSettings>
+                        <MapConditionalStyles v-else-if="accordion.type === 'Conditions'" :widget-model="widgetModel" :variables="variables" :dashboard-id="dashboardId"></MapConditionalStyles>
+                        <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
+                    </q-expansion-item>
                 </template>
-                <WidgetExport v-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
-                <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
-                <WidgetSelectionConfiguration v-else-if="accordion.type === 'SelectionConfiguration'" :widget-model="widgetModel"></WidgetSelectionConfiguration>
-                <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" :dashboard-id="dashboardId" @styleChanged="onStyleChanged"></WidgetTitleStyle>
-                <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
-                <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>
-                <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetPaddingStyle>
-                <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetShadowsStyle>
-                <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
-                <MapWidgetSelectionsConfiguration v-else-if="accordion.type === 'Selection'" :visible="accordion.type === 'Selection'" :widget-model="widgetModel" :dashboard-id="dashboardId"></MapWidgetSelectionsConfiguration>
-                <MapWidgetCrossNavigationConfiguration v-else-if="accordion.type === 'CrossNavigation'" :visible="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></MapWidgetCrossNavigationConfiguration>
-                <MapWidgetLinkConfiguration v-else-if="accordion.type === 'Link'" :visible="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></MapWidgetLinkConfiguration>
-                <MapWidgetDatasetPreviewConfiguration v-else-if="accordion.type === 'Preview'" :visible="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></MapWidgetDatasetPreviewConfiguration>
-                <MapTooltips v-else-if="accordion.type === 'Tooltips'" :widget-model="widgetModel" :dashboard-id="dashboardId"></MapTooltips>
-                <MapDialogSettings v-else-if="accordion.type === 'DialogSettings'" :widget-model="widgetModel" :dashboard-id="dashboardId"></MapDialogSettings>
-                <MapLegendSettings v-else-if="accordion.type === 'Legend'" :widget-model="widgetModel"></MapLegendSettings>
-                <MapBaseLayerSettings v-else-if="accordion.type === 'Map'" :widget-model="widgetModel"></MapBaseLayerSettings>
-                <MapControlPanelSettings v-else-if="accordion.type === 'ControlPanel'" :widget-model="widgetModel" :dashboard-id="dashboardId"></MapControlPanelSettings>
-                <MapConditionalStyles v-else-if="accordion.type === 'Conditions'" :widget-model="widgetModel" :variables="variables" :dashboard-id="dashboardId"></MapConditionalStyles>
-                <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
-            </q-expansion-item>
-        </q-list>
+            </q-list>
+        </q-card>
+        <q-item v-if="isSearchActive && filteredSettings.length === 0" class="q-pa-md">
+            <q-item-section class="text-grey-6">{{ $t('common.info.noAvailableItems') }}</q-item-section>
+        </q-item>
     </div>
 </template>
 
@@ -46,8 +53,6 @@ import { ILayer } from '@/modules/documentExecution/dashboard/interfaces/mapWidg
 import { mapState } from 'pinia'
 import mainStore from '@/App.store'
 import settingsTabDescriptor from '../WidgetEditorSettingsTabDescriptor.json'
-import WidgetExport from '../common/configuration/WidgetExport.vue'
-import WidgetMenuConfiguration from '../common/configuration/WidgetMenuConfiguration.vue'
 import WidgetBordersStyle from '../common/style/WidgetBordersStyle.vue'
 import WidgetShadowsStyle from '../common/style/WidgetShadowsStyle.vue'
 import WidgetResponsive from '../common/responsive/WidgetResponsive.vue'
@@ -67,13 +72,10 @@ import MapBaseLayerSettings from './configuration/MapBaseLayerSettings.vue'
 import MapControlPanelSettings from './configuration/MapControlPanelSettings.vue'
 import MapConditionalStyles from './conditionalStyle/MapConditionalStyles.vue'
 import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue'
-import Message from 'primevue/message'
-import WidgetSelectionConfiguration from '../common/configuration/WidgetSelectionConfiguration.vue'
 import WidgetHelpSettings from '../common/help/WidgetHelpSettings.vue'
 
 export default defineComponent({
     components: {
-        WidgetExport,
         WidgetTitleStyle,
         WidgetBordersStyle,
         WidgetShadowsStyle,
@@ -90,9 +92,6 @@ export default defineComponent({
         MapControlPanelSettings,
         MapConditionalStyles,
         WidgetEditorThemePicker,
-        Message,
-        WidgetMenuConfiguration,
-        WidgetSelectionConfiguration,
         MapWidgetCrossNavigationConfiguration,
         WidgetHelpSettings,
         MapWidgetLinkConfiguration,
@@ -100,7 +99,7 @@ export default defineComponent({
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
-        settings: { type: Array as PropType<{ title: string; type: string }[]> },
+        settings: { type: Array as PropType<{ title: string; type: string; toggleOnly?: boolean }[]> },
         datasets: { type: Array as PropType<IDataset[]> },
         selectedDatasets: { type: Array as PropType<IDataset[]> },
         variables: { type: Array as PropType<IVariable[]>, required: true },
@@ -108,6 +107,9 @@ export default defineComponent({
         layers: { type: Array as PropType<ILayer[]>, required: true }
     },
 
+    inject: {
+        widgetSettingsSearch: { from: 'widgetSettingsSearch', default: null }
+    },
     data() {
         return {
             settingsTabDescriptor,
@@ -122,10 +124,22 @@ export default defineComponent({
             isEnterprise: 'isEnterprise'
         }),
         showThemePicker() {
-            return this.isEnterprise && this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
+            return !this.isSearchActive && this.isEnterprise && this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
         },
         isVisualizationTypeOnly() {
             return this.settings && this.settings.length === 1 && this.settings[0].type === 'VisualizationType'
+        },
+        isSearchActive(): boolean {
+            return ((this.widgetSettingsSearch as any) ?? '').length >= 3
+        },
+        filteredSettings(): { title: string; type: string; toggleOnly?: boolean }[] {
+            if (!this.settings) return []
+            const search = (this.widgetSettingsSearch as any) ?? ''
+            if (search.length >= 3) {
+                const lc = search.toLowerCase()
+                return this.settings.filter((s: { title: string; type: string }) => this.$t(s.title).toLowerCase().includes(lc))
+            }
+            return [...this.settings]
         }
     },
     watch: {

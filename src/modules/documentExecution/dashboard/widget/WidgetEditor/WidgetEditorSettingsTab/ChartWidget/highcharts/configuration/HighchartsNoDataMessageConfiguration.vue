@@ -1,42 +1,42 @@
 <template>
-    <div v-if="model" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div v-if="model.lang" class="p-col-12">
-            <label class="kn-material-input-label">{{ $t('common.message') }}</label>
-            <Textarea v-model="model.lang.noData" class="kn-material-input kn-width-full" rows="4" :auto-resize="true" maxlength="250" @change="modelChanged" />
+    <div v-if="model" class="q-px-md q-pb-sm">
+        <div v-if="model.lang" class="row q-mb-sm">
+            <div class="col-12">
+                <q-input v-model="model.lang.noData" :label="$t('common.message')" type="textarea" outlined dense autogrow maxlength="250" @change="modelChanged" />
+            </div>
         </div>
-        <div v-if="model.noData?.position" class="p-col-6 p-d-flex p-flex-column kn-flex p-m-2">
-            <label class="kn-material-input-label p-mr-2">{{ $t('common.align') }}</label>
-            <Dropdown v-model="model.noData.position.align" class="kn-material-input" :options="descriptor.alignmentOptions" option-value="value" @change="modelChanged">
-                <template #value="slotProps">
-                    <div>
-                        <span>{{ getTranslatedLabel(slotProps.value, descriptor.alignmentOptions, $t) }}</span>
-                    </div>
-                </template>
-                <template #option="slotProps">
-                    <div>
-                        <span>{{ $t(slotProps.option.label) }}</span>
-                    </div>
-                </template>
-            </Dropdown>
+        <div v-if="model.noData?.position" class="row q-col-gutter-sm">
+            <div class="col-6">
+                <q-select v-model="model.noData.position.align" :label="$t('common.align')" emit-value map-options outlined dense :options="descriptor.alignmentOptions" option-value="value" option-label="label" @update:model-value="modelChanged">
+                    <template #selected-item="slotProps">
+                        <span>{{ getTranslatedLabel(slotProps.opt.value, descriptor.alignmentOptions, $t) }}</span>
+                    </template>
+                    <template #option="slotProps">
+                        <q-item v-bind="slotProps.itemProps">
+                            <q-item-section
+                                ><q-item-label>{{ $t(slotProps.opt.label) }}</q-item-label></q-item-section
+                            >
+                        </q-item>
+                    </template>
+                </q-select>
+            </div>
+            <div class="col-6">
+                <q-select v-model="model.noData.position.verticalAlign" :label="$t('common.verticalAlign')" emit-value map-options outlined dense :options="descriptor.verticalAlignmentOptions" option-value="value" option-label="label" @update:model-value="modelChanged">
+                    <template #selected-item="slotProps">
+                        <span>{{ getTranslatedLabel(slotProps.opt.value, descriptor.verticalAlignmentOptions, $t) }}</span>
+                    </template>
+                    <template #option="slotProps">
+                        <q-item v-bind="slotProps.itemProps">
+                            <q-item-section
+                                ><q-item-label>{{ $t(slotProps.opt.label) }}</q-item-label></q-item-section
+                            >
+                        </q-item>
+                    </template>
+                </q-select>
+            </div>
         </div>
-        <div v-if="model.noData?.position" class="p-col-6 p-d-flex p-flex-column kn-flex p-m-2">
-            <label class="kn-material-input-label p-mr-2">{{ $t('common.verticalAlign') }}</label>
-            <Dropdown v-model="model.noData.position.verticalAlign" class="kn-material-input" :options="descriptor.verticalAlignmentOptions" option-value="value" @change="modelChanged">
-                <template #value="slotProps">
-                    <div>
-                        <span>{{ getTranslatedLabel(slotProps.value, descriptor.verticalAlignmentOptions, $t) }}</span>
-                    </div>
-                </template>
-                <template #option="slotProps">
-                    <div>
-                        <span>{{ $t(slotProps.option.label) }}</span>
-                    </div>
-                </template>
-            </Dropdown>
-        </div>
-
-        <div class="p-col-12 p-py-4">
-            <WidgetEditorStyleToolbar :options="descriptor.noDataToolbarStyleOptions" :prop-model="toolbarModel" @change="onStyleToolbarChange"> </WidgetEditorStyleToolbar>
+        <div class="col-12 q-py-sm">
+            <WidgetEditorStyleToolbar :options="descriptor.noDataToolbarStyleOptions" :prop-model="toolbarModel" @change="onStyleToolbarChange" />
         </div>
     </div>
 </template>
@@ -48,13 +48,11 @@ import { IHighchartsChartModel } from '@/modules/documentExecution/dashboard/int
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import descriptor from '../HighchartsWidgetSettingsDescriptor.json'
-import Dropdown from 'primevue/dropdown'
-import Textarea from 'primevue/textarea'
 import WidgetEditorStyleToolbar from '../../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 
 export default defineComponent({
     name: 'hihgcharts-no-data-message-configuration',
-    components: { Dropdown, Textarea, WidgetEditorStyleToolbar },
+    components: { WidgetEditorStyleToolbar },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {

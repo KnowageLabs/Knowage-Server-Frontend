@@ -1,46 +1,54 @@
 <template>
-    <div v-if="model?.yAxis && model.yAxis[0]" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-12 p-md-6 p-lg-6 p-d-flex p-flex-column">
-            <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.tick.tickPosition') }}</label>
-            <div class="p-d-flex p-flex-row p-ai-center">
-                <Dropdown v-model="model.yAxis[0].tickPosition" class="kn-material-input kn-flex" :options="descriptor.tickPositionOptions" option-value="value" @change="modelChanged">
-                    <template #value="slotProps">
-                        <div>
-                            <span>{{ getTranslatedLabel(slotProps.value, descriptor.tickPositionOptions, $t) }}</span>
-                        </div>
+    <div v-if="model?.yAxis && model.yAxis[0]" class="q-px-md q-pb-md">
+        <div class="row q-col-gutter-sm q-mb-sm">
+            <div class="col-4">
+                <q-select v-model="model.yAxis[0].tickPosition" :label="$t('dashboard.widgetEditor.highcharts.tick.tickPosition')" emit-value map-options outlined dense :options="descriptor.tickPositionOptions" option-value="value" option-label="label" @update:model-value="modelChanged">
+                    <template #selected-item="slotProps">
+                        <span>{{ getTranslatedLabel(slotProps.opt.value, descriptor.tickPositionOptions, $t) }}</span>
                     </template>
                     <template #option="slotProps">
-                        <div>
-                            <span>{{ $t(slotProps.option.label) }}</span>
-                        </div>
+                        <q-item v-bind="slotProps.itemProps">
+                            <q-item-section
+                                ><q-item-label>{{ $t(slotProps.opt.label) }}</q-item-label></q-item-section
+                            >
+                        </q-item>
                     </template>
-                </Dropdown>
-                <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.tick.tickPositionHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+                    <template #append>
+                        <q-icon name="help_outline" size="xs" class="cursor-pointer text-grey-5">
+                            <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.tick.tickPositionHint') }}</q-tooltip>
+                        </q-icon>
+                    </template>
+                </q-select>
             </div>
-        </div>
-        <div class="p-col-12 p-md-6 p-lg-6 p-px-2 p-pt-4">
-            <WidgetEditorColorPicker :initial-value="model.yAxis[0].tickColor" :label="$t('dashboard.widgetEditor.highcharts.tick.tickColor')" @change="onSelectionColorChanged"></WidgetEditorColorPicker>
-        </div>
-        <div class="p-col-12 p-md-6 p-lg-4 p-d-flex p-flex-column">
-            <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.tick.tickLength') }}</label>
-            <div class="p-d-flex p-flex-row p-ai-center p-fluid">
-                <InputNumber v-model="model.yAxis[0].tickLength" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
-                <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.tick.tickLengthHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+            <div class="col-4">
+                <q-input v-model.number="model.yAxis[0].tickLength" type="number" :label="$t('dashboard.widgetEditor.highcharts.tick.tickLength')" outlined dense @blur="onInputNumberChanged">
+                    <template #append>
+                        <q-icon name="help_outline" size="xs" class="cursor-pointer text-grey-5">
+                            <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.tick.tickLengthHint') }}</q-tooltip>
+                        </q-icon>
+                    </template>
+                </q-input>
             </div>
-        </div>
-        <div class="p-col-12 p-md-6 p-lg-4 p-d-flex p-flex-column">
-            <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.tick.tickWidth') }}</label>
-            <div class="p-d-flex p-flex-row p-ai-center p-fluid">
-                <InputNumber v-model="model.yAxis[0].tickWidth" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
-                <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.tick.tickWidthHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+            <div class="col-4">
+                <q-input v-model.number="model.yAxis[0].tickWidth" type="number" :label="$t('dashboard.widgetEditor.highcharts.tick.tickWidth')" outlined dense @blur="onInputNumberChanged">
+                    <template #append>
+                        <q-icon name="help_outline" size="xs" class="cursor-pointer text-grey-5">
+                            <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.tick.tickWidthHint') }}</q-tooltip>
+                        </q-icon>
+                    </template>
+                </q-input>
             </div>
-        </div>
-        <div class="p-col-12 p-md-12 p-lg-4 p-d-flex p-flex-column">
-            <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.tick.minorTickInterval') }}</label>
-            <div class="p-d-flex p-flex-row p-ai-center p-fluid">
-                <InputText v-model="minorTickInterval" class="kn-material-input p-inputtext-sm" @change="onMinorIntervalChange" />
-                <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.tick.minorTickIntervalHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
-                <Button icon="fa fa-eraser" class="p-button-text p-button-rounded p-button-plain" @click="removeMinorTickInterval" />
+            <div class="col-6">
+                <q-input v-model="minorTickInterval" :label="$t('dashboard.widgetEditor.highcharts.tick.minorTickInterval')" outlined dense @change="onMinorIntervalChange">
+                    <template #append>
+                        <q-icon name="help_outline" size="xs" class="cursor-pointer text-grey-5 q-mr-xs">
+                            <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.tick.minorTickIntervalHint') }}</q-tooltip>
+                        </q-icon>
+                    </template>
+                </q-input>
+            </div>
+            <div class="col-6">
+                <WidgetEditorColorPicker :initial-value="model.yAxis[0].tickColor" :label="$t('dashboard.widgetEditor.highcharts.tick.tickColor')" @change="onSelectionColorChanged" />
             </div>
         </div>
     </div>
@@ -53,13 +61,11 @@ import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IHighchartsChartModel } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import descriptor from '../../HighchartsWidgetSettingsDescriptor.json'
-import Dropdown from 'primevue/dropdown'
-import InputNumber from 'primevue/inputnumber'
 import WidgetEditorColorPicker from '../../../../common/WidgetEditorColorPicker.vue'
 
 export default defineComponent({
     name: 'hihgcharts-gauge-tick-settings',
-    components: { Dropdown, InputNumber, WidgetEditorColorPicker },
+    components: { WidgetEditorColorPicker },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {

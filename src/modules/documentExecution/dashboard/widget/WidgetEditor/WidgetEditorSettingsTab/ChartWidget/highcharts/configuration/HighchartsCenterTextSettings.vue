@@ -1,16 +1,14 @@
 <template>
-    <div v-if="centerTextSettings" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-9 p-fluid">
-            <label class="kn-material-input-label">{{ $t('common.text') }}</label>
-            <div class="p-d-flex p-flex-row p-ai-center">
-                <InputText v-model="centerTextSettings.text" class="kn-material-input p-inputtext-sm" />
-                <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.legend.formatHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+    <div v-if="centerTextSettings" class="q-px-md">
+        <div class="row q-col-gutter-sm q-mb-sm">
+            <div class="col-12">
+                <q-input v-model="centerTextSettings.text" :label="$t('common.text')" outlined dense :hint="$t('dashboard.widgetEditor.highcharts.legend.formatHint')" />
             </div>
         </div>
-        <div class="p-col-3"></div>
-
-        <div class="p-col-12 p-py-4">
-            <WidgetEditorStyleToolbar :options="descriptor.centerTextSettingsStyleToolbarOptions" :prop-model="toolbarModel" @change="onStyleToolbarChange"> </WidgetEditorStyleToolbar>
+        <div class="row q-mb-md">
+            <div class="col-12">
+                <WidgetEditorStyleToolbar :options="descriptor.centerTextSettingsStyleToolbarOptions" :prop-model="toolbarModel" @change="onStyleToolbarChange" />
+            </div>
         </div>
     </div>
 </template>

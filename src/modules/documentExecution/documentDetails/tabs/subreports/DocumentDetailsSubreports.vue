@@ -1,77 +1,39 @@
 <template>
-    <div class="p-grid p-m-0 kn-flex">
-        <div class="p-d-flex p-flex-column kn-flex">
-            <Toolbar class="kn-toolbar kn-toolbar--secondary">
-                <template #start>
-                    {{ $t('documentExecution.documentDetails.subreports.title') }}
-                </template>
-            </Toolbar>
-            <div class="kn-flex kn-relative">
-                <div :style="mainDescriptor.style.absoluteScroll">
-                    <div id="driver-details-container" class="p-m-2">
-                        <Toolbar class="kn-toolbar kn-toolbar--default">
-                            <template #start>
-                                {{ $t('documentExecution.documentDetails.subreports.tableName') }}
-                            </template>
-                        </Toolbar>
-                        <Card>
-                            <template #content>
-                                <InlineMessage severity="info">{{ $t('documentExecution.documentDetails.subreports.info') }}</InlineMessage>
+    <q-scroll-area class="dd-scroll dd-tab-detail-scroll">
+        <div class="dd-subreports-container">
+            <q-card flat bordered>
+                <q-card-section class="q-py-sm">
+                    <div class="dd-section-label">{{ $t('documentExecution.documentDetails.subreports.tableName') }}</div>
+                </q-card-section>
+                <q-separator />
+                <q-card-section class="q-pa-none">
+                    <q-banner class="bg-info text-black q-mx-md q-mt-md q-mb-sm" dense rounded>
+                        {{ $t('documentExecution.documentDetails.subreports.info') }}
+                    </q-banner>
 
-                                <ProgressBar v-if="loading" class="kn-progress-bar" mode="indeterminate" data-test="progress-bar" />
-                                <DataTable
-                                    v-if="!loading"
-                                    v-model:selection="selectedSubreports"
-                                    v-model:filters="filters"
-                                    class="p-datatable-sm kn-table"
-                                    :value="allDocumentDetailsProp"
-                                    data-key="id"
-                                    responsive-layout="scroll"
-                                    :global-filter-fields="globalFilterFields"
-                                    :loading="loading"
-                                    @rowSelect="peristTable"
-                                    @rowUnselect="deleteTable"
-                                >
-                                    <template #header>
-                                        <div class="table-header p-d-flex p-ai-center">
-                                            <span id="search-container" class="p-input-icon-left p-mr-3">
-                                                <i class="pi pi-search" />
-                                                <InputText v-model="filters['global'].value" class="kn-material-input" :placeholder="$t('common.search')" data-test="search-input" />
-                                            </span>
-                                        </div>
-                                    </template>
-                                    <Column class="lineage-table-header" selection-mode="multiple" :header-style="mainDescriptor.style.tableHeader"> </Column>
-                                    <Column field="label" :header="$t('common.label')" :sortable="true"></Column>
-                                    <Column field="name" :header="$t('common.name')" :sortable="true"></Column>
-                                    <Column field="description" :header="$t('common.description')" :sortable="true"></Column>
-                                </DataTable>
-                            </template>
-                        </Card>
-                    </div>
-                </div>
-            </div>
+                    <q-linear-progress v-if="loading" indeterminate class="q-mb-sm" data-test="progress-bar" />
+
+                    <q-table v-if="!loading" v-model:selected="selectedSubreports" :rows="allDocumentDetailsProp" :columns="tableColumns" :filter="filterText" :rows-per-page-options="[10, 25, 50, 0]" :pagination="{ rowsPerPage: 10 }" row-key="id" selection="multiple" dense flat data-test="subreports-table" @update:selected="onSelectionChange">
+                        <template #top>
+                            <q-input v-model="filterText" outlined dense :placeholder="$t('common.search')" class="full-width q-pa-none q-ma-none" data-test="search-input">
+                                <template #prepend><q-icon name="search" /></template>
+                            </q-input>
+                        </template>
+                    </q-table>
+                </q-card-section>
+            </q-card>
         </div>
-    </div>
+    </q-scroll-area>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { iDocument } from '@/modules/documentExecution/documentDetails/DocumentDetails'
 import { AxiosResponse } from 'axios'
-import { filterDefault } from '@/helpers/commons/filterHelper'
-import mainDescriptor from '@/modules/documentExecution/documentDetails/DocumentDetailsDescriptor.json'
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
-import InlineMessage from 'primevue/inlinemessage'
 import mainStore from '../../../../../App.store'
 
 export default defineComponent({
-    name: 'data-lineage',
-    components: {
-        DataTable,
-        Column,
-        InlineMessage
-    },
+    name: 'document-details-subreports',
     props: { selectedDocument: { type: Object as PropType<iDocument>, required: true }, allDocumentDetailsProp: { type: Array as any, required: true } },
     emits: [],
     setup() {
@@ -80,12 +42,15 @@ export default defineComponent({
     },
     data() {
         return {
-            mainDescriptor,
-            savedSubreports: [] as any,
+            savedSubreports: [] as any[],
             selectedSubreports: [] as any[],
             loading: false,
-            filters: { global: [filterDefault] } as Object,
-            globalFilterFields: ['name']
+            filterText: '',
+            tableColumns: [
+                { name: 'label', label: this.$t('common.label'), field: 'label', sortable: true, align: 'left' as const },
+                { name: 'name', label: this.$t('common.name'), field: 'name', sortable: true, align: 'left' as const },
+                { name: 'description', label: this.$t('common.description'), field: 'description', sortable: true, align: 'left' as const }
+            ]
         }
     },
     watch: {
@@ -96,27 +61,30 @@ export default defineComponent({
     async created() {
         await this.getSelectedSubreports()
     },
-
     methods: {
         async getSelectedSubreports() {
+            if (!this.selectedDocument?.id) return
             this.loading = true
-            if (this.selectedDocument?.id) {
-                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument?.id}/subreports`).then((response: AxiosResponse<any>) => (this.savedSubreports = response.data))
-                this.setCheckedTables()
-            }
-            this.loading = false
+            await this.$http
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/subreports`)
+                .then((response: AxiosResponse<any>) => {
+                    this.savedSubreports = response.data
+                    this.setCheckedSubreports()
+                })
+                .finally(() => (this.loading = false))
         },
-        setCheckedTables() {
-            for (let i = 0; i < this.allDocumentDetailsProp.length; i++) {
-                for (let j = 0; j < this.savedSubreports.length; j++) {
-                    if (this.allDocumentDetailsProp[i].id == this.savedSubreports[j].sub_rpt_id) {
-                        this.selectedSubreports.push(this.allDocumentDetailsProp[i])
-                    }
-                }
-            }
+        setCheckedSubreports() {
+            this.selectedSubreports = this.allDocumentDetailsProp.filter((doc: any) => this.savedSubreports.some((s: any) => s.sub_rpt_id === doc.id))
         },
-        peristTable(event) {
-            const postData = event.data
+        onSelectionChange(newSelection: readonly any[]) {
+            const added = newSelection.filter((t) => !this.selectedSubreports.find((s) => s.id === t.id))
+            const removed = this.selectedSubreports.filter((t) => !newSelection.find((s) => s.id === t.id))
+            added.forEach((t) => this.persistSubreport(t))
+            removed.forEach((t) => this.deleteSubreport(t))
+            this.selectedSubreports = [...newSelection]
+        },
+        persistSubreport(doc: any) {
+            const postData = { ...doc }
             delete postData.dataSetLabel
             delete postData.creationDate
             postData.refreshSeconds = parseInt(postData.refreshSeconds)
@@ -127,9 +95,9 @@ export default defineComponent({
                 .then(() => this.store.setInfo({ title: this.$t('common.save'), msg: this.$t('documentExecution.documentDetails.subreports.persistOk') }))
                 .catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.subreports.persistError') }))
         },
-        deleteTable(event) {
+        deleteSubreport(doc: any) {
             this.$http
-                .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/subreports/${event.data.id}`, {
+                .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/subreports/${doc.id}`, {
                     headers: { 'X-Disable-Errors': 'true' }
                 })
                 .then(() => this.store.setInfo({ title: this.$t('common.save'), msg: this.$t('documentExecution.documentDetails.subreports.deleteOk') }))
@@ -138,8 +106,12 @@ export default defineComponent({
     }
 })
 </script>
-<style lang="scss">
-.lineage-table-header .p-column-header-content {
-    display: none;
+
+<style lang="scss" scoped>
+.dd-subreports-container {
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 16px;
 }
 </style>

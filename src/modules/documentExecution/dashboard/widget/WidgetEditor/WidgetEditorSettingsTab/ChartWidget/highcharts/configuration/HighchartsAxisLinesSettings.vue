@@ -1,16 +1,15 @@
 <template>
-    <div v-if="axisLinesSettings" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div v-if="chartType !== 'streamgraph'" class="col-grow">
-            <WidgetEditorColorPicker :initial-value="axisLinesSettings.color" :label="$t('common.color')" @change="onSelectionColorChanged($event, 'color')"></WidgetEditorColorPicker>
-        </div>
-
-        <div class="col-grow p-mx-2">
-            <WidgetEditorColorPicker :initial-value="axisLinesSettings.crosshairColor" :label="$t('dashboard.widgetEditor.highcharts.axisLines.crosshairColor')" @change="onSelectionColorChanged($event, 'crosshairColor')"></WidgetEditorColorPicker>
-        </div>
-
-        <div class="col-grow p-d-flex p-flex-column p-mb-4">
-            <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.axisLines.crosshairWidth') }}</label>
-            <InputNumber v-model="axisLinesSettings.crosshairWidth" class="kn-material-input p-inputtext-sm" />
+    <div v-if="axisLinesSettings" class="q-px-md q-pb-sm">
+        <div class="row q-col-gutter-sm q-mb-sm">
+            <div v-if="chartType !== 'streamgraph'" class="col">
+                <WidgetEditorColorPicker :initial-value="axisLinesSettings.color" :label="$t('common.color')" @change="onSelectionColorChanged($event, 'color')" />
+            </div>
+            <div class="col">
+                <WidgetEditorColorPicker :initial-value="axisLinesSettings.crosshairColor" :label="$t('dashboard.widgetEditor.highcharts.axisLines.crosshairColor')" @change="onSelectionColorChanged($event, 'crosshairColor')" />
+            </div>
+            <div class="col">
+                <q-input v-model.number="axisLinesSettings.crosshairWidth" type="number" :label="$t('dashboard.widgetEditor.highcharts.axisLines.crosshairWidth')" outlined dense />
+            </div>
         </div>
     </div>
 </template>
@@ -18,18 +17,15 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
-import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
-import InputNumber from 'primevue/inputnumber'
 import WidgetEditorColorPicker from '../../../common/WidgetEditorColorPicker.vue'
 
 export default defineComponent({
     name: 'highcharts-axis-lines-settings',
-    components: { InputNumber, WidgetEditorColorPicker },
+    components: { WidgetEditorColorPicker },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {
-            axisLinesSettings: null as any,
-            getTranslatedLabel
+            axisLinesSettings: null as any
         }
     },
     computed: {

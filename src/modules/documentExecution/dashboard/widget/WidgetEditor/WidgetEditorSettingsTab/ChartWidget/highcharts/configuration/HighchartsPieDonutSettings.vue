@@ -1,17 +1,9 @@
 <template>
-    <div class="row items-center q-gutter-md q-pa-sm">
-        <div class="col-auto">
-            <q-toggle v-model="isDonut" :label="$t('dashboard.widgetEditor.highcharts.piechart.donutEnabled')" @update:model-value="onToggle" />
-        </div>
-        <div v-if="isDonut" class="col-auto">
-            <div class="column">
-                <div class="text-body2 q-mb-xs">
-                    {{ $t('dashboard.widgetEditor.highcharts.piechart.innerSizeLabel') }}
-                </div>
-                <q-input v-model.number="innerSizeLocal" type="number" min="0" max="99" dense style="max-width: 90px" @blur="onInnerSizeBlur">
-                    <template #append>%</template>
-                </q-input>
-            </div>
+    <div v-if="pieOptions && pieOptions.enabled" class="row items-center q-gutter-sm q-px-md q-pb-md">
+        <div class="col-6">
+            <q-input v-model.number="innerSizeLocal" type="number" min="0" max="99" :label="$t('dashboard.widgetEditor.highcharts.piechart.innerSizeLabel')" outlined dense @blur="onInnerSizeBlur">
+                <template #append>%</template>
+            </q-input>
         </div>
     </div>
 </template>
@@ -27,42 +19,34 @@ export default defineComponent({
     },
     data() {
         return {
-            innerSizeLocal: this.getInnerSizeFromModel() as number | null,
-            isDonut: this.getInnerSizeFromModel() !== null
+            innerSizeLocal: this.getInnerSizeFromModel() as number | null
+        }
+    },
+    computed: {
+        pieOptions(): any {
+            return this.widgetModel?.settings.chartModel?.model?.plotOptions?.pie ?? null
+        }
+    },
+    watch: {
+        'pieOptions.enabled'(val: boolean) {
+            if (val) this.innerSizeLocal = this.getInnerSizeFromModel() ?? 50
+            else this.innerSizeLocal = null
         }
     },
     methods: {
         getInnerSizeFromModel(): number | null {
-            const pieOptions: any = this.widgetModel?.settings.chartModel?.model?.plotOptions?.pie
-            if (!pieOptions || pieOptions.innerSize === undefined || pieOptions.innerSize === null || pieOptions.innerSize === '') return null
-            const value = parseFloat(pieOptions.innerSize)
+            const pie: any = this.widgetModel?.settings.chartModel?.model?.plotOptions?.pie
+            if (!pie || pie.innerSize === undefined || pie.innerSize === null || pie.innerSize === '') return null
+            const value = parseFloat(pie.innerSize)
             return isNaN(value) ? null : value
         },
-        ensurePieOptions() {
-            const chartModel: any = this.widgetModel?.settings.chartModel?.model
-            if (!chartModel.plotOptions) chartModel.plotOptions = {}
-            if (!chartModel.plotOptions.pie) chartModel.plotOptions.pie = {}
-            return chartModel.plotOptions.pie
-        },
-        onToggle() {
-            const pieOptions = this.ensurePieOptions()
-            if (!this.isDonut) {
-                delete pieOptions.innerSize
-                this.innerSizeLocal = null
-            } else {
-                const value = this.innerSizeLocal ?? 50
-                this.innerSizeLocal = value
-                pieOptions.innerSize = value + '%'
-            }
-        },
         onInnerSizeBlur() {
-            if (!this.isDonut) return
-            const pieOptions = this.ensurePieOptions()
+            if (!this.pieOptions?.enabled) return
             let value = this.innerSizeLocal ?? 50
             if (value < 0) value = 0
             if (value > 99) value = 99
             this.innerSizeLocal = value
-            pieOptions.innerSize = value + '%'
+            this.pieOptions.innerSize = value + '%'
         }
     }
 })

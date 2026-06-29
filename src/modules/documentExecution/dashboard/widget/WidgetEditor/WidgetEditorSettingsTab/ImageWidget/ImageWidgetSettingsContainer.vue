@@ -1,6 +1,6 @@
 <template>
     <div v-show="widgetModel">
-        <ImageWidgetSettingsAccordion v-if="setting != 'Gallery'" :widget-model="widgetModel" :settings="descriptor.settings[setting]" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId"></ImageWidgetSettingsAccordion>
+        <ImageWidgetSettingsAccordion v-if="setting != 'Gallery' || isSearchActive" :widget-model="widgetModel" :settings="activeSettings" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId"></ImageWidgetSettingsAccordion>
 
         <ImageWidgetGallery v-if="setting == 'Gallery'" :widget-model="widgetModel" :images-list-prop="imagesList" @uploadedImage="loadImages"></ImageWidgetGallery>
     </div>
@@ -29,11 +29,31 @@ export default defineComponent({
         dashboardId: { type: String, required: true }
     },
     emits: ['settingSelected'],
+    inject: {
+        widgetSettingsSearch: { from: 'widgetSettingsSearch', default: null }
+    },
     data() {
         return {
             descriptor,
             imagesList: [] as IImage[],
             setting: ''
+        }
+    },
+    computed: {
+        isSearchActive(): boolean {
+            return ((this.widgetSettingsSearch as any) ?? '').length >= 3
+        },
+        activeSettings(): { title: string; type: string }[] | undefined {
+            const search = (this.widgetSettingsSearch as any) ?? ''
+            if (search.length >= 3 && this.descriptor?.settings) {
+                const seen = new Set<string>()
+                return (Object.values(this.descriptor.settings) as { title: string; type: string }[][]).flat().filter((s: { title: string; type: string }) => {
+                    if (seen.has(s.type)) return false
+                    seen.add(s.type)
+                    return true
+                })
+            }
+            return this.descriptor?.settings?.[this.setting]
         }
     },
     watch: {

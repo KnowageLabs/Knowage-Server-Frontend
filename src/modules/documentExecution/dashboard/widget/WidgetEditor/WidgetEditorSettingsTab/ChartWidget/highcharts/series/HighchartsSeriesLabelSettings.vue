@@ -1,78 +1,80 @@
 <template>
-    <div v-if="model" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div v-for="(serieSetting, index) in seriesSettings" :key="index" class="dynamic-form-item p-grid p-col-12 p-ai-center">
-            <div class="p-col-12 p-md-6 p-d-flex p-flex-column p-p-2">
-                <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.series.title') }}</label>
-                <Dropdown v-if="index === 0 && allSeriesOptionEnabled" v-model="serieSetting.names[0]" class="kn-material-input" :options="descriptor.allSerieOption" option-value="value" option-label="label" :disabled="true"> </Dropdown>
-                <HighchartsSeriesMultiselect v-else :value="serieSetting.names" :available-series-options="availableSeriesOptions" :disabled="!allSeriesOptionEnabled" @change="onSeriesSelected($event, serieSetting)"> </HighchartsSeriesMultiselect>
-            </div>
-
-            <div v-if="labelOptionsVisible" class="p-col-2 p-pt-2 p-px-2">
-                <InputSwitch v-model="serieSetting.label.enabled" @change="modelChanged"></InputSwitch>
-                <label class="kn-material-input-label p-m-3">{{ $t('dashboard.widgetEditor.showLabel') }}</label>
-            </div>
-
-            <div v-if="seriesNameVisible" class="p-col-3 p-pt-2 p-px-2">
-                <InputSwitch v-model="serieSetting.showName" @change="modelChanged"></InputSwitch>
-                <label class="kn-material-input-label p-m-3">{{ $t('dashboard.widgetEditor.series.showSeriesName') }}</label>
-            </div>
-
-            <div v-if="serieColorPickerVisible" class="p-col-2 p-pt-4 p-px-4">
-                <InputSwitch v-model="serieSetting.serieColorEnabled" @change="modelChanged"></InputSwitch>
-                <label class="kn-material-input-label p-m-3">{{ $t('dashboard.widgetEditor.series.enableColor') }}</label>
-            </div>
-
-            <div v-if="serieColorPickerVisible" class="p-col-3 p-px-2 p-pt-4">
-                <WidgetEditorColorPicker :initial-value="serieSetting.serieColor" :label="$t('common.color')" :disabled="!serieSetting.serieColorEnabled" @change="onSelectionColorChanged($event, serieSetting)"></WidgetEditorColorPicker>
-            </div>
-
-            <div v-if="allSeriesOptionEnabled" class="p-col-1 p-d-flex p-flex-column p-jc-center p-ai-center p-pl-2">
-                <i :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash']" class="kn-cursor-pointer p-ml-2 p-mt-4" @click="index === 0 ? addSerieSetting() : removeSerieSetting(index)"></i>
-            </div>
-            <div v-if="styleToolbarVisible" class="p-col-12 p-pt-4 p-pb-2">
-                <WidgetEditorStyleToolbar :options="descriptor.noDataToolbarStyleOptions" :prop-model="toolbarModels[index]" :disabled="!serieSetting.label.enabled" @change="onStyleToolbarChange($event, index)"> </WidgetEditorStyleToolbar>
-            </div>
-
-            <div v-if="formattingSectionAvailable" class="p-col-12 p-md-6 p-lg-2 p-d-flex p-flex-column kn-flex">
-                <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.prefix') }}</label>
-                <InputText v-model="serieSetting.label.prefix" class="kn-material-input p-inputtext-sm" :disabled="!serieSetting.label.enabled" @change="modelChanged" />
-            </div>
-            <div v-if="formattingSectionAvailable" class="p-col-12 p-md-6 p-lg-2 p-d-flex p-flex-column kn-flex">
-                <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.suffix') }}</label>
-                <InputText v-model="serieSetting.label.suffix" class="kn-material-input p-inputtext-sm" :disabled="!serieSetting.label.enabled" @change="modelChanged" />
-            </div>
-            <div v-if="precisionAvailable" class="p-col-12 p-md-6 p-lg-2 p-d-flex p-flex-column kn-flex">
-                <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.precision') }}</label>
-                <InputNumber v-model="serieSetting.label.precision" class="kn-material-input p-inputtext-sm" :disabled="!serieSetting.label.enabled" @blur="modelChanged" />
-            </div>
-            <div v-if="scaleVisible" class="p-col-6 p-d-flex p-flex-column kn-flex p-m-2">
-                <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.series.scale') }}</label>
-                <div class="p-d-flex p-flex-row p-ai-center">
-                    <Dropdown v-model="serieSetting.label.scale" class="kn-material-input" :options="descriptor.scaleOptions" :disabled="!serieSetting.label.enabled" @change="modelChanged"> </Dropdown>
-                    <i v-tooltip.top="$t('dashboard.widgetEditor.series.scaleHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
-                </div>
-            </div>
-
-            <div v-if="percentageAvailable" class="p-col-12 p-md-4 p-lg-2 p-pt-4 p-px-4 p-d-flex p-flex-column">
-                <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.percentage') }}</label>
-                <InputSwitch v-model="serieSetting.label.percentage" :disabled="!serieSetting.label.enabled" @change="modelChanged"></InputSwitch>
-            </div>
-
-            <div v-if="absoluteVisible" class="p-col-12 p-md-4 p-lg-2 p-pt-4 p-px-4 p-d-flex p-flex-column">
-                <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.absolute') }}</label>
-                <InputSwitch v-model="serieSetting.label.absolute" :disabled="!serieSetting.label.enabled" @change="modelChanged"></InputSwitch>
-            </div>
-
-            <div v-if="advancedSectionAvailable" class="p-col-12 p-py-4">
-                <div class="p-d-flex p-flex-row p-jc-center">
-                    <label class="kn-material-input-label kn-cursor-pointer" @click="advancedVisible[index] = !advancedVisible[index]">{{ $t('common.advanced') }}<i :class="advancedVisible[index] ? 'fas fa-chevron-up' : 'fas fa-chevron-down'" class="p-ml-2"></i></label>
-                    <i class=""></i>
-                </div>
-                <Transition>
-                    <div v-if="advancedVisible[index]" class="p-d-flex p-flex-column">
-                        <HighchartsGaugeSerieAdvancedSettings :serie-settings-prop="serieSetting" :disabled="!serieSetting.label.enabled" @modelChanged="modelChanged"></HighchartsGaugeSerieAdvancedSettings>
+    <div v-if="model" class="q-px-md q-pb-sm">
+        <div v-for="(serieSetting, index) in seriesSettings" :key="index" class="column-type-row row no-wrap q-mb-sm">
+            <div class="kn-action-handle kn-action-handle-disabled"></div>
+            <div class="col q-pa-sm">
+                <!-- Row 1: Series selector -->
+                <div class="row q-mb-sm">
+                    <div class="col">
+                        <q-select v-if="index === 0 && allSeriesOptionEnabled" :model-value="serieSetting.names[0]" :options="descriptor.allSerieOption" option-value="value" option-label="label" emit-value map-options :label="$t('dashboard.widgetEditor.series.title')" outlined dense disable />
+                        <HighchartsSeriesMultiselect v-else :value="serieSetting.names" :available-series-options="availableSeriesOptions" :disabled="!allSeriesOptionEnabled" @change="onSeriesSelected($event, serieSetting)" />
                     </div>
-                </Transition>
+                </div>
+
+                <!-- Row 2: toggles -->
+                <div class="row q-gutter-xs q-mb-sm">
+                    <q-toggle v-if="seriesNameVisible" v-model="serieSetting.showName" :label="$t('dashboard.widgetEditor.series.showSeriesName')" dense @update:model-value="modelChanged" />
+                    <div class="col-12 q-my-xs"><q-separator /></div>
+                    <q-toggle v-if="labelOptionsVisible" class="col-12" v-model="serieSetting.label.enabled" :label="$t('dashboard.widgetEditor.showLabel')" dense @update:model-value="modelChanged" />
+                    <q-toggle v-if="serieColorPickerVisible" v-model="serieSetting.serieColorEnabled" :label="$t('dashboard.widgetEditor.series.enableColor')" dense @update:model-value="modelChanged" />
+                    <q-toggle v-if="percentageAvailable" v-model="serieSetting.label.percentage" :disable="!serieSetting.label.enabled" :label="$t('dashboard.widgetEditor.percentage')" dense @update:model-value="modelChanged" />
+                    <q-toggle v-if="absoluteVisible" v-model="serieSetting.label.absolute" :disable="!serieSetting.label.enabled" :label="$t('dashboard.widgetEditor.absolute')" dense @update:model-value="modelChanged" />
+                </div>
+
+                <!-- Row 3: color picker (activitygauge) -->
+                <div v-if="serieColorPickerVisible" class="row q-mb-sm">
+                    <div class="col-6">
+                        <WidgetEditorColorPicker :initial-value="serieSetting.serieColor" :label="$t('common.color')" :disabled="!serieSetting.serieColorEnabled" @change="onSelectionColorChanged($event, serieSetting)" />
+                    </div>
+                </div>
+
+                <!-- Row 4: style toolbar -->
+                <div v-if="styleToolbarVisible" class="row q-mb-sm">
+                    <div class="col-12">
+                        <WidgetEditorStyleToolbar :options="descriptor.noDataToolbarStyleOptions" :prop-model="toolbarModels[index]" :disabled="!serieSetting.label.enabled" @change="onStyleToolbarChange($event, index)" />
+                    </div>
+                </div>
+
+                <!-- Row 5: prefix / suffix / precision / scale -->
+                <div v-if="formattingSectionAvailable || scaleVisible" class="row q-col-gutter-sm q-mb-sm">
+                    <div v-if="formattingSectionAvailable" class="col-3">
+                        <q-input v-model="serieSetting.label.prefix" :label="$t('dashboard.widgetEditor.prefix')" outlined dense :disable="!serieSetting.label.enabled" @change="modelChanged" />
+                    </div>
+                    <div v-if="formattingSectionAvailable" class="col-3">
+                        <q-input v-model="serieSetting.label.suffix" :label="$t('dashboard.widgetEditor.suffix')" outlined dense :disable="!serieSetting.label.enabled" @change="modelChanged" />
+                    </div>
+                    <div v-if="precisionAvailable" class="col-3">
+                        <q-input v-model.number="serieSetting.label.precision" type="number" :label="$t('dashboard.widgetEditor.precision')" outlined dense :disable="!serieSetting.label.enabled" @blur="modelChanged" />
+                    </div>
+                    <div v-if="scaleVisible" class="col-3">
+                        <q-select v-model="serieSetting.label.scale" :label="$t('dashboard.widgetEditor.series.scale')" outlined dense :options="descriptor.scaleOptions" :disable="!serieSetting.label.enabled" @update:model-value="modelChanged">
+                            <template #append>
+                                <q-icon name="help_outline" size="xs" class="cursor-pointer text-grey-5">
+                                    <q-tooltip>{{ $t('dashboard.widgetEditor.series.scaleHint') }}</q-tooltip>
+                                </q-icon>
+                            </template>
+                        </q-select>
+                    </div>
+                </div>
+
+                <!-- Row 6: advanced section (gauge only) -->
+                <div v-if="advancedSectionAvailable" class="row">
+                    <div class="col-12">
+                        <div class="row items-center justify-center cursor-pointer q-mb-sm" @click="advancedVisible[index] = !advancedVisible[index]">
+                            <span class="text-subtitle2">{{ $t('common.advanced') }}</span>
+                            <q-icon :name="advancedVisible[index] ? 'expand_less' : 'expand_more'" class="q-ml-xs" />
+                        </div>
+                        <Transition>
+                            <div v-if="advancedVisible[index]">
+                                <HighchartsGaugeSerieAdvancedSettings :serie-settings-prop="serieSetting" :disabled="!serieSetting.label.enabled" @modelChanged="modelChanged" />
+                            </div>
+                        </Transition>
+                    </div>
+                </div>
+            </div>
+            <div class="kn-action-handle row items-center justify-center">
+                <q-btn v-if="index === 0" flat round dense icon="add_circle" size="sm" @click="addSerieSetting()" />
+                <q-btn v-else flat round dense icon="delete" size="sm" @click="removeSerieSetting(index)" />
             </div>
         </div>
     </div>
@@ -85,9 +87,6 @@ import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { IHighchartsChartModel, IHighchartsSeriesLabelsSetting } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import descriptor from '../HighchartsWidgetSettingsDescriptor.json'
-import Dropdown from 'primevue/dropdown'
-import InputNumber from 'primevue/inputnumber'
-import InputSwitch from 'primevue/inputswitch'
 import HighchartsSeriesMultiselect from '../common/HighchartsSeriesMultiselect.vue'
 import WidgetEditorStyleToolbar from '../../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 import HighchartsGaugeSerieAdvancedSettings from './HighchartsGaugeSerieAdvancedSettings.vue'
@@ -97,9 +96,6 @@ import WidgetEditorColorPicker from '../../../common/WidgetEditorColorPicker.vue
 export default defineComponent({
     name: 'hihgcharts-series-label-settings',
     components: {
-        Dropdown,
-        InputNumber,
-        InputSwitch,
         HighchartsSeriesMultiselect,
         WidgetEditorStyleToolbar,
         HighchartsGaugeSerieAdvancedSettings,
@@ -316,13 +312,13 @@ export default defineComponent({
                 color: model.color ?? '',
                 'background-color': model['background-color'] ?? ''
             }
-            ;(this.seriesSettings[index].label.backgroundColor = this.toolbarModels[index]['background-color'] ?? ''),
+            ;((this.seriesSettings[index].label.backgroundColor = this.toolbarModels[index]['background-color'] ?? ''),
                 (this.seriesSettings[index].label.style = {
                     color: this.toolbarModels[index].color ?? '',
                     fontSize: this.toolbarModels[index]['font-size'] ?? '14px',
                     fontFamily: this.toolbarModels[index]['font-family'] ?? '',
                     fontWeight: this.toolbarModels[index]['font-weight'] ?? ''
-                })
+                }))
             this.modelChanged()
         },
         onSelectionColorChanged(event: string | null, serieSetting: IHighchartsSeriesLabelsSetting) {
@@ -337,3 +333,10 @@ export default defineComponent({
     }
 })
 </script>
+<style lang="scss" scoped>
+.column-type-row {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+</style>

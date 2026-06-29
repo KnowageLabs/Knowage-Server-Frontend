@@ -1,14 +1,13 @@
 <template>
-    <div v-if="totalsStyleModel" class="p-ai-center kn-flex p-p-4">
-        <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="totalsStyleModel.enabled" color="black" /> </span>
-
+    <div v-if="totalsStyleModel" class="q-px-md q-pb-md">
+        <q-toggle v-if="themeStyle" v-model="totalsStyleModel.enabled" class="q-mb-sm" :label="$t('common.enabled')" color="black" dense />
         <WidgetEditorStyleToolbar :options="toolbarStyleSettings" :prop-model="totalsStyleModel.properties" :disabled="totalsStyleDisabled" @change="onStyleToolbarChange"> </WidgetEditorStyleToolbar>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget, IWidgetStyleToolbarModel } from '@/modules/documentExecution/Dashboard/Dashboard'
+import { IWidget, IWidgetStyleToolbarModel } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IPivotTotal } from '@/modules/documentExecution/dashboard/interfaces/pivotTable/DashboardPivotTableWidget'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyleToolbar.vue'

@@ -1,48 +1,32 @@
 <template>
-    <Message v-if="!widgetModel.dataset" class="p-mb-2" severity="warn" :closable="false" :style="descriptor.hintStyle">
-        {{ $t(`managers.functionsCatalog.noDatasetSelected`) }}
-    </Message>
-    <div v-else class="p-fluid p-formgrid p-grid">
-        <div class="p-field p-col-8">
-            <span class="p-float-label">
-                <Dropdown v-model="selectedColumn" class="kn-material-input" :options="widgetModel.columns" option-label="columnName" @change="onColumnChanged"> </Dropdown>
-                <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
-            </span>
+    <div v-if="!widgetModel.dataset" class="row items-center text-warning q-mb-sm">
+        <q-icon name="warning" class="q-mr-sm" />
+        {{ $t('managers.functionsCatalog.noDatasetSelected') }}
+    </div>
+    <div v-else class="row q-col-gutter-sm">
+        <div class="col-4">
+            <q-select v-model="selectedColumn" outlined dense :options="widgetModel.columns" option-label="columnName" :label="$t('common.column')" @update:model-value="onColumnChanged" />
         </div>
-        <div class="p-field p-col-4">
-            <span class="p-float-label">
-                <InputText v-model="row" class="kn-material-input" @change="onColumnChanged" />
-                <label class="kn-material-input-label">{{ $t('common.row') }}</label>
-            </span>
+        <div class="col-4">
+            <q-input v-model="row" outlined dense :label="$t('common.row')" @update:model-value="onColumnChanged" />
         </div>
-        <div class="p-field p-col-3">
-            <span class="p-float-label">
-                <Dropdown v-model="aggregation" class="kn-material-input" :options="tableDescriptor.aggregationOptions" option-value="value" option-label="label" @change="onColumnChanged"> </Dropdown>
-                <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.aggregation') }}</label>
-            </span>
+        <div class="col-4">
+            <q-select v-model="aggregation" outlined dense :options="translatedAggregations" option-value="value" option-label="label" emit-value map-options :label="$t('dashboard.widgetEditor.aggregation')" @update:model-value="onColumnChanged" />
         </div>
-        <div v-if="selectedColumn && selectedColumn.fieldType === 'MEASURE'" class="p-field p-col-3">
-            <span class="p-float-label">
-                <InputText v-model="precision" type="number" class="kn-material-input" @change="onColumnChanged" />
-                <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.precision') }}</label>
-            </span>
+        <div v-if="selectedColumn && selectedColumn.fieldType === 'MEASURE'" class="col-4">
+            <q-input v-model="precision" outlined dense type="number" :label="$t('dashboard.widgetEditor.precision')" @update:model-value="onColumnChanged" />
         </div>
-        <div class="p-field p-col-3">
-            <span class="p-float-label">
-                <InputText v-model="prefix" class="kn-material-input" @change="onColumnChanged" />
-                <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.prefix') }}</label>
-            </span>
+        <div class="col-4">
+            <q-input v-model="prefix" outlined dense :label="$t('dashboard.widgetEditor.prefix')" @update:model-value="onColumnChanged" />
         </div>
-        <div class="p-field p-col-3">
-            <span class="p-float-label">
-                <InputText v-model="suffix" class="kn-material-input" @change="onColumnChanged" />
-                <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.suffix') }}</label>
-            </span>
+        <div class="col-4">
+            <q-input v-model="suffix" outlined dense :label="$t('dashboard.widgetEditor.suffix')" @update:model-value="onColumnChanged" />
         </div>
-        <div class="p-field p-d-flex p-col-12 p-mt-2">
-            <InputSwitch v-model="format" class="" @change="onColumnChanged" />
-            <label class="kn-material-input-label p-mx-2">{{ $t('dashboard.widgetEditor.editorTags.toLocale') }}</label>
-            <i v-tooltip.right="$t('dashboard.widgetEditor.editorTags.hint.toLocale')" class="p-button-text p-button-rounded p-button-plain fas fa-circle-question" style="color: rgba(0, 0, 0, 0.6)" />
+        <div class="col-4 row items-center q-mt-xs">
+            <q-toggle v-model="format" :label="$t('dashboard.widgetEditor.editorTags.toLocale')" @update:model-value="onColumnChanged" />
+            <q-icon name="help_outline" class="q-ml-auto cursor-pointer text-grey-6">
+                <q-tooltip>{{ $t('dashboard.widgetEditor.editorTags.hint.toLocale') }}</q-tooltip>
+            </q-icon>
         </div>
     </div>
 </template>
@@ -50,20 +34,15 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
-import Dropdown from 'primevue/dropdown'
-import descriptor from '../WidgetTagsDialogDescriptor.json'
 import tableDescriptor from '../../../TableWidget/TableWidgetSettingsDescriptor.json'
-import Message from 'primevue/message'
-import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
     name: 'widget-editor-column-data',
-    components: { Dropdown, Message, InputSwitch },
+    components: {},
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     emits: ['insertChanged'],
     data() {
         return {
-            descriptor,
             tableDescriptor,
             selectedColumn: null as IWidgetColumn | null,
             row: '',
@@ -74,7 +53,11 @@ export default defineComponent({
             format: false
         }
     },
-    created() {},
+    computed: {
+        translatedAggregations(): { label: string; value: string }[] {
+            return tableDescriptor.aggregationOptions.map((opt) => ({ label: opt.label ? this.$t(opt.label) : '', value: opt.value }))
+        }
+    },
     methods: {
         onColumnChanged() {
             if (this.selectedColumn && this.selectedColumn.fieldType === 'ATTRIBUTE') this.precision = 0
@@ -82,9 +65,7 @@ export default defineComponent({
             this.$emit('insertChanged', forInsert)
         },
         htmlStringBuilder() {
-            return `[kn-column='${this.selectedColumn?.columnName}'${this.row ? ` row='${this.row}'` : ''}${this.aggregation ? ` aggregation='${this.aggregation}'` : ''}${this.selectedColumn?.fieldType === 'MEASURE' ? ` precision='${this.precision}'` : ''}${this.format ? ' format' : ''}${
-                this.prefix ? ` prefix='${this.prefix}'` : ''
-            }${this.suffix ? ` suffix='${this.suffix}'` : ''}]`
+            return `[kn-column='${this.selectedColumn?.columnName}'${this.row ? ` row='${this.row}'` : ''}${this.aggregation ? ` aggregation='${this.aggregation}'` : ''}${this.selectedColumn?.fieldType === 'MEASURE' ? ` precision='${this.precision}'` : ''}${this.format ? ' format' : ''}${this.prefix ? ` prefix='${this.prefix}'` : ''}${this.suffix ? ` suffix='${this.suffix}'` : ''}]`
         },
         widgetStringBuilder() {
             return `${this.prefix ?? ''}[kn-column='${this.selectedColumn?.columnName}'${this.row ? ` row='${this.row}'` : ''}${this.aggregation ? ` aggregation='${this.aggregation}'` : ''}${this.precision ? ` precision='${this.precision}'` : ''}${this.format ? ' format' : ''}]${this.suffix ?? ''}`

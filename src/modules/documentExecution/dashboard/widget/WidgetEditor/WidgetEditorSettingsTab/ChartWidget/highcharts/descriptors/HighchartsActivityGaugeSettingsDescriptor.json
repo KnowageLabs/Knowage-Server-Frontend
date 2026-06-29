@@ -29,6 +29,7 @@
             },
             {
                 "title": "dashboard.widgetEditor.menuConfiguration",
+                "toggleOnly": true,
                 "type": "MenuConfiguration"
             },
             {
@@ -138,6 +139,11 @@
             "icon": "sym_o_legend_toggle",
             "label": "dashboard.widgetEditor.legend.title",
             "value": "Legend"
+        },
+        {
+            "icon": "sym_o_label",
+            "label": "common.labels",
+            "value": "Labels"
         },
         {
             "icon": "sym_o_live_help",

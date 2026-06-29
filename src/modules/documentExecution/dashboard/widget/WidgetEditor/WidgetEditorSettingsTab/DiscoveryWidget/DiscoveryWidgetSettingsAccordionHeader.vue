@@ -1,10 +1,8 @@
 <template>
-    <q-item-section v-if="model" class="row items-center col-shrink">
-        <q-toggle v-model="model.enabled" :label="title ? $t(title) : ''" @click.stop="onModelChange" dense />
-    </q-item-section>
-    <q-item-section v-else class="col-shrink">
-        <span>{{ title ? $t(title) : '' }}</span>
-    </q-item-section>
+    <q-item-section
+        ><span>{{ title ? $t(title) : '' }}</span></q-item-section
+    >
+    <q-item-section v-if="model" side><q-toggle v-model="model.enabled" dense @click.stop="onModelChange" /></q-item-section>
 </template>
 
 <script lang="ts">

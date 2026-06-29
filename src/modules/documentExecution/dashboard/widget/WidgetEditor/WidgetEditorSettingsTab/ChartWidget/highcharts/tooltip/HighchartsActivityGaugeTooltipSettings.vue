@@ -1,7 +1,7 @@
 <template>
-    <div v-if="model" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-12 p-py-4">
-            <WidgetEditorStyleToolbar :options="descriptor.activityGaugeTooltipStyleOptions" :prop-model="toolbarModel" :disabled="tooltipDisabled" @change="onStyleToolbarChange"> </WidgetEditorStyleToolbar>
+    <div v-if="model" class="q-px-md q-pb-md">
+        <div class="col-12">
+            <WidgetEditorStyleToolbar :options="descriptor.activityGaugeTooltipStyleOptions" :prop-model="toolbarModel" :disabled="tooltipDisabled" @change="onStyleToolbarChange" />
         </div>
     </div>
 </template>
@@ -63,12 +63,12 @@ export default defineComponent({
                 'font-weight': model['font-weight'] ?? '',
                 'background-color': model['background-color'] ?? ''
             }
-            ;(this.model.tooltip.backgroundColor = this.toolbarModel['background-color'] ?? ''),
+            ;((this.model.tooltip.backgroundColor = this.toolbarModel['background-color'] ?? ''),
                 (this.model.tooltip.style = {
                     fontFamily: this.toolbarModel['font-family'] ?? '',
                     fontSize: this.toolbarModel['font-size'] ?? '14px',
                     fontWeight: this.toolbarModel['font-weight'] ?? ''
-                })
+                }))
             this.modelChanged()
         }
     }

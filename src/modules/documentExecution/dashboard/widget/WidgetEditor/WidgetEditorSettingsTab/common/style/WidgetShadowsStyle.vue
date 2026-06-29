@@ -1,64 +1,45 @@
 <template>
-    <div v-if="shadowsStyleModel" class="kn-flex p-p-4">
-        <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2">
-            {{ $t('common.enabled') }}
-            <q-toggle v-model="shadowsStyleModel.enabled" color="black" />
-        </span>
+    <div v-if="shadowsStyleModel" class="q-px-md q-pb-md kn-width-full">
+        <div class="row q-col-gutter-sm">
+            <div v-if="themeStyle" class="col-12">
+                <q-toggle v-model="shadowsStyleModel.enabled" :label="$t('common.enabled')" @update:model-value="shadowStyleChanged" />
+            </div>
 
-        <form class="p-fluid p-formgrid p-grid">
-            <div class="p-field p-col-12 p-lg-8">
-                <span class="p-float-label">
-                    <Dropdown v-model="shadowSize" class="kn-material-input p-inputtext-sm" :options="descriptor.shadowsSizeOptions" option-value="value" :disabled="shadowsStyleDisabled" @change="onShadowsSizeChanged">
-                        <template #value="slotProps">
-                            <div>
-                                <span>{{ getTranslatedLabel(slotProps.value, descriptor.shadowsSizeOptions, $t) }}</span>
-                            </div>
-                        </template>
-                        <template #option="slotProps">
-                            <div>
-                                <span>{{ $t(slotProps.option.label) }}</span>
-                            </div>
-                        </template>
-                    </Dropdown>
-                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.shadows.shadowSize') }}</label>
-                </span>
+            <div class="col-8">
+                <q-select v-model="shadowSize" :options="translatedShadowSizes" :label="$t('dashboard.widgetEditor.shadows.shadowSize')" option-value="value" option-label="label" emit-value map-options outlined dense :disable="shadowsStyleDisabled" @update:model-value="onShadowsSizeChanged" />
             </div>
-            <div class="p-field p-col-12 p-lg-4">
-                <span class="">
-                    <WidgetEditorColorPicker :initial-value="shadowsStyleModel.properties.color" :label="$t('dashboard.widgetEditor.iconTooltips.backgroundColor')" :disabled="shadowsStyleDisabled" @change="onBackroundColorChanged"></WidgetEditorColorPicker>
-                </span>
+            <div class="col-4">
+                <WidgetEditorColorPicker :initial-value="shadowsStyleModel.properties.color" :label="$t('dashboard.widgetEditor.iconTooltips.backgroundColor')" :disabled="shadowsStyleDisabled" @change="onBackroundColorChanged" />
             </div>
-        </form>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget, IWidgetShadowsStyle } from '@/modules/documentExecution/Dashboard/Dashboard'
-import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
+import { IWidget, IWidgetShadowsStyle } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import descriptor from '../../WidgetEditorSettingsTabDescriptor.json'
-import Dropdown from 'primevue/dropdown'
 import WidgetEditorColorPicker from '../../common/WidgetEditorColorPicker.vue'
 
 export default defineComponent({
     name: 'widget-shadows-style',
-    components: { Dropdown, WidgetEditorColorPicker },
+    components: { WidgetEditorColorPicker },
     props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true }, themeStyle: { type: Object as PropType<IWidgetShadowsStyle | null>, required: true } },
     emits: ['styleChanged'],
     data() {
         return {
-            descriptor,
             shadowsStyleModel: null as IWidgetShadowsStyle | null,
             shadowSize: '',
-            shadowSizeOptionsMap: { small: '0px 1px 1px', medium: '0px 2px 3px', large: '0px 4px 6px', extraLarge: '0px 8px 12px' },
-            widgetType: '' as string,
-            getTranslatedLabel
+            shadowSizeOptionsMap: { small: '0px 1px 1px', medium: '0px 2px 3px', large: '0px 4px 6px', extraLarge: '0px 8px 12px' }
         }
     },
     computed: {
         shadowsStyleDisabled() {
             return !this.shadowsStyleModel || !this.shadowsStyleModel.enabled
+        },
+        translatedShadowSizes(): { label: string; value: string }[] {
+            return descriptor.shadowsSizeOptions.map((opt) => ({ label: opt.label ? this.$t(opt.label) : '', value: opt.value }))
         }
     },
     mounted() {
@@ -117,9 +98,3 @@ export default defineComponent({
     }
 })
 </script>
-
-<style lang="scss" scoped>
-#padding-left-container {
-    max-width: 300px;
-}
-</style>

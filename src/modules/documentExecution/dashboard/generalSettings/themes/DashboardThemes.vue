@@ -1,42 +1,46 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <template>
-    <div class="p-d-flex p-flex-column kn-flex p-mr-3 p-my-3 dashboard-card-shadow kn-overflow dashboard-scrollbar">
-        <label class="kn-material-input-label p-m-3">{{ $t('common.themes') }}</label>
-
-        <form class="p-fluid p-formgrid p-grid p-m-1">
-            <Message class="p-m-2" severity="info" :closable="false">
-                {{ $t('dashboard.generalSettings.themes.info') }}
-            </Message>
-            <span class="p-col-12 p-grid p-mt-2">
-                <q-select v-model="dashboardModelProp.configuration.theme.id" clearable emit-value class="p-col-7" outlined :options="availableThemes" option-value="id" option-label="themeName" map-options :label="$t('dashboard.generalSettings.themes.dashboardTheme')" @update:model-value="onThemeSelected" />
-                <q-btn color="primary" class="kn-flex p-mr-2" :label="$t('dashboard.generalSettings.themes.editTheme')" />
+    <div class="q-px-md q-pb-md">
+        <div class="row q-col-gutter-sm items-center">
+            <div v-if="bannerVisible" class="col-12">
+                <q-banner class="bg-info text-black" rounded dense>
+                    {{ $t('dashboard.generalSettings.themes.info') }}.
+                    <br />
+                    <span v-if="dashboardModelProp.configuration.theme?.themeName != null"> {{ $t('dashboard.generalSettings.themes.dashboardThemeHint') }}</span>
+                    <template #action>
+                        <q-btn flat dense round icon="close" size="sm" @click="bannerVisible = false" />
+                    </template>
+                </q-banner>
+            </div>
+            <div class="col-6">
+                <q-select v-model="dashboardModelProp.configuration.theme.id" clearable emit-value outlined dense :options="availableThemes" option-value="id" option-label="themeName" map-options :label="$t('dashboard.generalSettings.themes.dashboardTheme')" @update:model-value="onThemeSelected" />
+            </div>
+            <div class="col-auto">
+                <span v-tooltip.top="'Work in progress'">
+                    <q-btn color="primary" :label="$t('dashboard.generalSettings.themes.editTheme')" disabled />
+                </span>
+            </div>
+            <div class="col-auto">
                 <q-btn-dropdown color="primary" :label="$t('dashboard.generalSettings.themes.applyTheme')">
                     <q-list>
                         <q-item clickable v-close-popup @click="applyThemeToWidgets('allWidgets')">
-                            <q-item-section>
-                                <q-item-label>{{ $t('dashboard.generalSettings.themes.toAllWidgets') }}</q-item-label>
-                            </q-item-section>
+                            <q-item-section
+                                ><q-item-label>{{ $t('dashboard.generalSettings.themes.toAllWidgets') }}</q-item-label></q-item-section
+                            >
                         </q-item>
-
                         <q-item clickable v-close-popup @click="applyThemeToWidgets('withoutThemes')">
-                            <q-item-section>
-                                <q-item-label>{{ $t('dashboard.generalSettings.themes.toWidgetsWithoutThemes') }}</q-item-label>
-                            </q-item-section>
+                            <q-item-section
+                                ><q-item-label>{{ $t('dashboard.generalSettings.themes.toWidgetsWithoutThemes') }}</q-item-label></q-item-section
+                            >
                         </q-item>
-
                         <q-item clickable v-close-popup @click="applyThemeToWidgets('withThemes')">
-                            <q-item-section>
-                                <q-item-label>{{ $t('dashboard.generalSettings.themes.toWidgetsWithThemes') }}</q-item-label>
-                            </q-item-section>
+                            <q-item-section
+                                ><q-item-label>{{ $t('dashboard.generalSettings.themes.toWidgetsWithThemes') }}</q-item-label></q-item-section
+                            >
                         </q-item>
                     </q-list>
                 </q-btn-dropdown>
-            </span>
-        </form>
-
-        <div v-if="dashboardModelProp.configuration.theme?.themeName != null" class="theme-manager-examples kn-page p-p-0 kn-overflow dashboard-scrollbar">
-            <KnHint :title="'dashboard.generalSettings.themes.dashboardTheme'" :hint="'dashboard.generalSettings.themes.dashboardThemeHint'"></KnHint>
-            <!-- ThemeExamples :selected-theme-prop="dashboardModelProp.configuration.theme" /-->
+            </div>
         </div>
     </div>
 </template>
@@ -44,8 +48,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import descriptor from '../DashboardGeneralSettingsDescriptor.json'
-import Message from 'primevue/message'
-import Dropdown from 'primevue/dropdown'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import { mapActions } from 'pinia'
 import ThemeExamples from '@/modules/managers/dashboardThemeManagement/dashboardThemeManagementExamples/DashboardThemeManagementExamples.vue'
@@ -55,7 +57,7 @@ import { applySelectedThemeToWidgets } from './ThemesHelper'
 
 export default defineComponent({
     name: 'dashboard-variables',
-    components: { KnHint, Message, Dropdown, ThemeExamples },
+    components: { ThemeExamples },
     props: {
         dashboardModelProp: {
             type: Object as any,
@@ -67,6 +69,7 @@ export default defineComponent({
     data() {
         return {
             descriptor,
+            bannerVisible: true,
             dashboardModel: {} as any,
             document: {} as any,
             availableThemes: [] as any

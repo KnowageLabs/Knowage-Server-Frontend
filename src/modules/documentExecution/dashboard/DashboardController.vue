@@ -141,7 +141,7 @@ export default defineComponent({
             saveViewDialogVisible: false,
             savedViewsListDialogVisible: false,
             selectedViewForExecution: null as IDashboardView | null,
-            generalSettingsMode: 'General' as string,
+            generalSettingsMode: '' as string,
             datasetsLoaded: false,
             dashboardThemes: [] as IDashboardTheme[],
             initialDataLoadedMap: {
@@ -690,14 +690,14 @@ export default defineComponent({
         openGeneralSettings(event) {
             if (event.dashboardId !== this.dashboardId) return
             this.generalSettingsVisible = true
-            this.generalSettingsMode = event.mode ?? 'General'
+            this.generalSettingsMode = event.mode ?? ''
             clearAllDatasetIntervals()
 
             this.customHeaderVisible = false
         },
         closeGeneralSettings() {
             this.generalSettingsVisible = false
-            this.generalSettingsMode = 'General'
+            this.generalSettingsMode = ''
             emitter.emit('dashboardGeneralSettingsClosed')
             setDatasetIntervals(this.model.configuration.datasets, this.datasets)
 

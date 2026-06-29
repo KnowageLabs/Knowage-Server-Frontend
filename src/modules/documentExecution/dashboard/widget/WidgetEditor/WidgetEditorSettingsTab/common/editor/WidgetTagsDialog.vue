@@ -1,46 +1,40 @@
 <template>
-    <Dialog class="p-fluid kn-dialog--toolbar--primary widget-tags-dialog" :style="descriptor.dialogStyle" :visible="visible" :modal="true" :closable="false">
-        <template #header>
-            <Toolbar class="kn-toolbar kn-toolbar--primary">
-                <template #start>
-                    {{ $t(`dashboard.widgetEditor.editorTags.${mode}`) }}
-                </template>
-            </Toolbar>
-        </template>
-
-        <div class="tags-dialog-content p-mx-2">
-            <Message severity="info" :closable="false" :style="descriptor.hintStyle">
-                {{ $t(`dashboard.widgetEditor.editorTags.hint.${mode}`) }}
-            </Message>
-
-            <WidgetEditorParameters v-if="mode === 'parameters'" :dashboard-id="dashboardId" @insertChanged="onInsertChanged"></WidgetEditorParameters>
-            <WidgetEditorVariables v-else-if="mode === 'variables'" :variables="variables" @insertChanged="onInsertChanged"></WidgetEditorVariables>
-            <WidgetEditorInternationalization v-else-if="mode === 'internationalization'" @insertChanged="onInsertChanged"></WidgetEditorInternationalization>
-            <WidgetEditorRepeater v-else-if="mode === 'repeater'" :widget-model="widgetModel" @insertChanged="onInsertChanged"></WidgetEditorRepeater>
-            <WidgetEditorRepeatIndex v-else-if="mode === 'repeatIndex'" :widget-model="widgetModel"></WidgetEditorRepeatIndex>
-            <WidgetEditorCalculator v-else-if="mode === 'calculator'" @insertChanged="onInsertChanged"></WidgetEditorCalculator>
-            <WidgetEditorPreview v-else-if="mode === 'preview'" :widget-model="widgetModel" :selected-datasets="selectedDatasets" @insertChanged="onInsertChanged"></WidgetEditorPreview>
-            <WidgetEditorConditionalContainer v-else-if="mode === 'conditional'" @insertChanged="onInsertChanged"></WidgetEditorConditionalContainer>
-            <WidgetEditorActiveSelections v-else-if="mode === 'activesel'" :widget-model="widgetModel" @insertChanged="onInsertChanged"></WidgetEditorActiveSelections>
-            <WidgetEditorSelection v-else-if="mode === 'selection'" :widget-model="widgetModel" @insertChanged="onInsertChanged"></WidgetEditorSelection>
-            <WidgetEditorColumnData v-else-if="mode === 'columnsData'" :widget-model="widgetModel" @insertChanged="onInsertChanged"></WidgetEditorColumnData>
-            <WidgetEditorCrossNavigation v-else-if="mode === 'crossnav'" :widget-model="widgetModel" @insertChanged="onInsertChanged"></WidgetEditorCrossNavigation>
-            <WidgetEditorIframeMessage v-else-if="mode === 'iframe'" :widget-model="widgetModel" @insertChanged="onInsertChanged"></WidgetEditorIframeMessage>
-        </div>
-
-        <template #footer>
-            <Button class="kn-button kn-button--secondary" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
-            <Button class="kn-button kn-button--primary" :disabled="!forInsert" @click="addInsert"> {{ $t('common.add') }}</Button>
-        </template>
-    </Dialog>
+    <q-dialog :model-value="visible" persistent @hide="$emit('close')">
+        <q-card style="min-width: 480px; max-width: 700px; width: 90vw">
+            <q-toolbar class="kn-toolbar kn-toolbar--primary">
+                <q-toolbar-title>{{ $t(`dashboard.widgetEditor.editorTags.${mode}`) }}</q-toolbar-title>
+            </q-toolbar>
+            <q-card-section class="q-pt-md">
+                <q-banner rounded class="bg-blue-1 text-blue-10 q-mb-md" dense>
+                    <template #avatar><q-icon name="info" color="blue-8" /></template>
+                    {{ $t(`dashboard.widgetEditor.editorTags.hint.${mode}`) }}
+                </q-banner>
+                <WidgetEditorParameters v-if="mode === 'parameters'" :dashboard-id="dashboardId" @insertChanged="onInsertChanged" />
+                <WidgetEditorVariables v-else-if="mode === 'variables'" :variables="variables" @insertChanged="onInsertChanged" />
+                <WidgetEditorInternationalization v-else-if="mode === 'internationalization'" @insertChanged="onInsertChanged" />
+                <WidgetEditorRepeater v-else-if="mode === 'repeater'" :widget-model="widgetModel" @insertChanged="onInsertChanged" />
+                <WidgetEditorRepeatIndex v-else-if="mode === 'repeatIndex'" :widget-model="widgetModel" />
+                <WidgetEditorCalculator v-else-if="mode === 'calculator'" @insertChanged="onInsertChanged" />
+                <WidgetEditorPreview v-else-if="mode === 'preview'" :widget-model="widgetModel" :selected-datasets="selectedDatasets" @insertChanged="onInsertChanged" />
+                <WidgetEditorConditionalContainer v-else-if="mode === 'conditional'" @insertChanged="onInsertChanged" />
+                <WidgetEditorActiveSelections v-else-if="mode === 'activesel'" :widget-model="widgetModel" @insertChanged="onInsertChanged" />
+                <WidgetEditorSelection v-else-if="mode === 'selection'" :widget-model="widgetModel" @insertChanged="onInsertChanged" />
+                <WidgetEditorColumnData v-else-if="mode === 'columnsData'" :widget-model="widgetModel" @insertChanged="onInsertChanged" />
+                <WidgetEditorCrossNavigation v-else-if="mode === 'crossnav'" :widget-model="widgetModel" @insertChanged="onInsertChanged" />
+                <WidgetEditorIframeMessage v-else-if="mode === 'iframe'" :widget-model="widgetModel" @insertChanged="onInsertChanged" />
+            </q-card-section>
+            <q-separator />
+            <q-card-actions align="right">
+                <q-btn flat :label="$t('common.cancel')" @click="closeDialog" />
+                <q-btn color="primary" :label="$t('common.add')" :disable="!forInsert" @click="addInsert" />
+            </q-card-actions>
+        </q-card>
+    </q-dialog>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IDataset, IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
-import Dialog from 'primevue/dialog'
-import descriptor from './WidgetTagsDialogDescriptor.json'
-import Message from 'primevue/message'
 import WidgetEditorParameters from './options/WidgetEditorParameters.vue'
 import WidgetEditorActiveSelections from './options/WidgetEditorActiveSelections.vue'
 import WidgetEditorVariables from './options/WidgetEditorVariables.vue'
@@ -58,8 +52,6 @@ import WidgetEditorIframeMessage from './options/WidgetEditorIframeMessage.vue'
 export default defineComponent({
     name: 'widget-tags-dialog',
     components: {
-        Dialog,
-        Message,
         WidgetEditorParameters,
         WidgetEditorActiveSelections,
         WidgetEditorVariables,
@@ -86,11 +78,9 @@ export default defineComponent({
     emits: ['close', 'insert'],
     data() {
         return {
-            descriptor,
             forInsert: '' as string
         }
     },
-    computed: {},
     watch: {
         mode() {
             this.setInitialInsertValue()
@@ -99,7 +89,6 @@ export default defineComponent({
     created() {
         this.setInitialInsertValue()
     },
-
     methods: {
         setInitialInsertValue() {
             switch (this.mode) {
@@ -123,8 +112,3 @@ export default defineComponent({
     }
 })
 </script>
-<style lang="scss">
-.widget-tags-dialog .p-dialog-content {
-    padding: 0;
-}
-</style>

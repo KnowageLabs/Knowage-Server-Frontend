@@ -35,6 +35,17 @@ self.MonacoEnvironment = {
 
 loader.config({ monaco })
 
+monaco.editor.defineTheme('knowage-light', {
+    base: 'vs',
+    inherit: true,
+    rules: [],
+    colors: {
+        'editor.background': '#f3f3f3',
+        'diffEditor.insertedTextBackground': '#c8e6c966',
+        'diffEditor.removedTextBackground': '#ffcdd266'
+    }
+})
+
 const props = defineProps<{
     language: string
     modelValue: string
@@ -108,7 +119,7 @@ function createRegularEditor() {
 
     if (!regularEditor) {
         regularEditor = monaco.editor.create(container.value!, {
-            theme: 'vs',
+            theme: 'knowage-light',
             fontSize: 12,
             scrollBeyondLastLine: false,
             automaticLayout: true,
@@ -146,7 +157,7 @@ function createDiffEditor() {
     }
 
     diffEditor = monaco.editor.createDiffEditor(container.value!, {
-        theme: 'vs',
+        theme: 'knowage-light',
         fontSize: 12,
         scrollBeyondLastLine: false,
         automaticLayout: true,

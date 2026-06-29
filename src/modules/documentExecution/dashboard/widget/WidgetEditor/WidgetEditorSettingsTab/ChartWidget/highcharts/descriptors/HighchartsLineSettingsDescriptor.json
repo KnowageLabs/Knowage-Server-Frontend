@@ -33,7 +33,8 @@
             },
             {
                 "title": "dashboard.widgetEditor.menuConfiguration",
-                "type": "MenuConfiguration"
+                "type": "MenuConfiguration",
+                "toggleOnly": true
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.annotations",

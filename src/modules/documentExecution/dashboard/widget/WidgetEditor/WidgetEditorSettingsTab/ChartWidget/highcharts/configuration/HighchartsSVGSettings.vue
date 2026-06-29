@@ -1,20 +1,17 @@
 <template>
-    <div v-if="svgSettings" class="p-grid p-jc-center p-ai-center p-p-4">
-        <Message class="p-col-12 p-mb-3" :closable="false">{{ $t('dashboard.widgetEditor.highcharts.svg.hint') }}</Message>
-
-        <div class="p-col-12">
-            <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.highcharts.svg.definition') }}</label>
-            <div class="p-d-flex p-flex-row p-ai-center">
-                <Textarea v-model="svgSettings.definition" class="kn-material-input kn-width-full" rows="4" :auto-resize="true" />
-                <i v-tooltip.left="$t('dashboard.widgetEditor.highcharts.svg.hint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+    <div v-if="svgSettings" class="q-px-md q-pb-md">
+        <div class="row q-mb-md">
+            <div class="col-12">
+                <q-input v-model="svgSettings.definition" :label="$t('dashboard.widgetEditor.highcharts.svg.definition')" type="textarea" outlined dense autogrow :hint="$t('dashboard.widgetEditor.highcharts.svg.hint')">
+                    <template #append>
+                        <q-btn flat round dense icon="upload" size="md" @click="setSVGUpload">
+                            <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.svg.upload') }}</q-tooltip>
+                        </q-btn>
+                    </template>
+                </q-input>
             </div>
         </div>
-
-        <div class="p-col-12 p-d-flex p-flex-row p-ai-center p-mt-2">
-            <label for="upload" class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.svg.upload') }}:</label>
-            <Button icon="fas fa-upload fa-1x" class="p-button-text p-button-plain" @click="setSVGUpload" />
-            <KnInputFile :change-function="setSVGForUpload" :visibility="true" :trigger-input="triggerSVGUpload" accept=".svg" />
-        </div>
+        <KnInputFile :change-function="setSVGForUpload" :visibility="true" :trigger-input="triggerSVGUpload" accept=".svg" />
     </div>
 </template>
 
@@ -24,13 +21,11 @@ import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { parse } from 'svg-parser'
 import { mapActions } from 'pinia'
 import mainStore from '@/App.store'
-import Message from 'primevue/message'
 import KnInputFile from '@/components/UI/KnInputFile.vue'
-import Textarea from 'primevue/textarea'
 
 export default defineComponent({
     name: 'highcharts-svg-settings',
-    components: { Message, KnInputFile, Textarea },
+    components: { KnInputFile },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {

@@ -1,21 +1,27 @@
 <template>
-    <div v-if="annotations && annotations[0]" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div v-for="(label, index) in annotations[0].labels" :key="index" class="dynamic-form-item p-grid p-col-12 p-ai-center">
-            <div class="p-col-12 p-md-3 p-d-flex p-flex-column">
-                <label class="kn-material-input-label p-mr-2">{{ 'X' }}</label>
-                <InputNumber v-model="label.point.x" class="kn-material-input p-inputtext-sm" />
+    <div v-if="annotations && annotations[0]" class="q-px-md q-pb-sm">
+        <div class="row items-center justify-between q-mb-xs">
+            <span class="text-subtitle2">{{ $t('common.labels') }}</span>
+            <q-btn flat round dense color="primary" icon="add" @click="addLabel()" />
+        </div>
+
+        <div v-for="(label, index) in annotations[0].labels" :key="index" class="column-type-row row no-wrap q-mb-sm">
+            <div class="kn-action-handle kn-action-handle-disabled"></div>
+            <div class="col q-pa-sm">
+                <div class="row q-col-gutter-sm">
+                    <div class="col-3">
+                        <q-input v-model.number="label.point.x" type="number" label="X" outlined dense />
+                    </div>
+                    <div class="col-3">
+                        <q-input v-model.number="label.point.y" type="number" label="Y" outlined dense />
+                    </div>
+                    <div class="col">
+                        <q-input v-model="label.text" :label="$t('common.label')" outlined dense />
+                    </div>
+                </div>
             </div>
-            <div class="p-col-12 p-md-3 p-d-flex p-flex-column">
-                <label class="kn-material-input-label p-mr-2">{{ 'Y' }}</label>
-                <InputNumber v-model="label.point.y" class="kn-material-input p-inputtext-sm" />
-            </div>
-            <div class="p-col-11 p-md-5 p-d-flex p-flex-column kn-flex">
-                <label class="kn-material-input-label p-mr-2">{{ $t('common.label') }}</label>
-                <InputText v-model="label.text" class="kn-material-input p-inputtext-sm" />
-            </div>
-            <div class="p-col-1 p-d-flex p-flex-row p-jc-around p-ai-center p-pl-2">
-                <i v-if="index === 0" class="pi pi-plus-circle kn-cursor-pointer p-ml-2 p-mt-4" @click="addLabel()"></i>
-                <i class="pi pi-trash kn-cursor-pointer p-ml-2 p-mt-4" @click="removeLabel(index)"></i>
+            <div class="kn-action-handle row items-center justify-center">
+                <q-btn flat round dense icon="delete" size="sm" @click="removeLabel(index)" />
             </div>
         </div>
     </div>
@@ -25,11 +31,9 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IHighchartsAnnotation } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
-import InputNumber from 'primevue/inputnumber'
-
 export default defineComponent({
     name: 'highcharts-annotations',
-    components: { InputNumber },
+    components: {},
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {
@@ -53,16 +57,16 @@ export default defineComponent({
             })
         },
         removeLabel(index: number) {
-            if (index === 0) {
-                this.annotations[0].labels[0] = {
-                    point: {
-                        x: 0,
-                        y: 0
-                    },
-                    text: ''
-                }
-            } else this.annotations[0].labels.splice(index, 1)
+            this.annotations[0].labels.splice(index, 1)
         }
     }
 })
 </script>
+
+<style lang="scss" scoped>
+.column-type-row {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+</style>

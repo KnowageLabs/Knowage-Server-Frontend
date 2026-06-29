@@ -68,6 +68,7 @@
             },
             {
                 "title": "dashboard.widgetEditor.menuConfiguration",
+                "toggleOnly": true,
                 "type": "MenuConfiguration"
             },
             {
@@ -104,6 +105,7 @@
         "Interactions": [
             {
                 "title": "dashboard.widgetEditor.interactions.selection",
+                "toggleOnly": true,
                 "type": "Selection"
             },
             {

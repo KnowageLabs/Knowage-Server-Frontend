@@ -1,21 +1,23 @@
 <template>
-    <div v-if="widgetModel" class="dashboard-editor-list-card-container kn-flex p-m-3">
-        <div class="gallery-inputs p-d-flex p-flex-row p-ai-center p-flex-wrap p-mt-4 p-ml-4">
-            <InputText v-model="searchWord" class="kn-material-input p-mr-2 model-search" style="width: 35%" type="text" :placeholder="$t('common.search')" data-test="search-input" @input="searchItems" />
+    <div v-if="widgetModel" class="dashboard-editor-list-card-container kn-flex column">
+        <div class="q-px-md q-pt-md">
+            <q-input v-model="searchWord" outlined dense clearable :placeholder="$t('common.search')" data-test="search-input" @update:model-value="searchItems">
+                <template #prepend><q-icon name="search" /></template>
+            </q-input>
         </div>
 
-        <MasonryWall class="scroll q-pa-md" :items="filteredChartTypes" :column-width="120" :gap="6">
-            <template #default="{ chart, index }">
-                <div class="gallery-card kn-cursor-pointer relative-position" :class="{ 'gallery-card-disabled': filteredChartTypes[index].disabled || (filteredChartTypes[index].eeOnly && !isEnterprise) }" @click="onChange(filteredChartTypes[index])">
-                    <q-badge v-if="filteredChartTypes[index].eeOnly && !isEnterprise" color="accent" floating>
-                        EE
-                        <q-tooltip :delay="500">{{ $t('dashboard.widgets.eeOnly') }}</q-tooltip>
-                    </q-badge>
-                    <label class="kn-material-input-label">{{ $t(`${filteredChartTypes[index].label}`) }}</label>
-                    <img :src="getImageSource(filteredChartTypes[index].value)" />
-                </div>
-            </template>
-        </MasonryWall>
+        <div class="chart-gallery-grid q-pa-md">
+            <q-card v-for="(chart, index) in filteredChartTypes" :key="index" class="gallery-card relative-position" :class="{ 'gallery-card-disabled': chart.disabled || (chart.eeOnly && !isEnterprise), 'gallery-card-selected': selectedType === chart.value }" flat bordered @click="onChange(chart)">
+                <q-badge v-if="chart.eeOnly && !isEnterprise" color="accent" floating>
+                    EE
+                    <q-tooltip :delay="500">{{ $t('dashboard.widgets.eeOnly') }}</q-tooltip>
+                </q-badge>
+                <q-card-section class="column items-center q-pa-sm">
+                    <img :src="getImageSource(chart.value)" class="gallery-img" />
+                    <span class="gallery-label q-mt-xs">{{ $t(chart.label) }}</span>
+                </q-card-section>
+            </q-card>
+        </div>
     </div>
 </template>
 
@@ -23,13 +25,12 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IChartType } from '@/modules/documentExecution/dashboard/Dashboard'
 import commonDescriptor from '../../common/WidgetCommonDescriptor.json'
-import MasonryWall from '@yeger/vue-masonry-wall'
 import { mapState } from 'pinia'
 import mainStore from '@/App.store'
 
 export default defineComponent({
     name: 'chart-widget-gallery',
-    components: { MasonryWall },
+    components: {},
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     emits: ['selectedChartTypeChanged'],
     data() {
@@ -62,10 +63,10 @@ export default defineComponent({
         },
         searchItems() {
             setTimeout(() => {
-                if (!this.searchWord.trim().length) {
+                if (!this.searchWord?.trim().length) {
                     this.filteredChartTypes = [...this.chartTypes] as IChartType[]
                 } else {
-                    this.filteredChartTypes = this.filteredChartTypes.filter((icon: IChartType) => {
+                    this.filteredChartTypes = this.chartTypes.filter((icon: IChartType) => {
                         return icon.label?.toLowerCase().includes(this.searchWord.toLowerCase())
                     })
                 }
@@ -78,35 +79,54 @@ export default defineComponent({
 })
 </script>
 <style lang="scss" scoped>
-.gallery-card {
-    border: 1px solid #cccccc;
+.chart-gallery-grid {
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 140px;
-    transition: 0.5s ease;
-    width: 110px;
-    padding: 8px 0;
-    .kn-material-input-label {
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        text-align: center;
+    flex-wrap: wrap;
+    gap: 9px;
+    overflow-y: auto;
+}
+
+.gallery-card {
+    width: 150px;
+    cursor: pointer;
+    transition:
+        border-color 0.2s ease,
+        background-color 0.2s ease;
+    border-radius: 8px !important;
+
+    &.gallery-card-selected {
+        border-color: var(--q-primary) !important;
+        background-color: rgba(67, 116, 158, 0.08);
     }
-    img {
-        max-height: 100px;
-        filter: hue-rotate(196deg);
-    }
+
     &.gallery-card-disabled {
         cursor: default;
-        background-color: #dcdcdc;
-        img {
-            opacity: 0.5;
+        background-color: #f0f0f0;
+
+        .gallery-img {
+            opacity: 0.4;
         }
     }
+
+    &:not(.gallery-card-disabled):hover {
+        border-color: #43749e !important;
+        background-color: rgba(67, 116, 158, 0.06);
+    }
 }
-.gallery-card:not(.gallery-card-disabled):hover {
-    border-color: #43749e !important;
-    background-color: var(--kn-color-secondary);
-    opacity: 0.8;
+
+.gallery-img {
+    height: 90px;
+    width: 100%;
+    object-fit: contain;
+    filter: hue-rotate(196deg);
+}
+
+.gallery-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 1.3;
+    color: var(--kn-color-default);
 }
 </style>

@@ -1,97 +1,103 @@
 <template>
-    <div v-if="axisModel" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div v-if="['area', 'bar', 'column', 'line', 'heatmap'].includes(chartType)" class="p-col-12 p-md-3 p-d-flex p-flex-column">
-            <label class="kn-material-input-label p-mr-2">{{ $t('common.min') }}</label>
-            <div class="p-d-flex p-flex-row p-ai-center p-fluid">
-                <InputNumber v-model="axisModel.min" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
-                <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.heatmap.axisMinHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
-                <Button icon="fa fa-eraser" class="p-button-text p-button-rounded p-button-plain" @click="removeValue('min')" />
+    <div v-if="axisModel" class="q-px-md q-pb-sm">
+        <div class="row q-col-gutter-sm q-mb-sm">
+            <div v-if="['area', 'bar', 'column', 'line', 'heatmap'].includes(chartType)" class="col-6 col-md-3">
+                <q-input v-model.number="axisModel.min" type="number" :label="$t('common.min')" outlined dense @blur="onInputNumberChanged">
+                    <template #append>
+                        <q-icon name="help_outline" size="xs" class="cursor-pointer text-grey-5 q-mr-xs">
+                            <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.heatmap.axisMinHint') }}</q-tooltip>
+                        </q-icon>
+                    </template>
+                </q-input>
             </div>
-        </div>
-        <div v-if="['area', 'bar', 'column', 'line', 'heatmap'].includes(chartType)" class="p-col-12 p-md-3 p-d-flex p-flex-column">
-            <label class="kn-material-input-label p-mr-2">{{ $t('common.max') }}</label>
-            <div class="p-d-flex p-flex-row p-ai-center p-fluid">
-                <InputNumber v-model="axisModel.max" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
-                <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.heatmap.axisMaxHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
-                <Button icon="fa fa-eraser" class="p-button-text p-button-rounded p-button-plain" @click="removeValue('max')" />
+            <div v-if="['area', 'bar', 'column', 'line', 'heatmap'].includes(chartType)" class="col-6 col-md-3">
+                <q-input v-model.number="axisModel.max" type="number" :label="$t('common.max')" outlined dense @blur="onInputNumberChanged">
+                    <template #append>
+                        <q-icon name="help_outline" size="xs" class="cursor-pointer text-grey-5 q-mr-xs">
+                            <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.heatmap.axisMaxHint') }}</q-tooltip>
+                        </q-icon>
+                    </template>
+                </q-input>
             </div>
-        </div>
-        <div class="p-col-12 p-d-flex p-flex-column" :class="{ 'p-md-3': chartType === 'heatmap', 'p-md-6': ['radar', 'area', 'bar', 'column', 'line', 'scatter', 'dumbbell', 'streamgraph', 'waterfall'].includes(chartType) }">
-            <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.heatmap.labelRotation') }}</label>
-            <InputNumber v-model="axisModel.labels.rotation" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
-        </div>
-        <div class="p-col-12 p-d-flex p-flex-column kn-flex p-p-2" :class="{ 'p-md-3': chartType === 'heatmap', 'p-md-6': ['radar', 'area', 'bar', 'column', 'line', 'scatter', 'dumbbell', 'streamgraph', 'waterfall'].includes(chartType) }">
-            <label class="kn-material-input-label p-mr-2">{{ $t('common.align') }}</label>
-            <Dropdown v-model="axisModel.labels.align" class="kn-material-input" :options="settingsDescriptor.alignmentOptions" option-value="value" @change="modelChanged">
-                <template #value="slotProps">
-                    <div>
-                        <span>{{ getTranslatedLabel(slotProps.value, settingsDescriptor.alignmentOptions, $t) }}</span>
-                    </div>
-                </template>
-                <template #option="slotProps">
-                    <div>
-                        <span>{{ $t(slotProps.option.label) }}</span>
-                    </div>
-                </template>
-            </Dropdown>
-        </div>
-
-        <div class="p-col-12 p-px-2 p-pt-4">
-            <WidgetEditorStyleToolbar :options="descriptor.styleToolbarSettings" :prop-model="toolbarModel" @change="onStyleToolbarChange"></WidgetEditorStyleToolbar>
-        </div>
-
-        <div v-if="['scatter', 'bubble'].includes(chartType)" class="p-grid p-col-12 p-ai-center p-mt-3">
-            <div class="p-col-4">
-                <InputSwitch v-model="axisModel.startOnTick"></InputSwitch>
-                <label class="kn-material-input-label p-m-3">{{ $t('dashboard.widgetEditor.highcharts.axisTickSettings.startOnTick') }}</label>
-                <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.axisTickSettings.startOnTickHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+            <div class="col-6" :class="chartType === 'heatmap' ? 'col-md-3' : 'col-md-3'">
+                <q-input v-model.number="axisModel.labels.rotation" type="number" :label="$t('dashboard.widgetEditor.highcharts.heatmap.labelRotation')" outlined dense @blur="onInputNumberChanged" />
             </div>
-            <div class="p-col-4">
-                <InputSwitch v-model="axisModel.endOnTick"></InputSwitch>
-                <label class="kn-material-input-label p-m-3">{{ $t('dashboard.widgetEditor.highcharts.axisTickSettings.endOnTick') }}</label>
-                <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.axisTickSettings.endOnTickkHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
-            </div>
-            <div class="p-col-4">
-                <InputSwitch v-model="axisModel.showLastLabel"></InputSwitch>
-                <label class="kn-material-input-label p-m-3">{{ $t('dashboard.widgetEditor.highcharts.axisTickSettings.showLastLabel') }}</label>
-                <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.axisTickSettings.showLastLabelHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+            <div class="col-6" :class="chartType === 'heatmap' ? 'col-md-3' : 'col-md-3'">
+                <q-select v-model="axisModel.labels.align" :label="$t('common.align')" emit-value map-options outlined dense :options="settingsDescriptor.alignmentOptions" option-value="value" option-label="label" @update:model-value="modelChanged">
+                    <template #selected-item="slotProps">
+                        <span>{{ getTranslatedLabel(slotProps.opt.value, settingsDescriptor.alignmentOptions, $t) }}</span>
+                    </template>
+                    <template #option="slotProps">
+                        <q-item v-bind="slotProps.itemProps">
+                            <q-item-section
+                                ><q-item-label>{{ $t(slotProps.opt.label) }}</q-item-label></q-item-section
+                            >
+                        </q-item>
+                    </template>
+                </q-select>
             </div>
         </div>
 
-        <div class="p-col-12 p-py-4">
-            <div class="p-d-flex p-flex-row p-jc-center">
-                <label class="kn-material-input-label kn-cursor-pointer" @click="advancedVisible = !advancedVisible">{{ $t('common.advanced') }}<i :class="advancedVisible ? 'fas fa-chevron-up' : 'fas fa-chevron-down'" class="p-ml-2"></i></label>
-                <i class=""></i>
+        <div class="row q-mb-sm">
+            <div class="col-12">
+                <WidgetEditorStyleToolbar :options="descriptor.styleToolbarSettings" :prop-model="toolbarModel" @change="onStyleToolbarChange" />
             </div>
-            <Transition>
-                <div v-if="advancedVisible" class="p-d-flex p-flex-column">
-                    <div class="p-col-12 p-md-3 p-d-flex p-flex-column">
-                        <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.labels.xCoordinate') }}</label>
-                        <div class="p-d-flex p-flex-row p-ai-center p-fluid">
-                            <InputNumber v-model="axisModel.labels.x" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
-                            <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.labels.xAlignValueHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
-                        </div>
+        </div>
+
+        <div v-if="['scatter', 'bubble'].includes(chartType)" class="row q-gutter-x-md q-mb-sm">
+            <q-checkbox v-model="axisModel.startOnTick" :label="$t('dashboard.widgetEditor.highcharts.axisTickSettings.startOnTick')" dense @update:model-value="modelChanged">
+                <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.axisTickSettings.startOnTickHint') }}</q-tooltip>
+            </q-checkbox>
+            <q-checkbox v-model="axisModel.endOnTick" :label="$t('dashboard.widgetEditor.highcharts.axisTickSettings.endOnTick')" dense @update:model-value="modelChanged">
+                <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.axisTickSettings.endOnTickkHint') }}</q-tooltip>
+            </q-checkbox>
+            <q-checkbox v-model="axisModel.showLastLabel" :label="$t('dashboard.widgetEditor.highcharts.axisTickSettings.showLastLabel')" dense @update:model-value="modelChanged">
+                <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.axisTickSettings.showLastLabelHint') }}</q-tooltip>
+            </q-checkbox>
+        </div>
+
+        <div class="row items-center justify-center cursor-pointer q-my-md" @click="advancedVisible = !advancedVisible">
+            <span class="text-subtitle2">{{ $t('common.advanced') }}</span>
+            <q-icon :name="advancedVisible ? 'expand_less' : 'expand_more'" class="q-ml-xs" />
+        </div>
+        <Transition>
+            <div v-if="advancedVisible" class="column">
+                <div class="row q-col-gutter-sm q-mb-sm">
+                    <div class="col-3">
+                        <q-input v-model.number="axisModel.labels.x" type="number" :label="$t('dashboard.widgetEditor.highcharts.labels.xCoordinate')" outlined dense @blur="onInputNumberChanged">
+                            <template #append>
+                                <q-icon name="help_outline" size="xs" class="cursor-pointer text-grey-5">
+                                    <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.labels.xAlignValueHint') }}</q-tooltip>
+                                </q-icon>
+                            </template>
+                        </q-input>
                     </div>
-                    <div class="p-col-12">
-                        <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.format') }}</label>
-                        <div class="p-d-flex p-flex-row p-ai-center">
-                            <Textarea v-model="axisModel.labels.format" class="kn-material-input kn-width-full" rows="2" :auto-resize="true" maxlength="250" @change="modelChanged" />
-                            <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.labels.formatHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
-                        </div>
+                    <div class="col-9">
+                        <q-input v-model="axisModel.labels.format" :label="$t('dashboard.widgetEditor.format')" type="textarea" outlined dense autogrow maxlength="250" @change="modelChanged">
+                            <template #append>
+                                <q-icon name="help_outline" size="xs" class="cursor-pointer text-grey-5">
+                                    <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.labels.formatHint') }}</q-tooltip>
+                                </q-icon>
+                            </template>
+                        </q-input>
                     </div>
-                    <div class="p-col-12">
-                        <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.formatter') }}</label>
-                        <Message v-if="axisModel.labels.formatterError" class="p-m-2" severity="warn" :closable="false" :style="settingsDescriptor.warningMessageStyle">
-                            {{ axisModel.labels.formatterError }}
-                        </Message>
-                        <div class="p-d-flex p-flex-row p-ai-center">
-                            <HighchartsFormatterMonaco :prop-code="axisModel.labels.formatterText" @change="onFormatterChange" @blur="modelChanged"></HighchartsFormatterMonaco>
-                            <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.labels.formatterHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+                </div>
+                <div class="row q-mb-sm">
+                    <div class="col-12">
+                        <q-banner v-if="axisModel.labels.formatterError" class="q-mb-xs bg-warning text-white" rounded dense>{{ axisModel.labels.formatterError }}</q-banner>
+                        <div class="formatter-block">
+                            <div class="row items-center q-mb-xs">
+                                <span class="text-caption text-grey-7">{{ $t('dashboard.widgetEditor.formatter') }}</span>
+                                <q-icon name="help_outline" size="xs" class="q-ml-xs cursor-pointer text-grey-5">
+                                    <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.labels.formatterHint') }}</q-tooltip>
+                                </q-icon>
+                            </div>
+                            <HighchartsFormatterMonaco :prop-code="axisModel.labels.formatterText" :disabled="false" @change="onFormatterChange" @blur="modelChanged" />
                         </div>
                     </div>
                 </div>
-            </Transition>
-        </div>
+            </div>
+        </Transition>
     </div>
 </template>
 
@@ -102,17 +108,12 @@ import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import descriptor from './HighchartsAxisSettingsDescriptor.json'
 import settingsDescriptor from '../HighchartsWidgetSettingsDescriptor.json'
-import Dropdown from 'primevue/dropdown'
-import InputNumber from 'primevue/inputnumber'
 import WidgetEditorStyleToolbar from '../../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 import HighchartsFormatterMonaco from '../common/HighchartsFormatterMonaco.vue'
-import Textarea from 'primevue/textarea'
-import Message from 'primevue/message'
-import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
     name: 'highcharts-axis-settings',
-    components: { Dropdown, InputNumber, WidgetEditorStyleToolbar, HighchartsFormatterMonaco, Textarea, Message, InputSwitch },
+    components: { WidgetEditorStyleToolbar, HighchartsFormatterMonaco },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, axis: { type: String, required: true } },
     data() {
         return {
@@ -170,3 +171,11 @@ export default defineComponent({
     }
 })
 </script>
+
+<style lang="scss" scoped>
+.formatter-block {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 8px;
+}
+</style>

@@ -1,51 +1,32 @@
 <template>
-    <div class="p-d-flex p-flex-row kn-flex">
-        <div class="p-d-flex p-flex-column kn-flex">
-            <div class="document-table-container p-d-flex p-flex-column kn-flex">
-                <div v-if="selectedDocument" id="document-detail-backdrop" @click="selectedDocument = null"></div>
-                <DocumentBrowserBreadcrumb v-if="!searchMode" :breadcrumbs="breadcrumbs" @breadcrumbClicked="$emit('breadcrumbClicked', $event)"></DocumentBrowserBreadcrumb>
-                <DocumentBrowserTable :prop-documents="documents" :search-mode="searchMode" @selected="setSelectedDocument" @itemSelected="$emit('itemSelected', $event)"></DocumentBrowserTable>
-            </div>
-        </div>
-        <div v-if="selectedDocument" id="document-browser-sidebar-container" data-test="document-browser-sidebar">
-            <DocumentBrowserSidebar
-                :selected-document="selectedDocument"
-                @documentCloneClick="cloneDocument"
-                @documentDeleteClick="deleteDocument"
-                @itemSelected="$emit('itemSelected', $event)"
-                @documentChangeStateClicked="changeDocumentState"
-                @showDocumentDetails="$emit('showDocumentDetails', $event)"
-            ></DocumentBrowserSidebar>
-        </div>
+    <div class="column no-wrap full-height">
+        <DocumentBrowserTable :prop-documents="documents" :search-mode="searchMode" @selected="setSelectedDocument" @itemSelected="$emit('itemSelected', $event)" />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import DocumentBrowserBreadcrumb from './breadcrumbs/DocumentBrowserBreadcrumb.vue'
 import DocumentBrowserTable from './tables/DocumentBrowserTable.vue'
-import DocumentBrowserSidebar from './sidebar/DocumentBrowserSidebar.vue'
 import mainStore from '../../../App.store'
 
 export default defineComponent({
     name: 'document-browser-detail',
-    components: { DocumentBrowserBreadcrumb, DocumentBrowserTable, DocumentBrowserSidebar },
+    components: { DocumentBrowserTable },
     props: { propDocuments: { type: Array }, breadcrumbs: { type: Array }, searchMode: { type: Boolean } },
-    emits: ['breadcrumbClicked', 'loading', 'documentCloned', 'itemSelected', 'documentStateChanged', 'showDocumentDetails'],
+    emits: ['breadcrumbClicked', 'itemSelected', 'documentSelected'],
     setup() {
         const store = mainStore()
         return { store }
     },
     data() {
         return {
-            documents: [] as any[],
-            selectedDocument: null as any
+            documents: [] as any[]
         }
     },
     watch: {
         propDocuments() {
             this.loadDocuments()
-            this.selectedDocument = null
+            this.$emit('documentSelected', null)
         }
     },
     created() {
@@ -56,79 +37,14 @@ export default defineComponent({
             this.documents = this.propDocuments as any[]
         },
         setSelectedDocument(document: any) {
-            this.selectedDocument = document
-        },
-        async cloneDocument(document: any) {
-            this.$emit('loading', true)
-            await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/documents/clone?docId=${document.id}`)
-                .then(() => {
-                    this.store.setInfo({
-                        title: this.$t('common.toast.createTitle'),
-                        msg: this.$t('common.toast.success')
-                    })
-                    this.$emit('documentCloned')
-                })
-                .catch(() => {})
-            this.$emit('loading', false)
-        },
-        async deleteDocument(document: any) {
-            this.$emit('loading', true)
-            await this.$http
-                .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documents/${document.label}`)
-                .then(() => {
-                    this.store.setInfo({
-                        title: this.$t('common.toast.deleteTitle'),
-                        msg: this.$t('common.toast.success')
-                    })
-                    this.selectedDocument = null
-                    this.documents = this.documents.filter((el: any) => el.id !== document.id)
-                })
-                .catch(() => {})
-            this.$emit('loading', false)
-        },
-        async changeDocumentState(event: any) {
-            this.$emit('loading', true)
-            await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/documents/changeStateDocument?docId=${event.document.id}&direction=${event.direction}`)
-                .then(() => {
-                    this.store.setInfo({
-                        title: this.$t('common.toast.deleteTitle'),
-                        msg: this.$t('common.toast.success')
-                    })
-                    this.$emit('documentStateChanged')
-                })
-                .catch(() => {})
-            this.$emit('loading', false)
+            this.$emit('documentSelected', document)
         }
     }
 })
 </script>
 
 <style lang="scss" scoped>
-#document-browser-sidebar-container {
-    z-index: 100;
-    position: absolute;
-    top: 0;
-    right: 0;
+.full-height {
     height: 100%;
-    width: 350px;
-}
-
-.document-table-container {
-    width: 100%;
-    height: 100%;
-    position: relative;
-}
-
-#document-detail-backdrop {
-    background-color: rgba(33, 33, 33, 1);
-    opacity: 0.48;
-    z-index: 50;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
 }
 </style>

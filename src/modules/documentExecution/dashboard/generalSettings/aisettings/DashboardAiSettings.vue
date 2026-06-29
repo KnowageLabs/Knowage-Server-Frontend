@@ -1,7 +1,5 @@
 <template>
-    <div class="p-d-flex p-flex-column dashboard-card-shadow kn-flex p-mr-3 p-my-3 kn-overflow dashboard-scrollbar">
-        <label class="kn-material-input-label p-m-3">{{ $t('dashboard.generalSettings.aisettings') }}</label>
-
+    <div class="q-px-md q-pb-xs">
         <div class="row q-col-gutter-sm">
             <q-banner class="bg-info text-black q-mx-sm q-ml-md" rounded dense>
                 <template v-slot:avatar> <q-icon name="info" color="primary" /> </template>{{ $t('dashboard.generalSettings.aiSettingsHint') }}

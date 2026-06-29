@@ -1,30 +1,25 @@
 <template>
-    <div v-if="chipsStyleModel" class="p-ai-center kn-flex p-p-4">
-        <form class="p-fluid p-formgrid p-grid">
-            <div class="p-field p-col-12">
-                <span class="p-float-label">
-                    <InputNumber v-model="chipsStyleModel.height" class="kn-material-input p-inputtext-sm" :disabled="chipsStyleDisabled" @blur="chipsStyleChanged" />
-                    <label class="kn-material-input-label p-mr-2">{{ $t('common.height') }}</label>
-                </span>
+    <div v-if="chipsStyleModel" class="q-px-md q-pb-md">
+        <div class="row q-col-gutter-sm q-pb-sm">
+            <div class="col-12">
+                <q-input v-model.number="chipsStyleModel.height" type="number" :label="$t('common.height')" outlined dense :disable="chipsStyleDisabled" @blur="chipsStyleChanged" />
             </div>
-        </form>
-
-        <WidgetEditorStyleToolbar :options="descriptor.chipsToolbarStyleOptions" :prop-model="chipsStyleModel.properties" :disabled="chipsStyleDisabled" @change="onStyleToolbarChange"> </WidgetEditorStyleToolbar>
+        </div>
+        <WidgetEditorStyleToolbar :options="descriptor.chipsToolbarStyleOptions" :prop-model="chipsStyleModel.properties" :disabled="chipsStyleDisabled" @change="onStyleToolbarChange" />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget, IWidgetStyleToolbarModel } from '@/modules/documentExecution/Dashboard/Dashboard'
+import { IWidget, IWidgetStyleToolbarModel } from '@/modules/documentExecution/dashboard/Dashboard'
 import { ISelectionWidgetChipsStyle } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectionsWidget'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import descriptor from '../SelectionsWidgetSettingsDescriptor.json'
-import InputNumber from 'primevue/inputnumber'
 import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 
 export default defineComponent({
     name: 'selections-widget-chips-style',
-    components: { InputNumber, WidgetEditorStyleToolbar },
+    components: { WidgetEditorStyleToolbar },
     props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true }, themeStyle: { type: Object as PropType<ISelectionWidgetChipsStyle | null>, required: true } },
     emits: ['styleChanged'],
     data() {
@@ -65,18 +60,9 @@ export default defineComponent({
             this.chipsStyleModel.properties['background-color'] = model['background-color'] ?? 'rgb(137, 158, 175)'
             this.chipsStyleModel.properties.color = model.color ?? 'rgb(255, 255, 255)'
             this.chipsStyleModel.properties['justify-content'] = model['justify-content'] ?? 'center'
-            ;(this.chipsStyleModel.properties['font-size'] = model['font-size'] ?? '14px'),
-                (this.chipsStyleModel.properties['font-family'] = model['font-family'] ?? ''),
-                (this.chipsStyleModel.properties['font-style'] = model['font-style'] ?? 'normal'),
-                (this.chipsStyleModel.properties['font-weight'] = model['font-weight'] ?? '')
+            ;((this.chipsStyleModel.properties['font-size'] = model['font-size'] ?? '14px'), (this.chipsStyleModel.properties['font-family'] = model['font-family'] ?? ''), (this.chipsStyleModel.properties['font-style'] = model['font-style'] ?? 'normal'), (this.chipsStyleModel.properties['font-weight'] = model['font-weight'] ?? ''))
             this.chipsStyleChanged()
         }
     }
 })
 </script>
-
-<style lang="scss" scoped>
-#height-input-container {
-    max-width: 200px;
-}
-</style>

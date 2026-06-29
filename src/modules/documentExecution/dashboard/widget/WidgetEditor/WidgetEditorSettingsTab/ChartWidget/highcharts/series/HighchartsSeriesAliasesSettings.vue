@@ -1,15 +1,20 @@
 <template>
-    <div v-if="widgetModel" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div v-for="(aliasSettings, index) in chartAliasesSettings" :key="index" class="dynamic-form-item p-grid p-col-12 p-ai-center">
-            <div class="p-col-12 p-md-6 p-d-flex p-flex-column kn-flex">
-                <q-select v-model="aliasSettings.column" :options="columnOptions" :label="$t('qbe.entities.types.measure')" option-label="columnName" />
+    <div v-if="widgetModel" class="q-px-md q-pb-sm">
+        <div v-for="(aliasSettings, index) in chartAliasesSettings" :key="index" class="column-type-row row no-wrap q-mb-sm">
+            <div class="kn-action-handle kn-action-handle-disabled"></div>
+            <div class="col q-pa-sm">
+                <div class="row q-col-gutter-sm">
+                    <div class="col-6">
+                        <q-select v-model="aliasSettings.column" :options="columnOptions" :label="$t('qbe.entities.types.measure')" option-label="columnName" outlined dense />
+                    </div>
+                    <div class="col-6">
+                        <q-input v-model="aliasSettings.alias" :label="$t('common.alias')" outlined dense />
+                    </div>
+                </div>
             </div>
-            <div class="p-col-11 p-md-5 p-d-flex p-flex-column kn-flex">
-                <q-input v-model="aliasSettings.alias" :label="$t('common.alias')" />
-            </div>
-            <div class="p-col-1 p-d-flex p-flex-row p-jc-center p-ai-center p-pl-2">
-                <i v-if="index === 0" :class="'pi pi-plus-circle'" class="kn-cursor-pointer p-ml-2 p-mt-4" @click="addAliasSettings()"></i>
-                <i :class="'pi pi-trash'" class="kn-cursor-pointer p-ml-2 p-mt-4" @click="removeAliasSettings(index)"></i>
+            <div class="kn-action-handle row items-center justify-center">
+                <q-btn v-if="index === 0" flat round dense icon="add_circle" size="sm" @click="addAliasSettings()" />
+                <q-btn v-else flat round dense icon="delete" size="sm" @click="removeAliasSettings(index)" />
             </div>
         </div>
     </div>
@@ -78,3 +83,11 @@ onUnmounted(() => {
     removeEventListeners()
 })
 </script>
+
+<style lang="scss" scoped>
+.column-type-row {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+</style>

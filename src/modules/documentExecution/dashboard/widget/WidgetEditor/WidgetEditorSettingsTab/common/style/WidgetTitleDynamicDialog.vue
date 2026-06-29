@@ -11,12 +11,12 @@
                 </q-banner>
 
                 <div v-if="mode === 'parameters'" class="q-ma-md">
-                    <q-select  v-model="selectedDriver" class="fit" :label="t('common.parameter')" :options="drivers" option-value="urlName" option-label="name" emit-value map-options filled />
+                    <q-select v-model="selectedDriver" class="fit" :label="t('common.parameter')" :options="drivers" option-value="urlName" option-label="name" emit-value map-options filled />
                 </div>
 
                 <div v-else class="q-ma-md">
-                        <q-select v-model="selectedVariable" class="fit" :label="t('common.variable')" :options="variables" option-label="name" filled  />
-                        <q-select v-if="variableKeys.length > 0" class="fit" v-model="variableKey"  :label="t('common.key')" :options="variableKeys" filled  />
+                    <q-select v-model="selectedVariable" class="fit" :label="t('common.variable')" :options="variables" option-label="name" filled />
+                    <q-select v-if="variableKeys.length > 0" class="fit" v-model="variableKey" :label="t('common.key')" :options="variableKeys" filled />
                 </div>
             </q-card-section>
 

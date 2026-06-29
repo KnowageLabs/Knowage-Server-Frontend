@@ -1,76 +1,70 @@
 <template>
-    <div class="p-grid">
-        <div v-for="(parameter, index) in parameters" :key="index" class="p-grid p-col-12 p-ai-center p-p-2">
-            <div class="p-sm-6 p-md-1 p-ai-center">
-                <div class="p-mr-2">
-                    <InputSwitch v-model="parameter.enabled" :disabled="disabled" @change="parametersChanged"></InputSwitch>
+    <div v-for="(parameter, index) in parameters" :key="index" class="param-row row no-wrap q-mb-sm">
+        <div class="kn-action-handle row items-center justify-center" :class="disabled ? 'kn-action-handle-disabled' : ''" style="width: 22px">
+            <q-checkbox v-model="parameter.enabled" :disable="disabled" size="sm" dense @update:model-value="parametersChanged" />
+        </div>
+        <!-- Parameter content -->
+        <div class="col q-pa-sm" :class="{ 'widget-editor-disabled': !parameter.enabled || disabled }">
+            <div class="row q-col-gutter-sm">
+                <!-- Name + Type: same row -->
+                <div class="col-6">
+                    <q-input v-model="parameter.name" :label="$t('common.parameter')" outlined dense readonly />
                 </div>
-            </div>
-            <div class="p-sm-6 p-md-2 p-d-flex p-flex-column kn-flex">
-                <label class="kn-material-input-label">{{ $t('common.parameter') }}</label>
-                <InputText v-model="parameter.name" class="kn-material-input p-inputtext-sm" :disabled="true" />
-            </div>
-            <div class="p-sm-6 p-md-2 p-d-flex p-flex-column kn-flex p-p-2 value-type-dropdown">
-                <label class="kn-material-input-label"> {{ $t('common.type') }}</label>
-                <Dropdown v-model="parameter.type" class="kn-material-input" :options="descriptor.previewParameterTypeOptions" option-value="value" :disabled="disabled" @change="onParameterTypeChanged(parameter)">
-                    <template #value="slotProps">
-                        <div>
-                            <span>{{ getTranslatedLabel(slotProps.value, descriptor.previewParameterTypeOptions, $t) }}</span>
-                        </div>
-                    </template>
-                    <template #option="slotProps">
-                        <div>
-                            <span>{{ $t(slotProps.option.label) }}</span>
-                        </div>
-                    </template>
-                </Dropdown>
-            </div>
-            <div v-if="parameter.type === 'static'" class="p-sm-12 p-md-7 p-d-flex p-flex-column kn-flex">
-                <label class="kn-material-input-label">{{ $t('common.value') }}</label>
-                <InputText v-model="parameter.value" class="kn-material-input p-inputtext-sm" :disabled="disabled" @change="parametersChanged" />
-            </div>
-            <div v-else-if="parameter.type === 'driver'" class="p-sm-12 p-md-7 p-d-flex p-flex-row p-ai-center kn-flex">
-                <div class="p-d-flex p-flex-column kn-flex">
-                    <label class="kn-material-input-label"> {{ $t('common.driver') }}</label>
-                    <Dropdown v-model="parameter.driver" class="kn-material-input" :options="drivers" option-label="name" option-value="name" :disabled="disabled" @change="parametersChanged"> </Dropdown>
-                </div>
-            </div>
-            <div v-else-if="parameter.type === 'dynamic' && ['table', 'discovery', 'highcharts', 'chartJS', 'html', 'customchart'].includes(widgetType)" class="p-sm-12 p-md-7 p-d-flex p-flex-row p-ai-center kn-flex">
-                <div class="p-d-flex p-flex-column kn-flex">
-                    <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
-                    <Dropdown
-                        v-if="['table', 'discovery', 'static-pivot-table', 'ce-pivot-table'].includes(widgetType)"
-                        v-model="parameter.column"
-                        class="kn-material-input"
-                        :options="widgetModel.columns"
-                        option-label="alias"
-                        option-value="columnName"
-                        :disabled="disabled"
-                        @change="parametersChanged"
-                    ></Dropdown>
-                    <Dropdown v-else v-model="parameter.column" class="kn-material-input" :options="chartColumnOptions" option-value="value" :disabled="disabled" @change="parametersChanged">
-                        <template #value="slotProps">
-                            <span>{{ getTranslatedLabel(slotProps.value, chartColumnOptions, $t) }}</span>
+                <div class="col-6">
+                    <q-select v-model="parameter.type" :options="descriptor.previewParameterTypeOptions" :label="$t('common.type')" option-value="value" option-label="label" emit-value map-options outlined dense :disable="!parameter.enabled || disabled" @update:model-value="onParameterTypeChanged(parameter)">
+                        <template #selected-item="slotProps">
+                            <span>{{ getTranslatedLabel(slotProps.opt.value, descriptor.previewParameterTypeOptions, $t) }}</span>
                         </template>
                         <template #option="slotProps">
-                            <span>{{ $t(slotProps.option.label) }}</span>
+                            <q-item v-bind="slotProps.itemProps">
+                                <q-item-section
+                                    ><q-item-label>{{ $t(slotProps.opt.label) }}</q-item-label></q-item-section
+                                >
+                            </q-item>
                         </template>
-                    </Dropdown>
+                    </q-select>
                 </div>
-            </div>
-            <div v-else-if="parameter.type === 'selection'" class="p-grid p-sm-12 p-md-7 p-ai-center kn-flex">
-                <div class="p-sm-12 p-md-6 p-ai-center">
-                    <div class="p-d-flex p-flex-column kn-flex">
-                        <label class="kn-material-input-label"> {{ $t('common.dataset') }}</label>
-                        <Dropdown v-model="parameter.dataset" class="kn-material-input" :options="selectedDatasetNames" :disabled="disabled" @change="onDatasetChanged(parameter)"> </Dropdown>
+
+                <!-- Static: value -->
+                <div v-if="parameter.type === 'static'" class="col-12">
+                    <q-input v-model="parameter.value" :label="$t('common.value')" outlined dense :disable="!parameter.enabled || disabled" @update:model-value="parametersChanged" />
+                </div>
+
+                <!-- Driver -->
+                <div v-else-if="parameter.type === 'driver'" class="col-12">
+                    <q-select v-model="parameter.driver" :options="drivers" :label="$t('common.driver')" option-label="name" option-value="name" emit-value map-options outlined dense :disable="!parameter.enabled || disabled" @update:model-value="parametersChanged" />
+                </div>
+
+                <!-- Dynamic: column -->
+                <template v-else-if="parameter.type === 'dynamic' && ['table', 'discovery', 'highcharts', 'chartJS', 'html', 'customchart'].includes(widgetType)">
+                    <div v-if="['table', 'discovery', 'static-pivot-table', 'ce-pivot-table'].includes(widgetType)" class="col-12">
+                        <q-select v-model="parameter.column" :options="widgetModel.columns" :label="$t('common.column')" option-label="alias" option-value="columnName" emit-value map-options outlined dense :disable="!parameter.enabled || disabled" @update:model-value="parametersChanged" />
                     </div>
-                </div>
-                <div class="p-sm-12 p-md-6 p-ai-center">
-                    <div class="p-d-flex p-flex-column kn-flex">
-                        <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
-                        <Dropdown v-model="parameter.column" class="kn-material-input" :options="getSelectionDatasetColumnOptions(parameter)" :disabled="disabled" @change="parametersChanged"> </Dropdown>
+                    <div v-else class="col-12">
+                        <q-select v-model="parameter.column" :options="chartColumnOptions" :label="$t('common.column')" option-value="value" option-label="label" emit-value map-options outlined dense :disable="!parameter.enabled || disabled" @update:model-value="parametersChanged">
+                            <template #selected-item="slotProps">
+                                <span>{{ getTranslatedLabel(slotProps.opt.value, chartColumnOptions, $t) }}</span>
+                            </template>
+                            <template #option="slotProps">
+                                <q-item v-bind="slotProps.itemProps">
+                                    <q-item-section
+                                        ><q-item-label>{{ $t(slotProps.opt.label) }}</q-item-label></q-item-section
+                                    >
+                                </q-item>
+                            </template>
+                        </q-select>
                     </div>
-                </div>
+                </template>
+
+                <!-- Selection: dataset + column -->
+                <template v-else-if="parameter.type === 'selection'">
+                    <div class="col-6">
+                        <q-select v-model="parameter.dataset" :options="selectedDatasetNames" :label="$t('common.dataset')" outlined dense :disable="!parameter.enabled || disabled" @update:model-value="onDatasetChanged(parameter)" />
+                    </div>
+                    <div class="col-6">
+                        <q-select v-model="parameter.column" :options="getSelectionDatasetColumnOptions(parameter)" :label="$t('common.column')" outlined dense :disable="!parameter.enabled || disabled" @update:model-value="parametersChanged" />
+                    </div>
+                </template>
             </div>
         </div>
     </div>
@@ -83,12 +77,10 @@ import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import { mapActions } from 'pinia'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import descriptor from '../WidgetInteractionsDescriptor.json'
-import Dropdown from 'primevue/dropdown'
-import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
     name: 'table-widget-preview-parameters-list',
-    components: { Dropdown, InputSwitch },
+    components: {},
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
         propParameters: { type: Array as PropType<IWidgetInteractionParameter[]>, required: true },
@@ -178,3 +170,10 @@ export default defineComponent({
     }
 })
 </script>
+<style scoped>
+.param-row {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+</style>

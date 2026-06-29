@@ -23,7 +23,7 @@
                     <LayersList v-if="widget.type === 'map'" :widget-model="widget" :datasets="datasets" :selected-datasets="selectedDatasets" @layerSelected="onLayerSelected" />
                     <WidgetEditorDataList v-else :widget-model="widget" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" @datasetSelected="onDatasetSelectedFromList" @selectedDatasetColumnsChanged="onSelectedDatasetColumnsChanged" @toggle-list-drag="onToggleListDrag" />
                 </div>
-                <WidgetEditorSettingsList v-show="activeTab === 'settings' && widget" :widget-model="widget" :propSelectedItem="selectedSetting" :options="settingsDescriptor.settingsListOptions" @itemClicked="onSettingsItemClicked" />
+                <WidgetEditorSettingsList v-show="activeTab === 'settings' && widget" :widget-model="widget" :propSelectedItem="selectedSetting" :options="settingsDescriptor.settingsListOptions" :settings-map="settingsDescriptor.settings" @itemClicked="onSettingsItemClicked" @search-changed="onSearchChanged" />
             </q-scroll-area>
             <div class="resize-handle resize-handle-right" @mousedown="handleResizeStartLeft"></div>
         </q-drawer>
@@ -35,8 +35,8 @@
 
         <q-page-container class="widget-page-container">
             <!-- with some ungodly hacking, this scroll area preserves the whole layout of the editor, i have no idea how it works -->
-            <q-scroll-area :style="{ height: scrollAreaHeight }">
-                <q-tab-panels v-model="activeTab" keep-alive class="kn-width-full kn-height-full column">
+            <q-scroll-area class="kn-background" :style="{ height: scrollAreaHeight }">
+                <q-tab-panels v-model="activeTab" keep-alive class="kn-width-full kn-height-full column kn-background">
                     <q-tab-panel v-if="hasDataTab" name="data" class="column" style="max-width: 850px !important; justify-self: center">
                         <MapWidgetLayersTab v-if="widget.type === 'map'" :prop-widget="widget" :datasets="datasets" :selected-datasets="selectedDatasets" :layers="layers" :variables="variables" :dashboard-id="dashboardId" :selected-layer="selectedLayer" @layerSelected="onLayerSelected" />
                         <WidgetEditorDataTab v-else :prop-widget="widget" :selected-dataset="selectedDataset" :selected-dataset-columns="selectedDatasetColumns" :list-drag-active="listDragActive" data-test="data-tab" />
@@ -52,7 +52,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent, PropType, ref, provide } from 'vue'
 import { IWidget, IDataset, IDashboardDataset, IVariable, IDatasetColumn } from '../../Dashboard'
 import { ILayer, IMapWidgetLayer } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { createNewWidget, recreateKnowageChartModel, getSettingsDescriptor } from './helpers/WidgetEditorHelpers'
@@ -87,7 +87,9 @@ export default defineComponent({
     setup() {
         const store = mainStore()
         const dashboardStore = dashStore()
-        return { store, dashboardStore }
+        const searchText = ref('')
+        provide('widgetSettingsSearch', searchText)
+        return { store, dashboardStore, searchText }
     },
     data() {
         return {
@@ -366,6 +368,10 @@ export default defineComponent({
         },
         onSettingsItemClicked(item: any) {
             this.selectedSetting = item.value
+            this.searchText = ''
+        },
+        onSearchChanged(text: string) {
+            this.searchText = text
         }
         // #endregion
     }

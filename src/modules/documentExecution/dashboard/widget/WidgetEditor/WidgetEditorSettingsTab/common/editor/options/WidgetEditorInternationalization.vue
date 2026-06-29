@@ -1,15 +1,12 @@
 <template>
-    <span class="p-float-label">
-        <InputText v-model="i18n" class="kn-material-input" @change="onColumnChanged" />
-        <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.editorTags.i18n') }}</label>
-    </span>
+    <q-input v-model="i18n" outlined dense :label="$t('dashboard.widgetEditor.editorTags.i18n')" @update:model-value="onColumnChanged" />
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-    name: 'widget-editor-repeater',
+    name: 'widget-editor-internationalization',
     emits: ['insertChanged'],
     data() {
         return {

@@ -49,6 +49,7 @@
             },
             {
                 "title": "dashboard.widgetEditor.menuConfiguration",
+                "toggleOnly": true,
                 "type": "MenuConfiguration"
             },
             {

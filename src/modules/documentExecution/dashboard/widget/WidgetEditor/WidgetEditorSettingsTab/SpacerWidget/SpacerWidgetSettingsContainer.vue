@@ -1,12 +1,12 @@
 <template>
     <div class="spacer-widget-settings-container">
-        <SpacerWidgetSettingsAccordion v-if="widgetModel" :widget-model="widgetModel" :settings="descriptor.settings[setting]" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId" />
+        <SpacerWidgetSettingsAccordion v-if="widgetModel" :widget-model="widgetModel" :settings="activeSettings" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId" />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget, IDataset, IVariable } from '../../../Dashboard'
+import { IWidget, IDataset, IVariable } from '@/modules/documentExecution/dashboard/Dashboard'
 import descriptor from './SpacerWidgetSettingsDescriptor.json'
 import SpacerWidgetSettingsAccordion from './SpacerWidgetSettingsAccordion.vue'
 
@@ -23,10 +23,30 @@ export default defineComponent({
         variables: { type: Array as PropType<IVariable[]> },
         dashboardId: { type: String, required: true }
     },
+    inject: {
+        widgetSettingsSearch: { from: 'widgetSettingsSearch', default: null }
+    },
     data() {
         return {
             descriptor,
             setting: ''
+        }
+    },
+    computed: {
+        isSearchActive(): boolean {
+            return ((this.widgetSettingsSearch as any) ?? '').length >= 3
+        },
+        activeSettings(): { title: string; type: string }[] | undefined {
+            const search = (this.widgetSettingsSearch as any) ?? ''
+            if (search.length >= 3 && this.descriptor?.settings) {
+                const seen = new Set<string>()
+                return (Object.values(this.descriptor.settings) as { title: string; type: string }[][]).flat().filter((s: { title: string; type: string }) => {
+                    if (seen.has(s.type)) return false
+                    seen.add(s.type)
+                    return true
+                })
+            }
+            return this.descriptor?.settings?.[this.setting]
         }
     },
     watch: {

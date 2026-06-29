@@ -1,120 +1,55 @@
 <template>
-    <div class="p-grid p-jc-center p-ai-center p-p-4">
-        <div v-if="!categoryThresholdSettings" class="p-col-12">
-            <Message severity="warn" :closable="false">
-                Impossibile caricare le impostazioni. Verifica che il widget sia configurato correttamente.
-            </Message>
+    <div class="q-px-md q-pb-sm">
+        <div v-if="!categoryThresholdSettings" class="row q-mb-sm">
+            <q-banner class="col-12 bg-negative text-white" rounded dense>Impossibile caricare le impostazioni. Verifica che il widget sia configurato correttamente.</q-banner>
         </div>
 
         <template v-else>
-            <Message class="p-col-12 p-mb-3" :closable="false">
-                {{ $t('dashboard.widgetEditor.highcharts.categoryThreshold.hint') }}
-            </Message>
-
-            <!-- Operator Selection -->
-            <div class="p-col-12 p-md-4 p-d-flex p-flex-column kn-flex p-m-2">
-                <label class="kn-material-input-label p-mr-2">
-                    {{ $t('dashboard.widgetEditor.highcharts.categoryThreshold.operator') }}
-                </label>
-                <Dropdown
-                    v-model="categoryThresholdSettings.operator"
-                    class="kn-material-input"
-                    :options="['OR', 'AND']"
-                    :disabled="categoryThresholdDisabled"
-                    @change="modelChanged"
-                />
-                <small class="p-mt-1">
-                    {{ $t('dashboard.widgetEditor.highcharts.categoryThreshold.operatorHint') }}
-                </small>
-            </div>
-
-            <!-- Add Condition Button -->
-            <div class="p-col-12 p-md-8 p-d-flex p-ai-end p-m-2">
-                <Button
-                    :label="$t('dashboard.widgetEditor.highcharts.categoryThreshold.addCondition')"
-                    icon="pi pi-plus"
-                    class="p-button-text"
-                    :disabled="categoryThresholdDisabled"
-                    @click="addCondition"
-                />
-            </div>
-
-            <!-- Conditions List -->
-            <div class="p-col-12">
-                <div v-if="!categoryThresholdSettings.conditions || categoryThresholdSettings.conditions.length === 0" class="p-p-3">
-                    <Message severity="info" :closable="false">
-                        {{ $t('dashboard.widgetEditor.highcharts.categoryThreshold.noConditions') }}
-                    </Message>
+            <!-- Message to display + style toolbar (always on top) -->
+            <div class="row q-mb-sm">
+                <div class="col-12">
+                    <q-input v-model="categoryThresholdSettings.message" :label="$t('dashboard.widgetEditor.highcharts.categoryThreshold.message')" type="textarea" outlined dense autogrow maxlength="500" :disable="categoryThresholdDisabled" @change="modelChanged" />
                 </div>
-
-                <div
-                    v-for="(condition, index) in categoryThresholdSettings.conditions"
-                    :key="index"
-                    class="p-grid p-ai-center p-mb-2 condition-row"
-                >
-                    <div class="p-col-12 p-md-5 p-d-flex p-flex-column">
-                        <label class="kn-material-input-label">
-                            {{ $t('dashboard.widgetEditor.highcharts.categoryThreshold.category') }}
-                        </label>
-                        <Dropdown
-                            v-model="condition.category"
-                            class="kn-material-input"
-                            :options="availableCategories"
-                            option-value="value"
-                            option-label="label"
-                            :disabled="categoryThresholdDisabled"
-                            @change="modelChanged"
-                        />
-                    </div>
-
-                    <div class="p-col-12 p-md-3 p-d-flex p-flex-column">
-                        <label class="kn-material-input-label">
-                            {{ $t('dashboard.widgetEditor.highcharts.categoryThreshold.threshold') }}
-                        </label>
-                        <InputNumber
-                            v-model="condition.threshold"
-                            class="kn-material-input"
-                            :min="1"
-                            :disabled="categoryThresholdDisabled"
-                            @blur="modelChanged"
-                        />
-                    </div>
-
-                    <div class="p-col-12 p-md-4 p-d-flex p-jc-end p-ai-end">
-                        <Button
-                            icon="pi pi-trash"
-                            class="p-button-text p-button-danger"
-                            :disabled="categoryThresholdDisabled"
-                            @click="removeCondition(index)"
-                        />
-                    </div>
+            </div>
+            <div class="row q-mb-sm">
+                <div class="col-12">
+                    <WidgetEditorStyleToolbar :options="descriptor.noDataToolbarStyleOptions" :prop-model="toolbarModel" :disabled="categoryThresholdDisabled" @change="onStyleToolbarChange" />
                 </div>
             </div>
 
-            <!-- Message -->
-            <div class="p-col-12 p-mt-3">
-                <label class="kn-material-input-label">
-                    {{ $t('dashboard.widgetEditor.highcharts.categoryThreshold.message') }}
-                </label>
-                <Textarea
-                    v-model="categoryThresholdSettings.message"
-                    class="kn-material-input kn-width-full"
-                    rows="4"
-                    :auto-resize="true"
-                    maxlength="500"
-                    :disabled="categoryThresholdDisabled"
-                    @change="modelChanged"
-                />
+            <q-separator class="q-mb-sm" />
+
+            <!-- Operator + add button -->
+            <div class="row q-col-gutter-sm q-mb-xs items-center">
+                <div class="col-12">
+                    <q-select v-model="categoryThresholdSettings.operator" :label="$t('dashboard.widgetEditor.highcharts.categoryThreshold.operator')" outlined dense :options="['OR', 'AND']" :hint="$t('dashboard.widgetEditor.highcharts.categoryThreshold.hint')" :disable="categoryThresholdDisabled" @update:model-value="modelChanged" />
+                </div>
+                <div class="col-12 row items-center justify-between">
+                    <span class="text-subtitle2">{{ $t('dashboard.widgetEditor.highcharts.categoryThreshold.conditions') }}</span>
+                    <q-btn flat round dense color="primary" icon="add" :disable="categoryThresholdDisabled" @click="addCondition" />
+                </div>
             </div>
 
-            <!-- Style Toolbar -->
-            <div class="p-col-12 p-py-4">
-                <WidgetEditorStyleToolbar
-                    :options="descriptor.noDataToolbarStyleOptions"
-                    :prop-model="toolbarModel"
-                    :disabled="categoryThresholdDisabled"
-                    @change="onStyleToolbarChange"
-                />
+            <!-- Conditions list -->
+            <div v-if="!categoryThresholdSettings.conditions || categoryThresholdSettings.conditions.length === 0" class="row q-mb-sm">
+                <q-banner class="col-12 bg-info text-white" rounded dense>{{ $t('dashboard.widgetEditor.highcharts.categoryThreshold.noConditions') }}</q-banner>
+            </div>
+
+            <div v-for="(condition, index) in categoryThresholdSettings.conditions" :key="index" class="column-type-row row no-wrap q-mb-sm">
+                <div class="kn-action-handle kn-action-handle-disabled"></div>
+                <div class="col q-pa-sm">
+                    <div class="row q-col-gutter-sm">
+                        <div class="col-7">
+                            <q-select v-model="condition.category" :label="$t('dashboard.widgetEditor.highcharts.categoryThreshold.category')" emit-value map-options outlined dense :options="availableCategories" option-value="value" option-label="label" :disable="categoryThresholdDisabled" @update:model-value="modelChanged" />
+                        </div>
+                        <div class="col-5">
+                            <q-input v-model.number="condition.threshold" type="number" :label="$t('dashboard.widgetEditor.highcharts.categoryThreshold.threshold')" outlined dense :min="1" :disable="categoryThresholdDisabled" @blur="modelChanged" />
+                        </div>
+                    </div>
+                </div>
+                <div class="kn-action-handle row items-center justify-center" :class="categoryThresholdDisabled ? 'kn-action-handle-disabled' : ''">
+                    <q-btn flat round dense icon="delete" size="sm" :disable="categoryThresholdDisabled" @click.stop="removeCondition(Number(index))" />
+                </div>
             </div>
         </template>
     </div>
@@ -126,16 +61,11 @@ import { IWidget, IWidgetStyleToolbarModel } from '../../../../../../Dashboard'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import * as highchartsDefaultValues from '../../../../helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import descriptor from '../HighchartsWidgetSettingsDescriptor.json'
-import Dropdown from 'primevue/dropdown'
-import Textarea from 'primevue/textarea'
-import InputNumber from 'primevue/inputnumber'
-import Message from 'primevue/message'
-import Button from 'primevue/button'
 import WidgetEditorStyleToolbar from '../../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 
 export default defineComponent({
     name: 'highcharts-category-threshold-settings',
-    components: { Dropdown, Textarea, InputNumber, Message, Button, WidgetEditorStyleToolbar },
+    components: { WidgetEditorStyleToolbar },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {
@@ -174,18 +104,19 @@ export default defineComponent({
             if (this.widgetModel.settings?.configuration) {
                 // Inizializziamo categoryThreshold se non esiste (widget esistenti)
                 if (!this.widgetModel.settings.configuration.categoryThreshold) {
-                    this.widgetModel.settings.configuration.categoryThreshold =
-                        highchartsDefaultValues.getDefaultCategoryThreshold()
+                    this.widgetModel.settings.configuration.categoryThreshold = highchartsDefaultValues.getDefaultCategoryThreshold()
                 }
 
                 // Migrazione da vecchio formato (singola condizione) a nuovo formato (array)
                 const settings = this.widgetModel.settings.configuration.categoryThreshold
                 if (settings.category !== undefined && settings.threshold !== undefined) {
                     // Converti il vecchio formato
-                    settings.conditions = [{
-                        category: settings.category,
-                        threshold: settings.threshold
-                    }]
+                    settings.conditions = [
+                        {
+                            category: settings.category,
+                            threshold: settings.threshold
+                        }
+                    ]
                     settings.operator = 'OR'
                     delete settings.category
                     delete settings.threshold
@@ -223,9 +154,7 @@ export default defineComponent({
             this.availableCategories = []
             if (!this.widgetModel.columns) return
 
-            const attributeColumns = this.widgetModel.columns.filter(
-                (column) => column.fieldType === 'ATTRIBUTE'
-            )
+            const attributeColumns = this.widgetModel.columns.filter((column) => column.fieldType === 'ATTRIBUTE')
 
             attributeColumns.forEach((column) => {
                 this.availableCategories.push({
@@ -279,11 +208,9 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.condition-row {
-    background-color: #f8f9fa;
+.column-type-row {
+    border: 1px solid #e0e0e0;
     border-radius: 4px;
-    padding: 8px;
-    border-left: 3px solid #007ad9;
+    overflow: hidden;
 }
 </style>
-

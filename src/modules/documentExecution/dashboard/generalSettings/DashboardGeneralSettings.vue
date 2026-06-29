@@ -8,27 +8,34 @@
             </template>
         </Toolbar>
 
-        <div class="datasetEditor-container kn-overflow">
+        <div class="datasetEditor-container kn-background">
             <DashboardGeneralSettingsList :dashboard-model-prop="dashboardModel" :selected="selectedOption" @selected-option="setSelectedOption"></DashboardGeneralSettingsList>
-            <DashboardVariables v-if="selectedOption === 'Variables'" :dashboard-id="dashboardId" :prop-variables="variables" :selected-datasets="selectedDatasets" :selected-datasets-columns-map="selectedDatasetColumnsMap" :profile-attributes="profileAttributes" />
-            <DashboardInformation v-if="selectedOption === 'Information'" :dashboard-model-prop="dashboardModel" />
-            <DashboardBackground v-if="selectedOption === 'Background'" :dashboard-model-prop="dashboardModel" />
-            <MenuWidgets v-if="selectedOption === 'MenuWidgets'" :menu-widgets-config-prop="menuWidgetsConfig" />
-            <CssEditor v-if="selectedOption === 'CSS'" :dashboard-model-prop="dashboardModel" />
-            <DashboardThemes v-if="isEnterprise && selectedOption === 'Themes'" :dashboard-model-prop="dashboardModel" />
-
-            <div v-if="customHeaderWidgetEditorVisible && customHeaderWidget" class="p-d-flex p-flex-column kn-flex dashboard-card-shadow q-ma-md">
-                <span class="p-p-3">
-                    <InputSwitch v-model="menuWidgetsConfig.enableCustomHeader" />
-                    <label class="kn-material-input-label p-ml-3">{{ $t('dashboard.generalSettings.menuWidgets.enableCustomHeader') }}</label>
-                </span>
+            <div v-if="selectedOption !== 'Custom Header' && selectedOption !== 'CrossNavigation'" class="general-settings-content">
+                <div class="general-settings-panel-wrapper">
+                    <KnHint v-if="!selectedOption || selectedOption === 'General'" class="p-as-center" :title="'common.settings'" :hint="'dashboard.widgetEditor.settings.hint'"></KnHint>
+                    <q-card v-else class="q-ma-sm">
+                        <q-expansion-item v-model="accordionOpen" :label="selectedOptionLabel" header-class="general-settings-accordion-header">
+                            <DashboardVariables v-if="selectedOption === 'Variables'" :dashboard-id="dashboardId" :prop-variables="variables" :selected-datasets="selectedDatasets" :selected-datasets-columns-map="selectedDatasetColumnsMap" :profile-attributes="profileAttributes" />
+                            <DashboardInformation v-if="selectedOption === 'Information'" :dashboard-model-prop="dashboardModel" />
+                            <DashboardBackground v-if="selectedOption === 'Background'" :dashboard-model-prop="dashboardModel" />
+                            <MenuWidgets v-if="selectedOption === 'MenuWidgets'" :menu-widgets-config-prop="menuWidgetsConfig" />
+                            <CssEditor v-if="selectedOption === 'CSS'" :dashboard-model-prop="dashboardModel" />
+                            <DashboardThemes v-if="isEnterprise && selectedOption === 'Themes'" :dashboard-model-prop="dashboardModel" />
+                            <AiSettings v-if="isEnterprise && selectedOption === 'aisettings'" :dashboard-model-prop="dashboardModel" @change="setAiModel" />
+                        </q-expansion-item>
+                    </q-card>
+                </div>
+            </div>
+            <div v-if="customHeaderWidgetEditorVisible && customHeaderWidget" class="p-d-flex p-flex-column kn-flex q-ma-md" style="border: 1px solid rgba(0, 0, 0, 0.12); border-radius: 4px; background-color: white">
+                <q-toggle v-model="menuWidgetsConfig.enableCustomHeader" :label="$t('dashboard.generalSettings.menuWidgets.enableCustomHeader')" />
+                <q-separator />
                 <WidgetEditor ref="widgetEditor" :dashboard-id="dashboardId" :datasets="datasets" :variables="variables" :prop-widget="customHeaderWidget" :class="{ 'editor-disabled': !menuWidgetsConfig.enableCustomHeader }"></WidgetEditor>
             </div>
             <AiSettings v-if="isEnterprise && selectedOption === 'aisettings'" :dashboard-model-prop="dashboardModel" @change="setAiModel" />
 
-            <div v-if="selectedOption === 'CrossNavigation'" class="p-d-flex p-flex-column kn-flex dashboard-card-shadow q-ma-md">
+            <q-card v-if="selectedOption === 'CrossNavigation'" class="kn-flex q-ma-md column" style="overflow: hidden">
                 <DashboardCrossNavigation ref="crossNavRef" :dashboard-id="dashboardId" />
-            </div>
+            </q-card>
         </div>
     </div>
 </template>
@@ -54,16 +61,17 @@ import WidgetEditor from '@/modules/documentExecution/dashboard/widget/WidgetEdi
 import { createCustomHeaderWidget } from './DashboardGeneralSettingsHelper'
 import { IMenuAndWidgets } from '../Dashboard'
 import { addMissingMenuWidgetsConfiguration } from '../DashboardHelpers'
-import InputSwitch from 'primevue/inputswitch'
+import descriptor from './DashboardGeneralSettingsDescriptor.json'
+import KnHint from '@/components/UI/KnHint.vue'
 
 export default defineComponent({
     name: 'dashboard-general-settings',
-    components: { DashboardGeneralSettingsList, DashboardVariables, DashboardInformation, DashboardBackground, MenuWidgets, CssEditor, DashboardThemes, WidgetEditor, InputSwitch, AiSettings, DashboardCrossNavigation },
+    components: { DashboardGeneralSettingsList, DashboardVariables, DashboardInformation, DashboardBackground, MenuWidgets, CssEditor, DashboardThemes, WidgetEditor, AiSettings, KnHint, DashboardCrossNavigation },
     props: {
         dashboardId: { type: String, required: true },
         datasets: { type: Array as PropType<IDataset[]>, required: true },
         profileAttributes: { type: Array as PropType<{ name: string; value: string }[]>, required: true },
-        generalSettingsMode: { type: String, default: 'General' }
+        generalSettingsMode: { type: String, default: '' }
     },
     emits: ['closeGeneralSettings'],
     data() {
@@ -75,13 +83,23 @@ export default defineComponent({
             selectedDatasetColumnsMap: {},
             customHeaderWidget: null as IWidget | null,
             customHeaderWidgetEditorVisible: false,
-            menuWidgetsConfig: {} as IMenuAndWidgets
+            menuWidgetsConfig: {} as IMenuAndWidgets,
+            accordionOpen: true as boolean
         }
     },
     computed: {
-        ...mapState(mainStore, ['isEnterprise'])
+        ...mapState(mainStore, ['isEnterprise', 'configurations']),
+        selectedOptionLabel(): string {
+            const allOptions = [...descriptor.settingsList, { value: 'Themes', label: 'common.themes' }, { value: 'aisettings', label: 'dashboard.generalSettings.aisettings' }, { value: 'Custom Header', label: 'dashboard.generalSettings.menuWidgets.customHeader' }]
+            const match = allOptions.find((o: any) => o.value === this.selectedOption)
+            return match ? this.$t(match.label) : this.selectedOption
+        }
     },
-    watch: {},
+    watch: {
+        selectedOption() {
+            this.accordionOpen = true
+        }
+    },
     created() {
         this.loadDashboardModel()
         this.setSelectedOption(this.generalSettingsMode)
@@ -180,5 +198,24 @@ export default defineComponent({
 .editor-disabled {
     pointer-events: none;
     opacity: 0.6;
+}
+</style>
+
+<style scoped lang="scss">
+.general-settings-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.general-settings-panel-wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+}
+</style>
+
+<style lang="scss">
+.general-settings-accordion-header {
+    font-weight: 500;
 }
 </style>

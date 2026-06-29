@@ -1,29 +1,24 @@
 <template>
-    <div v-if="headersStyleModel" class="p-ai-center kn-flex p-p-4">
-        <form class="p-fluid p-formgrid p-grid">
-            <div class="p-field p-col-12">
-                <span class="p-float-label">
-                    <InputNumber v-model="headersStyleModel.height" class="kn-material-input p-inputtext-sm" @blur="headersStyleChanged" />
-                    <label class="kn-material-input-label p-mr-2">{{ $t('common.height') }}</label>
-                </span>
+    <div v-if="headersStyleModel" class="q-px-md q-pb-md">
+        <div class="row q-col-gutter-sm q-mb-sm">
+            <div class="col-12">
+                <q-input v-model.number="headersStyleModel.height" type="number" :label="$t('common.height')" outlined dense @blur="headersStyleChanged" />
             </div>
-        </form>
-
-        <WidgetEditorStyleToolbar :options="settingsDescriptor.defaultToolbarStyleOptions" :prop-model="headersStyleModel.properties" @change="onStyleToolbarChange"> </WidgetEditorStyleToolbar>
+        </div>
+        <WidgetEditorStyleToolbar :options="settingsDescriptor.defaultToolbarStyleOptions" :prop-model="headersStyleModel.properties" @change="onStyleToolbarChange" />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget, ITableWidgetHeadersStyle, IWidgetStyleToolbarModel } from '@/modules/documentExecution/Dashboard/Dashboard'
+import { IWidget, ITableWidgetHeadersStyle, IWidgetStyleToolbarModel } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import settingsDescriptor from '../../WidgetEditorSettingsTabDescriptor.json'
-import InputNumber from 'primevue/inputnumber'
 import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 
 export default defineComponent({
     name: 'table-widget-headers',
-    components: { InputNumber, WidgetEditorStyleToolbar },
+    components: { WidgetEditorStyleToolbar },
     props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true }, themeStyle: { type: Object as PropType<ITableWidgetHeadersStyle | null>, required: true } },
     emits: ['styleChanged'],
     data() {
