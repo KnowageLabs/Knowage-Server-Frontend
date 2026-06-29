@@ -24,36 +24,36 @@
     "ai": {
         "disclaimer": "L'assistente virtuale genera risposte in tempo reale con l'IA. Consulta altre fonti, se necessario.",
         "error": "Mi dispiace, al momento non riesco ad aiutarti. Per favore riprova più tardi.",
-        "newChat": "Nuova conversazione",
-        "sessionError": "Impossibile inizializzare la sessione AI. Controlla la configurazione e riprova.",
-        "sessionLoading": "Avvio sessione…",
-        "sessionNotReady": "La sessione non è ancora pronta. Attendi un momento.",
-        "sessionSettings": "Impostazioni sessione",
-        "selectModel": "Modello di Business",
-        "startSession": "Avvia sessione",
-        "thinking": "Sto pensando...",
-        "streamError": "Si è verificato un errore durante la ricezione della risposta. Riprova.",
         "message": {
             "limitReached": "Hai raggiunto il numero massimo di messaggi consentiti dalla tua licenza.",
             "placeholder": "Scrivi qui il tuo messaggio"
         },
+        "newChat": "Nuova conversazione",
         "newConversationConfirm": "Sei sicuro di voler iniziare una nuova conversazione? Tutti i messaggi precedenti andranno persi.",
         "openDashboard": "Apri Dashboard",
+        "selectModel": "Modello di Business",
+        "sessionError": "Impossibile inizializzare la sessione AI. Controlla la configurazione e riprova.",
+        "sessionLoading": "Avvio sessione…",
+        "sessionNotReady": "La sessione non è ancora pronta. Attendi un momento.",
+        "sessionSettings": "Impostazioni sessione",
+        "sidePanel": {
+            "csvEmpty": "Nessun dato in questo file.",
+            "csvTruncated": "Visualizzazione delle prime {n} righe.",
+            "noArtifacts": "Nessun artefatto ancora. Invia un messaggio per iniziare.",
+            "python": "Codice Python",
+            "sql": "Query SQL",
+            "title": "Artefatti",
+            "toggle": "Mostra / nascondi artefatti"
+        },
+        "startSession": "Avvia sessione",
+        "streamError": "Si è verificato un errore durante la ricezione della risposta. Riprova.",
+        "thinking": "Sto pensando...",
         "title": "Assistente Virtuale",
         "voice": {
             "start": "Avvia input vocale",
             "stop": "Interrompi input vocale"
         },
-        "welcomeMessage": "Benvenuto nell'assitente virtuale di Knowage! Fammi una domanda e farò del mio meglio per aiutarti.",
-        "sidePanel": {
-            "title": "Artefatti",
-            "toggle": "Mostra / nascondi artefatti",
-            "noArtifacts": "Nessun artefatto ancora. Invia un messaggio per iniziare.",
-            "sql": "Query SQL",
-            "python": "Codice Python",
-            "csvTruncated": "Visualizzazione delle prime {n} righe.",
-            "csvEmpty": "Nessun dato in questo file."
-        }
+        "welcomeMessage": "Benvenuto nell'assitente virtuale di Knowage! Fammi una domanda e farò del mio meglio per aiutarti."
     },
     "common": {
         "active": "Attivo",
@@ -173,6 +173,7 @@
         "label": "etichetta",
         "language": "linguaggio",
         "lastChangeDate": "data ultimo cambiamento",
+        "later": "Più Tardi",
         "left": "sinistra",
         "library": "libreria",
         "list": "List",
@@ -197,8 +198,6 @@
             "invalidResetToken": "Token di reset non valido o scaduto.",
             "invalidToken": "Token JWT non valido",
             "loginError": "Credenziali non valide. Riprova.",
-            "ssoError": "Impossibile autenticarsi con SSO. Contatta l'amministratore.",
-            "tokenError": "Impossibile autenticarsi. Riprova.",
             "mfaError": "Codice non valido. Riprova.",
             "mfaSubtitle": "Inserisci il codice a 6 cifre dalla tua app di autenticazione",
             "mfaTitle": "Autenticazione a due fattori",
@@ -229,8 +228,10 @@
             "resetPasswordTitle": "Reimposta Password",
             "sendResetEmail": "Invia Email di Reset",
             "signIn": "Accedi",
+            "ssoError": "Impossibile autenticarsi con SSO. Contatta l'amministratore.",
             "surname": "Cognome",
             "surnameRequired": "Cognome è obbligatorio",
+            "tokenError": "Impossibile autenticarsi. Riprova.",
             "username": "Nome utente",
             "usernameRequired": "Nome utente è obbligatorio",
             "verify": "Verifica"
@@ -269,11 +270,6 @@
         "print": "stampa",
         "properties": "proprietà",
         "public": "pubblico",
-        "updateAvailable": "Aggiornamento Applicazione Disponibile",
-        "updateAvailableMessage": "Una nuova versione dell'applicazione è disponibile. Effettua l'aggiornamento per ottenere le ultime funzionalità e miglioramenti.",
-        "updateAvailableInfo": "Ti verrà chiesto di ricaricare la pagina.",
-        "updateNow": "Aggiorna Ora",
-        "later": "Più Tardi",
         "rank": "Classifica",
         "refresh": "aggiorna",
         "released": "rilasciato",
@@ -296,8 +292,8 @@
         "sendMail": "invia mail",
         "sendMailSuccess": "mail inviata",
         "session": {
-            "expiring": "La tua sessione sta per scadere. Clicca 'Rimani connesso' per continuare.",
             "expired": "La tua sessione è scaduta. Effettua nuovamente il login.",
+            "expiring": "La tua sessione sta per scadere. Clicca 'Rimani connesso' per continuare.",
             "stayConnected": "Rimani connesso"
         },
         "set": "imposta",
@@ -347,6 +343,10 @@
         "top": "sopra",
         "type": "tipologia",
         "update": "Update",
+        "updateAvailable": "Aggiornamento Applicazione Disponibile",
+        "updateAvailableInfo": "Ti verrà chiesto di ricaricare la pagina.",
+        "updateAvailableMessage": "Una nuova versione dell'applicazione è disponibile. Effettua l'aggiornamento per ottenere le ultime funzionalità e miglioramenti.",
+        "updateNow": "Aggiorna Ora",
         "upload": "carica",
         "uploadFile": "carica file",
         "uploadFileSuccess": "file caricato",
@@ -519,15 +519,15 @@
             },
             "css": "Editor CSS",
             "menuWidgets": {
-                "showExcelExport": "Abilita la funzionalità 'Esporta in Excel' nei widget",
                 "enableXlsxStyle": "Abilita stile XLSX",
+                "exportFileName": "Nome file export dashboard",
+                "exportFileNameHint": "Supporta placeholder come $P{driver} e $V{variabile}, ad esempio \"pippo $P{cane} $V{varia}\".",
+                "pdfExportFileName": "Nome file export PDF dashboard",
+                "showExcelExport": "Abilita la funzionalità 'Esporta in Excel' nei widget",
                 "showScreenshot": "Abilita la funzionalità screenshot nei widget",
                 "showSelectionButton": "Mostra sempre il pulsante selezioni",
                 "title": "Menu & Widget",
-                "pdfExportFileName": "Nome file export PDF dashboard",
-                "xlsxExportFileName": "Nome file export XLSX dashboard",
-                "exportFileNameHint": "Supporta placeholder come $P{driver} e $V{variabile}, ad esempio \"pippo $P{cane} $V{varia}\".",
-                "exportFileName": "Nome file export dashboard"
+                "xlsxExportFileName": "Nome file export XLSX dashboard"
             },
             "profile": "Profilo",
             "themes": {
@@ -744,6 +744,7 @@
                 "i18n": "i18n",
                 "internationalization": "Internationalization",
                 "limit": "Limit",
+                "multipleValues": "Valori multipli",
                 "parameters": "Parameters",
                 "preview": "Preview",
                 "repeatIndex": "Repeat Index",
@@ -752,7 +753,6 @@
                 "selectionVal": "Selection Value",
                 "selectionValues": "Valori di selezione",
                 "selectionValuesHint": "Premi Invio per confermare ogni valore.",
-                "multipleValues": "Valori multipli",
                 "toLocale": "Format to locale",
                 "variables": "Variables"
             },
@@ -815,23 +815,23 @@
                     "dimensionsTableHint": "Click on at least one attribute to define categories. The item that precedes should have a lower granularity. If you enable grouping categories, you need to define exactly two categories. If you enable splitting serie using second category, you need to define exactly two categories and one serie. If you enable splitting serie using second serie, you need to define exactly one category and two series.",
                     "valuesTableHint": "Click on at least one measure to define series. If you enable splitting serie using second serie, you need to define exactly two series. If you enable splitting serie using second category, you need to define exactly one serie."
                 },
-                "categoryThreshold": {
-                    "title": "Soglia Categorie Significative",
-                    "hint": "Configura una o più condizioni di soglia per le categorie. Il grafico viene mostrato solo se le condizioni sono soddisfatte.",
-                    "operator": "Operatore logico",
-                    "operatorHint": "AND: tutte le condizioni devono essere soddisfatte. OR: almeno una condizione deve essere soddisfatta",
-                    "conditions": "Condizioni",
-                    "addCondition": "Aggiungi Condizione",
-                    "category": "Categoria",
-                    "threshold": "Soglia minima",
-                    "message": "Messaggio da mostrare",
-                    "defaultMessage": "Il grafico non può essere visualizzato: numero di categorie insufficiente",
-                    "noConditions": "Nessuna condizione configurata. Aggiungi almeno una condizione."
-                },
                 "bubblechart": {
                     "dimensionsTableHint": "Click on at least one attribute to define categories. If you want to use split function, you can select maximum 2 categories",
                     "valuesTableHint": "Click on at least one measure to define series.",
                     "xAndZAxesHint": "Click on exactly one measure to define series."
+                },
+                "categoryThreshold": {
+                    "addCondition": "Aggiungi Condizione",
+                    "category": "Categoria",
+                    "conditions": "Condizioni",
+                    "defaultMessage": "Il grafico non può essere visualizzato: numero di categorie insufficiente",
+                    "hint": "Configura una o più condizioni di soglia per le categorie. Il grafico viene mostrato solo se le condizioni sono soddisfatte.",
+                    "message": "Messaggio da mostrare",
+                    "noConditions": "Nessuna condizione configurata. Aggiungi almeno una condizione.",
+                    "operator": "Operatore logico",
+                    "operatorHint": "AND: tutte le condizioni devono essere soddisfatte. OR: almeno una condizione deve essere soddisfatta",
+                    "threshold": "Soglia minima",
+                    "title": "Soglia Categorie Significative"
                 },
                 "centerText": {
                     "hint": "Center Text Hint",
@@ -941,10 +941,10 @@
                     "valuesTableHint": "Click on at least one measure to define series."
                 },
                 "series": {
-                    "showMeasureToggle": "Mostra pannello selezione misure",
-                    "showMeasureToggleHint": "Abilita un pannello trascinabile che permette di mostrare/nascondere le misure nel grafico.",
                     "availableMeasures": "Misure disponibili nel pannello",
-                    "availableMeasuresHint": "Seleziona quali misure del dataset devono apparire nel pannello di selezione. Solo le misure configurate nel widget possono essere visualizzate nel grafico."
+                    "availableMeasuresHint": "Seleziona quali misure del dataset devono apparire nel pannello di selezione. Solo le misure configurate nel widget possono essere visualizzate nel grafico.",
+                    "showMeasureToggle": "Mostra pannello selezione misure",
+                    "showMeasureToggleHint": "Abilita un pannello trascinabile che permette di mostrare/nascondere le misure nel grafico."
                 },
                 "showChekboxes": "Show Checkboxes",
                 "solidGauge": {
@@ -1079,83 +1079,32 @@
             "libraries": {
                 "hint": "Seleziona o incolla la URL della libreria esterna qui. Premi invio per aggiungerla alla lista."
             },
-            "measureToggle": {
-                "title": "Misure"
-            },
             "line": "Line",
             "manualInput": "Manual input",
             "map": {
                 "addThreshold": "Add Threshold",
                 "advancedConfiguration": "Configurazione Avanzata",
+                "balloonsDesc": "Visualizza cerchi scalati in base ai valori",
                 "baseLayer": {
                     "autoCentering": "Auto centering",
-                    "selectBackgroundLayer": "Select Background Layer",
-                    "osmStandard": "OpenStreetMap standard",
-                    "cartoLight": "CARTO light",
                     "cartoDark": "CARTO dark",
+                    "cartoLight": "CARTO light",
                     "esriSatellite": "Esri satellite",
+                    "osmStandard": "OpenStreetMap standard",
+                    "selectBackgroundLayer": "Select Background Layer",
                     "showScale": "Show scale",
                     "title": "Enable Base Layer",
                     "zoomFactor": "Zoom factor"
                 },
-                "categorizeBy": "Categorize By",
-                "columnFieldReference": "Riferimento Colonna/Campo",
-                "columnFieldReferenceHint": "Seleziona la colonna che contiene i dati numerici per la visualizzazione",
-                "configureLayerDataAndAppearance": "Configura i dati e l'aspetto del tuo layer mappa",
-                "coordinateColumns": "Colonne Coordinate (Standalone)",
-                "dataConnection": "Connessione Dati",
-                "dataJoin": "Join Dati",
-                "dataJoinDesc": "Collega la geometria da una sorgente ai dati di un'altra",
-                "dataSourceType": "Tipo Sorgente Dati",
-                "geographicLayer": "Layer Geografico",
-                "geographicLayerDesc": "File GeoJSON o TopoJSON con proprietà incorporate",
-                "latitudeY": "Latitudine / Y",
-                "layerConfigurationWizard": "Configurazione Layer - Wizard",
-                "layerName": "Nome Layer",
-                "layerNameHint": "Dai al tuo layer un nome descrittivo per la legenda",
-                "longitudeX": "Longitudine / X",
-                "nextVisualization": "Avanti: Visualizzazione",
-                "noLayersYet": "Nessun layer ancora. Clicca 'Aggiungi Layer' per iniziare.",
-                "primaryIdProperty": "Proprietà ID Primario",
-                "primaryIdPropertyHint": "L'identificatore univoco utilizzato per il riconoscimento delle feature",
-                "selectSourceType": "Seleziona Tipo Sorgente",
-                "selectLayersOrDatasets": "Seleziona layer geografici o dataset da aggiungere alla tua mappa",
-                "sourceName": "Nome Sorgente",
-                "sourceTypeHint": "Come desideri connettere i tuoi dati geografici e attributi?",
-                "standaloneDataset": "Dataset Standalone",
-                "standaloneDatasetDesc": "CSV o Excel contenente colonne latitudine/longitudine",
-                "visualizationComingSoon": "Le opzioni di visualizzazione verranno configurate nella scheda Impostazioni",
-                "visualizationOptions": "Opzioni Visualizzazione",
-                "visualizationOptionsDesc": "Configura come questo layer verrà visualizzato sulla mappa",
-                "visualizationStyle": "Stile Visualizzazione",
-                "visualizationPreview": "L'anteprima verrà visualizzata qui in base alle tue impostazioni",
-                "selectVisualizationType": "Seleziona Tipo di Visualizzazione",
-                "choroplethDesc": "Codifica colore delle regioni in base ai valori dei dati",
-                "markersDesc": "Visualizza punti individuali con marcatori",
-                "heatmapDesc": "Mostra la densità dei dati con intensità di colore",
-                "clustersDesc": "Raggruppa automaticamente marcatori vicini",
-                "piesDesc": "Mostra le proporzioni con grafici a torta",
-                "balloonsDesc": "Visualizza cerchi scalati in base ai valori",
-                "colorConfiguration": "Configurazione Colore",
-                "colorMethod": "Metodo Colore",
-                "byClasses": "Per Classi",
-                "numberOfClasses": "Numero di Classi",
-                "colorPalette": "Palette Colori",
-                "markerConfiguration": "Configurazione Marcatori",
-                "markerType": "Tipo Marcatore",
-                "markerSize": "Dimensione Marcatore",
-                "clusterRadius": "Raggio Cluster",
-                "clusterRadiusHint": "Raggio massimo per raggruppare marcatori vicini",
-                "styleConfiguration": "Configurazione Stile",
-                "opacity": "Opacità",
-                "borderWidth": "Spessore Bordo",
                 "borderColor": "Colore Bordo",
-                "manualColors": "Colori Manuali",
-                "fieldMapping": "Mappatura Campi & Configurazione",
+                "borderWidth": "Spessore Bordo",
+                "byClasses": "Per Classi",
+                "categorizeBy": "Categorize By",
                 "categorizeByOptions": {
                     "description": "DESCRIPTION",
                     "id": "ID"
                 },
+                "choroplethDesc": "Codifica colore delle regioni in base ai valori dei dati",
                 "classesMethodOptions": {
                     "byEqualIntervals": "Classify by equal intervals",
                     "byQuantils": "Classify by equal quantils",
@@ -1163,18 +1112,38 @@
                     "title": "Classes method"
                 },
                 "classesNumber": "Classes number",
+                "clusterRadius": "Raggio Cluster",
+                "clusterRadiusHint": "Raggio massimo per raggruppare marcatori vicini",
+                "clustersDesc": "Raggruppa automaticamente marcatori vicini",
+                "colorConfiguration": "Configurazione Colore",
+                "colorMethod": "Metodo Colore",
+                "colorPalette": "Palette Colori",
+                "columnFieldReference": "Riferimento Colonna/Campo",
+                "columnFieldReferenceHint": "Seleziona la colonna che contiene i dati numerici per la visualizzazione",
                 "conditionalStylesNonConsistentWarning": "Attenzione: gli stili condizionali potrebbero non essere coerenti con le impostazioni attuali della mappa.",
+                "configureLayerDataAndAppearance": "Configura i dati e l'aspetto del tuo layer mappa",
                 "controlPanel": {
                     "alwaysShow": "Always show control panel",
                     "dimension": "Control Panel Dimension",
                     "dimensionHint": "Control Panel Dimension Hint",
                     "title": "Control Panel"
                 },
+                "coordinateColumns": "Colonne Coordinate (Standalone)",
                 "crossNavigationLabelHint": "This is the label of the link. If empty it will be \"Go to detail\"",
+                "dataConnection": "Connessione Dati",
+                "dataJoin": "Join Dati",
+                "dataJoinDesc": "Collega la geometria da una sorgente ai dati di un'altra",
+                "dataSourceType": "Tipo Sorgente Dati",
                 "dialogHint": "The selected elements will be visible when clicking on the map",
+                "fieldMapping": "Mappatura Campi & Configurazione",
                 "fromColor": "From color",
                 "fromThreshold": "From (>=)",
+                "geographicLayer": "Layer Geografico",
+                "geographicLayerDesc": "File GeoJSON o TopoJSON con proprietà incorporate",
+                "heatmapDesc": "Mostra la densità dei dati con intensità di colore",
                 "imagesGallery": "Images Gallery",
+                "latitudeY": "Latitudine / Y",
+                "layerConfigurationWizard": "Configurazione Layer - Wizard",
                 "layerHintText": "I layer sono i 'livelli' della mappa e le definizioni di come si connettono ai dati. Possono essere di tipo geografico (geoJSON ad esempio), o essere dei dataset con informazioni geografiche al loro interno. Seleziona un layer dalla lista o clicca su 'aggiungi layer' per aggiungerne uno.",
                 "layerHintTitle": "Definizione Layer",
                 "layerInfo": {
@@ -1188,10 +1157,17 @@
                     "target": "Target",
                     "targetHint": "Target hint"
                 },
+                "layerName": "Nome Layer",
+                "layerNameHint": "Dai al tuo layer un nome descrittivo per la legenda",
                 "legendText": "Legend Text",
                 "legendTitle": "Legend Title",
                 "linearGradient": "Linear Gradient",
+                "longitudeX": "Longitudine / X",
                 "manageRanges": "Manage Ranges",
+                "manualColors": "Colori Manuali",
+                "markerConfiguration": "Configurazione Marcatori",
+                "markerSize": "Dimensione Marcatore",
+                "markerType": "Tipo Marcatore",
                 "markerTypes": {
                     "default": "Default Marker",
                     "icon": "Icon Marker",
@@ -1200,6 +1176,7 @@
                     "scale%": "Scale %",
                     "web": "Web Image Marker"
                 },
+                "markersDesc": "Visualizza punti individuali con marcatori",
                 "metadata": {
                     "addField": "Add Field",
                     "aggregateBy": "Aggregate by",
@@ -1214,29 +1191,53 @@
                     "spatialAttribute": "Spatial Attribute",
                     "wktFormat": "WKT Format"
                 },
+                "nextVisualization": "Avanti: Visualizzazione",
                 "noLayerAvailable": "Nessun layer disponibile",
+                "noLayersYet": "Nessun layer ancora. Clicca 'Aggiungi Layer' per iniziare.",
                 "north": "North",
+                "numberOfClasses": "Numero di Classi",
+                "opacity": "Opacità",
                 "pieTypeOptions": {
                     "bars": "Bars",
                     "donuts": "Donuts",
                     "pies": "Pies",
                     "pies3d": "Pies 3D"
                 },
+                "piesDesc": "Mostra le proporzioni con grafici a torta",
+                "primaryIdProperty": "Proprietà ID Primario",
+                "primaryIdPropertyHint": "L'identificatore univoco utilizzato per il riconoscimento delle feature",
                 "range": "Range",
                 "rangeLabel": "Min size/Max size",
+                "selectLayersOrDatasets": "Seleziona layer geografici o dataset da aggiungere alla tua mappa",
+                "selectSourceType": "Seleziona Tipo Sorgente",
+                "selectVisualizationType": "Seleziona Tipo di Visualizzazione",
+                "sourceName": "Nome Sorgente",
+                "sourceTypeHint": "Come desideri connettere i tuoi dati geografici e attributi?",
                 "south": "South",
+                "standaloneDataset": "Dataset Standalone",
+                "standaloneDatasetDesc": "CSV o Excel contenente colonne latitudine/longitudine",
+                "styleConfiguration": "Configurazione Stile",
                 "toColor": "To color",
                 "toThreshold": "To (<)",
                 "tooltipHint": "Gli elementi selezionati saranno visibili al passaggio del mouse sulla mappa",
                 "uniqueLabel": "La label deve essere unica",
                 "visTypes": {
                     "balloons": "Balloons",
+                    "charts": "Charts",
                     "choropleth": "Choropleth",
                     "clusters": "Clusters",
                     "heatmap": "Heatmap",
                     "markers": "Markers",
                     "pies": "Pies"
-                }
+                },
+                "visualizationComingSoon": "Le opzioni di visualizzazione verranno configurate nella scheda Impostazioni",
+                "visualizationOptions": "Opzioni Visualizzazione",
+                "visualizationOptionsDesc": "Configura come questo layer verrà visualizzato sulla mappa",
+                "visualizationPreview": "L'anteprima verrà visualizzata qui in base alle tue impostazioni",
+                "visualizationStyle": "Stile Visualizzazione"
+            },
+            "measureToggle": {
+                "title": "Misure"
             },
             "noData": {
                 "title": "Nessun dato"
@@ -1869,6 +1870,7 @@
                 "notEditable": "Impossibile incollare in una colonna non modificabile",
                 "temporal": "Impossibile incollare valori temporali"
             },
+            "dependsFromWarning": "La colonna '{column}' dipende dalla colonna '{dependsFrom}', si prega di controllarli ed impostare i valori corretti.",
             "filter": "filtro",
             "filters": "filtri",
             "grid": {
@@ -1884,8 +1886,7 @@
             "title": "documento registry",
             "warning": "attenzione",
             "warningCheckbox": "non mostrare di nuovo",
-            "warningDependences": "dipendono da questo valore. Si prega di controllarli e impostare i valori corretti!",
-            "dependsFromWarning": "La colonna '{column}' dipende dalla colonna '{dependsFrom}', si prega di controllarli ed impostare i valori corretti."
+            "warningDependences": "dipendono da questo valore. Si prega di controllarli e impostare i valori corretti!"
         }
     },
     "downloadsDialog": {
@@ -2254,94 +2255,44 @@
     },
     "locale": {
         "dateFormat": "mm/dd/yy",
-        "dayNames": [
-            "Domenica",
-            "Lunedi",
-            "Martedì",
-            "Mercoledì",
-            "Giovedì",
-            "Venerdì",
-            "Sabato"
-        ],
-        "dayNamesMin": [
-            "Su",
-            "Mo",
-            "Tu",
-            "We",
-            "Th",
-            "Fr",
-            "Sa"
-        ],
-        "dayNamesShort": [
-            "Sun",
-            "Mon",
-            "Tue",
-            "Wed",
-            "Thu",
-            "Fri",
-            "Sat"
-        ],
+        "dayNames": ["Domenica", "Lunedi", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"],
+        "dayNamesMin": ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+        "dayNamesShort": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
         "firstDayOfWeek": 0,
-        "monthNames": [
-            "Gennaio",
-            "Febbraio",
-            "Marzo",
-            "Aprile",
-            "Maggio",
-            "Giugno",
-            "Luglio",
-            "Agosto",
-            "Settembre",
-            "Ottobre",
-            "Novembre",
-            "Dicembre"
-        ],
-        "monthNamesShort": [
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec"
-        ],
+        "monthNames": ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"],
+        "monthNamesShort": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
         "today": "Today",
         "weekHeader": "Wk"
     },
     "managers": {
         "ai": {
-            "hint": " AI functionalities management allows you to manage the AI functionalities of the platform. You can enable or disable them, and update the tenant definitions for the AI engine.",
-            "syncronize": "Sincronizza Tenant",
-            "title": "Gestione funzionalità AI",
             "businessModels": {
-                "title": "Business Model",
+                "enabledToggle": "Includi nell'AI",
                 "syncronize": "Sincronizza Business Model",
-                "enabledToggle": "Includi nell'AI"
+                "title": "Business Model"
             },
             "goldQueries": {
-                "title": "Query Gold – {name}",
+                "addColumns": "Aggiungi colonne",
+                "addQuery": "Aggiungi Query",
+                "addTables": "Aggiungi tabelle",
+                "columns": "Colonne",
                 "editTitle": "Modifica Query Gold",
                 "editor": "Editor JSON",
-                "tablesColumns": "Tabelle e Colonne",
-                "insertTable": "Inserisci nome tabella",
                 "insertColumn": "Inserisci riferimento colonna",
+                "insertTable": "Inserisci nome tabella",
                 "invalidJson": "JSON non valido",
-                "addQuery": "Aggiungi Query",
+                "naturalLanguage": "Linguaggio Naturale",
+                "naturalLanguagePlaceholder": "es. Qual è il fatturato totale per negozio?",
                 "newQuery": "Nuova query…",
                 "noQueries": "Nessuna query gold presente. Aggiungine una per iniziare.",
                 "queries": "query",
-                "naturalLanguage": "Linguaggio Naturale",
-                "naturalLanguagePlaceholder": "es. Qual è il fatturato totale per negozio?",
                 "tables": "Tabelle",
-                "columns": "Colonne",
-                "addTables": "Aggiungi tabelle",
-                "addColumns": "Aggiungi colonne"
-            }
+                "tablesColumns": "Tabelle e Colonne",
+                "title": "Query Gold – {name}"
+            },
+            "hint": " AI functionalities management allows you to manage the AI functionalities of the platform. You can enable or disable them, and update the tenant definitions for the AI engine.",
+            "syncronize": "Sincronizza Tenant",
+            "title": "Gestione funzionalità AI"
         },
         "bml": {
             "drivers": "Analytical Drivers",
@@ -2867,45 +2818,6 @@
                 "word": "Word"
             }
         },
-        "homeManagement": {
-            "defaultDescription": "Verra mostrata la home predefinita configurata per la piattaforma.",
-            "defaultRole": "Ruolo predefinito (valido per tutti i ruoli non specificati)",
-            "configuration": "Configurazione",
-            "document": "Documento",
-            "hint": "La gestione della home permette di configurare la pagina iniziale mostrata agli utenti in base al ruolo. Puoi usare la home predefinita, una pagina statica, un documento, un'immagine o un template dinamico.",
-            "homeType": "Tipo home",
-            "imageUrl": "URL immagine o URL esterno",
-            "imageUrlPlaceholder": "Inserisci l'URL di un'immagine",
-            "menuPicker": {
-                "title": "Seleziona le voci di menu"
-            },
-            "preview": "Anteprima",
-            "resetToDefault": "Ripristina predefinita",
-            "role": "Ruolo",
-            "saveSuccess": "Configurazione della home salvata correttamente.",
-            "saveTitle": "Home salvata",
-            "selectDocument": "Seleziona documento",
-            "selectStaticPage": "Seleziona una pagina statica",
-            "staticPage": "Pagina statica",
-            "title": "Gestione home",
-            "types": {
-                "default": "Predefinita",
-                "document": "Documento",
-                "dynamic": "Dinamica",
-                "image": "Immagine/URL",
-                "static": "Pagina statica"
-            },
-            "dynamic": {
-                "insertPlaceholder": "Inserisci placeholder di menu",
-                "itemsSelected": "{n} elementi selezionati",
-                "loadFromGallery": "Carica dalla galleria",
-                "placeholder": "Placeholder {n}",
-                "placeholderCount": "Placeholder menu: {n}",
-                "preview": "Anteprima",
-                "selectFromGallery": "Seleziona dalla galleria",
-                "viewAs": "Visualizza come"
-            }
-        },
         "hierarchyManagement": {
             "afterDate": "After Date",
             "backup": "Backup",
@@ -2935,6 +2847,45 @@
             "synchronizationSuccess": "Successful synchronization",
             "synchronize": "Synchronize",
             "technical": "Technical"
+        },
+        "homeManagement": {
+            "configuration": "Configurazione",
+            "defaultDescription": "Verra mostrata la home predefinita configurata per la piattaforma.",
+            "defaultRole": "Ruolo predefinito (valido per tutti i ruoli non specificati)",
+            "document": "Documento",
+            "dynamic": {
+                "insertPlaceholder": "Inserisci placeholder di menu",
+                "itemsSelected": "{n} elementi selezionati",
+                "loadFromGallery": "Carica dalla galleria",
+                "placeholder": "Placeholder {n}",
+                "placeholderCount": "Placeholder menu: {n}",
+                "preview": "Anteprima",
+                "selectFromGallery": "Seleziona dalla galleria",
+                "viewAs": "Visualizza come"
+            },
+            "hint": "La gestione della home permette di configurare la pagina iniziale mostrata agli utenti in base al ruolo. Puoi usare la home predefinita, una pagina statica, un documento, un'immagine o un template dinamico.",
+            "homeType": "Tipo home",
+            "imageUrl": "URL immagine o URL esterno",
+            "imageUrlPlaceholder": "Inserisci l'URL di un'immagine",
+            "menuPicker": {
+                "title": "Seleziona le voci di menu"
+            },
+            "preview": "Anteprima",
+            "resetToDefault": "Ripristina predefinita",
+            "role": "Ruolo",
+            "saveSuccess": "Configurazione della home salvata correttamente.",
+            "saveTitle": "Home salvata",
+            "selectDocument": "Seleziona documento",
+            "selectStaticPage": "Seleziona una pagina statica",
+            "staticPage": "Pagina statica",
+            "title": "Gestione home",
+            "types": {
+                "default": "Predefinita",
+                "document": "Documento",
+                "dynamic": "Dinamica",
+                "image": "Immagine/URL",
+                "static": "Pagina statica"
+            }
         },
         "internationalizationManagement": {
             "defaultLanguage": "(Default)",
@@ -3489,17 +3440,6 @@
             },
             "fullName": "Full Name",
             "hint": "Users management allows you to define different users roles and permissions. Click on one existing item from the list on the side, or press the \"+\" button to add one.",
-            "info": {
-                "createMessage": "User created successfully",
-                "createTitle": "Create user",
-                "deleteMessage": "User deleted",
-                "deleteTitle": "Delete user"
-            },
-            "multifactor": "Questo utente ha l'autenticazione multifattore abilitata. Premi il pulsante per resettarla.",
-            "roles": "Roles",
-            "title": "Users Management",
-            "unlockUser": "Unlock user",
-            "userId": "User ID",
             "import": {
                 "errors": "Errori",
                 "fromFile": "Importa da file",
@@ -3508,7 +3448,18 @@
                 "serviceError": "Non è stato possibile caricare gli utenti, controllare la struttura del file o riprovare più tardi",
                 "title": "Importa utenti da file"
             },
+            "info": {
+                "createMessage": "User created successfully",
+                "createTitle": "Create user",
+                "deleteMessage": "User deleted",
+                "deleteTitle": "Delete user"
+            },
+            "multifactor": "Questo utente ha l'autenticazione multifattore abilitata. Premi il pulsante per resettarla.",
             "newUser": "Nuovo utente",
+            "roles": "Roles",
+            "title": "Users Management",
+            "unlockUser": "Unlock user",
+            "userId": "User ID",
             "validation": {
                 "sameAsPassword": "Different password values"
             },
