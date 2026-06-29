@@ -6,7 +6,7 @@
                 <img v-else :src="item.custIcon" />
             </q-item-section>
             <q-item-section class="relative-position">
-                <q-btn flat square align="left" :label="getInternationalizedValue(subItem)" class="text-lowercase fit text-weight-regular" :to="subItem.to ? link(subItem) : null" :href="subItem.url ? link(subItem) : undefined" @click="onClick($event, subItem)">
+                <q-btn flat square align="left" :label="getInternationalizedValue(subItem)" class="fit text-weight-regular" :to="subItem.to ? link(subItem) : null" :href="subItem.url ? link(subItem) : undefined" @click="onClick($event, subItem)">
                     <q-badge v-if="subItem.badge > 0" color="accent" floating>{{ subItem.badge }}</q-badge>
                 </q-btn>
             </q-item-section>
