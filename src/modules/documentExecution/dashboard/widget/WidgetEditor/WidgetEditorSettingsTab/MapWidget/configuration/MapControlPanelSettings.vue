@@ -27,17 +27,6 @@
                     <div class="kn-action-handle kn-action-handle-disabled"></div>
                 </div>
             </div>
-
-            <div v-if="widgetModel?.settings?.visualizations?.length" class="p-col-12">
-                <label class="kn-material-input-label">{{ $t('common.fields') }}</label>
-
-                <div v-for="visualization in widgetModel.settings.visualizations" :key="visualization.id ?? visualization.label" class="p-grid p-ai-center p-col-12 p-px-0 p-mt-2 control-panel-visualization-row">
-                    <div class="p-col-12 p-lg-3 control-panel-visualization-label">{{ visualization.label }}</div>
-                    <div class="p-col-12 p-lg-9">
-                        <MultiSelect class="kn-width-full" :model-value="getSelectedFilterColumnNames(visualization)" :options="getAvailableFilterColumns(visualization)" option-label="alias" option-value="name" display="chip" :placeholder="$t('common.fields')" @update:model-value="(value) => onFilterColumnsChanged(value, visualization)" />
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </template>
