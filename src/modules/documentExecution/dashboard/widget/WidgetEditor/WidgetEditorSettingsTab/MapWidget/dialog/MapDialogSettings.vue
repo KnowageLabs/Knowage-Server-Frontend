@@ -280,4 +280,14 @@ export default defineComponent({
     border-radius: 4px;
     overflow: hidden;
 }
+
+.map-info-column-row {
+    padding: 0.5rem 0;
+    border-top: 1px solid #e5e7eb;
+}
+
+.map-info-column-label {
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
 </style>

@@ -151,7 +151,7 @@ import Divider from 'primevue/divider'
 import DashboardControllerSaveDialog from '@/modules/documentExecution/dashboard/DashboardControllerSaveDialog.vue'
 import { formatDateWithLocale } from '@/helpers/commons/localeHelper'
 import { v4 as uuidv4 } from 'uuid'
-import { getDossierDriverParameterUrlName, mergeDossierPlaceholderParameters, normalizeDossierTemplate, serializeDossierDriver } from '@/modules/documentExecution/documentDetails/dialogs/dossierDesignerDialog/DossierDesignerDriversHelper'
+import { getDossierDriverParameterUrlName, mergeDossierPlaceholderParameters, normalizeDossierTemplate, serializeDossierDriver, serializeInheritDriverForPersist } from '@/modules/documentExecution/documentDetails/dialogs/dossierDesignerDialog/DossierDesignerDriversHelper'
 
 export default defineComponent({
     name: 'document-detail-dossier-designer-dialog',
@@ -674,6 +674,7 @@ export default defineComponent({
                 .finally(() => this.setLoading(false))
         },
         async handleDrivers() {
+            this.inheritedDrivers = false
             const objToSave = normalizeDossierTemplate(this.activeTemplate)
             objToSave.placeholders = objToSave.placeholders.filter((x) => x.label)
             const tempDrivers = objToSave.placeholders.filter((x) => x.label)
@@ -713,41 +714,46 @@ export default defineComponent({
                                     dossierUrlName: existing[0].parameterUrlName
                                 }
                             } else {
-                                const newDriver = { ...placeholder.parameters[j] }
-                                newDriver.parameterUrlName = parameterUrlName
-                                newDriver.modifiable = 0
-                                delete newDriver.id
-                                newDriver.biObjectID = this.getDocument()?.id
-                                delete newDriver.type
-                                newDriver.prog = this.document?.drivers?.length ?? 1
+                                const newDriver = serializeInheritDriverForPersist(placeholder.parameters[j], this.getDocument()?.id, this.document?.drivers?.length ?? 1)
+                                if (!newDriver || !newDriver.biObjectID || !newDriver.parameterUrlName) {
+                                    this.setError({
+                                        title: this.$t('common.error.generic'),
+                                        msg: this.$t('documentExecution.dossier.designerDialog.driverNotHandled', {
+                                            driverName: placeholder.parameters[j].label,
+                                            placeholderName: placeholder.imageName
+                                        })
+                                    })
+                                    return
+                                }
 
-                                this.setLoading(true)
-                                await this.$http
-                                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${newDriver.biObjectID}/drivers`, newDriver, {
+                                try {
+                                    this.setLoading(true)
+                                    await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${newDriver.biObjectID}/drivers`, newDriver, {
                                         headers: {
                                             'X-Disable-Errors': 'true'
                                         }
                                     })
-                                    .then(() => {
-                                        placeholder.parameters[j] = {
-                                            urlName: newDriver.parameterUrlName,
-                                            type: 'dynamic',
-                                            dossierUrlName: newDriver.dossierUrlName
-                                        }
+
+                                    placeholder.parameters[j] = {
+                                        urlName: newDriver.parameterUrlName,
+                                        type: 'dynamic',
+                                        dossierUrlName: newDriver.parameterUrlName
+                                    }
+                                } catch {
+                                    this.setError({
+                                        title: this.$t('common.error.generic'),
+                                        msg: this.$t('documentExecution.documentDetails.drivers.persistError')
                                     })
-                                    .catch(() =>
-                                        this.setError({
-                                            title: this.$t('common.error.generic'),
-                                            msg: this.$t('documentExecution.documentDetails.drivers.persistError')
-                                        })
-                                    )
-                                    .finally(() => this.setLoading(false))
+                                    return
+                                } finally {
+                                    this.setLoading(false)
+                                }
 
                                 this.setLoading(true)
                                 await this.$http
                                     .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${newDriver.biObjectID}/drivers`)
                                     .then((response: AxiosResponse<any>) => {
-                                        if (this.document && this.document.drivers) this.document.drivers = response.data
+                                        if (this.document) this.document.drivers = response.data
                                     })
                                     .finally(() => this.setLoading(false))
                             }

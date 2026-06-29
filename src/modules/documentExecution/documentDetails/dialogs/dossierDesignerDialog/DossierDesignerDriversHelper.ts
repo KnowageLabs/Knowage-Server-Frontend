@@ -54,6 +54,34 @@ export function serializeDossierDriver(driver: iDossierDriver): iDossierDriver |
     }
 }
 
+export function serializeInheritDriverForPersist(driver: iDossierDriver, biObjectID?: number, prog?: number): Partial<iDriver> | null {
+    const normalizedDriver = normalizeDossierDriver(driver)
+    const parameterUrlName = getDossierDriverParameterUrlName(normalizedDriver)
+    if (!parameterUrlName) return null
+
+    const {
+        id: _id,
+        type: _type,
+        urlName: _urlName,
+        dossierUrlName: _dossierUrlName,
+        urlNameDescription: _urlNameDescription,
+        value: _value,
+        inherit: _inherit,
+        newDriver: _newDriver,
+        numberOfErrors: _numberOfErrors,
+        isChanged: _isChanged,
+        ...persistableDriver
+    } = normalizedDriver
+
+    return {
+        ...persistableDriver,
+        parameterUrlName,
+        biObjectID,
+        modifiable: 0,
+        prog
+    }
+}
+
 export function mergeDossierPlaceholderParameters(existingParameters: iDossierDriver[] = [], availableDrivers: iDriver[] = []): iDossierDriver[] {
     const normalizedExistingParameters = existingParameters.map((driver) => normalizeDossierDriver(driver))
     const mergedParameters = normalizedExistingParameters.map((driver) => {
