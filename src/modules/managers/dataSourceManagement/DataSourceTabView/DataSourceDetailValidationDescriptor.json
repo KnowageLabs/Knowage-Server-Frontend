@@ -23,7 +23,7 @@
                     {
                         "key": "regex",
                         "validator": {
-                            "type": "extendedAlphanumericRegex"
+                            "type": "schema-attribute-regex"
                         }
                     }
                 ]

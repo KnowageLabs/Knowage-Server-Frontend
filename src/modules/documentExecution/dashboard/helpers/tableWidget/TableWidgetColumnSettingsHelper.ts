@@ -221,9 +221,9 @@ const addVisualisationTypeMeasureColumn = (formattedWidget: IWidget, tempColumn:
     if ((tempColumn.visType === 'Chart' || tempColumn.visType === 'Text & Chart') && tempColumn.barchart) {
         tempVisualizationType.min = tempColumn.barchart.minValue ?? 0
         tempVisualizationType.max = tempColumn.barchart.maxValue ?? 0
-        tempVisualizationType.alignment = tempColumn.barchart.style ? tempColumn.barchart.style['justify-content'] ?? '' : ''
+        tempVisualizationType.alignment = tempColumn.barchart.style ? (tempColumn.barchart.style['justify-content'] ?? '') : ''
         tempVisualizationType.color = tempColumn.barchart.style ? hexToRgba(tempColumn.barchart.style.color) : ''
-        tempVisualizationType['background-color'] = tempColumn.barchart.style ? hexToRgba(tempColumn.barchart.style['background-color']) ?? '' : ''
+        tempVisualizationType['background-color'] = tempColumn.barchart.style ? (hexToRgba(tempColumn.barchart.style['background-color']) ?? '') : ''
     }
     formattedWidget.settings.visualization.visualizationTypes.types.push(tempVisualizationType)
 }
@@ -244,7 +244,10 @@ const formatColumnVisualizationTypeFromOldModel = (visType: string) => {
 const getRowConfigurationFromWidgetColumn = (formattedWidget: IWidget, column: any) => {
     if (column.rowSpan) {
         formattedWidget.settings.configuration.rows.rowSpan.enabled = true
-        formattedWidget.settings.configuration.rows.rowSpan.column = getColumnId(column.name)
+        const colId = getColumnId(column.name)
+        if (colId && !formattedWidget.settings.configuration.rows.rowSpan.columns.includes(colId)) {
+            formattedWidget.settings.configuration.rows.rowSpan.columns.push(colId)
+        }
     }
 }
 

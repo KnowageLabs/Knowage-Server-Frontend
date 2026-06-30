@@ -20,7 +20,7 @@
 
         <div class="p-col-12 p-fluid p-d-flex p-flex-column">
             <label class="kn-material-input-label p-mb-1"> {{ $t('dashboard.widgetEditor.rows.rowSpanColumn') }}</label>
-            <Dropdown v-model="rowsModel.rowSpan.column" class="kn-material-input" :options="widgetModel.columns" option-label="alias" option-value="id" :disabled="!rowsModel.rowSpan.enabled" @change="onRowSpanChanged"> </Dropdown>
+            <MultiSelect v-model="rowsModel.rowSpan.columns" class="kn-material-input" :options="widgetModel.columns" option-label="alias" option-value="id" :disabled="!rowsModel.rowSpan.enabled" @change="onRowSpanChanged" />
         </div>
     </div>
 </template>
@@ -31,11 +31,11 @@ import { IWidget, ITableWidgetRows } from '@/modules/documentExecution/dashboard
 import { emitter } from '../../../../../DashboardHelpers'
 import descriptor from '../TableWidgetSettingsDescriptor.json'
 import InputSwitch from 'primevue/inputswitch'
-import Dropdown from 'primevue/dropdown'
+import MultiSelect from 'primevue/multiselect'
 
 export default defineComponent({
     name: 'table-widget-rows',
-    components: { InputSwitch, Dropdown },
+    components: { InputSwitch, MultiSelect },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {
