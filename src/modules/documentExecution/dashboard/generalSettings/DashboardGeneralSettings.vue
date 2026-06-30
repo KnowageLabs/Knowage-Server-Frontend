@@ -18,7 +18,7 @@
                             <DashboardVariables v-if="selectedOption === 'Variables'" :dashboard-id="dashboardId" :prop-variables="variables" :selected-datasets="selectedDatasets" :selected-datasets-columns-map="selectedDatasetColumnsMap" :profile-attributes="profileAttributes" />
                             <DashboardInformation v-if="selectedOption === 'Information'" :dashboard-model-prop="dashboardModel" />
                             <DashboardBackground v-if="selectedOption === 'Background'" :dashboard-model-prop="dashboardModel" />
-                            <MenuWidgets v-if="selectedOption === 'MenuWidgets'" :menu-widgets-config-prop="menuWidgetsConfig" />
+                            <MenuWidgets v-if="selectedOption === 'MenuWidgets'" :menu-widgets-config-prop="menuWidgetsConfig" :dashboard-id="dashboardId" :variables="variables" />
                             <CssEditor v-if="selectedOption === 'CSS'" :dashboard-model-prop="dashboardModel" />
                             <DashboardThemes v-if="isEnterprise && selectedOption === 'Themes'" :dashboard-model-prop="dashboardModel" />
                             <AiSettings v-if="isEnterprise && selectedOption === 'aisettings'" :dashboard-model-prop="dashboardModel" @change="setAiModel" />
@@ -26,9 +26,11 @@
                     </q-card>
                 </div>
             </div>
-            <div v-if="customHeaderWidgetEditorVisible && customHeaderWidget" class="p-d-flex p-flex-column kn-flex q-ma-md" style="border: 1px solid rgba(0, 0, 0, 0.12); border-radius: 4px; background-color: white">
-                <q-toggle v-model="menuWidgetsConfig.enableCustomHeader" :label="$t('dashboard.generalSettings.menuWidgets.enableCustomHeader')" />
-                <q-separator />
+            <div v-if="customHeaderWidgetEditorVisible && customHeaderWidget" class="p-d-flex p-flex-column kn-flex dashboard-card-shadow q-ma-md">
+                <span class="p-p-3">
+                    <InputSwitch v-model="menuWidgetsConfig.enableCustomHeader" />
+                    <label class="kn-material-input-label p-ml-3">{{ $t('dashboard.generalSettings.menuWidgets.enableCustomHeader') }}</label>
+                </span>
                 <WidgetEditor ref="widgetEditor" :dashboard-id="dashboardId" :datasets="datasets" :variables="variables" :prop-widget="customHeaderWidget" :class="{ 'editor-disabled': !menuWidgetsConfig.enableCustomHeader }"></WidgetEditor>
             </div>
 
@@ -62,10 +64,11 @@ import { IMenuAndWidgets } from '../Dashboard'
 import { addMissingMenuWidgetsConfiguration } from '../DashboardHelpers'
 import descriptor from './DashboardGeneralSettingsDescriptor.json'
 import KnHint from '@/components/UI/KnHint.vue'
+import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
     name: 'dashboard-general-settings',
-    components: { DashboardGeneralSettingsList, DashboardVariables, DashboardInformation, DashboardBackground, MenuWidgets, CssEditor, DashboardThemes, WidgetEditor, AiSettings, KnHint, DashboardCrossNavigation },
+    components: { DashboardGeneralSettingsList, DashboardVariables, DashboardInformation, DashboardBackground, MenuWidgets, CssEditor, DashboardThemes, WidgetEditor, AiSettings, KnHint, DashboardCrossNavigation, InputSwitch },
     props: {
         dashboardId: { type: String, required: true },
         datasets: { type: Array as PropType<IDataset[]>, required: true },

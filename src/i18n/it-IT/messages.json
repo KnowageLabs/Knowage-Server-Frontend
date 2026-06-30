@@ -521,7 +521,7 @@
             "menuWidgets": {
                 "enableXlsxStyle": "Abilita stile XLSX",
                 "exportFileName": "Nome file export dashboard",
-                "exportFileNameHint": "Supporta placeholder come $P{driver} e $V{variabile}, ad esempio \"pippo $P{cane} $V{varia}\".",
+                "exportFileNameHint": "Supporta placeholder come $P{driver} e $V{variabile}, ad esempio \"test $P{parametro} $V{varia}\".",
                 "pdfExportFileName": "Nome file export PDF dashboard",
                 "showExcelExport": "Abilita la funzionalità 'Esporta in Excel' nei widget",
                 "showScreenshot": "Abilita la funzionalità screenshot nei widget",

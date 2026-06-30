@@ -628,7 +628,7 @@
                 "enableWidgetMenu": "Enable widget menu",
                 "enableXlsxStyle": "Enable XLSX style",
                 "exportFileName": "Dashboard export file name",
-                "exportFileNameHint": "Supports placeholders like $P{driver} and $V{variable}, for example \"pippo $P{cane} $V{varia}\".",
+                "exportFileNameHint": "Supports placeholders like $P{driver} and $V{variable}, for example \"test $P{parametro} $V{varia}\".",
                 "pdfExportFileName": "Dashboard PDF export file name",
                 "showExcelExport": "Show excel export functionality on widgets",
                 "showScreenshot": "Enable screenshot functionality on widgets",

@@ -2402,7 +2402,7 @@
             "menuWidgets": {
                 "pdfExportFileName": "Dashboard PDF export file name",
                 "xlsxExportFileName": "Dashboard XLSX export file name",
-                "exportFileNameHint": "Supports placeholders like $P{driver} and $V{variable}, for example \"pippo $P{cane} $V{varia}\".",
+                "exportFileNameHint": "Supports placeholders like $P{driver} and $V{variable}, for example \"test $P{parametro} $V{varia}\".",
                 "exportFileName": "Dashboard export file name"
             }
         }

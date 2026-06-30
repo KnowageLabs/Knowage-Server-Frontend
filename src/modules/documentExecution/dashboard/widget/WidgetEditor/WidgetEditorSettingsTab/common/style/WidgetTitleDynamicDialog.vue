@@ -33,6 +33,7 @@ import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { IDashboardDriver, IVariable } from '@/modules/documentExecution/dashboard/Dashboard'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
+import { getDashboardParameterPlaceholder, getDashboardVariablePlaceholder } from '@/modules/documentExecution/dashboard/helpers/DashboardPlaceholderHelper'
 
 const props = defineProps<{
     visible: boolean
@@ -57,10 +58,10 @@ const drivers = computed<IDashboardDriver[]>(() => store.getDashboardDrivers(pro
 const variableKeys = computed<string[]>(() => (selectedVariable.value?.pivotedValues ? Object.keys(selectedVariable.value.pivotedValues) : []))
 
 const forInsert = computed(() => {
-    if (props.mode === 'parameters') return selectedDriver.value ? `$P{${selectedDriver.value}}` : ''
+    if (props.mode === 'parameters') return selectedDriver.value ? getDashboardParameterPlaceholder(selectedDriver.value) : ''
     if (!selectedVariable.value) return ''
-    if (selectedVariable.value.type !== 'dataset' || selectedVariable.value.column) return `$V{${selectedVariable.value.name}}`
-    return variableKey.value ? `$V{${selectedVariable.value.name}.${variableKey.value}}` : ''
+    if (selectedVariable.value.type !== 'dataset' || selectedVariable.value.column) return getDashboardVariablePlaceholder(selectedVariable.value.name)
+    return variableKey.value ? getDashboardVariablePlaceholder(selectedVariable.value.name, variableKey.value) : ''
 })
 
 const resetSelection = () => {
