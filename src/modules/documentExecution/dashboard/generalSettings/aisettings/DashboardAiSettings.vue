@@ -1,59 +1,65 @@
 <template>
-    <div class="q-px-md q-pb-xs">
-        <div class="row q-col-gutter-sm">
-            <q-banner class="bg-info text-black q-mx-sm q-ml-md" rounded dense>
-                <template v-slot:avatar> <q-icon name="info" color="primary" /> </template>{{ $t('dashboard.generalSettings.aiSettingsHint') }}
-            </q-banner>
-            <q-select v-if="datasets.length > 0" filled :options="datasets" v-model="selectedDataset" option-label="dsLabel" label="Select Dataset" class="col-md-6 col-sm-12 q-ml-sm" @update:model-value="updateDatasetColumns" />
-            <q-banner v-else class="bg-warning text-black q-mx-sm q-ml-md q-mt-sm" rounded dense>
-                <template v-slot:avatar> <q-icon name="warning" color="primary" /> </template>{{ $t('dashboard.generalSettings.aiSettingsError') }}
-            </q-banner>
-            <q-table dense v-if="datasets.length > 0 && selectedDataset && datasetColumns" flat :rows="datasetColumns" :columns="columns" class="col-12" :pagination="{ rowsPerPage: 20 }" row-key="name">
-                <template #header-cell="slotProps">
-                    <q-th :props="slotProps">
-                        <span class="kn-capitalize">{{ $t(slotProps.col.label) }}</span>
-                    </q-th>
-                </template>
-                <template #header-cell-meaningful="slotProps">
-                    <q-th align="right">
-                        <span
-                            >{{ $t(slotProps.col.label) }}
-                            <q-icon name="help" size="xs">
-                                <q-tooltip :delay="500">{{ $t('dashboard.generalSettings.meaningfulHint') }}</q-tooltip>
-                            </q-icon>
-                        </span>
-                    </q-th>
-                </template>
+    <div class="q-px-md q-pb-md">
+        <div class="row q-col-gutter-sm items-center">
+            <div class="col-12">
+                <q-banner class="bg-info text-black" rounded dense>
+                    <template v-slot:avatar> <q-icon name="info" color="primary" /> </template>{{ $t('dashboard.generalSettings.aiSettingsHint') }}
+                </q-banner>
+            </div>
+            <div class="col-6">
+                <q-select v-if="datasets.length > 0" filled :options="datasets" v-model="selectedDataset" option-label="dsLabel" :label="$t('dashboard.generalSettings.selectDataset')" @update:model-value="updateDatasetColumns" />
+                <q-banner v-else class="bg-warning text-black" rounded dense>
+                    <template v-slot:avatar> <q-icon name="warning" color="primary" /> </template>{{ $t('dashboard.generalSettings.aiSettingsError') }}
+                </q-banner>
+            </div>
+            <div v-if="datasets.length > 0 && selectedDataset && datasetColumns" class="col-12">
+                <q-table dense flat :rows="datasetColumns" :columns="columns" :pagination="{ rowsPerPage: 20 }" row-key="name">
+                    <template #header-cell="slotProps">
+                        <q-th :props="slotProps">
+                            <span class="kn-capitalize">{{ $t(slotProps.col.label) }}</span>
+                        </q-th>
+                    </template>
+                    <template #header-cell-meaningful="slotProps">
+                        <q-th align="right">
+                            <span
+                                >{{ $t(slotProps.col.label) }}
+                                <q-icon name="help" size="xs">
+                                    <q-tooltip :delay="500">{{ $t('dashboard.generalSettings.meaningfulHint') }}</q-tooltip>
+                                </q-icon>
+                            </span>
+                        </q-th>
+                    </template>
 
-                <template #body-cell-meaningful="slotProps">
-                    <q-td align="right">
-                        <q-checkbox indeterminate-value="not answered" size="xs" v-model="slotProps.row.meaningful" @update:model-value="updateRow(slotProps.rowIndex, slotProps.row.meaningful)" />
-                    </q-td>
-                </template>
-                <template #body-cell-dataType="slotProps">
-                    <q-td>
-                        <span>{{ getDataType(slotProps.value) }}</span>
-                    </q-td>
-                </template>
-                <template #body-cell-description="slotProps">
-                    <q-td :props="slotProps">
-                        <q-btn size="sm" :flat="!slotProps.row.description || slotProps.row.description == ''" round color="primary" icon="info" @click="openDescriptionDialog(slotProps.rowIndex)">
-                            <q-tooltip v-if="slotProps.row.description && slotProps.row.description !== ''" anchor="top middle" self="bottom middle" :offset="[0, 10]">
-                                {{ slotProps.row.description }}
-                            </q-tooltip>
-                        </q-btn>
-                    </q-td>
-                </template>
-                <template #body-cell-buttons="slotProps">
-                    <q-td :props="slotProps">
-                        <q-btn size="sm" flat round color="primary" icon="delete" @click="deleteColumn(slotProps.rowIndex)">
-                            <q-tooltip :delay="500">
-                                {{ $t('common.delete') }}
-                            </q-tooltip>
-                        </q-btn>
-                    </q-td>
-                </template>
-            </q-table>
+                    <template #body-cell-meaningful="slotProps">
+                        <q-td align="right">
+                            <q-checkbox indeterminate-value="not answered" size="xs" v-model="slotProps.row.meaningful" @update:model-value="updateRow(slotProps.rowIndex, slotProps.row.meaningful)" />
+                        </q-td>
+                    </template>
+                    <template #body-cell-dataType="slotProps">
+                        <q-td>
+                            <span>{{ getDataType(slotProps.value) }}</span>
+                        </q-td>
+                    </template>
+                    <template #body-cell-description="slotProps">
+                        <q-td :props="slotProps">
+                            <q-btn size="sm" :flat="!slotProps.row.description || slotProps.row.description == ''" round color="primary" icon="info" @click="openDescriptionDialog(slotProps.rowIndex)">
+                                <q-tooltip v-if="slotProps.row.description && slotProps.row.description !== ''" anchor="top middle" self="bottom middle" :offset="[0, 10]">
+                                    {{ slotProps.row.description }}
+                                </q-tooltip>
+                            </q-btn>
+                        </q-td>
+                    </template>
+                    <template #body-cell-buttons="slotProps">
+                        <q-td :props="slotProps">
+                            <q-btn size="sm" flat round color="primary" icon="delete" @click="deleteColumn(slotProps.rowIndex)">
+                                <q-tooltip :delay="500">
+                                    {{ $t('common.delete') }}
+                                </q-tooltip>
+                            </q-btn>
+                        </q-td>
+                    </template>
+                </q-table>
+            </div>
         </div>
     </div>
     <q-dialog v-model="descriptionDialog">

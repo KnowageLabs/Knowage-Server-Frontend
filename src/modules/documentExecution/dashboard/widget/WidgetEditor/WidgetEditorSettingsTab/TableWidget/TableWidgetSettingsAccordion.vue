@@ -147,7 +147,8 @@ export default defineComponent({
             activeIndex: -1,
             styleChangedFlag: false,
             themePropertyChanged: false,
-            themeId: null as number | null
+            themeId: null as number | null,
+            isApplyingTheme: false
         }
     },
     computed: {
@@ -188,11 +189,15 @@ export default defineComponent({
         },
         onStyleChanged() {
             this.styleChangedFlag = !this.styleChangedFlag
-            if (this.themeId) this.themePropertyChanged = true
+            if (this.themeId && !this.isApplyingTheme) this.themePropertyChanged = true
         },
         onThemeSelected(themeId: number | null) {
+            this.isApplyingTheme = true
             this.themeId = themeId
             this.themePropertyChanged = false
+            this.$nextTick(() => {
+                this.isApplyingTheme = false
+            })
         }
     }
 })

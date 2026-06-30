@@ -12,7 +12,7 @@ import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
-import { mapActions } from 'pinia'
+import { mapActions, mapState } from 'pinia'
 import { applyStylesToWidget } from '@/modules/documentExecution/dashboard/generalSettings/themes/ThemesHelper'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 
@@ -24,36 +24,40 @@ export default defineComponent({
     data() {
         return {
             widget: null as IWidget | null,
-            themes: [] as IDashboardTheme[]
+            isApplyingTheme: false
         }
     },
-    computed: {},
+    computed: {
+        ...mapState(dashboardStore, { themes: 'allThemes' })
+    },
     watch: {
         styleChangedFlag() {
+            if (this.isApplyingTheme) return
             if (this.widget) this.widget.settings.style.themeId = null
         }
     },
     created() {
-        this.loadThemes()
         this.loadWidgetStyle()
     },
     methods: {
         ...mapActions(dashboardStore, ['getAllThemes']),
-        loadThemes() {
-            this.themes = this.getAllThemes()
-        },
         loadWidgetStyle() {
             this.widget = this.widgetModel
             if (this.widget?.settings.style?.themeName) delete this.widget.settings.style.themeName
             if (this.widget.settings.style.themeId) this.onThemeSelected(this.widget.settings.style.themeId)
         },
         onThemeSelected(value: number | null) {
+            if (this.isApplyingTheme) return
             const selectedTheme = this.themes.find((theme: IDashboardTheme) => theme.id === value)
             if (!selectedTheme || !this.widget) return
+            this.isApplyingTheme = true
             const widgetTypeForThemes = this.getWidgetTypeForThemes()
             applyStylesToWidget(this.widget, selectedTheme, selectedTheme.config[widgetTypeForThemes])
             emitter.emit('themeSelected')
             this.$emit('themeSelected', selectedTheme.themeName)
+            this.$nextTick(() => {
+                this.isApplyingTheme = false
+            })
         },
         getWidgetTypeForThemes() {
             if (!this.widget) return ''

@@ -601,6 +601,7 @@
         "generalSettings": {
             "aiSettingsError": "No dataset available for AI settings. Please add a dataset in the Dataset Editor.",
             "aiSettingsHint": "These settings are used by the AI algorithm to understand the data and provide better results. You can set the desired dataset to be investigated and columns specifid informations.",
+            "selectDataset": "Select Dataset",
             "aisettings": "AI Settings",
             "attribute": "Attribute",
             "background": {

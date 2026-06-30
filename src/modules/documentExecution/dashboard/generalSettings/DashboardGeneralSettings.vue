@@ -31,7 +31,6 @@
                 <q-separator />
                 <WidgetEditor ref="widgetEditor" :dashboard-id="dashboardId" :datasets="datasets" :variables="variables" :prop-widget="customHeaderWidget" :class="{ 'editor-disabled': !menuWidgetsConfig.enableCustomHeader }"></WidgetEditor>
             </div>
-            <AiSettings v-if="isEnterprise && selectedOption === 'aisettings'" :dashboard-model-prop="dashboardModel" @change="setAiModel" />
 
             <q-card v-if="selectedOption === 'CrossNavigation'" class="kn-flex q-ma-md column" style="overflow: hidden">
                 <DashboardCrossNavigation ref="crossNavRef" :dashboard-id="dashboardId" />
