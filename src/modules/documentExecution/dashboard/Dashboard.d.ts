@@ -799,6 +799,7 @@ export interface IDashboardDriver {
     value: string
     urlName: string
     driverLabel: string
+    description?: string
 }
 
 export interface IGalleryItem {

@@ -1,6 +1,21 @@
 import { IDashboardDriver, IVariable } from '../../Dashboard'
 import { columnFieldRegex, parameterTextCompatibilityRegex, variableTextCompatibilityRegex } from '../../helpers/common/DashboardRegexHelper'
 
+const driverDescriptionSuffix = '_description'
+
+const getDriverValueByPlaceholder = (drivers: IDashboardDriver[], parameterName: string, key: 'urlName' | 'name') => {
+    if (!drivers?.length) return ''
+
+    const exactMatchDriver = drivers.find((driver: IDashboardDriver) => driver[key] === parameterName)
+    if (exactMatchDriver) return exactMatchDriver.value ?? ''
+
+    if (!parameterName.endsWith(driverDescriptionSuffix)) return ''
+
+    const driverName = parameterName.substring(0, parameterName.length - driverDescriptionSuffix.length)
+    const descriptionMatchDriver = drivers.find((driver: IDashboardDriver) => driver[key] === driverName)
+    return descriptionMatchDriver?.description ?? ''
+}
+
 export const replaceVariablesPlaceholdersByVariableName = (originalValue: string | number, variables: IVariable[]) => {
     if (!originalValue) return originalValue
 
@@ -35,11 +50,7 @@ export const replaceDriversPlaceholdersByDriverUrlName = (originalString: string
     if (!originalString) return originalString
 
     originalString = originalString.replace(parameterTextCompatibilityRegex, (match: string, parameterName: string) => {
-        if (drivers && drivers.length > 0) {
-            const dashboardVariable = drivers.find((driver: IDashboardDriver) => driver.urlName === parameterName)
-            if (dashboardVariable) return dashboardVariable.value ?? ''
-        }
-        return ''
+        return getDriverValueByPlaceholder(drivers, parameterName, 'urlName')
     })
     return originalString
 }
@@ -48,11 +59,7 @@ export const replaceDriversPlaceholdersByDriverName = (originalString: string, d
     if (!originalString) return originalString
 
     originalString = originalString.replace(parameterTextCompatibilityRegex, (match: string, parameterName: string) => {
-        if (drivers && drivers.length > 0) {
-            const dashboardVariable = drivers.find((driver: IDashboardDriver) => driver.name === parameterName)
-            if (dashboardVariable) return dashboardVariable.value ?? ''
-        }
-        return ''
+        return getDriverValueByPlaceholder(drivers, parameterName, 'name')
     })
     return originalString
 }
