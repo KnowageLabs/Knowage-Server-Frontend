@@ -192,8 +192,9 @@ export default defineComponent({
             const index = this.lovs.findIndex((lov) => lov.id === lovId)
             if (index > -1) {
                 const lov = JSON.parse(this.lovs[index].lovProviderJSON)
-                return lov.QUERY['VISIBLE-COLUMNS'].split(',')
+                return lov.QUERY?.['VISIBLE-COLUMNS']?.split(',') ?? []
             }
+            return []
         },
         isModeActive(modeId: number) {
             const index = this.selectedModes.findIndex((id: any) => {
