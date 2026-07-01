@@ -21,18 +21,26 @@ describe('replaceVariablesPlaceholdersByVariableName', () => {
 })
 
 describe('replaceDriversPlaceholdersByDriverUrlName', () => {
-    const drivers = [{ name: 'Country', urlName: 'country', value: 'Italy', type: 'STRING', multivalue: false, visible: true, driverLabel: 'COUNTRY' }] as any[]
+    const drivers = [{ name: 'Country', urlName: 'country', value: 'IT', description: 'Italy', type: 'STRING', multivalue: false, visible: true, driverLabel: 'COUNTRY' }] as any[]
 
     it('replaces a driver placeholder using the urlName', () => {
-        expect(replaceDriversPlaceholdersByDriverUrlName('Country: $P{country}', drivers)).toBe('Country: Italy')
+        expect(replaceDriversPlaceholdersByDriverUrlName('Country: $P{country}', drivers)).toBe('Country: IT')
+    })
+
+    it('replaces a driver description placeholder using the urlName', () => {
+        expect(replaceDriversPlaceholdersByDriverUrlName('Country: $P{country_description}', drivers)).toBe('Country: Italy')
     })
 })
 
 describe('replaceVariablesAndDriversPlaceholders', () => {
     const variables = [{ name: 'Year', value: '2024', type: 'static' }] as any[]
-    const drivers = [{ name: 'Country', urlName: 'country', value: 'Italy', type: 'STRING', multivalue: false, visible: true, driverLabel: 'COUNTRY' }] as any[]
+    const drivers = [{ name: 'Country', urlName: 'country', value: 'IT', description: 'Italy', type: 'STRING', multivalue: false, visible: true, driverLabel: 'COUNTRY' }] as any[]
 
     it('resolves mixed static text, variables and document parameters in the same title', () => {
-        expect(replaceVariablesAndDriversPlaceholders('Sales $V{Year} - $P{country}', variables, drivers)).toBe('Sales 2024 - Italy')
+        expect(replaceVariablesAndDriversPlaceholders('Sales $V{Year} - $P{country}', variables, drivers)).toBe('Sales 2024 - IT')
+    })
+
+    it('resolves parameter description placeholders in widget titles', () => {
+        expect(replaceVariablesAndDriversPlaceholders('Sales $V{Year} - $P{country_description}', variables, drivers)).toBe('Sales 2024 - Italy')
     })
 })
