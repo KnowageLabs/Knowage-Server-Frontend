@@ -175,10 +175,37 @@ export default class CellRenderer {
             }
         }
 
+        const isCellLinkStyleActive = () => {
+            if (params.colId === 'iconColumn' || params.colId === 'indexColumn') return false
+            if (params.node.rowPinned === 'bottom') return false
+            const interactions = params.propWidget.settings.interactions as IWidgetInteractions
+            const crossNav = interactions.crossNavigation
+            if (crossNav?.enabled && crossNav.type === 'singleColumn' && crossNav.column === params.colId) return true
+            const linkSettings = interactions.link
+            if (linkSettings?.enabled && linkSettings.links?.length > 0) {
+                for (const link of linkSettings.links) {
+                    if (link.type === 'singleColumn' && link.column === params.colDef?.columnName) return true
+                }
+            }
+            return false
+        }
+
+        const wrapWithLinkStyle = (content: string) => {
+            return `<span style="text-decoration: underline; cursor: pointer;">${content}</span>`
+        }
+
+        const linkStyleActive = isCellLinkStyleActive()
+
         if (visType.type) {
-            if (visType.type.toLowerCase() === 'text' || visType.type.toLowerCase() === 'multiline text') this.eGui.innerHTML = `${visType.prefix}${setCellContent()}${visType.suffix}`
+            if (visType.type.toLowerCase() === 'text' || visType.type.toLowerCase() === 'multiline text') {
+                const content = `${visType.prefix}${setCellContent()}${visType.suffix}`
+                this.eGui.innerHTML = linkStyleActive ? wrapWithLinkStyle(content) : content
+            }
             if (visType.type.toLowerCase() === 'icon') this.eGui.innerHTML = `${visType.prefix}<i class="${styleObject?.icon} p-as-center" />${visType.suffix}`
-            if (visType.type.toLowerCase() === 'text & icon') this.eGui.innerHTML = `${visType.prefix}${setCellContent()}<i class="${styleObject?.icon} p-as-center" />${visType.suffix}`
+            if (visType.type.toLowerCase() === 'text & icon') {
+                const content = `${visType.prefix}${setCellContent()}<i class="${styleObject?.icon} p-as-center" />${visType.suffix}`
+                this.eGui.innerHTML = linkStyleActive ? wrapWithLinkStyle(content) : content
+            }
             if (visType.type.toLowerCase() === 'bar') {
                 const percentage = getBarFillPercentage()
                 this.eGui.innerHTML = `<div class="barContainer" style="background-color:${applyConditionalStyleToBar ? styleObject['background-color'] : visType['background-color']};justify-content:${visType['alignment']}">
@@ -192,7 +219,10 @@ export default class CellRenderer {
                                       </div>`
             }
         } else if (params.colId === 'iconColumn') createIconColumnIcons()
-        else this.eGui.innerHTML = setCellContent()
+        else {
+            const content = setCellContent()
+            this.eGui.innerHTML = linkStyleActive ? wrapWithLinkStyle(content) : content
+        }
 
         truncateCellContent(this.eGui)
 
