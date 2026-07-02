@@ -112,7 +112,7 @@ export default defineComponent({
             if (event.value) {
                 this.selectedUseMode = event.value
             } else {
-                this.selectedUseMode = { useID: -1, idLov: null, defaultFormula: null, idLovForMax: null, idLovForDefault: null, associatedRoles: [], associatedChecks: [] }
+                this.selectedUseMode = { useID: -1, idLov: null, defaultFormula: null, idLovForMax: null, idLovForMin: null, idLovForDefault: null, associatedRoles: [], associatedChecks: [] }
                 this.modes.push(this.selectedUseMode)
             }
             this.disabledRoles = []
