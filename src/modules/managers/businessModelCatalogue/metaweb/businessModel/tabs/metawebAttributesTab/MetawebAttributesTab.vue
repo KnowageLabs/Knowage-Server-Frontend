@@ -12,6 +12,7 @@
                         <Checkbox v-else-if="column.field === 'subjectId'" v-model="columnsSubjectId[slotProps.data.uniqueName]" :binary="true" @change="onChange(slotProps.data, 'subjectId')"></Checkbox>
                         <Dropdown v-else-if="column.field === 'type'" v-model="columnsType[slotProps.data.uniqueName]" class="kn-material-input" :options="metawebAttributesTabDescriptor.typeOptions" @change="onChange(slotProps.data, 'type')" />
                         <InputText v-else-if="column.field === 'name'" v-model="slotProps.data[slotProps.column.props.field]" class="kn-material-input p-inputtext-sm p-p-2" @blur="$emit('metaUpdated')" />
+                        <span v-else-if="column.field === 'description'" v-tooltip.top="slotProps.data[slotProps.column.props.field]" class="kn-truncated-description">{{ slotProps.data[slotProps.column.props.field] }}</span>
                         <span v-else>{{ slotProps.data[slotProps.column.props.field] }}</span>
                     </div>
                 </template>
@@ -234,3 +235,13 @@ export default defineComponent({
     }
 })
 </script>
+
+<style lang="scss" scoped>
+.kn-truncated-description {
+    display: block;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+</style>
