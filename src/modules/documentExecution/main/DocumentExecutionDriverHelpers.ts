@@ -170,6 +170,10 @@ const formatDateDriver = (el: any, dateFormat: string) => {
             const validDate = getValidDate('' + el.driverMaxValue, dateFormat)
             el.driverMaxDateValue = validDate === '' ? null : validDate
         }
+        if (el.driverMinValue) {
+            const validDate = getValidDate('' + el.driverMinValue, dateFormat)
+            el.driverMinDateValue = validDate === '' ? null : validDate
+        }
     }
 }
 

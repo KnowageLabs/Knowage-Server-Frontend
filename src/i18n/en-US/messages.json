@@ -542,6 +542,7 @@
                 "exportFileName": "Dashboard export file name"
             },
             "profile": "Profile",
+            "selectDataset": "Select Dataset",
             "themes": {
                 "applyTheme": "Apply Theme",
                 "dashboardTheme": "Dashboard Theme",
@@ -2887,6 +2888,7 @@
                 "layerProp": "Layer property",
                 "lov": "LOV",
                 "maxValue": "Max value",
+                "minValue": "Min value",
                 "modality": "Select modality",
                 "roles": "Roles",
                 "selectDefaultFormula": "Select",
