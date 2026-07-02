@@ -35,6 +35,8 @@ export interface iParameter {
     lovDependentParameters?: iParameter[]
     driverMaxValue?: string | null
     driverMaxDateValue?: Date | null
+    driverMinValue?: string | null
+    driverMinDateValue?: Date | null
     valueColumnNameMetadata?: string
     descriptionColumnNameMetadata: string
     initialValue?: string | number | Date | null

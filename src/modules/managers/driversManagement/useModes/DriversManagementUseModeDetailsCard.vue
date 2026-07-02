@@ -69,6 +69,17 @@
                         </q-input>
                     </div>
                 </q-expansion-item>
+
+                <q-expansion-item v-if="isDate" default-opened dense icon="lock_clock" :label="$t('managers.driversManagement.useModes.minValue')" class="col-12 q-ma-none q-pa-none bg-grey-2 q-mt-sm">
+                    <div class="row q-col-gutter-sm q-pa-sm">
+                        <q-select dense class="col-4" filled v-model="selectedMin" :options="useModeDescriptor.minValues" option-label="name" option-value="label" emit-value map-options @update:model-value="setMin" :label="$t('managers.driversManagement.useModes.minValue')" autocomplete="" />
+                        <q-input v-if="selectedMin === 'lov'" dense class="col-8" filled v-model="mode.minLov.name" :error="v$.mode.minLov.$invalid && v$.mode.minLov.$dirty" :error-message="v$.mode.minLov.$invalid && v$.mode.minLov.$dirty ? $t('common.validation.required', { fieldName: $t('managers.driversManagement.useModes.lov') }) : null" disable :label="$t('managers.driversManagement.useModes.lov') + '*'" autofocus>
+                            <template v-slot:after>
+                                <q-icon name="search" class="cursor-pointer" @click="showLovsDialog('min')" />
+                            </template>
+                        </q-input>
+                    </div>
+                </q-expansion-item>
             </form>
             <LovsDialog :dialog-visible="dialogVisiable" :lovs="lovs" :selected-lov-prop="lov" @close="dialogVisiable = false" @apply="applyLov"></LovsDialog>
         </q-card-section>
@@ -119,6 +130,7 @@ export default defineComponent({
             selectedType: null,
             selectedDefault: null as any,
             selectedMax: null as any,
+            selectedMin: null as any,
             lov: null as any,
             lovType: null as any,
             dialogVisiable: false,
@@ -142,6 +154,9 @@ export default defineComponent({
             },
             required_lov_for_max: () => {
                 return this.selectedMax != 'lov' || this.mode.maxLov.name != null
+            },
+            required_lov_for_min: () => {
+                return this.selectedMin != 'lov' || this.mode.minLov.name != null
             }
         }
         return {
@@ -196,6 +211,10 @@ export default defineComponent({
                     this.lov = this.mode.maxLov
                     this.lovType = 'max'
                     break
+                case 'min':
+                    this.lov = this.mode.minLov
+                    this.lovType = 'min'
+                    break
             }
         },
         handleDropdowns() {
@@ -212,6 +231,12 @@ export default defineComponent({
                 this.selectedMax = 'lov'
             } else {
                 this.selectedMax = 'none'
+            }
+
+            if (this.mode.idLovForMin != null) {
+                this.selectedMin = 'lov'
+            } else {
+                this.selectedMin = 'none'
             }
         },
         setType() {
@@ -256,6 +281,13 @@ export default defineComponent({
             }
             this.modeChanged()
         },
+        setMin() {
+            if (this.selectedMin == 'none') {
+                this.mode.idLovForMin = null
+                this.mode.minLov = { name: null }
+            }
+            this.modeChanged()
+        },
         setDirty() {
             this.$emit('touched')
         },
@@ -278,6 +310,10 @@ export default defineComponent({
                     this.mode.maxLov = lov
                     this.mode.idLovForMax = lov.id
                     break
+                case 'min':
+                    this.mode.minLov = lov
+                    this.mode.idLovForMin = lov.id
+                    break
             }
             this.modeChanged()
         },
@@ -291,6 +327,9 @@ export default defineComponent({
             if (this.mode.idLovForMax) {
                 this.mode.maxLov = this.lovs?.filter((lov: any) => lov.id == this.mode.idLovForMax)[0]
             } else this.mode.maxLov = { name: null }
+            if (this.mode.idLovForMin) {
+                this.mode.minLov = this.lovs?.filter((lov: any) => lov.id == this.mode.idLovForMin)[0]
+            } else this.mode.minLov = { name: null }
         }
     }
 })
