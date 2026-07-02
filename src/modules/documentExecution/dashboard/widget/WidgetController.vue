@@ -355,7 +355,7 @@ export default defineComponent({
         async widgetExport(type: string) {
             this.setLoading(true)
             const widgetToExport = this.widgetModel.type === 'static-pivot-table' ? enrichPivotWidgetWithSortState(this.widgetModel) : this.widgetModel
-            const body = createWidgetExportBody(type, widgetToExport, this.dashStore.$state.dashboards[this.dashboardId], this.document?.creationUser, this.locale)
+            const body = createWidgetExportBody(type, widgetToExport, this.dashStore.$state.dashboards[this.dashboardId], this.document?.creationUser, this.locale, this.search)
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/dashboardExport/${type}`, body, {
                     responseType: 'blob',
