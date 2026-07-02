@@ -87,6 +87,12 @@ describe('createWidgetExportBody', () => {
         expect(body.xlsxStyleEnabled).toBe(true)
     })
 
+    it('adds likeSelections when the widget export includes an active search', () => {
+        const body = createWidgetExportBody('pdf', createWidget(), createDashboard(), 'bi-user', 'en-US', { searchText: 'it', searchColumns: ['COUNTRY', 'REGION'] })
+
+        expect(body.likeSelections).toEqual({ Sales: { 'COUNTRY,REGION': 'it' } })
+    })
+
     it('does not add xlsxStyleEnabled to non-spreadsheet exports', () => {
         const body = createWidgetExportBody('pdf', createWidget(), createDashboard(), 'bi-user', 'en-US')
 

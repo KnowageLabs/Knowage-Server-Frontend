@@ -5,6 +5,7 @@ import { indexedDB } from '@/idb'
 import { md5 } from 'js-md5'
 import deepcopy from 'deepcopy'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
+import { getTableWidgetLikeSelections } from '../../helpers/tableWidget/TableWidgetSearchHelper'
 
 export const getTableWidgetData = async (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], searchParams: IWidgetSearch, associativeResponseSelections?: any, resetPagination?: boolean) => {
     const dashStore = dashboardStore()
@@ -21,7 +22,7 @@ export const getTableWidgetData = async (dashboardId: any, dashboardConfig: IDas
         else url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=${!selectedDataset.cache}`
 
         const postData = formatTableWidgetModelForService(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
-        const formattedSelections = getLikeSelections(searchParams, datasetLabel)
+        const formattedSelections = getTableWidgetLikeSelections(searchParams, datasetLabel)
         if (formattedSelections != null) postData.likeSelections = formattedSelections
         let tempResponse = null as any
 
@@ -150,11 +151,4 @@ const getSummaryRow = (widget: IWidget, dashboardConfig: IDashboardConfiguration
     }
 
     return summaryArray
-}
-
-const getLikeSelections = (searchParams: IWidgetSearch, datasetLabel: string) => {
-    if (searchParams && searchParams?.searchText != '' && searchParams?.searchColumns.length > 0) {
-        const formattedLikeSelections = searchParams.searchColumns.toString()
-        return { [datasetLabel]: { [formattedLikeSelections]: searchParams.searchText } }
-    } else return null
 }
