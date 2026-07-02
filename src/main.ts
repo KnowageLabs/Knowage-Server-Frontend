@@ -21,6 +21,7 @@ import 'quasar/dist/quasar.css'
 import '@quasar/extras/roboto-font/roboto-font.css'
 
 import 'animate.css'
+import 'devextreme/dist/css/dx.light.css'
 
 import ToastService from 'primevue/toastservice'
 import Button from 'primevue/button'

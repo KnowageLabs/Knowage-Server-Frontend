@@ -1,5 +1,6 @@
 import deepcopy from 'deepcopy'
-import { IDashboard, IDashboardDatasetDriver, IDashboardDriver, ISelection, IVariable, IWidget } from '../Dashboard'
+import { IDashboard, IDashboardDataset, IDashboardDatasetDriver, IDashboardDriver, ISelection, IVariable, IWidget, IWidgetSearch } from '../Dashboard'
+import { getTableWidgetLikeSelections } from './tableWidget/TableWidgetSearchHelper'
 
 type IDashboardExportState = Pick<IDashboard, 'configuration'> & {
     currentView?: unknown
@@ -15,6 +16,7 @@ type IWidgetExportBody = IWidget & {
     creationUser: string | undefined
     locale: string
     datasetDrivers?: IDashboardDatasetDriver[]
+    likeSelections?: Record<string, Record<string, string>>
     xlsxStyleEnabled?: boolean
 }
 
@@ -37,7 +39,9 @@ export const createDashboardSpreadsheetExportBody = (dashboard: IDashboardExport
     return body
 }
 
-export const createWidgetExportBody = (type: string, widget: IWidget, dashboard: IDashboardExportState, creationUser: string | undefined, locale: string) => {
+const getDashboardDatasetLabel = (dataset: IDashboardDataset | undefined) => dataset?.dsLabel ?? dataset?.label
+
+export const createWidgetExportBody = (type: string, widget: IWidget, dashboard: IDashboardExportState, creationUser: string | undefined, locale: string, widgetSearch?: IWidgetSearch) => {
     const dataset = dashboard.configuration.datasets.find((dashboardDataset) => dashboardDataset.id === widget.dataset)
     const body = {
         ...deepcopy(widget),
@@ -51,6 +55,14 @@ export const createWidgetExportBody = (type: string, widget: IWidget, dashboard:
 
     if (dataset?.drivers) body.datasetDrivers = dataset.drivers
     if (type === 'spreadsheet') body.xlsxStyleEnabled = getDashboardXlsxStyleEnabled(dashboard)
+    const likeSelections =
+        widget.type === 'table'
+            ? getTableWidgetLikeSelections(
+                  widgetSearch ?? (widget.search as IWidgetSearch | undefined),
+                  getDashboardDatasetLabel(dataset)
+              )
+            : null
+    if (likeSelections) body.likeSelections = likeSelections
 
     return body
 }
