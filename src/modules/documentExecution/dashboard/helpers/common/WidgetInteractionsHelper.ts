@@ -37,6 +37,7 @@ const getFormattedTableSelection = (widget: any) => {
     if (!widget.settings.multiselectable && !widget.settings.multiselectablecolor && !widget.settings.modalSelectionColumn) return tableWidgetDefaultValues.getDefaultSelection() as IWidgetSelection
     const formattedSelection = {
         enabled: true,
+        type: 'allRow',
         modalColumn: widget.settings.modalSelectionColumn ? getColumnId(widget.settings.modalSelectionColumn) : '',
         multiselection: {
             enabled: widget.settings.multiselectable,
