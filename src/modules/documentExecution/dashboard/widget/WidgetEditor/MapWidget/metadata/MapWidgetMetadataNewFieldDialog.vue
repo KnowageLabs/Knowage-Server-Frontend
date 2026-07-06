@@ -1,66 +1,53 @@
 <template>
-    <Dialog class="kn-dialog--toolbar--primary" :visible="visible" :header="$t('dashboard.widgetEditor.map.metadata.addField')" :style="descriptor.style.dialog" :closable="false" modal :breakpoints="{ '960px': '75vw', '640px': '100vw' }">
-        <DataTable
-            id="fields-datatable"
-            v-model:selection="selectedFields"
-            v-model:filters="filters"
-            class="p-datatable-sm kn-table kn-page-content"
-            :global-filter-fields="descriptor.globalFilterFields"
-            data-key="name"
-            :value="availableFields"
-            :rows="20"
-            :paginator="true"
-            breakpoint="960px"
-            responsive-layout="stack"
-        >
-            <template #header>
-                <div class="table-header p-d-flex p-ai-center">
-                    <span id="search-container" class="p-input-icon-left p-mr-3">
-                        <i class="pi pi-search" />
-                        <InputText v-model="filters['global'].value" class="kn-material-input" :placeholder="$t('common.search')" data-test="search-input" />
-                    </span>
-                </div>
-            </template>
-            <template #empty>
-                {{ $t('common.info.noDataFound') }}
-            </template>
-            <Column selection-mode="multiple" />
-            <Column v-for="col of descriptor.columns" :key="col.field" :field="col.field" :header="$t(col.header)" style="col.style" :sortable="true" class="kn-truncated">
-                <template #body="slotProps">
-                    <span :title="slotProps.data[col.field]">{{ slotProps.data[col.field] }}</span>
-                </template>
-            </Column>
-        </DataTable>
-        <template #footer>
-            <div class="p-d-flex p-flex-row p-jc-end">
-                <Button class="kn-button kn-button--primary" data-test="close-button" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
-                <Button class="kn-button kn-button--primary" data-test="new-button" @click="addSelectedFields">{{ $t('common.add') }}</Button>
-            </div>
-        </template>
-    </Dialog>
+    <q-dialog :model-value="visible" persistent @hide="closeDialog">
+        <q-card style="min-width: 600px; width: 60%; max-width: 1200px">
+            <q-toolbar class="kn-toolbar kn-toolbar--primary">
+                <q-toolbar-title>{{ $t('dashboard.widgetEditor.map.metadata.addField') }}</q-toolbar-title>
+            </q-toolbar>
+            <q-card-section class="q-pa-none">
+                <q-table v-model:selected="selectedFields" :rows="availableFields" :columns="tableColumns" :filter="filterText" row-key="name" selection="multiple" dense flat class="kn-table">
+                    <template #top>
+                        <q-input v-model="filterText" outlined dense :placeholder="$t('common.search')" class="full-width" data-test="search-input">
+                            <template #prepend><q-icon name="search" /></template>
+                        </q-input>
+                    </template>
+                    <template #no-data>
+                        <span class="text-grey">{{ $t('common.info.noDataFound') }}</span>
+                    </template>
+                </q-table>
+            </q-card-section>
+            <q-card-actions align="right">
+                <q-btn flat :label="$t('common.cancel')" data-test="close-button" @click="closeDialog" />
+                <q-btn color="primary" :label="$t('common.add')" data-test="new-button" @click="addSelectedFields" />
+            </q-card-actions>
+        </q-card>
+    </q-dialog>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidgetMapLayerColumn } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
-import { filterDefault } from '@/helpers/commons/filterHelper'
-import Column from 'primevue/column'
-import DataTable from 'primevue/datatable'
-import Dialog from 'primevue/dialog'
-import descriptor from './MapWidgetMetadataDescriptor.json'
 import deepcopy from 'deepcopy'
 
 export default defineComponent({
     name: 'map-widget-metadata-new-field-dialog',
-    components: { Column, DataTable, Dialog },
+    components: {},
     props: { visible: { required: true, type: Boolean }, propFields: { required: true, type: Array as PropType<IWidgetMapLayerColumn[]> } },
     emits: ['close', 'addSelectedFields'],
     data() {
         return {
-            descriptor,
             availableFields: [] as IWidgetMapLayerColumn[],
             selectedFields: [] as IWidgetMapLayerColumn[],
-            filters: { global: [filterDefault] } as any
+            filterText: ''
+        }
+    },
+    computed: {
+        tableColumns(): any[] {
+            return [
+                { name: 'name', label: this.$t('common.name'), field: 'name', sortable: true, align: 'left' },
+                { name: 'alias', label: this.$t('common.alias'), field: 'alias', sortable: true, align: 'left' },
+                { name: 'type', label: this.$t('common.type'), field: 'type', sortable: true, align: 'left' }
+            ]
         }
     },
     watch: {
@@ -71,7 +58,6 @@ export default defineComponent({
     created() {
         this.loadAvailableFields()
     },
-
     methods: {
         loadAvailableFields() {
             this.availableFields = this.propFields ? this.propFields.filter((field: IWidgetMapLayerColumn) => field.deleted) : []
@@ -87,9 +73,3 @@ export default defineComponent({
     }
 })
 </script>
-
-<style lang="scss">
-#fields-datatable .p-datatable-wrapper {
-    height: auto;
-}
-</style>

@@ -1,52 +1,32 @@
 <template>
-    <div class="p-grid p-jc-center p-ai-center kn-flex p-p-3">
-        <div class="p-d-flex p-jc-between p-ai-center p-col-12">
-            <label class="kn-material-input-label">{{ $t('common.fields') }}</label>
-            <div class="p-d-flex p-ai-center">
-                <Button :label="$t('common.addColumn')" icon="pi pi-plus-circle" class="p-button-outlined p-mr-2" @click="addField"></Button>
-                <Button :label="$t('common.addCalculatedField')" icon="pi pi-plus-circle" class="p-button-outlined p-mr-1" @click="createNewCalcField"></Button>
+    <div class="column col">
+        <div v-for="field in layerFields" :key="field.name" class="column-type-row row no-wrap q-mb-sm">
+            <div class="kn-action-handle kn-action-handle-disabled"></div>
+            <div class="col q-pa-sm">
+                <div class="row q-col-gutter-sm items-center">
+                    <div class="col">
+                        <q-input dense outlined :disable="true" v-model="field.alias" :label="$t('common.column')" hide-bottom-space />
+                    </div>
+                    <div class="col">
+                        <q-select dense outlined :disable="true" v-model="field.fieldType" :options="descriptor.columnTypeOptions" :label="$t('common.type')" hide-bottom-space />
+                    </div>
+                    <div v-if="field.fieldType === 'MEASURE' && !field.formula" class="col">
+                        <q-select dense outlined v-model="field.aggregationSelected" :options="descriptor.columnAggregationOptions" option-value="value" option-label="label" emit-value map-options :label="$t('dashboard.widgetEditor.aggregation')" hide-bottom-space @update:model-value="onFieldConfigurationChanged" />
+                    </div>
+                    <div v-if="showAggregateByToggle(field)" class="row items-center q-ml-sm">
+                        <span class="text-caption q-mr-xs">{{ $t('dashboard.widgetEditor.map.metadata.aggregateBy') }}</span>
+                        <q-toggle v-model="field.properties.aggregateBy" dense @update:model-value="onFieldConfigurationChanged" />
+                    </div>
+                </div>
             </div>
-        </div>
-
-        <div v-for="field in layerFields" :key="field.name" class="dynamic-form-item p-grid p-col-12 p-ai-center">
-                <div class="p-grid p-ai-center p-mt-3 kn-width-full">
-                    <div class="p-col-12 p-d-flex p-flex-row">
-                        <div class="p-float-label kn-flex">
-                            <InputText v-model="field.alias" class="kn-material-input kn-width-full" :disabled="true" />
-                            <label class="kn-material-input-label">{{ $t('common.column') }}</label>
-                    </div>
-                    <div class="p-field p-float-label p-fluid kn-flex p-ml-2">
-                        <Dropdown v-model="field.fieldType" class="kn-material-input" :options="descriptor.columnTypeOptions" :disabled="true"></Dropdown>
-                        <label class="kn-material-input-label">{{ $t('common.type') }}</label>
-                        </div>
-                        <div v-if="field.fieldType === 'MEASURE' && !field.formula" class="p-field p-float-label p-fluid kn-flex p-ml-2">
-                            <Dropdown v-model="field.aggregationSelected" class="kn-material-input" :options="descriptor.columnAggregationOptions" option-value="value" option-label="label" @change="onFieldConfigurationChanged"></Dropdown>
-                            <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.aggregation') }}</label>
-                        </div>
-                        <div v-if="showAggregateByToggle(field)" class="p-d-flex p-ai-center p-ml-3 p-mb-2">
-                            <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.map.metadata.aggregateBy') }}</label>
-                            <InputSwitch v-model="field.properties.aggregateBy" @change="onFieldConfigurationChanged"></InputSwitch>
-                        </div>
-                        <div v-if="field.fieldType !== 'SPATIAL_ATTRIBUTE'" class="p-d-flex p-flex-row p-jc-between p-ai-center p-ml-3 p-mb-2">
-                            <i v-if="field.formula" class="pi pi-pencil kn-cursor-pointer p-mr-2" @click="editField(field)"></i>
-                            <i class="pi pi-trash kn-cursor-pointer" @click="removeField(field)"></i>
-                        </div>
-                    </div>
+            <div class="kn-action-handle row items-center justify-center">
+                <q-btn v-if="field.formula" flat round dense icon="edit" size="sm" @click="editField(field)" />
+                <q-btn v-if="field.fieldType !== 'SPATIAL_ATTRIBUTE'" flat round dense icon="delete" size="sm" @click="removeField(field)" />
             </div>
         </div>
 
         <MapWidgetMetadataNewFieldDialog v-if="addNewFieldDialogVisible" :visible="addNewFieldDialogVisible" :prop-fields="fields" @addSelectedFields="onAddSelectedFields" @close="addNewFieldDialogVisible = false"></MapWidgetMetadataNewFieldDialog>
-        <KnBlockly
-            v-if="calcFieldDialogVisible"
-            :fields="calcFieldColumns"
-            :variables="variables"
-            :field-name="selectedCalcField?.alias || ''"
-            :initial-state="getCalcFieldInitialState(selectedCalcField)"
-            :lock-saved-mode="shouldLockCalcFieldMode(selectedCalcField)"
-            v-model:visibility="calcFieldDialogVisible"
-            @save="onCalcFieldSave"
-            @cancel="calcFieldDialogVisible = false"
-        ></KnBlockly>
+        <KnBlockly v-if="calcFieldDialogVisible" :fields="calcFieldColumns" :variables="variables" :field-name="selectedCalcField?.alias || ''" :initial-state="getCalcFieldInitialState(selectedCalcField)" :lock-saved-mode="shouldLockCalcFieldMode(selectedCalcField)" v-model:visibility="calcFieldDialogVisible" @save="onCalcFieldSave" @cancel="calcFieldDialogVisible = false"></KnBlockly>
     </div>
 </template>
 
@@ -57,14 +37,12 @@ import { IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashbo
 import { removeColumnFromModel } from '../MapWidgetLayersTabListHelper'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import descriptor from './MapWidgetMetadataDescriptor.json'
-import Dropdown from 'primevue/dropdown'
-import InputSwitch from 'primevue/inputswitch'
 import MapWidgetMetadataNewFieldDialog from './MapWidgetMetadataNewFieldDialog.vue'
 import KnBlockly from '@/components/UI/KnBlockly/KnBlockly.vue'
 
 export default defineComponent({
     name: 'map-widget-metadata-fields',
-    components: { Dropdown, InputSwitch, MapWidgetMetadataNewFieldDialog, KnBlockly },
+    components: { MapWidgetMetadataNewFieldDialog, KnBlockly },
     props: {
         propFields: {
             type: Array as PropType<IWidgetMapLayerColumn[]>,
@@ -228,3 +206,11 @@ export default defineComponent({
     }
 })
 </script>
+
+<style lang="scss" scoped>
+.column-type-row {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+</style>

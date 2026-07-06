@@ -1,10 +1,42 @@
 <template>
-    <div class="p-p-2">
-        <h4 class="q-mx-sm q-my-sm">{{ layer?.type.toLowerCase() === 'dataset' ? $t('common.metadata') : $t('common.properties') }}</h4>
-        <MapWidgetMetadataSpatialAttribute v-if="selectedLayer?.columns" :prop-spatial-attribute="spatialAttribute"></MapWidgetMetadataSpatialAttribute>
-        <hr />
-        <MapWidgetMetadataFields v-if="selectedLayer?.columns" :propFields="selectedLayer.columns" :selected-layer="layer" :prop-widget="propWidget" :variables="variables"></MapWidgetMetadataFields>
-        <MapWidgetMetadataProperties v-if="selectedLayer?.properties" :properties="selectedLayer.properties"></MapWidgetMetadataProperties>
+    <div class="q-pa-sm">
+        <q-card>
+            <q-card-section class="q-py-sm">
+                <div class="text-overline text-grey-7">{{ layer?.type.toLowerCase() === 'dataset' ? $t('common.metadata') : $t('common.properties') }}</div>
+            </q-card-section>
+            <q-separator />
+
+            <template v-if="selectedLayer?.columns">
+                <template v-if="spatialAttribute">
+                    <q-card-section class="q-py-none" style="background: #f5f5f5">
+                        <div class="text-overline text-grey-7">{{ $t('dashboard.widgetEditor.map.metadata.spatialAttribute') }}</div>
+                    </q-card-section>
+                    <q-separator />
+                    <q-card-section class="q-py-sm">
+                        <MapWidgetMetadataSpatialAttribute :prop-spatial-attribute="spatialAttribute"></MapWidgetMetadataSpatialAttribute>
+                    </q-card-section>
+                    <q-separator />
+                </template>
+
+                <q-card-section class="q-py-none" style="background: #f5f5f5">
+                    <div class="row items-center">
+                        <div class="text-overline text-grey-7 col">{{ $t('common.fields') }}</div>
+                        <div class="row items-center q-gutter-xs">
+                            <q-btn flat dense icon="add" color="primary" :label="$t('common.addColumn')" size="sm" @click="($refs.fieldsComp as any).addField()" />
+                            <q-btn flat dense icon="add" color="primary" :label="$t('common.addCalculatedField')" size="sm" @click="($refs.fieldsComp as any).createNewCalcField()" />
+                        </div>
+                    </div>
+                </q-card-section>
+                <q-separator />
+                <q-card-section class="q-py-sm">
+                    <MapWidgetMetadataFields ref="fieldsComp" :propFields="selectedLayer.columns" :selected-layer="layer" :prop-widget="propWidget" :variables="variables"></MapWidgetMetadataFields>
+                </q-card-section>
+            </template>
+
+            <q-card-section v-if="selectedLayer?.properties" class="q-py-sm">
+                <MapWidgetMetadataProperties :properties="selectedLayer.properties"></MapWidgetMetadataProperties>
+            </q-card-section>
+        </q-card>
     </div>
 </template>
 

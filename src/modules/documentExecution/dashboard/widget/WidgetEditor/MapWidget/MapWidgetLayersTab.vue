@@ -1,5 +1,5 @@
 <template>
-    <MapWidgetLayerDetail id="map-widget-layer-detail" class="p-d-flex kn-flex kn-overflow p-p-3" :selected-layer="selectedLayer" :layers="layers" :prop-widget="propWidget" :variables="variables" :dashboard-id="dashboardId"></MapWidgetLayerDetail>
+    <MapWidgetLayerDetail id="map-widget-layer-detail" class="p-d-flex kn-flex kn-overflow" :selected-layer="selectedLayer" :layers="layers" :prop-widget="propWidget" :variables="variables" :dashboard-id="dashboardId"></MapWidgetLayerDetail>
 </template>
 
 <script lang="ts">
