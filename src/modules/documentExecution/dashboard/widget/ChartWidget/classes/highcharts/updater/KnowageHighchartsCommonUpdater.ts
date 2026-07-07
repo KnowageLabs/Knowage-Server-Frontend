@@ -167,37 +167,6 @@ export const setAxisGridSettings = (oldAxis: any, newModelAxis: any) => {
     }
 }
 
-const isLegacyAutoAxisValue = (value: any) => {
-    if (value === undefined || value === null) return true
-    if (typeof value !== 'string') return value === ''
-
-    const trimmedValue = value.trim()
-    return trimmedValue === '' || trimmedValue.toLowerCase() === 'auto'
-}
-
-const getFormattedAxisScaleValue = (value: any) => {
-    if (isLegacyAutoAxisValue(value)) return null
-    if (typeof value === 'number') return Number.isFinite(value) ? value : null
-    if (typeof value !== 'string') return null
-
-    const parsedValue = Number(value.trim())
-    return Number.isFinite(parsedValue) ? parsedValue : null
-}
-
-export const setAxisScaleSettings = (oldAxis: any, newModelAxis: any) => {
-    const formattedMin = getFormattedAxisScaleValue(oldAxis.min)
-    const formattedMax = getFormattedAxisScaleValue(oldAxis.max)
-
-    if (isLegacyAutoAxisValue(oldAxis.min)) newModelAxis.legacyAutoMin = true
-    else delete newModelAxis.legacyAutoMin
-
-    if (isLegacyAutoAxisValue(oldAxis.max)) newModelAxis.legacyAutoMax = true
-    else delete newModelAxis.legacyAutoMax
-
-    newModelAxis.min = formattedMin
-    newModelAxis.max = formattedMax
-}
-
 const getFormattedGridLineStyle = (type: string) => {
     switch (type) {
         case 'solid':

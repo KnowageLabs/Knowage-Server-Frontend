@@ -1,5 +1,5 @@
 import { IHighchartsChartModel } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
-import { getFormattedLegend, getFormattedNoDataConfiguration, getFormattedSeries, setAxisScaleSettings, setFormattedAxisLabels, setFormattedAxisTitle } from './KnowageHighchartsCommonUpdater'
+import { getFormattedLegend, getFormattedNoDataConfiguration, getFormattedSeries, setFormattedAxisLabels, setFormattedAxisTitle } from './KnowageHighchartsCommonUpdater'
 import * as highchartsDefaultValues from '../../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import { hexToRgba } from '@/modules/documentExecution/dashboard/helpers/FormattingHelpers'
 
@@ -21,7 +21,6 @@ const getFormattedAxisSettings = (oldModel: any, newModel: IHighchartsChartModel
     setFormattedAxisLabels(oldAxis, newModelAxis)
     setFormattedAxisTitle(oldAxis, newModelAxis)
     if (axis === 'y') setYAxisGridSettings(oldAxis, newModelAxis)
-    if (axis === 'y') setAxisScaleSettings(oldAxis, newModelAxis)
 
     axis === 'x' ? setXAxisSpecificValues(newModelAxis) : setYAxisSpecificValues(newModelAxis)
     axis === 'x' ? newModel.xAxis[0] = newModelAxis : newModel.yAxis[0] = newModelAxis
@@ -34,6 +33,7 @@ const setXAxisSpecificValues = (newModelAxis: any) => {
 const setYAxisSpecificValues = (newModelAxis: any) => {
     newModelAxis.plotBands = []
     newModelAxis.plotLines = []
+    newModelAxis.min = 0
 }
 
 
