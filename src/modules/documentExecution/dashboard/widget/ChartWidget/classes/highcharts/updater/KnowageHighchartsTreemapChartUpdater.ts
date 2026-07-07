@@ -35,7 +35,7 @@ const setXAxisSpecificValues = (newModelAxis: any) => {
 }
 
 const setYAxisSpecificValues = (newModelAxis: any) => {
-    newModelAxis.min = 0
+    newModelAxis.min = null
     newModelAxis.plotBands = []
     newModelAxis.plotLines = []
 }
