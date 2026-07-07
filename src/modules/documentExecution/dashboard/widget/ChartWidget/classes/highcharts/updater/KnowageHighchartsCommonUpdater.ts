@@ -186,20 +186,6 @@ export const setAxisTickSettings = (oldAxis: any, newModelAxis: any) => {
     newModelAxis.showLastLabel = oldAxis.showLastLabel ?? true
 }
 
-const getFormattedAxisScaleValue = (value: any) => {
-    if (value === null || value === undefined) return null
-    if (typeof value === 'string') {
-        const normalizedValue = value.trim().toLowerCase()
-        if (normalizedValue === '' || normalizedValue === 'auto') return null
-    }
-    return value
-}
-
-export const setAxisScaleSettings = (oldAxis: any, newModelAxis: any) => {
-    newModelAxis.min = getFormattedAxisScaleValue(oldAxis.min)
-    newModelAxis.max = getFormattedAxisScaleValue(oldAxis.max)
-}
-
 export const getFormatted3DConfiguration = (oldModel: any, newModel: IHighchartsChartModel) => {
     if (oldModel.CHART.show3D) {
         if (newModel.plotOptions.pie) newModel.plotOptions.pie.depth = oldModel.CHART.depth

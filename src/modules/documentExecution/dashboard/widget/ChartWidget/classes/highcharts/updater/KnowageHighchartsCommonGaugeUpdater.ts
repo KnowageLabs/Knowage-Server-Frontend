@@ -1,6 +1,5 @@
 import { hexToRgba } from "@/modules/documentExecution/dashboard/helpers/FormattingHelpers"
 import { IHighchartsChartModel } from "@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget"
-import { setAxisScaleSettings } from './KnowageHighchartsCommonUpdater'
 
 export const getFormattedPaneSettings = (oldModel: any, newModel: IHighchartsChartModel, chartType: 'gauge' | 'activitygauge' | 'solidgauge') => {
     if (oldModel.CHART.PANE) {
@@ -11,7 +10,8 @@ export const getFormattedPaneSettings = (oldModel: any, newModel: IHighchartsCha
 
 export const getFormattedScaleSettings = (oldModel: any, newModel: IHighchartsChartModel) => {
     const oldYAxis = oldModel.CHART.AXES_LIST.AXIS[0]
-    setAxisScaleSettings(oldYAxis, newModel.yAxis)
+    newModel.yAxis.min = oldYAxis.min && oldYAxis.min !== '' ? oldYAxis.min : null
+    newModel.yAxis.max = oldYAxis.max && oldYAxis.max !== '' ? oldYAxis.max : null
 }
 
 export const getFormattedTickSettings = (oldModel: any, newModel: IHighchartsChartModel) => {

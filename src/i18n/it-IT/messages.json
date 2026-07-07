@@ -770,8 +770,8 @@
                     "title": "Grouping"
                 },
                 "heatmap": {
-                    "axisMaxHint": "The maximum value of the axis. If null the max value is automatically calculated.",
-                    "axisMinHint": "The minimum value of the axis. If null, the min value is automatically calculated.",
+                    "axisMaxHint": "The minimum value of the axis. If null the min value is automatically calculated.",
+                    "axisMinHint": "The maximum value of the axis. If null, the max value is automatically calculated.",
                     "datetype": "Datetype",
                     "dimensionsTableHint": "Exactly two attributes to define categories. If the attribute is of type Date (Timestamp) it must be the first one. You are not able to reorder categories.",
                     "labelRotation": "Label Rotation",
