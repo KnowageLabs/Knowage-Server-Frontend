@@ -1,6 +1,6 @@
 import { hexToRgba } from '@/modules/documentExecution/dashboard/helpers/FormattingHelpers';
 import { IHighchartsChartModel } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
-import { getFormattedNoDataConfiguration, getFormattedSeries, setFormattedAxisLabels, setFormattedAxisTitle } from './KnowageHighchartsCommonUpdater'
+import { getFormattedNoDataConfiguration, getFormattedSeries, setAxisScaleSettings, setFormattedAxisLabels, setFormattedAxisTitle } from './KnowageHighchartsCommonUpdater'
 import * as highchartsDefaultValues from '../../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
 export const updateHeatmapChartModel = (oldModel: any, newModel: IHighchartsChartModel) => {
@@ -18,6 +18,7 @@ const getFormattedAxisSettings = (oldModel: any, newModel: IHighchartsChartModel
     if (!oldAxis) return
     setFormattedAxisLabels(oldAxis, newModelAxis)
     setFormattedAxisTitle(oldAxis, newModelAxis)
+    setAxisScaleSettings(oldAxis, newModelAxis)
     axis === 'x' ? newModel.xAxis = newModelAxis : newModel.yAxis = newModelAxis
 }
 
