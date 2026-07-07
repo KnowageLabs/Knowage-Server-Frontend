@@ -1,7 +1,6 @@
 import { hexToRgba } from "@/modules/documentExecution/dashboard/helpers/FormattingHelpers"
 import { IHighchartsChartModel } from "@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget"
 import { setAxisScaleSettings } from './KnowageHighchartsCommonUpdater'
-import { parseHighchartsNumericValue } from '../helpers/HighchartsNumericValueParser'
 
 export const getFormattedPaneSettings = (oldModel: any, newModel: IHighchartsChartModel, chartType: 'gauge' | 'activitygauge' | 'solidgauge') => {
     if (oldModel.CHART.PANE) {
@@ -21,7 +20,7 @@ export const getFormattedTickSettings = (oldModel: any, newModel: IHighchartsCha
     newModel.yAxis.tickColor = oldYAxis.tickColor ? hexToRgba(oldYAxis.tickColor) : ''
     newModel.yAxis.tickLength = oldYAxis.tickLength
     newModel.yAxis.tickWidth = oldYAxis.tickWidth
-    newModel.yAxis.minorTickInterval = typeof oldYAxis.minorTickInterval === 'string' && oldYAxis.minorTickInterval.trim().toLowerCase() === 'auto' ? 'auto' : parseHighchartsNumericValue(oldYAxis.minorTickInterval)
+    newModel.yAxis.minorTickInterval = oldYAxis.minorTickInterval
 }
 
 export const getFormattedBandsSettings = (oldModel: any, newModel: IHighchartsChartModel) => {

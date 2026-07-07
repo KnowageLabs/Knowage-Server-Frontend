@@ -1,7 +1,6 @@
 import { hexToRgba } from '@/modules/documentExecution/dashboard/helpers/FormattingHelpers'
 import { IHighchartsChartModel, IHighchartsOptions3D } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import * as highchartsDefaultValues from '../../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
-import { parseHighchartsNumericValue } from '../helpers/HighchartsNumericValueParser'
 
 export const createSerie = (serieName: string, groupingFunction: string, colorByPoint: boolean, serieType?: string) => {
     const serie = { name: serieName, data: [], colorByPoint: colorByPoint, groupingFunction: groupingFunction, accessibility: highchartsDefaultValues.getDefaultSeriesAccessibilitySettings() } as any
@@ -156,13 +155,13 @@ const getFormattedTitleAlign = (oldAxisTitleAlign: 'left' | 'center' | 'right') 
 
 export const setAxisGridSettings = (oldAxis: any, newModelAxis: any) => {
     if (oldAxis.MAJORGRID) {
-        newModelAxis.tickInterval = getFormattedAxisTickIntervalValue(oldAxis.MAJORGRID.interval)
+        newModelAxis.tickInterval = oldAxis.MAJORGRID.interval && oldAxis.MAJORGRID.interval !== '' ? oldAxis.MAJORGRID.interval : null
         newModelAxis.gridLineDashStyle = getFormattedGridLineStyle(oldAxis.MINORGRID.style?.typeline) ? '' : ''
         newModelAxis.gridLineColor = oldAxis.MAJORGRID.style?.color ? hexToRgba(oldAxis.MAJORGRID.style.color) : ''
     }
 
     if (oldAxis.MINORGRID) {
-        newModelAxis.minorTickInterval = getFormattedAxisMinorTickIntervalValue(oldAxis.MINORGRID.interval)
+        newModelAxis.minorTickInterval = oldAxis.MINORGRID.interval && oldAxis.MINORGRID.interval !== '' ? oldAxis.MINORGRID.interval : null
         newModelAxis.minorGridLineDashStyle = getFormattedGridLineStyle(oldAxis.MINORGRID.style?.typeline) ? '' : ''
         newModelAxis.minorGridLineColor = oldAxis.MINORGRID.style?.color ? hexToRgba(oldAxis.MINORGRID.style.color) : ''
     }
@@ -188,34 +187,15 @@ export const setAxisTickSettings = (oldAxis: any, newModelAxis: any) => {
 }
 
 const getFormattedAxisScaleValue = (value: any) => {
+    if (value === null || value === undefined) return null
     if (typeof value === 'string') {
         const normalizedValue = value.trim().toLowerCase()
         if (normalizedValue === '' || normalizedValue === 'auto') return null
     }
-    return parseHighchartsNumericValue(value)
-}
-
-export const getFormattedAxisTickIntervalValue = (value: any) => {
-    const parsedValue = parseHighchartsNumericValue(value)
-    return parsedValue && parsedValue > 0 ? parsedValue : null
-}
-
-export const getFormattedAxisMinorTickIntervalValue = (value: any) => {
-    if (typeof value === 'string' && value.trim().toLowerCase() === 'auto') return 'auto'
-
-    const parsedValue = parseHighchartsNumericValue(value)
-    return parsedValue && parsedValue > 0 ? parsedValue : null
+    return value
 }
 
 export const setAxisScaleSettings = (oldAxis: any, newModelAxis: any) => {
-    if (typeof oldAxis.min === 'string') {
-        const normalizedMinValue = oldAxis.min.trim().toLowerCase()
-        if (normalizedMinValue === '' || normalizedMinValue === 'auto') newModelAxis.legacyAutoMin = true
-    }
-    if (typeof oldAxis.max === 'string') {
-        const normalizedMaxValue = oldAxis.max.trim().toLowerCase()
-        if (normalizedMaxValue === '' || normalizedMaxValue === 'auto') newModelAxis.legacyAutoMax = true
-    }
     newModelAxis.min = getFormattedAxisScaleValue(oldAxis.min)
     newModelAxis.max = getFormattedAxisScaleValue(oldAxis.max)
 }

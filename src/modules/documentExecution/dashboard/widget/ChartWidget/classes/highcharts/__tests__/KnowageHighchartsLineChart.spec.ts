@@ -31,26 +31,8 @@ describe('KnowageHighchartsLineChart backward compatibility', () => {
 
         expect(migratedModel.xAxis[0].min).toBeNull()
         expect(migratedModel.xAxis[0].max).toBeNull()
-        expect((migratedModel.xAxis[0] as any).legacyAutoMin).toBe(true)
-        expect((migratedModel.xAxis[0] as any).legacyAutoMax).toBe(true)
         expect(migratedModel.yAxis[0].min).toBeNull()
         expect(migratedModel.yAxis[0].max).toBeNull()
-        expect((migratedModel.yAxis[0] as any).legacyAutoMin).toBe(true)
-        expect((migratedModel.yAxis[0] as any).legacyAutoMax).toBe(true)
-    })
-
-    it('does not keep legacy auto tick intervals as fixed dashboard intervals', () => {
-        const migratedModel = new KnowageHighchartsLineChart(
-            createLegacyLineChartTemplate({
-                yAxis: {
-                    MAJORGRID: { interval: 'auto', style: {} },
-                    MINORGRID: { interval: 'auto', style: {} }
-                }
-            })
-        ).getModel()
-
-        expect(migratedModel.yAxis[0].tickInterval).toBeNull()
-        expect(migratedModel.yAxis[0].minorTickInterval).toBe('auto')
     })
 
     it('preserves explicit legacy axis min and max values, including zero', () => {

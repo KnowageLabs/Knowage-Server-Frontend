@@ -6,7 +6,6 @@ import deepcopy from 'deepcopy'
 import moment from 'moment/min/moment-with-locales.js'
 import { getColumnAlias } from '../dataLabels/HighchartsDataLabelsHelpers'
 import { fallbackLocale, formatWithIntl, getLocale } from '@/helpers/commons/localeHelper'
-import { parseHighchartsNumericValue } from '../HighchartsNumericValueParser'
 
 export enum DataType {
     DATE_SHORT = 'DD/MM/YYYY',
@@ -37,7 +36,17 @@ export const getFormattedDateCategoryValue = (dateString: string, dateFormat: st
 const hasOwnProperty = (obj: Record<string, any>, key: string) => Object.prototype.hasOwnProperty.call(obj, key)
 
 const normalizeHighchartsNumericValue = (value: any): number | null => {
-    return parseHighchartsNumericValue(value)
+    if (value === null || typeof value === 'undefined') return null
+    if (typeof value === 'number') return Number.isFinite(value) ? value : null
+    if (typeof value === 'string') {
+        const trimmedValue = value.trim()
+        if (!trimmedValue || trimmedValue.toLowerCase() === 'null') return null
+
+        const parsedValue = Number(trimmedValue)
+        return Number.isFinite(parsedValue) ? parsedValue : null
+    }
+
+    return null
 }
 
 const getTotalAttributeColumns = (widgetModel: IWidget, attributeColumns: any[]) => {
