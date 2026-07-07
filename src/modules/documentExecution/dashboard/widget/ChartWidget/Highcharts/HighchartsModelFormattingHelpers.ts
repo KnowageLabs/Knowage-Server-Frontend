@@ -280,6 +280,15 @@ export const normalizeTooltipSettings = (formattedChartModel: IHighchartsChartMo
     if (!tooltip.style.color) tooltip.style.color = 'contrast'
 }
 
+export const restoreLegacyAutoAxisExtremes = (formattedChartModel: IHighchartsChartModel) => {
+    const axes = [...(formattedChartModel.xAxis ?? []), ...(formattedChartModel.yAxis ?? [])] as any[]
+    axes.forEach((axis: any) => {
+        if (!axis) return
+        if (axis.legacyAutoMin) axis.min = 'auto'
+        if (axis.legacyAutoMax) axis.max = 'auto'
+    })
+}
+
 const formatVariablesForAxis = (formattedChartModel: IHighchartsChartModel, variables: IVariable[], axis: 'xAxis' | 'yAxis') => {
     if (!formattedChartModel[axis]) return
     formattedChartModel[axis].forEach((axisElement: any) => {

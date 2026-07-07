@@ -1,5 +1,5 @@
 import { IHighchartsChartModel } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
-import { getFormattedLegend, getFormattedNoDataConfiguration, getFormattedSeries, setAxisScaleSettings, setFormattedAxisLabels, setFormattedAxisTitle } from './KnowageHighchartsCommonUpdater'
+import { getFormattedAxisMinorTickIntervalValue, getFormattedAxisTickIntervalValue, getFormattedLegend, getFormattedNoDataConfiguration, getFormattedSeries, setAxisScaleSettings, setFormattedAxisLabels, setFormattedAxisTitle } from './KnowageHighchartsCommonUpdater'
 import * as highchartsDefaultValues from '../../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import { hexToRgba } from '@/modules/documentExecution/dashboard/helpers/FormattingHelpers'
 
@@ -39,13 +39,13 @@ const setYAxisSpecificValues = (newModelAxis: any) => {
 
 const setYAxisGridSettings = (oldAxis: any, newModelAxis: any) => {
     if (oldAxis.MAJORGRID) {
-        newModelAxis.tickInterval = oldAxis.MAJORGRID.interval && oldAxis.MAJORGRID.interval !== '' ? oldAxis.MAJORGRID.interval : null
+        newModelAxis.tickInterval = getFormattedAxisTickIntervalValue(oldAxis.MAJORGRID.interval)
         newModelAxis.gridLineDashStyle = getFormattedGridLineStyle(oldAxis.MINORGRID.style?.typeline) ? '' : ''
         newModelAxis.gridLineColor = oldAxis.MAJORGRID.style?.color ? hexToRgba(oldAxis.MAJORGRID.style.color) : ''
     }
 
     if (oldAxis.MINORGRID) {
-        newModelAxis.minorTickInterval = oldAxis.MINORGRID.interval && oldAxis.MINORGRID.interval !== '' ? oldAxis.MINORGRID.interval : null
+        newModelAxis.minorTickInterval = getFormattedAxisMinorTickIntervalValue(oldAxis.MINORGRID.interval)
         newModelAxis.minorGridLineDashStyle = getFormattedGridLineStyle(oldAxis.MINORGRID.style?.typeline) ? '' : ''
         newModelAxis.minorGridLineColor = oldAxis.MINORGRID.style?.color ? hexToRgba(oldAxis.MINORGRID.style.color) : ''
     }

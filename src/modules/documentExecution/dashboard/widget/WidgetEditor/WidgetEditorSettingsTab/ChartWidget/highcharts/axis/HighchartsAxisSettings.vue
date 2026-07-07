@@ -3,7 +3,7 @@
         <div v-if="['area', 'bar', 'column', 'line', 'heatmap'].includes(chartType)" class="p-col-12 p-md-3 p-d-flex p-flex-column">
             <label class="kn-material-input-label p-mr-2">{{ $t('common.min') }}</label>
             <div class="p-d-flex p-flex-row p-ai-center p-fluid">
-                <InputNumber v-model="axisModel.min" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
+                <InputText v-model="axisExtremeValues.min" class="kn-material-input p-inputtext-sm" @blur="onAxisExtremeChanged('min')" />
                 <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.heatmap.axisMinHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
                 <Button icon="fa fa-eraser" class="p-button-text p-button-rounded p-button-plain" @click="removeValue('min')" />
             </div>
@@ -11,7 +11,7 @@
         <div v-if="['area', 'bar', 'column', 'line', 'heatmap'].includes(chartType)" class="p-col-12 p-md-3 p-d-flex p-flex-column">
             <label class="kn-material-input-label p-mr-2">{{ $t('common.max') }}</label>
             <div class="p-d-flex p-flex-row p-ai-center p-fluid">
-                <InputNumber v-model="axisModel.max" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
+                <InputText v-model="axisExtremeValues.max" class="kn-material-input p-inputtext-sm" @blur="onAxisExtremeChanged('max')" />
                 <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.heatmap.axisMaxHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
                 <Button icon="fa fa-eraser" class="p-button-text p-button-rounded p-button-plain" @click="removeValue('max')" />
             </div>
@@ -109,16 +109,19 @@ import HighchartsFormatterMonaco from '../common/HighchartsFormatterMonaco.vue'
 import Textarea from 'primevue/textarea'
 import Message from 'primevue/message'
 import InputSwitch from 'primevue/inputswitch'
+import InputText from 'primevue/inputtext'
+import { parseHighchartsNumericValue } from '@/modules/documentExecution/dashboard/widget/ChartWidget/classes/highcharts/helpers/HighchartsNumericValueParser'
 
 export default defineComponent({
     name: 'highcharts-axis-settings',
-    components: { Dropdown, InputNumber, WidgetEditorStyleToolbar, HighchartsFormatterMonaco, Textarea, Message, InputSwitch },
+    components: { Dropdown, InputNumber, InputText, WidgetEditorStyleToolbar, HighchartsFormatterMonaco, Textarea, Message, InputSwitch },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, axis: { type: String, required: true } },
     data() {
         return {
             descriptor,
             settingsDescriptor,
             axisModel: null as any,
+            axisExtremeValues: { min: 'auto', max: 'auto' } as { min: string; max: string },
             toolbarModel: {} as { 'font-style': string; 'font-family': string; 'font-size': string; 'font-weight': string; color: string },
             advancedVisible: false,
             getTranslatedLabel
@@ -136,7 +139,13 @@ export default defineComponent({
         loadModel() {
             if (!this.widgetModel.settings.chartModel || !this.widgetModel.settings.chartModel.model) return
             this.axisModel = (this.axis === 'x' && this.chartType !== 'bar') || (this.chartType === 'bar' && this.axis === 'y') ? this.widgetModel.settings.chartModel.model.xAxis[0] : this.widgetModel.settings.chartModel.model.yAxis[0]
+            this.axisExtremeValues.min = this.getAxisExtremeDisplayValue(this.axisModel?.min)
+            this.axisExtremeValues.max = this.getAxisExtremeDisplayValue(this.axisModel?.max)
             this.loadToolbarModel()
+        },
+        getAxisExtremeDisplayValue(value: any) {
+            if (value === null || value === undefined || value === '') return 'auto'
+            return `${value}`
         },
         loadToolbarModel() {
             if (this.axisModel && this.axisModel.labels)
@@ -154,6 +163,31 @@ export default defineComponent({
         onInputNumberChanged() {
             setTimeout(() => this.modelChanged(), 250)
         },
+        onAxisExtremeChanged(value: 'min' | 'max') {
+            if (!this.axisModel) return
+
+            const rawValue = `${this.axisExtremeValues[value] ?? ''}`.trim()
+            const normalizedValue = rawValue.toLowerCase()
+
+            if (rawValue === '' || normalizedValue === 'auto') {
+                this.axisModel[value] = 'auto'
+                this.axisExtremeValues[value] = 'auto'
+                this.modelChanged()
+                return
+            }
+
+            const parsedValue = parseHighchartsNumericValue(rawValue)
+            if (parsedValue === null) {
+                this.axisExtremeValues[value] = this.getAxisExtremeDisplayValue(this.axisModel[value])
+                return
+            }
+
+            this.axisModel[value] = parsedValue
+            if (value === 'min') delete this.axisModel.legacyAutoMin
+            else delete this.axisModel.legacyAutoMax
+            this.axisExtremeValues[value] = `${parsedValue}`
+            this.modelChanged()
+        },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel) {
             if (!this.axisModel || !this.axisModel.labels) return
             this.toolbarModel = { 'font-style': model['font-style'] ?? '', 'font-family': model['font-family'] ?? '', 'font-size': model['font-size'] ?? '14px', 'font-weight': model['font-weight'] ?? '', color: model.color ?? '' }
@@ -165,7 +199,10 @@ export default defineComponent({
             this.axisModel.labels.formatterText = newValue
         },
         removeValue(value: 'min' | 'max') {
-            this.axisModel[value] = null
+            if (!this.axisModel) return
+            this.axisModel[value] = 'auto'
+            this.axisExtremeValues[value] = 'auto'
+            this.modelChanged()
         }
     }
 })

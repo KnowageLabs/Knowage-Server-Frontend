@@ -40,7 +40,7 @@ export const formatHighchartsWidget = (widget: any) => {
     formattedWidget.settings = getFormattedWidgetSettings(widget, oldChart?.type, formattedWidget.columns) as IHighchartsWidgetSettings
     formattedWidget.settings.advancedSettings = getFormattedAdvancedSettings(widget, oldChart)
     getFiltersForColumns(formattedWidget, widget)
-    formattedWidget.settings.chartModel = createChartModel(widget, oldChart?.type, oldChart?.seriesStacking)
+    formattedWidget.settings.chartModel = createChartModel(widget, oldChart?.type, getLegacyStackingValue(oldChart?.seriesStacking))
 
     return formattedWidget
 }
@@ -80,7 +80,7 @@ const getFormmatedDatetypeSettings = (widget: any) => {
     const formattedDatetypeSettings = highchartsDefaultValues.getDefaultDateTypeSettings()
     const oldChartModel = widget.content?.chartTemplate?.CHART
     if (oldChartModel) {
-        formattedDatetypeSettings.enabled = oldChartModel.dateTime
+        formattedDatetypeSettings.enabled = getLegacyBooleanValue(oldChartModel.dateTime)
         formattedDatetypeSettings.format = getProperDateTimeFormat(oldChartModel.dateFormat)
     }
     return formattedDatetypeSettings
@@ -90,12 +90,28 @@ const getFormmatedGroupingSettings = (widget: any) => {
     const groupingSettings = { enabled: false, secondSeries: { enabled: false }, secondDimension: { enabled: false, serie: '' } }
     const oldChartModel = widget.content?.chartTemplate?.CHART
     if (oldChartModel) {
-        groupingSettings.enabled = oldChartModel.groupCategories
-        groupingSettings.secondSeries.enabled = oldChartModel.groupSeries
-        groupingSettings.secondDimension.enabled = oldChartModel.groupSeriesCateg
+        groupingSettings.enabled = getLegacyBooleanValue(oldChartModel.groupCategories)
+        groupingSettings.secondSeries.enabled = getLegacyBooleanValue(oldChartModel.groupSeries)
+        groupingSettings.secondDimension.enabled = getLegacyBooleanValue(oldChartModel.groupSeriesCateg)
         groupingSettings.secondDimension.serie = oldChartModel.groupedSerie
     }
     return groupingSettings
+}
+
+const getLegacyBooleanValue = (value: any) => {
+    if (typeof value === 'string') {
+        const normalizedValue = value.trim().toLowerCase()
+        return normalizedValue === 'true' || normalizedValue === '1'
+    }
+    return value === true || value === 1
+}
+
+const getLegacyStackingValue = (value: any) => {
+    if (typeof value === 'string') {
+        const normalizedValue = value.trim().toLowerCase()
+        return ['true', '1', 'normal', 'percent'].includes(normalizedValue)
+    }
+    return value === true || value === 1
 }
 
 const getFormattedCenterTextSettings = (widget: any) => {
