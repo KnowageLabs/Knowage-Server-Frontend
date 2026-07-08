@@ -567,7 +567,11 @@ export default defineComponent({
         },
 
         launchSelection() {
-            this.setSelections(this.dashboardId, this.activeSelections, this.$http)
+            // this.setSelections(this.dashboardId, this.activeSelections, this.$http)
+            const emptySelections = this.activeSelections.filter((s: ISelection) => !s.value || s.value.length === 0)
+            emptySelections.forEach((s: ISelection) => this.removeSelection({ datasetId: s.datasetId, columnName: s.columnName }, this.dashboardId, this.$http))
+            const selectionsToCommit = this.activeSelections.filter((s: ISelection) => s.value && s.value.length > 0)
+            if (selectionsToCommit.length > 0) this.setSelections(this.dashboardId, selectionsToCommit, this.$http)
         },
         unlockSelection() {
             const payload = {
