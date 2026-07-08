@@ -59,23 +59,22 @@
                     </div>
                 </q-expansion-item>
 
-                <q-expansion-item v-if="isDate" default-opened dense icon="lock_clock" :label="$t('managers.driversManagement.useModes.maxValue')" class="col-12 q-ma-none q-pa-none bg-grey-2 q-mt-sm">
-                    <div class="row q-col-gutter-sm q-pa-sm">
-                        <q-select dense class="col-4" filled v-model="selectedMax" :options="useModeDescriptor.maxValues" option-label="name" option-value="label" emit-value map-options @update:model-value="setMax" :label="$t('managers.driversManagement.useModes.maxValue')" autocomplete="" />
-                        <q-input v-if="selectedMax === 'lov'" dense class="col-8" filled v-model="mode.maxLov.name" :error="v$.mode.maxLov.$invalid && v$.mode.maxLov.$dirty" :error-message="v$.mode.maxLov.$invalid && v$.mode.maxLov.$dirty ? $t('common.validation.required', { fieldName: $t('managers.driversManagement.useModes.lov') }) : null" disable :label="$t('managers.driversManagement.useModes.lov') + '*'" autofocus>
-                            <template v-slot:after>
-                                <q-icon name="search" class="cursor-pointer" @click="showLovsDialog('max')" />
-                            </template>
-                        </q-input>
-                    </div>
-                </q-expansion-item>
-
                 <q-expansion-item v-if="isDate" default-opened dense icon="lock_clock" :label="$t('managers.driversManagement.useModes.minValue')" class="col-12 q-ma-none q-pa-none bg-grey-2 q-mt-sm">
                     <div class="row q-col-gutter-sm q-pa-sm">
                         <q-select dense class="col-4" filled v-model="selectedMin" :options="useModeDescriptor.minValues" option-label="name" option-value="label" emit-value map-options @update:model-value="setMin" :label="$t('managers.driversManagement.useModes.minValue')" autocomplete="" />
                         <q-input v-if="selectedMin === 'lov'" dense class="col-8" filled v-model="mode.minLov.name" :error="v$.mode.minLov.$invalid && v$.mode.minLov.$dirty" :error-message="v$.mode.minLov.$invalid && v$.mode.minLov.$dirty ? $t('common.validation.required', { fieldName: $t('managers.driversManagement.useModes.lov') }) : null" disable :label="$t('managers.driversManagement.useModes.lov') + '*'" autofocus>
                             <template v-slot:after>
                                 <q-icon name="search" class="cursor-pointer" @click="showLovsDialog('min')" />
+                            </template>
+                        </q-input>
+                    </div>
+                </q-expansion-item>
+                <q-expansion-item v-if="isDate" default-opened dense icon="lock_clock" :label="$t('managers.driversManagement.useModes.maxValue')" class="col-12 q-ma-none q-pa-none bg-grey-2 q-mt-sm">
+                    <div class="row q-col-gutter-sm q-pa-sm">
+                        <q-select dense class="col-4" filled v-model="selectedMax" :options="useModeDescriptor.maxValues" option-label="name" option-value="label" emit-value map-options @update:model-value="setMax" :label="$t('managers.driversManagement.useModes.maxValue')" autocomplete="" />
+                        <q-input v-if="selectedMax === 'lov'" dense class="col-8" filled v-model="mode.maxLov.name" :error="v$.mode.maxLov.$invalid && v$.mode.maxLov.$dirty" :error-message="v$.mode.maxLov.$invalid && v$.mode.maxLov.$dirty ? $t('common.validation.required', { fieldName: $t('managers.driversManagement.useModes.lov') }) : null" disable :label="$t('managers.driversManagement.useModes.lov') + '*'" autofocus>
+                            <template v-slot:after>
+                                <q-icon name="search" class="cursor-pointer" @click="showLovsDialog('max')" />
                             </template>
                         </q-input>
                     </div>
