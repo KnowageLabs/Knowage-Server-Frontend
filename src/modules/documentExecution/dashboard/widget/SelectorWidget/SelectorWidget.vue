@@ -362,6 +362,11 @@ export default defineComponent({
         },
         multiValueSelectionChanged() {
             if (this.editorMode) return
+            if (!this.selectedValues || this.selectedValues.length === 0) {
+                const index = this.activeSelections.findIndex((selection: ISelection) => selection.datasetId === this.propWidget.dataset && selection.columnName === this.propWidget.columns[0]?.columnName)
+                if (index !== -1) this.activeSelections.splice(index, 1)
+                return
+            }
             const tempSelection = this.createNewSelection(this.selectedValues) as ISelection
 
             this.updateActiveSelectionsWithMultivalueSelection(tempSelection)
