@@ -143,16 +143,17 @@
                                     <q-icon name="warning_amber" color="negative" size="sm" class="q-mr-xs q-mt-xs" />
                                     <vue-markdown-it :source="message.content"></vue-markdown-it>
                                 </div>
-                                <div v-else-if="extractDashboardLinks(message).length > 0" class="kn-url-artifacts">
-                                    <div v-for="link in extractDashboardLinks(message)" :key="link.url" class="kn-url-artifact-item" @click="router.push(link.url)">
-                                        <q-icon name="dashboard" size="xs" class="kn-url-artifact-icon" />
-                                        <span class="kn-url-artifact-label">{{ link.title }}</span>
-                                        <q-icon name="open_in_new" size="xs" class="kn-url-artifact-open-icon" />
-                                    </div>
-                                </div>
                                 <vue-markdown-it v-else :source="message.content"></vue-markdown-it>
                             </div>
                         </q-chat-message>
+
+                        <div v-if="getUrlLinksForMessage(message).length > 0" class="kn-dashboard-buttons-container">
+                            <div v-for="link in getUrlLinksForMessage(message)" :key="link.url" class="kn-url-artifact-item" @click="router.push(link.url)">
+                                <q-icon name="dashboard" size="xs" class="kn-url-artifact-icon" />
+                                <span class="kn-url-artifact-label">{{ link.title }}</span>
+                                <q-icon name="open_in_new" size="xs" class="kn-url-artifact-open-icon" />
+                            </div>
+                        </div>
 
                         <div v-if="message.timestamp" class="text-caption kn-chatbot-timestamp" :class="message.role === 'user' ? 'text-right q-pr-xs' : 'text-left q-pl-xs'">
                             {{ formatTime(message.timestamp) }}
@@ -246,6 +247,7 @@ const {
     formatTime,
     messageHasArtifacts,
     openArtifactsForMessage,
+    getUrlLinksForMessage,
     sendMessage,
     startSidePanelResize
 } = useAiChat(showAlert, minimized, minimizedToCard)
@@ -256,29 +258,6 @@ const toolStreamingMessagesSet = new Set(Object.values(AI_TOOLS_STREAMING_MESSAG
 
 function isToolStreamingMessage(content: string): boolean {
     return toolStreamingMessagesSet.has(content)
-}
-
-function extractDashboardLinks(message: any): Array<{ title: string; url: string }> {
-    const links: Array<{ title: string; url: string }> = []
-    if (!message || !message.content || typeof message.content !== 'string') return links
-
-    try {
-        const parsed = JSON.parse(message.content)
-        if (parsed.type === 'artifacts' && Array.isArray(parsed.files)) {
-            parsed.files.forEach((file: any) => {
-                if (file.ext === 'url' && file.url && file.title) {
-                    links.push({
-                        title: file.title,
-                        url: file.url
-                    })
-                }
-            })
-        }
-    } catch {
-        // Content is not JSON, skip dashboard link extraction
-    }
-
-    return links
 }
 
 function onBmChange() {
@@ -450,10 +429,14 @@ function onStartSession() {
 
 // ── URL artifact inline links ─────────────────────────────────────────────
 
-.kn-url-artifacts {
+.kn-dashboard-buttons-container {
+    margin-left: 44px;
+    margin-top: 6px;
+    margin-bottom: 4px;
     display: flex;
     flex-direction: column;
     gap: 6px;
+    cursor: pointer;
 }
 
 .kn-url-artifact-item {

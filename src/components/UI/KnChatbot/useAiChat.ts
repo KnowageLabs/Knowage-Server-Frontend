@@ -105,6 +105,7 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
     const awaitingReply = ref(false)
     const userMessage = ref('')
     const sideItems = ref<IChatBlock[]>([])
+    const urlLinks = ref<Record<string, Array<{ title: string; url: string }>>>({})
     const sidePanelVisible = ref(false)
     const sidePanelWidth = ref(getInitialSidePanelWidth())
     const unreadCount = ref(0)
@@ -231,6 +232,11 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
     function getLinkedRenderableItems(invocationId?: string): IChatBlock[] {
         if (!invocationId) return []
         return sideItems.value.filter((item) => item.invocationId === invocationId && isRenderableSideItem(item))
+    }
+
+    function getUrlLinksForMessage(message: IChat): Array<{ title: string; url: string }> {
+        if (!message.invocationId) return []
+        return urlLinks.value[message.invocationId] ?? []
     }
 
     function messageHasArtifacts(message: IChat): boolean {
@@ -372,6 +378,7 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
         turnId.value = 0
         conversationId.value++
         sideItems.value = []
+        urlLinks.value = {}
         sidePanelVisible.value = false
         clearArtifactNavigation()
         sessionReady.value = false
@@ -561,11 +568,22 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
                         try { block = JSON.parse(rawPayload) } catch { continue }
                         if (['sql_query', 'artifacts', 'python_code'].includes(block?.type)) {
                             if (block.type === 'artifacts' && Array.isArray(block.files)) {
-                                upsertArtifactsBlock(block as IChatBlockArtifacts, activeInvocationId)
+                                const urlFiles: Array<{ title: string; url: string }> = block.files
+                                    .filter((f: any) => f.ext === 'url' && f.url && f.title)
+                                    .map((f: any) => ({ title: f.title as string, url: f.url as string }))
+                                const nonUrlFiles = block.files.filter((f: any) => f.ext !== 'url')
+                                if (urlFiles.length > 0) {
+                                    const existing = urlLinks.value[activeInvocationId] ?? []
+                                    urlLinks.value[activeInvocationId] = [...existing, ...urlFiles]
+                                }
+                                if (nonUrlFiles.length > 0) {
+                                    upsertArtifactsBlock({ ...block, files: nonUrlFiles } as IChatBlockArtifacts, activeInvocationId)
+                                    if (!sidePanelVisible.value) sidePanelVisible.value = true
+                                }
                             } else {
                                 sideItems.value.push(decorateSideBlock(block as IChatBlock, activeInvocationId))
+                                if (!sidePanelVisible.value) sidePanelVisible.value = true
                             }
-                            if (!sidePanelVisible.value) sidePanelVisible.value = true
                         }
                     }
                 }
@@ -628,6 +646,7 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
         unreadCount,
         confirmNewChat,
         formatTime,
+        getUrlLinksForMessage,
         messageHasArtifacts,
         openArtifactsForMessage,
         sendMessage,
