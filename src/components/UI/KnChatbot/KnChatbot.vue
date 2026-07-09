@@ -148,7 +148,7 @@
                         </q-chat-message>
 
                         <div v-if="getUrlLinksForMessage(message).length > 0" class="kn-dashboard-buttons-container">
-                            <div v-for="link in getUrlLinksForMessage(message)" :key="link.url" class="kn-url-artifact-item" @click="router.push(link.url)">
+                            <div v-for="link in getUrlLinksForMessage(message)" :key="link.url" class="kn-url-artifact-item" @click="navigateToLink(link.url)">
                                 <q-icon name="dashboard" size="xs" class="kn-url-artifact-icon" />
                                 <span class="kn-url-artifact-label">{{ link.title }}</span>
                                 <q-icon name="open_in_new" size="xs" class="kn-url-artifact-open-icon" />
@@ -258,6 +258,15 @@ const toolStreamingMessagesSet = new Set(Object.values(AI_TOOLS_STREAMING_MESSAG
 
 function isToolStreamingMessage(content: string): boolean {
     return toolStreamingMessagesSet.has(content)
+}
+
+function navigateToLink(url: string) {
+    try {
+        const parsed = new URL(url)
+        router.push(parsed.pathname + parsed.search + parsed.hash)
+    } catch {
+        router.push(url)
+    }
 }
 
 function onBmChange() {
