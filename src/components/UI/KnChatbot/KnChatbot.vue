@@ -143,23 +143,16 @@
                                     <q-icon name="warning_amber" color="negative" size="sm" class="q-mr-xs q-mt-xs" />
                                     <vue-markdown-it :source="message.content"></vue-markdown-it>
                                 </div>
+                                <div v-else-if="extractDashboardLinks(message).length > 0" class="kn-url-artifacts">
+                                    <div v-for="link in extractDashboardLinks(message)" :key="link.url" class="kn-url-artifact-item" @click="router.push(link.url)">
+                                        <q-icon name="dashboard" size="xs" class="kn-url-artifact-icon" />
+                                        <span class="kn-url-artifact-label">{{ link.title }}</span>
+                                        <q-icon name="open_in_new" size="xs" class="kn-url-artifact-open-icon" />
+                                    </div>
+                                </div>
                                 <vue-markdown-it v-else :source="message.content"></vue-markdown-it>
                             </div>
                         </q-chat-message>
-
-                        <div v-for="dashboardLink in extractDashboardLinks(message)" :key="dashboardLink.url" class="kn-dashboard-buttons-container">
-                            <q-btn
-                                unelevated
-                                size="sm"
-                                color="primary"
-                                :label="dashboardLink.title"
-                                icon-right="open_in_new"
-                                class="kn-dashboard-link-btn"
-                                @click="openDashboard(dashboardLink.url)"
-                            >
-                                <q-tooltip :delay="500" anchor="top middle" self="bottom middle">{{ $t('ai.openDashboard') }}</q-tooltip>
-                            </q-btn>
-                        </div>
 
                         <div v-if="message.timestamp" class="text-caption kn-chatbot-timestamp" :class="message.role === 'user' ? 'text-right q-pr-xs' : 'text-left q-pl-xs'">
                             {{ formatTime(message.timestamp) }}
@@ -259,7 +252,6 @@ const {
 
 const { listening, toggleVoice } = useVoiceInput(userMessage)
 const router = useRouter()
-
 const toolStreamingMessagesSet = new Set(Object.values(AI_TOOLS_STREAMING_MESSAGES).flatMap((entry) => [...entry.it_IT, ...entry.en_US]))
 
 function isToolStreamingMessage(content: string): boolean {
@@ -287,10 +279,6 @@ function extractDashboardLinks(message: any): Array<{ title: string; url: string
     }
 
     return links
-}
-
-function openDashboard(url: string) {
-    router.push(url)
 }
 
 function onBmChange() {
@@ -460,27 +448,48 @@ function onStartSession() {
     margin-top: 2px;
 }
 
-// ── Dashboard link chip ───────────────────────────────────────────────────
+// ── URL artifact inline links ─────────────────────────────────────────────
 
-.kn-dashboard-link {
-    margin-left: 44px;
-    margin-top: -4px;
-    margin-bottom: 4px;
+.kn-url-artifacts {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
-// ── Dashboard buttons container ────────────────────────────────────────────
+.kn-url-artifact-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 10px;
+    background: #f5f3ff;
+    border-radius: 8px;
+    border: 1px solid #ddd6fe;
+    text-decoration: none;
+    transition: background 0.15s ease, border-color 0.15s ease;
 
-.kn-dashboard-buttons-container {
-    margin-left: 44px;
-    margin-top: 6px;
-    margin-bottom: 4px;
+    &:hover {
+        background: #ede9fe;
+        border-color: #a78bfa;
+    }
 }
 
-.kn-dashboard-link-btn {
-    border-radius: 6px;
-    font-size: 0.8rem;
-    padding: 4px 10px;
-    min-height: auto;
+.kn-url-artifact-icon {
+    color: #4f46e5;
+    flex-shrink: 0;
+}
+
+.kn-url-artifact-label {
+    color: #4f46e5;
+    font-size: 0.82rem;
+    font-weight: 500;
+    flex: 1;
+    word-break: break-word;
+}
+
+.kn-url-artifact-open-icon {
+    color: #7c3aed;
+    flex-shrink: 0;
+    opacity: 0.7;
 }
 
 // ── Session loading banner ─────────────────────────────────────────────────
