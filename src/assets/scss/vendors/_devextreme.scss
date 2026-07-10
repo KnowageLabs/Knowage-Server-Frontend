@@ -1,0 +1,13 @@
+// DevExtreme adds the class `dx-theme-generic-typography` directly to <body>,
+// which causes its rule `.dx-theme-generic-typography a` to style ALL anchors
+// in the application.
+//
+// The override below neutralises the body-level cascade for any anchor that is
+// NOT inside a real DevExtreme widget (.dx-widget), restoring the browser /
+// application default.  The DevExtreme pivot (and any other dx component) still
+// gets the original typography because those anchors ARE descendants of .dx-widget.
+
+body.dx-theme-generic-typography a:not(.pivot-widget-container a) {
+    color: inherit;
+    text-decoration: inherit;
+}
