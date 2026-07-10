@@ -34,7 +34,10 @@ export default defineComponent({
     },
     computed: {
         backgroundStyleDisabled() {
-            return !this.backgroundStyleModel || !this.backgroundStyleModel.enabled
+            if (!this.backgroundStyleModel) return true
+            // In theme mode the toggle controls enabled; outside theme mode the picker is always enabled
+            if (!this.themeStyle) return false
+            return !this.backgroundStyleModel.enabled
         }
     },
     mounted() {
@@ -61,6 +64,7 @@ export default defineComponent({
         onBackroundColorChanged(event: string | null) {
             if (!event || !this.backgroundStyleModel) return
             this.backgroundStyleModel.properties['background-color'] = event
+            if (!this.themeStyle) this.backgroundStyleModel.enabled = true
             this.backgroundColorStyleChanged()
         }
     }
