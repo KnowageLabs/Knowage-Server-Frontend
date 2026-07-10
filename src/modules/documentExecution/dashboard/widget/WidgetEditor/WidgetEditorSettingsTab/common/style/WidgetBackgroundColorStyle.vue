@@ -5,7 +5,7 @@
                 <q-toggle v-model="backgroundStyleModel.enabled" :label="$t('common.enabled')" @update:model-value="backgroundColorStyleChanged" />
             </div>
             <div class="col-6">
-                <WidgetEditorColorPicker :initial-value="backgroundStyleModel.properties['background-color']" :label="$t('dashboard.widgetEditor.iconTooltips.backgroundColor')" :disabled="!backgroundStyleModel.enabled" @change="backgroundColorStyleChanged"></WidgetEditorColorPicker>
+                <WidgetEditorColorPicker :initial-value="backgroundStyleModel.properties['background-color']" :label="$t('dashboard.widgetEditor.iconTooltips.backgroundColor')" :disabled="backgroundStyleDisabled" @change="onBackgroundColorChanged"></WidgetEditorColorPicker>
             </div>
         </div>
     </div>
@@ -32,7 +32,10 @@ export default defineComponent({
     },
     computed: {
         backgroundStyleDisabled() {
-            return !this.backgroundStyleModel || !this.backgroundStyleModel.enabled
+            if (!this.backgroundStyleModel) return true
+            // In theme mode the toggle controls enabled; outside theme mode the picker is always active
+            if (!this.themeStyle) return false
+            return !this.backgroundStyleModel.enabled
         }
     },
     mounted() {
@@ -55,6 +58,12 @@ export default defineComponent({
         },
         backgroundColorStyleChanged() {
             if (this.widgetModel) this.$emit('styleChanged')
+        },
+        onBackgroundColorChanged(event: string | null) {
+            if (!event || !this.backgroundStyleModel) return
+            this.backgroundStyleModel.properties['background-color'] = event
+            if (!this.themeStyle) this.backgroundStyleModel.enabled = true
+            this.backgroundColorStyleChanged()
         }
     }
 })
