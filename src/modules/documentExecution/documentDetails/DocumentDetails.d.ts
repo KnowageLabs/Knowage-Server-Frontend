@@ -60,7 +60,6 @@ export interface iAnalyticalDriver {
     modalityValue: any
     modalityValueForDefault: any
     modalityValueForMax: any
-    modalityValueForMin: any
     name: string
     selectedLayer: any
     selectedLayerProp: any
@@ -230,24 +229,24 @@ export interface iDocumentType {
 }
 
 export interface iMondrianSchema {
-    id: number
-    currentContentId: number
-    name: string
-    description: string
-    type: string
-    modelLocked: boolean
+    id: number,
+    currentContentId: number,
+    name: string,
+    description: string,
+    type: string,
+    modelLocked: boolean,
     modelLocker: string | null
 }
 
 export interface iXMLATemplate {
-    address: string
-    parameters: { name: string; value: string }[]
+    address: string;
+    parameters: { name: string, value: string }[]
 }
 
 export interface iMondrianTemplate {
-    id: number
-    mondrianSchema: string
-    mondrianSchemaId: number
-    mdxQuery: string
+    id: number,
+    mondrianSchema: string,
+    mondrianSchemaId: number,
+    mdxQuery: string,
     mondrianMdxQuery: string
 }

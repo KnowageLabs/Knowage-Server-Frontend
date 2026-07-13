@@ -22,7 +22,6 @@ export interface iAnalyticalDriver {
     modalityValue: any
     modalityValueForDefault: any
     modalityValueForMax: any
-    modalityValueForMin: any
     name: string
     selectedLayer: any
     selectedLayerProp: any
