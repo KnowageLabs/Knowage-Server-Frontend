@@ -42,3 +42,9 @@ export interface iStaticPage {
     id: number
     name: string
 }
+
+export interface iUserBOResult {
+    userId: string
+    success: boolean
+    message?: string
+}

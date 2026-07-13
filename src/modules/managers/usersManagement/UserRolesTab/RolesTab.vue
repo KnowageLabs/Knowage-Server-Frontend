@@ -1,24 +1,39 @@
 <template>
-    <q-card>
-        <q-toolbar class="kn-toolbar kn-toolbar--secondary">
-            <q-toolbar-title>{{ $t('managers.usersManagement.roles') }}</q-toolbar-title>
-        </q-toolbar>
-        <q-card-section class="row q-gutter-sm">
-            <q-banner v-if="selectedRoles.length > 1" dense class="bg-info col-12 text-center">
-                <template v-slot:avatar>
-                    <q-icon name="info" />
-                </template>
-                {{ $t('managers.usersManagement.defaultRoleInfo') }}
-            </q-banner>
-            <q-select v-if="selectedRoles.length > 1" filled class="col-12" v-model="defaultRole" :options="selectedRolesWithEmpty()" option-label="name" @update:model-value="onSelectDefaultRole"> </q-select>
+    <div class="um-tab-layout">
+        <q-scroll-area class="um-tab-scroll">
+            <div class="um-tab-container">
+                <q-card>
+                    <q-card-section class="q-py-sm">
+                        <div class="um-section-label">{{ $t('managers.usersManagement.form.defaultRole') }}</div>
+                    </q-card-section>
+                    <q-separator />
+                    <q-card-section>
+                        <q-select v-if="selectedRoles.length > 1" outlined dense v-model="defaultRole" :options="selectedRolesWithEmpty()" option-label="name" :label="$t('managers.usersManagement.form.defaultRole')" @update:model-value="onSelectDefaultRole">
+                            <template #append>
+                                <q-icon name="info" color="grey" size="xs">
+                                    <q-tooltip>{{ $t('managers.usersManagement.defaultRoleInfo') }}</q-tooltip>
+                                </q-icon>
+                            </template>
+                        </q-select>
+                    </q-card-section>
+                </q-card>
 
-            <q-table class="col-12" dense flat selection="multiple" :rows="rolesList" v-model:selected="selectedRoles" :columns="cols" :pagination="{ rowsPerPage: 20 }" row-key="id" @update:selected="onRowSelect"></q-table>
-        </q-card-section>
-    </q-card>
+                <q-card>
+                    <q-card-section class="q-py-sm">
+                        <div class="um-section-label">{{ $t('managers.usersManagement.roles') }}</div>
+                    </q-card-section>
+                    <q-separator />
+                    <q-card-section class="q-pa-none">
+                        <q-table dense flat selection="multiple" :rows="rolesList" v-model:selected="selectedRoles" :columns="cols" :pagination="{ rowsPerPage: 20 }" row-key="id" @update:selected="onRowSelect"></q-table>
+                    </q-card-section>
+                </q-card>
+            </div>
+        </q-scroll-area>
+    </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, PropType } from 'vue'
 import rolesTabDescriptor from './RolesTabDescriptor.json'
 import { iRole } from '../UsersManagement'
 
@@ -26,7 +41,7 @@ export default defineComponent({
     name: 'roles-tab',
     props: {
         defRole: Number,
-        rolesList: Array,
+        rolesList: { type: Array as PropType<iRole[]>, default: () => [] },
         selected: Array
     },
     emits: ['changed', 'setDefaultRole'],
@@ -76,3 +91,32 @@ export default defineComponent({
     }
 })
 </script>
+
+<style lang="scss" scoped>
+.um-tab-layout {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    background-color: #f3f3f3;
+    overflow: hidden;
+    height: 100%;
+}
+.um-tab-scroll {
+    flex: 1;
+}
+.um-tab-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.um-section-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.54);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+</style>

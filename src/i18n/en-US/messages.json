@@ -4109,6 +4109,10 @@
         "usersManagement": {
             "attributes": "Attributes",
             "blockedUserInfo": "This user reached the maximum number of failed login attempts and therefore he was locked. Do you want to unlock him?",
+            "bulk": {
+                "results": "Bulk operation results",
+                "title": "Bulk edit ({count} users)"
+            },
             "defaultRoleInfo": "Select a role if you want to set it as the default. If no role is selected, it will be possible switch between roles from the Knowage Administration menu",
             "detail": "Detail",
             "emptyRolesOption": "<no default role>",
@@ -4116,6 +4120,7 @@
                 "missingDefaultRole": "Default role is not selected",
                 "noRolesSelected": "No roles selected for the user. At least one role must be selected for the user to be valid"
             },
+            "flgPwdBlocked": "Blocked",
             "form": {
                 "defaultRole": "Default role",
                 "password": "Password",
@@ -4137,8 +4142,11 @@
                 "createTitle": "Create user",
                 "deleteMessage": "User deleted",
                 "deleteTitle": "Delete user",
-                "resetSuccessful": "Multifactor authentication successfully reset"
+                "lockSuccess": "User blocked successfully",
+                "resetSuccessful": "Multifactor authentication successfully reset",
+                "unlockSuccess": "User unblocked successfully"
             },
+            "lockUser": "Lock user",
             "multifactor": "This user has multifactor authentication enabled. Click the button to reset it",
             "newUser": "New user",
             "roles": "Roles",

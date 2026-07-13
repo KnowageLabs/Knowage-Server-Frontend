@@ -1,85 +1,120 @@
 <template>
-    <div class="kn-page kn-width-full-with-menu">
-        <div class="kn-page-content p-grid p-m-0">
-            <div class="kn-list--column p-col-4 p-sm-4 p-md-3 p-p-0">
-                <q-toolbar class="kn-toolbar kn-toolbar--primary">
-                    <q-toolbar-title>{{ $t('managers.usersManagement.title') }}</q-toolbar-title>
-                    <q-btn round class="kn-fab-btn" data-test="new-button">
-                        <q-icon name="fas fa-plus" size="xs"/>
-                        <q-menu square>
-                            <q-list dense style="min-width: 180px">
-                                <q-item clickable v-close-popup @click="showForm()">
-                                    <q-item-section avatar>
-                                        <q-icon name="fas fa-plus" size="xs"/>
-                                    </q-item-section>
-                                    <q-item-section>{{ $t('managers.usersManagement.newUser') }}</q-item-section>
-                                </q-item>
-                                <q-item clickable v-close-popup @click="importDialogVisible = true">
-                                    <q-item-section avatar>
-                                        <q-icon name="fas fa-file-import" size="xs"/>
-                                    </q-item-section>
-                                    <q-item-section>{{ $t('managers.usersManagement.import.fromFile') }}</q-item-section>
-                                </q-item>
-                            </q-list>
-                        </q-menu>
-                    </q-btn>
-                </q-toolbar>
-                <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
-                <KnListBox :options="users" :settings="usersManagementDescriptor.knListSettings" @click="onUserSelect" @delete.stop="onUserDelete" />
-            </div>
+    <q-layout view="hHh lpR fFf" container style="height: 100%; overflow: hidden">
+        <q-page-container>
+            <q-page class="row" style="position: unset">
+                <q-drawer v-model="drawerVisible" side="left" :width="300" :breakpoint="0" show-if-above class="column no-wrap">
+                    <q-toolbar class="kn-toolbar kn-toolbar--primary">
+                        <q-toolbar-title>{{ $t('managers.usersManagement.title') }}</q-toolbar-title>
+                        <q-btn round class="kn-fab-btn" data-test="new-button">
+                            <q-icon name="fas fa-plus" size="xs" />
+                            <q-menu square>
+                                <q-list dense style="min-width: 180px">
+                                    <q-item clickable v-close-popup @click="showForm()">
+                                        <q-item-section avatar>
+                                            <q-icon name="fas fa-plus" size="xs" />
+                                        </q-item-section>
+                                        <q-item-section>{{ $t('managers.usersManagement.newUser') }}</q-item-section>
+                                    </q-item>
+                                    <q-item clickable v-close-popup @click="importDialogVisible = true">
+                                        <q-item-section avatar>
+                                            <q-icon name="fas fa-file-import" size="xs" />
+                                        </q-item-section>
+                                        <q-item-section>{{ $t('managers.usersManagement.import.fromFile') }}</q-item-section>
+                                    </q-item>
+                                </q-list>
+                            </q-menu>
+                        </q-btn>
+                    </q-toolbar>
+                    <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
+                    <UsersManagementList class="col kn-height-full" :users="users" :loading="loading" :active-user="activeUser" :selected-users="selectedUsers" @select="onUserSelect(null, $event)" @selectionChange="onSelectionChange" @delete="onUserDelete({ item: $event })" @lockToggle="onInlineLockToggle" />
+                </q-drawer>
 
-            <KnHint v-if="hiddenForm" :title="'managers.usersManagement.title'" :hint="'managers.usersManagement.hint'"></KnHint>
-            <div v-show="!hiddenForm" class="p-col-8 p-sm-8 p-md-9 p-p-0 p-m-0 kn-page">
-                <q-toolbar class="kn-toolbar kn-toolbar--secondary">
-                    <q-toolbar-title>{{ userDetailsForm.userId }}</q-toolbar-title>
-                    <q-btn flat round dense icon="save" :disable="!dirty || !passwordValidation" data-test="submit-button" @click="saveUser">
-                        <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.save') }}</q-tooltip>
-                    </q-btn>
-                    <q-btn flat round dense icon="cancel" data-test="close-button" @click="closeForm">
-                        <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.cancel') }}</q-tooltip>
-                    </q-btn>
-                </q-toolbar>
-                <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
-                <div class="kn-page-content">
-                    <q-tabs align="left" v-model="selectedTab">
-                        <q-tab name="detail" :label="$t('managers.usersManagement.detail')" />
-                        <q-tab name="roles" :label="$t('managers.usersManagement.roles')" />
-                        <q-tab name="attributes" :label="$t('managers.usersManagement.attributes')" />
-                    </q-tabs>
-                    <q-tab-panels v-model="selectedTab" animated keep-alive>
-                        <q-tab-panel name="detail" class="q-pa-sm">
-                            <DetailFormTab v-if="!hiddenForm" :form-insert="formInsert" :form-values="userDetailsForm" :vobj="v$" :disabled-u-i-d="disableUsername" :tenant="tenant" @dataChanged="onDataChange" @unlock="unlockUser($event)"></DetailFormTab>
-                        </q-tab-panel>
-                        <q-tab-panel name="roles" class="q-pa-sm">
-                            <RolesTab :def-role="defaultRole" :roles-list="roles" :selected="selectedRoles" @changed="setSelectedRoles($event)" @setDefaultRole="setDefaultRoleValue($event)"></RolesTab>
-                        </q-tab-panel>
-                        <q-tab-panel name="attributes" class="q-pa-sm">
-                            <UserAttributesForm v-model="attributesForm" :attributes="attributes" @formDirty="onFormDirty"></UserAttributesForm>
-                        </q-tab-panel>
-                    </q-tab-panels>
+                <div class="col column no-wrap">
+                    <KnHint v-if="viewMode === 'hint'" :title="'managers.usersManagement.title'" :hint="'managers.usersManagement.hint'"></KnHint>
+
+                    <template v-if="viewMode === 'single'">
+                        <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+                            <q-btn flat round dense icon="menu_open" @click="drawerVisible = !drawerVisible">
+                                <q-tooltip>{{ $t('common.toggle') }}</q-tooltip>
+                            </q-btn>
+                            <q-toolbar-title>{{ userDetailsForm.userId }}</q-toolbar-title>
+                            <q-btn flat round dense icon="save" :disable="!dirty || !passwordValidation" data-test="submit-button" @click="saveUser">
+                                <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.save') }}</q-tooltip>
+                            </q-btn>
+                            <q-btn flat round dense icon="cancel" data-test="close-button" @click="closeForm">
+                                <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.cancel') }}</q-tooltip>
+                            </q-btn>
+                        </q-toolbar>
+                        <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
+                        <q-tabs dense align="left" class="kn-tabs" v-model="selectedTab" style="border-bottom: 1px solid #ccc">
+                            <q-tab name="detail" :label="$t('managers.usersManagement.detail')" />
+                            <q-tab name="roles" :label="$t('managers.usersManagement.roles')" />
+                            <q-tab name="attributes" :label="$t('managers.usersManagement.attributes')" />
+                        </q-tabs>
+                        <q-tab-panels v-model="selectedTab" animated keep-alive class="col">
+                            <q-tab-panel name="detail" class="q-pa-none kn-height-full">
+                                <DetailFormTab v-if="viewMode === 'single'" :form-insert="formInsert" :form-values="userDetailsForm" :vobj="v$" :disabled-u-i-d="disableUsername" :tenant="tenant" @dataChanged="onDataChange" @unlock="unlockUser()"></DetailFormTab>
+                            </q-tab-panel>
+                            <q-tab-panel name="roles" class="q-pa-none kn-height-full">
+                                <RolesTab :def-role="defaultRole ?? undefined" :roles-list="roles" :selected="selectedRoles" @changed="setSelectedRoles($event)" @setDefaultRole="setDefaultRoleValue($event)"></RolesTab>
+                            </q-tab-panel>
+                            <q-tab-panel name="attributes" class="q-pa-none kn-height-full">
+                                <UserAttributesForm v-model="attributesForm" :attributes="attributes" @formDirty="onFormDirty"></UserAttributesForm>
+                            </q-tab-panel>
+                        </q-tab-panels>
+                    </template>
+
+                    <template v-if="viewMode === 'bulk'">
+                        <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+                            <q-btn flat round dense icon="menu_open" @click="drawerVisible = !drawerVisible">
+                                <q-tooltip>{{ $t('common.toggle') }}</q-tooltip>
+                            </q-btn>
+                            <q-toolbar-title>{{ $t('managers.usersManagement.bulk.title', { count: selectedUsers.length }) }}</q-toolbar-title>
+                            <q-btn flat round dense icon="save" :disable="!bulkDirty || loading" data-test="bulk-save-button" @click="saveBulk">
+                                <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.save') }}</q-tooltip>
+                            </q-btn>
+                            <q-btn flat round dense icon="cancel" @click="closeBulk">
+                                <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.cancel') }}</q-tooltip>
+                            </q-btn>
+                        </q-toolbar>
+                        <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
+                        <q-tabs dense align="left" class="kn-tabs" v-model="selectedBulkTab" style="border-bottom: 1px solid #ccc">
+                            <q-tab name="roles" :label="$t('managers.usersManagement.roles')" />
+                            <q-tab name="attributes" :label="$t('managers.usersManagement.attributes')" />
+                        </q-tabs>
+                        <q-tab-panels v-model="selectedBulkTab" animated keep-alive class="col">
+                            <q-tab-panel name="roles" class="q-pa-none kn-height-full">
+                                <UsersBulkRolesTab ref="bulkRolesTab" :selected-users="selectedUsers" :roles="roles" @dirty="bulkDirty = true" />
+                            </q-tab-panel>
+                            <q-tab-panel name="attributes" class="q-pa-none kn-height-full">
+                                <UserAttributesForm v-model="bulkAttributesForm" :attributes="attributes" @formDirty="bulkDirty = true" />
+                            </q-tab-panel>
+                        </q-tab-panels>
+                    </template>
                 </div>
-            </div>
-        </div>
-    </div>
+            </q-page>
+        </q-page-container>
+    </q-layout>
 
     <UsersManagementImportDialog :visible="importDialogVisible" @close="importDialogVisible = false" @imported="loadAllUsers" />
+    <UsersBulkResultsDialog :visible="bulkResultsVisible" :results="bulkResults" @close="bulkResultsVisible = false" />
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { mapActions, mapState } from 'pinia'
 import { createValidations, ICustomValidatorMap } from '@/helpers/commons/validationHelper'
-import { iUser, iRole, iAttribute } from './UsersManagement'
+import { iUser, iRole, iAttribute, iUserBOResult } from './UsersManagement'
 import useValidate from '@vuelidate/core'
 import { AxiosResponse } from 'axios'
-import TabView from 'primevue/tabview'
-import TabPanel from 'primevue/tabpanel'
 import KnHint from '@/components/UI/KnHint.vue'
-import KnListBox from '@/components/UI/KnListBox/KnListBox.vue'
+import UsersManagementList from './UsersManagementList.vue'
 import RolesTab from './UserRolesTab/RolesTab.vue'
+import UsersBulkRolesTab from './UserRolesTab/UsersBulkRolesTab.vue'
 import DetailFormTab from './UserDetailTab/DetailFormTab.vue'
 import UserAttributesForm from './UserAttributesTab/UserAttributesForm.vue'
 import UsersManagementImportDialog from './UsersManagementImportDialog.vue'
+import UsersBulkResultsDialog from './UsersBulkResultsDialog.vue'
 import detailFormTabValidationDescriptor from './UserDetailTab/DetailFormTabValidationDescriptor.json'
 import usersManagementDescriptor from './UsersManagementDescriptor.json'
 import { sameAs } from '@vuelidate/validators'
@@ -88,7 +123,7 @@ import { iTenant } from '../tenantManagement/TenantManagement'
 
 export default defineComponent({
     name: 'user-management',
-    components: { KnListBox, TabView, TabPanel, KnHint, RolesTab, DetailFormTab, UserAttributesForm, UsersManagementImportDialog },
+    components: { UsersManagementList, KnHint, RolesTab, UsersBulkRolesTab, DetailFormTab, UserAttributesForm, UsersManagementImportDialog, UsersBulkResultsDialog },
     data() {
         return {
             v$: useValidate() as any,
@@ -103,11 +138,19 @@ export default defineComponent({
             attributesForm: {},
             tempAttributes: {},
             defaultRole: null,
-            hiddenForm: true,
+            viewMode: 'hint' as 'hint' | 'single' | 'bulk',
+            drawerVisible: true,
+            activeUser: null as iUser | null,
             disableUsername: true,
             loading: false,
             importDialogVisible: false,
             selectedRoles: [] as iRole[],
+            selectedUsers: [] as iUser[],
+            selectedBulkTab: 'roles',
+            bulkAttributesForm: {} as any,
+            bulkDirty: false,
+            bulkResultsVisible: false,
+            bulkResults: [] as iUserBOResult[],
             usersManagementDescriptor: usersManagementDescriptor,
             selectedTab: 'detail',
             tenant: {} as iTenant
@@ -182,8 +225,9 @@ export default defineComponent({
             this.tempAttributes = {}
             this.attributesForm = {}
             this.disableUsername = false
-            this.hiddenForm = false
-            this.selectedRoles = []
+            this.viewMode = 'single'
+            this.activeUser = null
+            this.selectedUsers = []
             this.userDetailsForm.id = null
             this.userDetailsForm.userId = ''
             this.userDetailsForm.fullName = ''
@@ -284,7 +328,7 @@ export default defineComponent({
                             })
                         })
                         .finally(() => {
-                            this.hiddenForm = true
+                            this.viewMode = 'hint'
                             this.loading = false
                         })
                 }
@@ -317,7 +361,8 @@ export default defineComponent({
             this.dirty = false
             this.v$.$reset()
             this.attributesForm = {}
-            this.hiddenForm = false
+            this.viewMode = 'single'
+            this.activeUser = userObj
             this.disableUsername = userObj.id ? true : false
             this.defaultRole = userObj.defaultRoleId
             this.selectedRoles = this.getSelectedUserRoles(userObj.sbiExtUserRoleses)
@@ -345,17 +390,107 @@ export default defineComponent({
                     header: this.$t('common.toast.unsavedChangesHeader'),
                     icon: 'pi pi-exclamation-triangle',
                     accept: () => {
-                        this.hiddenForm = true
+                        this.viewMode = 'hint'
+                        this.activeUser = null
                         this.dirty = false
                     },
                     reject: () => {}
                 })
             } else {
-                this.hiddenForm = true
+                this.viewMode = 'hint'
+                this.activeUser = null
             }
         },
         onDataChange() {
             this.dirty = true
+        },
+        onSelectionChange(users: iUser[]) {
+            this.selectedUsers = users
+            if (users.length > 1) {
+                if (this.dirty) {
+                    this.$confirm.require({
+                        message: this.$t('common.toast.unsavedChangesMessage'),
+                        header: this.$t('common.toast.unsavedChangesHeader'),
+                        icon: 'pi pi-exclamation-triangle',
+                        accept: () => {
+                            this.enterBulkMode()
+                        },
+                        reject: () => {}
+                    })
+                } else {
+                    this.enterBulkMode()
+                }
+            } else if (users.length === 1) {
+                this.onUserSelect(null, users[0])
+            } else {
+                this.viewMode = 'hint'
+                this.activeUser = null
+            }
+        },
+        enterBulkMode() {
+            this.viewMode = 'bulk'
+            this.selectedBulkTab = 'roles'
+            this.bulkDirty = false
+            this.bulkAttributesForm = {}
+            this.attributes.forEach((attr: iAttribute) => {
+                this.bulkAttributesForm[attr.attributeId] = { [attr.attributeName]: null }
+            })
+        },
+        closeBulk() {
+            if (this.bulkDirty) {
+                this.$confirm.require({
+                    message: this.$t('common.toast.unsavedChangesMessage'),
+                    header: this.$t('common.toast.unsavedChangesHeader'),
+                    icon: 'pi pi-exclamation-triangle',
+                    accept: () => {
+                        this.selectedUsers = []
+                        this.viewMode = 'hint'
+                        this.bulkDirty = false
+                    },
+                    reject: () => {}
+                })
+            } else {
+                this.selectedUsers = []
+                this.viewMode = 'hint'
+            }
+        },
+        async saveBulk() {
+            this.loading = true
+            const allResults: iUserBOResult[] = []
+            try {
+                const rolesTab = this.$refs.bulkRolesTab as any
+                if (rolesTab?.isDirty) {
+                    const rolesResults = await rolesTab.save()
+                    allResults.push(...rolesResults)
+                }
+                const attrResults = await this.saveBulkAttributes()
+                allResults.push(...attrResults)
+                if (allResults.length > 0) {
+                    this.bulkResults = allResults
+                    this.bulkResultsVisible = true
+                }
+                this.bulkDirty = false
+                await this.loadAllUsers()
+            } catch (error: any) {
+                this.setError({ title: this.$t('common.error.saving'), msg: error?.message || '' })
+            } finally {
+                this.loading = false
+            }
+        },
+        async saveBulkAttributes(): Promise<iUserBOResult[]> {
+            const filtered: any = {}
+            for (const attrId of Object.keys(this.bulkAttributesForm)) {
+                const attrObj = this.bulkAttributesForm[attrId]
+                const hasValue = attrObj && Object.values(attrObj).some((v) => v !== null && v !== '')
+                if (hasValue) filtered[attrId] = attrObj
+            }
+            if (Object.keys(filtered).length === 0) return []
+            const payload = this.selectedUsers.map((user) => ({
+                ...user,
+                sbiUserAttributeses: filtered
+            }))
+            const response = await this.$http.post(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/2.0/users/massiveUpdateAttribute`, payload)
+            return response.data as iUserBOResult[]
         },
         getTenantInfo() {
             this.setLoading(true)
@@ -365,6 +500,23 @@ export default defineComponent({
                     this.tenant = response.data.root
                 })
                 .finally(() => this.setLoading(false))
+        },
+        async onInlineLockToggle(user: iUser) {
+            this.loading = true
+            try {
+                if (user.flgPwdBlocked) {
+                    await this.$http.post(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/2.0/users/unlockedUserAll`, [user])
+                    this.setInfo({ title: this.$t('managers.usersManagement.unlockUser'), msg: this.$t('managers.usersManagement.info.unlockSuccess') })
+                } else {
+                    await this.$http.put(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/2.0/users/${user.id}`, { ...user, flgPwdBlocked: true })
+                    this.setInfo({ title: this.$t('managers.usersManagement.lockUser'), msg: this.$t('managers.usersManagement.info.lockSuccess') })
+                }
+                await this.loadAllUsers()
+            } catch (error: any) {
+                this.setError({ title: error.title, msg: error.msg })
+            } finally {
+                this.loading = false
+            }
         }
     }
 })
@@ -384,14 +536,17 @@ export default defineComponent({
 .kn-fab-btn {
     position: absolute;
     width: 40px;
-    right:20px;
+    right: 20px;
     height: 40px;
     transform: translateY(30%);
-    z-index:90;
+    z-index: 90;
     border-radius: 50%;
     background-color: var(--kn-button-fab-background-color);
     color: var(--kn-button-fab-color);
-    box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12);
+    box-shadow:
+        0px 3px 5px -1px rgba(0, 0, 0, 0.2),
+        0px 6px 10px 0px rgba(0, 0, 0, 0.14),
+        0px 1px 18px 0px rgba(0, 0, 0, 0.12);
     transition: background-color 0.3s cubic-bezier(0.445, 0.05, 0.55, 0.95);
     &:hover {
         background-color: var(--kn-button-fab-hover-background-color);
@@ -401,7 +556,9 @@ export default defineComponent({
 
 .record-image {
     width: 50px;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+    box-shadow:
+        0 3px 6px rgba(0, 0, 0, 0.16),
+        0 3px 6px rgba(0, 0, 0, 0.23);
 }
 
 .p-dialog .record-image {
