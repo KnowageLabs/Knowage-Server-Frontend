@@ -1,17 +1,30 @@
 <template>
     <div v-for="(entity, index) in entities" :key="index" class="expandable-entities">
-        <h4 v-tooltip.top="getTooltipText(entity)" class="entity-item-container" :style="{ 'border-left': `10px solid ${entity.color}` }" draggable="true" :data-test="'entity-container-' + entity.id" @dragstart="onDragStart($event, entity)">
-            <i v-tooltip.top="$t(`qbe.entities.types.${entity.attributes.iconCls}`)" :class="getIconCls(entity.attributes.iconCls)" class="p-mx-2" />
+        <h4 class="entity-item-container" :style="{ 'border-left': `10px solid ${entity.color}` }" draggable="true" :data-test="'entity-container-' + entity.id" @dragstart="onDragStart($event, entity)">
+            <i :class="getIconCls(entity.attributes.iconCls)" class="p-mx-2">
+                <q-tooltip>{{ $t(`qbe.entities.types.${entity.attributes.iconCls}`) }}</q-tooltip>
+            </i>
             <span class="kn-flex" :data-test="'expand-' + entity.id" @click="expandEntity(entity)">{{ entity.text }}</span>
-            <Button v-tooltip.top="$t('qbe.entities.relations')" icon="fas fa-info" class="p-button-text p-button-rounded p-button-plain" @click="$emit('showRelationDialog', entity)" />
+            <span class="qbe-tooltip-wrapper">
+                <Button icon="fas fa-info" class="p-button-text p-button-rounded p-button-plain" @click="$emit('showRelationDialog', entity)" />
+                <q-tooltip>{{ $t('qbe.entities.relations') }}</q-tooltip>
+            </span>
             <Button v-if="entity.expanded" icon="pi pi-chevron-up" class="p-button-text p-button-rounded p-button-plain" @click="entity.expanded = false" />
             <Button v-else icon="pi pi-chevron-down" class="p-button-text p-button-rounded p-button-plain" @click="entity.expanded = true" />
+            <q-tooltip v-if="getTooltipText(entity)">
+                <span v-html="getTooltipHtml(entity)"></span>
+            </q-tooltip>
         </h4>
         <ul v-show="entity.expanded">
-            <li v-for="(child, index) in entity.children" :key="index" v-tooltip.top="getTooltipText(child)" :style="{ 'border-left': `5px solid ${child.color}` }" draggable="true" @click="$emit('entityChildClicked', child)" @dragstart="onDragStart($event, child)">
-                <i v-tooltip.top="$t(`qbe.entities.types.${child.attributes.iconCls}`)" :class="getIconCls(child.attributes.iconCls)" class="p-mx-2" />
+            <li v-for="(child, index) in entity.children" :key="index" :style="{ 'border-left': `5px solid ${child.color}` }" draggable="true" @click="$emit('entityChildClicked', child)" @dragstart="onDragStart($event, child)">
+                <i :class="getIconCls(child.attributes.iconCls)" class="p-mx-2">
+                    <q-tooltip>{{ $t(`qbe.entities.types.${child.attributes.iconCls}`) }}</q-tooltip>
+                </i>
                 <span :data-test="'entity-' + entity.id">{{ child.text }}</span>
                 <Button icon="fas fa-filter" :class="{ 'qbe-active-filter-icon': fieldHasFilters(child) }" class="p-button-text p-button-rounded p-button-plain p-ml-auto" :data-test="'child-' + child.id" @click.stop="openFiltersDialog(child)" />
+                <q-tooltip v-if="getTooltipText(child)">
+                    <span v-html="getTooltipHtml(child)"></span>
+                </q-tooltip>
             </li>
         </ul>
     </div>
@@ -19,6 +32,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
+import sanitizeHtml from 'sanitize-html'
 import { iQuery } from '../QBE'
 
 export default defineComponent({
@@ -85,6 +99,15 @@ export default defineComponent({
         },
         getTooltipText(item: any) {
             return item?.qtip || item?.attributes?.longDescription || item?.description || item?.text || ''
+        },
+        getTooltipHtml(item: any) {
+            const tooltipText = this.getTooltipText(item)
+            return sanitizeHtml(tooltipText, {
+                allowedTags: ['b', 'strong', 'i', 'em', 'u', 'br', 'p', 'ul', 'ol', 'li', 'span'],
+                allowedAttributes: {
+                    span: ['class']
+                }
+            })
         },
         onDragStart(event, entity) {
             event.dataTransfer.setData('text', JSON.stringify(entity))
