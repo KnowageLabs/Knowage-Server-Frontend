@@ -4,27 +4,31 @@
             <i :class="getIconCls(entity.attributes.iconCls)" class="p-mx-2">
                 <q-tooltip>{{ $t(`qbe.entities.types.${entity.attributes.iconCls}`) }}</q-tooltip>
             </i>
-            <span class="kn-flex" :data-test="'expand-' + entity.id" @click="expandEntity(entity)">{{ entity.text }}</span>
+            <span class="kn-flex" :data-test="'expand-' + entity.id" @click="expandEntity(entity)">
+                {{ entity.text }}
+                <q-tooltip v-if="getTooltipText(entity)" anchor="top middle" self="bottom middle">
+                    <span v-html="getTooltipHtml(entity)"></span>
+                </q-tooltip>
+            </span>
             <span class="qbe-tooltip-wrapper">
                 <Button icon="fas fa-info" class="p-button-text p-button-rounded p-button-plain" @click="$emit('showRelationDialog', entity)" />
                 <q-tooltip>{{ $t('qbe.entities.relations') }}</q-tooltip>
             </span>
             <Button v-if="entity.expanded" icon="pi pi-chevron-up" class="p-button-text p-button-rounded p-button-plain" @click="entity.expanded = false" />
             <Button v-else icon="pi pi-chevron-down" class="p-button-text p-button-rounded p-button-plain" @click="entity.expanded = true" />
-            <q-tooltip v-if="getTooltipText(entity)">
-                <span v-html="getTooltipHtml(entity)"></span>
-            </q-tooltip>
         </h4>
         <ul v-show="entity.expanded">
             <li v-for="(child, index) in entity.children" :key="index" :style="{ 'border-left': `5px solid ${child.color}` }" draggable="true" @click="$emit('entityChildClicked', child)" @dragstart="onDragStart($event, child)">
                 <i :class="getIconCls(child.attributes.iconCls)" class="p-mx-2">
                     <q-tooltip>{{ $t(`qbe.entities.types.${child.attributes.iconCls}`) }}</q-tooltip>
                 </i>
-                <span :data-test="'entity-' + entity.id">{{ child.text }}</span>
+                <span :data-test="'entity-' + entity.id">
+                    {{ child.text }}
+                    <q-tooltip v-if="getTooltipText(child)" anchor="top middle" self="bottom middle">
+                        <span v-html="getTooltipHtml(child)"></span>
+                    </q-tooltip>
+                </span>
                 <Button icon="fas fa-filter" :class="{ 'qbe-active-filter-icon': fieldHasFilters(child) }" class="p-button-text p-button-rounded p-button-plain p-ml-auto" :data-test="'child-' + child.id" @click.stop="openFiltersDialog(child)" />
-                <q-tooltip v-if="getTooltipText(child)">
-                    <span v-html="getTooltipHtml(child)"></span>
-                </q-tooltip>
             </li>
         </ul>
     </div>
