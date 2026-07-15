@@ -37,12 +37,12 @@
             <!-- with some ungodly hacking, this scroll area preserves the whole layout of the editor, i have no idea how it works -->
             <q-scroll-area class="kn-background" :style="{ height: scrollAreaHeight }">
                 <q-tab-panels v-model="activeTab" keep-alive class="kn-width-full kn-height-full column kn-background">
-                    <q-tab-panel v-if="hasDataTab" name="data" class="column" style="max-width: 850px !important; justify-self: center">
+                    <q-tab-panel v-if="hasDataTab" name="data" class="column" style="max-width: 850px !important; margin-left: auto !important; margin-right: auto !important">
                         <MapWidgetLayersTab v-if="widget.type === 'map'" :prop-widget="widget" :datasets="datasets" :selected-datasets="selectedDatasets" :layers="layers" :variables="variables" :dashboard-id="dashboardId" :selected-layer="selectedLayer" @layerSelected="onLayerSelected" />
                         <WidgetEditorDataTab v-else :prop-widget="widget" :selected-dataset="selectedDataset" :selected-dataset-columns="selectedDatasetColumns" :list-drag-active="listDragActive" data-test="data-tab" />
                     </q-tab-panel>
 
-                    <q-tab-panel name="settings" class="column" style="max-width: 800px !important; justify-self: center">
+                    <q-tab-panel name="settings" class="column" style="max-width: 800px !important; margin-left: auto !important; margin-right: auto !important">
                         <WidgetEditorSettingsTab v-if="widget" :prop-widget="widget" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId" :layers="layers" :selected-setting="selectedSetting" :descriptor="settingsDescriptor" :gallery-items="galleryItems" :custom-chart-gallery="customChartGallery" @settingChanged="onSettingChanged" />
                     </q-tab-panel>
                 </q-tab-panels>
