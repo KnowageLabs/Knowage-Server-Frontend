@@ -57,6 +57,13 @@ export interface ISheet {
     id?: string
 }
 
+export interface IDynamicColumnSource {
+    datasetId: number
+    datasetLabel: string
+    colNameField: string
+    orderNumField?: string
+}
+
 export interface IWidget {
     id?: string
     dataset: number | null
@@ -70,6 +77,7 @@ export interface IWidget {
     search?: any
     invalid?: any
     locked?: boolean
+    dynamicColumnSources?: IDynamicColumnSource[]
 }
 
 export interface ITableWidgetSettings {
