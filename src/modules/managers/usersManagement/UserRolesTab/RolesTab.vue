@@ -2,13 +2,13 @@
     <div class="um-tab-layout">
         <q-scroll-area class="um-tab-scroll">
             <div class="um-tab-container">
-                <q-card>
+                <q-card v-if="selectedRoles.length > 1">
                     <q-card-section class="q-py-sm">
                         <div class="um-section-label">{{ $t('managers.usersManagement.form.defaultRole') }}</div>
                     </q-card-section>
                     <q-separator />
                     <q-card-section>
-                        <q-select v-if="selectedRoles.length > 1" outlined dense v-model="defaultRole" :options="selectedRolesWithEmpty()" option-label="name" :label="$t('managers.usersManagement.form.defaultRole')" @update:model-value="onSelectDefaultRole">
+                        <q-select outlined dense v-model="defaultRole" :options="selectedRolesWithEmpty()" option-label="name" :label="$t('managers.usersManagement.form.defaultRole')" @update:model-value="onSelectDefaultRole">
                             <template #append>
                                 <q-icon name="info" color="grey" size="xs">
                                     <q-tooltip>{{ $t('managers.usersManagement.defaultRoleInfo') }}</q-tooltip>

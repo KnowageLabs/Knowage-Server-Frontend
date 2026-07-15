@@ -8,7 +8,7 @@
 
                 <div class="kn-list-item-text">
                     <span v-tooltip.top="slotProps.option.fullName" class="kn-list-item-label">{{ slotProps.option.fullName }}</span>
-                    <span class="kn-list-item-text-secondary kn-truncated">{{ slotProps.option.userId }}</span>
+                    <span class="kn-list-item-text-secondary kn-truncated">{{ pwdDatesLabel(slotProps.option) }}</span>
                 </div>
 
                 <Button v-tooltip.bottom="slotProps.option.flgPwdBlocked ? $t('managers.usersManagement.unlockUser') : $t('managers.usersManagement.lockUser')" :icon="slotProps.option.flgPwdBlocked ? 'fas fa-lock-open' : 'fas fa-lock'" class="p-button-text p-button-rounded p-button-plain" @click.stop="$emit('lockToggle', slotProps.option)" />
@@ -24,6 +24,7 @@ import Avatar from 'primevue/avatar'
 import Button from 'primevue/button'
 import Listbox from 'primevue/listbox'
 import { iUser } from './UsersManagement'
+import { DateTime } from 'luxon'
 
 export default defineComponent({
     name: 'users-management-list',
@@ -48,6 +49,20 @@ export default defineComponent({
     },
     emits: ['select', 'selectionChange', 'delete', 'lockToggle'],
     methods: {
+        // date + time for now; revert to date-only later if too long
+        formatPwdDate(value: string): string {
+            if (!value) return ''
+            let dt = DateTime.fromISO(value)
+            if (!dt.isValid) dt = DateTime.fromSQL(value)
+            return dt.isValid ? dt.toFormat('dd/MM/yyyy HH:mm') : value
+        },
+        pwdDatesLabel(user: iUser): string {
+            const begin = this.formatPwdDate(user.dtPwdBegin)
+            const end = this.formatPwdDate(user.dtPwdEnd)
+            // no password dates set: fall back to the userId so the row still shows something
+            if (!begin && !end) return user.userId
+            return `${begin || '—'} → ${end || '—'}`
+        },
         avatarIcon(user: iUser): string {
             return user.flgPwdBlocked === true ? 'fas fa-lock' : 'fas fa-lock-open'
         },

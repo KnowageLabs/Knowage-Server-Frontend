@@ -31,6 +31,10 @@
                         </q-list>
                     </q-card-section>
                 </q-card>
+                <q-banner v-if="!attributes || attributes.length === 0" rounded dense class="bg-info">
+                    <template v-slot:avatar><q-icon name="info" /></template>
+                    {{ $t('managers.usersManagement.noAttributesInfo') }}
+                </q-banner>
             </div>
         </q-scroll-area>
         <UserAttributesLovValueDialog :attribute="selectedAttribute" :selection="initialSelection" :dialog-visible="lovDialogVisible" @saveLovValues="onSaveLovValues" @closeDialog=";((lovDialogVisible = false), (selectedAttribute = null))" />

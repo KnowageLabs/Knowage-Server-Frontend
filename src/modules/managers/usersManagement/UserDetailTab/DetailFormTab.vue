@@ -29,6 +29,12 @@
                             <div class="col-6">
                                 <q-input outlined dense hide-bottom-space v-model="vobj.userDetailsForm.fullName.$model" :label="$t('managers.usersManagement.fullName') + ' *'" autocomplete="off" :maxLength="250" :error="vobj.userDetailsForm.fullName.$invalid && vobj.userDetailsForm.fullName.$dirty" :error-message="vobj.userDetailsForm.fullName.$errors[0]?.$message" @update:model-value="onDataChange(vobj.userDetailsForm.fullName)" />
                             </div>
+                            <div class="col-6">
+                                <q-input outlined dense hide-bottom-space readonly :model-value="formatPwdDate(userDetailsForm.dtPwdBegin)" :label="$t('managers.usersManagement.form.dtPwdBegin')" />
+                            </div>
+                            <div class="col-6">
+                                <q-input outlined dense hide-bottom-space readonly :model-value="formatPwdDate(userDetailsForm.dtPwdEnd)" :label="$t('managers.usersManagement.form.dtPwdEnd')" />
+                            </div>
                         </div>
                     </q-card-section>
                 </q-card>
@@ -92,6 +98,7 @@ import { mapActions } from 'pinia'
 import { defineComponent } from 'vue'
 import mainStore from '@/App.store'
 import { AxiosResponse } from 'axios'
+import { DateTime } from 'luxon'
 
 export default defineComponent({
     name: 'roles-tab',
@@ -142,6 +149,13 @@ export default defineComponent({
     },
     methods: {
         ...mapActions(mainStore, ['setLoading', 'setInfo']),
+        // date + time for now; revert to date-only later if too long
+        formatPwdDate(value: string): string {
+            if (!value) return '-'
+            let dt = DateTime.fromISO(value)
+            if (!dt.isValid) dt = DateTime.fromSQL(value)
+            return dt.isValid ? dt.toFormat('dd/MM/yyyy HH:mm') : value
+        },
         unlockUser() {
             this.$emit('unlock')
         },

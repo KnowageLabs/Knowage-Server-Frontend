@@ -4137,6 +4137,8 @@
             "flgPwdBlocked": "Blocked",
             "form": {
                 "defaultRole": "Default role",
+                "dtPwdBegin": "Password valid from",
+                "dtPwdEnd": "Password expires on",
                 "password": "Password",
                 "passwordConfirm": "Confirm Password",
                 "userId": "User ID"
@@ -4163,6 +4165,7 @@
             "lockUser": "Lock user",
             "multifactor": "This user has multifactor authentication enabled. Click the button to reset it",
             "newUser": "New user",
+            "noAttributesInfo": "There are no attributes for this user.",
             "roles": "Roles",
             "title": "Users Management",
             "unlockUser": "Unlock user",
