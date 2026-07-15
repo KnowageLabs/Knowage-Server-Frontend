@@ -533,6 +533,8 @@ export interface IWidgetColumn {
     scatterAttributeAsMeasure?: boolean
     descriptionColumn?: string
     showValueWithDescription?: boolean
+    dynamicSourceDatasetId?: number
+    dynamicSourceDatasetLabel?: string
 }
 
 export interface IWidgetColumnFilter {

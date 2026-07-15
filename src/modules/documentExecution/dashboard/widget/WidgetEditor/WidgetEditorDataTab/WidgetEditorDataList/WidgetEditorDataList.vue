@@ -16,6 +16,9 @@
                         <q-item v-if="widgetModel.type !== 'python'" clickable v-close-popup :disable="createNewFormulaDisabled" @click="createNewFormulaField">
                             <q-item-section>{{ $t('dashboard.widgetEditor.addFunction') }}</q-item-section>
                         </q-item>
+                        <q-item v-if="widgetModel.type === 'table' && selectedDataset" clickable v-close-popup @click="openDynamicColumnsDialog">
+                            <q-item-section>{{ $t('dashboard.widgetEditor.addDynamicColumns') }}</q-item-section>
+                        </q-item>
                     </q-list>
                 </q-menu>
             </q-btn>
@@ -40,6 +43,7 @@
     <KnBlockly v-if="calcFieldDialogVisible" :fields="calcFieldColumns" :variables="variables" :field-name="selectedCalcField?.alias || ''" :initial-state="selectedCalcField?.blocklyXml" v-model:visibility="calcFieldDialogVisible" @save="onCalcFieldSave" @cancel="calcFieldDialogVisible = false"></KnBlockly>
 
     <WidgetEditorFunctionsDialog v-if="functionsDialogVisible" :visible="functionsDialogVisible" :prop-function-column="selectedFunctionColumn" :selected-dataset="selectedDatasetForFunctions" :edit-mode="functionsDialogEditMode" @close="onFunctionsDialogClosed" @save="onFunctionsColumnSave"></WidgetEditorFunctionsDialog>
+    <WidgetEditorDynamicColumnsDialog v-if="dynamicColumnsDialogVisible" :visible="dynamicColumnsDialogVisible" :main-dataset-columns="selectedDatasetColumns" @close="dynamicColumnsDialogVisible = false" @confirm="onDynamicColumnsConfirm" />
 </template>
 
 <script lang="ts">
@@ -59,11 +63,12 @@ import { createNewWidgetColumn } from '../../helpers/WidgetEditorHelpers'
 import { mapState } from 'pinia'
 import WidgetEditorFunctionsDialog from './WidgetEditorFunctionsDialog/WidgetEditorFunctionsDialog.vue'
 import { createNewFunctionColumn } from './WidgetEditorFunctionsDialog/WidgetEditorFunctionsDialogHelper'
+import WidgetEditorDynamicColumnsDialog from './WidgetEditorDynamicColumnsDialog.vue'
 import deepcopy from 'deepcopy'
 
 export default defineComponent({
     name: 'widget-editor-data-list',
-    components: { Dropdown, Listbox, KnBlockly, WidgetEditorFunctionsDialog },
+    components: { Dropdown, Listbox, KnBlockly, WidgetEditorFunctionsDialog, WidgetEditorDynamicColumnsDialog },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, datasets: { type: Array }, selectedDatasets: { type: Array as PropType<IDataset[]> }, variables: { type: Array as PropType<IVariable[]>, required: true } },
     emits: ['datasetSelected', 'selectedDatasetColumnsChanged', 'toggleListDrag'],
     setup() {
@@ -91,7 +96,8 @@ export default defineComponent({
             functionsDialogVisible: false,
             selectedDatasetForFunctions: null as IDataset | null,
             selectedFunctionColumn: null as IWidgetFunctionColumn | null,
-            functionsDialogEditMode: false
+            functionsDialogEditMode: false,
+            dynamicColumnsDialogVisible: false
         }
     },
     computed: {
@@ -342,6 +348,51 @@ export default defineComponent({
             this.selectedFunctionColumn = null
             this.functionsDialogEditMode ? emitter.emit('functionColumnEdited', functionColumn) : emitter.emit('addNewFunctionColumn', functionColumn)
             this.functionsDialogEditMode = false
+        },
+        openDynamicColumnsDialog() {
+            this.dynamicColumnsDialogVisible = true
+        },
+        async onDynamicColumnsConfirm(sourceDataset: IDataset) {
+            this.dynamicColumnsDialogVisible = false
+            this.store.setLoading(true)
+            try {
+                const url = `/restful-services/2.0/datasets/${sourceDataset.label}/data?offset=-1&size=-1&widgetName=undefined`
+                const postData = { aggregations: { dataset: sourceDataset.label, measures: [], categories: [] }, parameters: {}, selections: {}, indexes: [] }
+                const response = await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+                const data = response.data
+                const fields: any[] = data.metaData?.fields ?? []
+                const colNameField = fields.find((f: any) => f.header?.toLowerCase() === 'colname')
+                const orderNumField = fields.find((f: any) => f.header?.toLowerCase() === 'ordernum')
+                if (!colNameField || !orderNumField) {
+                    this.store.setError({ title: this.$t('common.error'), msg: this.$t('dashboard.widgetEditor.dynamicColumnsDatasetNotCompatible') })
+                    return
+                }
+                const sourceRows: { colName: string; orderNum: number }[] = (data.rows ?? []).map((row: any) => ({ colName: String(row[colNameField.name] ?? ''), orderNum: Number(row[orderNumField.name] ?? 0) })).sort((a: any, b: any) => a.orderNum - b.orderNum)
+                let addedCount = 0
+                let skippedCount = 0
+                for (const row of sourceRows) {
+                    const mainCol = this.selectedDatasetColumns.find((c: IDatasetColumn) => c.name === row.colName)
+                    if (!mainCol) continue
+                    const alreadyInWidget = this.model?.columns.some((c: IWidgetColumn) => c.columnName === row.colName)
+                    if (alreadyInWidget) {
+                        skippedCount++
+                        continue
+                    }
+                    const newCol = createNewWidgetColumn({ name: mainCol.name, alias: mainCol.alias, type: mainCol.type, fieldType: mainCol.fieldType }, 'table')
+                    newCol.dynamicSourceDatasetId = sourceDataset.id.dsId
+                    newCol.dynamicSourceDatasetLabel = sourceDataset.label
+                    this.model?.columns.push(newCol)
+                    emitter.emit('columnAdded', newCol)
+                    addedCount++
+                }
+                if (skippedCount > 0) {
+                    this.store.setInfo({ title: this.$t('common.info.title'), msg: `${skippedCount} ${this.$t('dashboard.widgetEditor.dynamicColumnDuplicateSkipped')}` })
+                }
+            } catch (_e) {
+                this.store.setError({ title: this.$t('common.error'), msg: this.$t('common.error') })
+            } finally {
+                this.store.setLoading(false)
+            }
         }
     }
 })

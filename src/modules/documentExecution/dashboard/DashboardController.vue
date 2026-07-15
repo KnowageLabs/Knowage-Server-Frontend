@@ -39,7 +39,7 @@ import { defineComponent, PropType, toRef } from 'vue'
 import { useRoute } from 'vue-router'
 import { AxiosResponse } from 'axios'
 import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
-import { IDashboardDataset, ISelection, IGalleryItem, IDataset, IDashboardView, IVariable, SelectorDataMap, WidgetData } from './Dashboard'
+import { IDashboardDataset, ISelection, IGalleryItem, IDataset, IDashboardView, IVariable, SelectorDataMap, WidgetData, IWidgetColumn } from './Dashboard'
 import { emitter, createNewDashboardModel, formatDashboardForSave, formatNewModel, loadDatasets, getFormattedOutputParameters, applyDashboardViewToModel } from './DashboardHelpers'
 import { mapActions, mapState } from 'pinia'
 import { formatModel } from './helpers/DashboardBackwardCompatibilityHelper'
@@ -62,6 +62,8 @@ import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/Das
 import DashboardHeaderWidget from './widget/DashboardHeaderWidget/DashboardHeaderWidget.vue'
 import { setVairableExecutionDateValue, setVairableLocaleValue, setVariableActiveSelectionValue, setVariableExectuionTimeValue, setVariableValueFromDriver } from './generalSettings/VariablesHelper'
 import { getWidgetData } from './DashboardDataProxy'
+import { createNewWidgetColumn } from './widget/WidgetEditor/helpers/WidgetEditorHelpers'
+import { removeColumnFromTableWidgetModel } from './widget/WidgetEditor/helpers/tableWidget/TableWidgetFunctions'
 import { iPythonConfiguration } from '../../managers/functionsCatalog/FunctionsCatalog'
 import moment from 'moment'
 import dashboardDescriptor from './DashboardDescriptor.json'
@@ -302,6 +304,8 @@ export default defineComponent({
             }
             this.updateDatasetDriversWithSidebarValues()
 
+            await this.syncDynamicColumns()
+
             this.store.setDashboard(this.dashboardId, this.model)
             this.setDashboardDrivers(this.dashboardId, this.drivers)
 
@@ -315,6 +319,70 @@ export default defineComponent({
             this.store.setExecutionTime(this.dashboardId, new Date())
 
             this.updateVariableValuesWithDriverValuesAfterExecution()
+        },
+        async syncDynamicColumns() {
+            if (!this.model?.widgets?.length) return
+            for (const widget of this.model.widgets) {
+                if (widget.type !== 'table') continue
+                const dynamicCols = (widget.columns as IWidgetColumn[]).filter((c: IWidgetColumn) => c.dynamicSourceDatasetId)
+                if (!dynamicCols.length) continue
+
+                const mainDataset = this.datasets.find((ds: any) => ds.id?.dsId === widget.dataset)
+                if (!mainDataset) continue
+                const mainFieldsMeta: any[] = mainDataset.metadata?.fieldsMeta ?? []
+
+                const sourceMap = new Map<number, { label: string; existingCols: IWidgetColumn[] }>()
+                for (const col of dynamicCols) {
+                    const srcId = col.dynamicSourceDatasetId as number
+                    if (!sourceMap.has(srcId)) sourceMap.set(srcId, { label: col.dynamicSourceDatasetLabel as string, existingCols: [] })
+                    sourceMap.get(srcId)!.existingCols.push(col)
+                }
+
+                for (const [sourceId, { label, existingCols }] of sourceMap) {
+                    let sourceRows: { colName: string; orderNum: number }[] = []
+                    try {
+                        const url = `/restful-services/2.0/datasets/${label}/data?offset=-1&size=-1&widgetName=undefined`
+                        const postData = { aggregations: { dataset: label, measures: [], categories: [] }, parameters: {}, selections: {}, indexes: [] }
+                        const response = await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+                        const data = response.data
+                        const fields: any[] = data.metaData?.fields ?? []
+                        const colNameField = fields.find((f: any) => f.header?.toLowerCase() === 'colname')
+                        const orderNumField = fields.find((f: any) => f.header?.toLowerCase() === 'ordernum')
+                        if (colNameField && orderNumField) {
+                            sourceRows = (data.rows ?? []).map((row: any) => ({ colName: String(row[colNameField.name] ?? ''), orderNum: Number(row[orderNumField.name] ?? 0) })).sort((a: any, b: any) => a.orderNum - b.orderNum)
+                        }
+                    } catch (_e) {
+                        continue
+                    }
+
+                    const sourceColNames = new Set(sourceRows.map((r) => r.colName))
+
+                    const colsToRemove = existingCols.filter((c) => !sourceColNames.has(c.columnName))
+                    for (const col of colsToRemove) {
+                        removeColumnFromTableWidgetModel(widget, col)
+                        const idx = (widget.columns as IWidgetColumn[]).findIndex((c: IWidgetColumn) => c.id === col.id)
+                        if (idx !== -1) (widget.columns as IWidgetColumn[]).splice(idx, 1)
+                    }
+
+                    const existingColumnNames = new Set((widget.columns as IWidgetColumn[]).map((c: IWidgetColumn) => c.columnName))
+                    for (const row of sourceRows) {
+                        if (existingColumnNames.has(row.colName)) continue
+                        const mainField = mainFieldsMeta.find((f: any) => f.name === row.colName)
+                        if (!mainField) continue
+                        const newCol = createNewWidgetColumn({ name: mainField.name, alias: mainField.alias, type: mainField.type, fieldType: mainField.fieldType }, 'table')
+                        newCol.dynamicSourceDatasetId = sourceId
+                        newCol.dynamicSourceDatasetLabel = label
+                        ;(widget.columns as IWidgetColumn[]).push(newCol)
+                        existingColumnNames.add(row.colName)
+                    }
+
+                    const orderMap = new Map(sourceRows.map((r) => [r.colName, r.orderNum]))
+                    const nonDynamic = (widget.columns as IWidgetColumn[]).filter((c: IWidgetColumn) => c.dynamicSourceDatasetId !== sourceId)
+                    const thisDynamic = (widget.columns as IWidgetColumn[]).filter((c: IWidgetColumn) => c.dynamicSourceDatasetId === sourceId)
+                    thisDynamic.sort((a: IWidgetColumn, b: IWidgetColumn) => (orderMap.get(a.columnName) ?? 0) - (orderMap.get(b.columnName) ?? 0))
+                    widget.columns = [...nonDynamic, ...thisDynamic]
+                }
+            }
         },
         buildSelectionsFromCrossNavigation() {
             const crossNavParams = this.document?.formattedCrossNavigationParameters
