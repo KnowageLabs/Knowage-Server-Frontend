@@ -48,7 +48,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IDashboardDataset, IDatasetColumn, IDataset, IWidget, IWidgetColumn, IVariable, IWidgetFunctionColumn } from '../../../../Dashboard'
+import { IDashboardDataset, IDatasetColumn, IDataset, IWidget, IWidgetColumn, IVariable, IWidgetFunctionColumn, IDynamicColumnSource } from '../../../../Dashboard'
 import { emitter } from '../../../../DashboardHelpers'
 import { removeColumnFromDiscoveryWidgetModel } from '../../helpers/discoveryWidget/DiscoveryWidgetFunctions'
 import descriptor from './WidgetEditorDataListDescriptor.json'
@@ -352,23 +352,35 @@ export default defineComponent({
         openDynamicColumnsDialog() {
             this.dynamicColumnsDialogVisible = true
         },
-        async onDynamicColumnsConfirm(sourceDataset: IDataset) {
+        async onDynamicColumnsConfirm({ dataset, colNameField, orderNumField }: { dataset: IDataset; colNameField: string; orderNumField: string | null }) {
             this.dynamicColumnsDialogVisible = false
             this.store.setLoading(true)
             try {
-                const url = `/restful-services/2.0/datasets/${sourceDataset.label}/data?offset=-1&size=-1&widgetName=undefined`
-                const postData = { aggregations: { dataset: sourceDataset.label, measures: [], categories: [] }, parameters: {}, selections: {}, indexes: [] }
+                const url = `/restful-services/2.0/datasets/${dataset.label}/data?offset=-1&size=-1&widgetName=undefined`
+                const postData = { aggregations: { dataset: dataset.label, measures: [], categories: [] }, parameters: {}, selections: {}, indexes: [] }
                 const response = await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
                 const data = response.data
                 const fields: any[] = data.metaData?.fields ?? []
-                const colNameField = fields.find((f: any) => f.header?.toLowerCase() === 'colname')
-                const orderNumField = fields.find((f: any) => f.header?.toLowerCase() === 'ordernum')
-                if (!colNameField || !orderNumField) {
+                const colNameFieldMeta = fields.find((f: any) => f.header?.toLowerCase() === colNameField.toLowerCase())
+                if (!colNameFieldMeta) {
                     this.store.setError({ title: this.$t('common.error'), msg: this.$t('dashboard.widgetEditor.dynamicColumnsDatasetNotCompatible') })
                     return
                 }
-                const sourceRows: { colName: string; orderNum: number }[] = (data.rows ?? []).map((row: any) => ({ colName: String(row[colNameField.name] ?? ''), orderNum: Number(row[orderNumField.name] ?? 0) })).sort((a: any, b: any) => a.orderNum - b.orderNum)
-                let addedCount = 0
+                const orderNumFieldMeta = orderNumField ? fields.find((f: any) => f.header?.toLowerCase() === orderNumField.toLowerCase()) : null
+                let sourceRows: { colName: string; orderNum: number }[] = (data.rows ?? []).map((row: any, idx: number) => ({
+                    colName: String(row[colNameFieldMeta.name] ?? ''),
+                    orderNum: orderNumFieldMeta ? Number(row[orderNumFieldMeta.name] ?? 0) : idx
+                }))
+                if (orderNumFieldMeta) sourceRows.sort((a, b) => a.orderNum - b.orderNum)
+
+                if (!this.model!.dynamicColumnSources) this.model!.dynamicColumnSources = []
+                const existing = this.model!.dynamicColumnSources.find((s: IDynamicColumnSource) => s.datasetId === dataset.id.dsId)
+                if (!existing) {
+                    const srcConfig: IDynamicColumnSource = { datasetId: dataset.id.dsId, datasetLabel: dataset.label, colNameField }
+                    if (orderNumField) srcConfig.orderNumField = orderNumField
+                    this.model!.dynamicColumnSources.push(srcConfig)
+                }
+
                 let skippedCount = 0
                 for (const row of sourceRows) {
                     const mainCol = this.selectedDatasetColumns.find((c: IDatasetColumn) => c.name === row.colName)
@@ -379,11 +391,10 @@ export default defineComponent({
                         continue
                     }
                     const newCol = createNewWidgetColumn({ name: mainCol.name, alias: mainCol.alias, type: mainCol.type, fieldType: mainCol.fieldType }, 'table')
-                    newCol.dynamicSourceDatasetId = sourceDataset.id.dsId
-                    newCol.dynamicSourceDatasetLabel = sourceDataset.label
+                    newCol.dynamicSourceDatasetId = dataset.id.dsId
+                    newCol.dynamicSourceDatasetLabel = dataset.label
                     this.model?.columns.push(newCol)
                     emitter.emit('columnAdded', newCol)
-                    addedCount++
                 }
                 if (skippedCount > 0) {
                     this.store.setInfo({ title: this.$t('common.info.title'), msg: `${skippedCount} ${this.$t('dashboard.widgetEditor.dynamicColumnDuplicateSkipped')}` })

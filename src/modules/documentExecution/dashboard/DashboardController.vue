@@ -339,6 +339,15 @@ export default defineComponent({
                 }
 
                 for (const [sourceId, { label, existingCols }] of sourceMap) {
+                    // Look up field config — skip if missing (backward compat: old widgets without config)
+                    const srcConfig = widget.dynamicColumnSources?.find((s: any) => s.datasetId === sourceId)
+                    if (!srcConfig) continue
+
+                    // Record insertion position (# of non-dynamic cols before this group) before any mutation
+                    const allColsBefore = widget.columns as IWidgetColumn[]
+                    const firstGroupIdx = allColsBefore.findIndex((c: IWidgetColumn) => c.dynamicSourceDatasetId === sourceId)
+                    const nonDynamicsBefore = firstGroupIdx === -1 ? allColsBefore.filter((c: IWidgetColumn) => !c.dynamicSourceDatasetId).length : allColsBefore.slice(0, firstGroupIdx).filter((c: IWidgetColumn) => !c.dynamicSourceDatasetId).length
+
                     let sourceRows: { colName: string; orderNum: number }[] = []
                     try {
                         const url = `/restful-services/2.0/datasets/${label}/data?offset=-1&size=-1&widgetName=undefined`
@@ -346,10 +355,14 @@ export default defineComponent({
                         const response = await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
                         const data = response.data
                         const fields: any[] = data.metaData?.fields ?? []
-                        const colNameField = fields.find((f: any) => f.header?.toLowerCase() === 'colname')
-                        const orderNumField = fields.find((f: any) => f.header?.toLowerCase() === 'ordernum')
-                        if (colNameField && orderNumField) {
-                            sourceRows = (data.rows ?? []).map((row: any) => ({ colName: String(row[colNameField.name] ?? ''), orderNum: Number(row[orderNumField.name] ?? 0) })).sort((a: any, b: any) => a.orderNum - b.orderNum)
+                        const colNameFieldMeta = fields.find((f: any) => f.header?.toLowerCase() === srcConfig.colNameField.toLowerCase())
+                        const orderNumFieldMeta = srcConfig.orderNumField ? fields.find((f: any) => f.header?.toLowerCase() === srcConfig.orderNumField.toLowerCase()) : null
+                        if (colNameFieldMeta) {
+                            sourceRows = (data.rows ?? []).map((row: any, idx: number) => ({
+                                colName: String(row[colNameFieldMeta.name] ?? ''),
+                                orderNum: orderNumFieldMeta ? Number(row[orderNumFieldMeta.name] ?? 0) : idx
+                            }))
+                            if (orderNumFieldMeta) sourceRows.sort((a, b) => a.orderNum - b.orderNum)
                         }
                     } catch (_e) {
                         continue
@@ -357,6 +370,7 @@ export default defineComponent({
 
                     const sourceColNames = new Set(sourceRows.map((r) => r.colName))
 
+                    // Remove stale cols
                     const colsToRemove = existingCols.filter((c) => !sourceColNames.has(c.columnName))
                     for (const col of colsToRemove) {
                         removeColumnFromTableWidgetModel(widget, col)
@@ -364,6 +378,7 @@ export default defineComponent({
                         if (idx !== -1) (widget.columns as IWidgetColumn[]).splice(idx, 1)
                     }
 
+                    // Add new cols not yet in widget
                     const existingColumnNames = new Set((widget.columns as IWidgetColumn[]).map((c: IWidgetColumn) => c.columnName))
                     for (const row of sourceRows) {
                         if (existingColumnNames.has(row.colName)) continue
@@ -376,11 +391,13 @@ export default defineComponent({
                         existingColumnNames.add(row.colName)
                     }
 
-                    const orderMap = new Map(sourceRows.map((r) => [r.colName, r.orderNum]))
+                    // Re-sort and reinsert at preserved position
+                    const orderMap = new Map(sourceRows.map((r, idx) => [r.colName, srcConfig.orderNumField ? r.orderNum : idx]))
                     const nonDynamic = (widget.columns as IWidgetColumn[]).filter((c: IWidgetColumn) => c.dynamicSourceDatasetId !== sourceId)
                     const thisDynamic = (widget.columns as IWidgetColumn[]).filter((c: IWidgetColumn) => c.dynamicSourceDatasetId === sourceId)
                     thisDynamic.sort((a: IWidgetColumn, b: IWidgetColumn) => (orderMap.get(a.columnName) ?? 0) - (orderMap.get(b.columnName) ?? 0))
-                    widget.columns = [...nonDynamic, ...thisDynamic]
+                    const insertAt = Math.min(nonDynamicsBefore, nonDynamic.length)
+                    widget.columns = [...nonDynamic.slice(0, insertAt), ...thisDynamic, ...nonDynamic.slice(insertAt)]
                 }
             }
         },

@@ -10,11 +10,8 @@
                         <q-icon name="info" color="blue-7" />
                     </template>
                     <div class="text-subtitle2 q-mb-xs">{{ $t('dashboard.widgetEditor.dynamicColumnsGuideTitle') }}</div>
-                    <div>{{ $t('dashboard.widgetEditor.dynamicColumnsGuideBody') }}</div>
-                    <div class="q-mt-xs">
-                        <span class="text-weight-bold">colName</span> — {{ $t('dashboard.widgetEditor.dynamicColumnsGuideColName') }}<br />
-                        <span class="text-weight-bold">orderNum</span> — {{ $t('dashboard.widgetEditor.dynamicColumnsGuideOrderNum') }}
-                    </div>
+                    <div>{{ $t('dashboard.widgetEditor.dynamicColumnsGuideStep1') }}</div>
+                    <div class="q-mt-xs">{{ $t('dashboard.widgetEditor.dynamicColumnsGuideStep2') }}</div>
                     <template #action>
                         <q-btn flat dense round icon="close" size="sm" color="blue-7" @click="guideVisible = false" />
                     </template>
@@ -24,14 +21,19 @@
                         <q-icon name="search" />
                     </template>
                 </q-input>
-                <q-banner v-if="validationError" class="q-ma-sm bg-negative text-white" rounded dense>
-                    {{ $t('dashboard.widgetEditor.dynamicColumnsDatasetNotCompatible') }}
-                </q-banner>
                 <q-table :rows="filteredDatasets" :columns="tableColumns" flat dense selection="single" v-model:selected="selectedDatasets" :row-key="(row) => row.id.dsId" :pagination="{ rowsPerPage: 10 }" @update:selected="onDatasetSelected" />
+                <div v-if="selectedDatasets.length > 0" class="row q-col-gutter-sm q-mt-sm">
+                    <div class="col-6">
+                        <q-select v-model="colNameField" :options="sourceDatasetColumns" option-value="name" option-label="alias" emit-value map-options outlined dense :label="$t('dashboard.widgetEditor.dynamicColNameField')" />
+                    </div>
+                    <div class="col-6">
+                        <q-select v-model="orderNumField" :options="orderNumFieldOptions" option-value="value" option-label="label" emit-value map-options outlined dense :label="$t('dashboard.widgetEditor.dynamicOrderNumField')" />
+                    </div>
+                </div>
             </q-card-section>
             <q-card-actions align="right">
                 <q-btn flat color="secondary" :label="$t('common.cancel')" @click="$emit('close')" />
-                <q-btn color="primary" :label="$t('common.add')" :disable="selectedDatasets.length === 0 || validationError" @click="onConfirm" />
+                <q-btn color="primary" :label="$t('common.add')" :disable="!canConfirm" @click="onConfirm" />
             </q-card-actions>
         </q-card>
     </q-dialog>
@@ -58,11 +60,21 @@ export default defineComponent({
         return {
             allDatasets: [] as IDataset[],
             filteredDatasets: [] as IDataset[],
-            selectedDatasets: [] as IDataset[],
+            selectedDatasets: [] as any[],
+            sourceDatasetColumns: [] as IDatasetColumn[],
             searchWord: '',
-            validationError: false,
             guideVisible: true,
+            colNameField: '' as string,
+            orderNumField: null as string | null,
             tableColumns: [] as any[]
+        }
+    },
+    computed: {
+        canConfirm(): boolean {
+            return this.selectedDatasets.length > 0 && !!this.colNameField
+        },
+        orderNumFieldOptions(): { value: string | null; label: string }[] {
+            return [{ value: null, label: this.$t('dashboard.widgetEditor.dynamicOrderNumNone') }, ...this.sourceDatasetColumns.map((c) => ({ value: c.name, label: c.alias || c.name }))]
         }
     },
     async created() {
@@ -93,20 +105,18 @@ export default defineComponent({
                 this.filteredDatasets = this.allDatasets.filter((ds) => ds.label?.toLowerCase().includes(word) || ds.name?.toLowerCase().includes(word) || ds.type?.toLowerCase().includes(word))
             }
         },
-        onDatasetSelected(selected: IDataset[]) {
-            this.validationError = false
-            if (!selected.length) return
-            const dataset = selected[0]
-            const fieldsMeta = dataset.metadata?.fieldsMeta ?? []
-            const hasColName = fieldsMeta.some((f) => f.name === 'colName' || f.alias === 'colName')
-            const hasOrderNum = fieldsMeta.some((f) => f.name === 'orderNum' || f.alias === 'orderNum')
-            if (!hasColName || !hasOrderNum) {
-                this.validationError = true
+        onDatasetSelected(selected: readonly any[]) {
+            this.colNameField = ''
+            this.orderNumField = null
+            if (!selected.length) {
+                this.sourceDatasetColumns = []
+                return
             }
+            this.sourceDatasetColumns = (selected[0] as IDataset).metadata?.fieldsMeta ?? []
         },
         onConfirm() {
-            if (!this.selectedDatasets.length || this.validationError) return
-            this.$emit('confirm', this.selectedDatasets[0])
+            if (!this.canConfirm) return
+            this.$emit('confirm', { dataset: this.selectedDatasets[0], colNameField: this.colNameField, orderNumField: this.orderNumField })
         }
     }
 })

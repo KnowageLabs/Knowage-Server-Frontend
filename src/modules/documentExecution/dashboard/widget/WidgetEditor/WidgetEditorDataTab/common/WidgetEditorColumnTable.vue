@@ -8,7 +8,11 @@
             <div @drop.stop="onDropComplete($event)" @dragover.prevent @dragenter.prevent @dragleave.prevent>
                 <InlineMessage v-if="settings.dropIsActive && rows.length === 0" class="p-d-flex p-flex-row p-jc-center p-ai-center p-m-1 p-p-5" severity="info" closable="false">{{ $t(settings.dragColumnsHint) }}</InlineMessage>
                 <DataTable v-else :value="rows" v-model:expandedRows="expandedRows" class="kn-table p-datatable-sm editor-col-table" :data-key="settings.dataKey" :row-class="getRowClass" collapsedRowIcon="fas fa-cog" expandedRowIcon="fas fa-cog" responsiveLayout="scroll" breakpoint="940px" @rowReorder="onRowReorder">
-                    <Column v-if="rowReorderEnabled" :row-reorder="rowReorderEnabled" style="padding-top: 5px" :style="settings.rowReorder.rowReorderColumnStyle" />
+                    <Column v-if="rowReorderEnabled" :row-reorder="rowReorderEnabled" style="padding-top: 5px" :style="settings.rowReorder.rowReorderColumnStyle">
+                        <template #body="slotProps">
+                            <span class="p-datatable-reorderablerow-handle pi pi-bars" style="cursor: move" @mouseenter="hoveredSourceId = slotProps.data.dynamicSourceDatasetId ?? null" @mouseleave="hoveredSourceId = null" />
+                        </template>
+                    </Column>
                     <Column v-if="widgetModel.type !== 'highcharts' && widgetModel.type !== 'chartJS'" :style="settings.rowReorder.rowReorderColumnStyle">
                         <template #body="slotProps">
                             <i :class="getIcon(slotProps.data)"></i>
@@ -24,9 +28,6 @@
                     </Column>
                     <Column :style="settings.buttonColumnStyle">
                         <template #body="slotProps">
-                            <q-icon v-if="slotProps.data.dynamicSourceDatasetId" name="dynamic_feed" size="xs" color="primary" class="q-mx-xs cursor-pointer">
-                                <q-tooltip>{{ $t('dashboard.widgetEditor.dynamicColumnSource') + ': ' + slotProps.data.dynamicSourceDatasetLabel }}</q-tooltip>
-                            </q-icon>
                             <Button v-if="showSortButton" class="p-button-link" :icon="sortIcon(slotProps.data.orderType)" v-tooltip.top="slotProps.data.orderType ?? 'NONE'" @click="toggleSort(slotProps.data)" />
                             <Button v-if="slotProps.data.formula" v-tooltip.top="$t('common.edit')" icon="fas fa-calculator" class="p-button-link" @click.stop="openCalculatedFieldDialog(slotProps.data)"></Button>
                             <Button v-if="slotProps.data.type === 'pythonFunction'" v-tooltip.top="$t('common.edit')" icon="fas fa-superscript" class="p-button-link" @click.stop="openFunctionsColumnDialog(slotProps.data)"></Button>
@@ -35,7 +36,7 @@
                     <Column expander style="width: 10px" />
                     <Column style="width: 10px">
                         <template #body="slotProps">
-                            <Button v-tooltip.top="$t('common.delete')" icon="pi pi-trash" class="p-button-link" data-test="delete-button" @click.stop="deleteItem(slotProps.data, slotProps.index)"></Button>
+                            <Button v-tooltip.top="slotProps.data.dynamicSourceDatasetId ? $t('dashboard.widgetEditor.deleteDynamicGroup') : $t('common.delete')" icon="pi pi-trash" class="p-button-link" data-test="delete-button" @click.stop="deleteItem(slotProps.data)" />
                         </template>
                     </Column>
                     <template #expansion="slotProps">
@@ -81,6 +82,7 @@ export default defineComponent({
             rows: [] as IWidgetColumn[],
             inputValuesMap: {},
             listDragActive: inject('listDragActive', false) as boolean,
+            hoveredSourceId: null as number | null,
             expandedRows: [],
             products: [
                 {
@@ -167,8 +169,36 @@ export default defineComponent({
             return item.fieldType === 'ATTRIBUTE' ? 'fas fa-font' : 'fas fa-hashtag'
         },
         onRowReorder(event: any) {
-            this.rows = event.value
-            this.$emit('rowReorder', event.value)
+            // Dragging a single dynamic column must carry its whole group along, kept contiguous.
+            const newRows = this.regroupDynamicColumns(event.value as IWidgetColumn[], event.value[event.dropIndex])
+            this.rows = newRows
+            this.$emit('rowReorder', newRows)
+        },
+        regroupDynamicColumns(rows: IWidgetColumn[], draggedRow: any): IWidgetColumn[] {
+            // Snapshot each group's members in their current internal order.
+            const groups: Record<number, IWidgetColumn[]> = {}
+            for (const r of this.rows as IWidgetColumn[]) {
+                const src = r.dynamicSourceDatasetId
+                if (src) (groups[src] = groups[src] || []).push(r)
+            }
+            if (Object.keys(groups).length === 0) return rows
+            // The dragged group anchors on the dragged column; other groups on their first member.
+            const draggedSrc = draggedRow?.dynamicSourceDatasetId
+            const result: IWidgetColumn[] = []
+            const placed = new Set<number>()
+            for (const r of rows) {
+                const src = r.dynamicSourceDatasetId
+                if (!src) {
+                    result.push(r)
+                    continue
+                }
+                if (placed.has(src)) continue
+                if (src !== draggedSrc || r.id === draggedRow.id) {
+                    placed.add(src)
+                    result.push(...groups[src])
+                }
+            }
+            return result
         },
         onDropComplete(event: any) {
             if (event.dataTransfer.getData('text/plain') === 'b') return
@@ -195,7 +225,11 @@ export default defineComponent({
             const index = this.rows.findIndex((row: IWidgetColumn) => row.columnName === tempColumn.columnName)
             return index !== -1
         },
-        deleteItem(item: IWidgetColumn | IWidgetFunctionColumn, index: number) {
+        deleteItem(item: any, _index?: number) {
+            if ((item as IWidgetColumn).dynamicSourceDatasetId) {
+                this.deleteDynamicGroup((item as IWidgetColumn).dynamicSourceDatasetId as number)
+                return
+            }
             if ((item as IWidgetFunctionColumn).type === 'pythonFunction') {
                 for (let i = this.rows.length - 1; i >= 0; i--) {
                     if (this.rows[i].id === item.id || (this.rows[i] as IWidgetFunctionColumn).originalFunctionColumnName === (item as IWidgetFunctionColumn).originalFunctionColumnName) {
@@ -207,8 +241,21 @@ export default defineComponent({
                 if (this.widgetType === 'highcharts' && this.chartType === 'scatter' && this.store.getHighchartsScatterAttributePresent() && item.fieldType === 'ATTRIBUTE') {
                     this.store.setHighchartsScatterAttributePresent(false)
                 }
-                this.rows.splice(index, 1)
+                const realIdx = this.rows.findIndex((r: IWidgetColumn) => r.id === item.id)
+                if (realIdx !== -1) this.rows.splice(realIdx, 1)
                 this.$emit('itemDeleted', item)
+            }
+        },
+        deleteDynamicGroup(sourceId: number) {
+            for (let i = this.rows.length - 1; i >= 0; i--) {
+                if ((this.rows[i] as IWidgetColumn).dynamicSourceDatasetId === sourceId) {
+                    this.$emit('itemDeleted', this.rows[i])
+                    this.rows.splice(i, 1)
+                }
+            }
+            if (this.widgetModel.dynamicColumnSources) {
+                const srcIdx = this.widgetModel.dynamicColumnSources.findIndex((s: any) => s.datasetId === sourceId)
+                if (srcIdx !== -1) this.widgetModel.dynamicColumnSources.splice(srcIdx, 1)
             }
         },
         aggregationDropdownIsVisible(column, row: any) {
@@ -265,7 +312,10 @@ export default defineComponent({
             this.deleteItem(functionColumn, -1)
             this.onFunctionsColumnAdded(functionColumn)
         },
-        getRowClass(rowData: IWidgetColumn) {
+        getRowClass(rowData: any) {
+            if (rowData.dynamicSourceDatasetId) {
+                return this.hoveredSourceId === rowData.dynamicSourceDatasetId ? 'dynamic-col-row dynamic-col-row--active' : 'dynamic-col-row'
+            }
             return this.descriptorColumnNames.has(rowData.columnName) ? 'col-is-descriptor' : ''
         },
         sortIcon(orderType) {
@@ -293,6 +343,25 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .editor-col-table {
+    :deep(tr.dynamic-col-row) {
+        > td:first-child {
+            box-shadow: inset 3px 0 0 0 var(--kn-color-fab);
+        }
+    }
+    :deep(tr.dynamic-col-row--active) {
+        > td {
+            background-color: rgba(99, 102, 241, 0.08);
+            border-top: 1px solid var(--kn-color-fab);
+            border-bottom: 1px solid var(--kn-color-fab);
+        }
+        > td:first-child {
+            box-shadow: inset 3px 0 0 0 var(--kn-color-fab);
+            border-left: 1px solid var(--kn-color-fab);
+        }
+        > td:last-child {
+            border-right: 1px solid var(--kn-color-fab);
+        }
+    }
     :deep(.p-datatable-thead) {
         display: none;
     }
