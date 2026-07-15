@@ -659,6 +659,7 @@
                 },
                 "title": "Accessibility"
             },
+            "addDynamicColumns": "Add Dynamic Columns",
             "addFunction": "Add Function",
             "addWidget": "Add widget",
             "aggregation": "Aggregation",
@@ -795,6 +796,13 @@
                 "enable": "Enable Drilldown",
                 "title": "Drilldown"
             },
+            "dynamicColumnDuplicateSkipped": "column(s) skipped — already present in widget",
+            "dynamicColumnSource": "Source dataset",
+            "dynamicColumnsDatasetNotCompatible": "Selected dataset must have 'colName' and 'orderNum' columns",
+            "dynamicColumnsGuideTitle": "How to structure your column-source dataset",
+            "dynamicColumnsGuideBody": "The selected dataset must return exactly two columns:",
+            "dynamicColumnsGuideColName": "Technical column name from the main dataset (case-sensitive). Rows whose value does not match any column in the main dataset are silently ignored.",
+            "dynamicColumnsGuideOrderNum": "Integer that controls the display order of the imported columns. Lower numbers appear first.",
             "editor": "Editor",
             "editorTags": {
                 "activesel": "Active Selection",

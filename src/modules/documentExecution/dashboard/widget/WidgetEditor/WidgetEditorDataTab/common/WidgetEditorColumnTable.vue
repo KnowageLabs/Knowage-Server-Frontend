@@ -24,6 +24,9 @@
                     </Column>
                     <Column :style="settings.buttonColumnStyle">
                         <template #body="slotProps">
+                            <q-icon v-if="slotProps.data.dynamicSourceDatasetId" name="dynamic_feed" size="xs" color="primary" class="q-mx-xs cursor-pointer">
+                                <q-tooltip>{{ $t('dashboard.widgetEditor.dynamicColumnSource') + ': ' + slotProps.data.dynamicSourceDatasetLabel }}</q-tooltip>
+                            </q-icon>
                             <Button v-if="showSortButton" class="p-button-link" :icon="sortIcon(slotProps.data.orderType)" v-tooltip.top="slotProps.data.orderType ?? 'NONE'" @click="toggleSort(slotProps.data)" />
                             <Button v-if="slotProps.data.formula" v-tooltip.top="$t('common.edit')" icon="fas fa-calculator" class="p-button-link" @click.stop="openCalculatedFieldDialog(slotProps.data)"></Button>
                             <Button v-if="slotProps.data.type === 'pythonFunction'" v-tooltip.top="$t('common.edit')" icon="fas fa-superscript" class="p-button-link" @click.stop="openFunctionsColumnDialog(slotProps.data)"></Button>
