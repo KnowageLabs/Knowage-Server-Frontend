@@ -69,7 +69,7 @@ import deepcopy from 'deepcopy'
 
 export default defineComponent({
     name: 'widget-editor-data-list',
-    components: { Dropdown, Listbox, KnBlockly, WidgetEditorFunctionsDialog, WidgetEditorDynamicColumnsDialog },
+    components: { Dropdown, Listbox, WidgetEditorFunctionsDialog, WidgetEditorDynamicColumnsDialog },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, datasets: { type: Array }, selectedDatasets: { type: Array as PropType<IDataset[]> }, variables: { type: Array as PropType<IVariable[]>, required: true } },
     emits: ['datasetSelected', 'selectedDatasetColumnsChanged', 'toggleListDrag'],
     setup() {
