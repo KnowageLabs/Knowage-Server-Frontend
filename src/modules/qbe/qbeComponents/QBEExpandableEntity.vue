@@ -6,7 +6,7 @@
             </i>
             <span class="kn-flex" :data-test="'expand-' + entity.id" @click="expandEntity(entity)">
                 {{ entity.text }}
-                <q-tooltip v-if="getTooltipText(entity)" anchor="top middle" self="bottom middle">
+                <q-tooltip v-if="getTooltipText(entity)" anchor="top middle" self="center middle">
                     <span v-html="getTooltipHtml(entity)"></span>
                 </q-tooltip>
             </span>
@@ -24,7 +24,7 @@
                 </i>
                 <span :data-test="'entity-' + entity.id">
                     {{ child.text }}
-                    <q-tooltip v-if="getTooltipText(child)" anchor="top middle" self="bottom middle">
+                    <q-tooltip v-if="getTooltipText(child)" anchor="top middle" self="center middle">
                         <span v-html="getTooltipHtml(child)"></span>
                     </q-tooltip>
                 </span>
