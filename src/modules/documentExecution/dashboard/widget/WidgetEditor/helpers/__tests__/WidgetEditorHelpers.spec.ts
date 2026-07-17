@@ -89,6 +89,31 @@ describe('formatWidgetForSave', () => {
         expect(result!.invalid).toBeUndefined()
     })
 
+    it('preserves map state while still removing transient properties', () => {
+        const widgetState = {
+            center: { lat: 45.4642, lng: 9.19 },
+            zoom: 7
+        }
+        const widget = {
+            id: 'w-map',
+            type: 'map',
+            dataset: null,
+            columns: [],
+            layers: [],
+            settings: { configuration: {}, style: {} },
+            state: widgetState,
+            search: 'query',
+            invalid: true
+        } as any
+
+        const result = formatWidgetForSave(widget)
+
+        expect(result).not.toBeNull()
+        expect(result!.state).toEqual(widgetState)
+        expect(result!.search).toBeUndefined()
+        expect(result!.invalid).toBeUndefined()
+    })
+
     it('preserves core widget properties', () => {
         const widget = {
             id: 'abc-123',

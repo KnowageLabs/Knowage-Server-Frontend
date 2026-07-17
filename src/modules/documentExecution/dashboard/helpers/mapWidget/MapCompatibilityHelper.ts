@@ -14,6 +14,7 @@ export const formatMapWidget = (widget: any, formattedDashboardModel: IDashboard
         type: widget.type,
         columns: [],
         layers: getFormattedLayers(widget) as IMapWidgetLayer[],
+        state: widget.state,
         theme: '',
         settings: {} as IMapWidgetSettings
     } as IWidget
