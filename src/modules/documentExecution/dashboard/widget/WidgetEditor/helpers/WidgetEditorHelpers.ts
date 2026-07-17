@@ -120,7 +120,8 @@ export function formatWidgetForSave(tempWidget: IWidget) {
             formatChartJSForSave(widget)
             break
     }
-    ;['state', 'search', 'invalid'].forEach((property: string) => delete widget[property])
+    ;['search', 'invalid'].forEach((property: string) => delete widget[property])
+    if (widget.type !== 'map') delete widget.state
     return widget
 }
 
