@@ -41,7 +41,19 @@ const getFormattedCrossNavigationParameters = (documentCrossNavigation: IDashboa
             addSourceDocumentCrossNavigationParameterFromOutputParameter(documentCrossNavigationParameter, documentCrossNavigationOutputParameters, formattedCrossNavigationParameters)
         }
     })
+    addPropagateAsSelectionOnlyParameters(documentCrossNavigationOutputParameters, formattedCrossNavigationParameters)
     return formattedCrossNavigationParameters
+}
+
+// Selection-type output params flagged propagateAsSelection must reach the target even when they are not mapped to any target driver.
+// The driver loop above only carries params bound to a driver, so here we add the remaining ones as selection-only (no target driver).
+const addPropagateAsSelectionOnlyParameters = (documentCrossNavigationOutputParameters: ICrossNavigationParameter[], formattedCrossNavigationParameters: ICrossNavigationParameter[]) => {
+    documentCrossNavigationOutputParameters.forEach((outputParameter: ICrossNavigationParameter) => {
+        if (!outputParameter.propagateAsSelection) return
+        const alreadyCarried = formattedCrossNavigationParameters.some((parameter: ICrossNavigationParameter) => parameter.outputDriverName && parameter.outputDriverName === outputParameter.outputDriverName)
+        if (alreadyCarried) return
+        formattedCrossNavigationParameters.push({ ...outputParameter, targetDriverUrlName: '' })
+    })
 }
 
 const getFormattedDocumentCrossNavigationParameters = (navigationParams: any) => {
@@ -115,6 +127,7 @@ const createDocumentNavigationParametersForFilterService = (formattedCrossNaviga
             documentNavigationParamsForFilterService[formattedCrossNavigationParameter.targetDriverUrlName] = valueAndDescription.value
             if (valueAndDescription.description) documentNavigationParamsForFilterService[formattedCrossNavigationParameter.targetDriverUrlName + '_field_visible_description'] = valueAndDescription.description
         } else if (formattedCrossNavigationParameter.type === 'fromSourceDocumentOutputParameter') {
+            if (!formattedCrossNavigationParameter.targetDriverUrlName) return // selection-only param, propagated as selection not as a driver value
             const value = getValueForFilterServiceFromSourceDocumentOutputParameter(formattedCrossNavigationParameter)
             documentNavigationParamsForFilterService[formattedCrossNavigationParameter.targetDriverUrlName] = value
             documentNavigationParamsForFilterService[formattedCrossNavigationParameter.targetDriverUrlName + '_field_visible_description'] = value

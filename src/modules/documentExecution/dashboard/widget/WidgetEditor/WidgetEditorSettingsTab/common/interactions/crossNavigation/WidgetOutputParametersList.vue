@@ -63,9 +63,21 @@
                         <q-select v-model="parameter.column" :options="getSelectionDatasetColumnOptions(parameter)" :label="$t('common.column')" outlined dense :disable="!parameter.enabled || disabled" @update:model-value="parametersChanged" />
                     </div>
                     <div class="col-auto row items-center q-gutter-x-sm">
-                        <q-checkbox v-model="parameter.propagateAsSelection" size="sm" :disable="!parameter.enabled || disabled" dense @update:model-value="parametersChanged" />
+                        <q-checkbox v-model="parameter.propagateAsSelection" size="sm" :disable="!parameter.enabled || disabled" dense @update:model-value="onPropagateAsSelectionChanged(parameter)" />
                         <span class="text-caption">{{ $t('dashboard.widgetEditor.interactions.propagateSelections') }}</span>
                     </div>
+                    <div v-if="parameter.propagateAsSelection && hasTargetDatasets" class="col-auto row items-center q-gutter-x-sm">
+                        <q-toggle :model-value="isTargetOverrideEnabled(parameter)" size="sm" :disable="!parameter.enabled || disabled" dense @update:model-value="onTargetOverrideToggled(parameter, $event)" />
+                        <span class="text-caption">{{ $t('dashboard.widgetEditor.interactions.overrideTargetDatasetColumn') }}</span>
+                    </div>
+                    <template v-if="parameter.propagateAsSelection && hasTargetDatasets && isTargetOverrideEnabled(parameter)">
+                        <div class="col-6">
+                            <q-select v-model="parameter.targetDatasetLabel" :options="targetDatasetNames" :label="$t('dashboard.widgetEditor.interactions.targetDataset')" outlined dense :disable="!parameter.enabled || disabled" @update:model-value="onTargetDatasetChanged(parameter)" />
+                        </div>
+                        <div class="col-6">
+                            <q-select v-model="parameter.targetColumnName" :options="getTargetDatasetColumnOptions(parameter)" :label="$t('dashboard.widgetEditor.interactions.targetColumn')" outlined dense :disable="!parameter.enabled || disabled" @update:model-value="parametersChanged" />
+                        </div>
+                    </template>
                 </template>
             </div>
         </div>
@@ -86,6 +98,7 @@ export default defineComponent({
         widgetModel: { type: Object as PropType<IWidget>, required: true },
         propParameters: { type: Array as PropType<IWidgetInteractionParameter[]>, required: true },
         selectedDatasetsColumnsMap: { type: Object },
+        targetDatasetsColumnsMap: { type: Object as PropType<Record<string, string[]>> },
         disabled: { type: Boolean },
         mapDynamicOptions: { type: Object as PropType<any> },
         crossNavigationConfig: { type: Object as PropType<IMapWidgetCrossNavigationVisualizationTypeConfig> },
@@ -112,6 +125,12 @@ export default defineComponent({
             const modelFields = this.widgetModel.fields
             const combinedArray = modelFields?.columns.concat(modelFields.rows, modelFields.data, modelFields.filters)
             return combinedArray
+        },
+        hasTargetDatasets() {
+            return this.targetDatasetsColumnsMap ? Object.keys(this.targetDatasetsColumnsMap).length > 0 : false
+        },
+        targetDatasetNames() {
+            return this.targetDatasetsColumnsMap ? Object.keys(this.targetDatasetsColumnsMap) : []
         },
         chartColumnOptions() {
             if (['table', 'discovery', 'static-pivot-table'].includes(this.widgetType)) return []
@@ -149,12 +168,14 @@ export default defineComponent({
                     delete parameter.column
                     delete parameter.dataset
                     delete parameter.propagateAsSelection
+                    this.clearTargetOverride(parameter)
                     break
                 case 'dynamic':
                     parameter.value = 'Static'
                     parameter.column = ''
                     delete parameter.dataset
                     delete parameter.propagateAsSelection
+                    this.clearTargetOverride(parameter)
                     break
                 case 'selection':
                     parameter.value = 'Static'
@@ -170,6 +191,34 @@ export default defineComponent({
         onDatasetChanged(parameter: IWidgetInteractionParameter) {
             parameter.column = ''
             this.parametersChanged()
+        },
+        onPropagateAsSelectionChanged(parameter: IWidgetInteractionParameter) {
+            if (!parameter.propagateAsSelection) this.clearTargetOverride(parameter)
+            this.parametersChanged()
+        },
+        isTargetOverrideEnabled(parameter: IWidgetInteractionParameter) {
+            return !!parameter.targetDatasetLabel || !!parameter.targetColumnName
+        },
+        onTargetOverrideToggled(parameter: IWidgetInteractionParameter, enabled: boolean) {
+            if (enabled) {
+                const firstDataset = this.targetDatasetNames[0] ?? ''
+                parameter.targetDatasetLabel = firstDataset
+                parameter.targetColumnName = ''
+            } else {
+                this.clearTargetOverride(parameter)
+            }
+            this.parametersChanged()
+        },
+        onTargetDatasetChanged(parameter: IWidgetInteractionParameter) {
+            parameter.targetColumnName = ''
+            this.parametersChanged()
+        },
+        getTargetDatasetColumnOptions(parameter: IWidgetInteractionParameter) {
+            return parameter.targetDatasetLabel && this.targetDatasetsColumnsMap ? (this.targetDatasetsColumnsMap[parameter.targetDatasetLabel] ?? []) : []
+        },
+        clearTargetOverride(parameter: IWidgetInteractionParameter) {
+            delete parameter.targetDatasetLabel
+            delete parameter.targetColumnName
         },
         getTargetLayerType(crossNavigationVisTypeConfig: IMapWidgetCrossNavigationVisualizationTypeConfig | IMapWidgetPreviewVisualizationTypeConfig | undefined) {
             if (!crossNavigationVisTypeConfig) return ''

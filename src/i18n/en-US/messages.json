@@ -1341,6 +1341,9 @@
                 "outputParameter": "Output Parameter",
                 "preview": "Preview",
                 "propagateSelections": "Propagate selections to target dashboard",
+                "overrideTargetDatasetColumn": "Override target dataset/column",
+                "targetDataset": "Target dataset",
+                "targetColumn": "Target column",
                 "selection": "Selection",
                 "static": "Static",
                 "title": "Interactions"

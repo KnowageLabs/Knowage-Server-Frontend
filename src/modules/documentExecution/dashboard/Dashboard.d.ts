@@ -264,6 +264,8 @@ export interface IWidgetInteractionParameter {
     json?: string
     useAsResource?: boolean
     propagateAsSelection?: boolean
+    targetDatasetLabel?: string
+    targetColumnName?: string
 }
 
 export interface IWidgetPreview {

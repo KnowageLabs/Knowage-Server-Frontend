@@ -406,13 +406,18 @@ export default defineComponent({
             if (!crossNavParams?.length) return []
             const injected: any[] = []
             crossNavParams.forEach((param: any) => {
-                if (!param.propagateAsSelection || !param.sourceDatasetLabel || !param.sourceColumnName) return
+                if (!param.propagateAsSelection) return
+                // When a target override is set, inject into the chosen target dataset/column; otherwise fall back to the source dataset/column (matched by label on this dashboard).
+                const hasTargetOverride = param.targetDatasetLabel && param.targetColumnName
+                const datasetLabel = hasTargetOverride ? param.targetDatasetLabel : param.sourceDatasetLabel
+                const columnName = hasTargetOverride ? param.targetColumnName : param.sourceColumnName
+                if (!datasetLabel || !columnName) return
                 // this.datasets is IDataset[] with id.dsId (number) and label (string) — fully loaded
-                const fullDataset = this.datasets.find((ds: any) => ds.label === param.sourceDatasetLabel)
+                const fullDataset = this.datasets.find((ds: any) => ds.label === datasetLabel)
                 if (!fullDataset) {
                     console.log(
                         '[CrossNav] buildSelectionsFromCrossNavigation | no dataset found for label:',
-                        param.sourceDatasetLabel,
+                        datasetLabel,
                         '| available labels:',
                         this.datasets.map((d: any) => d.label)
                     )
@@ -421,7 +426,7 @@ export default defineComponent({
                 const selection = {
                     datasetId: fullDataset.id.dsId,
                     datasetLabel: fullDataset.label,
-                    columnName: param.sourceColumnName,
+                    columnName: columnName,
                     value: param.parameterValue.map((pv: any) => pv.value),
                     aggregated: false,
                     timestamp: Date.now()
