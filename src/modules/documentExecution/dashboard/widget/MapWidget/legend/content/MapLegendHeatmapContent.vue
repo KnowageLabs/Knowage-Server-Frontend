@@ -22,6 +22,7 @@
 <script lang="ts">
 import { PropType } from 'vue'
 import { IMapWidgetVisualizationTypeLegendSettings } from '../../../../interfaces/mapWidget/DashboardMapWidget'
+import { formatMapLegendNumber } from '../MapLegendFormattingHelper'
 
 export default {
     name: 'map-legend-heatmap-content',
@@ -63,8 +64,7 @@ export default {
             this.legendVizualizationSettings = this.propMapWidgetLegendVisualization
         },
         formatValue(value: number | null): string {
-            if (!value || !isFinite(value)) return 'N/A'
-            return value.toFixed(2)
+            return formatMapLegendNumber(value)
         }
     }
 }
@@ -76,16 +76,17 @@ export default {
     flex-wrap: nowrap;
     align-items: center;
     justify-content: space-between;
-    padding: 0.5rem 0;
+    padding: 0.35rem 0;
     border-top: 1px solid #eee;
     word-break: break-word;
-    gap: 1rem;
+    gap: 0.5rem;
 }
 
 .heatmap-legend-row span,
 .heatmap-legend-row div {
     flex: 1;
     min-width: 0;
+    line-height: 1.3;
 }
 
 .heatmap-legend-title-row {
@@ -97,14 +98,14 @@ export default {
 #gradient-container {
     background: linear-gradient(to right, blue, cyan, lime, yellow, red);
     width: 100%;
-    height: 15px;
+    height: 10px;
     border: 1px solid #999;
-    margin-bottom: 5px;
+    margin: 4px 0;
 }
 
 #gradient-labels {
     display: flex;
     justify-content: space-between;
-    font-size: 1rem;
+    font-size: 0.75rem;
 }
 </style>

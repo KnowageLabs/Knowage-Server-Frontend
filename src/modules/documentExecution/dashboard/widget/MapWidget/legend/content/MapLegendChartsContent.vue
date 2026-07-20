@@ -50,15 +50,16 @@ export default {
 .chart-legend-flex-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    margin-top: 1rem;
+    gap: 0.25rem;
+    margin-top: 0.35rem;
 }
 
 .chart-legend-flex-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 1rem;
+    gap: 0.5rem;
+    line-height: 1.3;
 }
 
 .chart-legend-flex-header {
@@ -67,8 +68,8 @@ export default {
 
 .chart-measure-color-swatch {
     display: inline-block;
-    width: 15px;
-    height: 15px;
+    width: 12px;
+    height: 12px;
     border: 1px solid #ccc;
     border-radius: 2px;
 }

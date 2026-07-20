@@ -1,13 +1,14 @@
 <template>
     <div
         v-if="legend"
-        :class="['map-legend', positionClass, 'q-pa-sm shadow-2 text-black rounded-borders']"
+        :class="['map-legend', positionClass, 'text-black']"
         :style="[
             {
                 position: 'absolute',
                 zIndex: 99,
                 background: 'white',
-                width: legendWidth + 'px'
+                minWidth: '96px',
+                maxWidth: legendWidth + 'px'
             },
             isDetached
                 ? {
@@ -21,10 +22,11 @@
         ref="legendRef"
     >
         <h2 v-if="legend.title">{{ legend.title }}</h2>
-        <div :class="['p-formgrid p-grid', { 'horizontal-layout': isHorizontalLayout }]">
-            <q-expansion-item :class="isHorizontalLayout ? 'kn-flex' : 'p-col-12'" v-for="(legendVizualizationSettings, index) in legend.visualizationTypes.filter((legendVisType: IMapWidgetVisualizationTypeLegendSettings) => legendVisType.visualizationType?.type !== 'geography')" :key="index" :label="legendVizualizationSettings.visualizationType?.label ?? ''" default-opened>
+        <div :class="['map-legend-visualizations', { 'horizontal-layout': isHorizontalLayout }]">
+            <div class="map-legend-section" :class="{ 'map-legend-section--full': !isHorizontalLayout }" v-for="(legendVizualizationSettings, index) in legend.visualizationTypes.filter((legendVisType: IMapWidgetVisualizationTypeLegendSettings) => legendVisType.visualizationType?.type !== 'geography')" :key="index">
+                <div v-if="legendVizualizationSettings.visualizationType?.label" class="map-legend-section-title">{{ legendVizualizationSettings.visualizationType.label }}</div>
                 <MapLegendVisualization :prop-map-widget-legend-visualization="legendVizualizationSettings" :legend-data="legendData" />
-            </q-expansion-item>
+            </div>
         </div>
     </div>
 </template>
@@ -116,7 +118,7 @@ export default defineComponent({
                 const width = parentRect.width
                 const height = parentRect.height
 
-                const legendWidth = 300
+                const legendWidth = this.legendWidth
                 const legendHeight = 150
 
                 if (!this.isDetached) {
@@ -197,11 +199,34 @@ export default defineComponent({
     position: absolute;
     z-index: 99 !important;
     background: white;
-    padding: 8px;
-    border-radius: 4px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    padding: 10px 12px;
+    border-radius: 0;
+    box-shadow: none;
     overflow-y: auto;
+    overflow-x: hidden;
     max-height: 100%;
+    font-size: 0.875rem;
+    line-height: 1.3;
+}
+
+.map-legend h2 {
+    margin: 0 0 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.2;
+    font-weight: 600;
+}
+
+.map-legend-visualizations {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.map-legend-visualizations.horizontal-layout {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0.75rem;
+    overflow-x: auto;
 }
 
 .legend-vertical {
@@ -209,7 +234,8 @@ export default defineComponent({
 }
 
 .legend-horizontal {
-    height: 100%;
+    top: 0;
+    bottom: 0;
 }
 
 .legend-top {
@@ -226,5 +252,21 @@ export default defineComponent({
 
 .legend-west {
     left: 0;
+}
+
+.map-legend-section--full {
+    width: 100%;
+}
+
+.map-legend-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.map-legend-section-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.2;
 }
 </style>

@@ -1,12 +1,12 @@
 <template>
-    <div v-if="legendVizualizationSettings" class="p-col-12">
-        <div v-if="legendVizualizationSettings.text" class="map-legend-text p-mb-1 p-p-2">
+    <div v-if="legendVizualizationSettings" class="map-legend-visualization">
+        <div v-if="legendVizualizationSettings.text" class="map-legend-text">
             {{ legendVizualizationSettings.text }}
         </div>
 
-        <div class="p-formgrid p-grid p-p-2" v-if="legendVizualizationSettings.visualizationType">
-            <div class="p-col-12 p-d-flex p-flex-row p-ai-center">
-                <MapLegendMarkerContent v-if="['markers', 'clusters'].includes(legendVizualizationSettings.visualizationType.type)" :prop-map-widget-legend-visualization="legendVizualizationSettings"></MapLegendMarkerContent>
+        <div class="map-legend-marker-row" v-if="legendVizualizationSettings.visualizationType && ['markers', 'clusters'].includes(legendVizualizationSettings.visualizationType.type)">
+            <div class="map-legend-marker-preview">
+                <MapLegendMarkerContent :prop-map-widget-legend-visualization="legendVizualizationSettings"></MapLegendMarkerContent>
             </div>
         </div>
 
@@ -20,7 +20,6 @@
 <script lang="ts">
 import { PropType } from 'vue'
 import { IMapWidgetVisualizationTypeLegendSettings } from '../../../interfaces/mapWidget/DashboardMapWidget'
-import { LEGEND_DATA_TYPE } from '../LeafletHelper'
 import MapLegendMarkerContent from './content/MapLegendMarkerContent.vue'
 import MapLegendBalloonsContent from './content/MapLegendBalloonsContent.vue'
 import MapLegendChartsContent from './content/MapLegendChartsContent.vue'
@@ -36,7 +35,6 @@ export default {
     },
     data() {
         return {
-            LEGEND_DATA_TYPE,
             legendVizualizationSettings: null as IMapWidgetVisualizationTypeLegendSettings | null,
             layerLegendData: null as any
         }
@@ -67,18 +65,31 @@ export default {
 </script>
 
 <style scoped>
-.map-legend-text {
-    width: 100%;
-    line-height: 1.6;
-    color: #333;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    max-width: 600px;
+.map-legend-visualization {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
 }
 
-.target-property {
-    margin: 0;
-    padding: 0;
+.map-legend-text {
+    width: 100%;
+    line-height: 1.35;
+    color: #333;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    padding: 0.375rem 0.5rem;
+    box-shadow: none;
+    font-size: 0.75rem;
+}
+
+.map-legend-marker-row {
+    display: flex;
+    align-items: center;
+    min-height: 24px;
+}
+
+.map-legend-marker-preview {
+    display: flex;
+    align-items: center;
 }
 </style>
