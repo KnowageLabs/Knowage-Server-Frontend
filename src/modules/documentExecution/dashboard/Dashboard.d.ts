@@ -158,6 +158,7 @@ export interface IWidgetExports {
     }
     showExcelExport: boolean
     showScreenshot?: boolean
+    xlsxSheetName?: string
 }
 
 export interface ITableWidgetHeaders {

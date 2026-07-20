@@ -729,7 +729,7 @@ export default defineComponent({
             if (format.includes('xls')) {
                 format = 'spreadsheet'
                 if (currentDashboard) {
-                    body = createDashboardSpreadsheetExportBody(currentDashboard)
+                    body = createDashboardSpreadsheetExportBody(currentDashboard, this.getCurrentLocale())
                     enrichDashboardBodyWithPivotSortState(body)
                 }
             }

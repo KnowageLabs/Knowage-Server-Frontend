@@ -956,6 +956,7 @@
                 "enableScreenshots": "Enable Screenshots",
                 "exportPdf": "Export PDF",
                 "showExcelExport": "Enable show excel export (when available)",
+                "xlsxSheetName": "XLSX sheet name",
                 "title": "Export"
             },
             "fontawesome": "Fontawesome",

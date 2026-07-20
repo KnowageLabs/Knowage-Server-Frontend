@@ -764,6 +764,7 @@
                 "enableScreenshots": "Enable Screenshots",
                 "exportPdf": "Export PDF",
                 "showExcelExport": "Enable show excel export (when available)",
+                "xlsxSheetName": "Nome foglio XLSX",
                 "title": "Export"
             },
             "fontawesome": "Fontawesome",
