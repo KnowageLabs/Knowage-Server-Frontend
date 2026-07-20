@@ -46,6 +46,9 @@
                 <InputSwitch v-model="exportModel.showExcelExport" @change="onEnableExportChanged"></InputSwitch>
                 <label class="kn-material-input-label p-ml-4">{{ $t('dashboard.widgetEditor.export.showExcelExport') }}</label>
             </div>
+            <div v-if="exportModel.showExcelExport" class="col-12">
+                <q-input v-model="exportModel.xlsxSheetName" :label="$t('dashboard.widgetEditor.export.xlsxSheetName')" :placeholder="getDefaultXlsxSheetName()" outlined dense @blur="onXlsxSheetNameChanged" />
+            </div>
         </div>
     </div>
 </template>
@@ -86,6 +89,9 @@ export default defineComponent({
                 this.setSelectedExport()
             }
         },
+        getDefaultXlsxSheetName() {
+            return this.widgetModel?.settings?.style?.title?.text || `${this.widgetType} ${this.widgetModel?.id ?? ''}`.trim()
+        },
         setSelectedExport() {
             if (!this.exportModel || this.widgetType !== 'table' || !this.exportModel.pdf) return
             if (this.exportModel.pdf.a4landscape) this.selectedExport = 'a4landscape'
@@ -94,6 +100,11 @@ export default defineComponent({
         },
         exportConfigurationChanged() {
             emitter.emit('exportModelChanged', this.exportModel)
+        },
+        onXlsxSheetNameChanged() {
+            if (!this.exportModel) return
+            this.exportModel.xlsxSheetName = this.exportModel.xlsxSheetName?.trim() ?? ''
+            this.exportConfigurationChanged()
         },
         onEnableExportChanged() {
             this.exportConfigurationChanged()
