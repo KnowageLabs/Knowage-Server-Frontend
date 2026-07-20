@@ -67,20 +67,19 @@ export default {
 
 <style scoped>
 .config-preview {
-    padding-left: 0.1rem;
-    padding-right: 3rem;
+    padding: 0 0.5rem 0 0.1rem;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
     flex: 0 0 auto;
     overflow: hidden;
-    gap: 0.5rem;
+    gap: 0.35rem;
 }
 
 .image-preview {
-    max-height: 50px;
-    max-width: 50px;
+    max-height: 36px;
+    max-width: 36px;
 }
 
 .customColorPreview {
@@ -96,19 +95,19 @@ export default {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 0 5px;
-    width: 30px;
-    height: 30px;
+    padding: 0 4px;
+    width: 24px;
+    height: 24px;
     overflow: hidden;
 }
 
 i.fas.fa-circle {
-    line-height: 1.5rem;
+    line-height: 1.1rem;
 }
 
 .cluster-preview {
-    min-width: 25px;
+    min-width: 20px;
     border-radius: 50px;
-    font-size: 1.2rem;
+    font-size: 0.9rem;
 }
 </style>
