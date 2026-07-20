@@ -26,8 +26,7 @@
         <template #header>
             <div class="table-header p-d-flex p-ai-center">
                 <span id="search-container" class="p-input-icon-left p-mr-3">
-                    <i class="pi pi-search" />
-                    <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" data-test="search-input" />
+                    <Chips v-model="keywords" class="kn-material-input" separator="," :placeholder="$t('common.search')" data-test="search-input" @add="syncFilter" @remove="syncFilter" @keyup="onType" />
                 </span>
             </div>
         </template>
@@ -39,15 +38,28 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { filterDefault } from '@/helpers/commons/filterHelper'
+import { FilterService } from 'primevue/api'
+import Chips from 'primevue/chips'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import knParameterPopupDialogDescriptor from './KnParameterPopupDialogDescriptor.json'
 import Message from 'primevue/message'
 
+const MULTI_CONTAINS = 'MULTI_CONTAINS'
+FilterService.register(
+    MULTI_CONTAINS,
+    (cell: any, keywords: string[]) =>
+        !keywords?.length ||
+        keywords.some((k: string) =>
+            String(cell ?? '')
+                .toLowerCase()
+                .includes(k.toLowerCase())
+        )
+)
+
 export default defineComponent({
     name: 'kn-parameter-popup-dialog',
-    components: { Column, DataTable, Message },
+    components: { Chips, Column, DataTable, Message },
     props: { parameterPopUpData: { type: Object }, multivalue: { type: Boolean }, multipleSelectedRows: { type: Array } },
     emits: ['selected'],
     data() {
@@ -55,7 +67,9 @@ export default defineComponent({
             knParameterPopupDialogDescriptor,
             rows: [] as any[],
             columns: [] as { header: string; field: string }[],
-            filters: { global: [filterDefault] } as Object,
+            keywords: [] as string[],
+            typed: '',
+            filters: { global: { value: [] as string[], matchMode: MULTI_CONTAINS } } as Object,
             globalFilterFields: [] as string[],
             selectedRow: null as any
         }
@@ -103,6 +117,19 @@ export default defineComponent({
         },
         setSelectedRow() {
             setTimeout(() => this.$emit('selected', this.selectedRow), 10)
+        },
+        applyFilter() {
+            const t = this.typed.trim()
+            ;(this.filters as any).global.value = t ? [...this.keywords, t] : [...this.keywords]
+        },
+        onType(event: any) {
+            this.typed = event?.target?.value ?? ''
+            this.applyFilter()
+        },
+        syncFilter() {
+            // chip added/removed -> input is cleared by Chips, so drop the in-progress term
+            this.typed = ''
+            this.applyFilter()
         }
     }
 })
