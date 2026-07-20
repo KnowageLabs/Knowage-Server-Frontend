@@ -65,10 +65,11 @@ describe('getDashboardExportVariables', () => {
 })
 
 describe('createDashboardSpreadsheetExportBody', () => {
-    it('removes currentView and adds the top-level xlsxStyleEnabled flag', () => {
-        const body = createDashboardSpreadsheetExportBody(createDashboard())
+    it('removes currentView, adds the top-level xlsxStyleEnabled flag and normalizes locale', () => {
+        const body = createDashboardSpreadsheetExportBody(createDashboard(), 'eng')
 
         expect(body.currentView).toBeUndefined()
+        expect(body.locale).toBe('en-US')
         expect(body.xlsxStyleEnabled).toBe(true)
         expect(body.configuration.menuWidgets.exportFileName).toBe('dashboard $P{year} $V{region}')
         expect(body.configuration.menuWidgets.xlsxStyleEnabled).toBe(true)
@@ -77,7 +78,7 @@ describe('createDashboardSpreadsheetExportBody', () => {
 
 describe('createWidgetExportBody', () => {
     it('adds xlsxStyleEnabled to spreadsheet exports', () => {
-        const body = createWidgetExportBody('spreadsheet', createWidget(), createDashboard(), 'bi-user', 'en-US')
+        const body = createWidgetExportBody('spreadsheet', createWidget(), createDashboard(), 'bi-user', 'eng')
 
         expect(body.parameters).toEqual([{ name: 'country', value: 'IT' }])
         expect(body.datasetDrivers).toHaveLength(1)
