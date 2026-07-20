@@ -46,8 +46,9 @@
                 <InputSwitch v-model="exportModel.showExcelExport" @change="onEnableExportChanged"></InputSwitch>
                 <label class="kn-material-input-label p-ml-4">{{ $t('dashboard.widgetEditor.export.showExcelExport') }}</label>
             </div>
-            <div v-if="exportModel.showExcelExport" class="col-12">
-                <q-input v-model="exportModel.xlsxSheetName" :label="$t('dashboard.widgetEditor.export.xlsxSheetName')" :placeholder="getDefaultXlsxSheetName()" outlined dense @blur="onXlsxSheetNameChanged" />
+            <div v-if="exportModel.showExcelExport" class="p-col-12 p-d-flex p-flex-column p-pt-4">
+                <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.export.xlsxSheetName') }}</label>
+                <InputText v-model="exportModel.xlsxSheetName" class="kn-material-input p-inputtext-sm p-mt-2" :placeholder="getDefaultXlsxSheetName()" @change="onXlsxSheetNameChanged" />
             </div>
         </div>
     </div>
@@ -59,11 +60,12 @@ import { IWidget, IWidgetExports } from '@/modules/documentExecution/dashboard/D
 import { emitter } from '../../../../../DashboardHelpers'
 import InputNumber from 'primevue/inputnumber'
 import InputSwitch from 'primevue/inputswitch'
+import InputText from 'primevue/inputtext'
 import RadioButton from 'primevue/radiobutton'
 
 export default defineComponent({
     name: 'table-widget-export',
-    components: { InputNumber, InputSwitch, RadioButton },
+    components: { InputNumber, InputSwitch, InputText, RadioButton },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {
