@@ -303,10 +303,8 @@ export default defineComponent({
             this.onFunctionsColumnAdded(functionColumn)
         },
         getRowClass(rowData: any) {
-            if (rowData.dynamicSourceDatasetId) {
-                return this.hoveredSourceId === rowData.dynamicSourceDatasetId ? 'dynamic-col-row dynamic-col-row--active' : 'dynamic-col-row'
-            }
-            return this.descriptorColumnNames.has(rowData.columnName) ? 'col-is-descriptor' : ''
+            if (!rowData.dynamicSourceDatasetId) return ''
+            return this.hoveredSourceId === rowData.dynamicSourceDatasetId ? 'dynamic-col-row dynamic-col-row--active' : 'dynamic-col-row'
         },
         sortIcon(orderType) {
             if (orderType === 'ASC') return 'fas fa-arrow-up-short-wide'
