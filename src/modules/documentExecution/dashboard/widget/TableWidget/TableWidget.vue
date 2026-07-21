@@ -419,10 +419,11 @@ export default defineComponent({
                         // TOOLTIP CONFIGURATION  -----------------------------------------------------------------
                         const tooltipConfig = this.getColumnTooltipConfig(tempCol.colId)
                         if (tooltipConfig !== null) {
+                            const tooltipVisType = this.widgetModel.settings.visualization.visualizationTypes.enabled ? this.getColumnVisualizationType(tempCol.colId) : null
                             tempCol.tooltipComponent = TooltipRenderer
                             tempCol.tooltipField = tempCol.field
                             tempCol.headerTooltip = tooltipConfig.header.enabled ? tooltipConfig.header.text : null
-                            tempCol.tooltipComponentParams = { tooltipConfig: tooltipConfig }
+                            tempCol.tooltipComponentParams = { tooltipConfig: tooltipConfig, precision: tooltipVisType?.precision ?? 0 }
                         } else {
                             tempCol.headerTooltip = null
                         }
