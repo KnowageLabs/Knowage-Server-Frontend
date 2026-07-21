@@ -202,7 +202,7 @@ export default defineComponent({
                 overlayNoRowsTemplate: this.overlayNoRowsTemplateTest,
                 defaultColDef: { flex: 1 },
                 rowSelection: 'single',
-                suppressRowTransform: true,
+                enableCellSpan: true,
                 suppressMovableColumns: true,
                 suppressDragLeaveHidesColumns: true,
                 suppressRowGroupHidesColumns: true,
@@ -335,29 +335,30 @@ export default defineComponent({
                         }
 
                         //ROWSPAN MANAGEMENT
+                        // Uses AG Grid v33's virtualisation-aware Cell Spanning API (enableCellSpan + spanRows).
+                        // spanRows: true spans contiguous leaf rows with equal values in this column, independently
+                        // per column, and keeps the span rendered even when the group's first row is virtualised out.
                         if (this.widgetModel.settings.configuration.rows.rowSpan.enabled && (this.widgetModel.settings.configuration.rows.rowSpan.columns ?? []).includes(this.widgetModel.columns[datasetColumn].id)) {
-                            const spanKey = `span_${this.widgetModel.columns[datasetColumn].id}`
-                            let previousValue
-                            let previousIndex
-                            const tempRows = this.tableData.rows as any
-                            for (const r in tempRows as any) {
-                                if (previousValue != tempRows[r][responseFields[responseField].name]) {
-                                    previousValue = tempRows[r][responseFields[responseField].name]
-                                    previousIndex = r
-                                    tempRows[r][spanKey] = 1
-                                } else {
-                                    tempRows[previousIndex][spanKey]++
+                            tempCol.spanRows = true
+                            // A spanned cell floats over several rows, so it inherits no row-level getRowStyle
+                            // background (that lives on the row <div>). Paint the alternated-row colour on the tall
+                            // .ag-cell itself, mirroring getRowStyle and keyed on the origin rowIndex so the whole
+                            // merge is one solid tone.
+                            //
+                            // The colour must be rendered OPAQUE: alternated colours can be semi-transparent (e.g.
+                            // rgba(0,89,179,0.26)), and a transparent merged cell lets the rows it floats over show
+                            // through — producing an off colour and a visible seam where the underlying row colours
+                            // meet. Compositing the colour over an opaque white base (a flat gradient layered on #fff)
+                            // makes it opaque and matches a normal single-layer striped row, for any colour format.
+                            tempCol.cellStyle = (params) => {
+                                const alternatedRows = this.widgetModel.settings.style.rows?.alternatedRows
+                                if (alternatedRows?.enabled && typeof params.node?.rowIndex === 'number') {
+                                    let color: string | undefined
+                                    if (alternatedRows.oddBackgroundColor && params.node.rowIndex % 2 === 0) color = alternatedRows.oddBackgroundColor
+                                    else if (alternatedRows.evenBackgroundColor && params.node.rowIndex % 2 !== 0) color = alternatedRows.evenBackgroundColor
+                                    if (color) return { background: `linear-gradient(${color}, ${color}), #ffffff` }
                                 }
-                            }
-                            tempCol.rowSpan = function RowSpanCalculator(params) {
-                                if (params.data[spanKey] > 1) {
-                                    return params.data[spanKey]
-                                } else return 1
-                            }
-                            tempCol.cellClassRules = {
-                                'cell-span': function (params) {
-                                    return tempRows[params.rowIndex]?.[spanKey] > 1
-                                }
+                                return null
                             }
                         }
 
@@ -1000,9 +1001,9 @@ export default defineComponent({
 })
 </script>
 <style lang="scss">
-.cell-span {
-    background-color: white;
-}
+/* Spanned-cell background is painted on the tall .ag-cell via the column's cellStyle callback
+   (see ROWSPAN MANAGEMENT), because a merged cell has no backing row to pick up getRowStyle and
+   the CellRenderer's inner <span> only covers ~one row's height. */
 .ag-cell {
     .barContainer {
         width: 100%;

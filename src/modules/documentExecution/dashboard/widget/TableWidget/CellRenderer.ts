@@ -113,6 +113,10 @@ export default class CellRenderer {
         }
 
         const getRowspanRowStyle = () => {
+            // On spanned columns the alternated-row background is painted on the full-height .ag-cell via the
+            // column's cellStyle callback. Painting it again here would draw a mismatched, ~1-row-tall rectangle
+            // centered in the merged cell (visible edge line + double-layered/off colour), so skip it.
+            if (params.colDef?.spanRows) return
             const rowStyles = params.propWidget.settings.style.rows
             if (rowStyles.alternatedRows && rowStyles.alternatedRows.enabled) {
                 if (rowStyles.alternatedRows.oddBackgroundColor && params.node.rowIndex % 2 === 0) {
@@ -150,7 +154,7 @@ export default class CellRenderer {
             if (rowSpanStyle) return rowSpanStyle
         }
 
-        const styleObject = getCellStyle()
+        const styleObject = getCellStyle() || {}
         // Hardcode padding so columns can be easily distinguished, can be moved to editor later if needed
         styleObject['padding-left'] = '0.5rem'
 
