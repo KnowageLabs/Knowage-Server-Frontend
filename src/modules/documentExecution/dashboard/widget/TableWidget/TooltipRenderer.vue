@@ -8,6 +8,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import { formatNumberWithLocale } from '@/helpers/commons/localeHelper'
 
 export default defineComponent({
     props: {
@@ -31,7 +32,9 @@ export default defineComponent({
             case 'cell':
                 this.prefix = this.params.tooltipConfig.prefix
                 this.suffix = this.params.tooltipConfig.suffix
-                this.tooltipValue = this.params.value
+                // Numbers must respect the column's precision (visibility condition) the same way the cell body does,
+                // otherwise the tooltip leaks the full-precision value coming from the backend.
+                this.tooltipValue = typeof this.params.value === 'number' ? formatNumberWithLocale(this.params.value, this.params.precision ?? 0) : this.params.value
                 break
 
             default:
