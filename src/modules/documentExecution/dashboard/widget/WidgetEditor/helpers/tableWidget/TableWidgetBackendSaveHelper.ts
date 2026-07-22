@@ -1,30 +1,25 @@
-import { ITableWidgetColumnGroups, ITableWidgetConditionalStyles, ITableWidgetConfiguration, IWidgetCrossNavigation, ITableWidgetHeaders, IWidgetInteractions, IWidgetSelection, ITableWidgetSettings, ITableWidgetVisualization, IWidget, IWidgetColumn, ITableWidgetTooltipStyle, ITableWidgetColumnStyles } from '../../../../Dashboard'
-
-const columnIdNameMap = {}
+import { ITableWidgetColumnGroups, ITableWidgetConditionalStyles, ITableWidgetConfiguration, IWidgetCrossNavigation, ITableWidgetHeaders, IWidgetInteractions, IWidgetSelection, ITableWidgetSettings, ITableWidgetVisualization, IWidget, ITableWidgetTooltipStyle, ITableWidgetColumnStyles } from '../../../../Dashboard'
 
 export function formatTableWidgetForSave(widget: IWidget) {
     if (!widget) return
 
-    loadColumnIdNameMap(widget)
-    formatTableSelectedColumns(widget.columns)
+    // Per-column settings (styles, precision, alignment, visualization types, tooltips,
+    // column groups, header rules, sorting, selection, cross navigation) are persisted
+    // using the column's stable `id`, NOT its physical field name (`columnName`).
+    //
+    // The id is what keeps two columns built from the SAME field distinct — e.g. the same
+    // UNIT_SALES field used as two measures with different aggregations/aliases. Collapsing
+    // targets to columnName merged those columns together on reload, so styles were shared
+    // and one alias overwrote the other. We therefore keep `column.id` on the saved model
+    // (see addColumnIdsToWidgetColumns / formatDashboardTableWidgetAfterLoading on load).
     formatTableSettings(widget.settings)
 }
 
-function formatTableSelectedColumns(columns: IWidgetColumn[]) {
-    if (!columns) return
-    columns.forEach((column: IWidgetColumn) => {
-        delete column.id
-    })
-}
-
-const loadColumnIdNameMap = (widget: IWidget) => {
-    widget.columns?.forEach((column: IWidgetColumn) => {
-        if (column.id) columnIdNameMap[column.id] = column.columnName
-    })
-}
-
+// Targets already reference the column `id` in the in-memory model, so persistence is an
+// identity mapping. Kept as a single indirection point so the save/load token format stays
+// symmetric with getColumnId() in TableWidgetFunctions.ts.
 const getColumnName = (columnId: string) => {
-    return columnId ? columnIdNameMap[columnId] : ''
+    return columnId || ''
 }
 
 const formatTableSettings = (widgetSettings: ITableWidgetSettings) => {
