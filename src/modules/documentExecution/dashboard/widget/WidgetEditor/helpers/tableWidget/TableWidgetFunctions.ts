@@ -115,7 +115,12 @@ export const removeColumnGroupFromModel = (widgetModel: IWidget, columnGroup: IT
 
 export default removeColumnFromTableWidgetModel
 
+// Legacy fallback map: dashboards saved before per-column settings were persisted by `id`
+// stored their targets as `columnName`. That key is not unique when the same field is reused,
+// which is exactly the bug this replaces — so it is only consulted for tokens that are not
+// already ids. Reset per widget because it is module-level and must not leak between widgets.
 const columnNameIdMap = {}
+const columnIdSet = new Set<string>()
 
 export function formatDashboardTableWidgetAfterLoading(widget: IWidget) {
     if (!widget) return
@@ -125,13 +130,21 @@ export function formatDashboardTableWidgetAfterLoading(widget: IWidget) {
 }
 
 const loadColumnNameIdMap = (widget: IWidget) => {
+    for (const key in columnNameIdMap) delete columnNameIdMap[key]
+    columnIdSet.clear()
     widget.columns?.forEach((column: IWidgetColumn) => {
-        if (column.columnName) columnNameIdMap[column.columnName] = column.id
+        if (column.id) columnIdSet.add(column.id)
+        // First occurrence wins: duplicate columnNames were already ambiguous in the legacy format.
+        if (column.columnName && columnNameIdMap[column.columnName] === undefined) columnNameIdMap[column.columnName] = column.id
     })
 }
 
-const getColumnId = (columnName: string) => {
-    return columnName ? columnNameIdMap[columnName] : ''
+const getColumnId = (token: string) => {
+    if (!token) return ''
+    // Current format: the token is already the column's stable id.
+    if (columnIdSet.has(token)) return token
+    // Legacy format: the token is a columnName that needs mapping to an id.
+    return columnNameIdMap[token] ?? ''
 }
 
 const formatTableSettings = (widgetSettings: ITableWidgetSettings) => {
