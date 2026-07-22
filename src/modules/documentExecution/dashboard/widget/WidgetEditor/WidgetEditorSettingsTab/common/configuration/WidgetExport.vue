@@ -25,7 +25,7 @@
                 <q-toggle v-model="exportModel.showExcelExport" :label="$t('dashboard.widgetEditor.export.showExcelExport')" @update:model-value="onEnableExportChanged" dense />
             </div>
             <div v-if="exportModel.showExcelExport" class="col-12">
-                <q-input v-model="exportModel.xlsxSheetName" :label="$t('dashboard.widgetEditor.export.xlsxSheetName')" :placeholder="getDefaultXlsxSheetName()" outlined dense @blur="onXlsxSheetNameChanged" />
+                <q-input v-model="exportModel.xlsxSheetName" :label="$t('dashboard.widgetEditor.export.xlsxSheetName')" :placeholder="getDefaultXlsxSheetName()" :hint="$t('dashboard.widgetEditor.export.xlsxSheetNameHint')" outlined dense @blur="onXlsxSheetNameChanged" />
             </div>
         </div>
     </div>
