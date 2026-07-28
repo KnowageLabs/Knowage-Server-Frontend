@@ -677,6 +677,7 @@
                 "exportPdf": "Export PDF",
                 "showExcelExport": "Enable show excel export (when available)",
                 "xlsxSheetName": "Nome foglio XLSX",
+                "xlsxSheetNameHint": "Supporta i placeholder $V{nomevariabile}, $P{nomeparametro} e $P{nomeparametro_description}.",
                 "title": "Export"
             },
             "fontawesome": "Fontawesome",

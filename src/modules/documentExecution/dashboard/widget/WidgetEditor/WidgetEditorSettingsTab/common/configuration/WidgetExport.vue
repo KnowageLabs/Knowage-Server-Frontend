@@ -49,6 +49,7 @@
             <div v-if="exportModel.showExcelExport" class="p-col-12 p-d-flex p-flex-column p-pt-4">
                 <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.export.xlsxSheetName') }}</label>
                 <InputText v-model="exportModel.xlsxSheetName" class="kn-material-input p-inputtext-sm p-mt-2" :placeholder="getDefaultXlsxSheetName()" @change="onXlsxSheetNameChanged" />
+                <small class="p-d-block p-mt-2">{{ $t('dashboard.widgetEditor.export.xlsxSheetNameHint') }}</small>
             </div>
         </div>
     </div>
