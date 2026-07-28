@@ -159,17 +159,22 @@ const addDefaultEmptyParameterValuesIfNoValuesPresent = (el: iParameter) => {
 }
 
 const formatDateDriver = (el: any, dateFormat: string) => {
+    const isManualInputDateDriver = el.type === 'DATE' && !el.selectionType && el.valueSelection === 'man_in' && el.showOnPanel === 'true' && el.visible
+
+    if (isManualInputDateDriver) {
+        if (el.driverMaxValue) {
+            const validDate = getValidDate('' + el.driverMaxValue, dateFormat)
+            el.driverMaxDateValue = validDate === '' ? null : validDate
+        }
+    }
+
     if (!el.parameterValue || !el.parameterValue[0]) {
         el.parameterValue = [{ value: null, description: '' }]
         return
     }
 
-    if (el.type === 'DATE' && !el.selectionType && el.valueSelection === 'man_in' && el.showOnPanel === 'true' && el.visible) {
+    if (isManualInputDateDriver) {
         el.parameterValue[0].value = getValidDate('' + el.parameterValue[0].value, dateFormat)
-        if (el.driverMaxValue) {
-            const validDate = getValidDate('' + el.driverMaxValue, dateFormat)
-            el.driverMaxDateValue = validDate === '' ? null : validDate
-        }
     }
 }
 
