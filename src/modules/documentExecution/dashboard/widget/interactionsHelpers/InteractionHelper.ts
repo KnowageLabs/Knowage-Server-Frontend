@@ -314,7 +314,9 @@ const getFormattedSelectionOutputParameter = (crossNavigationParameter: IWidgetI
         outputDriverName: crossNavigationParameter.name,
         propagateAsSelection: crossNavigationParameter.propagateAsSelection ?? false,
         sourceDatasetLabel: crossNavigationParameter.dataset,
-        sourceColumnName: crossNavigationParameter.column
+        sourceColumnName: crossNavigationParameter.column,
+        targetDatasetLabel: crossNavigationParameter.targetDatasetLabel,
+        targetColumnName: crossNavigationParameter.targetColumnName
     } as ICrossNavigationParameter
 }
 

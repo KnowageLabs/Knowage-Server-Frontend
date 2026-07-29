@@ -1223,6 +1223,9 @@
                 "enableClickOnWholeRow": "Enable click on whole row",
                 "enableMultiselection": "Enable Multiselection",
                 "propagateSelections": "Propagate selections to target dashboard",
+                "overrideTargetDatasetColumn": "Override target dataset/column",
+                "targetDataset": "Target dataset",
+                "targetColumn": "Target column",
                 "iframeInteractionHint": {
                     "partOne": "Write the JSON message in the following editor. By clicking over the widget it will be propagated to a container window.",
                     "partTwo": "You can use $P{parameterPlaceholder}, $V{variablePlaceholder} and {value} placeholder to retrieve dynamic data."

@@ -57,7 +57,7 @@
             </div>
         </div>
         <div v-if="crossNavigationModel.parameters" class="p-col-12 p-d-flex p-flex-row p-ai-center p-p-2">
-            <TableWidgetOutputParametersList class="kn-flex p-mr-2" :widget-model="widgetModel" :prop-parameters="parameterList" :selected-datasets-columns-map="selectedDatasetsColumnsMap" :disabled="crossNavigationDisabled" @change="onParametersChanged"></TableWidgetOutputParametersList>
+            <TableWidgetOutputParametersList class="kn-flex p-mr-2" :widget-model="widgetModel" :prop-parameters="parameterList" :selected-datasets-columns-map="selectedDatasetsColumnsMap" :target-datasets-columns-map="targetDatasetsColumnsMap" :disabled="crossNavigationDisabled" @change="onParametersChanged"></TableWidgetOutputParametersList>
         </div>
     </div>
 </template>
@@ -73,6 +73,7 @@ import Dropdown from 'primevue/dropdown'
 import TableWidgetOutputParametersList from './WidgetOutputParametersList.vue'
 import WidgetEditorStyleToolbar from '../../styleToolbar/WidgetEditorStyleToolbar.vue'
 import InputSwitch from 'primevue/inputswitch'
+import { loadTargetDashboardDatasetsColumnsMap } from './CrossNavigationTargetDatasetsHelper'
 
 export default defineComponent({
     name: 'table-widget-cross-navigation',
@@ -96,6 +97,7 @@ export default defineComponent({
             outputParameters: [] as any[],
             parameterList: [] as IWidgetInteractionParameter[],
             selectedDatasetsColumnsMap: {},
+            targetDatasetsColumnsMap: {} as Record<string, string[]>,
             getTranslatedLabel
         }
     },
@@ -123,6 +125,7 @@ export default defineComponent({
         this.loadOutputParameters()
         this.loadParameterList()
         this.loadSelectedDatasetColumnNames()
+        if (this.crossNavigationModel?.id) this.loadTargetDatasets(this.crossNavigationModel.id)
     },
     unmounted() {
         this.removeEventListeners()
@@ -182,6 +185,8 @@ export default defineComponent({
                     if (modelParameter.column) temp.column = modelParameter.column
                     if (modelParameter.dataset) temp.dataset = modelParameter.dataset
                     if (modelParameter.propagateAsSelection) temp.propagateAsSelection = modelParameter.propagateAsSelection
+                    if (modelParameter.targetDatasetLabel) temp.targetDatasetLabel = modelParameter.targetDatasetLabel
+                    if (modelParameter.targetColumnName) temp.targetColumnName = modelParameter.targetColumnName
                 }
                 this.parameterList.push(temp)
             }
@@ -203,7 +208,18 @@ export default defineComponent({
             if (selected) {
                 this.crossNavigationModel.id = selected.id
                 this.crossNavigationModel.name = selected.name
+                this.loadTargetDatasets(selected.id)
             }
+        },
+        async loadTargetDatasets(crossNavigationId: number) {
+            const definitions = this.store.getCrossNavigations(this.dashboardId) ?? []
+            const definition = definitions.find((crossNavigation: any) => crossNavigation.crossId === crossNavigationId)
+            const targetDocumentId = definition?.documentId ?? definition?.document?.id
+            if (!targetDocumentId) {
+                this.targetDatasetsColumnsMap = {}
+                return
+            }
+            this.targetDatasetsColumnsMap = await loadTargetDashboardDatasetsColumnsMap(targetDocumentId, this.$http)
         },
         onInteractionTypeChanged() {
             if (this.crossNavigationModel && this.crossNavigationModel.type !== 'icon') delete this.crossNavigationModel.icon

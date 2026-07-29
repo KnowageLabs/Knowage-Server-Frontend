@@ -44,9 +44,23 @@
                     <Dropdown v-model="parameter.column" class="kn-material-input" :options="getSelectionDatasetColumnOptions(parameter)" :disabled="disabled" @change="parametersChanged"></Dropdown>
                 </div>
                 <div class="p-d-flex p-ai-center" style="gap: 0.4rem; padding-top: 1.1rem">
-                    <InputSwitch v-model="parameter.propagateAsSelection" :disabled="disabled" @change="parametersChanged"></InputSwitch>
+                    <InputSwitch v-model="parameter.propagateAsSelection" :disabled="disabled" @change="onPropagateAsSelectionChanged(parameter)"></InputSwitch>
                     <label class="kn-material-input-label" style="white-space: nowrap">{{ $t('dashboard.widgetEditor.interactions.propagateSelections') }}</label>
                 </div>
+                <div v-if="parameter.propagateAsSelection && hasTargetDatasets" class="p-d-flex p-ai-center" style="gap: 0.4rem; padding-top: 1.1rem">
+                    <InputSwitch :model-value="isTargetOverrideEnabled(parameter)" :disabled="disabled" @update:model-value="onTargetOverrideToggled(parameter, $event)"></InputSwitch>
+                    <label class="kn-material-input-label" style="white-space: nowrap">{{ $t('dashboard.widgetEditor.interactions.overrideTargetDatasetColumn') }}</label>
+                </div>
+                <template v-if="parameter.propagateAsSelection && hasTargetDatasets && isTargetOverrideEnabled(parameter)">
+                    <div class="p-d-flex p-flex-column" style="flex: 1 1 140px; min-width: 100px">
+                        <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.interactions.targetDataset') }}</label>
+                        <Dropdown v-model="parameter.targetDatasetLabel" class="kn-material-input" :options="targetDatasetNames" :disabled="disabled" @change="onTargetDatasetChanged(parameter)"></Dropdown>
+                    </div>
+                    <div class="p-d-flex p-flex-column" style="flex: 1 1 140px; min-width: 100px">
+                        <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.interactions.targetColumn') }}</label>
+                        <Dropdown v-model="parameter.targetColumnName" class="kn-material-input" :options="getTargetDatasetColumnOptions(parameter)" :disabled="disabled" @change="parametersChanged"></Dropdown>
+                    </div>
+                </template>
             </template>
         </div>
     </div>
@@ -68,6 +82,7 @@ export default defineComponent({
         widgetModel: { type: Object as PropType<IWidget>, required: true },
         propParameters: { type: Array as PropType<IWidgetInteractionParameter[]>, required: true },
         selectedDatasetsColumnsMap: { type: Object },
+        targetDatasetsColumnsMap: { type: Object as PropType<Record<string, string[]>> },
         disabled: { type: Boolean },
         mapDynamicOptions: { type: Object as PropType<any> },
         crossNavigationConfig: { type: Object as PropType<IMapWidgetCrossNavigationVisualizationTypeConfig> },
@@ -94,6 +109,12 @@ export default defineComponent({
             const modelFields = this.widgetModel.fields
             const combinedArray = modelFields?.columns.concat(modelFields.rows, modelFields.data, modelFields.filters)
             return combinedArray
+        },
+        hasTargetDatasets() {
+            return this.targetDatasetsColumnsMap ? Object.keys(this.targetDatasetsColumnsMap).length > 0 : false
+        },
+        targetDatasetNames() {
+            return this.targetDatasetsColumnsMap ? Object.keys(this.targetDatasetsColumnsMap) : []
         },
         chartColumnOptions() {
             if (['table', 'discovery', 'static-pivot-table'].includes(this.widgetType)) return []
@@ -131,12 +152,14 @@ export default defineComponent({
                     delete parameter.column
                     delete parameter.dataset
                     delete parameter.propagateAsSelection
+                    this.clearTargetOverride(parameter)
                     break
                 case 'dynamic':
                     parameter.value = 'Static'
                     parameter.column = ''
                     delete parameter.dataset
                     delete parameter.propagateAsSelection
+                    this.clearTargetOverride(parameter)
                     break
                 case 'selection':
                     parameter.value = 'Static'
@@ -152,6 +175,34 @@ export default defineComponent({
         onDatasetChanged(parameter: IWidgetInteractionParameter) {
             parameter.column = ''
             this.parametersChanged()
+        },
+        onPropagateAsSelectionChanged(parameter: IWidgetInteractionParameter) {
+            if (!parameter.propagateAsSelection) this.clearTargetOverride(parameter)
+            this.parametersChanged()
+        },
+        isTargetOverrideEnabled(parameter: IWidgetInteractionParameter) {
+            return !!parameter.targetDatasetLabel || !!parameter.targetColumnName
+        },
+        onTargetOverrideToggled(parameter: IWidgetInteractionParameter, enabled: boolean) {
+            if (enabled) {
+                const firstDataset = this.targetDatasetNames[0] ?? ''
+                parameter.targetDatasetLabel = firstDataset
+                parameter.targetColumnName = ''
+            } else {
+                this.clearTargetOverride(parameter)
+            }
+            this.parametersChanged()
+        },
+        onTargetDatasetChanged(parameter: IWidgetInteractionParameter) {
+            parameter.targetColumnName = ''
+            this.parametersChanged()
+        },
+        getTargetDatasetColumnOptions(parameter: IWidgetInteractionParameter) {
+            return parameter.targetDatasetLabel && this.targetDatasetsColumnsMap ? (this.targetDatasetsColumnsMap[parameter.targetDatasetLabel] ?? []) : []
+        },
+        clearTargetOverride(parameter: IWidgetInteractionParameter) {
+            delete parameter.targetDatasetLabel
+            delete parameter.targetColumnName
         },
         getTargetLayerType(crossNavigationVisTypeConfig: IMapWidgetCrossNavigationVisualizationTypeConfig | IMapWidgetPreviewVisualizationTypeConfig | undefined) {
             if (!crossNavigationVisTypeConfig) return ''

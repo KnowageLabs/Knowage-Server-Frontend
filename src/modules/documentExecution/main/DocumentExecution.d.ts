@@ -87,6 +87,8 @@ export interface ICrossNavigationParameter {
     propagateAsSelection?: boolean
     sourceDatasetLabel?: string
     sourceColumnName?: string
+    targetDatasetLabel?: string
+    targetColumnName?: string
 }
 
 export interface ICrossNavigationBreadcrumb {
