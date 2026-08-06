@@ -690,7 +690,7 @@ export default defineComponent({
             this.updateDependency(parameter)
         },
         executionMenuDisabled() {
-           return (this.store.$state as any).config?.['KNOWAGE.EXECUTION.SIDEBAR_BUTTON.DISABLED'] === 'true'
+           return (this.store.$state as any).configurations?.['KNOWAGE.EXECUTION.SIDEBAR_BUTTON.DISABLED'] === 'true'
         }
     }
 })
