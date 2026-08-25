@@ -42,6 +42,7 @@ import mainDescriptor from '@/modules/workspace/WorkspaceDescriptor.json'
 import workspaceDataPreviewDialogDescriptor from '@/modules/workspace/views/dataView/dialogs/WorkspaceDataPreviewDialogDescriptor.json'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import mainStore from '@/App.store'
+import { DATASET_EXPORT_FORMATS } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 
 import deepcopy from 'deepcopy'
 import { mapActions, mapState } from 'pinia'
@@ -66,7 +67,7 @@ export default defineComponent({
             loading: false,
             filtersData: {} as any,
             correctRolesForExecution: null,
-            exporters: ['csv', 'xls'] as any[],
+            exporters: DATASET_EXPORT_FORMATS as any[],
             postData: {} as any,
             cardPos: { x: 0, y: 0 }
         }

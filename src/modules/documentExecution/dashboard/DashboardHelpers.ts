@@ -25,6 +25,7 @@ const { t } = i18n.global
 const store = mainStore()
 
 export const SHEET_WIDGET_SIZES = ['xxs', 'xs', 'sm', 'md', 'lg'] as string[]
+export const DATASET_EXPORT_FORMATS = ['csv', 'xls'] as string[]
 
 export const createNewDashboardModel = () => {
     const dashboardModel = deepcopy(descriptor.newDashboardModel) as IDashboard
