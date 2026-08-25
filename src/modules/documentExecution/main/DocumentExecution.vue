@@ -1427,7 +1427,8 @@ export default defineComponent({
             emitter.emit('openNewWidgetPicker', this.document.dashboardId)
         },
         openDashboardDatasetManagement() {
-            this.managementOpened = true
+            // managementOpened is set reactively by the 'datasetManagementOpened' listener once the
+            // dashboard actually opens the dialog, so a dashboardId mismatch here can't hide the toolbar forever
             emitter.emit('openDatasetManagement', this.document.dashboardId)
         },
         setEventListeners() {
