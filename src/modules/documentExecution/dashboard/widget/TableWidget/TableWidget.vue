@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts">
-import { emitter } from '../../DashboardHelpers'
+import { emitter, DATASET_EXPORT_FORMATS } from '../../DashboardHelpers'
 import { mapActions } from 'pinia'
 import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetVisualizationTypes, IVariable, IWidget, IWidgetInteractions, ITableWidgetLink } from '../../Dashboard'
 import { defineComponent, PropType } from 'vue'
@@ -670,7 +670,16 @@ export default defineComponent({
         createInteractionsMenuItems(node: any, activeInteractions: any[]) {
             this.interactionsMenuItems = []
             activeInteractions.forEach((activeInteraction: any) => {
-                this.interactionsMenuItems.push({ node: node, interaction: activeInteraction, label: activeInteraction.interactionType, command: () => this.startInteraction(node, activeInteraction) })
+                if (activeInteraction.interactionType === 'preview' && activeInteraction.directDownload) {
+                    this.interactionsMenuItems.push({
+                        node: node,
+                        interaction: activeInteraction,
+                        label: activeInteraction.interactionType,
+                        items: DATASET_EXPORT_FORMATS.map((format: string) => ({ label: format, command: () => this.startPreview(node, activeInteraction, format) }))
+                    })
+                } else {
+                    this.interactionsMenuItems.push({ node: node, interaction: activeInteraction, label: activeInteraction.interactionType, command: () => this.startInteraction(node, activeInteraction) })
+                }
             })
         },
         startInteraction(node: any, activeInteraction: any) {
@@ -836,7 +845,7 @@ export default defineComponent({
             const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
             this.$emit('datasetInteractionPreview', { formattedRow: formattedRow, previewSettings: activeInteraction })
         },
-        startPreview(node: any, activeInteraction: any) {
+        startPreview(node: any, activeInteraction: any, directDownloadFormat?: string) {
             const previewSettings = activeInteraction || this.widgetModel.settings.interactions.preview
             const hasMultiselection = previewSettings?.multiselection?.enabled && previewSettings.parameters?.some((param) => param.type === 'dynamic' && param.enabled)
 
@@ -851,7 +860,7 @@ export default defineComponent({
                 this.refreshGridCells()
             } else {
                 const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
-                this.$emit('datasetInteractionPreview', { formattedRow: formattedRow, previewSettings: activeInteraction })
+                this.$emit('datasetInteractionPreview', { formattedRow: formattedRow, previewSettings: activeInteraction, domEvent: node?.event, directDownloadFormat: directDownloadFormat })
             }
         },
         applyMultiPreview() {

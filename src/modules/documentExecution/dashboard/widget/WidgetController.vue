@@ -23,6 +23,7 @@
         ></WidgetRenderer>
         <WidgetButtonBar v-if="items.filter((i) => i.visible).length > 0 || playSelectionButtonVisible" :document="document" :widget="widget" :play-selection-button-visible="playSelectionButtonVisible" :selection-is-locked="selectionIsLocked" :dashboard-id="dashboardId" :in-focus="inFocus" :menu-items="items" @edit-widget="toggleEditMode" @unlock-selection="unlockSelection" @launch-selection="launchSelection" @change-focus="changeFocus"></WidgetButtonBar>
         <ContextMenu v-if="canEditDashboard(document)" ref="contextMenu" :model="items" />
+        <ContextMenu ref="directDownloadMenu" :model="directDownloadMenuItems" />
         <q-inner-loading :showing="loading || customChartLoading || widgetLoading">
             <q-spinner-grid color="primary" size="3rem" class="widgetSpinner" />
         </q-inner-loading>
@@ -41,7 +42,7 @@
  */
 import { defineComponent, PropType } from 'vue'
 import { IDashboardSheet, IDataset, IMenuItem, ISelection, IVariable, IWidget, IWidgetPreview, IWidgetSearch, SelectorDataMap } from '../Dashboard'
-import { emitter, canEditDashboard } from '../DashboardHelpers'
+import { emitter, canEditDashboard, DATASET_EXPORT_FORMATS } from '../DashboardHelpers'
 import { mapState, mapActions } from 'pinia'
 import { getWidgetData } from '../DashboardDataProxy'
 import store from '../Dashboard.store'
@@ -114,7 +115,8 @@ export default defineComponent({
             search: { searchText: '', searchColumns: [] } as IWidgetSearch,
             sheetPickerDialogVisible: false,
             datasetToPreview: {} as any,
-            datasetPreviewShown: false
+            datasetPreviewShown: false,
+            directDownloadMenuItems: [] as any[]
         }
     },
     computed: {
@@ -681,7 +683,8 @@ export default defineComponent({
                 this.selectedDataset.formattedDrivers = this.selectedDataset.modelDrivers
             }
             if (previewSettings.directDownload) {
-                this.directDownloadDataset(previewSettings.dataset)
+                if (event.directDownloadFormat) this.directDownloadDataset(previewSettings.dataset, event.directDownloadFormat)
+                else this.openDirectDownloadMenu(previewSettings.dataset, event.domEvent)
                 return
             }
 
@@ -707,7 +710,7 @@ export default defineComponent({
             else if (this.selectedDataset.formattedDrivers) return [...this.selectedDataset.formattedDrivers]
             else return []
         },
-        async directDownloadDataset(datasetId: number) {
+        async directDownloadDataset(datasetId: number, format: string) {
             let tempParams = {} as any
             const dsDrivers = this.getPreviewDrivers()
             const dsParams = [...this.selectedDataset.parameters]
@@ -721,9 +724,24 @@ export default defineComponent({
                     }
                 })
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/export/dataset/${datasetId}/csv`, tempParams, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/export/dataset/${datasetId}/${format}`, tempParams, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
                 .then(() => this.setInfo({ title: this.$t('common.toast.updateTitle'), msg: this.$t('workspace.myData.exportSuccess') }))
                 .catch(() => {})
+        },
+        openDirectDownloadMenu(datasetId: number, domEvent?: any) {
+            this.directDownloadMenuItems = DATASET_EXPORT_FORMATS.map((format: string) => ({
+                label: format,
+                command: () => this.directDownloadDataset(datasetId, format)
+            }))
+            const anchorEvent = domEvent?.pageX !== undefined ? domEvent : this.getWidgetAnchorEvent()
+            ;(this.$refs.directDownloadMenu as any)?.toggle(anchorEvent)
+        },
+        getWidgetAnchorEvent() {
+            const widgetEl = (this.$refs['widget' + this.item.id] as any)?.$el as HTMLElement | undefined
+            const rect = widgetEl?.getBoundingClientRect()
+            const pageX = rect ? rect.left + window.scrollX : 0
+            const pageY = rect ? rect.top + window.scrollY : 0
+            return { pageX, pageY, stopPropagation: () => {}, preventDefault: () => {} }
         },
         onLockAllWidgets() {
             this.widgetModel.settings.locked = true

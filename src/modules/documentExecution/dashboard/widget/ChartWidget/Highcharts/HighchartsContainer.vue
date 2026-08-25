@@ -577,7 +577,7 @@ export default defineComponent({
                 }
                 case 'preview': {
                     const formattedChartValues = getFormattedChartValues(event, this.dataToShow, this.chartModel.chart.type)
-                    this.$emit('datasetInteractionPreview', { formattedChartValues: formattedChartValues, previewSettings: this.widgetModel.settings.interactions.preview })
+                    this.$emit('datasetInteractionPreview', { formattedChartValues: formattedChartValues, previewSettings: this.widgetModel.settings.interactions.preview, domEvent: event?.event })
                     break
                 }
                 case 'link': {

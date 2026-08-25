@@ -484,7 +484,7 @@ export default defineComponent({
         },
         startPreview(node: any) {
             const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
-            this.$emit('datasetInteractionPreview', { formattedRow: formattedRow, previewSettings: this.propWidget.settings.interactions.preview })
+            this.$emit('datasetInteractionPreview', { formattedRow: formattedRow, previewSettings: this.propWidget.settings.interactions.preview, domEvent: node?.event })
         },
         startLinkInteraction(node: any) {
             const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)

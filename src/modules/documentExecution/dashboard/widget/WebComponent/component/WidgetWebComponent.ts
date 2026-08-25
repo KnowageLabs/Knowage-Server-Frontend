@@ -88,12 +88,14 @@ class WidgetWebComponent extends HTMLElement {
 
                         if (targetElement) {
                             const datasetLabel = targetElement.getAttribute('kn-preview')
+                            // stop the real click from bubbling to document, otherwise PrimeVue's outside-click listener closes the direct-download menu right after it opens
+                            event.stopPropagation()
                             this.dispatchEvent(
                                 new CustomEvent('previewEvent', {
                                     bubbles: true,
                                     cancelable: false,
                                     composed: true,
-                                    detail: { datasetLabel: datasetLabel }
+                                    detail: { datasetLabel: datasetLabel, pageX: event.pageX, pageY: event.pageY }
                                 })
                             )
                         }

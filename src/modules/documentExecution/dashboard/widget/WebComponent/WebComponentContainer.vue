@@ -124,7 +124,8 @@ export default defineComponent({
             const previewConfiguration = this.propWidget.settings.interactions.preview
             if (!previewConfiguration?.enabled) return
             const datasetLabel = event.detail.datasetLabel
-            this.$emit('datasetInteractionPreview', { datasetLabel: datasetLabel, previewSettings: previewConfiguration })
+            const domEvent = { pageX: event.detail.pageX, pageY: event.detail.pageY, stopPropagation: () => {}, preventDefault: () => {} }
+            this.$emit('datasetInteractionPreview', { datasetLabel: datasetLabel, previewSettings: previewConfiguration, domEvent: domEvent })
         },
         onCrossNavigation(event: any) {
             if (this.editorMode || !event.detail || !this.propWidget) return
