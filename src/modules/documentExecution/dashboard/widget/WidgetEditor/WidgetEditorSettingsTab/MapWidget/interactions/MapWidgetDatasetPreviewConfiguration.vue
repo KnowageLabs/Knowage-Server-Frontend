@@ -269,6 +269,7 @@ export default defineComponent({
         },
         onDatasetChanged(previewConfig: IMapWidgetPreviewVisualizationTypeConfig | null) {
             if (!previewConfig) return
+            previewConfig.datasetLabel = this.selectedDatasets?.find((dataset: IDataset) => dataset.id.dsId === previewConfig?.dataset)?.label
             const index = this.dashboardDatasets.findIndex((dataset: any) => dataset.id === previewConfig?.dataset)
             if (index !== -1) {
                 previewConfig.parameters = this.dashboardDatasets[index].parameters.map((tempParameter: IDatasetParameter) => {

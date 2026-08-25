@@ -79,6 +79,7 @@ export interface IMapWidgetPreviewVisualizationTypeConfig {
     name: string
     vizualizationType: IMapWidgetVisualizationType | null
     dataset: number | null
+    datasetLabel?: string
     column: IMapNormalisedInteractionColumn | null
     parameters: IWidgetInteractionParameter[]
 }
