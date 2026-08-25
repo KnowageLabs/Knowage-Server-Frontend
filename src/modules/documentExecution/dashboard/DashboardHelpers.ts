@@ -1,5 +1,5 @@
 import { getDefaultDashboardThemeConfig } from './../../managers/dashboardThemeManagement/DashboardThemeHelper'
-import { IDashboard, IDashboardConfiguration, IDashboardOutputParameter, IDashboardSheet, IDashboardView, IDataset, IVariable, IWidget, IWidgetColumn, IWidgetHelpSettings, IWidgetSheetItem } from './Dashboard'
+import { IDashboard, IDashboardConfiguration, IDashboardOutputParameter, IDashboardSheet, IDashboardView, IDataset, IVariable, IWidget, IWidgetColumn, IWidgetHelpSettings, IWidgetPreview, IWidgetSheetItem } from './Dashboard'
 import { formatWidgetForSave, recreateKnowageChartModel } from './widget/WidgetEditor/helpers/WidgetEditorHelpers'
 import { setVariableValueFromDataset } from './generalSettings/VariablesHelper'
 import mitt from 'mitt'
@@ -302,6 +302,7 @@ const formatWidget = (widget: IWidget, datasets: IDataset[]) => {
     addWidgetMenuConfig(widget)
     addWidgetHelpConfig(widget)
     addWidgetSortingColumn(widget)
+    if (widget.type !== 'map') remapPreviewInteractionDataset(widget, datasets)
     switch (widget.type) {
         case 'table':
             formatDashboardTableWidgetAfterLoading(widget)
@@ -329,6 +330,19 @@ const formatWidget = (widget: IWidget, datasets: IDataset[]) => {
     }
 
     if (widget.settings?.style?.themeName) delete widget.settings.style.themeName
+}
+
+// resolves the preview interaction's dataset by label (survives cross-tenant import) and backfills the label for pre-fix documents
+const remapPreviewInteractionDataset = (widget: IWidget, datasets: IDataset[]) => {
+    const preview = widget.settings?.interactions?.preview as IWidgetPreview | undefined
+    if (!preview) return
+    if (preview.datasetLabel) {
+        const matchingDataset = datasets.find((dataset: IDataset) => dataset.label === preview.datasetLabel)
+        if (matchingDataset) preview.dataset = matchingDataset.id.dsId
+    } else if (preview.dataset) {
+        const matchingDataset = datasets.find((dataset: IDataset) => dataset.id.dsId === preview.dataset)
+        if (matchingDataset) preview.datasetLabel = matchingDataset.label
+    }
 }
 
 const addColumnIdsToWidgetColumns = (widget: IWidget) => {

@@ -274,6 +274,7 @@ export interface IWidgetPreview {
     type: string
     parameters: IWidgetInteractionParameter[]
     dataset: number
+    datasetLabel?: string
     column?: string
     directDownload: boolean
     icon?: string

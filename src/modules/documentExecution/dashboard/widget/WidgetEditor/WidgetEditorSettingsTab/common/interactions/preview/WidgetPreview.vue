@@ -188,6 +188,7 @@ export default defineComponent({
             if (!this.previewModel) return
             this.previewModel.column = ''
             this.previewModel.parameters = []
+            this.previewModel.datasetLabel = this.selectedDatasets?.find((dataset: IDataset) => dataset.id.dsId === this.previewModel?.dataset)?.label
             const index = this.dashboardDatasets.findIndex((dataset: any) => dataset.id === this.previewModel?.dataset)
             if (index !== -1)
                 this.previewModel.parameters = this.dashboardDatasets[index].parameters.map((tempParameter: IDatasetParameter) => {

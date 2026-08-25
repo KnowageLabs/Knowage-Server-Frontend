@@ -1,11 +1,12 @@
 import { IDataset, IDatasetColumn, IWidget } from '../../Dashboard'
-import { IMapWidgetCrossNavigation, IMapWidgetLayer, IMapWidgetLinkConfiguration, IMapWidgetPreview, IMapWidgetSelectionConfiguration, IWidgetMapLayerColumn } from '../../interfaces/mapWidget/DashboardMapWidget'
+import { IMapWidgetCrossNavigation, IMapWidgetLayer, IMapWidgetLinkConfiguration, IMapWidgetPreview, IMapWidgetPreviewVisualizationTypeConfig, IMapWidgetSelectionConfiguration, IWidgetMapLayerColumn } from '../../interfaces/mapWidget/DashboardMapWidget'
 import { removeColumnFromModel } from '../WidgetEditor/MapWidget/MapWidgetLayersTabListHelper'
 import * as mapWidgetDefaultValues from '@/modules/documentExecution/dashboard/widget/WidgetEditor/helpers/mapWidget/MapWidgetDefaultValues'
 
 export const formatMapWidgetAfterDashboardLoading = (widget: IWidget, datasets: IDataset[]) => {
     formatLayerColumnIfDatasetChanged(widget, datasets)
     if (widget.settings?.interactions.version !== 2) formatMapInteractions(widget)
+    remapMapPreviewConfigurationDataset(widget, datasets)
 }
 
 const formatLayerColumnIfDatasetChanged = (widget: IWidget, datasets: IDataset[]) => {
@@ -91,4 +92,18 @@ const formatMapPreviewConfiguration = (widget: IWidget) => {
     if (!previewConfiguration) return false
 
     widget.settings.interactions.preview = mapWidgetDefaultValues.getDefaultMapPreviewConfiguration()
+}
+
+// resolves each preview visualization's dataset by label (survives cross-tenant import) and backfills the label for pre-fix documents
+const remapMapPreviewConfigurationDataset = (widget: IWidget, datasets: IDataset[]) => {
+    const previewConfiguration = (widget?.settings?.interactions?.preview ?? null) as IMapWidgetPreview | null
+    previewConfiguration?.previewVizualizationTypes?.forEach((config: IMapWidgetPreviewVisualizationTypeConfig) => {
+        if (config.datasetLabel) {
+            const matchingDataset = datasets.find((dataset: IDataset) => dataset.label === config.datasetLabel)
+            if (matchingDataset) config.dataset = matchingDataset.id.dsId
+        } else if (config.dataset) {
+            const matchingDataset = datasets.find((dataset: IDataset) => dataset.id.dsId === config.dataset)
+            if (matchingDataset) config.datasetLabel = matchingDataset.label
+        }
+    })
 }
