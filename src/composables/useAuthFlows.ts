@@ -50,7 +50,7 @@ export const useAuthFlows = () => {
         // Chiama l'endpoint /currentuser per ottenere le informazioni complete dell'utente
         const userResponse = await axios.get(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/2.0/currentuser`)
         const currentUser = userResponse.data
-        if(requiresPasswordChange) currentUser.requiresPasswordChange = true
+        if (requiresPasswordChange) currentUser.requiresPasswordChange = true
 
         // Gestisci il session role
         if (localStorage.getItem('sessionRole')) {
@@ -100,7 +100,7 @@ export const useAuthFlows = () => {
             }
             // Verifica che ci sia il token nella risposta
             else if (loginResponse.data && loginResponse.data.token) {
-                await completeLogin(loginResponse.data.token,loginResponse.data.requiresPasswordChange)
+                await completeLogin(loginResponse.data.token, loginResponse.data.requiresPasswordChange)
             } else {
                 error.value = t('common.loginPage.loginError')
             }
@@ -110,7 +110,12 @@ export const useAuthFlows = () => {
             // Pulisci il token se il login fallisce
             sessionStorage.removeItem('token')
 
-            error.value = err.response?.data?.message || t('common.loginPage.loginError')
+            // account locked/expired: BE returns 403 with a dedicated error string, show it as-is
+            if (err.response?.status === 403 && err.response?.data?.error) {
+                error.value = err.response.data.error
+            } else {
+                error.value = err.response?.data?.message || t('common.loginPage.loginError')
+            }
         } finally {
             loading.value = false
         }

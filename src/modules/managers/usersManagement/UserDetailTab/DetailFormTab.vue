@@ -152,7 +152,7 @@ export default defineComponent({
         // date + time for now; revert to date-only later if too long
         formatPwdDate(value: string): string {
             if (!value) return '-'
-            let dt = DateTime.fromISO(value)
+            let dt = /^\d+$/.test(value) ? DateTime.fromMillis(Number(value)) : DateTime.fromISO(value)
             if (!dt.isValid) dt = DateTime.fromSQL(value)
             return dt.isValid ? dt.toFormat('dd/MM/yyyy HH:mm') : value
         },
