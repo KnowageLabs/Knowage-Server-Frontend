@@ -309,6 +309,7 @@ export const setGroupedByCategoriesData = (model: any, data: any, attributeColum
     const firstAttributeColumn = attributeColumns[0]
     const secondAttributeColumn = attributeColumns[1]
     const categoryValueMap = {} as Record<string, Record<string, { y: number | null; color?: string }>>
+    const categoryValuesOrder = [] as string[]
     const uniqueCategoryValues = [] as string[]
 
     data.rows.forEach((row: any) => {
@@ -321,7 +322,10 @@ export const setGroupedByCategoriesData = (model: any, data: any, attributeColum
         const measureConditionalStyle = getColumnConditionalStyles(widgetModel, measureForGrouping.column.id, row[measureForGrouping.metadata.dataIndex], variables)
         const conditionalColor = measureConditionalStyle?.color || secondAttributeConditionalStyle?.color || firstAttributeConditionalStyle?.color
 
-        if (!categoryValueMap[secondAttributeValue]) categoryValueMap[secondAttributeValue] = {}
+        if (!categoryValueMap[secondAttributeValue]) {
+            categoryValueMap[secondAttributeValue] = {}
+            categoryValuesOrder.push(secondAttributeValue)
+        }
         if (!hasOwnProperty(categoryValueMap[secondAttributeValue], firstAttributeValue) || categoryValueMap[secondAttributeValue][firstAttributeValue].y === null) {
             categoryValueMap[secondAttributeValue][firstAttributeValue] = { y: measureForGroupingValue, color: conditionalColor }
         }
@@ -346,7 +350,7 @@ export const setGroupedByCategoriesData = (model: any, data: any, attributeColum
     setUniqueCategoriesValuesFromCategoryValueMap(uniqueCategoryValues, categoryValueMap)
 
     const measureSerieElementValueMap = {} as any
-    createSeriesForGroupedByCategoriesData(model, categoryValueMap, measureSerieElementValueMap)
+    createSeriesForGroupedByCategoriesData(model, categoryValueMap, categoryValuesOrder, measureSerieElementValueMap)
     removeXAxisCategories(model)
 }
 
@@ -358,8 +362,8 @@ const setUniqueCategoriesValuesFromCategoryValueMap = (uniqueCategoryValues: str
     })
 }
 
-const createSeriesForGroupedByCategoriesData = (model: any, categoryValueMap: any, measureSerieElementValueMap: any) => {
-    Object.keys(categoryValueMap).forEach((key: string, index: number) => {
+const createSeriesForGroupedByCategoriesData = (model: any, categoryValueMap: any, categoryValuesOrder: string[], measureSerieElementValueMap: any) => {
+    categoryValuesOrder.forEach((key: string, index: number) => {
         const serieElement = { id: index, name: key, data: [] as any[], connectNulls: true }
         Object.keys(categoryValueMap[key]).forEach((tempKey: string) => {
             const tempData = { name: tempKey } as { name: string; y?: number | null; color?: string }
