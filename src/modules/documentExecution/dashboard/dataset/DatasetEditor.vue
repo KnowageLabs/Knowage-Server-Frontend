@@ -1,5 +1,5 @@
 <template>
-    <Teleport to=".dashboard-container">
+    <Teleport :to="`.dashboard-container-${dashboardIdProp}`">
         <div class="dashboardEditor">
             <Toolbar class="kn-toolbar kn-toolbar--primary">
                 <template #start>{{ $t('dashboard.datasetEditor.title') }}</template>
