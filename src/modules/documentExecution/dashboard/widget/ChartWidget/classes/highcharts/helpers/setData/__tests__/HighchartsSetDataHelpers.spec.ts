@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
-import { setRegularData } from '../HighchartsSetDataHelpers'
+import { setGroupedByCategoriesData, setRegularData } from '../HighchartsSetDataHelpers'
 
 type IDataColumn = {
     column: IWidgetColumn
@@ -101,5 +101,34 @@ describe('setRegularData drilldown state', () => {
         )
 
         expect(model.series[0].data[0].drilldown).toBe(false)
+    })
+})
+
+describe('setGroupedByCategoriesData', () => {
+    it('preserves the incoming order for numeric-looking secondary categories', () => {
+        const widgetModel = createWidgetModel()
+        const model = createModel()
+
+        setGroupedByCategoriesData(
+            model,
+            {
+                rows: [
+                    { column_1: 'North', column_2: '2026', column_3: 100 },
+                    { column_1: 'South', column_2: '2026', column_3: 80 },
+                    { column_1: 'North', column_2: '2025', column_3: 120 },
+                    { column_1: 'South', column_2: '2025', column_3: 60 }
+                ]
+            },
+            [
+                { column: widgetModel.columns[0], metadata: { dataIndex: 'column_1', type: 'string' } },
+                { column: widgetModel.columns[1], metadata: { dataIndex: 'column_2', type: 'string' } }
+            ],
+            [{ column: widgetModel.columns[3], metadata: { dataIndex: 'column_3', type: 'number' } }],
+            'sales',
+            widgetModel,
+            []
+        )
+
+        expect(model.series.map((series: { name: string }) => series.name)).toEqual(['2026', '2025'])
     })
 })
