@@ -133,11 +133,12 @@ export default defineComponent({
         renderCustomWidget() {
             this.loadedScriptsCount = 0
             this.loadedScriptUrls = new Set()
-            const iframe = this.recreateIframeElement()
-            setTimeout(() => this.createIframeContent(iframe), 300)
+            this.recreateIframeElement()
         },
-        createIframeContent(iframe: any) {
-            this.iframeDocument = iframe.contentWindow.document
+        createIframeContent(iframe: HTMLIFrameElement) {
+            if (iframe !== document.getElementById('iframe-' + this.id) || !iframe.contentWindow || !iframe.contentDocument) return
+
+            this.iframeDocument = iframe.contentDocument
             this.iframeDocument.body.innerHTML = `<html>
                 <head></head>
                 <body>
@@ -155,14 +156,16 @@ export default defineComponent({
             this.loadUserImportScripts()
         },
         recreateIframeElement() {
-            const wrapper = document.getElementById('wrapper-' + this.id) as any
-            if (document.getElementById('iframe-' + this.id)) wrapper.innerHTML = ''
-            const iframe = document.createElement('iframe') as any
+            const wrapper = document.getElementById('wrapper-' + this.id)
+            if (!wrapper) return
+
+            wrapper.replaceChildren()
+            const iframe = document.createElement('iframe')
             iframe.id = 'iframe-' + this.id
+            iframe.addEventListener('load', () => this.createIframeContent(iframe), { once: true })
             iframe.src = 'about:blank'
             iframe.style = 'width: 100%; height: 100%; border: none;'
-            if (wrapper) wrapper.appendChild(iframe)
-            return iframe
+            wrapper.appendChild(iframe)
         },
         createWrapperDiv(containerElement: Element) {
             const style = document.createElement('style')
