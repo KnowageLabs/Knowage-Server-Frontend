@@ -1021,7 +1021,9 @@ export default defineComponent({
             let postForm = document.getElementById('postForm_' + postObject.params.document) as any
             if (!postForm) postForm = document.createElement('form')
             postForm.id = 'postForm_' + postObject.params.document
-            postForm.action = import.meta.env.VITE_HOST_URL + postObject.url
+            postForm.action =
+                import.meta.env.VITE_HOST_URL +
+                 (this.document.typeCode === 'REPORT' ? documentUrl : postObject.url)
             postForm.method = 'post'
             const iframeName = crossNavigationPopupMode ? 'documentFramePopup' : 'documentFrame'
             if (this.isMobileDevice && postObject.params.outputType?.toLowerCase() === 'pdf') postForm.target = '_blank'
