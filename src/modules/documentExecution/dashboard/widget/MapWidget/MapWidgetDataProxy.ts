@@ -23,7 +23,7 @@ export const getMapWidgetData = async (dashboardId: any, dashboardConfig: any, w
                 if (selectedDataset.id) tempResponse[selectedDataset.id] = response.data
             })
             .catch((error: any) => {
-                showGetDataError(error, selectedDataset.dsLabel)
+                showGetDataError(error, selectedDataset.dsLabel, widget)
             })
             .finally(() => {
                 // TODO - uncomment when realtime dataset example is ready

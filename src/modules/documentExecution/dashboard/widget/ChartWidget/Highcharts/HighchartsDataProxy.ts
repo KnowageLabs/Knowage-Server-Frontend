@@ -78,7 +78,7 @@ export const getHighchartsWidgetData = async (dashboardId: any, dashboardConfig:
             if (dashboardConfig.menuWidgets?.enableCaching && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) addDataToCache(dataHash, tempResponse)
         } catch (error) {
             console.error(error)
-            showGetDataError(error, selectedDataset.dsLabel)
+            showGetDataError(error, selectedDataset.dsLabel, widget)
         } finally {
             delete dashStore.dataProxyQueue[dataHash]
         }

@@ -1,9 +1,10 @@
-import { IDashboardDriver, IVariable, IWidgetCrossNavigation, IWidgetInteractionParameter } from "../../../Dashboard";
-import { IChartInteractionValues } from "../../../interfaces/chartJS/DashboardChartJSWidget";
+import { IDashboardDriver, IVariable, IWidget, IWidgetCrossNavigation, IWidgetInteractionParameter } from '../../../Dashboard'
+import { IChartInteractionValues } from '../../../interfaces/chartJS/DashboardChartJSWidget'
 import i18n from '@/App.i18n'
 import store from '@/App.store.js'
-import { replaceDriversPlaceholdersByDriverUrlName, replaceVariablesPlaceholdersByVariableName } from "../../interactionsHelpers/InteractionsParserHelper";
-import { IHighchartsAdvancedPropertySettings } from "../../../interfaces/highcharts/DashboardHighchartsWidget";
+import { replaceDriversPlaceholdersByDriverUrlName, replaceVariablesPlaceholdersByVariableName } from '../../interactionsHelpers/InteractionsParserHelper'
+import { IHighchartsAdvancedPropertySettings } from '../../../interfaces/highcharts/DashboardHighchartsWidget'
+import { showDashboardWidgetError } from '../../../helpers/DashboardToastHelper'
 
 const { t } = i18n.global
 const mainStore = store()
@@ -12,7 +13,6 @@ export const formatForCrossNavigation = (chartEvent: any, crossNavigationOptions
     const formattedChartValues = getFormattedChartValues(chartEvent, dataToShow, chartType)
     const formattedOutputParameters = getFormattedOutputParameters(formattedChartValues, crossNavigationOptions.parameters)
     return formattedOutputParameters
-
 }
 
 export const getFormattedChartValues = (chartEvent: any, dataToShow: any, chartType: string) => {
@@ -35,7 +35,7 @@ const getSerieNameForCrossNavigation = (chartPoint: any, chartType: string, data
     else return chartPoint.series.name
 }
 
-const getSerieValueForCrossNavigation = (chartPoint: any, chartType: string,) => {
+const getSerieValueForCrossNavigation = (chartPoint: any, chartType: string) => {
     if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'bubble', 'spline', 'funnel', 'waterfall'].includes(chartType)) return chartPoint.options.y
     else if (['dependencywheel', 'pictorial', 'sankey', 'streamgraph', 'scatter'].includes(chartType)) return chartPoint.options.y ?? chartPoint.options.weight
     else if (['treemap'].includes(chartType)) return chartPoint.value
@@ -64,66 +64,66 @@ const getFormattedOutputParameters = (formattedChartValues: IChartInteractionVal
 export const getFormattedDynamicOutputParameter = (formattedChartValues: IChartInteractionValues, outputParameter: IWidgetInteractionParameter) => {
     let value = ''
     switch (outputParameter.column) {
-        case "SERIE_NAME":
-            value = formattedChartValues.serieName;
+        case 'SERIE_NAME':
+            value = formattedChartValues.serieName
             break
-        case "SERIE_VALUE":
-            value = formattedChartValues.serieValue;
+        case 'SERIE_VALUE':
+            value = formattedChartValues.serieValue
             break
-        case "CATEGORY_NAME":
-            value = formattedChartValues.categoryName;
+        case 'CATEGORY_NAME':
+            value = formattedChartValues.categoryName
             break
-        case "CATEGORY_VALUE":
-            value = formattedChartValues.categoryValue;
+        case 'CATEGORY_VALUE':
+            value = formattedChartValues.categoryValue
             break
-        case "GROUPING_NAME":
-            value = formattedChartValues.groupingName as string;
+        case 'GROUPING_NAME':
+            value = formattedChartValues.groupingName as string
             break
-        case "GROUPING_VALUE":
-            value = formattedChartValues.groupingValue as string;
+        case 'GROUPING_VALUE':
+            value = formattedChartValues.groupingValue as string
             break
     }
     return { ...outputParameter, value: value }
 }
 
-export const applyAdvancedSettingsToModelForRender = (modelToRender: any, advancedChartSettings: IHighchartsAdvancedPropertySettings[] | null) => {
+export const applyAdvancedSettingsToModelForRender = (modelToRender: any, advancedChartSettings: IHighchartsAdvancedPropertySettings[] | null, widget?: IWidget) => {
     if (!advancedChartSettings) return
     advancedChartSettings.forEach((propertySettings: IHighchartsAdvancedPropertySettings) => {
-        if (propertySettings.propertyPath) setPropertyValueToChartModel(modelToRender, propertySettings)
+        if (propertySettings.propertyPath) setPropertyValueToChartModel(modelToRender, propertySettings, widget)
     })
 }
 
-const setPropertyValueToChartModel = (modelToRender: any, propertySettings: IHighchartsAdvancedPropertySettings) => {
-    const properties = propertySettings.propertyPath.split(/\.|\[|\]/).filter(Boolean);
+const setPropertyValueToChartModel = (modelToRender: any, propertySettings: IHighchartsAdvancedPropertySettings, widget?: IWidget) => {
+    const properties = propertySettings.propertyPath.split(/\.|\[|\]/).filter(Boolean)
     let currentModelToRender = modelToRender
 
     for (let i = 0; i < properties.length; i++) {
-        const property = properties[i];
+        const property = properties[i]
         const currentValueIsObject = typeof currentModelToRender === 'object' && currentModelToRender !== null
 
         if (Array.isArray(currentModelToRender) && /^\d+$/.test(property)) {
-            const index = parseInt(property, 10);
+            const index = parseInt(property, 10)
             if (index >= currentModelToRender.length) {
-                mainStore.setError({ title: t('common.toast.errorTitle'), msg: t('dashboard.widgetEditor.highcharts.advancedSettingsErrorArrayIndexOutOfBounds', { property: properties }) })
-                break;
+                showDashboardWidgetError(widget, t('dashboard.widgetEditor.highcharts.advancedSettingsErrorArrayIndexOutOfBounds', { property: properties }))
+                break
             }
         }
 
         if (currentValueIsObject && property in currentModelToRender) {
             if (i === properties.length - 1) {
-                currentModelToRender[property] = getFormattedPropertyValue(propertySettings.propertyValue);
+                currentModelToRender[property] = getFormattedPropertyValue(propertySettings.propertyValue)
             } else {
                 if (currentModelToRender[property] === undefined || currentModelToRender[property] === null) {
-                    currentModelToRender[property] = /^\d+$/.test(properties[i + 1]) ? [] : {};
+                    currentModelToRender[property] = /^\d+$/.test(properties[i + 1]) ? [] : {}
                 }
-                currentModelToRender = currentModelToRender[property];
+                currentModelToRender = currentModelToRender[property]
             }
         } else {
             if (i === properties.length - 1) {
-                currentModelToRender[property] = getFormattedPropertyValue(propertySettings.propertyValue);
+                currentModelToRender[property] = getFormattedPropertyValue(propertySettings.propertyValue)
             } else {
-                currentModelToRender[property] = /^\d+$/.test(properties[i + 1]) ? [] : {};
-                currentModelToRender = currentModelToRender[property];
+                currentModelToRender[property] = /^\d+$/.test(properties[i + 1]) ? [] : {}
+                currentModelToRender = currentModelToRender[property]
             }
         }
     }
@@ -132,9 +132,9 @@ const setPropertyValueToChartModel = (modelToRender: any, propertySettings: IHig
 const getFormattedPropertyValue = (propertyValue: string) => {
     switch (propertyValue.trim()) {
         case 'true':
-            return true;
+            return true
         case 'false':
-            return false;
+            return false
         default:
             return propertyValue
     }

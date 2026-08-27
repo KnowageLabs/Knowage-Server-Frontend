@@ -59,7 +59,7 @@ export const getTableWidgetData = async (dashboardId: any, dashboardConfig: IDas
                 if (pagination && pagination?.enabled) widget.settings.pagination.properties.totalItems = response.data.results
             } catch (error) {
                 console.error(error)
-                showGetDataError(error, selectedDataset.dsLabel)
+                showGetDataError(error, selectedDataset.dsLabel, widget)
             } finally {
                 // 7. finally, we need to resolve the promise from step 3 and remove it from the queue object
                 delete dashStore.dataProxyQueue[dataHash]
@@ -137,7 +137,8 @@ const getSummaryRow = (widget: IWidget, dashboardConfig: IDashboardConfiguration
                     if (widget.settings.configuration.summaryRows.list[k].aggregation == 'Columns Default Aggregation') obj['funct'] = col.aggregation
                     else obj['funct'] = widget.settings.configuration.summaryRows.list[k].aggregation || col.aggregation
 
-                    if (col.formula) obj['formula'] = addVariablesToFormula(col, dashboardConfig) //col.formula
+                    if (col.formula)
+                        obj['formula'] = addVariablesToFormula(col, dashboardConfig) //col.formula
                     else obj['columnName'] = col.columnName
 
                     measures.push(obj)

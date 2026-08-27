@@ -23,6 +23,7 @@ import { getCePivotData } from './widget/cePivotWidget/cePivotWidgetDataProxy'
 import { getPythonData } from './widget/PythonWidget/PythonWidgetDataProxy'
 import { indexedDB } from '@/idb'
 import { luxonFormatDate } from '@/helpers/commons/localeHelper'
+import { showDashboardWidgetError } from './helpers/DashboardToastHelper'
 
 const { t } = i18n.global
 const mainStore = store()
@@ -65,12 +66,12 @@ export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets:
     }
 }
 
-export const showGetDataError = (error: any, datasetLabel: string | undefined) => {
+export const showGetDataError = (error: any, datasetLabel: string | undefined, widget?: IWidget) => {
     let message = error.message
     if (error.message === '100') {
         message = t('dashboard.getDataError', { datasetLabel: datasetLabel })
     }
-    mainStore.setError({ title: t('common.toast.errorTitle'), msg: message })
+    showDashboardWidgetError(widget, message, datasetLabel)
 }
 
 export const addDriversToData = (dataset, dataToSend) => {

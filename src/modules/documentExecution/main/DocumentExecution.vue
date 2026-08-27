@@ -138,6 +138,7 @@ import DashboardSavedViewsDialog from '../dashboard/DashboardViews/DashboardSave
 import DatasetEditorPreview from '../dashboard/dataset/DatasetEditorDataTab/DatasetEditorPreview.vue'
 import { createDashboardSpreadsheetExportBody, getDashboardExportFileNameTemplate, getDashboardExportVariables } from '../dashboard/helpers/DashboardExportHelper'
 import { enrichDashboardBodyWithPivotSortState } from '@/modules/documentExecution/dashboard/widget/PivotWidget/PivotWidgetExportHelper'
+import { showDashboardActionToast } from '@/modules/documentExecution/dashboard/helpers/DashboardToastHelper'
 
 let seeAsFinalUserWarning
 // @ts-ignore
@@ -501,7 +502,7 @@ export default defineComponent({
         async directDownloadDataset(dataset: any) {
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/export/dataset/${dataset.id}/csv`, this.prepareDriversAndParameter(dataset.pars))
-                .then(() => this.setInfo({ title: this.$t('common.toast.updateTitle'), msg: this.$t('workspace.myData.exportSuccess') }))
+                .then(() => showDashboardActionToast('success', this.$t('common.toast.updateTitle'), this.$t('workspace.myData.exportSuccess')))
                 .catch(() => {})
         },
         async iframeEventsListener(event) {
@@ -583,7 +584,7 @@ export default defineComponent({
                 const payload = this.buildCacheCleanPayload()
                 await this.$http
                     .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/cache/clean-datasets`, payload)
-                    .then(() => this.setInfo({ title: this.$t('documentExecution.main.clearCache'), msg: this.$t('documentExecution.main.cacheCleared') }))
+                    .then(() => showDashboardActionToast('success', this.$t('documentExecution.main.clearCache'), this.$t('documentExecution.main.cacheCleared')))
                     .catch(() => {})
             }
         },

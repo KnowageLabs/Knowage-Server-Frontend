@@ -13,6 +13,7 @@ import { updateStoreSelections, executeChartCrossNavigation } from '../../intera
 import { openNewLinkChartWidget } from '../../interactionsHelpers/InteractionLinkHelper'
 import { formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart, formatPictorialChart, formatStreamgraphChart, formatPackedBubble, formatVariables, normalizeTooltipSettings, normalizeYAxisLabelsAlignment } from './HighchartsModelFormattingHelpers'
 import { applyAdvancedSettingsToModelForRender, formatChartAnnotations, formatForCrossNavigation, getFormattedChartValues } from './HighchartsContainerHelpers'
+import { showDashboardWidgetError } from '@/modules/documentExecution/dashboard/helpers/DashboardToastHelper'
 import HighchartsSonificationControls from './HighchartsSonificationControls.vue'
 import Highcharts from 'highcharts'
 import Highcharts3D from 'highcharts/highcharts-3d'
@@ -216,7 +217,7 @@ export default defineComponent({
             const widgetBg = this.widgetModel.settings?.style?.background
             modelToRender.chart.backgroundColor = widgetBg?.enabled && widgetBg?.properties?.['background-color'] ? widgetBg.properties['background-color'] : '#ffffff'
             this.applyContrastColors(modelToRender)
-            applyAdvancedSettingsToModelForRender(modelToRender, this.widgetModel.settings.advancedSettings)
+            applyAdvancedSettingsToModelForRender(modelToRender, this.widgetModel.settings.advancedSettings, this.widgetModel)
 
             // Sunburst: per-point dataLabels override series/levels settings in Highcharts.
             // After advanced settings are applied, sync the enabled state down to the root (center) data point.
@@ -253,10 +254,7 @@ export default defineComponent({
                 }
                 this.normalizeDrilldownPresentation()
             } catch (error: any) {
-                this.setError({
-                    title: this.$t('common.toast.errorTitle'),
-                    msg: error ? error.message : ''
-                })
+                showDashboardWidgetError(this.widgetModel, error ? error.message : '')
             }
         },
         normalizeDrilldownPresentation() {

@@ -13,12 +13,8 @@ import { addGeography } from './visualization/MapGeographyVizualizationHelper'
 import { createChoropleth } from './visualization/MapChoroplethVizualizationHelper'
 import { createHeatmapVisualization } from './visualization/MapHeatmapVizualizationHelper'
 import { addMapCharts } from './visualization/MapChartsVizualizationHelper'
-import useAppStore from '@/App.store'
-import i18n from '@/App.i18n'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
-
-const appStore = useAppStore()
-const { t } = i18n.global
+import { showDashboardWidgetError } from '@/modules/documentExecution/dashboard/helpers/DashboardToastHelper'
 
 export enum LEGEND_DATA_TYPE {
     BALLOONS_INTERVALS = 'BALLOONS_INTERVALS',
@@ -324,10 +320,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
         if (centerMap) centerTheMap(map, markerBounds, bounds, clusters)
     } catch (error: any) {
         console.error('------- ERROR - initializeLayers:', error)
-        appStore.setError({
-            title: t('common.toast.errorTitle'),
-            msg: error ? error.message : ''
-        })
+        showDashboardWidgetError(model, error ? error.message : '')
     } finally {
         return legendData
     }

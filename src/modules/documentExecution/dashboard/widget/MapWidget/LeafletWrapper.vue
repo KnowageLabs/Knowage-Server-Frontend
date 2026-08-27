@@ -11,12 +11,11 @@ import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 import 'leaflet/dist/leaflet.css'
 import './Leaflet-heatmap.js'
 import { getColumnName, getCoordinates, initializeLayers } from './LeafletHelper'
-import useAppStore from '@/App.store'
-import i18n from '@/App.i18n'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { clearLayersCache, switchLayerVisibility } from './visibility/MapVisibilityHelper'
 import { IAssociation, ISelection, IVariable, IWidget } from '../../Dashboard'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
+import { showDashboardWidgetError } from '@/modules/documentExecution/dashboard/helpers/DashboardToastHelper'
 
 //#region inlined leaflet-layervisibility
 function validateFilter(filterFunc) {
@@ -76,9 +75,7 @@ L.Marker.include({
 })
 //#endregion
 
-const appStore = useAppStore()
 const store = dashboardStore()
-const { t } = i18n.global
 
 const props = defineProps<{
     widgetModel: any
@@ -260,9 +257,7 @@ const onSelectionsDeleted = (selections: any) => {
 
         // Check if the selection is for a dataset that is either directly in the map
         // or associated with a map dataset
-        const isForMap = selections.some((selection) =>
-            datasetIds.has(selection.datasetId) || associatedDatasetIds.has(selection.datasetId)
-        )
+        const isForMap = selections.some((selection) => datasetIds.has(selection.datasetId) || associatedDatasetIds.has(selection.datasetId))
 
         if (!isForMap) return
     }
@@ -335,10 +330,7 @@ onMounted(async () => {
         await initializeMapLayers()
     } catch (error: any) {
         console.error('------- ERROR"', error)
-        appStore.setError({
-            title: t('common.toast.errorTitle'),
-            msg: error ? error.message : ''
-        })
+        showDashboardWidgetError(props.widgetModel, error ? error.message : '')
     }
 })
 
@@ -434,7 +426,9 @@ const handleLegendUpdated = (legendData: Record<string, any> | undefined) => {
 .clickable-custom-leaflet-list-item {
     color: #0056b3;
     background-color: #ffffff;
-    transition: color 0.2s ease, background-color 0.2s ease;
+    transition:
+        color 0.2s ease,
+        background-color 0.2s ease;
 }
 
 .clickable-custom-leaflet-list-item:hover {
