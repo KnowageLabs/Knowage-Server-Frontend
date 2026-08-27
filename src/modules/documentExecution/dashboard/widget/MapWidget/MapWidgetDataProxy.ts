@@ -30,7 +30,7 @@ export const getMapWidgetData = async (dashboardId: any, dashboardConfig: IDashb
                 const existingResponse: AxiosResponse<any> = await dashStore.dataProxyQueue[dataHash]
                 if (selectedDataset.id) tempResponse[selectedDataset.id] = existingResponse.data
             } catch (error: any) {
-                showGetDataError(error, selectedDataset.dsLabel)
+                showGetDataError(error, selectedDataset.dsLabel, widget)
             }
             continue
         }
@@ -50,7 +50,7 @@ export const getMapWidgetData = async (dashboardId: any, dashboardConfig: IDashb
             if (selectedDataset.id) tempResponse[selectedDataset.id] = response.data
             if (canCache) addDataToCache(dataHash, response.data)
         } catch (error: any) {
-            showGetDataError(error, selectedDataset.dsLabel)
+            showGetDataError(error, selectedDataset.dsLabel, widget)
         } finally {
             delete dashStore.dataProxyQueue[dataHash]
         }

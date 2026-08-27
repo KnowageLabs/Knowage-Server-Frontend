@@ -1,5 +1,6 @@
 <template>
     <div v-show="model && visible && showDashboard" :id="`dashboard_${model?.configuration?.id}`" :class="[mode === 'dashboard-popup' ? 'dashboard-container-popup' : 'dashboard-container', `dashboard-container-${dashboardId}`]">
+        <Toaster position="top-right" rich-colors close-button close-button-position="top-right" :offset="{ top: 'calc(var(--kn-toolbar-height) + 48px)' }" />
         <Button v-if="alwaysShowSelectionButton || store.dashboards[dashboardId]?.selections?.length > 0" icon="fa-regular fa-rectangle-list" class="p-m-3 p-button-rounded p-button-text p-button-plain" style="position: fixed; right: 0; z-index: 999; background-color: white; box-shadow: 0px 2px 3px #ccc" :title="$t('dashboard.selectionsList')" @click="selectionsDialogVisible = true" />
 
         <div class="dashboard-renderer-container">
@@ -67,6 +68,9 @@ import { removeColumnFromTableWidgetModel } from './widget/WidgetEditor/helpers/
 import { iPythonConfiguration } from '../../managers/functionsCatalog/FunctionsCatalog'
 import moment from 'moment'
 import dashboardDescriptor from './DashboardDescriptor.json'
+import { Toaster } from 'vue-sonner'
+import 'vue-sonner/style.css'
+import { showDashboardActionToast } from './helpers/DashboardToastHelper'
 
 export default defineComponent({
     name: 'dashboard-controller',
@@ -80,7 +84,8 @@ export default defineComponent({
         DashboardGeneralSettings,
         DashboardSaveViewDialog,
         DashboardSavedViewsDialog,
-        DashboardHeaderWidget
+        DashboardHeaderWidget,
+        Toaster
     },
     props: {
         visible: { type: Boolean },
@@ -756,10 +761,7 @@ export default defineComponent({
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/saveDocument`, postData)
                 .then(() => {
-                    this.appStore.setInfo({
-                        title: this.$t('common.toast.createTitle'),
-                        msg: this.$t('common.toast.success')
-                    })
+                    showDashboardActionToast('success', this.$t('common.toast.createTitle'), this.$t('common.toast.success'))
                     this.saveDialogVisible = false
                     if (this.newDashboardMode) this.$emit('newDashboardSaved', document)
                 })
@@ -879,6 +881,10 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
+[data-sonner-toast][data-styled='true'] [data-title] {
+    font-weight: 700;
+}
+
 .dashboard-container {
     flex: 1;
     display: flex;

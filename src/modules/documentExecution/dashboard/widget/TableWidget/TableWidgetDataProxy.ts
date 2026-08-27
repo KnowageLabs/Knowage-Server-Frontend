@@ -59,7 +59,7 @@ export const getTableWidgetData = async (dashboardId: any, dashboardConfig: IDas
                 if (pagination && pagination?.enabled) widget.settings.pagination.properties.totalItems = response.data.results
             } catch (error) {
                 console.error(error)
-                showGetDataError(error, selectedDataset.dsLabel)
+                showGetDataError(error, selectedDataset.dsLabel, widget)
             } finally {
                 // 7. finally, we need to resolve the promise from step 3 and remove it from the queue object
                 delete dashStore.dataProxyQueue[dataHash]

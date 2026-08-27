@@ -14,6 +14,7 @@ import store from '../../Dashboard.store'
 import appStore from '../../../../../App.store'
 import { startHTMLAndCustomChartIFrameInteractions } from '../interactionsHelpers/IFrameInteractionHelper'
 import { composeCssWithHoistedImports } from '../../helpers/common/DashboardCssHelper'
+import { showDashboardWidgetError } from '../../helpers/DashboardToastHelper'
 
 export default defineComponent({
     name: 'custom-chart-widget',
@@ -84,7 +85,7 @@ export default defineComponent({
         },
         iframeEventsListener(event: any) {
             if (event.data.type === 'error' && event.data.editorMode === this.editorMode) {
-                this.setError({ title: this.$t('common.error.generic'), msg: event.data.error?.message ?? '' })
+                showDashboardWidgetError(this.propWidget, event.data.error?.message ?? '')
             } else if (event.data.type === 'clickManager') this.onClickManager(event.data.payload.columnName, event.data.payload.columnValue, event.data.payload.crossNavigationLabel)
             else if (event.data.type === 'setState') this.onSetState(event.data.payload)
             else if (event.data.type === 'removeSelection') this.onRemoveSelection(event.data.payload.columnName)
@@ -254,7 +255,7 @@ export default defineComponent({
                 this.loadedScriptUrls.add(resolvedURL)
                 this.onScriptLoaded()
             } catch (error: any) {
-                this.setError({ title: this.$t('common.error.generic'), msg: `Failed to load script "${resolvedURL}": ${error?.message ?? ''}` })
+                showDashboardWidgetError(this.propWidget, `Failed to load script "${resolvedURL}": ${error?.message ?? ''}`)
                 this.$emit('loading', false)
             }
         },

@@ -205,14 +205,6 @@ const getFormattedSelections = (selections: ISelection[]) => {
     return formattedSelections
 }
 
-const showGetDataError = (error: any, datasetLabel: string | undefined) => {
-    let message = error.message
-    if (error.message === '100') {
-        message = t('dashboard.getDataError', { datasetLabel: datasetLabel })
-    }
-    mainStore.setError({ title: t('common.toast.errorTitle'), msg: message })
-}
-
 const resetDatasetInterval = (widget: IWidget) => {
     // TODO - set proper interval when realtime dataset example is ready
     if (widget.dataset || widget.dataset === 0) setDatasetInterval(widget.dataset as number, 10000)

@@ -5,6 +5,7 @@ import { formatNumberWithLocale, formatDateWithLocale as formatDateLocaleHelper,
 import i18n from '@/App.i18n'
 import sanitizeHtml from 'sanitize-html'
 import { activeSelectionsRegex, advancedCalcRegex, calcRegex, columnRegex, columnDateFormatRegex, gt, i18nRegex, lt, paramsRegex, paramsDateFormatRegex, repeatIndexRegex, variablesRegex, widgetIdRegex } from '@/modules/documentExecution/dashboard/helpers/common/DashboardRegexHelper'
+import { showDashboardWidgetError } from '@/modules/documentExecution/dashboard/helpers/DashboardToastHelper'
 
 const { t } = i18n.global
 
@@ -73,7 +74,7 @@ const formatDateWithLocale = (value: any): string => {
     }
 }
 
-export const parseText = (tempWidgetModel: IWidget, tempDrivers: any[], tempVariables: IVariable[], tempSelections: ISelection[], internationalization: any, tempWidgetData: any, toast: any) => {
+export const parseText = (tempWidgetModel: IWidget, tempDrivers: any[], tempVariables: IVariable[], tempSelections: ISelection[], internationalization: any, tempWidgetData: any) => {
     drivers = tempDrivers
     variables = tempVariables
     activeSelections = tempSelections
@@ -91,7 +92,7 @@ export const parseText = (tempWidgetModel: IWidget, tempDrivers: any[], tempVari
         parsedText = checkTextWidgetPlaceholders(unparsedText)
         parsedText = replaceTextFunctions(parsedText)
     } catch (error: any) {
-        setError(tempWidgetModel, toast, error, 'text')
+        setError(tempWidgetModel, error, 'text')
     }
 
     return parsedText
@@ -115,7 +116,7 @@ const replaceTextFunctions = (parsedText: string) => {
     return parsedHtml.firstChild ? (parsedHtml.firstChild as any).innerHTML : ''
 }
 
-export const parseHtml = (tempWidgetModel: IWidget, tempDrivers: any[], tempVariables: IVariable[], tempSelections: ISelection[], tempInternationalization: any, tempWidgetData: any, toast: any) => {
+export const parseHtml = (tempWidgetModel: IWidget, tempDrivers: any[], tempVariables: IVariable[], tempSelections: ISelection[], tempInternationalization: any, tempWidgetData: any) => {
     drivers = tempDrivers
     variables = tempVariables
     activeSelections = tempSelections
@@ -175,23 +176,15 @@ export const parseHtml = (tempWidgetModel: IWidget, tempDrivers: any[], tempVari
             trustedHtml = sanitized
         }
     } catch (error: any) {
-        setError(tempWidgetModel, toast, error, 'html')
+        setError(tempWidgetModel, error, 'html')
     }
 
     return { html: trustedHtml, css: trustedCss }
 }
 
-const setError = (tempWidgetModel: IWidget, toast: any, error: any, type: 'html' | 'text') => {
-    if (toast) {
-        const title = type === 'html' ? t('dashboard.widgetEditor.htmlParsingError') : t('dashboard.widgetEditor.textParsingError')
-        toast.add({
-            severity: 'error',
-            summary: title + ' ' + tempWidgetModel?.id,
-            detail: error.message,
-            baseZIndex: 0,
-            life: import.meta.env.VITE_TOAST_DURATION
-        })
-    }
+const setError = (tempWidgetModel: IWidget, error: any, type: 'html' | 'text') => {
+    const title = type === 'html' ? t('dashboard.widgetEditor.htmlParsingError') : t('dashboard.widgetEditor.textParsingError')
+    showDashboardWidgetError(tempWidgetModel, `${title}: ${error.message}`)
 }
 
 const getColumnFromName = (columnName: string, datasetData: any, aggregation: any) => {

@@ -12,12 +12,11 @@ import 'leaflet/dist/leaflet.css'
 import './Leaflet-heatmap.js'
 import { getColumnName, getCoordinates, initializeLayers } from './LeafletHelper'
 import { DEFAULT_MAP_BASE_LAYER, getMapBaseLayerDefinition } from './MapBaseLayerHelper'
-import useAppStore from '@/App.store'
-import i18n from '@/App.i18n'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { clearLayersCache, switchLayerVisibility } from './visibility/MapVisibilityHelper'
 import { IAssociation, ISelection, IVariable, IWidget } from '../../Dashboard'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
+import { showDashboardWidgetError } from '@/modules/documentExecution/dashboard/helpers/DashboardToastHelper'
 
 //#region inlined leaflet-layervisibility
 function validateFilter(filterFunc) {
@@ -77,9 +76,7 @@ L.Marker.include({
 })
 //#endregion
 
-const appStore = useAppStore()
 const store = dashboardStore()
-const { t } = i18n.global
 
 const props = defineProps<{
     widgetModel: any
@@ -155,9 +152,7 @@ const onSelectionsDeleted = (selections: any) => {
 
         // Check if the selection is for a dataset that is either directly in the map
         // or associated with a map dataset
-        const isForMap = selections.some((selection) =>
-            datasetIds.has(selection.datasetId) || associatedDatasetIds.has(selection.datasetId)
-        )
+        const isForMap = selections.some((selection) => datasetIds.has(selection.datasetId) || associatedDatasetIds.has(selection.datasetId))
 
         if (!isForMap) return
     }
@@ -414,10 +409,7 @@ onMounted(async () => {
         }, 200)
     } catch (error: any) {
         console.error('------- ERROR"', error)
-        appStore.setError({
-            title: t('common.toast.errorTitle'),
-            msg: error ? error.message : ''
-        })
+        showDashboardWidgetError(props.widgetModel, error ? error.message : '')
     }
 })
 
@@ -568,7 +560,10 @@ const handleLegendUpdated = (legendData: Record<string, any> | undefined) => {
 .clickable-custom-leaflet-list-item {
     border-color: #bfdbfe;
     background: #eff6ff;
-    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease;
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease,
+        background-color 0.2s ease;
 }
 
 .clickable-custom-leaflet-list-item:hover {

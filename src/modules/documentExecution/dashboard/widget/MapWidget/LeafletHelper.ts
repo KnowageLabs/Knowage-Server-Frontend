@@ -14,13 +14,9 @@ import { createChoropleth } from './visualization/MapChoroplethVizualizationHelp
 import { createHeatmapVisualization } from './visualization/MapHeatmapVizualizationHelper'
 import { addMapCharts } from './visualization/MapChartsVizualizationHelper'
 import { transformDataUsingForeignKeyReturningAggregatedColumns } from './visualization/MapVisualizationHelper'
-import useAppStore from '@/App.store'
-import i18n from '@/App.i18n'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { getMapDatasetInfoColumnNames } from './MapWidgetInfoSettingsHelper'
-
-const appStore = useAppStore()
-const { t } = i18n.global
+import { showDashboardWidgetError } from '@/modules/documentExecution/dashboard/helpers/DashboardToastHelper'
 
 export enum LEGEND_DATA_TYPE {
     BALLOONS_INTERVALS = 'BALLOONS_INTERVALS',
@@ -385,10 +381,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
         }
     } catch (error: any) {
         console.error('------- ERROR - initializeLayers:', error)
-        appStore.setError({
-            title: t('common.toast.errorTitle'),
-            msg: error ? error.message : ''
-        })
+        showDashboardWidgetError(model, error ? error.message : '')
     } finally {
         return legendData
     }

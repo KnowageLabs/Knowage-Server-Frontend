@@ -73,12 +73,12 @@ export default defineComponent({
             if (this.propWidget.type !== 'html' && this.propWidget.type !== 'text') return
             let temp = {} as any
             if (this.propWidget.type === 'html') {
-                temp = parseHtml(this.propWidget, this.drivers, this.variables, this.activeSelections, this.getInternationalization(), this.dataToShow, this.$toast)
+                temp = parseHtml(this.propWidget, this.drivers, this.variables, this.activeSelections, this.getInternationalization(), this.dataToShow)
                 this.htmlContent = temp.html
                 const dashboardCss = this.dashboards[this.dashboardId]?.configuration?.cssToRender ?? ''
                 this.webComponentCss = composeCssWithHoistedImports(dashboardCss, temp.css ?? '')
             } else {
-                this.htmlContent = parseText(this.propWidget, this.drivers, this.variables, this.activeSelections, this.getInternationalization(), this.dataToShow, this.$toast)
+                this.htmlContent = parseText(this.propWidget, this.drivers, this.variables, this.activeSelections, this.getInternationalization(), this.dataToShow)
                 this.webComponentCss = ''
             }
 

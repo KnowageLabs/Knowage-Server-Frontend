@@ -47,7 +47,7 @@ export const getDiscoveryWidgetData = async (dashboardId, dashboardConfig: IDash
                 if (widget.settings.pagination.enabled) widget.settings.pagination.properties.totalItems = response.data.results
             } catch (error) {
                 console.error(error)
-                showGetDataError(error, selectedDataset.dsLabel)
+                showGetDataError(error, selectedDataset.dsLabel, widget)
             } finally {
                 delete dashStore.dataProxyQueue[dataHash]
             }

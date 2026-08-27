@@ -63,7 +63,7 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
                                 if (dashboardConfig.menuWidgets?.enableCaching && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) addDataToCache(dataHash, tempResponse)
                             } catch (error) {
                                 console.error(error)
-                                showGetDataError(error, selectedDataset.dsLabel)
+                                showGetDataError(error, selectedDataset.dsLabel, widget)
                             } finally {
                                 delete dashStore.dataProxyQueue[dataHash]
                             }
@@ -123,7 +123,7 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
                 if (dashboardConfig.menuWidgets?.enableCaching && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) addDataToCache(dataHash, tempResponse)
             } catch (error) {
                 console.error(error)
-                showGetDataError(error, selectedDataset.dsLabel)
+                showGetDataError(error, selectedDataset.dsLabel, widget)
             } finally {
                 delete dashStore.dataProxyQueue[dataHash]
             }
@@ -172,7 +172,7 @@ const getSelectorWidgetTreeData = async (dashboardId: any, dashboardConfig: IDas
             if (dashboardConfig.menuWidgets?.enableCaching && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) addDataToCache(dataHash, tempResponse)
         } catch (error) {
             console.error(error)
-            showGetDataError(error, selectedDataset.dsLabel)
+            showGetDataError(error, selectedDataset.dsLabel, widget)
         } finally {
             delete dashStore.dataProxyQueue[dataHash]
         }

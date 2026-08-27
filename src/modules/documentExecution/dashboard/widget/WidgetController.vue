@@ -1,5 +1,5 @@
 <template>
-    <GridItem :id="`widget${item.id}`" :ref="`widget${item.id}`" :key="item.id" class="p-d-flex widget-grid-item" :x="item.x" :y="item.y" :w="item.w" :h="item.h" :i="item.i" :static="widget?.settings?.locked" drag-allow-from=".drag-handle" :class="{ canEdit: canEditDashboard(document) && !widget?.settings?.locked, 'full-grid-widget': widget?.settings.responsive.fullGrid }" @resized="onWidgetResize">
+    <GridItem :id="`widget${item.id}`" :ref="`widget${item.id}`" :key="item.id" class="p-d-flex widget-grid-item" :x="item.x" :y="item.y" :w="item.w" :h="item.h" :i="item.i" :static="widget?.settings?.locked" drag-allow-from=".drag-handle" :class="{ canEdit: canEditDashboard(document) && !widget?.settings?.locked, 'full-grid-widget': widget?.settings.responsive.fullGrid, 'widget-error-highlight': widgetHighlighted }" @resized="onWidgetResize">
         <div v-if="initialized" class="drag-handle"></div>
         <q-skeleton v-if="!initialized" height="100%" width="100%" square />
         <WidgetRenderer
@@ -43,6 +43,7 @@
 import { defineComponent, PropType } from 'vue'
 import { IDashboardSheet, IDataset, IMenuItem, ISelection, IVariable, IWidget, IWidgetPreview, IWidgetSearch, SelectorDataMap } from '../Dashboard'
 import { emitter, canEditDashboard, DATASET_EXPORT_FORMATS } from '../DashboardHelpers'
+import { showDashboardActionToast, showDashboardWidgetError } from '../helpers/DashboardToastHelper'
 import { mapState, mapActions } from 'pinia'
 import { getWidgetData } from '../DashboardDataProxy'
 import store from '../Dashboard.store'
@@ -116,7 +117,9 @@ export default defineComponent({
             sheetPickerDialogVisible: false,
             datasetToPreview: {} as any,
             datasetPreviewShown: false,
-            directDownloadMenuItems: [] as any[]
+            directDownloadMenuItems: [] as any[],
+            widgetHighlighted: false,
+            widgetHighlightTimeout: null as any
         }
     },
     computed: {
@@ -201,6 +204,7 @@ export default defineComponent({
             emitter.on('mapDatasetInteractionPreview', this.onMapDatasetInteractionPreview)
             emitter.on('lockAllWidgets', this.onLockAllWidgets)
             emitter.on('unlockAllWidgets', this.onUnlockAllWidgets)
+            emitter.on('highlightWidget', this.onHighlightWidget)
         },
         removeEventListeners() {
             emitter.off('selectionsChanged', this.loadActiveSelections)
@@ -214,6 +218,15 @@ export default defineComponent({
             emitter.off('mapDatasetInteractionPreview', this.onMapDatasetInteractionPreview)
             emitter.off('lockAllWidgets', this.onLockAllWidgets)
             emitter.off('unlockAllWidgets', this.onUnlockAllWidgets)
+            emitter.off('highlightWidget', this.onHighlightWidget)
+            if (this.widgetHighlightTimeout) clearTimeout(this.widgetHighlightTimeout)
+        },
+        onHighlightWidget(widgetId: unknown) {
+            if (widgetId !== this.widget?.id) return
+            document.getElementById(`widget${widgetId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            this.widgetHighlighted = true
+            if (this.widgetHighlightTimeout) clearTimeout(this.widgetHighlightTimeout)
+            this.widgetHighlightTimeout = setTimeout(() => (this.widgetHighlighted = false), 2000)
         },
         //#endregion ================================================================================================
 
@@ -251,10 +264,7 @@ export default defineComponent({
                     const iframeDoc = iframe?.contentWindow?.document
 
                     if (!iframeDoc) {
-                        this.setError({
-                            title: this.$t('common.toast.errorTitle'),
-                            msg: this.$t('dashboard.errors.screenshotError')
-                        })
+                        showDashboardActionToast('error', this.$t('common.toast.errorTitle'), this.$t('dashboard.errors.screenshotError'))
                         return
                     }
 
@@ -302,10 +312,7 @@ export default defineComponent({
                         link.click()
                         return
                     } catch (error) {
-                        this.setError({
-                            title: this.$t('common.toast.errorTitle'),
-                            msg: `${this.$t('dashboard.errors.screenshotError')}: ${error}`
-                        })
+                        showDashboardWidgetError(widget, `${this.$t('dashboard.errors.screenshotError')}: ${error}`)
                         return
                     }
                 } else {
@@ -322,10 +329,7 @@ export default defineComponent({
                     link.click()
                 })
                 .catch((error) => {
-                    this.setError({
-                        title: this.$t('common.toast.errorTitle'),
-                        msg: `${this.$t('dashboard.errors.screenshotError')}: ${error}`
-                    })
+                    showDashboardWidgetError(widget, `${this.$t('dashboard.errors.screenshotError')}: ${error}`)
                 })
         },
         toggleEditMode() {
@@ -370,7 +374,7 @@ export default defineComponent({
                             try {
                                 message = JSON.parse(text)?.message ?? text
                             } catch {}
-                            this.setError({ title: this.$t('common.toast.errorTitle'), msg: message })
+                            showDashboardWidgetError(this.widgetModel, message)
                         })
                         return
                     }
@@ -725,7 +729,7 @@ export default defineComponent({
                 })
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/export/dataset/${datasetId}/${format}`, tempParams, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
-                .then(() => this.setInfo({ title: this.$t('common.toast.updateTitle'), msg: this.$t('workspace.myData.exportSuccess') }))
+                .then(() => showDashboardActionToast('success', this.$t('common.toast.updateTitle'), this.$t('workspace.myData.exportSuccess')))
                 .catch(() => {})
         },
         openDirectDownloadMenu(datasetId: number, domEvent?: any) {
@@ -762,6 +766,11 @@ export default defineComponent({
         top: 0 !important;
         left: 0 !important;
     }
+    &.widget-error-highlight {
+        animation: widget-error-pulse 2s ease-in-out;
+        z-index: 10;
+        border-radius: 8px;
+    }
     &.vue-grid-item > .vue-resizable-handle {
         display: none;
     }
@@ -779,6 +788,17 @@ export default defineComponent({
         .widgetButtonBarContainer {
             display: flex;
         }
+    }
+}
+
+@keyframes widget-error-pulse {
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(211, 47, 47, 0);
+    }
+    20%,
+    80% {
+        box-shadow: 0 0 32px 10px rgba(211, 47, 47, 0.6);
     }
 }
 
