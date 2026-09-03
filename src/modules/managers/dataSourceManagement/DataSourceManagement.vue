@@ -42,7 +42,7 @@
                 </template>
             </Listbox>
         </div>
-        <div class="p-col-8 p-sm-8 p-md-9 p-p-0 p-m-0 p-d-flex column window-height">
+        <div class="p-col-8 p-sm-8 p-md-9 p-p-0 p-m-0 p-d-flex column no-wrap overflow-auto window-height">
             <router-view :selected-datasource="selDatasource" :databases="listOfAvailableDatabases" :user="user" @touched="touched = true" @closed="onFormClose" @inserted="reloadPage" />
         </div>
     </div>
