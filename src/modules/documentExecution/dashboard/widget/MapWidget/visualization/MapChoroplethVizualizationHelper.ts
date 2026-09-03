@@ -435,9 +435,20 @@ const generateColorGradient = (colorStart: string | undefined, colorEnd: string 
     if (!colorStart || !colorEnd || !steps) return []
 
     const extractRGBA = (color: string): number[] => {
-        const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/)
-        if (!match) throw new Error('Invalid RGBA format')
-        return match.slice(1, 5).map(Number)
+        const normalizedColor = color.trim()
+        const hexadecimalMatch = normalizedColor.match(/^#([\da-f]{3,4}|[\da-f]{6}|[\da-f]{8})$/i)
+        if (hexadecimalMatch) {
+            const hexadecimal = hexadecimalMatch[1]
+            const expandedHexadecimal = hexadecimal.length <= 4 ? hexadecimal.split('').map((value) => value.repeat(2)).join('') : hexadecimal
+            const alpha = expandedHexadecimal.length === 8 ? Number.parseInt(expandedHexadecimal.slice(6, 8), 16) / 255 : 1
+
+            return [Number.parseInt(expandedHexadecimal.slice(0, 2), 16), Number.parseInt(expandedHexadecimal.slice(2, 4), 16), Number.parseInt(expandedHexadecimal.slice(4, 6), 16), alpha]
+        }
+
+        const match = normalizedColor.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*([\d.]+))?\s*\)$/i)
+        if (!match) throw new Error(`Unsupported color format: ${color}`)
+
+        return [Number(match[1]), Number(match[2]), Number(match[3]), match[4] ? Number(match[4]) : 1]
     }
 
     const start = extractRGBA(colorStart)
