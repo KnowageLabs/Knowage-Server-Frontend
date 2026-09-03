@@ -8,7 +8,7 @@
                 zIndex: 99,
                 background: 'white',
                 minWidth: '96px',
-                maxWidth: legendWidth + 'px'
+                width: legendWidth + 'px'
             },
             isDetached
                 ? {
@@ -91,8 +91,11 @@ export default defineComponent({
         }
     },
     watch: {
-        propMapWidgetLegend() {
-            this.loadLegend()
+        propMapWidgetLegend: {
+            handler() {
+                this.loadLegend()
+            },
+            deep: true
         }
     },
     mounted() {
