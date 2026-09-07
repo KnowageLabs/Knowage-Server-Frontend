@@ -3629,7 +3629,7 @@
         "advancedData": {
             "chooseDataset": "Scegli un dataset",
             "noDatasetFound": "Nessun dataset trovato",
-            "title": "Data preparation"
+            "title": "Preparazione dati"
         },
         "buttonsTooltips": {
             "deleteDoc": "Delete Document",
@@ -3705,15 +3705,15 @@
         },
         "hint": "Workspace is your personal space where you can find your documents and datasets. Click one of the items categories in the left list to select and interact with them.",
         "menuLabels": {
-            "advanced": "Data Preparation",
-            "menuTitle": "My Workspace",
-            "myAnalysis": "My Analysis",
-            "myData": "My Data",
-            "myModels": "My Models",
-            "myRepository": "My Repository",
-            "recent": "Recent",
+            "advanced": "Preparazione dati",
+            "menuTitle": "Il mio spazio di lavoro",
+            "myAnalysis": "Le mie analisi",
+            "myData": "I miei dati",
+            "myModels": "I miei modelli",
+            "myRepository": "Il mio repository",
+            "recent": "Recenti",
             "recentDocuments": "Recent Documents",
-            "schedulation": "Schedulation"
+            "schedulation": "Pianificazioni"
         },
         "myAnalysis": {
             "editAnalysis": "Edit Analysis",
@@ -3752,7 +3752,7 @@
             "shareDataset": "Share/Unshare Dataset",
             "shareDatasetHint": "By selecting a category from the combo box you are sharing the data set for all the users that are able to manage the specified data set category.",
             "tablePrefix": "Table Prefix",
-            "title": "My Data",
+            "title": "I miei dati",
             "unshareDataset": "Unshare Dataset",
             "wizardTitle": "Dataset Wizard",
             "xlsxExport": "Export Dataset to XLSX"
@@ -3762,7 +3762,7 @@
             "editDataset": "Edit dataset",
             "openInQBE": "Open dataset in QBE",
             "showInfo": "Mostra informazioni sul dataset",
-            "title": "My Models"
+            "title": "I miei modelli"
         },
         "myRepository": {
             "deleteView": "Elimina Vista",
@@ -3782,7 +3782,7 @@
             "executedSchedulations": "Executed schedulations",
             "oldSchedulationsMessage": "In the following table you will find all executed schedulations from selected job.",
             "ranSchedulations": "View ran schedulations",
-            "title": "Schedulations"
+            "title": "Pianificazioni"
         }
     }
 }
