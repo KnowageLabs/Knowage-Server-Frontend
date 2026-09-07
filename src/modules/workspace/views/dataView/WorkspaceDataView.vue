@@ -7,7 +7,7 @@
         <template #end>
             <Button v-if="toggleCardDisplay" icon="fas fa-list" class="p-button-text p-button-rounded p-button-plain" @click="toggleDisplayView" />
             <!-- <Button v-if="!toggleCardDisplay" icon="fas fa-th-large" class="p-button-text p-button-rounded p-button-plain" @click="toggleDisplayView" /> -->
-            <KnFabButton v-if="tableMode === 'My Datasets'" icon="fas fa-plus" data-test="new-button" @click="showCreationMenu" />
+            <KnFabButton v-if="tableMode === 'owned'" icon="fas fa-plus" data-test="new-button" @click="showCreationMenu" />
         </template>
     </Toolbar>
     <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar p-ml-2" data-test="progress-bar" />
@@ -18,7 +18,7 @@
             <MultiSelect v-model="selectedCategories" class="kn-material-input kn-width-full" :style="mainDescriptor.style.multiselect" :options="datasetCategories" option-label="VALUE_CD" :filter="true" @change="searchItems" />
             <label class="kn-material-input-label"> {{ $t('common.category') }} </label>
         </span>
-        <SelectButton v-model="tableMode" class="p-mx-2" :options="selectButtonOptions" data-test="dataset-select" @click="getDatasetsByFilter" />
+        <SelectButton v-model="tableMode" class="p-mx-2" :options="selectButtonOptions" option-label="label" option-value="value" data-test="dataset-select" @click="getDatasetsByFilter" />
     </div>
 
     <div class="kn-overflow">
@@ -183,6 +183,14 @@ export default defineComponent({
     computed: {
         ...mapState(mainStore, ['user']),
         ...mapState(workspaceStore, ['dataPreparation', 'isAvroReady']),
+        selectButtonOptions(): { label: string; value: string }[] {
+            return [
+                { label: this.$t('workspace.myData.myDatasets'), value: 'owned' },
+                { label: this.$t('workspace.myData.enterprise'), value: 'enterprise' },
+                { label: this.$t('workspace.myData.shared'), value: 'shared' },
+                { label: this.$t('workspace.myData.allDatasets'), value: 'all' }
+            ]
+        },
         isDatasetOwner(): any {
             return this.user.userId === this.selectedDataset.owner
         },
@@ -236,8 +244,7 @@ export default defineComponent({
             previewDialogVisible: false,
             warningDialogVisbile: false,
             warningMessage: '',
-            tableMode: 'My Datasets',
-            selectButtonOptions: ['My Datasets', 'Enterprise', 'Shared', 'All Datasets'],
+            tableMode: 'owned',
             searchWord: '' as string,
             qbeVisible: false,
             client: {} as any,
@@ -766,7 +773,7 @@ export default defineComponent({
             this.selectedCategoryIds = [] as any
             this.selectedCategories = [] as any
             switch (this.tableMode) {
-                case 'My Datasets':
+                case 'owned':
                     this.datasetList = this.getDatasets('owned')
                         .then((response: AxiosResponse<any>) => {
                             this.datasetList = [...response.data.root]
@@ -774,7 +781,7 @@ export default defineComponent({
                         })
                         .finally(() => (this.loading = false))
                     break
-                case 'Enterprise':
+                case 'enterprise':
                     this.datasetList = this.getDatasets('enterprise')
                         .then((response: AxiosResponse<any>) => {
                             this.datasetList = [...response.data.root]
@@ -782,7 +789,7 @@ export default defineComponent({
                         })
                         .finally(() => (this.loading = false))
                     break
-                case 'Shared':
+                case 'shared':
                     this.datasetList = this.getDatasets('shared')
                         .then((response: AxiosResponse<any>) => {
                             this.datasetList = [...response.data.root]
@@ -790,7 +797,7 @@ export default defineComponent({
                         })
                         .finally(() => (this.loading = false))
                     break
-                case 'All Datasets':
+                case 'all':
                     this.datasetList = this.getDatasets('mydata')
                         .then((response: AxiosResponse<any>) => {
                             this.datasetList = [...response.data.root]
