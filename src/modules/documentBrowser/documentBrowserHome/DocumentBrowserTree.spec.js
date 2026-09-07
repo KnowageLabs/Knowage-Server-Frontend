@@ -54,6 +54,10 @@ const $store = {
     }
 }
 
+const translations = {
+    'documentBrowser.personalFolders': 'Personal folders'
+}
+
 const factory = (folders) => {
     return mount(DocumentBrowserTree, {
         props: {
@@ -69,7 +73,7 @@ const factory = (folders) => {
                 Tree
             },
             mocks: {
-                $t: (msg) => msg,
+                $t: (msg) => translations[msg] ?? msg,
                 $store
             }
         }
@@ -86,7 +90,7 @@ describe('Document Browser Tree', () => {
         expect(wrapper.vm.nodes[0].children.length).toBe(2)
         expect(wrapper.vm.nodes[1].children.length).toBe(2)
         expect(wrapper.html()).toContain('Functionalities')
-        expect(wrapper.html()).toContain('Personal_Folders')
+        expect(wrapper.html()).toContain('Personal folders')
     })
     it('selects folder and emits proper data on click', async () => {
         const wrapper = factory(mockedFolders)
@@ -95,9 +99,9 @@ describe('Document Browser Tree', () => {
 
         await wrapper.find('.p-treenode-label').trigger('click')
 
-        expect(wrapper.vm.selectedFolder).toStrictEqual({ codType: 'LOW_FUNCT', code: 'Personal_Folders', createRoles: [], description: 'Personal Folders', id: -1, name: 'Personal_Folders', parentId: null, path: '/Personal-Folders', subfolders: [] })
+        expect(wrapper.vm.selectedFolder).toStrictEqual({ codType: 'LOW_FUNCT', code: 'Personal_Folders', createRoles: [], description: 'Personal folders', id: -1, name: 'Personal_Folders', parentId: null, path: '/Personal-Folders', subfolders: [] })
         expect(wrapper.emitted()).toHaveProperty('folderSelected')
-        expect(wrapper.emitted()['folderSelected'][0][0]).toStrictEqual({ codType: 'LOW_FUNCT', code: 'Personal_Folders', createRoles: [], description: 'Personal Folders', id: -1, name: 'Personal_Folders', parentId: null, path: '/Personal-Folders', subfolders: [] })
+        expect(wrapper.emitted()['folderSelected'][0][0]).toStrictEqual({ codType: 'LOW_FUNCT', code: 'Personal_Folders', createRoles: [], description: 'Personal folders', id: -1, name: 'Personal_Folders', parentId: null, path: '/Personal-Folders', subfolders: [] })
     })
     it('should show the personal folder folder if the user is an administrator', async () => {
         const wrapper = factory(mockedFolders)
@@ -107,7 +111,7 @@ describe('Document Browser Tree', () => {
 
         await wrapper.find('.p-tree-toggler').trigger('click')
 
-        expect(wrapper.html()).toContain('Personal_Folders')
+        expect(wrapper.html()).toContain('Personal folders')
         expect(wrapper.html()).toContain('demo_admin')
     })
 })
