@@ -50,7 +50,7 @@ import { IHighchartsChartModel } from '../../../interfaces/highcharts/DashboardH
 import { mapActions, mapState } from 'pinia'
 import { updateStoreSelections, executeChartCrossNavigation } from '../../interactionsHelpers/InteractionHelper'
 import { openNewLinkChartWidget } from '../../interactionsHelpers/InteractionLinkHelper'
-import { formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart, formatPictorialChart, formatStreamgraphChart, formatPackedBubble, formatVariables, normalizeTooltipSettings, normalizeYAxisLabelsAlignment } from './HighchartsModelFormattingHelpers'
+import { addCategoryXAxisLabelTooltips, formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart, formatPictorialChart, formatStreamgraphChart, formatPackedBubble, formatVariables, normalizeCategoryXAxisLabels, normalizeTooltipSettings, normalizeYAxisLabelsAlignment } from './HighchartsModelFormattingHelpers'
 import { applyAdvancedSettingsToModelForRender, formatChartAnnotations, formatForCrossNavigation, getFormattedChartValues } from './HighchartsContainerHelpers'
 import { showDashboardWidgetError } from '@/modules/documentExecution/dashboard/helpers/DashboardToastHelper'
 import HighchartsSonificationControls from './HighchartsSonificationControls.vue'
@@ -303,10 +303,16 @@ export default defineComponent({
                 })
             }
 
+            const configuredRender = modelToRender.chart.events?.render
             modelToRender.chart.events = {
+                ...modelToRender.chart.events,
                 drillup: this.onDrillUp,
                 click: this.executeInteractions,
-                checkboxClick: this.onCheckboxClicked
+                checkboxClick: this.onCheckboxClicked,
+                render: function (this: Highcharts.Chart) {
+                    if (configuredRender) configuredRender.call(this)
+                    addCategoryXAxisLabelTooltips(this)
+                }
             }
             const widgetBg = this.widgetModel.settings?.style?.background
             modelToRender.chart.backgroundColor = widgetBg?.enabled && widgetBg?.properties?.['background-color'] ? widgetBg.properties['background-color'] : '#ffffff'
@@ -716,6 +722,7 @@ export default defineComponent({
 
             formatVariables(formattedChartModel, this.variables)
             normalizeTooltipSettings(formattedChartModel)
+            normalizeCategoryXAxisLabels(formattedChartModel)
             normalizeYAxisLabelsAlignment(formattedChartModel)
 
             if (formattedChartModel.chart.type === 'activitygauge') {

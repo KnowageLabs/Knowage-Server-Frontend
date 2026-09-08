@@ -280,6 +280,38 @@ export const normalizeTooltipSettings = (formattedChartModel: IHighchartsChartMo
     if (!tooltip.style.color) tooltip.style.color = 'contrast'
 }
 
+export const normalizeCategoryXAxisLabels = (formattedChartModel: IHighchartsChartModel) => {
+    const chart = formattedChartModel.chart as any
+    if (chart?.polar || chart?.inverted || chart?.type === 'bar' || !formattedChartModel.xAxis) return
+
+    formattedChartModel.xAxis.forEach((axis: any) => {
+        if (axis?.type !== 'category' || axis?.visible === false) return
+
+        axis.labels = axis.labels ?? {}
+        axis.labels.style = axis.labels.style ?? {}
+        axis.labels.style.textOverflow = 'ellipsis'
+        axis.labels.overflow = 'justify'
+
+        if (axis.labels.rotation == null) axis.labels.autoRotation = []
+    })
+}
+
+export const addCategoryXAxisLabelTooltips = (chart: Highcharts.Chart) => {
+    chart.xAxis.forEach((axis: any) => {
+        if (!axis.horiz || axis.options.type !== 'category') return
+
+        Object.values(axis.ticks ?? {}).forEach((tick: any) => {
+            const labelElement = tick?.label?.element as SVGTextElement | undefined
+            const category = axis.categories?.[tick?.pos] ?? tick?.label?.textStr
+            if (!labelElement || category == null) return
+
+            const title = Array.from(labelElement.children).find((child) => child.tagName.toLowerCase() === 'title') ?? labelElement.ownerDocument.createElementNS('http://www.w3.org/2000/svg', 'title')
+            title.textContent = `${category}`
+            if (!title.parentNode) labelElement.appendChild(title)
+        })
+    })
+}
+
 const formatVariablesForAxis = (formattedChartModel: IHighchartsChartModel, variables: IVariable[], axis: 'xAxis' | 'yAxis') => {
     if (!formattedChartModel[axis]) return
     formattedChartModel[axis].forEach((axisElement: any) => {
