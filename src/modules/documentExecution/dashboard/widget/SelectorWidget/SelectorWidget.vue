@@ -14,11 +14,19 @@
             </div>
         </div>
         <span v-if="widgetType === 'dropdown'" class="p-float-label p-m-2">
-            <Dropdown v-model="selectedValue" filter class="kn-width-full" panel-class="selectorCustomDropdownPanel" :options="filteredDropdownOptions" option-label="column_1" option-value="column_1" :style="getLabelStyle()" :input-style="getLabelStyle()" :panel-style="getLabelStyle()" :option-disabled="showMode === 'showDisabled' ? 'disabled' : ''" @change="singleValueSelectionChanged" @filter="filterDropdownOptions" />
+            <Dropdown v-model="selectedValue" filter class="kn-width-full" panel-class="selectorCustomDropdownPanel" :options="filteredDropdownOptions" option-label="column_1" option-value="column_1" :style="getLabelStyle()" :input-style="getLabelStyle()" :panel-style="getLabelStyle()" :option-disabled="showMode === 'showDisabled' ? 'disabled' : ''" @change="singleValueSelectionChanged" @filter="filterDropdownOptions">
+                <template #option="slotProps">
+                    <span :title="slotProps.option.column_1">{{ slotProps.option.column_1 }}</span>
+                </template>
+            </Dropdown>
         </span>
 
         <span v-if="widgetType === 'multiDropdown'" class="p-float-label p-m-2">
-            <MultiSelect v-model="selectedValues" class="kn-width-full" panel-class="selectorCustomDropdownPanel" :options="filteredMultiSelectOptions" option-label="column_1" option-value="column_1" :style="getLabelStyle()" :input-style="getLabelStyle()" :panel-style="getLabelStyle()" :filter="true" :option-disabled="showMode === 'showDisabled' ? 'disabled' : ''" @change="multiValueSelectionChanged" @filter="filterMultiSelectOptions" />
+            <MultiSelect v-model="selectedValues" class="kn-width-full" panel-class="selectorCustomDropdownPanel" :options="filteredMultiSelectOptions" option-label="column_1" option-value="column_1" :style="getLabelStyle()" :input-style="getLabelStyle()" :panel-style="getLabelStyle()" :filter="true" :option-disabled="showMode === 'showDisabled' ? 'disabled' : ''" @change="multiValueSelectionChanged" @filter="filterMultiSelectOptions">
+                <template #option="slotProps">
+                    <span :title="slotProps.option.column_1">{{ slotProps.option.column_1 }}</span>
+                </template>
+            </MultiSelect>
         </span>
 
         <span v-if="widgetType === 'date'" class="p-float-label p-m-2">
