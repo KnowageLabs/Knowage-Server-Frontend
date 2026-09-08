@@ -280,6 +280,20 @@ export const normalizeTooltipSettings = (formattedChartModel: IHighchartsChartMo
     if (!tooltip.style.color) tooltip.style.color = 'contrast'
 }
 
+export const updateAxisLabelFormatters = (chartModel: IHighchartsChartModel, updateFormatterSettings: (object: any, formatProperty: string | null, formatterProperty: string, formatterTextProperty: string, formatterErrorProperty: string, variables: IVariable[]) => boolean, variables: IVariable[]) => {
+    let hasError = false
+    const axes = [...(chartModel.xAxis ?? []), ...(chartModel.yAxis ?? [])]
+
+    axes.forEach((axis: any) => {
+        if (!axis?.labels) return
+
+        hasError = updateFormatterSettings(axis.labels, 'format', 'formatter', 'formatterText', 'formatterError', variables) || hasError
+        if (typeof axis.labels.format === 'string' && axis.labels.format.trim()) delete axis.labels.formatter
+    })
+
+    return hasError
+}
+
 export const normalizeCategoryXAxisLabels = (formattedChartModel: IHighchartsChartModel) => {
     const chart = formattedChartModel.chart as any
     if (chart?.polar || chart?.inverted || chart?.type === 'bar' || !formattedChartModel.xAxis) return

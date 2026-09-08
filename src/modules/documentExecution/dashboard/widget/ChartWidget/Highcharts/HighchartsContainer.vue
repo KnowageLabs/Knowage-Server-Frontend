@@ -50,7 +50,7 @@ import { IHighchartsChartModel } from '../../../interfaces/highcharts/DashboardH
 import { mapActions, mapState } from 'pinia'
 import { updateStoreSelections, executeChartCrossNavigation } from '../../interactionsHelpers/InteractionHelper'
 import { openNewLinkChartWidget } from '../../interactionsHelpers/InteractionLinkHelper'
-import { addCategoryXAxisLabelTooltips, formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart, formatPictorialChart, formatStreamgraphChart, formatPackedBubble, formatVariables, normalizeCategoryXAxisLabels, normalizeTooltipSettings, normalizeYAxisLabelsAlignment } from './HighchartsModelFormattingHelpers'
+import { addCategoryXAxisLabelTooltips, formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart, formatPictorialChart, formatStreamgraphChart, formatPackedBubble, formatVariables, normalizeCategoryXAxisLabels, normalizeTooltipSettings, normalizeYAxisLabelsAlignment, updateAxisLabelFormatters } from './HighchartsModelFormattingHelpers'
 import { applyAdvancedSettingsToModelForRender, formatChartAnnotations, formatForCrossNavigation, getFormattedChartValues } from './HighchartsContainerHelpers'
 import { showDashboardWidgetError } from '@/modules/documentExecution/dashboard/helpers/DashboardToastHelper'
 import HighchartsSonificationControls from './HighchartsSonificationControls.vue'
@@ -272,8 +272,12 @@ export default defineComponent({
 
             this.widgetModel.settings.chartModel.updateSeriesAccessibilitySettings(tempWidgetModel)
             if (!['heatmap', 'dependencywheel', 'sankey', 'spline'].includes(this.chartModel.chart.type)) this.widgetModel.settings.chartModel.updateSeriesLabelSettings(tempWidgetModel)
-            if (this.chartModel.chart.type === 'heatmap') this.updateAxisLabels()
-            else if (this.chartModel.chart.type !== 'radar') this.updateDataLabels()
+            this.error = this.updateAxisLabels()
+            if (this.error) return
+            if (this.chartModel.chart.type !== 'heatmap' && this.chartModel.chart.type !== 'radar') {
+                this.error = this.updateDataLabels()
+                if (this.error) return
+            }
             this.error = this.updateLegendSettings()
             if (this.error) return
             this.error = this.updateTooltipSettings()
@@ -510,17 +514,11 @@ export default defineComponent({
         },
         updateDataLabels() {
             const dataLabels = this.chartModel.plotOptions && this.chartModel.plotOptions[this.chartModel.chart.type] ? this.chartModel.plotOptions[this.chartModel.chart.type].dataLabels : null
-            if (dataLabels) {
-                this.error = this.widgetModel.settings.chartModel.updateFormatterSettings(dataLabels, 'format', 'formatter', 'formatterText', 'formatterError', this.variables)
-                if (this.error) return
-            }
+            if (!dataLabels) return false
+            return this.widgetModel.settings.chartModel.updateFormatterSettings(dataLabels, 'format', 'formatter', 'formatterText', 'formatterError', this.variables)
         },
         updateAxisLabels() {
-            const axisLabels = this.chartModel.xAxis && this.chartModel.xAxis[0].labels ? this.chartModel.xAxis[0].labels : null
-            if (axisLabels) {
-                this.error = this.widgetModel.settings.chartModel.updateFormatterSettings(axisLabels, 'format', 'formatter', 'formatterText', 'formatterError', this.variables)
-                if (this.error) return
-            }
+            return updateAxisLabelFormatters(this.chartModel, this.widgetModel.settings.chartModel.updateFormatterSettings.bind(this.widgetModel.settings.chartModel), this.variables)
         },
         updateTooltipSettings() {
             let hasError = this.widgetModel.settings.chartModel.updateFormatterSettings(this.chartModel.tooltip, null, 'formatter', 'formatterText', 'formatterError', this.variables)
