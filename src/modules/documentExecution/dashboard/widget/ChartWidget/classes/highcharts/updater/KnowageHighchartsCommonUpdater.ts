@@ -167,6 +167,22 @@ export const setAxisGridSettings = (oldAxis: any, newModelAxis: any) => {
     }
 }
 
+const getFormattedAxisScaleValue = (value: any): number | null => {
+    if (typeof value === 'number') return Number.isFinite(value) ? value : null
+    if (typeof value !== 'string') return null
+
+    const trimmedValue = value.trim()
+    if (!trimmedValue || trimmedValue.toLowerCase() === 'auto') return null
+
+    const parsedValue = Number(trimmedValue)
+    return Number.isFinite(parsedValue) ? parsedValue : null
+}
+
+export const setAxisScaleSettings = (oldAxis: any, newModelAxis: any) => {
+    newModelAxis.min = getFormattedAxisScaleValue(oldAxis.min)
+    newModelAxis.max = getFormattedAxisScaleValue(oldAxis.max)
+}
+
 const getFormattedGridLineStyle = (type: string) => {
     switch (type) {
         case 'solid':

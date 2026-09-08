@@ -89,7 +89,7 @@ export default defineComponent({
                     codType: 'LOW_FUNCT',
                     code: 'Personal_Folders',
                     createRoles: [],
-                    description: 'Personal Folders',
+                    description: this.$t('documentBrowser.personalFolders'),
                     name: 'Personal_Folders',
                     parentId: null,
                     subfolders: [],
@@ -210,6 +210,7 @@ export default defineComponent({
             return null
         },
         getTranslatedLabel(label: string) {
+            if (label === 'Personal_Folders') return this.$t('documentBrowser.personalFolders')
             return (this as any).$internationalization(label)
         }
     }
