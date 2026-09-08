@@ -296,108 +296,20 @@ export const normalizeCategoryXAxisLabels = (formattedChartModel: IHighchartsCha
     })
 }
 
-const CATEGORY_X_AXIS_LABEL_ATTRIBUTE = 'data-highcharts-category-label'
-const CATEGORY_X_AXIS_TOOLTIP_CLASS = 'highcharts-category-axis-label-tooltip'
-
-interface ICategoryXAxisTooltipState {
-    element: HTMLDivElement
-    destroy: () => void
-}
-
-interface IChartWithCategoryXAxisTooltip extends Highcharts.Chart {
-    categoryXAxisTooltip?: ICategoryXAxisTooltipState
-}
-
 export const addCategoryXAxisLabelTooltips = (chart: Highcharts.Chart) => {
-    let hasCategoryLabels = false
-
     chart.xAxis.forEach((axis: any) => {
         if (!axis.horiz || axis.options.type !== 'category') return
 
         Object.values(axis.ticks ?? {}).forEach((tick: any) => {
-            const labelElement = tick?.label?.element as Element | undefined
+            const labelElement = tick?.label?.element as SVGTextElement | undefined
             const category = axis.categories?.[tick?.pos] ?? tick?.label?.textStr
             if (!labelElement || category == null) return
 
-            hasCategoryLabels = true
-            labelElement.setAttribute(CATEGORY_X_AXIS_LABEL_ATTRIBUTE, `${category}`)
-            labelElement.setAttribute('aria-label', `${category}`)
-            labelElement.querySelector('title')?.remove()
+            const title = Array.from(labelElement.children).find((child) => child.tagName.toLowerCase() === 'title') ?? labelElement.ownerDocument.createElementNS('http://www.w3.org/2000/svg', 'title')
+            title.textContent = `${category}`
+            if (!title.parentNode) labelElement.appendChild(title)
         })
     })
-
-    if (hasCategoryLabels) addCategoryXAxisTooltip(chart)
-}
-
-const addCategoryXAxisTooltip = (chart: Highcharts.Chart) => {
-    const chartWithTooltip = chart as IChartWithCategoryXAxisTooltip
-    if (chartWithTooltip.categoryXAxisTooltip || !chart.container) return
-
-    const chartContainer = chart.container
-    const tooltip = document.createElement('div')
-    tooltip.className = CATEGORY_X_AXIS_TOOLTIP_CLASS
-    const tooltipColor = chart.options.tooltip?.style?.color
-    Object.assign(tooltip.style, {
-        backgroundColor: chart.options.tooltip?.backgroundColor ?? 'rgba(247, 247, 247, 0.95)',
-        border: `1px solid ${chart.options.tooltip?.borderColor ?? '#cccccc'}`,
-        borderRadius: `${chart.options.tooltip?.borderRadius ?? 3}px`,
-        boxSizing: 'border-box',
-        color: tooltipColor && tooltipColor !== 'contrast' ? tooltipColor : '#333333',
-        display: 'none',
-        fontSize: chart.options.tooltip?.style?.fontSize ?? '0.8em',
-        maxHeight: 'calc(100vh - 16px)',
-        maxWidth: 'min(32rem, calc(100vw - 16px))',
-        overflowY: 'auto',
-        overflowWrap: 'anywhere',
-        padding: '8px',
-        pointerEvents: 'auto',
-        position: 'fixed',
-        whiteSpace: 'pre-wrap',
-        zIndex: '10000'
-    })
-    document.body.appendChild(tooltip)
-
-    const hideTooltip = () => {
-        tooltip.style.display = 'none'
-    }
-
-    const showTooltip = (event: MouseEvent) => {
-        const target = event.target instanceof Element ? event.target.closest(`[${CATEGORY_X_AXIS_LABEL_ATTRIBUTE}]`) : null
-        const category = target?.getAttribute(CATEGORY_X_AXIS_LABEL_ATTRIBUTE)
-        if (category == null) return
-
-        tooltip.textContent = category
-        tooltip.style.display = 'block'
-
-        const labelBounds = target.getBoundingClientRect()
-        const left = Math.max(8, Math.min(labelBounds.left, window.innerWidth - tooltip.offsetWidth - 8))
-        const top = Math.max(8, labelBounds.top - tooltip.offsetHeight - 8)
-        tooltip.style.left = `${left}px`
-        tooltip.style.top = `${top}px`
-    }
-
-    const onMouseOut = (event: MouseEvent) => {
-        const target = event.target instanceof Element ? event.target.closest(`[${CATEGORY_X_AXIS_LABEL_ATTRIBUTE}]`) : null
-        const relatedTarget = event.relatedTarget as Node | null
-        if (!target || target.contains(relatedTarget) || tooltip.contains(relatedTarget)) return
-        hideTooltip()
-    }
-
-    chartContainer.addEventListener('mouseover', showTooltip)
-    chartContainer.addEventListener('mousemove', showTooltip)
-    chartContainer.addEventListener('mouseout', onMouseOut)
-    tooltip.addEventListener('mouseleave', hideTooltip)
-
-    const destroy = () => {
-        chartContainer.removeEventListener('mouseover', showTooltip)
-        chartContainer.removeEventListener('mousemove', showTooltip)
-        chartContainer.removeEventListener('mouseout', onMouseOut)
-        tooltip.removeEventListener('mouseleave', hideTooltip)
-        tooltip.remove()
-        delete chartWithTooltip.categoryXAxisTooltip
-    }
-    chartWithTooltip.categoryXAxisTooltip = { element: tooltip, destroy }
-    Highcharts.addEvent(chart, 'destroy', destroy)
 }
 
 const formatVariablesForAxis = (formattedChartModel: IHighchartsChartModel, variables: IVariable[], axis: 'xAxis' | 'yAxis') => {

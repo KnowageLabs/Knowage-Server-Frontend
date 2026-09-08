@@ -10,7 +10,7 @@ const createModel = (categories: string[], labels: Record<string, any> = {}) =>
         tooltip: {}
     }) as any
 
-const getCategoryLabel = (element: Element) => element.getAttribute('data-highcharts-category-label')
+const getTitle = (element: SVGTextElement) => element.querySelector('title')?.textContent
 
 describe('categorical X-axis labels', () => {
     it('leaves short labels unchanged while applying one-line ellipsis settings', () => {
@@ -58,7 +58,7 @@ describe('categorical X-axis labels', () => {
         expect(model.xAxis[0].labels.style).toEqual({ color: '#123456', textOverflow: 'ellipsis' })
     })
 
-    it('keeps full text on the first and last category labels without duplicating it after resize', () => {
+    it('adds full-label tooltips to the first and last category labels without duplicating them after resize', () => {
         const firstLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text')
         const lastLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text')
         const drilldownLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text')
@@ -86,16 +86,15 @@ describe('categorical X-axis labels', () => {
         addCategoryXAxisLabelTooltips(chart)
         addCategoryXAxisLabelTooltips(chart)
 
-        expect(getCategoryLabel(firstLabel)).toBe('First category with a very long label')
-        expect(getCategoryLabel(lastLabel)).toBe('Last category with a very long label')
-        expect(firstLabel.querySelectorAll('[data-highcharts-category-label]')).toHaveLength(1)
-        expect(lastLabel.querySelectorAll('[data-highcharts-category-label]')).toHaveLength(1)
-        expect(getCategoryLabel(drilldownLabel)).toBe('Drilldown category with a very long label')
+        expect(getTitle(firstLabel)).toBe('First category with a very long label')
+        expect(getTitle(lastLabel)).toBe('Last category with a very long label')
+        expect(firstLabel.querySelectorAll('title')).toHaveLength(1)
+        expect(lastLabel.querySelectorAll('title')).toHaveLength(1)
+        expect(getTitle(drilldownLabel)).toBe('Drilldown category with a very long label')
     })
 
-    it('keeps the ellipsis configuration and shows every character in the HTML tooltip after Highcharts resizes', () => {
-        const firstCategory = `A category label long enough to require truncation ${'x'.repeat(1000)}`
-        const categories = [firstCategory, 'Another category label long enough to require truncation']
+    it('keeps the ellipsis configuration and full-label tooltip after Highcharts resizes', () => {
+        const categories = ['A category label long enough to require truncation', 'Another category label long enough to require truncation']
         const model = createModel(categories)
         const container = document.createElement('div')
         document.body.appendChild(container)
@@ -128,11 +127,7 @@ describe('categorical X-axis labels', () => {
         expect(chart.xAxis[0].options.labels.style.width).toBeUndefined()
         expect(chart.xAxis[0].options.labels.style.textOverflow).toBe('ellipsis')
         expect(chart.xAxis[0].options.labels.overflow).toBe('justify')
-        expect(getCategoryLabel(chart.xAxis[0].ticks[0].label.element)).toBe(firstCategory)
-
-        chart.xAxis[0].ticks[0].label.element.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }))
-
-        expect(document.querySelector('.highcharts-category-axis-label-tooltip')?.textContent).toBe(firstCategory)
+        expect(getTitle(chart.xAxis[0].ticks[0].label.element)).toBe(categories[0])
 
         chart.destroy()
         container.remove()
