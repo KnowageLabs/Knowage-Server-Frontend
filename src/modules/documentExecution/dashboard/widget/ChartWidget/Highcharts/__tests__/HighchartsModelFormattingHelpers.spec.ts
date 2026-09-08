@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import Highcharts from 'highcharts'
-import { addCategoryXAxisLabelTooltips, normalizeCategoryXAxisLabels } from '../HighchartsModelFormattingHelpers'
+import { KnowageHighcharts } from '../../classes/highcharts/KnowageHighcharts'
+import { addCategoryXAxisLabelTooltips, normalizeCategoryXAxisLabels, updateAxisLabelFormatters } from '../HighchartsModelFormattingHelpers'
 
 const createModel = (categories: string[], labels: Record<string, any> = {}) =>
     ({
@@ -11,6 +12,12 @@ const createModel = (categories: string[], labels: Record<string, any> = {}) =>
     }) as any
 
 const getTitle = (element: SVGTextElement) => element.querySelector('title')?.textContent
+const formatterText = 'function () { return "formatted " + this.value }'
+
+const updateFormatters = (model: any, variables: any[] = []) => {
+    const highchartsModel = new KnowageHighcharts()
+    return updateAxisLabelFormatters(model, highchartsModel.updateFormatterSettings.bind(highchartsModel), variables)
+}
 
 describe('categorical X-axis labels', () => {
     it('leaves short labels unchanged while applying one-line ellipsis settings', () => {
@@ -24,6 +31,76 @@ describe('categorical X-axis labels', () => {
             autoRotation: [],
             overflow: 'justify',
             style: { fontSize: '12px', fontWeight: 'bold', textOverflow: 'ellipsis' }
+        })
+    })
+
+    describe('axis formatters', () => {
+        it.each(['line', 'column', 'bar'])('compiles valid X-axis formatters for %s charts', (type) => {
+            const model = {
+                chart: { type },
+                xAxis: [{ labels: { formatterText } }],
+                yAxis: []
+            } as any
+
+            expect(updateFormatters(model)).toBe(false)
+            expect(model.xAxis[0].labels.formatter.call({ value: 'X' })).toBe('formatted X')
+        })
+
+        it('keeps the existing heatmap X-axis formatter behavior', () => {
+            const model = {
+                chart: { type: 'heatmap' },
+                xAxis: [{ labels: { formatterText } }],
+                yAxis: []
+            } as any
+
+            expect(updateFormatters(model)).toBe(false)
+            expect(model.xAxis[0].labels.formatter.call({ value: 'heatmap' })).toBe('formatted heatmap')
+        })
+
+        it('compiles Y-axis formatters on every configured X and Y axis', () => {
+            const model = {
+                chart: { type: 'line' },
+                xAxis: [{ labels: { formatterText } }, { labels: { formatterText } }],
+                yAxis: [{ labels: { formatterText } }, { labels: { formatterText } }]
+            } as any
+
+            expect(updateFormatters(model)).toBe(false)
+            expect([...model.xAxis, ...model.yAxis].every((axis) => typeof axis.labels.formatter === 'function')).toBe(true)
+        })
+
+        it('propagates invalid axis formatter errors without skipping other axes', () => {
+            const model = {
+                chart: { type: 'line' },
+                xAxis: [{ labels: { formatterText: 'function () {' } }],
+                yAxis: [{ labels: { formatterText } }]
+            } as any
+
+            expect(updateFormatters(model)).toBe(true)
+            expect(model.xAxis[0].labels.formatterError).toBeTruthy()
+            expect(model.yAxis[0].labels.formatter.call({ value: 'Y' })).toBe('formatted Y')
+        })
+
+        it('gives format precedence over a valid formatter while preserving its editor text', () => {
+            const model = {
+                chart: { type: 'line' },
+                xAxis: [{ labels: { format: 'Value: {value}', formatterText } }],
+                yAxis: []
+            } as any
+
+            expect(updateFormatters(model)).toBe(false)
+            expect(model.xAxis[0].labels.formatter).toBeUndefined()
+            expect(model.xAxis[0].labels.formatterText).toBe(formatterText)
+        })
+
+        it('preserves variable placeholder replacement in axis formatter text', () => {
+            const model = {
+                chart: { type: 'line' },
+                xAxis: [{ labels: { formatterText: 'function () { return "$V{axisPrefix}" + this.value }' } }],
+                yAxis: []
+            } as any
+
+            expect(updateFormatters(model, [{ name: 'axisPrefix', type: 'string', value: 'Prefix: ' }])).toBe(false)
+            expect(model.xAxis[0].labels.formatter.call({ value: 'X' })).toBe('Prefix: X')
         })
     })
 

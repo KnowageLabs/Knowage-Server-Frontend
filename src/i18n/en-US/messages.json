@@ -898,7 +898,7 @@
                     "valuesTableHint": "Measures only."
                 },
                 "advancedSettings": "Advanced Settings",
-                "advancedSettingsErrorArrayIndexOutOfBounds": "Error applying property {property}, array index out of bounds!",
+                "advancedSettingsErrorArrayIndexOutOfBounds": "Error applying property {property}: invalid path or array index out of bounds!",
                 "advancedSettingsHint": "Advanced Settings Hint Placeholder",
                 "annotations": "Annotations",
                 "areaRangeHigh": "Area Range High",

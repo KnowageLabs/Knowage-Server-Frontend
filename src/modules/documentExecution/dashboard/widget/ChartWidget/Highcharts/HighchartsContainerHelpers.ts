@@ -94,39 +94,62 @@ export const applyAdvancedSettingsToModelForRender = (modelToRender: any, advanc
 }
 
 const setPropertyValueToChartModel = (modelToRender: any, propertySettings: IHighchartsAdvancedPropertySettings, widget?: IWidget) => {
-    const properties = propertySettings.propertyPath.split(/\.|\[|\]/).filter(Boolean)
+    const properties = propertySettings.propertyPath.replace(/\[['"]?([^'"\]]+)['"]?\]/g, '.$1').split('.').map((property) => property.trim()).filter(Boolean)
     let currentModelToRender = modelToRender
 
     for (let i = 0; i < properties.length; i++) {
         const property = properties[i]
-        const currentValueIsObject = typeof currentModelToRender === 'object' && currentModelToRender !== null
+        const nextProperty = properties[i + 1]
 
-        if (Array.isArray(currentModelToRender) && /^\d+$/.test(property)) {
+        if (Array.isArray(currentModelToRender)) {
+            if (!/^\d+$/.test(property)) {
+                showInvalidAdvancedPropertyError(widget, propertySettings.propertyPath)
+                return
+            }
+
             const index = parseInt(property, 10)
             if (index >= currentModelToRender.length) {
-                showDashboardWidgetError(widget, t('dashboard.widgetEditor.highcharts.advancedSettingsErrorArrayIndexOutOfBounds', { property: properties }))
-                break
+                showInvalidAdvancedPropertyError(widget, propertySettings.propertyPath)
+                return
             }
+
+            if (i === properties.length - 1) {
+                currentModelToRender[index] = getFormattedPropertyValue(propertySettings.propertyValue)
+                return
+            }
+
+            currentModelToRender = currentModelToRender[index]
+            continue
         }
 
-        if (currentValueIsObject && property in currentModelToRender) {
-            if (i === properties.length - 1) {
-                currentModelToRender[property] = getFormattedPropertyValue(propertySettings.propertyValue)
-            } else {
-                if (currentModelToRender[property] === undefined || currentModelToRender[property] === null) {
-                    currentModelToRender[property] = /^\d+$/.test(properties[i + 1]) ? [] : {}
-                }
-                currentModelToRender = currentModelToRender[property]
+        if (typeof currentModelToRender !== 'object' || currentModelToRender === null) {
+            showInvalidAdvancedPropertyError(widget, propertySettings.propertyPath)
+            return
+        }
+
+        if (i === properties.length - 1) {
+            currentModelToRender[property] = getFormattedPropertyValue(propertySettings.propertyValue)
+            return
+        }
+
+        if (!(property in currentModelToRender)) {
+            showInvalidAdvancedPropertyError(widget, propertySettings.propertyPath)
+            return
+        }
+
+        currentModelToRender = currentModelToRender[property]
+        if ((property === 'xAxis' || property === 'yAxis') && Array.isArray(currentModelToRender) && !/^\d+$/.test(nextProperty)) {
+            if (!currentModelToRender.length) {
+                showInvalidAdvancedPropertyError(widget, propertySettings.propertyPath)
+                return
             }
-        } else {
-            if (i === properties.length - 1) {
-                currentModelToRender[property] = getFormattedPropertyValue(propertySettings.propertyValue)
-            } else {
-                currentModelToRender[property] = /^\d+$/.test(properties[i + 1]) ? [] : {}
-                currentModelToRender = currentModelToRender[property]
-            }
+            currentModelToRender = currentModelToRender[0]
         }
     }
+}
+
+const showInvalidAdvancedPropertyError = (widget: IWidget | undefined, propertyPath: string) => {
+    showDashboardWidgetError(widget, t('dashboard.widgetEditor.highcharts.advancedSettingsErrorArrayIndexOutOfBounds', { property: propertyPath }))
 }
 
 const getFormattedPropertyValue = (propertyValue: string) => {
