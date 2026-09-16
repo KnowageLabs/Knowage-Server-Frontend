@@ -356,6 +356,13 @@ export default defineComponent({
                 this.breadcrumbs = []
                 this.initialize()
             }
+        },
+        '$i18n.locale'() {
+            // Force complete menu rebuild by temporarily clearing it
+            this.toolbarMenuItems = []
+            this.$nextTick(() => {
+                this.createMenuItems()
+            })
         }
     },
     async activated() {
