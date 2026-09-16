@@ -430,7 +430,16 @@
                 "showGrid": "Mostra griglia in modifica"
             },
             "css": "Editor CSS",
+            "customHeader": "Header Personalizzato",
+            "executionDate": "Data di Esecuzione",
+            "executionTime": "Ora di Esecuzione",
+            "meaningful": "Significativo",
+            "meaningfulHint": "Se selezionato, la colonna sarà considerata significativa e sarà utilizzata dall'algoritmo AI. Evita colonne che possono produrre una grande quantità di dati inutilizzabili, come indirizzi, codici fiscali.",
             "menuWidgets": {
+                "enableCaching": "Abilita cache dashboard",
+                "enableChartChange": "Abilita cambio tipo grafico",
+                "enableCustomHeader": "Abilita header personalizzato",
+                "enableWidgetMenu": "Abilita menu widget",
                 "enableXlsxStyle": "Abilita stile XLSX",
                 "exportFileName": "Nome file export dashboard",
                 "exportFileNameHint": "Supporta placeholder come $P{driver} e $V{variabile}, ad esempio \"pippo $P{cane} $V{varia}\".",
@@ -443,16 +452,29 @@
             },
             "profile": "Profilo",
             "themes": {
+                "applyTheme": "Applica Tema",
                 "dashboardTheme": "Temi dashboard",
                 "dashboardThemeHint": "Componente in sviluppo, la preview dei temi sarà presto visibile qui",
                 "editTheme": "Modifica Tema",
-                "info": "Un tema è una collezione di stili che saranno applicati a tutti i widget. E' possibile selezionarne uno dalla lista o crearne uno nuovo nel Gestore Temi Dashboard"
+                "info": "Un tema è una collezione di stili che saranno applicati a tutti i widget. E' possibile selezionarne uno dalla lista o crearne uno nuovo nel Gestore Temi Dashboard",
+                "toAllWidgets": "a tutti i widget",
+                "toWidgetsWithThemes": "ai widget con temi",
+                "toWidgetsWithoutThemes": "ai widget senza temi"
+            },
+            "timeFormats": {
+                "dateTimeFull": "Data e Ora Completa",
+                "dateTimeMedium": "Data e Ora Media",
+                "mediumDate": "Data Media",
+                "shortDate": "Data Breve",
+                "simpleTime": "Ora Semplice",
+                "timeWithSeconds": "Ora con Secondi"
             },
             "title": "Configurazioni Generali",
             "variableColumnHint": "Se nessuna colonna viene selezionata verrà utilizzato l'intero dataset.",
             "variablesHint": "Le variabili possono essere usate ovunque nei widget della dashboard. Possono essere valori statici o dinamici e valorizzati in diversi modi. Controlla la documentazione o singoli widget per imparare come usarle."
         },
         "getDataError": "Unable to load data from dataset {datasetLabel}. Please check dataset & widget configuration.",
+        "lockAllWidgets": "Blocca tutti i widget",
         "qMenu": {
             "changeType": "Modifica Tipo Grafico",
             "clone": "Clona Widget",
@@ -460,14 +482,12 @@
             "edit": "Modifica Widget",
             "expand": "Espandi a tutti schermo",
             "lock": "Blocca posizione Widget",
-            "lockAllWidgets": "Blocca tutti i widget",
             "moveWidget": "Sposta Widget",
             "pdfExport": "Esporta in PDF",
             "quickWidget": "Aggiungi Quick Widget",
             "screenshot": "Cattura Immagine",
             "search": "Cerca nel Widget",
             "unlock": "Sblocca posizione Widget",
-            "unlockAllWidgets": "Sblocca tutti i widget",
             "xlsExport": "Esporta in Excel",
             "xor": "Visualizza un layer"
         },
@@ -490,6 +510,7 @@
         "tableWidget": {
             "launchSelection": "AVVIA SELEZIONE"
         },
+        "unlockAllWidgets": "Sblocca tutti i widget",
         "warning": {
             "downloading": "Il documento è stato richiesto in un formato di output specifico. Elaborazione in corso."
         },
