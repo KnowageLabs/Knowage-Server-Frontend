@@ -93,10 +93,12 @@ class AuthenticatedTileLayer extends L.TileLayer {
         tile.onerror = () => complete(new Error('Unable to load map tile'))
 
         const token = sessionStorage.getItem('token')
+        const csrfToken = localStorage.getItem('X-CSRF-TOKEN')
         const headers: Record<string, string> = {}
         if (token) headers[import.meta.env.VITE_DEFAULT_AUTH_HEADER] = `Bearer ${token}`
+        if (csrfToken) headers['X-CSRF-TOKEN'] = csrfToken
 
-        void fetch(this.getTileUrl(coords), { headers })
+        void fetch(this.getTileUrl(coords), { credentials: 'same-origin', headers })
             .then((response) => {
                 if (!response.ok) throw new Error(`Map tile request failed with status ${response.status}`)
                 return response.blob()
