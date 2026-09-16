@@ -61,6 +61,9 @@ describe('buildToolbox', () => {
                 supportsVariableArgs: false
             }
         })
+
+        const textCategory = toolbox.contents.find((category: any) => category.name === 'Text')
+        expect(textCategory.contents).toEqual([{ kind: 'block', type: 'text' }, { kind: 'block', type: 'text_single_quote' }])
     })
 
     it('keeps dashboard toolbox categories aligned with variable availability', () => {

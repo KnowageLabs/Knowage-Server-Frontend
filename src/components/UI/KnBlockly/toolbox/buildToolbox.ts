@@ -141,7 +141,7 @@ function createQbeToolbox(functionDefinitions: IBlocklyFunctionDefinition[], has
     })
 
     categories.push(
-        createCategory('Text', [{ kind: 'block', type: 'text' }]),
+        createCategory('Text', [{ kind: 'block', type: 'text' }, { kind: 'block', type: 'text_single_quote' }]),
         createCategory('Math', [{ kind: 'block', type: 'math_number' }, { kind: 'block', type: 'math_arithmetic' }]),
         createCategory('Logic', [{ kind: 'block', type: 'logic_compare' }, { kind: 'block', type: 'logic_operation' }, { kind: 'block', type: 'logic_negate' }, { kind: 'block', type: 'logic_boolean' }])
     )
