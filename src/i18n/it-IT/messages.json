@@ -171,14 +171,15 @@
     "information": "informazioni",
     "input": "input",
     "kpi": "KPI",
-    "label": "etichetta",
+    "label": "Etichetta",
+    "labels": "Etichette",
     "language": "linguaggio",
     "lastChangeDate": "data ultimo cambiamento",
     "later": "Più Tardi",
-    "left": "sinistra",
-    "library": "libreria",
-    "list": "List",
-    "load": "carica",
+    "left": "Sinistra",
+    "library": "Libreria",
+    "list": "Lista",
+    "load": "Carica",
     "locked": "bloccato",
     "loggedUser": "utente loggato",
     "login": "login",
@@ -547,6 +548,8 @@
     },
     "getDataError": "Unable to load data from dataset {datasetLabel}. Please check dataset & widget configuration.",
     "lockAllWidgets": "Blocca tutti i widgets",
+    "widgetTypeLabels": {
+    },
     "qMenu": {
       "changeType": "Modifica Tipo Grafico",
       "clone": "Clona Widget",
@@ -566,7 +569,7 @@
     "rWidgetError": "Error loading R widget.",
     "saveCockpit": "Save Cockpit",
     "saveCockpitHint": "Please enter a valid name",
-    "selectionsList": "Selections List",
+    "selectionsList": "Lista selezioni",
     "selectorWidget": {
     },
     "sheet": "Foglio",
@@ -1737,9 +1740,9 @@
     },
     "main": {
       "addToMyRepository": "Aggiungi al mio Repository",
-      "addToWorkspace": "aggiungi al mio workspace",
+      "addToWorkspace": "Aggiungi al mio spazio di lavoro",
       "addToWorkspaceError": "Il documento non può essere aggiunto nel workspace. Esiste già nella cartella padre dell'organizer.",
-      "addToWorkspaceHint": "Seleziona la cartella del workspace in cui vuoi aggiungere il documento",
+      "addToWorkspaceHint": "Seleziona la cartella del tuo spazio di lavoro in cui vuoi aggiungere il documento",
       "addToWorkspaceNoFolderError": "Non sono presenti cartelle nel tuo workspace. Aggiungine prima una per poter procedere",
       "cacheCleared": "Cache cancellata corretamente",
       "clearCache": "Cancellazione Cache",
@@ -2864,12 +2867,12 @@
       "title": "Functionalities management"
     },
     "functionsCatalog": {
-      "addColumn": "Add column",
+      "addColumn": "Aggiungi colonna",
       "addInputVariable": "Add input variable",
       "benchmarks": "Benchmarks",
-      "columnFieldType": "Column Field Type",
-      "columnName": "Column Name",
-      "columnType": "Column Type",
+      "columnFieldType": "Tipo campo della colonna",
+      "columnName": "Nome colonna",
+      "columnType": "Tipo colonna",
       "columnsSettings": "Columns settings",
       "configurator": "Configurator",
       "dataServiceErrorMessage": "Error during dataset execution",
@@ -3720,7 +3723,7 @@
           "column": "Column",
           "column1": "Column 1",
           "column2": "Column 2",
-          "columnName": "Column Name",
+          "columnName": "Nome colonna",
           "columns": "Columns",
           "condition": "Condition",
           "conditions": "Conditions",
@@ -3790,7 +3793,7 @@
           },
           "useNumberOfChars": "Use number of characters",
           "useSeparator": "Use separator",
-          "values": "Values"
+          "values": "Valori"
         }
       }
     }
@@ -4174,7 +4177,7 @@
       "monitoring": "Monitoring",
       "openData": "Import Open Data",
       "openDataPreparation": "Open Data Preparation",
-      "parametrical": "Parametrica",
+      "parametrical": "Parametrico",
       "parseError": "Impossible to parse file. Check its content and upload it again",
       "prepareData": "Prepare Data",
       "shareDataset": "Share/Unshare Dataset",
