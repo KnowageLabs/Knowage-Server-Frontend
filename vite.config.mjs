@@ -106,7 +106,7 @@ export default defineConfig((command, mode) => {
                             }
                         },
                         {
-                            urlPattern: /^.+\.(svg|png|jpg)/i,
+                            urlPattern: ({ url }) => !url.pathname.includes('/restful-services/') && /^.+\.(svg|png|jpg)/i.test(url.pathname),
                             handler: 'CacheFirst',
                             options: {
                                 cacheName: 'images',

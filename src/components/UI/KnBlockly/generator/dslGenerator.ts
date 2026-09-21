@@ -138,6 +138,10 @@ dslGenerator.forBlock['text'] = function (block) {
     return [quoteString(block.getFieldValue('TEXT') || ''), dslGenerator.ORDER_ATOMIC]
 }
 
+dslGenerator.forBlock['text_single_quote'] = function (block) {
+    return [quoteString(block.getFieldValue('TEXT') || ''), dslGenerator.ORDER_ATOMIC]
+}
+
 dslGenerator.forBlock['math_arithmetic'] = function (block) {
     const op = block.getFieldValue('OP')
 

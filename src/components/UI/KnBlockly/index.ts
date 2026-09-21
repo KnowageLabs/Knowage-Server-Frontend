@@ -7,6 +7,7 @@ import './blocks/functions'
 import './blocks/functionCall'
 import './blocks/caseWhen'
 import './blocks/variable'
+import './blocks/singleQuotedText'
 import './generator/dslGenerator'
 
 let builtinsPatched = false

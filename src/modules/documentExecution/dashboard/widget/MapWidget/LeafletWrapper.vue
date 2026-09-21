@@ -76,6 +76,43 @@ L.Marker.include({
 })
 //#endregion
 
+class AuthenticatedTileLayer extends L.TileLayer {
+    createTile(coords: L.Coords, done?: (error?: Error, tile?: HTMLElement) => void): HTMLElement {
+        const tile = document.createElement('img')
+        let objectUrl: string | null = null
+
+        const complete = (error?: Error) => {
+            if (objectUrl) {
+                URL.revokeObjectURL(objectUrl)
+                objectUrl = null
+            }
+            done?.(error, tile)
+        }
+
+        tile.onload = () => complete()
+        tile.onerror = () => complete(new Error('Unable to load map tile'))
+
+        const token = sessionStorage.getItem('token')
+        const csrfToken = localStorage.getItem('X-CSRF-TOKEN')
+        const headers: Record<string, string> = {}
+        if (token) headers[import.meta.env.VITE_DEFAULT_AUTH_HEADER] = `Bearer ${token}`
+        if (csrfToken) headers['X-CSRF-TOKEN'] = csrfToken
+
+        void fetch(this.getTileUrl(coords), { credentials: 'same-origin', headers })
+            .then((response) => {
+                if (!response.ok) throw new Error(`Map tile request failed with status ${response.status}`)
+                return response.blob()
+            })
+            .then((blob) => {
+                objectUrl = URL.createObjectURL(blob)
+                tile.src = objectUrl
+            })
+            .catch((error: unknown) => complete(error instanceof Error ? error : new Error('Unable to load map tile')))
+
+        return tile
+    }
+}
+
 const store = dashboardStore()
 
 const props = defineProps<{
@@ -376,7 +413,9 @@ const updateBaseLayer = () => {
     const baseLayerDefinition = getMapBaseLayerDefinition(props.widgetModel.settings.configuration.map.baseLayer)
 
     if (tile) map.removeLayer(tile)
-    tile = L.tileLayer(baseLayerDefinition.url, baseLayerDefinition.options).addTo(map)
+    tile = baseLayerDefinition.requiresAuthentication
+        ? new AuthenticatedTileLayer(baseLayerDefinition.url, baseLayerDefinition.options).addTo(map)
+        : L.tileLayer(baseLayerDefinition.url, baseLayerDefinition.options).addTo(map)
 }
 
 onMounted(async () => {
