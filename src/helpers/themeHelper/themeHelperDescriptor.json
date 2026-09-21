@@ -278,6 +278,11 @@
                 "type": "color"
             },
             {
+                "key": "--kn-mainmenu-avatar-border-color",
+                "label": "Profile Border Color",
+                "type": "color"
+            },
+            {
                 "key": "--kn-mainmenu-avatar-border-radius",
                 "label": "Profile Border Radius",
                 "type": "text"
