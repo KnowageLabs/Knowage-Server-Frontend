@@ -11,7 +11,8 @@ vi.mock('@/modules/documentExecution/dashboard/helpers/DashboardToastHelper', ()
 
 const createModel = () => ({
     xAxis: [{ labels: { style: {} } }, { labels: { style: {} } }],
-    yAxis: [{ labels: { style: {} } }, { labels: { style: {} } }]
+    yAxis: [{ labels: { style: {} } }, { labels: { style: {} } }],
+    legend: {}
 })
 
 describe('applyAdvancedSettingsToModelForRender', () => {
@@ -57,6 +58,19 @@ describe('applyAdvancedSettingsToModelForRender', () => {
 
         expect(model.yAxis[0].labels.style.textOverflow).toBe('ellipsis')
         expect((model.yAxis as any).labels).toBeUndefined()
+    })
+
+    it('initializes optional Highcharts settings from their default options', () => {
+        const model = createModel()
+
+        applyAdvancedSettingsToModelForRender(model, [
+            { propertyPath: 'legend.title.text', propertyValue: 'Ordering' },
+            { propertyPath: 'legend.title.style.fontSize', propertyValue: '14px' }
+        ])
+
+        expect((model.legend as any).title.text).toBe('Ordering')
+        expect((model.legend as any).title.style.fontSize).toBe('14px')
+        expect(showDashboardWidgetError).not.toHaveBeenCalled()
     })
 
     it('reports invalid and out-of-bounds paths without creating ineffective properties', () => {

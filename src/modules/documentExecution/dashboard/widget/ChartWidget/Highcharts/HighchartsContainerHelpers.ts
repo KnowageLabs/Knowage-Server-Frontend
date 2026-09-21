@@ -5,6 +5,8 @@ import store from '@/App.store.js'
 import { replaceDriversPlaceholdersByDriverUrlName, replaceVariablesPlaceholdersByVariableName } from '../../interactionsHelpers/InteractionsParserHelper'
 import { IHighchartsAdvancedPropertySettings } from '../../../interfaces/highcharts/DashboardHighchartsWidget'
 import { showDashboardWidgetError } from '../../../helpers/DashboardToastHelper'
+import Highcharts from 'highcharts'
+import deepcopy from 'deepcopy'
 
 const { t } = i18n.global
 const mainStore = store()
@@ -133,8 +135,13 @@ const setPropertyValueToChartModel = (modelToRender: any, propertySettings: IHig
         }
 
         if (!(property in currentModelToRender)) {
-            showInvalidAdvancedPropertyError(widget, propertySettings.propertyPath)
-            return
+            const defaultOptionValue = getDefaultOptionValue(properties.slice(0, i + 1))
+            if (defaultOptionValue && typeof defaultOptionValue === 'object' && !Array.isArray(defaultOptionValue)) {
+                currentModelToRender[property] = deepcopy(defaultOptionValue)
+            } else {
+                showInvalidAdvancedPropertyError(widget, propertySettings.propertyPath)
+                return
+            }
         }
 
         currentModelToRender = currentModelToRender[property]
@@ -146,6 +153,23 @@ const setPropertyValueToChartModel = (modelToRender: any, propertySettings: IHig
             currentModelToRender = currentModelToRender[0]
         }
     }
+}
+
+const getDefaultOptionValue = (properties: string[]) => {
+    let defaultOptionValue: any = Highcharts.getOptions()
+
+    for (const property of properties) {
+        if (Array.isArray(defaultOptionValue)) {
+            if (!/^\d+$/.test(property) || Number(property) >= defaultOptionValue.length) return undefined
+            defaultOptionValue = defaultOptionValue[Number(property)]
+        } else if (typeof defaultOptionValue === 'object' && defaultOptionValue !== null && property in defaultOptionValue) {
+            defaultOptionValue = defaultOptionValue[property]
+        } else {
+            return undefined
+        }
+    }
+
+    return defaultOptionValue
 }
 
 const showInvalidAdvancedPropertyError = (widget: IWidget | undefined, propertyPath: string) => {
