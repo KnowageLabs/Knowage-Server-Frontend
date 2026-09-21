@@ -38,7 +38,7 @@
             </div>
             <Divider class="p-my-0" />
             <div class="theme-settings-search p-px-3 p-pt-3">
-                <q-input v-model="settingsSearch" class="kn-width-full" dense outlined square clearable hide-bottom-space type="search" :placeholder="$t('common.search')">
+                <q-input v-model="settingsSearch" class="kn-width-full" dense outlined square clearable hide-bottom-space type="search" :placeholder="$t('common.search')" @clear="clearSettingsSearch">
                     <template #prepend>
                         <q-icon name="search" />
                     </template>
@@ -271,6 +271,9 @@ export default defineComponent({
         },
         toggleSettingsSection(key: string) {
             this.expandedSettings[key] = !this.isSettingsSectionExpanded(key)
+        },
+        clearSettingsSearch() {
+            this.settingsSearch = ''
         },
         getColorPickerIconColor(color?: string): string {
             const normalizedColor = color?.trim() || ''
