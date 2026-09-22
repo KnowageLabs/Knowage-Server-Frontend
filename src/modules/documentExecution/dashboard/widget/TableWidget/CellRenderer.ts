@@ -40,7 +40,11 @@ export default class CellRenderer {
                 const interactionButton = document.createElement('icon')
                 interactionButton.setAttribute('class', `${interaction.icon} p-mr-1`)
                 interactionButton.setAttribute('style', 'cursor: pointer;')
-                interactionButton.addEventListener('click', () => invokeParentMethod(interaction, params, index))
+                interactionButton.addEventListener('click', (event) => {
+                    // Stop the icon column's generic cell click handler from also firing for this same click.
+                    event.stopPropagation()
+                    invokeParentMethod(interaction, params, index)
+                })
                 return interactionButton
             }
         }

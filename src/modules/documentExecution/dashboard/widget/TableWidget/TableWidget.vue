@@ -586,6 +586,12 @@ export default defineComponent({
             if (colVisType) return colVisType
             else return visTypes.types[0]
         },
+        columnHasIconVisualization(colId): boolean {
+            const visTypes = this.widgetModel.settings.visualization.visualizationTypes as ITableWidgetVisualizationTypes
+            if (!visTypes.enabled) return false
+            const type = this.getColumnVisualizationType(colId)?.type?.toLowerCase()
+            return type === 'icon' || type === 'text & icon'
+        },
         getColumnWidth(colId) {
             const colStyles = this.widgetModel.settings.style.columns as ITableWidgetColumnStyles
 
@@ -605,7 +611,10 @@ export default defineComponent({
             }
         },
         onCellClicked(node: any) {
-            if (this.editorMode || node.colDef.colId === 'iconColumn' || node.colDef.pinned || node.value === '' || node.value == undefined) return
+            // Being pinned is a layout choice only; indexColumn is the only column with no real interaction data.
+            if (this.editorMode || node.colDef.colId === 'indexColumn') return
+            // An icon-only cell can have an empty underlying value on purpose, so it must not be blocked here.
+            if ((node.value === '' || node.value == undefined) && !this.columnHasIconVisualization(node.colDef.colId)) return
 
             this.executeInteractions(node)
             if (node.colDef.measure == 'MEASURE') return
