@@ -88,6 +88,12 @@ describe('createWidgetExportBody', () => {
         expect(body.xlsxStyleEnabled).toBe(true)
     })
 
+    it.each(['spreadsheet', 'pdf'])('exports all drilldown levels for %s highcharts widgets with drilldown enabled', (type) => {
+        const body = createWidgetExportBody(type, createWidget({ type: 'highcharts', settings: { interactions: { drilldown: { enabled: true } } } }), createDashboard(), 'bi-user', 'eng')
+
+        expect(body.exportAllDrilldownLevels).toBe(true)
+    })
+
     it('adds likeSelections when the widget export includes an active search', () => {
         const body = createWidgetExportBody('pdf', createWidget(), createDashboard(), 'bi-user', 'en-US', { searchText: 'it', searchColumns: ['COUNTRY', 'REGION'] })
 

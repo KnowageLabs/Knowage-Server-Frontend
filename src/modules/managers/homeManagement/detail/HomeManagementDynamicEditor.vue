@@ -160,7 +160,6 @@
             v-if="pickerVisible"
             :visible="pickerVisible"
             :selected-ids="activePlaceholderIndex !== null ? (getDynamicHomePlaceholderConfig(menuPlaceholders, activePlaceholderIndex)?.menuIds ?? []) : []"
-            :role-id="props.currentRoleId"
             @update:visible="pickerVisible = $event"
             @confirm="onPickerConfirm"
         />
