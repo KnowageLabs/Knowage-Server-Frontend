@@ -54,54 +54,33 @@ import { addCategoryXAxisLabelTooltips, formatActivityGauge, formatBubble, forma
 import { applyAdvancedSettingsToModelForRender, formatChartAnnotations, formatForCrossNavigation, getFormattedChartValues } from './HighchartsContainerHelpers'
 import { showDashboardWidgetError } from '@/modules/documentExecution/dashboard/helpers/DashboardToastHelper'
 import HighchartsSonificationControls from './HighchartsSonificationControls.vue'
-import Highcharts from 'highcharts'
-import Highcharts3D from 'highcharts/highcharts-3d'
-import HighchartsMore from 'highcharts/highcharts-more'
-import HighchartsSolidGauge from 'highcharts/modules/solid-gauge'
-import Accessibility from 'highcharts/modules/accessibility'
-import NoDataToDisplay from 'highcharts/modules/no-data-to-display'
-import SeriesLabel from 'highcharts/modules/series-label'
-import HighchartsHeatmap from 'highcharts/modules/heatmap'
-import Drilldown from 'highcharts/modules/drilldown'
+import Highcharts from 'highcharts/esm/highcharts.js'
+import 'highcharts/esm/highcharts-3d.js'
+import 'highcharts/esm/highcharts-more.js'
+import 'highcharts/esm/modules/solid-gauge.js'
+import 'highcharts/esm/modules/accessibility.js'
+import 'highcharts/esm/modules/no-data-to-display.js'
+import 'highcharts/esm/modules/series-label.js'
+import 'highcharts/esm/modules/heatmap.js'
+import 'highcharts/esm/modules/drilldown.js'
 import store from '../../../Dashboard.store'
 import deepcopy from 'deepcopy'
 import mainStore from '@/App.store'
-import HighchartsTreemap from 'highcharts/modules/treemap'
-import HighchartsSunburst from 'highcharts/modules/sunburst'
-import HighchartsSankey from 'highcharts/modules/sankey'
-import HighchartsDependencyWheel from 'highcharts/modules/dependency-wheel'
-import HighchartsParallelCoordinates from 'highcharts/modules/parallel-coordinates'
-import Sonification from 'highcharts/modules/sonification'
-import HighchartsPictorial from 'highcharts/modules/pictorial'
-import HighchartsFunnel from 'highcharts/modules/funnel'
-import HighchartsDumbbell from 'highcharts/modules/dumbbell'
-import HighchartsStreamgraph from 'highcharts/modules/streamgraph'
-import HighchartsWordcloud from 'highcharts/modules/wordcloud'
-import HighchartsAnnotations from 'highcharts/modules/annotations'
+import 'highcharts/esm/modules/treemap.js'
+import 'highcharts/esm/modules/sunburst.js'
+import 'highcharts/esm/modules/sankey.js'
+import 'highcharts/esm/modules/dependency-wheel.js'
+import 'highcharts/esm/modules/parallel-coordinates.js'
+import 'highcharts/esm/modules/sonification.js'
+import 'highcharts/esm/modules/pictorial.js'
+import 'highcharts/esm/modules/funnel.js'
+import 'highcharts/esm/modules/dumbbell.js'
+import 'highcharts/esm/modules/streamgraph.js'
+import 'highcharts/esm/modules/wordcloud.js'
+import 'highcharts/esm/modules/annotations.js'
 import { getWidgetData } from '../../../DashboardDataProxy'
 import { getColumnAlias } from '../classes/highcharts/helpers/dataLabels/HighchartsDataLabelsHelpers'
 import { getDrilldownDataLabelColor } from './HighchartsDrilldownHelpers'
-
-HighchartsMore(Highcharts)
-HighchartsSolidGauge(Highcharts)
-HighchartsHeatmap(Highcharts)
-HighchartsTreemap(Highcharts)
-HighchartsSunburst(Highcharts)
-HighchartsSankey(Highcharts)
-HighchartsDependencyWheel(Highcharts)
-HighchartsParallelCoordinates(Highcharts)
-Accessibility(Highcharts)
-Sonification(Highcharts)
-NoDataToDisplay(Highcharts)
-SeriesLabel(Highcharts)
-Highcharts3D(Highcharts)
-Drilldown(Highcharts)
-HighchartsPictorial(Highcharts)
-HighchartsFunnel(Highcharts)
-HighchartsDumbbell(Highcharts)
-HighchartsStreamgraph(Highcharts)
-HighchartsAnnotations(Highcharts)
-HighchartsWordcloud(Highcharts)
 
 export default defineComponent({
     name: 'highcharts-container',
@@ -240,18 +219,14 @@ export default defineComponent({
             this.highchartsInstance.addEvent = originalAddEvent
             this.originalReflow = this.highchartsInstance.reflow
             this.highchartsInstance.reflow = function () {}
-            window.addEventListener('mouseup', () => {
-                this.highchartsInstance?.reflow()
-                this.scheduleDrilldownPresentationNormalization()
-            })
-            const handleMouseUp = () => {
+            this.handleMouseUp = () => {
                 if (this.highchartsInstance && this.originalReflow) {
                     this.originalReflow.call(this.highchartsInstance)
                 }
                 this.scheduleDrilldownPresentationNormalization()
             }
 
-            window.addEventListener('mouseup', handleMouseUp)
+            window.addEventListener('mouseup', this.handleMouseUp)
         },
         updateChartModel() {
             if (!this.chartModel) return
@@ -351,11 +326,7 @@ export default defineComponent({
 
                 this.highchartsInstance = Highcharts.chart(this.chartID, modelToRender as any)
                 this.addAditionalCSSClasses(modelToRender)
-
-                // Safely call reflow
-                if (this.highchartsInstance && typeof this.highchartsInstance.reflow === 'function') {
-                    this.highchartsInstance.reflow()
-                }
+                this.resizeChart()
                 this.normalizeDrilldownPresentation()
             } catch (error: any) {
                 showDashboardWidgetError(this.widgetModel, error ? error.message : '')
@@ -384,6 +355,20 @@ export default defineComponent({
         normalizeDrilldownPresentation() {
             this.normalizeDrilldownDataLabels()
             this.normalizeDrilldownAxisLabels()
+        },
+        normalizeTreemapDataLabels(chart: any) {
+            if (chart?.options?.chart?.type !== 'treemap' || !chart.renderer?.getContrast) return
+            const getContrast = chart.renderer.getContrast.bind(chart.renderer)
+
+            chart.series.forEach((serie: any) => {
+                serie.points?.forEach((point: any) => {
+                    const color = point.graphic?.attr?.('fill') ?? point.color ?? point.node?.color ?? point.series?.color
+                    if (typeof color !== 'string' || !color) return
+
+                    const labels = [point.dataLabel, ...(point.dataLabels ?? [])].filter((label, index, all) => label && all.indexOf(label) === index)
+                    labels.forEach((label: any) => label.css({ color: getContrast(color), textOutline: 'none' }))
+                })
+            })
         },
         scheduleDrilldownPresentationNormalization() {
             setTimeout(() => this.normalizeDrilldownPresentation(), 0)
@@ -527,15 +512,37 @@ export default defineComponent({
             return hasError
         },
         setSeriesEvents() {
+            const normalizeTreemapDataLabels = this.normalizeTreemapDataLabels
+            const pointEvents = { ...(this.chartModel.plotOptions.series.point?.events ?? {}) }
+            delete pointEvents.mouseOver
+            delete pointEvents.mouseOut
+            const updateTreemapDataLabels = function (point: any) {
+                requestAnimationFrame(() => normalizeTreemapDataLabels(point.series.chart))
+            }
             this.chartModel.chart.events = {
                 drillup: this.onDrillUp,
                 click: this.executeInteractions,
-                checkboxClick: this.onCheckboxClicked
+                checkboxClick: this.onCheckboxClicked,
+                render: function () {
+                    normalizeTreemapDataLabels(this)
+                }
             }
             if (this.chartModel.plotOptions.series) {
                 this.chartModel.plotOptions.series.events = {
                     click: this.executeInteractions,
                     checkboxClick: this.onCheckboxClicked
+                }
+                this.chartModel.plotOptions.series.point = {
+                    ...this.chartModel.plotOptions.series.point,
+                    events: {
+                        ...pointEvents,
+                        mouseOver: function () {
+                            updateTreemapDataLabels(this)
+                        },
+                        mouseOut: function () {
+                            updateTreemapDataLabels(this)
+                        }
+                    }
                 }
                 if (this.chartModel.chart.type === 'sunburst') this.chartModel.plotOptions.series.events.legendItemClick = this.onSunburstLegendItemClick
             }
@@ -701,7 +708,8 @@ export default defineComponent({
         resizeChart() {
             if (!this.highchartsInstance || !this.highchartsInstance.series) return
 
-            this.highchartsInstance.series.forEach((serie: any) => {
+            const chart = this.highchartsInstance
+            chart.series.forEach((serie: any) => {
                 if (!serie || !serie.data) return
                 serie.data.forEach((d: any) => {
                     if (d && d.dataLabelUpper && typeof d.dataLabelUpper.destroy === 'function') {
@@ -710,10 +718,17 @@ export default defineComponent({
                 })
             })
 
-            if (typeof this.highchartsInstance.reflow === 'function') {
-                this.highchartsInstance.reflow()
-            }
-            this.scheduleDrilldownPresentationNormalization()
+            this.$nextTick(() => {
+                requestAnimationFrame(() => {
+                    if (chart !== this.highchartsInstance) return
+                    const container = chart.renderTo?.parentElement
+                    const { width, height } = container?.getBoundingClientRect() ?? { width: 0, height: 0 }
+                    if (width > 0 && height > 0 && typeof chart.setSize === 'function') {
+                        chart.setSize(Math.round(width), Math.round(height), false)
+                    }
+                    this.scheduleDrilldownPresentationNormalization()
+                })
+            })
         },
         getModelForRender() {
             const formattedChartModel = deepcopy(this.chartModel)
@@ -1184,6 +1199,8 @@ export default defineComponent({
     position: relative;
     width: 100%;
     height: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
 }
 
 .chart-interaction-menu-anchor {

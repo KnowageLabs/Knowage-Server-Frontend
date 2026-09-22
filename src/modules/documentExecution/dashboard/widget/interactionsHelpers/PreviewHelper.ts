@@ -3,7 +3,6 @@ import { IDashboardDriver, IWidgetInteractionParameter } from '../../Dashboard'
 import { IChartInteractionValues } from '../../interfaces/chartJS/DashboardChartJSWidget'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import { getActiveSelectionByDatasetAndColumn } from './InteractionHelper'
-import { map } from 'highcharts'
 
 export const formatParameterForPreview = (event: any, parameter: any, widgetType: string, dashboardId: string) => {
     parameter.value = parameter.defaultValue ?? ''

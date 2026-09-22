@@ -5,7 +5,7 @@ import store from '@/App.store.js'
 import { replaceDriversPlaceholdersByDriverUrlName, replaceVariablesPlaceholdersByVariableName } from '../../interactionsHelpers/InteractionsParserHelper'
 import { IHighchartsAdvancedPropertySettings } from '../../../interfaces/highcharts/DashboardHighchartsWidget'
 import { showDashboardWidgetError } from '../../../helpers/DashboardToastHelper'
-import Highcharts from 'highcharts'
+import Highcharts from 'highcharts/esm/highcharts.js'
 import deepcopy from 'deepcopy'
 
 const { t } = i18n.global

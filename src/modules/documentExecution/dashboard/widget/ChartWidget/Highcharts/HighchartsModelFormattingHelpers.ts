@@ -3,7 +3,7 @@ import { hexToRgba } from '../../../helpers/FormattingHelpers'
 import { IHighchartsChartModel } from '../../../interfaces/highcharts/DashboardHighchartsWidget'
 import { replaceVariablesPlaceholdersByVariableName } from '../../interactionsHelpers/InteractionsParserHelper'
 import { getRGBColorFromString } from '../../WidgetEditor/helpers/WidgetEditorHelpers'
-import Highcharts from 'highcharts'
+import Highcharts from 'highcharts/esm/highcharts.js'
 
 export const formatActivityGauge = (formattedChartModel: IHighchartsChartModel, widgetModel: IWidget) => {
     formattedChartModel.chart.type = 'solidgauge'

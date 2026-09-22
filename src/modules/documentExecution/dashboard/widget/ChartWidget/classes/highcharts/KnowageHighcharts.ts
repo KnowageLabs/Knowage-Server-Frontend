@@ -2,7 +2,7 @@ import { IVariable, IWidget, IWidgetColumn } from '@/modules/documentExecution/d
 import { IHighchartsChartModel, IHighchartsChartSerie, IHighchartsSerieAccessibility, IHighchartsSerieLabelSettings, ISerieAccessibilitySetting } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import { createSerie, createGaugeSerie, createPolarSerie } from './updater/KnowageHighchartsCommonUpdater'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
-import Highcharts from 'highcharts'
+import Highcharts from 'highcharts/esm/highcharts.js'
 import chartColorSettingsDescriptor from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/ChartWidget/common/ChartColorSettingsDescriptor.json'
 import { replaceVariablesPlaceholdersByVariableName } from '../../../interactionsHelpers/InteractionsParserHelper'
 

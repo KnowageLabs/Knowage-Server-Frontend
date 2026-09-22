@@ -69,6 +69,11 @@ const updateSeriesDataWithSerieSettings = (model: any, serie: any, seriesSetting
                     return KnowageHighcharts.prototype.handleFormatter(this, seriesSettings.label, model.chart.type)
                 }
             }
+            if (model?.chart?.type === 'treemap') {
+                data.dataLabels.format = '{point.name}'
+                data.dataLabels.style.color = 'contrast'
+                data.dataLabels.style.textOutline = 'none'
+            }
         }
     })
 }
@@ -103,6 +108,11 @@ export const updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable = (model: a
             }
             if (model?.chart?.type === 'treemap' || model?.chart?.type === 'streamgraph') {
                 delete data.dataLabels.alignTo
+            }
+            if (model?.chart?.type === 'treemap') {
+                data.dataLabels.format = '{point.name}'
+                data.dataLabels.style.color = 'contrast'
+                data.dataLabels.style.textOutline = 'none'
             }
         })
     })

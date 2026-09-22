@@ -77,26 +77,28 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
             showInLegend: false,
             animationLimit: 1000,
             dataLabels: {
-                enabled: false
+                enabled: false,
+                format: '{point.name}',
+                style: {
+                    color: 'contrast',
+                    textOutline: 'none'
+                }
             },
             levels: [
                 {
                     level: 1,
                     dataLabels: {
                         enabled: true,
-                        textOutline: 'none'
-                    },
-                    borderWidth: 3,
-                    levelIsConstant: false
-                },
-                {
-                    level: 1,
-                    dataLabels: {
+                        headers: true,
+                        format: '{point.name}',
                         style: {
+                            color: 'contrast',
                             fontSize: '',
                             textOutline: 'none'
                         }
-                    }
+                    },
+                    borderWidth: 3,
+                    levelIsConstant: false
                 },
                 {
                     level: 2,

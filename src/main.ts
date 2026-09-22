@@ -87,4 +87,6 @@ app.use(VueAxios, interceptor)
     .component('GridLayout', GridLayout)
     .component('GridItem', GridItem)
 
+app.config.globalProperties.$t = i18n.global.t.bind(i18n.global)
+
 app.mount('#app')

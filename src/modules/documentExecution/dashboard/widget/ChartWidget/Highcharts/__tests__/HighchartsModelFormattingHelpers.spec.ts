@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import Highcharts from 'highcharts'
+import Highcharts from 'highcharts/esm/highcharts.js'
 import { KnowageHighcharts } from '../../classes/highcharts/KnowageHighcharts'
 import { addCategoryXAxisLabelTooltips, normalizeCategoryXAxisLabels, updateAxisLabelFormatters } from '../HighchartsModelFormattingHelpers'
 
