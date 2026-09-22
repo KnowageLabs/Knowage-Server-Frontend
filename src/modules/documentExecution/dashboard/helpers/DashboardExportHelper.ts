@@ -19,6 +19,7 @@ type IWidgetExportBody = IWidget & {
     datasetDrivers?: IDashboardDatasetDriver[]
     likeSelections?: Record<string, Record<string, string>>
     xlsxStyleEnabled?: boolean
+    exportAllDrilldownLevels?: boolean
 }
 
 const defaultDashboardExportLocale = 'en-US'
@@ -127,6 +128,7 @@ export const createWidgetExportBody = (type: string, widget: IWidget, dashboard:
 
     if (dataset?.drivers) body.datasetDrivers = dataset.drivers
     if (type === 'spreadsheet') body.xlsxStyleEnabled = getDashboardXlsxStyleEnabled(dashboard)
+    if ((type === 'spreadsheet' || type === 'pdf') && widget.type === 'highcharts' && widget.settings.interactions?.drilldown?.enabled) body.exportAllDrilldownLevels = true
     const likeSelections =
         widget.type === 'table'
             ? getTableWidgetLikeSelections(
