@@ -45,6 +45,14 @@ export default defineComponent({
         },
         variables() {
             this.loadDataToShow()
+        },
+        // Without this, content saved in the widget editor stays stale until something else happens to
+        // change widgetData/variables too, e.g. a full dashboard reload.
+        propWidget: {
+            handler() {
+                this.loadHTML()
+            },
+            deep: true
         }
     },
     mounted() {
