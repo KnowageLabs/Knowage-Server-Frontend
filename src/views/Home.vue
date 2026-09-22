@@ -36,6 +36,7 @@ interface IEndUserMenuItem {
     descr?: string | null
     url?: string | null
     to?: string | null
+    target?: string | null
     items?: IEndUserMenuItem[]
 }
 
@@ -123,6 +124,12 @@ export default defineComponent({
             }
 
             if (navigationType === 'url') {
+                const target = element.getAttribute('target')
+                if (target) {
+                    window.open(navigationTarget, target, 'noopener')
+                    return
+                }
+
                 router.push({ name: 'externalUrl', query: { url: navigationTarget } })
             }
         },
@@ -205,6 +212,7 @@ export default defineComponent({
                     descr: menuItem.descr ?? (label || null),
                     url: menuItem.url ?? null,
                     to: menuItem.to ?? null,
+                    target: menuItem.target ?? null,
                     linkType: null,
                     children: this.buildDynamicHomeMenuNodes(menuItem.items ?? [], lookup, nextPath)
                 }

@@ -37,6 +37,7 @@ export interface IMenuNode {
     descr: string | null
     url: string | null
     to: string | null
+    target?: string | null
     linkType: string | null
     lstChildren?: IMenuNode[]
     children?: IMenuNode[]
