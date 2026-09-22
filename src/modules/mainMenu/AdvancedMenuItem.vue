@@ -7,6 +7,7 @@
         :to="routerLink"
         :href="hrefLink"
         :target="hrefTarget"
+        :rel="hrefTarget === '_blank' ? 'noopener' : undefined"
         :class="{ 'router-link-active': isActive(props.item) }"
         :data-tour-id="tourId"
         @click="onClick($event, props.item)"
@@ -39,6 +40,7 @@ import AdvancedMenuSubItem from './AdvancedMenuSubItem.vue'
 import useMainStore from '@/App.store'
 import { computed } from 'vue'
 import { getInternationalizedValue, cleanUrl } from './AdvancedMainMenuHelper'
+import { normalizeExternalUrl } from '@/helpers/commons/menuHelper'
 
 const props = defineProps<{
     item: any
@@ -53,10 +55,11 @@ const store = useMainStore()
 const publicPath = import.meta.env.VITE_PUBLIC_PATH
 
 const link = computed(() => cleanUrl(props.item))
-const shouldOpenInsideKnowage = computed(() => !!props.item.url && (!props.item.target || props.item.target === 'insideKnowage'))
+const externalTarget = computed(() => props.item.target ?? props.item.hrefTarget)
+const shouldOpenInsideKnowage = computed(() => !!props.item.url && externalTarget.value === 'insideKnowage')
 const routerLink = computed(() => (props.item.to ? link.value : undefined))
-const hrefLink = computed(() => (props.item.url && !shouldOpenInsideKnowage.value ? link.value : undefined))
-const hrefTarget = computed(() => (hrefLink.value ? props.item.target : undefined))
+const hrefLink = computed(() => (props.item.url && !shouldOpenInsideKnowage.value ? normalizeExternalUrl(props.item.url) : undefined))
+const hrefTarget = computed(() => (hrefLink.value ? externalTarget.value || '_blank' : undefined))
 
 function isActive(item): boolean {
     return route.path === item.to

@@ -2,6 +2,8 @@ export interface IMenuItem {
     label: string
     url?: string
     to?: string
+    target?: string
+    hrefTarget?: string
     iconCls?: string
     items?: Array<MenuItem> | Array<Array<MenuItem>>
     conditionedView?: string

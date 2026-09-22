@@ -37,6 +37,7 @@ const menuNodes: IMenuNode[] = [
         descr: null,
         url: 'https://example.com',
         to: null,
+        target: '_blank',
         linkType: null
     }
 ]
@@ -91,7 +92,8 @@ describe('getDynamicHomeNodeNavigation', () => {
         expect(getDynamicHomeNodeNavigation(menuNodes[1], '/knowage-vue')).toEqual({
             type: 'url',
             value: 'https://example.com',
-            href: 'https://example.com'
+            href: 'https://example.com',
+            target: '_blank'
         })
         expect(getDynamicHomeNodeNavigation({ ...menuNodes[1], url: null }, '/knowage-vue')).toBeNull()
     })
@@ -233,6 +235,7 @@ describe('renderDynamicHomeSrcdoc', () => {
         expect(links).toHaveLength(2)
         expect(links[0].textContent).toBe('External')
         expect(links[0].getAttribute('href')).toBe('https://example.com')
+        expect(links[0].getAttribute('target')).toBe('_blank')
         expect(links[1].textContent).toBe('Dashboard')
     })
 

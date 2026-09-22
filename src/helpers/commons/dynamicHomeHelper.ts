@@ -28,6 +28,7 @@ export interface IDynamicHomeNodeNavigation {
     type: 'to' | 'url'
     value: string
     href: string
+    target?: string
 }
 
 function sanitizeDynamicHomeMenuIds(menuIds?: number[]): number[] {
@@ -136,6 +137,7 @@ function applyNodeNavigation(node: Element, navigation: IDynamicHomeNodeNavigati
 
     node.setAttribute(MENU_NAVIGATION_ATTRIBUTE, navigation.value)
     node.setAttribute(MENU_NAVIGATION_TYPE_ATTRIBUTE, navigation.type)
+    if (navigation.target) node.setAttribute('target', navigation.target)
 
     if (node.tagName.toLowerCase() === 'a') {
         node.setAttribute('href', navigation.href)
@@ -223,11 +225,14 @@ export function getDynamicHomeNodeNavigation(node: IMenuNode | null | undefined,
         }
     }
     if (node.url) {
-        return {
+        const navigation: IDynamicHomeNodeNavigation = {
             type: 'url',
             value: node.url,
             href: resolveDynamicHomeNodeUrl(node, publicPath)
         }
+        if (node.target && node.target !== 'insideKnowage') navigation.target = node.target
+
+        return navigation
     }
     return null
 }

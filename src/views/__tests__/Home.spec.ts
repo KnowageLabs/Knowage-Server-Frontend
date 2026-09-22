@@ -64,7 +64,8 @@ describe('Home dynamic navigation', () => {
                         {
                             label: 'Dashboard',
                             descr: 'Dashboard',
-                            to: '\\/document-browser'
+                            to: '\\/document-browser',
+                            target: null
                         }
                     ]
                 }
@@ -95,6 +96,7 @@ describe('Home dynamic navigation', () => {
                 descr: 'Dashboard',
                 url: null,
                 to: '\\/document-browser',
+                target: null,
                 linkType: null,
                 children: []
             }
@@ -127,6 +129,21 @@ describe('Home dynamic navigation', () => {
         methods.navigateDynamicHomeElement.call(context, button)
 
         expect(context.$router.push).toHaveBeenCalledWith({ name: 'externalUrl', query: { url: 'https://example.com' } })
+    })
+
+    it('opens external urls with a target outside the internal iframe', () => {
+        const context = createContext()
+        const button = document.createElement('button')
+        button.setAttribute('data-kn-menu-navigation', 'https://example.com')
+        button.setAttribute('data-kn-menu-navigation-type', 'url')
+        button.setAttribute('target', '_blank')
+        const open = vi.spyOn(window, 'open').mockImplementation(() => null)
+
+        methods.navigateDynamicHomeElement.call(context, button)
+
+        expect(open).toHaveBeenCalledWith('https://example.com', '_blank', 'noopener')
+        expect(context.$router.push).not.toHaveBeenCalled()
+        open.mockRestore()
     })
 
     it('intercepts clicks from nested elements inside custom placeholders', () => {

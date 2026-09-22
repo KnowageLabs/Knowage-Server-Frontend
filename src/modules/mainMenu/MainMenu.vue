@@ -67,7 +67,7 @@ import DownloadsDialog from '@/modules/mainMenu/dialogs/DownloadsDialog/Download
 import { IMenuItem } from '@/modules/mainMenu/MainMenu'
 import MainMenuTieredMenu from '@/modules/mainMenu/MainMenuTieredMenu.vue'
 import ScrollPanel from 'primevue/scrollpanel'
-import { normalizeMenuLocale } from '@/helpers/commons/menuHelper'
+import { normalizeExternalUrl, normalizeMenuLocale } from '@/helpers/commons/menuHelper'
 import mainStore from '../../App.store'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 import AdvancedMenuItem from '@/modules/mainMenu/AdvancedMenuItem.vue'
@@ -229,7 +229,12 @@ export default defineComponent({
                 this[item.command]()
             } else if (item.to) {
                 if (event.navigate) event.navigate(event.originalEvent)
-            } else if (item.url && (!item.target || item.target === 'insideKnowage')) this.$router.push({ name: 'externalUrl', query: { url: item.url } })
+            } else if (item.url) {
+                const target = item.target ?? item.hrefTarget
+                const url = normalizeExternalUrl(item.url)
+                if (target === 'insideKnowage') this.$router.push({ name: 'externalUrl', query: { url } })
+                else window.open(url, target || '_blank', 'noopener')
+            }
             if (this.adminMenuOpened) this.adminMenuOpened = false
             this.hideItemMenu()
         },

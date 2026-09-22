@@ -13,3 +13,12 @@ export function normalizeMenuLocale(locale: string | null | undefined, fallbackL
 export function normalizeMenuRoute(to: string | null | undefined): string {
     return typeof to === 'string' ? to.replace(/\\\//g, '/') : ''
 }
+
+export function normalizeExternalUrl(url: string | null | undefined): string {
+    const normalizedUrl = typeof url === 'string' ? url.trim() : ''
+    if (!normalizedUrl) return ''
+    if (normalizedUrl.startsWith('//')) return `https:${normalizedUrl}`
+    if (/^(https?:\/\/|mailto:|tel:)/i.test(normalizedUrl)) return normalizedUrl
+
+    return `https://${normalizedUrl}`
+}

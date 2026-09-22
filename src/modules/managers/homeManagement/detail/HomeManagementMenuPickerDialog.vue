@@ -40,7 +40,6 @@ import { IMenuNode } from '../HomeManagement'
 const props = defineProps<{
     visible: boolean
     selectedIds: number[]
-    roleId: number | null
 }>()
 
 const emit = defineEmits<{
@@ -95,8 +94,7 @@ async function loadMenu() {
     loading.value = true
     menuNodes.value = []
     try {
-        const roleSegment = props.roleId ?? 'default'
-        const res = await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/menu/preview/' + roleSegment)
+        const res = await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/menu/')
         menuNodes.value = res.data
     } finally {
         loading.value = false
