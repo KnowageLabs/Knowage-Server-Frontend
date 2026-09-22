@@ -1,6 +1,6 @@
 <template>
-    <div class="widget-editor-toolbar p-d-flex p-flex-row p-ai-center kn-flex">
-        <div v-for="(option, index) in options" :key="index" class="kn-flex" style="min-height: min-content">
+    <div class="widget-editor-toolbar row items-center no-wrap justify-around">
+        <div v-for="(option, index) in options" :key="index" class="widget-editor-toolbar-slot">
             <WidgetEditorStyleIcon :option="option" :prop-model="model" :disabled="disabled" @change="onChange" @openIconPicker="iconPickerDialogVisible = true"></WidgetEditorStyleIcon>
         </div>
 
@@ -51,9 +51,18 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .widget-editor-toolbar {
-    border: 1px solid #c2c2c2;
-    border-radius: 3px;
+    box-sizing: border-box;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
     width: 100%;
-    min-height: 40px;
+    min-height: 44px;
+    padding: 2px 6px;
+    gap: 2px;
+}
+
+.widget-editor-toolbar-slot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 </style>
