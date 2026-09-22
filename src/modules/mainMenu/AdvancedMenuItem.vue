@@ -1,5 +1,16 @@
 <template>
-    <q-btn flat square size="sm" class="menu-btn" :to="link" :class="{ 'router-link-active': isActive(props.item) }" @click="onClick($event, item)">
+    <q-btn
+        flat
+        square
+        size="sm"
+        class="menu-btn"
+        :to="routerLink"
+        :href="hrefLink"
+        :target="hrefTarget"
+        :rel="hrefTarget === '_blank' ? 'noopener' : undefined"
+        :class="{ 'router-link-active': isActive(props.item) }"
+        @click="onClick($event, item)"
+    >
         <q-badge v-if="props.item.badge" color="accent" class="menuBadge">{{ props.item.badge }}</q-badge>
         <q-avatar square v-if="props.item.custIcon" size="20px"><img :src="props.item.custIcon" /></q-avatar>
         <q-avatar v-else-if="props.item.iconCls && props.item.command === 'languageSelection'" size="24px"><img :src="publicPath + '/images/flags/' + store.locale.toLowerCase().substring(3, 5) + '.svg'" /></q-avatar>
@@ -17,7 +28,7 @@ import { useQuasar } from 'quasar'
 import AdvancedMenuSubItem from './AdvancedMenuSubItem.vue'
 import useMainStore from '@/App.store'
 import { computed } from 'vue'
-import { getInternationalizedValue, cleanUrl } from './AdvancedMainMenuHelper'
+import { getInternationalizedValue, cleanUrl, normalizeExternalUrl } from './AdvancedMainMenuHelper'
 
 const props = defineProps<{
     item: any
@@ -34,13 +45,18 @@ const publicPath = import.meta.env.VITE_PUBLIC_PATH
 const link = computed(() => {
     return cleanUrl(props.item)
 })
+const externalTarget = computed(() => props.item.target ?? props.item.hrefTarget)
+const shouldOpenInsideKnowage = computed(() => !!props.item.url && externalTarget.value === 'insideKnowage')
+const routerLink = computed(() => (props.item.to ? link.value : undefined))
+const hrefLink = computed(() => (props.item.url && !shouldOpenInsideKnowage.value ? normalizeExternalUrl(props.item.url) : undefined))
+const hrefTarget = computed(() => (hrefLink.value ? externalTarget.value || '_blank' : undefined))
 
 function isActive(item): boolean {
     return route.path === item.to
 }
 
 function onClick(event, item): void {
-    if (item.command || item.to) {
+    if (item.command || item.to || shouldOpenInsideKnowage.value) {
         emit('click', {
             originalEvent: event,
             item: item

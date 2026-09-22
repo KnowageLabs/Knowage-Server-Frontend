@@ -14,3 +14,12 @@ export function cleanUrl(item: any): string {
         return item.to.replace(/\\\//g, '/')
     } else return item.url
 }
+
+export function normalizeExternalUrl(url: string | null | undefined): string {
+    const normalizedUrl = typeof url === 'string' ? url.trim() : ''
+    if (!normalizedUrl) return ''
+    if (normalizedUrl.startsWith('//')) return `https:${normalizedUrl}`
+    if (/^(https?:\/\/|mailto:|tel:)/i.test(normalizedUrl)) return normalizedUrl
+
+    return `https://${normalizedUrl}`
+}

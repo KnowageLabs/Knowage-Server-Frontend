@@ -68,6 +68,7 @@ import ScrollPanel from 'primevue/scrollpanel'
 import mainStore from '../../App.store'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 import AdvancedMenuItem from '@/modules/mainMenu/AdvancedMenuItem.vue'
+import { normalizeExternalUrl } from './AdvancedMainMenuHelper'
 
 export default defineComponent({
     name: 'knmenu',
@@ -219,7 +220,12 @@ export default defineComponent({
                 this[item.command]()
             } else if (item.to) {
                 if (event.navigate) event.navigate(event.originalEvent)
-            } else if (item.url && (!item.target || item.target === 'insideKnowage')) router.push({ name: 'externalUrl', query: { url: item.url } })
+            } else if (item.url) {
+                const target = item.target ?? item.hrefTarget
+                const url = normalizeExternalUrl(item.url)
+                if (target === 'insideKnowage') router.push({ name: 'externalUrl', query: { url } })
+                else window.open(url, target || '_blank', 'noopener')
+            }
             if (this.adminMenuOpened) this.adminMenuOpened = false
             this.hideItemMenu()
         },
