@@ -32,7 +32,7 @@
         "ag-grid-community": "33.3.2",
         "ag-grid-vue3": "33.3.2",
         "animate.css": "^4.1.1",
-        "axios": "1.15.2",
+        "axios": "1.20.0",
         "blockly": "10.4.3",
         "caniuse-lite": "^1.0.30001618",
         "chart.js": "^3.7.0",
@@ -54,7 +54,7 @@
         "leaflet.heat": "^0.2.0",
         "leaflet.markercluster": "^1.5.3",
         "luxon": "^2.5.2",
-        "mermaid": "^11.12.2",
+        "mermaid": "^11.17.2",
         "mitt": "^3.0.0",
         "moment": "2.29.4",
         "monaco-editor": "0.52.0",
@@ -62,7 +62,7 @@
         "primeflex": "^2.0.0",
         "primeicons": "^5.0.0",
         "primevue": "3.17.0",
-        "quasar": "2.18.1",
+        "quasar": "2.33.0",
         "reflect-metadata": "^0.1.13",
         "sanitize-html": "^2.7.3",
         "svg-parser": "^2.0.4",
@@ -92,7 +92,7 @@
         "@types/sanitize-html": "^2.6.2",
         "@types/stompjs": "^2.3.5",
         "@vitejs/plugin-vue": "5.2.1",
-        "@vitest/coverage-v8": "^3.2.4",
+        "@vitest/coverage-v8": "^4.1.11",
         "@vue/test-utils": "^2.4.6",
         "eslint": "^9.39.4",
         "globals": "^15.14.0",
@@ -100,9 +100,9 @@
         "material-icons": "^1.10.0",
         "sass": "1.83.4",
         "typescript": "5.7.3",
-        "vite": "6.4.2",
+        "vite": "6.4.3",
         "vite-plugin-pwa": "1.2.0",
-        "vitest": "^3.2.4"
+        "vitest": "^4.1.11"
     },
     "exports": {
         ".": {
