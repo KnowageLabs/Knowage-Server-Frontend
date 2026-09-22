@@ -38,7 +38,7 @@
                             :filters-data="item.filtersData"
                             :new-dashboard-mode="newDashboardMode"
                             :mode="mode"
-                            :prop-view="dashboardView"
+                            :prop-view="item.document?.navigationFromDashboard ? null : dashboardView"
                             :filtersLoaded="filtersLoaded"
                             @executeView="executeView"
                             @dashboardIdSet="onSetDashboardId($event, item)"
@@ -898,8 +898,9 @@ export default defineComponent({
                 }
                 this.filtersData = await loadFilters(initialLoading, this.filtersData, this.document, this.breadcrumbs, this.userRole, this.tabKey as string, this.sessionEnabled, this.$http, this.dateFormat, this.$route, this)
                 this.filtersLoaded = true
-                if (this.dashboardView) formatDriversUsingDashboardView(this.filtersData, this.dashboardView)
-                else if (this.cockpitViewForExecution) formatDriversUsingDashboardView(this.filtersData, this.cockpitViewForExecution)
+                // A saved View belongs to its own document only; never re-apply it onto a cross-navigation target.
+                if (this.dashboardView && !this.document.navigationFromDashboard) formatDriversUsingDashboardView(this.filtersData, this.dashboardView)
+                else if (this.cockpitViewForExecution && !this.document.navigationFromDashboard) formatDriversUsingDashboardView(this.filtersData, this.cockpitViewForExecution)
                 if (this.filtersData?.isReadyForExecution) {
                     this.parameterSidebarVisible = false
                     await this.loadURL(null, documentLabel, crossNavigationPopupMode)
@@ -1032,9 +1033,7 @@ export default defineComponent({
             let postForm = document.getElementById('postForm_' + postObject.params.document) as any
             if (!postForm) postForm = document.createElement('form')
             postForm.id = 'postForm_' + postObject.params.document
-            postForm.action =
-                import.meta.env.VITE_HOST_URL +
-                 (this.document.typeCode === 'REPORT' ? documentUrl : postObject.url)
+            postForm.action = import.meta.env.VITE_HOST_URL + (this.document.typeCode === 'REPORT' ? documentUrl : postObject.url)
             postForm.method = 'post'
             const iframeName = crossNavigationPopupMode ? 'documentFramePopup' : 'documentFrame'
             if (this.isMobileDevice && postObject.params.outputType?.toLowerCase() === 'pdf') postForm.target = '_blank'
