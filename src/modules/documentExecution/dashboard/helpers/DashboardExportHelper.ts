@@ -114,14 +114,14 @@ export const createDashboardSpreadsheetExportBody = (dashboard: IDashboardExport
 
 const getDashboardDatasetLabel = (dataset: IDashboardDataset | undefined) => dataset?.dsLabel ?? dataset?.label
 
-export const createWidgetExportBody = (type: string, widget: IWidget, dashboard: IDashboardExportState, creationUser: string | undefined, locale: string, widgetSearch?: IWidgetSearch) => {
+export const createWidgetExportBody = (type: string, widget: IWidget, dashboard: IDashboardExportState, creationUser: string | undefined, locale: string, widgetSearch?: IWidgetSearch, variables?: IVariable[]) => {
     const dataset = dashboard.configuration.datasets.find((dashboardDataset) => dashboardDataset.id === widget.dataset)
     const body = {
         ...deepcopy(widget),
         parameters: dataset?.parameters ?? [],
         selections: dashboard.selections ?? [],
         drivers: dashboard.drivers ?? [],
-        variables: dashboard.configuration.variables ?? [],
+        variables: deepcopy(variables ?? dashboard.configuration.variables ?? []),
         creationUser,
         locale: normalizeDashboardExportLocale(locale)
     } as IWidgetExportBody

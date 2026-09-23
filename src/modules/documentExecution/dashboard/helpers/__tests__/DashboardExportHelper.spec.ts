@@ -88,6 +88,20 @@ describe('createWidgetExportBody', () => {
         expect(body.xlsxStyleEnabled).toBe(true)
     })
 
+    it('uses the runtime variables supplied by the widget', () => {
+        const runtimeVariables = [{ name: 'Ruolo', type: 'profile', value: 'dte_admin' }]
+        const dashboard = createDashboard({
+            configuration: {
+                ...createDashboard().configuration,
+                variables: [{ name: 'Ruolo', type: 'profile', value: 'US' }]
+            }
+        })
+
+        const body = createWidgetExportBody('pdf', createWidget(), dashboard, 'bi-user', 'en-US', undefined, runtimeVariables)
+
+        expect(body.variables).toEqual(runtimeVariables)
+    })
+
     it.each(['spreadsheet', 'pdf'])('exports all drilldown levels for %s highcharts widgets with drilldown enabled', (type) => {
         const body = createWidgetExportBody(type, createWidget({ type: 'highcharts', settings: { interactions: { drilldown: { enabled: true } } } }), createDashboard(), 'bi-user', 'eng')
 
