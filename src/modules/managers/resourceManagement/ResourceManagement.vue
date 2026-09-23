@@ -72,7 +72,7 @@ export default defineComponent({
             displayMetadataDialog: false,
             loading: false,
             nodes: [] as IFolderTemplate[],
-            expandedKeys: {},
+            expandedKeys: [] as string[],
             selectedKeys: null,
             metadataKey: null,
             dirty: false,
@@ -298,7 +298,7 @@ export default defineComponent({
             this.formVisible = false
             this.showHint = true
 
-            this.expandedKeys = {}
+            this.expandedKeys = []
             this.selectedKeys = null
             this.metadataKey = null
             this.dirty = false
