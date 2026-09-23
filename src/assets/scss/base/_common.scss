@@ -33,7 +33,7 @@ body {
 }
 
 .kn-width-full-with-menu {
-    width: calc(100vw - var(--kn-mainmenu-width));
+    width: calc(100vw - var(--kn-mainmenu-offset));
 }
 
 .kn-detail {

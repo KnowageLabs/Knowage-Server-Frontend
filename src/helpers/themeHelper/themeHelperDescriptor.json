@@ -253,6 +253,11 @@
                 "type": "text"
             },
             {
+                "key": "--kn-mainmenu-expanded-width",
+                "label": "Expanded Menu Width",
+                "type": "text"
+            },
+            {
                 "key": "--kn-mainmenu-background-color",
                 "label": "Menu Background Color",
                 "type": "color"

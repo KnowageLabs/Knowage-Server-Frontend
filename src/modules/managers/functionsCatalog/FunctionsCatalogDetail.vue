@@ -319,7 +319,7 @@ export default defineComponent({
 <style lang="scss">
 .full-screen-dialog.p-dialog {
     max-height: 100%;
-    width: calc(100vw - var(--kn-mainmenu-width));
+    width: calc(100vw - var(--kn-mainmenu-offset));
     margin: 0;
 }
 

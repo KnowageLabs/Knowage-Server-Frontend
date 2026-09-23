@@ -684,7 +684,7 @@ export default defineComponent({
   }
 
   .managerDetail {
-    width: calc(100vw - var(--kn-mainmenu-width));
+    width: calc(100vw - var(--kn-mainmenu-offset));
   }
 
   .p-datatable.p-datatable-sm.data-prep-table {

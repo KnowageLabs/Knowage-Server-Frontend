@@ -423,7 +423,7 @@ export default defineComponent({
     width: 33.3333%;
 }
 .custom-kn-page-width {
-    width: calc(100vw - var(--kn-mainmenu-width));
+    width: calc(100vw - var(--kn-mainmenu-offset));
 }
 @media screen and (max-width: 1024px) {
     #sideMenu {
@@ -485,7 +485,7 @@ export default defineComponent({
 .metaweb-dialog.p-dialog {
     max-height: 100%;
     height: 100vh;
-    width: calc(100vw - var(--kn-mainmenu-width));
+    width: calc(100vw - var(--kn-mainmenu-offset));
     margin: 0;
 }
 .remove-padding.p-dialog .p-dialog-header,
