@@ -1584,6 +1584,8 @@ export default defineComponent({
     position: relative;
     height: 100%;
     width: 100%;
+    // The collapsed parameter toggle button sits at right: -5px; without clipping it widens scrollable parents (e.g. document browser tab).
+    overflow-x: clip;
 }
 
 .document-execution-backdrop {

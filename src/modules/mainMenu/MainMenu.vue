@@ -459,7 +459,8 @@ export default defineComponent({
         margin: 0;
         padding: 0;
         list-style: none;
-        overflow-y: scroll;
+        overflow-y: auto;
+        overflow-x: hidden;
         li,
         button {
             &:first-child {
@@ -562,6 +563,9 @@ export default defineComponent({
 @supports (-moz-appearance: none) {
     .layout-menu-container {
         .layout-menu {
+            // Firefox ignores ::-webkit-scrollbar, so the thin scrollbar needs the standard properties.
+            scrollbar-width: thin;
+            scrollbar-color: var(--kn-mainmenu-hover-background-color) transparent;
             & > li {
                 & > span {
                     width: var(--kn-mainmenu-width);

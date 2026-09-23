@@ -298,6 +298,9 @@ export default defineComponent({
 
             this.datasets = this.newDashboardMode ? [] : await loadDatasets(tempModel, this.appStore, this.setAllDatasets, this.$http)
             this.model = (tempModel && this.newDashboardMode) || typeof tempModel.configuration?.id != 'undefined' ? await formatNewModel(tempModel, this.datasets, this.$http, this.dashboardThemes) : await (formatModel(tempModel, this.document, this.datasets, this.drivers, this.profileAttributes, this.$http, this.user) as any)
+            // Store the model in the same tick it is assigned. DashboardRenderer reads the store when `model` changes, so an
+            // await in between (e.g. syncDynamicColumns) can leave it on a stale object when getData runs twice (first cross-nav).
+            this.store.setDashboard(this.dashboardId, this.model)
             setDatasetIntervals(this.model?.configuration.datasets, this.datasets)
             if (this.propView) {
                 this.loadSelectedViewForExecution(this.propView)
@@ -311,7 +314,6 @@ export default defineComponent({
 
             await this.syncDynamicColumns()
 
-            this.store.setDashboard(this.dashboardId, this.model)
             this.setDashboardDrivers(this.dashboardId, this.drivers)
 
             await this.fetchAllSelectorDefaultValues()
