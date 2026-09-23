@@ -1,4 +1,4 @@
-<template>
+encode<template>
     <iframe v-if="!homePage.loading && homePage.type === 'dynamic' && dynamicSrcdoc" ref="dynamicHomeFrame" :srcdoc="dynamicSrcdoc" style="border:0;width:100%;height:100%;" @load="bindDynamicHomeFrameInteractions"></iframe>
     <iframe v-else-if="showIframe" v-show="iframeLoaded" :src="`${completeUrl}`" @load="onIframeLoad"></iframe>
     <div v-if="showDefaultHome" class="homeContainer">
@@ -353,7 +353,7 @@ export default defineComponent({
             }
 
             this.unbindDynamicHomeFrameInteractions()
-            const roleSegment = this.homePage.roleName ?? 'default'
+            const roleSegment = this.homePage.roleName ? encodeURIComponent(this.homePage.roleName) : 'default'
             const [endUserRes, previewRes] = await Promise.all([
                 axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/3.0/menu/enduser?locale=' + encodeURIComponent(this.resolveMenuLocale())),
                 axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/menu/preview/' + roleSegment)

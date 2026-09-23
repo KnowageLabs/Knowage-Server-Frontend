@@ -24,7 +24,7 @@ describe('Home dynamic navigation', () => {
         return {
             ...methods,
             homePage: {
-                roleName: 'testRole',
+                roleName: 'dte/admin',
                 template: {
                     html: '<div><button data-kn-menu><span data-kn-label>Menu Item</span></button></div>',
                     css: '',
@@ -88,7 +88,7 @@ describe('Home dynamic navigation', () => {
         await methods.buildDynamicSrcdoc.call(context)
 
         expect(mockAxiosGet).toHaveBeenNthCalledWith(1, '/knowage/restful-services/3.0/menu/enduser?locale=it-IT')
-        expect(mockAxiosGet).toHaveBeenNthCalledWith(2, '/knowage/restful-services/2.0/menu/preview/7')
+        expect(mockAxiosGet).toHaveBeenNthCalledWith(2, '/knowage/restful-services/2.0/menu/preview/dte%2Fadmin')
         expect(context.dynamicMenuNodes).toEqual([
             {
                 menuId: 42,
