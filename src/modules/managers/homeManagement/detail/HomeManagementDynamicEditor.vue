@@ -238,8 +238,7 @@ function applyIncomingTemplate(template?: IDynamicHomeTemplate) {
 async function loadMenuAndFilter(roleName: string | null) {
     previewLoading.value = true
     try {
-        const roleSegment = roleName != null ? encodeURIComponent(roleName) : 'default'
-        const res = await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/menu/preview/' + roleSegment)
+        const res = await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/menu/preview', { params: { role: roleName || 'default' } })
         allMenuNodes.value = res.data
     } catch { /* no-op */ }
     finally {

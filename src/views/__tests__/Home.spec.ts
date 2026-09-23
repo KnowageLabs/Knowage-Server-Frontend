@@ -88,7 +88,7 @@ describe('Home dynamic navigation', () => {
         await methods.buildDynamicSrcdoc.call(context)
 
         expect(mockAxiosGet).toHaveBeenNthCalledWith(1, '/knowage/restful-services/3.0/menu/enduser?locale=it-IT')
-        expect(mockAxiosGet).toHaveBeenNthCalledWith(2, '/knowage/restful-services/2.0/menu/preview/dte%2Fadmin')
+        expect(mockAxiosGet).toHaveBeenNthCalledWith(2, '/knowage/restful-services/2.0/menu/preview', { params: { role: 'dte/admin' } })
         expect(context.dynamicMenuNodes).toEqual([
             {
                 menuId: 42,

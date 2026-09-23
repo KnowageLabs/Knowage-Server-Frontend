@@ -353,10 +353,9 @@ export default defineComponent({
             }
 
             this.unbindDynamicHomeFrameInteractions()
-            const roleSegment = this.homePage.roleName ? encodeURIComponent(this.homePage.roleName) : 'default'
             const [endUserRes, previewRes] = await Promise.all([
                 axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/3.0/menu/enduser?locale=' + encodeURIComponent(this.resolveMenuLocale())),
-                axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/menu/preview/' + roleSegment)
+                axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/menu/preview', { params: { role: this.homePage.roleName || 'default' } })
             ])
 
             const lookup = this.buildDynamicHomePreviewLookup(Array.isArray(previewRes.data) ? previewRes.data : [])
