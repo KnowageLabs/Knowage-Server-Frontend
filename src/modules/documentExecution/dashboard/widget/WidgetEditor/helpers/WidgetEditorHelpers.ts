@@ -48,6 +48,7 @@ import HighchartsDumbbellSettingsDescriptor from '../WidgetEditorSettingsTab/Cha
 import HighchartsStreamgraphSettingsDescriptor from '../WidgetEditorSettingsTab/ChartWidget/highcharts/descriptors/HighchartsStreamgraphSettingsDescriptor.json'
 import HighchartsPackedBubbleSettingsDescriptor from '../WidgetEditorSettingsTab/ChartWidget/highcharts/descriptors/HighchartsPackedBubbleSettingsDescriptor.json'
 import HighchartsWaterfallSettingsDescriptor from '../WidgetEditorSettingsTab/ChartWidget/highcharts/descriptors/HighchartsWaterfallSettingsDescriptor.json'
+import HighchartsWordcloudSettingsDescriptor from '../WidgetEditorSettingsTab/ChartWidget/highcharts/descriptors/HighchartsWordcloudSettingsDescriptor.json'
 import imageDescriptor from '../WidgetEditorSettingsTab/ImageWidget/ImageWidgetSettingsDescriptor.json'
 import customChartDescriptor from '../WidgetEditorSettingsTab/CustomChartWidget/CustomChartWidgetSettingsDescriptor.json'
 import pivotTableDescriptor from '../WidgetEditorSettingsTab/PivotTableWidget/PivotTableSettingsDescriptor.json'
@@ -253,6 +254,8 @@ export const getSettingsDescriptor = (widget: any) => {
                     return HighchartsPackedBubbleSettingsDescriptor
                 case 'waterfall':
                     return HighchartsWaterfallSettingsDescriptor
+                case 'wordcloud':
+                    return HighchartsWordcloudSettingsDescriptor
             }
         case 'image':
             return imageDescriptor
