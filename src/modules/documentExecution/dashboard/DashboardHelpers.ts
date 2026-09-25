@@ -204,7 +204,7 @@ const updateSheetInWidgetSizeArray = (sheet: IDashboardSheet, size: string, widg
     if (!sheet.widgets[size]) return
     const index = sheet.widgets[size].findIndex((widgetInSheet: IWidgetSheetItem) => widgetInSheet.id === widget.id)
     if (index === -1 && (widget.settings.responsive[size] || widget.settings.responsive.fullGrid) && selectedSheet?.id === sheet.id) {
-        sheet.widgets[size].push(createDashboardSheetWidgetItem(widget))
+        moveWidgetItemToSpecificSizeArray(createDashboardSheetWidgetItem(widget), size, sheet.widgets)
     } else if (index !== -1 && !widget.settings.responsive[size] && !widget.settings.responsive.fullGrid) {
         sheet.widgets[size].splice(index, 1)
     }
