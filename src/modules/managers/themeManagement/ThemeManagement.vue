@@ -66,6 +66,16 @@
                                 <q-input :id="`theme-setting-${property.key}`" v-model="selectedTheme.config[property.key]" dense outlined square hide-bottom-space @update:model-value="updateModelToSend(property.key)" />
                                 <Button :icon="selectedTheme.config[property.key] || 'pi pi-image'" class="p-button-outlined p-button-secondary theme-icon-picker-button" :aria-label="property.label" @click="openIconPicker(property.key)" />
                             </div>
+                            <q-toggle
+                                v-else-if="property.type === 'toggle'"
+                                :id="`theme-setting-${property.key}`"
+                                v-model="selectedTheme.config[property.key]"
+                                dense
+                                :true-value="property.trueValue"
+                                :false-value="property.falseValue"
+                                :aria-label="property.label"
+                                @update:model-value="updateModelToSend(property.key)"
+                            />
                             </div>
                         </div>
                     </section>
@@ -101,7 +111,10 @@ import { QIcon, QInput, QToggle } from 'quasar'
 interface IThemeProperty {
     key: string
     label: string
-    type: 'color' | 'icon' | 'text'
+    type: 'color' | 'icon' | 'text' | 'toggle'
+    // A toggle stores one of these two CSS values.
+    trueValue?: string
+    falseValue?: string
 }
 
 interface IThemeSettingsSection {
