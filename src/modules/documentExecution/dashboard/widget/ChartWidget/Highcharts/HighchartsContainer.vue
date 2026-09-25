@@ -50,7 +50,7 @@ import { IHighchartsChartModel } from '../../../interfaces/highcharts/DashboardH
 import { mapActions, mapState } from 'pinia'
 import { updateStoreSelections, executeChartCrossNavigation } from '../../interactionsHelpers/InteractionHelper'
 import { openNewLinkChartWidget } from '../../interactionsHelpers/InteractionLinkHelper'
-import { addCategoryXAxisLabelTooltips, formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart, formatPictorialChart, formatStreamgraphChart, formatPackedBubble, formatVariables, normalizeCategoryXAxisLabels, normalizeTooltipSettings, normalizeYAxisLabelsAlignment, updateAxisLabelFormatters } from './HighchartsModelFormattingHelpers'
+import { addCategoryXAxisLabelTooltips, formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart, formatPictorialChart, formatStreamgraphChart, formatPackedBubble, formatVariables, getPictorialFillRule, normalizeCategoryXAxisLabels, normalizeTooltipSettings, normalizeYAxisLabelsAlignment, updateAxisLabelFormatters } from './HighchartsModelFormattingHelpers'
 import { applyAdvancedSettingsToModelForRender, formatChartAnnotations, formatForCrossNavigation, getFormattedChartValues } from './HighchartsContainerHelpers'
 import { showDashboardWidgetError } from '@/modules/documentExecution/dashboard/helpers/DashboardToastHelper'
 import HighchartsSonificationControls from './HighchartsSonificationControls.vue'
@@ -325,6 +325,7 @@ export default defineComponent({
                 }
 
                 this.highchartsInstance = Highcharts.chart(this.chartID, modelToRender as any)
+                this.applyPictorialFillRule()
                 this.addAditionalCSSClasses(modelToRender)
                 this.resizeChart()
                 this.normalizeDrilldownPresentation()
@@ -351,6 +352,16 @@ export default defineComponent({
                     el.classList.remove(horizontalAlignment ? 'custom-checkbox-style-vertical' : 'custom-checkbox-style-horizontal')
                 })
             }, 100)
+        },
+        applyPictorialFillRule() {
+            const svgSettings = this.widgetModel.settings?.configuration?.svgSettings
+            const fillRule = getPictorialFillRule(svgSettings?.definition ?? '', svgSettings?.fillRule)
+            if (this.chartModel?.chart?.type !== 'pictorial' || fillRule !== 'evenodd') return
+
+            this.highchartsInstance?.renderTo?.querySelectorAll('pattern path').forEach((path: SVGPathElement) => {
+                path.setAttribute('fill-rule', 'evenodd')
+                path.setAttribute('clip-rule', 'evenodd')
+            })
         },
         normalizeDrilldownPresentation() {
             this.normalizeDrilldownDataLabels()

@@ -131,7 +131,14 @@ const formatPictorialSVGPath = (formattedChartModel: IHighchartsChartModel, widg
     formattedChartModel.plotOptions.series.paths = [{ definition: definition }]
 }
 
+export const getPictorialFillRule = (pathData: string, configuredFillRule?: string) => {
+    if (configuredFillRule === 'evenodd' || configuredFillRule === 'nonzero') return configuredFillRule
+    return (pathData.match(/[Mm]/g)?.length ?? 0) > 1 ? 'evenodd' : undefined
+}
+
 const alignPathToViewBox = (pathData: string) => {
+    if (/[mlhvcsqtaz]/.test(pathData)) return pathData
+
     const { minX, minY } = findMinCoordinates(pathData)
 
     const translateX = -minX
@@ -144,25 +151,30 @@ const alignPathToViewBox = (pathData: string) => {
 
 const findMinCoordinates = (pathData: string) => {
     const coordPattern = /([MLHVCSQTAZ])([^MLHVCSQTAZ]*)/gi
-    const coordinates = [] as any
+    const xCoordinates: number[] = []
+    const yCoordinates: number[] = []
 
     pathData.replace(coordPattern, (match, command, coords) => {
-        const coordPairs = coords
-            .trim()
-            .split(/[\s,]+/)
-            .map(parseFloat)
+        const values = getPathCommandValues(coords)
 
-        for (let i = 0; i < coordPairs.length; i += 2) {
-            if (!isNaN(coordPairs[i])) {
-                coordinates.push({ x: isNaN(coordPairs[i]) ? 0 : coordPairs[i], y: isNaN(coordPairs[i + 1]) ? 0 : coordPairs[i + 1] })
+        if (command.toUpperCase() === 'H') {
+            xCoordinates.push(...values)
+        } else if (command.toUpperCase() === 'V') {
+            yCoordinates.push(...values)
+        } else if (command.toUpperCase() === 'A') {
+            for (let i = 0; i < values.length; i += 7) {
+                if (!isNaN(values[i + 5])) xCoordinates.push(values[i + 5])
+                if (!isNaN(values[i + 6])) yCoordinates.push(values[i + 6])
+            }
+        } else {
+            for (let i = 0; i < values.length; i += 2) {
+                if (!isNaN(values[i])) xCoordinates.push(values[i])
+                if (!isNaN(values[i + 1])) yCoordinates.push(values[i + 1])
             }
         }
 
         return match
     })
-
-    const xCoordinates = coordinates.map((coord) => coord.x)
-    const yCoordinates = coordinates.map((coord) => coord.y)
 
     return {
         minX: xCoordinates.length > 0 ? Math.min(...xCoordinates) : 0,
@@ -173,23 +185,36 @@ const findMinCoordinates = (pathData: string) => {
 const translatePathData = (pathData: string, translateX: number, translateY: number) => {
     const coordPattern = /([MLHVCSQTAZ])([^MLHVCSQTAZ]*)/gi
 
-    let translatedPath = pathData.replace(coordPattern, (match, command, coordinates) => {
-        if (!coordinates.trim()) return command
+    return pathData.replace(coordPattern, (match, command, coordinates) => {
+        const values = getPathCommandValues(coordinates)
+        if (!values.length) return command
 
-        const coordPairs = coordinates
-            .trim()
-            .split(/[\s,]+/)
-            .map(parseFloat)
-
-        for (let i = 0; i < coordPairs.length; i += 2) {
-            if (!isNaN(coordPairs[i])) coordPairs[i] += translateX
-            if (!isNaN(coordPairs[i + 1])) coordPairs[i + 1] += translateY
+        switch (command.toUpperCase()) {
+            case 'H':
+                values.forEach((value, index) => (values[index] = value + translateX))
+                break
+            case 'V':
+                values.forEach((value, index) => (values[index] = value + translateY))
+                break
+            case 'A':
+                for (let i = 0; i < values.length; i += 7) {
+                    values[i + 5] += translateX
+                    values[i + 6] += translateY
+                }
+                break
+            default:
+                for (let i = 0; i < values.length; i += 2) {
+                    values[i] += translateX
+                    values[i + 1] += translateY
+                }
         }
 
-        return `${command} ${coordPairs.join(' ')}`
+        return `${command} ${values.join(' ')}`
     })
+}
 
-    return translatedPath
+const getPathCommandValues = (coordinates: string) => {
+    return (coordinates.match(/[-+]?(?:\d*\.?\d+|\d+\.)(?:[eE][-+]?\d+)?/g) ?? []).map(Number)
 }
 
 export const formatStreamgraphChart = (formattedChartModel: IHighchartsChartModel, widgetModel: IWidget) => {
