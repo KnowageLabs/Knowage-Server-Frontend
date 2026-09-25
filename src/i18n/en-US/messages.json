@@ -4353,14 +4353,23 @@
         "Categories": "Categories",
         "DashboardThemeManagement": "Dashboard Themes",
         "ThemeManagement": "Themes",
+        "account": "Account",
+        "customMenu": "Menu",
         "group": {
             "ImportExport": "Import/Export",
             "ServerManager": "Server manager"
         },
         "guidedTour": "Guided tour",
         "importExport": "Artifacts",
+        "language": "Language",
+        "mainMenu": "Main menu",
         "modelCatalogResourceManagement": "Models manager",
-        "resourceManagement": "Resource manager"
+        "modules": "Modules",
+        "noModulesFound": "No module matches \"{search}\"",
+        "recentModules": "Recent",
+        "resourceManagement": "Resource manager",
+        "role": "Role",
+        "searchModules": "Search modules"
     },
     "metaweb": {
         "businessModel": {

@@ -368,7 +368,7 @@ export default defineComponent({
     .sheets-container {
         .sheets-list {
             height: 50px;
-            max-width: calc(100vw - var(--kn-mainmenu-width));
+            max-width: calc(100vw - var(--kn-mainmenu-offset));
         }
         .sheet-label {
             flex: 1 0 0;

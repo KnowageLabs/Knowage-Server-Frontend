@@ -22,7 +22,7 @@
     }
     &--full {
         @extend .kn-page;
-        width: calc(100% - #{var(--kn-mainmenu-width)});
+        width: calc(100% - #{var(--kn-mainmenu-offset)});
     }
     .kn-page-content {
         flex: 1 0 0;

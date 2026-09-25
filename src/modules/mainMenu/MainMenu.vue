@@ -1,269 +1,309 @@
 <template>
-    <div id="kn-main-menu" ref="mainMenu" class="layout-menu-container">
-        <InfoDialog v-model:visibility="display"></InfoDialog>
-        <LanguageDialog v-model:visibility="languageDisplay" @language-changed="reloadLanguage"></LanguageDialog>
-        <RoleDialog v-model:visibility="roleDisplay" :mandatory="mandatoryRole()"></RoleDialog>
-        <DownloadsDialog v-model:visibility="downloadsDisplay"></DownloadsDialog>
-        <NewsDialog v-model:visibility="newsDisplay"></NewsDialog>
-        <LicenseDialog v-if="user && user.functionalities?.includes(UserFunctionalitiesConstants.LICENSE_MANAGEMENT)" v-model:visibility="licenseDisplay"></LicenseDialog>
-        <AccountDialog :visible="accountDisplay" @closed="accountManagement"></AccountDialog>
-        <MainMenuAdmin v-if="technicalUserFunctionalities && technicalUserFunctionalities.length > 0" :opened-panel-event="adminMenuOpened" :model="technicalUserFunctionalities" @click="itemClick"></MainMenuAdmin>
-        <q-menu ref="menu" :target="menuTargetElem" :anchor="anchorPosition" self="top left" data-test="menu">
-            <MainMenuTieredMenu :items="selectedCustomMenu" @link="itemClick"></MainMenuTieredMenu>
-        </q-menu>
-        <div ref="menuProfile" class="profile" data-tour-id="menu-profile">
-            <button v-tooltip="user && user.fullName" class="p-link" @click="toggleProfile">
-                <img alt="Profile" class="profile-image" :src="getProfileImage(user)" />
-                <span v-if="user" class="profile-name">{{ user.fullName }}</span>
-                <i class="pi pi-fw pi-chevron-down"></i>
-                <span class="profile-role">Marketing</span>
-            </button>
-        </div>
-        <div ref="menuScroll" class="menu-scroll-content">
-            <transition :name="transitionType">
-                <ul v-show="showProfileMenu" ref="menuProfileSlide" class="layout-menu profile-menu">
-                    <template v-for="(item, i) of commonUserFunctionalities" :key="i">
-                        <template v-if="item">
-                            <AdvancedMenuItem :item="item" :badge="getBadgeValue(item)" @click="itemClick" @mouseover="setMenu(item)"></AdvancedMenuItem>
-                        </template>
-                    </template>
-                </ul>
-            </transition>
-            <ul class="layout-menu" data-tour-id="menu-items">
-                <li v-if="technicalUserFunctionalities && technicalUserFunctionalities.length > 0" role="menu" @click="toggleAdminMenu">
-                    <span :class="['p-menuitem-icon', 'fas fa-cog']"></span>
-                </li>
-                <template v-for="(item, i) of allowedUserFunctionalities" :key="i">
-                    <AdvancedMenuItem :item="item" :badge="getBadgeValue(item)" @click="itemClick" @mouseover="setMenu(item)"></AdvancedMenuItem>
+    <nav
+        id="kn-main-menu"
+        class="kn-main-menu layout-menu-container"
+        :class="{ 'kn-main-menu--expanded': expanded }"
+        :aria-label="$t('menu.mainMenu')"
+        @mouseenter="onPointerEnter"
+        @mouseleave="onPointerLeave"
+        @focusin="onFocusIn"
+        @focusout="onFocusOut"
+    >
+        <div class="kn-main-menu__rail">
+            <div class="kn-main-menu__header">
+                <div class="kn-main-menu__logo-cell">
+                    <img class="kn-main-menu__logo" :src="logoSrc" alt="" />
+                </div>
+                <span v-if="expanded" class="kn-main-menu__brand">{{ hasTenantLogo ? '' : 'Knowage' }}</span>
+            </div>
+
+            <div class="kn-main-menu__zone kn-main-menu__zone--top">
+                <MainMenuRailItem v-if="modules.length" :label="$t('menu.modules')" icon="fas fa-cog" :expanded="expanded" :active="modulesOpen || isModulesRouteActive" has-popup :popup-open="modulesOpen" tour-id="menu-modules">
+                    <q-menu v-model="modulesOpen" class="kn-main-menu-popup" anchor="top right" self="top left" :offset="[8, 0]" max-height="calc(100vh - 16px)">
+                        <MainMenuModulesPanel :groups="modules" :user-id="user.userId" :translate="translate" @activate="onModuleActivate" @close="modulesOpen = false" />
+                    </q-menu>
+                </MainMenuRailItem>
+
+                <MainMenuRailItem v-if="homeItem" :label="translate(homeItem.label)" :icon="normalizeMenuIcon(homeItem.iconCls)" :link="getMenuLink(homeItem)" :expanded="expanded" :active="isRouteActive($route.path, '/')" @activate="onActivate(homeItem)" />
+            </div>
+
+            <div class="kn-main-menu__zone kn-main-menu__zone--middle" data-tour-id="menu-items">
+                <MainMenuRailItem
+                    v-for="item in railAllowedItems"
+                    :key="item.to || item.command || item.label"
+                    :label="translate(item.label)"
+                    :icon="normalizeMenuIcon(item.iconCls)"
+                    :image-src="item.custIcon"
+                    :link="getMenuLink(item)"
+                    :expanded="expanded"
+                    :active="isRouteActive($route.path, item.to)"
+                    :badge="getBadge(item)"
+                    :tour-id="getTourId(item)"
+                    @activate="onActivate(item)"
+                />
+
+                <div v-if="customItems.length" class="kn-main-menu__separator" role="separator">
+                    <span class="kn-main-menu__separator-label">{{ $t('menu.customMenu') }}</span>
+                </div>
+
+                <!-- Custom items carry no id, and two of them can share a label, so rows are keyed by index and the open folder is tracked by reference. -->
+                <template v-for="(item, index) in customItems" :key="'custom-' + index">
+                    <MainMenuRailItem
+                        v-if="item.items && item.items.length"
+                        :label="translate(item.label)"
+                        :icon="normalizeMenuIcon(item.iconCls, 'folder')"
+                        :image-src="item.custIcon"
+                        :expanded="expanded"
+                        show-chevron
+                        has-popup
+                        :popup-open="openFolder === item"
+                        :active="openFolder === item || containsRoute(item.items, $route.path)"
+                    >
+                        <q-menu :model-value="openFolder === item" class="kn-main-menu-popup" anchor="top right" self="top left" :offset="[8, 0]" @update:model-value="(open) => (openFolder = open ? item : null)">
+                            <MainMenuFolderMenu :folder="item" :translate="translate" @activate="onFolderActivate" @close="openFolder = null" />
+                        </q-menu>
+                    </MainMenuRailItem>
+
+                    <MainMenuRailItem
+                        v-else
+                        :label="translate(item.label)"
+                        :icon="normalizeMenuIcon(item.iconCls)"
+                        :image-src="item.custIcon"
+                        :link="getMenuLink(item)"
+                        :expanded="expanded"
+                        :active="isRouteActive($route.path, item.to)"
+                        :disabled="!isItemClickable(item)"
+                        @activate="onActivate(item)"
+                    />
                 </template>
-                <template v-for="(item, i) of dynamicUserFunctionalities" :key="i">
-                    <AdvancedMenuItem :item="item" :badge="getBadgeValue(item)" @click="itemClick" @mouseover="setMenu(item)"></AdvancedMenuItem>
-                    <!--MainMenuItem :item="item" :internationalize="true" @click="itemClick" @mouseover="toggleMenu($event, item)"></MainMenuItem-->
+            </div>
+
+            <div class="kn-main-menu__zone kn-main-menu__zone--bottom">
+                <MainMenuRailItem :label="$t('menu.guidedTour')" icon="fas fa-question-circle" :expanded="expanded" tour-id="menu-action-guidedTour" @activate="runCommand('guidedTour')" />
+
+                <template v-if="showChatbot">
+                    <MainMenuRailItem :label="$t('ai.title')" icon="smart_toy" :expanded="expanded" tour-id="menu-action-aiAssistant" @activate="($refs.chatbot as any)?.toggleChatbot()" />
                 </template>
-            </ul>
+
+                <div class="kn-main-menu__account" data-tour-id="menu-profile">
+                    <button type="button" class="kn-main-menu__account-btn" :class="{ 'kn-main-menu__account-btn--active': accountOpen }" :aria-label="$t('menu.account')" aria-haspopup="menu" :aria-expanded="accountOpen">
+                        <span class="kn-main-menu__avatar-cell"><span class="kn-main-menu__avatar">{{ initials }}</span></span>
+                        <span class="kn-main-menu__account-text">
+                            <span class="kn-main-menu__account-name">{{ user.fullName || user.userId }}</span>
+                            <span class="kn-main-menu__account-sub">{{ user.userId }} · {{ user.sessionRole || $t('role.defaultRolePlaceholder') }}</span>
+                        </span>
+                        <q-menu v-model="accountOpen" class="kn-main-menu-popup" anchor="bottom right" self="bottom left" :offset="[8, 0]" @hide="accountView = 'main'">
+                            <MainMenuAccountMenu
+                                v-model:view="accountView"
+                                :common-items="accountCommonItems"
+                                :my-account-item="myAccountItem"
+                                :role-mandatory="isRoleMandatory"
+                                :translate="translate"
+                                @activate="onAccountActivate"
+                                @language-changed="reloadLanguage"
+                                @close="accountOpen = false"
+                            />
+                        </q-menu>
+                    </button>
+                </div>
+            </div>
         </div>
 
-        <!-- Menu footer actions (same place as AI button) -->
-        <div>
-            <KnChatbot v-if="isEnterpriseValid && configurations['KNOWAGE.AI.URL'] && user?.functionalities.includes('EngGPTIntegration')" />
-        </div>
-    </div>
+        <div class="kn-main-menu__scrim" aria-hidden="true"></div>
+
+        <KnChatbot v-if="showChatbot" ref="chatbot" hide-trigger />
+
+        <InfoDialog v-model:visibility="infoVisible"></InfoDialog>
+        <RoleDialog v-model:visibility="roleDialogVisible" :mandatory="isRoleMandatory"></RoleDialog>
+        <DownloadsDialog v-model:visibility="downloadsVisible"></DownloadsDialog>
+        <NewsDialog v-model:visibility="newsVisible"></NewsDialog>
+        <LicenseDialog v-if="hasLicenseManagement" v-model:visibility="licenseVisible"></LicenseDialog>
+        <AccountDialog :visible="accountDialogVisible" @closed="accountDialogVisible = !accountDialogVisible"></AccountDialog>
+    </nav>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import { mapState, mapActions } from 'pinia'
+import { AxiosResponse } from 'axios'
+import mainStore from '@/App.store'
+import auth from '@/helpers/commons/authHelper'
+import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
+import { normalizeExternalUrl, normalizeMenuLocale } from '@/helpers/commons/menuHelper'
+import AccountDialog from '@/modules/mainMenu/dialogs/AccountDialog.vue'
+import DownloadsDialog from '@/modules/mainMenu/dialogs/DownloadsDialog/DownloadsDialog.vue'
 import InfoDialog from '@/modules/mainMenu/dialogs/InfoDialog.vue'
 import KnChatbot from '@/components/UI/KnChatbot/KnChatbot.vue'
-import MainMenuAdmin from '@/modules/mainMenu/MainMenuAdmin.vue'
-import AccountDialog from '@/modules/mainMenu/dialogs/AccountDialog.vue'
-import LanguageDialog from '@/modules/mainMenu/dialogs/LanguageDialog/LanguageDialog.vue'
 import LicenseDialog from '@/modules/mainMenu/dialogs/LicenseDialog/LicenseDialog.vue'
+import MainMenuAccountMenu from '@/modules/mainMenu/MainMenuAccountMenu.vue'
+import MainMenuFolderMenu from '@/modules/mainMenu/MainMenuFolderMenu.vue'
+import MainMenuModulesPanel from '@/modules/mainMenu/MainMenuModulesPanel.vue'
+import MainMenuRailItem from '@/modules/mainMenu/MainMenuRailItem.vue'
 import NewsDialog from '@/modules/mainMenu/dialogs/NewsDialog/NewsDialog.vue'
 import RoleDialog from '@/modules/mainMenu/dialogs/RoleDialog.vue'
-import { mapState, mapActions } from 'pinia'
-import auth from '@/helpers/commons/authHelper'
-import { AxiosResponse } from 'axios'
-import DownloadsDialog from '@/modules/mainMenu/dialogs/DownloadsDialog/DownloadsDialog.vue'
-import { IMenuItem } from '@/modules/mainMenu/MainMenu'
-import MainMenuTieredMenu from '@/modules/mainMenu/MainMenuTieredMenu.vue'
-import ScrollPanel from 'primevue/scrollpanel'
-import { normalizeExternalUrl, normalizeMenuLocale } from '@/helpers/commons/menuHelper'
-import mainStore from '../../App.store'
-import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
-import AdvancedMenuItem from '@/modules/mainMenu/AdvancedMenuItem.vue'
+import type { IMenuGroup, IMenuItem } from '@/modules/mainMenu/MainMenu'
+import { containsRoute, getInitials, getMenuLink, isHomeItem, isItemClickable, isMyAccountItem, isRouteActive, normalizeMenuIcon, translateMenuLabel } from '@/modules/mainMenu/MainMenuHelpers'
+
+// Hover intent: the menu opens only after the pointer rests on it and closes only after the pointer stays away, so a quick pass across the rail does not flicker it.
+// The theme sets the delay through --kn-mainmenu-hover-delay (ms or s).
+const DEFAULT_HOVER_DELAY = 300
+
+function getHoverDelay(): number {
+    const value = getComputedStyle(document.documentElement).getPropertyValue('--kn-mainmenu-hover-delay').trim()
+    const amount = parseFloat(value)
+    if (!Number.isFinite(amount) || amount < 0) return DEFAULT_HOVER_DELAY
+    return /^[\d.]+s$/.test(value) ? amount * 1000 : amount
+}
 
 export default defineComponent({
-    name: 'knmenu',
+    name: 'kn-main-menu',
     components: {
         AccountDialog,
-        AdvancedMenuItem,
-        InfoDialog,
-        MainMenuAdmin,
-        LanguageDialog,
-        LicenseDialog,
-        KnChatbot,
-        NewsDialog,
-        RoleDialog,
         DownloadsDialog,
-        MainMenuTieredMenu,
-        ScrollPanel
+        InfoDialog,
+        KnChatbot,
+        LicenseDialog,
+        MainMenuAccountMenu,
+        MainMenuFolderMenu,
+        MainMenuModulesPanel,
+        MainMenuRailItem,
+        NewsDialog,
+        RoleDialog
     },
-    emits: ['update:visibility', 'openMenu'],
-    props: ['closeMenu'],
     data() {
         return {
-            adminMenuOpened: false,
-            showProfileMenu: false,
-            dynamicUserFunctionalities: new Array<IMenuItem>(),
-            allowedUserFunctionalities: new Array<IMenuItem>(),
-            commonUserFunctionalities: new Array<IMenuItem>(),
-            technicalUserFunctionalities: new Array<IMenuItem>(),
-            UserFunctionalitiesConstants,
-            tieredMenuClass: 'largeScreen',
-            display: false,
-            languageDisplay: false,
-            roleDisplay: false,
-            downloadsDisplay: false,
-            newsDisplay: false,
-            licenseDisplay: false,
-            selectedCustomMenu: {},
-            menuTargetElem: '' as any,
-            accountDisplay: false,
-            publicPath: import.meta.env.VITE_PUBLIC_PATH,
-            windowWidth: 0,
-            anchorPosition: 'bottom right'
+            technicalUserFunctionalities: [] as IMenuGroup[],
+            commonUserFunctionalities: [] as IMenuItem[],
+            allowedUserFunctionalities: [] as IMenuItem[],
+            dynamicUserFunctionalities: [] as IMenuItem[],
+            expanded: false,
+            pointerInside: false,
+            keyboardFocusInside: false,
+            hoverTimer: null as ReturnType<typeof setTimeout> | null,
+            modulesOpen: false,
+            accountOpen: false,
+            accountView: 'main' as 'main' | 'role' | 'language',
+            openFolder: null as IMenuItem | null,
+            infoVisible: false,
+            roleDialogVisible: false,
+            downloadsVisible: false,
+            newsVisible: false,
+            licenseVisible: false,
+            accountDialogVisible: false,
+            publicPath: import.meta.env.VITE_PUBLIC_PATH
         }
     },
     computed: {
-        ...mapState(mainStore, {
-            configurations: 'configurations',
-            user: 'user',
-            downloads: 'downloads',
-            locale: 'locale',
-            news: 'news',
-            isEnterprise: 'isEnterprise',
-            isEnterpriseValid: 'isEnterpriseValid',
-            licenses: 'licenses',
-            menuOpened: 'menuOpened'
-        }),
-        isPortrait(): boolean | undefined {
-            return this.windowWidth <= 1025
+        ...mapState(mainStore, ['configurations', 'user', 'downloads', 'news', 'locale', 'isEnterpriseValid', 'documentExecution']),
+        anyPopupOpen(): boolean {
+            return this.modulesOpen || this.accountOpen || !!this.openFolder
         },
-        transitionType(): string | undefined {
-            if (this.isPortrait) return 'slide-right'
-            else return 'slide-down'
+        hasTenantLogo(): boolean {
+            return !!this.user?.organizationImageb64
+        },
+        logoSrc(): string {
+            return this.user?.organizationImageb64 || this.publicPath + '/images/commons/logo_knowage.svg'
+        },
+        modules(): IMenuGroup[] {
+            return this.technicalUserFunctionalities ?? []
+        },
+        homeItem(): IMenuItem | null {
+            return this.commonUserFunctionalities.find(isHomeItem) ?? null
+        },
+        railAllowedItems(): IMenuItem[] {
+            return this.allowedUserFunctionalities.filter((item) => !isMyAccountItem(item) && this.isItemVisible(item))
+        },
+        myAccountItem(): IMenuItem | null {
+            return this.allowedUserFunctionalities.find(isMyAccountItem) ?? null
+        },
+        customItems(): IMenuItem[] {
+            return [...this.dynamicUserFunctionalities].sort((a, b) => (a.prog ?? 0) - (b.prog ?? 0))
+        },
+        accountCommonItems(): IMenuItem[] {
+            return this.commonUserFunctionalities.filter((item) => !isHomeItem(item) && this.isItemVisible(item))
+        },
+        initials(): string {
+            return getInitials(this.user?.fullName || this.user?.userId)
+        },
+        isRoleMandatory(): boolean {
+            return String(this.getConfigurations('KNOWAGE.MANDATORY-ROLE') ?? '').toLowerCase() === 'true' && this.user?.roles?.length > 1 && !this.user?.defaultRole
+        },
+        hasLicenseManagement(): boolean {
+            return !!this.user?.functionalities?.includes(UserFunctionalitiesConstants.LICENSE_MANAGEMENT)
+        },
+        showChatbot(): boolean {
+            return !!(this.isEnterpriseValid && this.configurations?.['KNOWAGE.AI.URL'] && this.user?.functionalities?.includes('EngGPTIntegration'))
+        },
+        isModulesRouteActive(): boolean {
+            return this.modules.some((group) => containsRoute(group.items, this.$route.path))
+        },
+        offsetValue(): string {
+            if (this.documentExecution?.embed) return '0px'
+            // The expanded menu overlays the page, so the page always keeps the rail width.
+            return 'var(--kn-mainmenu-width)'
         }
     },
     watch: {
-        news() {
-            const orig = JSON.parse(JSON.stringify(this.allowedUserFunctionalities))
-            this.setConditionedVisibility(orig)
+        offsetValue: {
+            immediate: true,
+            handler(value: string) {
+                document.documentElement.style.setProperty('--kn-mainmenu-offset', value)
+            }
         },
-        closeMenu(newProp) {
-            // @ts-ignore
-            if (newProp) this.$refs.menu.hide()
+        anyPopupOpen(value: boolean) {
+            // A popup keeps the menu open. When the last popup closes and the pointer is away, the menu closes too.
+            if (!value) this.scheduleCollapse()
         },
-        isPortrait() {
-            if (this.isPortrait) this.anchorPosition = 'bottom left'
-            else this.anchorPosition = 'top right'
+        $route() {
+            this.closePopups()
+            this.collapse()
         },
-        menuOpened(newProp) {
-            if (newProp === false) {
-                this.$refs.menu.hide()
+        isRoleMandatory: {
+            immediate: true,
+            handler(value: boolean) {
+                if (value) this.roleDialogVisible = true
             }
         }
     },
     async mounted() {
+        document.addEventListener('keydown', this.onDocumentKeydown)
         await this.loadMenu()
-        this.windowWidth = window.innerWidth
-        this.$nextTick(() => {
-            window.addEventListener('resize', this.updateWindowWidth)
-        })
-        if (this.user?.requiresPasswordChange) {
-            this.accountDisplay = true
-        }
+        if (this.user?.requiresPasswordChange) this.accountDialogVisible = true
     },
-
-    beforeDestroy() {
-        window.removeEventListener('resize', this.updateWindowWidth)
+    beforeUnmount() {
+        document.removeEventListener('keydown', this.onDocumentKeydown)
+        this.clearHoverTimer()
+        document.documentElement.style.setProperty('--kn-mainmenu-offset', '0px')
     },
     methods: {
-        ...mapActions(mainStore, ['setLoading', 'getConfigurations', 'toggleMenuOpened']),
-        accountManagement() {
-            this.accountDisplay = !this.accountDisplay
+        ...mapActions(mainStore, ['setLoading', 'getConfigurations']),
+        normalizeMenuIcon,
+        getMenuLink,
+        isRouteActive,
+        containsRoute,
+        isItemClickable,
+        translate(label: string | undefined): string {
+            return translateMenuLabel(
+                label,
+                (key) => this.$t(key) as string,
+                (key) => this.$te(key),
+                (key) => this.$internationalization(key)
+            )
         },
-        mandatoryRole() {
-            if (this.getConfigurations('KNOWAGE.MANDATORY-ROLE') && this.getConfigurations('KNOWAGE.MANDATORY-ROLE').toLowerCase() === 'true' && this.user.roles.length > 1 && !this.user.defaultRole) {
-                this.roleDisplay = true
-                return true
-            }
+        getTourId(item: IMenuItem): string | undefined {
+            if (item.command) return 'menu-action-' + item.command
+            if (item.conditionedView) return 'menu-conditioned-' + item.conditionedView
+            return undefined
+        },
+        isItemVisible(item: IMenuItem): boolean {
+            if (!item.conditionedView) return true
+            if ((item.conditionedView === 'downloads' && this.configurations['KNOWAGE.DOWNLOAD.MANUAL_REFRESH']) || (item.conditionedView === 'downloads' && this.downloads && this.downloads.count.total > 0)) return true
+            if (item.conditionedView === 'news' && this.news && this.news.count.total > 0) return true
+            // The role row stays in the account menu for every user. A user with one role still picks between that role and the default.
+            if (item.conditionedView === 'roleSelection') return true
             return false
         },
-        info() {
-            this.display = !this.display
-        },
-        logout() {
-            auth.logout()
-        },
-        roleSelection() {
-            this.roleDisplay = !this.roleDisplay
-        },
-        downloadsSelection() {
-            this.downloadsDisplay = !this.downloadsDisplay
-        },
-        isItemToDisplay(item) {
-            if (item.conditionedView) {
-                if ((item.conditionedView === 'downloads' && this.configurations['KNOWAGE.DOWNLOAD.MANUAL_REFRESH']) || (item.conditionedView === 'downloads' && this.downloads && this.downloads.count.total > 0)) return true
-                if (item.conditionedView === 'news' && this.news && this.news.count.total > 0) return true
-                if (item.conditionedView === 'roleSelection' && this.user && this.user.roles && this.user.roles.length > 1) return true
-                return false
-            } else {
-                return true
-            }
-        },
-        languageSelection() {
-            this.languageDisplay = !this.languageDisplay
-        },
-        newsSelection() {
-            this.newsDisplay = !this.newsDisplay
-        },
-        licenseSelection() {
-            this.licenseDisplay = !this.licenseDisplay
-        },
-        isHomeMenuItem(item: IMenuItem) {
-            return item?.label === 'Home'
-        },
-        normalizeHomeMenuItem(item: IMenuItem & { target?: string }) {
-            if (!this.isHomeMenuItem(item)) return item
-
-            item.to = '/'
-            item.url = undefined
-            item.target = undefined
-            return item
-        },
-        itemClick(event) {
-            const item = event.item ? event.item : event
-            if (this.isHomeMenuItem(item)) {
-                this.$router.push({ name: 'home' })
-            } else if (item.command) {
-                this[item.command]()
-            } else if (item.to) {
-                if (event.navigate) event.navigate(event.originalEvent)
-            } else if (item.url) {
-                const target = item.target ?? item.hrefTarget
-                const url = normalizeExternalUrl(item.url)
-                if (target === 'insideKnowage') this.$router.push({ name: 'externalUrl', query: { url } })
-                else window.open(url, target || '_blank', 'noopener')
-            }
-            if (this.adminMenuOpened) this.adminMenuOpened = false
-            this.hideItemMenu()
-        },
-        getHref(item) {
-            let to = item.to
-            if (to) {
-                to = to.replace(/\\\//g, '/')
-                if (to.startsWith('/')) to = to.substring(1)
-                return import.meta.env.VITE_PUBLIC_PATH + to
-            } else return to
-        },
-        toggleProfile() {
-            this.showProfileMenu = !this.showProfileMenu
-        },
-        toggleAdminMenu(event) {
-            this.adminMenuOpened = this.adminMenuOpened === false ? event : false
-        },
-        getProfileImage(user) {
-            if (user && user.organizationImageb64) return user.organizationImageb64
-            return this.publicPath + '/images/commons/logo_knowage.svg'
-        },
-        updateNewsAndDownload() {
-            for (const idx in this.allowedUserFunctionalities) {
-                const menu = this.allowedUserFunctionalities[idx] as any
-                menu.visible = this.isItemToDisplay(menu)
-                menu.badge = this.getBadgeValue(menu)
-            }
-        },
-        getBadgeValue(item) {
+        getBadge(item: IMenuItem): number {
             if (item.conditionedView === 'downloads') {
                 if (Object.keys(this.downloads).length !== 0) return this.downloads.count.total - this.downloads.count.alreadyDownloaded
             } else if (item.conditionedView === 'news') {
@@ -271,24 +311,111 @@ export default defineComponent({
             }
             return 0
         },
-        toggleMenu(event, item) {
-            this.hideItemMenu()
-
-            if (item.items) {
-                this.$emit('openMenu')
-                this.menuTargetElem = document.querySelector(`li[role="menu"][label="${item.label}"]`)
-                this.selectedCustomMenu = item.items
-                // @ts-ignore
-                this.$refs.menu.show()
-                this.toggleMenuOpened(true)
+        closePopups() {
+            this.modulesOpen = false
+            this.accountOpen = false
+            this.openFolder = null
+        },
+        onDocumentKeydown(event: KeyboardEvent) {
+            if (event.key !== 'Escape') return
+            if (this.anyPopupOpen) return
+            if (this.expanded) this.collapse()
+        },
+        clearHoverTimer() {
+            if (this.hoverTimer) clearTimeout(this.hoverTimer)
+            this.hoverTimer = null
+        },
+        onPointerEnter() {
+            this.pointerInside = true
+            this.clearHoverTimer()
+            if (!this.expanded) this.hoverTimer = setTimeout(() => (this.expanded = true), getHoverDelay())
+        },
+        onPointerLeave() {
+            this.pointerInside = false
+            this.scheduleCollapse()
+        },
+        onFocusIn(event: FocusEvent) {
+            // Keyboard focus opens the menu at once. A mouse click also focuses a row, but hover already handles the mouse.
+            const target = event.target as HTMLElement | null
+            if (!target?.matches?.(':focus-visible')) return
+            this.keyboardFocusInside = true
+            this.clearHoverTimer()
+            this.expanded = true
+        },
+        onFocusOut(event: FocusEvent) {
+            if (this.$el.contains(event.relatedTarget as Node | null)) return
+            this.keyboardFocusInside = false
+            this.scheduleCollapse()
+        },
+        scheduleCollapse() {
+            this.clearHoverTimer()
+            if (!this.expanded || this.pointerInside || this.keyboardFocusInside || this.anyPopupOpen) return
+            this.hoverTimer = setTimeout(() => {
+                if (!this.pointerInside && !this.keyboardFocusInside && !this.anyPopupOpen) this.expanded = false
+            }, getHoverDelay())
+        },
+        collapse() {
+            this.clearHoverTimer()
+            this.keyboardFocusInside = false
+            this.expanded = false
+        },
+        onActivate(item: IMenuItem) {
+            if (item.command) {
+                this.runCommand(item.command)
+                return
+            }
+            const target = item.target ?? item.hrefTarget
+            if (item.url && target === 'insideKnowage') this.$router.push({ name: 'externalUrl', query: { url: normalizeExternalUrl(item.url) } })
+        },
+        runCommand(command: string) {
+            switch (command) {
+                case 'info':
+                    this.infoVisible = true
+                    break
+                case 'logout':
+                    auth.logout()
+                    break
+                case 'newsSelection':
+                    this.newsVisible = true
+                    break
+                case 'downloadsSelection':
+                    this.downloadsVisible = true
+                    break
+                case 'licenseSelection':
+                    this.licenseVisible = true
+                    break
+                case 'guidedTour':
+                    this.closePopups()
+                    ;(window as any).startKnowageTour?.()
+                    break
+                case 'languageSelection':
+                    this.openAccount('language')
+                    break
+                case 'roleSelection':
+                    this.openAccount('role')
+                    break
+                default:
+                    break
             }
         },
-        hideItemMenu() {
-            // @ts-ignore
-            this.$refs.menu.hide()
+        openAccount(view: 'main' | 'role' | 'language') {
+            this.accountView = view
+            this.accountOpen = true
         },
-        cleanTo(item): any {
-            return item.to.replace(/\\\//g, '/')
+        onAccountActivate(item: IMenuItem) {
+            this.accountOpen = false
+            this.onActivate(item)
+        },
+        onModuleActivate(item: IMenuItem) {
+            this.modulesOpen = false
+            this.onActivate(item)
+        },
+        onFolderActivate(item: IMenuItem) {
+            this.openFolder = null
+            this.onActivate(item)
+        },
+        async reloadLanguage() {
+            await this.loadMenu(true)
         },
         async loadMenu(recursive = false) {
             this.setLoading(true)
@@ -298,287 +425,263 @@ export default defineComponent({
             await this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/3.0/menu/enduser?locale=' + encodeURIComponent(normalizedLocale))
                 .then((response: AxiosResponse<any>) => {
-                    this.technicalUserFunctionalities = response.data.technicalUserFunctionalities
-                    this.setConditionedVisibility(response.data.allowedUserFunctionalities)
-                    this.dynamicUserFunctionalities = response.data.dynamicUserFunctionalities.sort((el1, el2) => {
-                        return el1.prog - el2.prog
-                    })
-                    this.commonUserFunctionalities = []
-                    const responseCommonUserFunctionalities = response.data.commonUserFunctionalities
-                    for (const index in responseCommonUserFunctionalities) {
-                        const item = this.normalizeHomeMenuItem(responseCommonUserFunctionalities[index])
-                        item.visible = this.isItemToDisplay(item)
-                        this.commonUserFunctionalities.push(item)
-                    }
-
-                    // Add guided tour button before logout
-                    const logoutIndex = this.commonUserFunctionalities.findIndex((item: any) => item.command === 'logout')
-                    const guidedTourItem = {
-                        label: this.$t('menu.guidedTour'),
-                        iconCls: 'fas fa-question-circle',
-                        command: 'guidedTour',
-                        visible: true
-                    }
-                    if (logoutIndex !== -1) {
-                        this.commonUserFunctionalities.splice(logoutIndex, 0, guidedTourItem)
-                    } else {
-                        this.commonUserFunctionalities.push(guidedTourItem)
-                    }
-
-                    this.updateNewsAndDownload()
+                    this.technicalUserFunctionalities = response.data.technicalUserFunctionalities ?? []
+                    this.commonUserFunctionalities = response.data.commonUserFunctionalities ?? []
+                    this.allowedUserFunctionalities = response.data.allowedUserFunctionalities ?? []
+                    this.dynamicUserFunctionalities = response.data.dynamicUserFunctionalities ?? []
                 })
                 .catch(() => {
-                    if (recursive) this.logout()
+                    if (recursive) auth.logout()
                     else this.loadMenu(true)
                 })
                 .finally(() => {
                     this.setLoading(false)
                 })
-        },
-        setConditionedVisibility(responseAllowedUserFunctionalities) {
-            this.allowedUserFunctionalities = []
-            for (const idx in responseAllowedUserFunctionalities) {
-                const item = responseAllowedUserFunctionalities[idx]
-                item.visible = this.isItemToDisplay(item)
-                this.allowedUserFunctionalities.push(item)
-            }
-        },
-        updateWindowWidth() {
-            this.windowWidth = window.innerWidth
-        },
-        setMenu(item) {
-            this.dynamicUserFunctionalities = this.dynamicUserFunctionalities.map((el) => {
-                if (el.label === item.label) {
-                    el.visible = true
-                } else {
-                    el.visible = false
-                }
-                return el
-            })
-        },
-        async reloadLanguage() {
-            await this.loadMenu(true)
-        },
-        reloadGuidedTour() {
-            // no-op placeholder if needed
-        },
-        guidedTour() {
-            // Backend sends command="guidedTour". We map it to the existing tour starter.
-            this.startGuidedTour()
-        },
-        startGuidedTour() {
-            // Close profile dropdown first to avoid overlay issues
-            this.showProfileMenu = false
-
-            const w = window as any
-            if (w.__knowageTourRunning) return
-
-            if (typeof w.startKnowageTour === 'function') {
-                w.startKnowageTour()
-            }
         }
     }
 })
 </script>
 
 <style lang="scss" scoped>
-.slide-down-enter-active,
-.slide-down-leave-active,
-.slide-right-enter-active,
-.slide-right-leave-active {
-    transition: transform 0.3s ease-in-out;
-}
-.slide-down-enter-from,
-.slide-down-leave-to {
-    transform: translateY(-100%);
-}
-.slide-right-enter-from,
-.slide-right-leave-to {
-    transform: translateX(-100%);
-}
-
-.p-scrollpanel:deep(.p-scrollpanel-content) {
-    padding: 0 0 18px 0;
-}
-.itemSection {
-    cursor: pointer;
-}
-.layout-menu-container {
+.kn-main-menu {
+    position: relative;
     z-index: 9000;
+    flex: 0 0 auto;
     width: var(--kn-mainmenu-width);
     height: 100%;
-    background-color: var(--kn-mainmenu-background-color);
-    position: fixed;
+}
+.kn-main-menu__rail {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: var(--kn-mainmenu-width);
     display: flex;
     flex-direction: column;
-    .menu-scroll-content {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-
-        ::-webkit-scrollbar {
-            width: 3px;
-        }
-        ::-webkit-scrollbar-thumb {
-            border-radius: 10rem;
-            border: 1px solid var(--kn-mainmenu-hover-background-color);
-            background: var(--kn-mainmenu-hover-background-color);
-        }
+    overflow: hidden;
+    background-color: var(--kn-mainmenu-background-color);
+    transition:
+        width 200ms ease-out,
+        box-shadow 200ms ease-out;
+    .kn-main-menu--expanded & {
+        width: var(--kn-mainmenu-expanded-width);
+        box-shadow: 4px 0 16px rgba(0, 0, 0, 0.35);
     }
-    .profile {
-        height: 60px;
-        padding: 8px;
-        box-shadow: var(--kn-mainmenu-profile-box-shadow);
-        & > button {
-            cursor: pointer;
-            width: 100%;
-            font-size: 14px;
-            font-family: var(--kn-font-family);
-            .profile-image {
-                width: 45px;
-                height: 45px;
-                float: right;
-                margin-left: 4px;
-                border-radius: var(--kn-mainmenu-avatar-border-radius);
-                border: 2px solid var(--kn-mainmenu-avatar-border-color);
-                background-color: var(--kn-mainmenu-avatar-background-color);
-            }
-            .profile-name,
-            .profile-role,
-            i {
-                display: none;
-            }
-        }
-    }
-    .profile-menu {
-        border-bottom: 1px solid var(--kn-mainmenu-hover-background-color);
-        overflow: unset !important;
-    }
-    .layout-menu {
-        margin: 0;
-        padding: 0;
-        list-style: none;
-        overflow-y: auto;
-        overflow-x: hidden;
-        li,
-        button {
-            &:first-child {
-                padding-top: 10px;
-            }
-        }
-        & > li,
-        & > button {
-            position: relative;
-            & > a {
-                text-align: center;
-                padding: 15px;
-                color: var(--kn-mainmenu-icon-color);
-                display: block;
-                width: 100%;
-                transition:
-                    background-color 0.3s,
-                    border-left-color 0.3s;
-                overflow: hidden;
-                border-left: 4px solid transparent;
-                outline: none;
-                cursor: pointer;
-                user-select: none;
-                span {
-                    display: none;
-                }
-                &:hover {
-                    background-color: var(--kn-mainmenu-hover-background-color);
-                }
-            }
-            & > span {
-                text-decoration: none;
-                text-align: center;
-                padding: 15px;
-                padding-left: 12px;
-                color: var(--kn-mainmenu-icon-color);
-                display: block;
-                width: 100%;
-                transition:
-                    background-color 0.3s,
-                    border-left-color 0.3s;
-                overflow: hidden;
-                border-left: 4px solid transparent;
-                outline: none;
-                cursor: pointer;
-                user-select: none;
-                &:hover {
-                    background-color: var(--kn-mainmenu-hover-background-color);
-                }
-                &.router-link-active {
-                    border-left: 3px solid var(--kn-mainmenu-highlight-color);
-                }
-            }
-        }
-        &.scrollable {
-            overflow-y: auto;
-            overflow-x: hidden;
-        }
+    /* A border on the page side, in the separator color. It sits above the rows and takes no layout space, so the icons do not move. */
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1;
+        width: var(--kn-mainmenu-border-width);
+        background: rgba(255, 255, 255, 0.12);
+        pointer-events: none;
     }
 }
-
-@media screen and (max-width: 1025px) {
-    .layout-menu-container {
-        width: 100%;
-        height: var(--kn-mainmenu-width);
-        flex-direction: row;
-
-        .profile {
-            width: 60px;
-            box-shadow: none;
-        }
-        .menu-scroll-content {
-            width: 100%;
-            flex-direction: row;
-            align-items: center;
-            ::-webkit-scrollbar {
-                height: 2px;
-                width: 0px;
-            }
-        }
-        .layout-menu {
-            padding: 0;
-            display: grid;
-            grid-auto-flow: column;
-            align-items: center;
-            overflow-x: scroll;
-            li {
-                &:first-child {
-                    padding-top: 3px;
-                }
-            }
-        }
-        .profile-menu {
-            border-bottom: none;
-            border-right: 1px solid var(--kn-mainmenu-hover-background-color);
-        }
+.kn-main-menu__header {
+    flex: 0 0 var(--kn-mainmenu-width);
+    height: var(--kn-mainmenu-width);
+    display: flex;
+    align-items: center;
+}
+.kn-main-menu__logo-cell {
+    position: relative;
+    flex: 0 0 var(--kn-mainmenu-width);
+    width: var(--kn-mainmenu-width);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.kn-main-menu__logo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border: 2px solid var(--kn-mainmenu-avatar-border-color);
+    border-radius: var(--kn-mainmenu-avatar-border-radius);
+    background-color: var(--kn-mainmenu-avatar-background-color);
+}
+.kn-main-menu__brand {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--kn-mainmenu-icon-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.kn-main-menu__zone {
+    flex: 0 0 auto;
+    padding: 4px 0;
+}
+/* The top zone and the middle zone hold one list. They keep no gap between them. */
+.kn-main-menu__zone--top {
+    padding-bottom: 0;
+}
+.kn-main-menu__zone--middle {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding-top: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--kn-mainmenu-hover-background-color) transparent;
+    background:
+        linear-gradient(var(--kn-mainmenu-background-color) 30%, transparent) center top / 100% 24px no-repeat local,
+        linear-gradient(transparent, var(--kn-mainmenu-background-color) 70%) center bottom / 100% 24px no-repeat local,
+        radial-gradient(farthest-side at 50% 0, rgba(0, 0, 0, 0.5), transparent) center top / 100% 10px no-repeat scroll,
+        radial-gradient(farthest-side at 50% 100%, rgba(0, 0, 0, 0.5), transparent) center bottom / 100% 10px no-repeat scroll;
+    background-color: var(--kn-mainmenu-background-color);
+    &::-webkit-scrollbar {
+        width: 4px;
+    }
+    &::-webkit-scrollbar-thumb {
+        border-radius: 4px;
+        background: var(--kn-mainmenu-hover-background-color);
     }
 }
-
-@supports (-moz-appearance: none) {
-    .layout-menu-container {
-        .layout-menu {
-            // Firefox ignores ::-webkit-scrollbar, so the thin scrollbar needs the standard properties.
-            scrollbar-width: thin;
-            scrollbar-color: var(--kn-mainmenu-hover-background-color) transparent;
-            & > li {
-                & > span {
-                    width: var(--kn-mainmenu-width);
-                    padding-left: 0px;
-                    padding-right: 0px;
-                }
-            }
-            &:deep(a[role='menuitem']) {
-                width: var(--kn-mainmenu-width);
-                padding-left: 0px;
-                padding-right: 0px;
-            }
-        }
+.kn-main-menu__zone--bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+.kn-main-menu__account-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 52px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--kn-mainmenu-icon-color);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    &:hover,
+    &--active {
+        background: var(--kn-mainmenu-hover-background-color);
     }
+    &:focus-visible {
+        outline: 2px solid var(--kn-mainmenu-highlight-color);
+        outline-offset: -2px;
+    }
+}
+.kn-main-menu__avatar-cell {
+    flex: 0 0 var(--kn-mainmenu-width);
+    width: var(--kn-mainmenu-width);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.kn-main-menu__avatar {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--kn-mainmenu-highlight-color);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+}
+.kn-main-menu__account-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    padding-right: 12px;
+    opacity: 0;
+    transition: opacity 150ms;
+}
+.kn-main-menu--expanded .kn-main-menu__account-text {
+    opacity: 1;
+}
+.kn-main-menu__account-name {
+    font-size: 13px;
+    line-height: 16px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.kn-main-menu__account-sub {
+    font-size: 11px;
+    line-height: 14px;
+    opacity: 0.7;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.kn-main-menu__separator {
+    position: relative;
+    height: 28px;
+    &::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 12px;
+        right: 12px;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.12);
+    }
+}
+.kn-main-menu--expanded .kn-main-menu__separator::before {
+    display: none;
+}
+.kn-main-menu__separator-label {
+    position: absolute;
+    left: 20px;
+    right: 12px;
+    bottom: 6px;
+    font-size: 11px;
+    line-height: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--kn-mainmenu-icon-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 0;
+    transition: opacity 150ms;
+}
+.kn-main-menu--expanded .kn-main-menu__separator-label {
+    opacity: 0.6;
+}
+/* Modal expand: the page dims behind the expanded menu. The theme turns it on through the scrim color, which is transparent by default. */
+.kn-main-menu__scrim {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: var(--kn-mainmenu-width);
+    z-index: -1;
+    background: var(--kn-mainmenu-scrim-color);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease-out;
+}
+.kn-main-menu--expanded .kn-main-menu__scrim {
+    opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+    .kn-main-menu__scrim,
+    .kn-main-menu__rail,
+    .kn-main-menu__separator-label,
+    .kn-main-menu__account-text {
+        transition: none;
+    }
+}
+</style>
+
+<style lang="scss">
+.kn-main-menu-popup {
+    border-radius: 8px;
+    background: var(--kn-mainmenu-panel-color);
+    color: var(--kn-mainmenu-panel-text-color);
 }
 </style>

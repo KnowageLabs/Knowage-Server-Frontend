@@ -3,10 +3,10 @@
     <ConfirmDialog></ConfirmDialog>
     <KnOverlaySpinnerPanel />
     <div class="layout-wrapper-content" :class="{ 'layout-wrapper-content-embed': documentExecution.embed, isMobileDevice: isMobileDevice }">
-        <MainMenu v-if="showMenu && mainMenuVisibility" :closeMenu="closedMenu" @openMenu="openMenu" data-tour-id="main-menu"></MainMenu>
+        <MainMenu v-if="showMenu && mainMenuVisibility" data-tour-id="main-menu"></MainMenu>
 
-        <div class="layout-main" data-tour-id="content-area" :class="{ hiddenMenu: !mainMenuVisibility }" @click="closeMenu" @blur="closeMenu">
-            <router-view :selected-menu-item="selectedMenuItem" @click="closeMenu" />
+        <div class="layout-main" data-tour-id="content-area">
+            <router-view :selected-menu-item="selectedMenuItem" />
         </div>
     </div>
     <KnRotate v-show="isMobileDevice"></KnRotate>
@@ -41,7 +41,6 @@ export default defineComponent({
             themeHelper: new themeHelper(),
             selectedMenuItem: null,
             isMobileDevice: false,
-            closedMenu: false,
             pollingInterval: null as any,
             stopExecution: false,
             tourRunning: false,
@@ -71,9 +70,19 @@ export default defineComponent({
         showMenu() {
             // Il menu viene mostrato se c'è un utente nello store
             return this.user && Object.keys(this.user).length > 0
+        },
+        menuRendered() {
+            return !!(this.showMenu && this.mainMenuVisibility)
         }
     },
     watch: {
+        menuRendered: {
+            immediate: true,
+            handler(rendered) {
+                // MainMenu sets the offset while it is mounted. When it never mounts (embed, ?menu=false), reset it here.
+                if (!rendered) document.documentElement.style.setProperty('--kn-mainmenu-offset', '0px')
+            }
+        },
         error(newError) {
             this.$toast.add({
                 severity: 'error',
@@ -353,12 +362,6 @@ export default defineComponent({
         closeDialog() {
             this.$emit('update:visibility', false)
         },
-        openMenu() {
-            this.closedMenu = false
-        },
-        closeMenu() {
-            this.closedMenu = true
-        },
         checkTopLevelIframe(configs) {
             if (configs?.['KNOWAGE.EMBEDDING_APPLICATION_VALUE']) {
                 if (window.self !== window.top || window.parent.frameElement?.attributes['embedding-application'].value !== configs['KNOWAGE.EMBEDDING_APPLICATION_VALUE']) {
@@ -462,45 +465,38 @@ export default defineComponent({
             }
 
             try {
-                // Language (flag) is mandatory: wait for it to appear.
-                const languageEl = await waitForElement(() => byTourId('menu-action-languageSelection'))
-                if (!languageEl) return
+                const mainMenuEl = await waitForElement(() => byTourId('main-menu'))
+                if (!mainMenuEl) return
 
-                // Optional: wait briefly for main menu container as an intro step.
-                const mainMenuEl = await waitForElement(() => byTourId('main-menu'), { timeoutMs: 1000, intervalMs: 100 })
-
-                const steps: any[] = []
-
-                if (mainMenuEl) {
-                    steps.push({
+                const steps: any[] = [
+                    {
                         element: mainMenuEl,
                         popover: {
                             title: this.$t('tour.mainMenuTitle') || 'Menu',
                             description: this.$t('tour.mainMenuDescription') || 'Usa il menu per navigare tra le funzionalità.',
                             side: 'right',
                             onNextClick: async (_el, _step, opts) => {
-                                // Try to open the profile/menu section so the language flag becomes visible.
-                                const profileBtn = document.querySelector("[data-tour-id='menu-profile'] button") as HTMLElement | null
-                                if (profileBtn) profileBtn.click()
+                                // The language row exists only while the account micromenu is open.
+                                if (!byTourId('menu-action-languageSelection')) {
+                                    const accountBtn = document.querySelector("[data-tour-id='menu-profile'] button") as HTMLElement | null
+                                    if (accountBtn) accountBtn.click()
+                                }
 
-                                // Wait a bit for the language button to appear after expanding.
                                 await waitForElement(() => byTourId('menu-action-languageSelection'), { timeoutMs: 1500, intervalMs: 100 })
 
-                                // Move to the language step.
                                 opts.driver.moveNext()
                             }
                         }
-                    })
-                }
-
-                steps.push({
-                    element: languageEl,
-                    popover: {
-                        title: this.$t('tour.languageTitle') || 'Lingua',
-                        description: this.$t('tour.languageDescription') || 'Clicca qui (bandiera) per cambiare lingua.',
-                        side: 'right'
+                    },
+                    {
+                        element: () => byTourId('menu-action-languageSelection') as Element,
+                        popover: {
+                            title: this.$t('tour.languageTitle') || 'Lingua',
+                            description: this.$t('tour.languageDescription') || 'Clicca qui (bandiera) per cambiare lingua.',
+                            side: 'right'
+                        }
                     }
-                })
+                ]
 
                 const tour = driver({
                     allowClose: true,
@@ -609,21 +605,9 @@ body {
     height: 0px;
 }
 .layout-main {
-    margin-left: var(--kn-mainmenu-width);
-    &.hiddenMenu {
-        margin-left: 0;
-        margin-top: 0;
-        max-width: 100%;
-    }
-    flex: 1;
-    max-width: calc(100% - var(--kn-mainmenu-width));
-}
-@media screen and (max-width: 1025px) {
-    .layout-main {
-        margin-top: var(--kn-mainmenu-width);
-        margin-left: 0;
-        min-width: 100%;
-    }
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 100%;
 }
 
 /* Guided tour (driver.js) look & feel */

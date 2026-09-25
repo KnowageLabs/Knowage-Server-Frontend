@@ -208,7 +208,7 @@
     </div>
 
     <!-- Toggle button (in the sidebar/menu) -->
-    <q-btn flat square class="q-py-md" color="accent" icon="smart_toy" @click="toggleChatbot">
+    <q-btn v-if="!hideTrigger" flat square class="q-py-md" color="accent" icon="smart_toy" @click="toggleChatbot">
         <q-tooltip :delay="500" anchor="center right" self="center left">{{ $t('ai.title') }}</q-tooltip>
     </q-btn>
 </template>
@@ -223,7 +223,11 @@ import { useRouter } from 'vue-router'
 import KnChatSidePanel from './KnChatSidePanel.vue'
 import { AI_TOOLS_STREAMING_MESSAGES } from './AiToolsStreamingMessages'
 
+withDefaults(defineProps<{ hideTrigger?: boolean }>(), { hideTrigger: false })
+
 const { showAlert, minimized, minimizedToCard, isMobile, panelStyle, startDrag, startResize, closePanel, toggleChatbot, minimizeToCard, restoreFromCard } = useChatbotPanel()
+
+defineExpose({ toggleChatbot })
 
 const {
     confirm,
