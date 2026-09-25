@@ -258,6 +258,35 @@
                 "type": "text"
             },
             {
+                "key": "--kn-mainmenu-icon-size",
+                "label": "Menu Icon Size",
+                "type": "text"
+            },
+            {
+                "key": "--kn-mainmenu-font-size",
+                "label": "Menu Font Size",
+                "type": "text"
+            },
+            {
+                "key": "--kn-mainmenu-border-width",
+                "label": "Menu Border",
+                "type": "toggle",
+                "trueValue": "1px",
+                "falseValue": "0px"
+            },
+            {
+                "key": "--kn-mainmenu-scrim-color",
+                "label": "Menu Modal Expand",
+                "type": "toggle",
+                "trueValue": "rgba(0, 0, 0, 0.35)",
+                "falseValue": "transparent"
+            },
+            {
+                "key": "--kn-mainmenu-hover-delay",
+                "label": "Menu Hover Delay",
+                "type": "text"
+            },
+            {
                 "key": "--kn-mainmenu-background-color",
                 "label": "Menu Background Color",
                 "type": "color"

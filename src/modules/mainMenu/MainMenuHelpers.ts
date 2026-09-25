@@ -223,22 +223,3 @@ export function resolveRecentModules(recent: IRecentModule[], groups: IMenuGroup
     }
     return matches
 }
-
-// H8 — expanded preference.
-const EXPANDED_KEY = 'kn.mainMenu.expanded'
-
-export function readExpandedPreference(): boolean {
-    try {
-        return localStorage.getItem(EXPANDED_KEY) === '1'
-    } catch {
-        return false
-    }
-}
-
-export function writeExpandedPreference(expanded: boolean): void {
-    try {
-        localStorage.setItem(EXPANDED_KEY, expanded ? '1' : '0')
-    } catch {
-        // storage unavailable
-    }
-}

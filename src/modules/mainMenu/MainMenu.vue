@@ -2,24 +2,19 @@
     <nav
         id="kn-main-menu"
         class="kn-main-menu layout-menu-container"
-        :class="{ 'kn-main-menu--expanded': expanded, 'kn-main-menu--overlay': isOverlayMode }"
+        :class="{ 'kn-main-menu--expanded': expanded }"
         :aria-label="$t('menu.mainMenu')"
+        @mouseenter="onPointerEnter"
+        @mouseleave="onPointerLeave"
+        @focusin="onFocusIn"
+        @focusout="onFocusOut"
     >
         <div class="kn-main-menu__rail">
             <div class="kn-main-menu__header">
                 <div class="kn-main-menu__logo-cell">
                     <img class="kn-main-menu__logo" :src="logoSrc" alt="" />
-                    <button v-if="!expanded" type="button" class="kn-main-menu__expand-btn" :aria-label="$t('menu.expandMenu')" aria-expanded="false" @click="setExpanded(true)">
-                        <q-icon name="sym_o_left_panel_open" size="20px" />
-                        <q-tooltip anchor="center right" self="center left" :offset="[10, 0]" :delay="300">{{ $t('menu.expandMenu') }}</q-tooltip>
-                    </button>
                 </div>
-                <template v-if="expanded">
-                    <span class="kn-main-menu__brand">{{ hasTenantLogo ? '' : 'Knowage' }}</span>
-                    <button type="button" class="kn-main-menu__collapse-btn" :aria-label="$t('menu.collapseMenu')" aria-expanded="true" @click="setExpanded(false)">
-                        <q-icon name="sym_o_left_panel_close" size="20px" />
-                    </button>
-                </template>
+                <span v-if="expanded" class="kn-main-menu__brand">{{ hasTenantLogo ? '' : 'Knowage' }}</span>
             </div>
 
             <div class="kn-main-menu__zone kn-main-menu__zone--top">
@@ -97,7 +92,6 @@
                             <span class="kn-main-menu__account-name">{{ user.fullName || user.userId }}</span>
                             <span class="kn-main-menu__account-sub">{{ user.userId }} · {{ user.sessionRole || $t('role.defaultRolePlaceholder') }}</span>
                         </span>
-                        <q-tooltip v-if="!expanded && !accountOpen" anchor="center right" self="center left" :offset="[10, 0]" :delay="300">{{ user.fullName || user.userId }}</q-tooltip>
                         <q-menu v-model="accountOpen" class="kn-main-menu-popup" anchor="bottom right" self="bottom left" :offset="[8, 0]" @hide="accountView = 'main'">
                             <MainMenuAccountMenu
                                 v-model:view="accountView"
@@ -115,7 +109,7 @@
             </div>
         </div>
 
-        <div v-if="isOverlayMode && expanded" class="kn-main-menu__scrim" @click="setExpanded(false)"></div>
+        <div class="kn-main-menu__scrim" aria-hidden="true"></div>
 
         <KnChatbot v-if="showChatbot" ref="chatbot" hide-trigger />
 
@@ -148,7 +142,18 @@ import MainMenuRailItem from '@/modules/mainMenu/MainMenuRailItem.vue'
 import NewsDialog from '@/modules/mainMenu/dialogs/NewsDialog/NewsDialog.vue'
 import RoleDialog from '@/modules/mainMenu/dialogs/RoleDialog.vue'
 import type { IMenuGroup, IMenuItem } from '@/modules/mainMenu/MainMenu'
-import { containsRoute, getInitials, getMenuLink, isHomeItem, isItemClickable, isMyAccountItem, isRouteActive, normalizeMenuIcon, readExpandedPreference, translateMenuLabel, writeExpandedPreference } from '@/modules/mainMenu/MainMenuHelpers'
+import { containsRoute, getInitials, getMenuLink, isHomeItem, isItemClickable, isMyAccountItem, isRouteActive, normalizeMenuIcon, translateMenuLabel } from '@/modules/mainMenu/MainMenuHelpers'
+
+// Hover intent: the menu opens only after the pointer rests on it and closes only after the pointer stays away, so a quick pass across the rail does not flicker it.
+// The theme sets the delay through --kn-mainmenu-hover-delay (ms or s).
+const DEFAULT_HOVER_DELAY = 300
+
+function getHoverDelay(): number {
+    const value = getComputedStyle(document.documentElement).getPropertyValue('--kn-mainmenu-hover-delay').trim()
+    const amount = parseFloat(value)
+    if (!Number.isFinite(amount) || amount < 0) return DEFAULT_HOVER_DELAY
+    return /^[\d.]+s$/.test(value) ? amount * 1000 : amount
+}
 
 export default defineComponent({
     name: 'kn-main-menu',
@@ -171,8 +176,10 @@ export default defineComponent({
             commonUserFunctionalities: [] as IMenuItem[],
             allowedUserFunctionalities: [] as IMenuItem[],
             dynamicUserFunctionalities: [] as IMenuItem[],
-            expandedPreference: readExpandedPreference(),
-            overlayExpanded: false,
+            expanded: false,
+            pointerInside: false,
+            keyboardFocusInside: false,
+            hoverTimer: null as ReturnType<typeof setTimeout> | null,
             modulesOpen: false,
             accountOpen: false,
             accountView: 'main' as 'main' | 'role' | 'language',
@@ -188,11 +195,8 @@ export default defineComponent({
     },
     computed: {
         ...mapState(mainStore, ['configurations', 'user', 'downloads', 'news', 'locale', 'isEnterpriseValid', 'documentExecution']),
-        isOverlayMode(): boolean {
-            return this.$q.screen.lt.md
-        },
-        expanded(): boolean {
-            return this.isOverlayMode ? this.overlayExpanded : this.expandedPreference
+        anyPopupOpen(): boolean {
+            return this.modulesOpen || this.accountOpen || !!this.openFolder
         },
         hasTenantLogo(): boolean {
             return !!this.user?.organizationImageb64
@@ -235,7 +239,8 @@ export default defineComponent({
         },
         offsetValue(): string {
             if (this.documentExecution?.embed) return '0px'
-            return this.expanded && !this.isOverlayMode ? 'var(--kn-mainmenu-expanded-width)' : 'var(--kn-mainmenu-width)'
+            // The expanded menu overlays the page, so the page always keeps the rail width.
+            return 'var(--kn-mainmenu-width)'
         }
     },
     watch: {
@@ -245,12 +250,13 @@ export default defineComponent({
                 document.documentElement.style.setProperty('--kn-mainmenu-offset', value)
             }
         },
-        isOverlayMode(value: boolean) {
-            if (value) this.overlayExpanded = false
+        anyPopupOpen(value: boolean) {
+            // A popup keeps the menu open. When the last popup closes and the pointer is away, the menu closes too.
+            if (!value) this.scheduleCollapse()
         },
         $route() {
             this.closePopups()
-            if (this.isOverlayMode) this.overlayExpanded = false
+            this.collapse()
         },
         isRoleMandatory: {
             immediate: true,
@@ -266,6 +272,7 @@ export default defineComponent({
     },
     beforeUnmount() {
         document.removeEventListener('keydown', this.onDocumentKeydown)
+        this.clearHoverTimer()
         document.documentElement.style.setProperty('--kn-mainmenu-offset', '0px')
     },
     methods: {
@@ -311,21 +318,48 @@ export default defineComponent({
         },
         onDocumentKeydown(event: KeyboardEvent) {
             if (event.key !== 'Escape') return
-            if (this.modulesOpen || this.accountOpen || this.openFolder) return
-            if (this.isOverlayMode && this.overlayExpanded) this.overlayExpanded = false
+            if (this.anyPopupOpen) return
+            if (this.expanded) this.collapse()
         },
-        setExpanded(value: boolean) {
-            this.closePopups()
-            if (this.isOverlayMode) {
-                this.overlayExpanded = value
-                return
-            }
-            this.expandedPreference = value
-            writeExpandedPreference(value)
-            setTimeout(() => window.dispatchEvent(new Event('resize')), 220)
+        clearHoverTimer() {
+            if (this.hoverTimer) clearTimeout(this.hoverTimer)
+            this.hoverTimer = null
+        },
+        onPointerEnter() {
+            this.pointerInside = true
+            this.clearHoverTimer()
+            if (!this.expanded) this.hoverTimer = setTimeout(() => (this.expanded = true), getHoverDelay())
+        },
+        onPointerLeave() {
+            this.pointerInside = false
+            this.scheduleCollapse()
+        },
+        onFocusIn(event: FocusEvent) {
+            // Keyboard focus opens the menu at once. A mouse click also focuses a row, but hover already handles the mouse.
+            const target = event.target as HTMLElement | null
+            if (!target?.matches?.(':focus-visible')) return
+            this.keyboardFocusInside = true
+            this.clearHoverTimer()
+            this.expanded = true
+        },
+        onFocusOut(event: FocusEvent) {
+            if (this.$el.contains(event.relatedTarget as Node | null)) return
+            this.keyboardFocusInside = false
+            this.scheduleCollapse()
+        },
+        scheduleCollapse() {
+            this.clearHoverTimer()
+            if (!this.expanded || this.pointerInside || this.keyboardFocusInside || this.anyPopupOpen) return
+            this.hoverTimer = setTimeout(() => {
+                if (!this.pointerInside && !this.keyboardFocusInside && !this.anyPopupOpen) this.expanded = false
+            }, getHoverDelay())
+        },
+        collapse() {
+            this.clearHoverTimer()
+            this.keyboardFocusInside = false
+            this.expanded = false
         },
         onActivate(item: IMenuItem) {
-            if (this.isOverlayMode && this.overlayExpanded) this.overlayExpanded = false
             if (item.command) {
                 this.runCommand(item.command)
                 return
@@ -415,10 +449,6 @@ export default defineComponent({
     flex: 0 0 auto;
     width: var(--kn-mainmenu-width);
     height: 100%;
-    transition: width 200ms ease-out;
-    &--expanded:not(.kn-main-menu--overlay) {
-        width: var(--kn-mainmenu-expanded-width);
-    }
 }
 .kn-main-menu__rail {
     position: absolute;
@@ -430,16 +460,24 @@ export default defineComponent({
     flex-direction: column;
     overflow: hidden;
     background-color: var(--kn-mainmenu-background-color);
-    /* A hairline on the page side. box-shadow paints outside the box, so the rail keeps its width and the icons do not move. */
-    box-shadow: 1px 0 0 rgba(0, 0, 0, 0.16);
-    transition: width 200ms ease-out;
+    transition:
+        width 200ms ease-out,
+        box-shadow 200ms ease-out;
     .kn-main-menu--expanded & {
         width: var(--kn-mainmenu-expanded-width);
+        box-shadow: 4px 0 16px rgba(0, 0, 0, 0.35);
     }
-    .kn-main-menu--overlay.kn-main-menu--expanded & {
-        box-shadow:
-            1px 0 0 rgba(0, 0, 0, 0.16),
-            4px 0 16px rgba(0, 0, 0, 0.35);
+    /* A border on the page side, in the separator color. It sits above the rows and takes no layout space, so the icons do not move. */
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1;
+        width: var(--kn-mainmenu-border-width);
+        background: rgba(255, 255, 255, 0.12);
+        pointer-events: none;
     }
 }
 .kn-main-menu__header {
@@ -464,44 +502,6 @@ export default defineComponent({
     border: 2px solid var(--kn-mainmenu-avatar-border-color);
     border-radius: var(--kn-mainmenu-avatar-border-radius);
     background-color: var(--kn-mainmenu-avatar-background-color);
-    transition: opacity 120ms;
-}
-.kn-main-menu__expand-btn,
-.kn-main-menu__collapse-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    border: 0;
-    border-radius: 6px;
-    background: var(--kn-mainmenu-hover-background-color);
-    color: var(--kn-mainmenu-icon-color);
-    cursor: pointer;
-    &:focus-visible {
-        outline: 2px solid var(--kn-mainmenu-highlight-color);
-        outline-offset: -2px;
-    }
-}
-.kn-main-menu__expand-btn {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 40px;
-    height: 40px;
-    transform: translate(-50%, -50%);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 120ms;
-}
-.kn-main-menu:not(.kn-main-menu--expanded) .kn-main-menu__header:hover,
-.kn-main-menu:not(.kn-main-menu--expanded) .kn-main-menu__header:focus-within {
-    .kn-main-menu__logo {
-        opacity: 0;
-    }
-    .kn-main-menu__expand-btn {
-        opacity: 1;
-        pointer-events: auto;
-    }
 }
 .kn-main-menu__brand {
     flex: 1 1 auto;
@@ -512,16 +512,6 @@ export default defineComponent({
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-.kn-main-menu__collapse-btn {
-    flex: 0 0 32px;
-    width: 32px;
-    height: 32px;
-    margin-right: 12px;
-    background: transparent;
-    &:hover {
-        background: var(--kn-mainmenu-hover-background-color);
-    }
 }
 .kn-main-menu__zone {
     flex: 0 0 auto;
@@ -662,6 +652,7 @@ export default defineComponent({
 .kn-main-menu--expanded .kn-main-menu__separator-label {
     opacity: 0.6;
 }
+/* Modal expand: the page dims behind the expanded menu. The theme turns it on through the scrim color, which is transparent by default. */
 .kn-main-menu__scrim {
     position: fixed;
     top: 0;
@@ -669,15 +660,19 @@ export default defineComponent({
     bottom: 0;
     left: var(--kn-mainmenu-width);
     z-index: -1;
-    background: rgba(0, 0, 0, 0.35);
+    background: var(--kn-mainmenu-scrim-color);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease-out;
+}
+.kn-main-menu--expanded .kn-main-menu__scrim {
+    opacity: 1;
 }
 @media (prefers-reduced-motion: reduce) {
-    .kn-main-menu,
+    .kn-main-menu__scrim,
     .kn-main-menu__rail,
     .kn-main-menu__separator-label,
-    .kn-main-menu__account-text,
-    .kn-main-menu__logo,
-    .kn-main-menu__expand-btn {
+    .kn-main-menu__account-text {
         transition: none;
     }
 }

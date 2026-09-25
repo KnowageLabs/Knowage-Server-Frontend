@@ -4354,9 +4354,7 @@
         "DashboardThemeManagement": "Dashboard Themes",
         "ThemeManagement": "Themes",
         "account": "Account",
-        "collapseMenu": "Collapse menu",
         "customMenu": "Menu",
-        "expandMenu": "Expand menu",
         "group": {
             "ImportExport": "Import/Export",
             "ServerManager": "Server manager"

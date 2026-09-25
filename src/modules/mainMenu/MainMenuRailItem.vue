@@ -14,7 +14,7 @@
             <span class="kn-rail-item__icon">
                 <img v-if="imageSrc" class="kn-rail-item__image" :src="imageSrc" alt="" />
                 <i v-else-if="icon && isPrimeIcon(icon)" :class="icon" class="kn-rail-item__glyph"></i>
-                <q-icon v-else :name="icon" size="18px" />
+                <q-icon v-else :name="icon" size="var(--kn-mainmenu-icon-size)" />
             </span>
             <span ref="label" class="kn-rail-item__label">{{ label }}</span>
             <q-badge v-if="badge > 0" class="kn-rail-item__badge">{{ badge }}</q-badge>
@@ -40,7 +40,7 @@
         <span class="kn-rail-item__icon">
             <img v-if="imageSrc" class="kn-rail-item__image" :src="imageSrc" alt="" />
             <i v-else-if="icon && isPrimeIcon(icon)" :class="icon" class="kn-rail-item__glyph"></i>
-            <q-icon v-else :name="icon" size="18px" />
+            <q-icon v-else :name="icon" size="var(--kn-mainmenu-icon-size)" />
         </span>
         <span ref="label" class="kn-rail-item__label">{{ label }}</span>
         <q-badge v-if="badge > 0" class="kn-rail-item__badge">{{ badge }}</q-badge>
@@ -65,7 +65,7 @@
         <span class="kn-rail-item__icon">
             <img v-if="imageSrc" class="kn-rail-item__image" :src="imageSrc" alt="" />
             <i v-else-if="icon && isPrimeIcon(icon)" :class="icon" class="kn-rail-item__glyph"></i>
-            <q-icon v-else :name="icon" size="18px" />
+            <q-icon v-else :name="icon" size="var(--kn-mainmenu-icon-size)" />
         </span>
         <span ref="label" class="kn-rail-item__label">{{ label }}</span>
         <q-badge v-if="badge > 0" class="kn-rail-item__badge">{{ badge }}</q-badge>
@@ -111,14 +111,20 @@ export default defineComponent({
             }
         },
         showTooltip(): boolean {
-            return !this.popupOpen && (!this.expanded || this.isTruncated)
+            // Hover expands the menu, so the tooltip only shows a label cut off in the expanded menu.
+            return !this.popupOpen && this.expanded && this.isTruncated
+        }
+    },
+    watch: {
+        expanded(value: boolean) {
+            if (!value) this.isTruncated = false
         }
     },
     methods: {
         isPrimeIcon,
         onMouseEnter() {
             const labelEl = this.$refs.label as HTMLElement | undefined
-            this.isTruncated = !!labelEl && labelEl.scrollWidth > labelEl.clientWidth
+            this.isTruncated = this.expanded && !!labelEl && labelEl.scrollWidth > labelEl.clientWidth
         },
         onPlainClick(event: MouseEvent) {
             if (this.disabled) {
@@ -180,18 +186,18 @@ export default defineComponent({
     justify-content: center;
 }
 .kn-rail-item__glyph {
-    font-size: 18px;
+    font-size: var(--kn-mainmenu-icon-size);
 }
 .kn-rail-item__image {
-    width: 20px;
-    height: 20px;
+    width: calc(var(--kn-mainmenu-icon-size) + 2px);
+    height: calc(var(--kn-mainmenu-icon-size) + 2px);
     object-fit: contain;
 }
 .kn-rail-item__label {
     flex: 1 1 auto;
     min-width: 0;
     padding-right: 12px;
-    font-size: 14px;
+    font-size: var(--kn-mainmenu-font-size);
     line-height: 20px;
     white-space: nowrap;
     overflow: hidden;
