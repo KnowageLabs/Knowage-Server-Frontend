@@ -106,6 +106,13 @@ export const updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable = (model: a
                 delete data.dataLabels.alignTo
                 data.dataLabels.align = 'center'
             }
+            if (model?.chart?.type === 'waterfall') {
+                delete data.dataLabels.alignTo
+                delete data.dataLabels.distance
+                delete data.dataLabels.headers
+                data.dataLabels.allowOverlap = true
+                data.dataLabels.inside = true
+            }
             if (model?.chart?.type === 'treemap' || model?.chart?.type === 'streamgraph') {
                 delete data.dataLabels.alignTo
             }

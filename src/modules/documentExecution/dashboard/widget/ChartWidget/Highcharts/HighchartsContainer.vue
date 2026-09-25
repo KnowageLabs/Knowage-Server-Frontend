@@ -718,17 +718,8 @@ export default defineComponent({
                 })
             })
 
-            this.$nextTick(() => {
-                requestAnimationFrame(() => {
-                    if (chart !== this.highchartsInstance) return
-                    const container = chart.renderTo?.parentElement
-                    const { width, height } = container?.getBoundingClientRect() ?? { width: 0, height: 0 }
-                    if (width > 0 && height > 0 && typeof chart.setSize === 'function') {
-                        chart.setSize(Math.round(width), Math.round(height), false)
-                    }
-                    this.scheduleDrilldownPresentationNormalization()
-                })
-            })
+            if (typeof chart.reflow === 'function') chart.reflow()
+            this.scheduleDrilldownPresentationNormalization()
         },
         getModelForRender() {
             const formattedChartModel = deepcopy(this.chartModel)
