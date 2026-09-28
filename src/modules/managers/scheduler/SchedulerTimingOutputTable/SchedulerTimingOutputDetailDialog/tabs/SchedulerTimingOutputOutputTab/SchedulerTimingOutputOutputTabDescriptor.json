@@ -27,10 +27,6 @@
     },
     "documentOutputTypes": [
         {
-            "label": "HTML",
-            "value": "HTML"
-        },
-        {
             "label": "PDF",
             "value": "PDF"
         },

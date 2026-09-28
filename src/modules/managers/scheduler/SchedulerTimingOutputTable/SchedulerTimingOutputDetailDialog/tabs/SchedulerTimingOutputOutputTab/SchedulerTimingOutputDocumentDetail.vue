@@ -96,7 +96,7 @@ export default defineComponent({
       this.formatDocument()
     },
     formatDocument() {
-      if (!this.document.outputType) this.document.outputType = 'HTML'
+      if (!this.document.outputType) this.document.outputType = 'PDF'
       if (this.document.uniqueMail) this.setSetUniqueMailSelected(this.document)
 
       if (this.document.saveassnapshot == undefined) this.document.saveassnapshot = false
