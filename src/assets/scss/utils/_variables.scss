@@ -159,7 +159,15 @@
     --kn-param-sidebar-icon-radius: 50%;
 
     //chatbot
-    --kn-chatbot-color-background: #682c5264;
+    --kn-chatbot-header-background-color: var(--kn-toolbar-primary-background-color);
+    --kn-chatbot-header-color: var(--kn-toolbar-primary-color);
+    --kn-chatbot-accent-color: var(--kn-button-primary-background-color);
+    --kn-chatbot-background-color: #f3f3f3;
+    --kn-chatbot-user-bubble-background-color: var(--kn-toolbar-primary-background-color);
+    --kn-chatbot-user-bubble-color: #ffffff;
+    --kn-chatbot-assistant-bubble-background-color: #ffffff;
+    --kn-chatbot-assistant-bubble-color: #212121;
+    --kn-chatbot-border-radius: 4px;
 
     //DOCUMENTATION
     --kn-documentation-drawer-color-background: #ffffff;

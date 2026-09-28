@@ -1,241 +1,161 @@
 <template>
-    <!-- ── Minimized-to-card pill ─────────────────────────────────────────── -->
+    <!-- Minimized pill -->
     <Teleport to="body">
-        <Transition name="kn-card-pop">
-            <div v-if="minimizedToCard" class="kn-chatbot-pill" @click="restoreFromCard">
-                <q-icon name="smart_toy" size="xs" color="white" class="q-mr-xs" />
-                <span class="kn-chatbot-pill-label">{{ selectedBm?.name ?? $t('ai.title') }}</span>
-                <q-badge v-if="unreadCount > 0" color="red" floating class="kn-chatbot-pill-badge">{{ unreadCount }}</q-badge>
-            </div>
+        <Transition name="kn-chatbot-pop">
+            <button v-if="minimizedToCard && !poppedOut" type="button" class="kn-chatbot-pill" @click="restoreFromCard">
+                <q-icon name="smart_toy" size="18px" class="q-mr-xs" />
+                <span class="kn-chatbot-pill__label">{{ selectedBm?.name ?? $t('ai.title') }}</span>
+                <q-badge v-if="unreadCount > 0" color="negative" floating>{{ unreadCount }}</q-badge>
+            </button>
         </Transition>
     </Teleport>
 
-    <!-- ── Main panel ─────────────────────────────────────────────────────── -->
-    <div v-show="showAlert && !minimizedToCard" class="kn-chatbot shadow-4" :style="panelStyle">
+    <!-- Chat window. In the pop-out it moves to the Picture-in-Picture document. -->
+    <Teleport :to="pipBody ?? 'body'">
+        <div v-show="poppedOut || (showAlert && !minimizedToCard)" class="kn-chatbot" :class="{ 'kn-chatbot--popped': poppedOut, 'kn-chatbot--mobile': isMobile && !poppedOut }" :style="poppedOut ? undefined : panelStyle">
+            <!-- Toolbar -->
+            <div class="kn-chatbot__toolbar row no-wrap items-center" :class="{ 'kn-chatbot__toolbar--draggable': !poppedOut && !isMobile }" @mousedown="!poppedOut && startDrag($event)">
+                <q-icon name="smart_toy" size="20px" class="q-mr-sm" />
+                <span class="kn-chatbot__title col ellipsis">{{ $t('ai.title') }}</span>
 
-        <!-- Toolbar -->
-        <div class="kn-chatbot-toolbar" @mousedown="startDrag">
-            <q-icon name="smart_toy" size="sm" color="white" class="q-mr-sm flex-shrink-0" />
-            <div class="col column kn-overflow-hidden q-mr-sm">
-                <div class="kn-chatbot-toolbar-main">{{ $t('ai.title') }}</div>
-                <div v-if="!minimized && selectedBm" class="kn-chatbot-toolbar-sub">
-                    <span class="kn-chatbot-toolbar-dot"></span>{{ selectedBm.name }}
-                </div>
+                <q-btn v-for="action in toolbarActions" :key="action.icon" flat round dense size="sm" :icon="action.icon" :title="poppedOut ? action.label : undefined" @mousedown.stop @click="action.handler">
+                    <q-badge v-if="action.badge" color="negative" floating>{{ action.badge }}</q-badge>
+                    <q-tooltip v-if="!poppedOut" :delay="500">{{ action.label }}</q-tooltip>
+                </q-btn>
             </div>
 
-            <!-- Session loading indicator -->
-            <q-spinner-dots v-if="sessionLoading" size="xs" color="white" class="q-mr-sm" />
-
-            <!-- New conversation -->
-            <q-btn flat round dense icon="add_comment" color="white" size="sm" class="q-mr-xs" @mousedown.stop @click="confirm = true">
-                <q-tooltip :delay="500">{{ $t('ai.newChat') }}</q-tooltip>
-            </q-btn>
-
-            <!-- Settings popover button -->
-            <q-btn flat round dense icon="settings" color="white" size="sm" class="q-mr-xs" @mousedown.stop>
-                <q-tooltip :delay="500">{{ $t('ai.sessionSettings') }}</q-tooltip>
-                <q-menu anchor="bottom middle" self="top middle" :offset="[0, 4]" class="kn-chatbot-menu">
-                    <q-card flat class="kn-settings-card">
-                        <q-card-section class="q-pa-md">
-                            <div class="text-subtitle2 text-weight-bold q-mb-sm" style="color: #4f46e5">{{ $t('ai.sessionSettings') }}</div>
-                            <q-select
-                                v-model="selectedBm"
-                                :options="businessModels"
-                                :option-label="(bm) => bm?.name ?? ''"
-                                :label="$t('ai.selectModel')"
-                                dense
-                                outlined
-                                class="q-mb-sm kn-bm-select"
-                                :popup-content-style="{ zIndex: '9700' }"
-                                @update:model-value="onBmChange"
-                            />
-                            <q-btn
-                                unelevated
-                                color="primary"
-                                :label="$t('ai.startSession')"
-                                :loading="sessionLoading"
-                                :disable="!selectedBm"
-                                size="sm"
-                                class="full-width kn-settings-start-btn"
-                                v-close-popup
-                                @click="onStartSession"
-                            />
-                        </q-card-section>
-                    </q-card>
-                </q-menu>
-            </q-btn>
-
-            <!-- Side panel toggle -->
-            <q-btn flat round dense icon="analytics" :color="sidePanelVisible ? 'yellow-3' : 'white'" size="sm" class="q-mr-xs" @mousedown.stop @click="sidePanelVisible = !sidePanelVisible">
-                <q-badge v-if="sideItems.length > 0" color="red" floating>{{ sideItems.length }}</q-badge>
-                <q-tooltip :delay="500">{{ $t('ai.sidePanel.toggle') }}</q-tooltip>
-            </q-btn>
-
-            <!-- Minimize to card -->
-            <q-btn flat round dense icon="remove" color="white" size="sm" class="q-mr-xs" @mousedown.stop @click="minimizeToCard">
-                <q-tooltip :delay="500">{{ $t('common.minimize') }}</q-tooltip>
-            </q-btn>
-
-            <!-- Close -->
-            <q-btn flat round dense icon="close" color="white" size="sm" @mousedown.stop @click="closePanel">
-                <q-tooltip :delay="500">{{ $t('common.close') }}</q-tooltip>
-            </q-btn>
-        </div>
-
-        <!-- Body: chat + optional side panel -->
-        <div v-if="!minimized" class="kn-chatbot-body col row">
-
-            <!-- New conversation confirm overlay -->
-            <div v-if="confirm" class="kn-chatbot-confirm-overlay">
-                <q-card class="kn-chatbot-confirm-card shadow-6">
-                    <q-card-section class="row items-center q-pb-none">
-                        <q-icon name="warning_amber" color="orange-6" size="sm" class="q-mr-sm" />
-                        <span class="text-body2">{{ $t('ai.newConversationConfirm') }}</span>
-                    </q-card-section>
-                    <q-card-actions align="right" class="q-pt-sm">
-                        <q-btn flat :label="$t('common.cancel')" color="grey-7" size="sm" @click="confirm = false" />
-                        <q-btn unelevated :label="$t('common.yes')" color="primary" size="sm" @click="confirmNewChat" />
-                    </q-card-actions>
-                </q-card>
-            </div>
-
-            <!-- Messages column -->
-            <div class="col column kn-overflow-hidden">
-                <!-- Session loading banner -->
-                <div v-if="sessionLoading" class="kn-session-banner row items-center q-px-md q-py-xs">
-                    <q-spinner-dots size="xs" color="primary" class="q-mr-sm" />
-                    <span class="text-caption">{{ $t('ai.sessionLoading') }}</span>
-                </div>
-
-                <div ref="chatContainer" class="kn-chatbot-messages col q-px-sm q-pt-sm" style="overflow-y: auto; overflow-x: hidden">
-                    <div v-for="message in chat" :key="message.turnId" class="q-mr-md relative-position">
-                        <q-chat-message
-                            :name="message.role === 'assistant' ? 'AI' : $t('common.user')"
-                            :avatar="message.role === 'assistant' ? avatarImg : undefined"
-                            :sent="message.role === 'user'"
-                            :bg-color="message.isError ? 'red-1' : undefined"
-                        >
-                            <div class="kn-chatbot-message-content" :class="{ 'kn-chatbot-message-content--with-artifacts': messageHasArtifacts(message) }">
-                                <q-btn
-                                    v-if="messageHasArtifacts(message)"
-                                    flat
-                                    round
-                                    dense
-                                    size="xs"
-                                    icon="inventory_2"
-                                    color="primary"
-                                    class="kn-chatbot-artifacts-btn"
-                                    @click.stop="openArtifactsForMessage(message)"
-                                >
-                                    <q-tooltip :delay="500" anchor="top middle" self="bottom middle">{{ $t('ai.sidePanel.title') }}</q-tooltip>
-                                </q-btn>
-
-                                <div v-if="message.isLive" class="row items-center kn-thinking-state">
-                                    <q-spinner-dots size="1.2rem" color="primary" class="q-mr-sm" />
-                                    <span class="text-caption kn-thinking-text-shell">
-                                        <Transition v-if="isToolStreamingMessage(message.content || '')" name="kn-message-slide" mode="out-in">
-                                            <span :key="message.content || 'thinking'" class="kn-thinking-text">{{ message.content || $t('ai.thinking') }}</span>
-                                        </Transition>
-                                        <span v-else class="kn-thinking-text">{{ message.content || $t('ai.thinking') }}</span>
-                                    </span>
-                                </div>
-                                <div v-else-if="message.isStreamError" class="row items-start kn-stream-error">
-                                    <q-icon name="warning_amber" color="negative" size="sm" class="q-mr-xs q-mt-xs" />
-                                    <vue-markdown-it :source="message.content"></vue-markdown-it>
-                                </div>
-                                <vue-markdown-it v-else :source="message.content"></vue-markdown-it>
-                            </div>
-                        </q-chat-message>
-
-                        <div v-if="getUrlLinksForMessage(message).length > 0" class="kn-dashboard-buttons-container">
-                            <div v-for="link in getUrlLinksForMessage(message)" :key="link.url" class="kn-url-artifact-item" @click="navigateToLink(link.url)">
-                                <q-icon name="dashboard" size="xs" class="kn-url-artifact-icon" />
-                                <span class="kn-url-artifact-label">{{ link.title }}</span>
-                                <q-icon name="open_in_new" size="xs" class="kn-url-artifact-open-icon" />
-                            </div>
-                        </div>
-
-                        <div v-if="message.timestamp" class="text-caption kn-chatbot-timestamp" :class="message.role === 'user' ? 'text-right q-pr-xs' : 'text-left q-pl-xs'">
-                            {{ formatTime(message.timestamp) }}
-                        </div>
+            <div class="kn-chatbot__body row no-wrap col">
+                <div class="column no-wrap col kn-chatbot__main">
+                    <!-- Confirmation (inline, so it also works in the pop-out) -->
+                    <div v-if="confirmMode" class="kn-chatbot__overlay">
+                        <q-card class="kn-chatbot__confirm">
+                            <q-card-section class="row no-wrap items-start q-pb-sm">
+                                <q-icon name="warning_amber" color="warning" size="sm" class="q-mr-sm" />
+                                <span class="text-body2">{{ confirmMode === 'switchModel' ? $t('ai.modelChangeConfirm') : $t('ai.newConversationConfirm') }}</span>
+                            </q-card-section>
+                            <q-card-actions align="right">
+                                <q-btn flat :label="$t('common.cancel')" @click="cancelPending" />
+                                <q-btn unelevated class="kn-chatbot__accent-btn" :label="$t('common.yes')" @click="confirmPending" />
+                            </q-card-actions>
+                        </q-card>
                     </div>
 
-                    <div ref="bottomAnchor"></div>
-                </div>
-
-                <!-- Input area -->
-                <div class="kn-chatbot-input-area q-pa-sm">
-                    <q-input
-                        ref="messageInput"
-                        outlined
-                        dense
-                        :placeholder="$t('ai.message.placeholder')"
-                        v-model="userMessage"
-                        :disable="awaitingReply || sessionLoading || !sessionReady"
-                        @keyup.enter="sendMessage"
-                    >
-                        <template #append>
-                            <q-btn flat round dense :color="listening ? 'negative' : 'primary'" :icon="listening ? 'mic_off' : 'mic'" size="sm" @click="toggleVoice" class="q-mr-xs">
-                                <q-tooltip :delay="500" anchor="top middle" self="bottom middle">{{ listening ? $t('ai.voice.stop') : $t('ai.voice.start') }}</q-tooltip>
-                            </q-btn>
-                            <q-btn color="primary" icon="send" size="sm" :loading="awaitingReply" :disable="!userMessage || !sessionReady" @click="sendMessage">
-                                <q-tooltip :delay="500" anchor="top middle" self="bottom middle">{{ $t('common.send') }}</q-tooltip>
-                            </q-btn>
+                    <!-- Session error -->
+                    <q-banner v-if="sessionError" dense class="kn-chatbot__banner">
+                        <template #avatar><q-icon name="cloud_off" color="negative" /></template>
+                        {{ $t('ai.sessionError') }}
+                        <template #action>
+                            <q-btn flat dense :label="$t('common.retry')" @click="initSession" />
                         </template>
-                    </q-input>
-                    <span class="text-caption q-mt-xs block kn-disclaimer">{{ $t('ai.disclaimer') }}</span>
-                </div>
-            </div>
+                    </q-banner>
 
-            <!-- Side panel (slide in) -->
-            <Transition name="kn-slide-right">
+                    <!-- Messages -->
+                    <div class="kn-chatbot__messages col">
+                        <div v-if="modelsLoaded && businessModels.length === 0" class="kn-chatbot__empty column items-center">
+                            <q-icon name="hub" size="2.5rem" color="grey-5" class="q-mb-sm" />
+                            <span>{{ $t('ai.noModels') }}</span>
+                        </div>
+                        <KnChatMessage
+                            v-for="message in chat"
+                            v-else
+                            :key="message.turnId"
+                            :message="message"
+                            :links="getUrlLinksForMessage(message)"
+                            :artifact-count="artifactCountForMessage(message)"
+                            :time="formatTime(message.timestamp)"
+                            @open-artifacts="openArtifactsForMessage"
+                            @navigate="navigateToLink"
+                        />
+                        <div ref="bottomAnchor"></div>
+                    </div>
+
+                    <!-- Composer: the prompt on top; the business model and the send controls in its footer -->
+                    <div class="kn-chatbot__input">
+                        <div class="kn-chatbot__composer" :class="{ 'kn-chatbot__composer--disabled': inputDisabled }">
+                            <q-input ref="messageInput" v-model="userMessage" type="textarea" autogrow borderless dense class="kn-chatbot__prompt" :placeholder="$t('ai.message.placeholder')" :disable="inputDisabled" @keydown.enter="onEnter" />
+
+                            <div class="kn-chatbot__composer-footer row no-wrap items-center">
+                                <!-- The icon colour is the session state. -->
+                                <q-btn v-if="!poppedOut && businessModels.length > 0" flat dense no-caps class="kn-chatbot__model-btn" :disable="awaitingReply">
+                                    <q-icon name="storage" size="16px" class="kn-chatbot__model-icon" :class="`kn-chatbot__model-icon--${sessionState}`" />
+                                    <span class="ellipsis q-mx-xs">{{ selectedBm?.name ?? $t('ai.selectModel') }}</span>
+                                    <q-icon name="expand_more" size="16px" />
+                                    <q-tooltip :delay="500">{{ sessionStateLabel }}</q-tooltip>
+                                    <q-menu anchor="top left" self="bottom left" :offset="[0, 4]" class="kn-chatbot-popup">
+                                        <q-list dense class="kn-chatbot__model-list">
+                                            <q-item-label header>{{ $t('ai.selectModel') }}</q-item-label>
+                                            <q-item v-for="bm in businessModels" :key="bm.id" v-close-popup clickable :active="bm.id === selectedBm?.id" @click="requestModelChange(bm)">
+                                                <q-item-section>{{ bm.name }}</q-item-section>
+                                                <q-item-section v-if="bm.id === selectedBm?.id" side><q-icon name="check" size="16px" /></q-item-section>
+                                            </q-item>
+                                        </q-list>
+                                    </q-menu>
+                                </q-btn>
+                                <!-- In the pop-out, Quasar menus would open in the main window, so the model is read-only there. -->
+                                <span v-else-if="selectedBm" class="kn-chatbot__model-static row no-wrap items-center" :title="`${sessionStateLabel} · ${$t('ai.modelInMainWindow')}`">
+                                    <q-icon name="storage" size="16px" class="kn-chatbot__model-icon" :class="`kn-chatbot__model-icon--${sessionState}`" />
+                                    <span class="ellipsis q-ml-xs">{{ selectedBm.name }}</span>
+                                </span>
+                                <q-spinner v-if="sessionLoading" size="14px" color="grey-6" class="q-ml-xs" />
+
+                                <q-space />
+
+                                <q-btn v-if="hasVoice" flat round dense size="sm" :icon="listening ? 'mic_off' : 'mic'" :color="listening ? 'negative' : 'grey-7'" :title="poppedOut ? voiceLabel : undefined" @click="toggleVoice">
+                                    <q-tooltip v-if="!poppedOut" :delay="500">{{ voiceLabel }}</q-tooltip>
+                                </q-btn>
+                                <q-btn v-if="awaitingReply" round dense unelevated size="sm" icon="stop" class="kn-chatbot__accent-btn q-ml-xs" :title="poppedOut ? $t('ai.stop') : undefined" @click="stopReply">
+                                    <q-tooltip v-if="!poppedOut" :delay="500">{{ $t('ai.stop') }}</q-tooltip>
+                                </q-btn>
+                                <q-btn v-else round dense unelevated size="sm" icon="arrow_upward" class="kn-chatbot__accent-btn q-ml-xs" :disable="!userMessage.trim() || !sessionReady" :title="poppedOut ? $t('common.send') : undefined" @click="sendMessage">
+                                    <q-tooltip v-if="!poppedOut" :delay="500">{{ $t('common.send') }}</q-tooltip>
+                                </q-btn>
+                            </div>
+                        </div>
+                        <div class="kn-chatbot__disclaimer">{{ $t('ai.disclaimer') }}</div>
+                    </div>
+                </div>
+
                 <KnChatSidePanel
                     v-if="sidePanelVisible"
+                    :class="{ 'kn-chatbot__side--mobile': isMobile && !poppedOut }"
                     :items="sideItems"
                     :width="sidePanelWidth"
-                    :is-mobile="isMobile"
+                    :is-mobile="isMobile && !poppedOut"
+                    :popped-out="poppedOut"
                     :target-item-id="artifactNavigationTargetId"
                     :highlighted-item-ids="artifactHighlightedItemIds"
-                    class="kn-side-panel-slot"
                     @close="sidePanelVisible = false"
                     @start-resize="startSidePanelResize"
                 />
-            </Transition>
+            </div>
+
+            <div v-if="!poppedOut && !isMobile" class="kn-chatbot__resize" @mousedown="startResize"></div>
         </div>
-
-        <!-- Resize handle -->
-        <div v-if="!minimized && !isMobile" class="kn-chatbot-resize-handle" @mousedown="startResize"></div>
-    </div>
-
-    <!-- Toggle button (in the sidebar/menu) -->
-    <q-btn v-if="!hideTrigger" flat square class="q-py-md" color="accent" icon="smart_toy" @click="toggleChatbot">
-        <q-tooltip :delay="500" anchor="center right" self="center left">{{ $t('ai.title') }}</q-tooltip>
-    </q-btn>
+    </Teleport>
 </template>
 
 <script setup lang="ts">
-import avatarImg from '@/assets/images/chatbot/chatty.webp'
-import { VueMarkdownIt } from '@f3ve/vue-markdown-it'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import { useChatbotPanel } from './useChatbotPanel'
 import { useAiChat } from './useAiChat'
 import { useVoiceInput } from './useVoiceInput'
-import { useRouter } from 'vue-router'
+import { usePopOut } from './usePopOut'
+import KnChatMessage from './KnChatMessage.vue'
 import KnChatSidePanel from './KnChatSidePanel.vue'
-import { AI_TOOLS_STREAMING_MESSAGES } from './AiToolsStreamingMessages'
 
-withDefaults(defineProps<{ hideTrigger?: boolean }>(), { hideTrigger: false })
+const { t } = useI18n()
+const router = useRouter()
 
-const { showAlert, minimized, minimizedToCard, isMobile, panelStyle, startDrag, startResize, closePanel, toggleChatbot, minimizeToCard, restoreFromCard } = useChatbotPanel()
-
-defineExpose({ toggleChatbot })
+const { showAlert, minimizedToCard, isMobile, geometry, panelStyle, startDrag, startResize, closePanel, toggleChatbot: togglePanel, minimizeToCard, restoreFromCard } = useChatbotPanel()
 
 const {
-    confirm,
+    confirmMode,
     awaitingReply,
     userMessage,
     chat,
     bottomAnchor,
-    chatContainer,
     messageInput,
     sideItems,
     sidePanelVisible,
@@ -246,413 +166,380 @@ const {
     selectedBm,
     sessionReady,
     sessionLoading,
+    sessionError,
     unreadCount,
-    confirmNewChat,
     formatTime,
-    messageHasArtifacts,
-    openArtifactsForMessage,
     getUrlLinksForMessage,
+    artifactCountForMessage,
+    artifactTotal,
+    openArtifactsForMessage,
     sendMessage,
+    stopReply,
+    initSession,
+    requestNewChat,
+    requestModelChange,
+    confirmPending,
+    cancelPending,
     startSidePanelResize
-} = useAiChat(showAlert, minimized, minimizedToCard)
+} = useAiChat(showAlert, minimizedToCard)
 
 const { listening, toggleVoice } = useVoiceInput(userMessage)
-const router = useRouter()
-const toolStreamingMessagesSet = new Set(Object.values(AI_TOOLS_STREAMING_MESSAGES).flatMap((entry) => [...entry.it_IT, ...entry.en_US]))
+const hasVoice = !!((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition)
+const voiceLabel = computed(() => (listening.value ? t('ai.voice.stop') : t('ai.voice.start')))
 
-function isToolStreamingMessage(content: string): boolean {
-    return toolStreamingMessagesSet.has(content)
+const { supported: popOutSupported, poppedOut, pipBody, open: openPopOut, close: closePopOut } = usePopOut()
+
+// "No models" is shown only after the list was loaded, not while it loads.
+const modelsLoaded = ref(false)
+onMounted(() => setTimeout(() => (modelsLoaded.value = true), 1500))
+watch(businessModels, () => (modelsLoaded.value = true))
+
+const sessionState = computed(() => {
+    if (sessionLoading.value) return 'loading'
+    if (sessionReady.value) return 'ready'
+    return 'offline'
+})
+const inputDisabled = computed(() => !sessionReady.value || sessionLoading.value)
+
+// Enter sends, Shift+Enter adds a line. Enter while an IME composes text belongs to the IME.
+function onEnter(event: KeyboardEvent) {
+    if (event.shiftKey || event.isComposing) return
+    event.preventDefault()
+    sendMessage()
 }
 
+const sessionStateLabel = computed(() => (sessionReady.value ? t('ai.sessionReady') : sessionLoading.value ? t('ai.sessionLoading') : t('ai.sessionOffline')))
+
+// ── Toolbar ───────────────────────────────────────────────
+
+async function popOut() {
+    const g = geometry.value
+    await openPopOut(Math.max(g.width, 420), Math.max(g.height, 560))
+}
+
+function closeChat() {
+    if (poppedOut.value) closePopOut()
+    closePanel()
+}
+
+const toolbarActions = computed(() => {
+    const actions: { icon: string; label: string; handler: () => void; badge?: number }[] = [
+        { icon: 'add_comment', label: t('ai.newChat'), handler: requestNewChat },
+        { icon: 'inventory_2', label: t('ai.sidePanel.toggle'), handler: () => (sidePanelVisible.value = !sidePanelVisible.value), badge: artifactTotal.value || undefined }
+    ]
+    if (poppedOut.value) {
+        actions.push({ icon: 'close_fullscreen', label: t('ai.popIn'), handler: closePopOut })
+    } else {
+        if (popOutSupported && !isMobile.value) actions.push({ icon: 'picture_in_picture_alt', label: t('ai.popOut'), handler: popOut })
+        actions.push({ icon: 'remove', label: t('common.minimize'), handler: minimizeToCard })
+    }
+    actions.push({ icon: 'close', label: t('common.close'), handler: closeChat })
+    return actions
+})
+
+// The menu entry brings a popped-out chat back to the page.
+function toggleChatbot() {
+    if (poppedOut.value) {
+        closePopOut()
+        showAlert.value = true
+        return
+    }
+    togglePanel()
+}
+
+// The pop-out replaces the in-page window. Closing the pop-out brings the chat back where it was.
+watch(poppedOut, (value) => {
+    if (value) {
+        minimizedToCard.value = false
+        showAlert.value = true
+    }
+})
+
+defineExpose({ toggleChatbot })
+
+// Links from the AI server are absolute URLs. The router works with paths relative to the app base (/knowage-vue).
 function navigateToLink(url: string) {
+    const base = String(import.meta.env.VITE_PUBLIC_PATH ?? '').replace(/\/$/, '')
     try {
         const parsed = new URL(url)
-        router.push(parsed.pathname + parsed.search + parsed.hash)
+        const path = base && parsed.pathname.startsWith(base + '/') ? parsed.pathname.slice(base.length) : parsed.pathname
+        router.push(path + parsed.search + parsed.hash)
     } catch {
         router.push(url)
     }
 }
-
-function onBmChange() {
-    // BM changed via dropdown — will be confirmed via Start Session button
-}
-
-function onStartSession() {
-    confirm.value = true
-}
 </script>
 
 <style scoped lang="scss">
-// ── Main floating panel ────────────────────────────────────────────────────
-
 .kn-chatbot {
     position: fixed;
     z-index: 9000;
-    border-radius: 14px;
-    overflow: hidden;
     display: flex;
     flex-direction: column;
-    background: #ffffff;
-    border: 1px solid rgba(79, 70, 229, 0.18);
+    overflow: hidden;
+    background: var(--kn-chatbot-background-color);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: var(--kn-chatbot-border-radius);
+    box-shadow:
+        0 8px 10px 1px rgba(0, 0, 0, 0.14),
+        0 3px 14px 2px rgba(0, 0, 0, 0.12),
+        0 5px 5px -3px rgba(0, 0, 0, 0.2);
+    font-family: var(--kn-font-family);
+
+    &--popped {
+        position: static;
+        width: 100vw;
+        height: 100vh;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    &--mobile {
+        border: none;
+    }
 }
 
-// ── Toolbar ────────────────────────────────────────────────────────────────
+// ── Toolbar and model bar ──
 
-.kn-chatbot-toolbar {
-    display: flex;
-    align-items: center;
-    padding: 6px 8px 6px 12px;
-    min-height: 48px;
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-    cursor: grab;
+.kn-chatbot__toolbar {
+    min-height: 40px;
+    padding: 0 6px 0 12px;
+    background: var(--kn-chatbot-header-background-color);
+    color: var(--kn-chatbot-header-color);
     flex-shrink: 0;
     user-select: none;
 
-    &:active { cursor: grabbing; }
+    &--draggable {
+        cursor: grab;
+        &:active {
+            cursor: grabbing;
+        }
+    }
 }
 
-.kn-chatbot-toolbar-main {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: white;
-    line-height: 1.2;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.kn-chatbot__title {
+    font-size: var(--kn-toolbar-font-size, 1rem);
+    font-weight: 400;
 }
 
-.kn-chatbot-toolbar-sub {
-    font-size: 0.68rem;
-    color: rgba(255, 255, 255, 0.75);
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+// ── Body ──
 
-.kn-chatbot-toolbar-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #4ade80;
-    display: inline-block;
-    flex-shrink: 0;
-    box-shadow: 0 0 4px #4ade80;
-}
-
-// ── Body layout ────────────────────────────────────────────────────────────
-
-.kn-chatbot-body {
+.kn-chatbot__body {
     position: relative;
-    overflow: hidden;
-    flex: 1 1 0;
     min-height: 0;
 }
 
-// ── Messages ───────────────────────────────────────────────────────────────
-
-.kn-chatbot-messages {
-    flex: 1 1 0;
-    min-height: 0;
-}
-
-.kn-chatbot-timestamp {
-    font-size: 0.65rem;
-    color: #9ca3af;
-    margin-top: -6px;
-    margin-bottom: 4px;
-}
-
-.kn-thinking-state {
-    color: #475569;
-}
-
-.kn-thinking-text-shell {
-    display: inline-block;
-    line-height: 1.2;
-}
-
-.kn-thinking-text {
-    display: inline-block;
-}
-
-.kn-stream-error {
-    color: #b91c1c;
-}
-
-.kn-chatbot-message-content {
+.kn-chatbot__main {
     position: relative;
-}
-
-.kn-chatbot-message-content--with-artifacts {
-    padding-right: 28px;
-    min-height: 22px;
-}
-
-.kn-chatbot-artifacts-btn {
-    position: absolute;
-    top: -2px;
-    right: -4px;
-    z-index: 1;
-}
-
-.kn-chatbot-messages :deep(table) {
-    width: 100%;
-    border-collapse: collapse;
-    border: 1px solid #e5e7eb;
-    overflow: hidden;
-    margin: 6px 0;
-    font-size: 0.78rem;
-}
-
-.kn-chatbot-messages :deep(th),
-.kn-chatbot-messages :deep(td) {
-    border: 1px solid #eef2f7;
-    padding: 2px 4px;
-    text-align: left;
-    vertical-align: top;
-}
-
-.kn-chatbot-messages :deep(th) {
-    background: #f8fafc;
-    color: #475569;
-    font-weight: 600;
-}
-
-.kn-chatbot-messages :deep(tbody tr:nth-child(even)) {
-    background: #fbfdff;
-}
-
-// ── Input area ─────────────────────────────────────────────────────────────
-
-.kn-chatbot-input-area {
-    border-top: 1px solid #f1f5f9;
-    flex-shrink: 0;
-    background: white;
-}
-
-.kn-disclaimer {
-    font-size: 0.62rem;
-    color: #9ca3af;
-    display: block;
-    margin-top: 2px;
-}
-
-// ── URL artifact inline links ─────────────────────────────────────────────
-
-.kn-dashboard-buttons-container {
-    margin-left: 44px;
-    margin-top: 6px;
-    margin-bottom: 4px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    cursor: pointer;
-}
-
-.kn-url-artifact-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 7px 10px;
-    background: #f5f3ff;
-    border-radius: 8px;
-    border: 1px solid #ddd6fe;
-    text-decoration: none;
-    transition: background 0.15s ease, border-color 0.15s ease;
-
-    &:hover {
-        background: #ede9fe;
-        border-color: #a78bfa;
-    }
-}
-
-.kn-url-artifact-icon {
-    color: #4f46e5;
-    flex-shrink: 0;
-}
-
-.kn-url-artifact-label {
-    color: #4f46e5;
-    font-size: 0.82rem;
-    font-weight: 500;
-    flex: 1;
-    word-break: break-word;
-}
-
-.kn-url-artifact-open-icon {
-    color: #7c3aed;
-    flex-shrink: 0;
-    opacity: 0.7;
-}
-
-// ── Session loading banner ─────────────────────────────────────────────────
-
-.kn-session-banner {
-    background: #eff6ff;
-    border-bottom: 1px solid #bfdbfe;
-    color: #1d4ed8;
-    flex-shrink: 0;
-}
-
-// ── Confirm overlay ────────────────────────────────────────────────────────
-
-.kn-chatbot-confirm-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(255, 255, 255, 0.88);
-    backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-    padding: 16px;
-}
-
-.kn-chatbot-confirm-card {
-    width: 100%;
-    max-width: 340px;
-    border-radius: 12px;
-    border: 1px solid #e2e8f0;
-}
-
-// ── Resize handle ──────────────────────────────────────────────────────────
-
-.kn-chatbot-resize-handle {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 18px;
-    height: 18px;
-    cursor: se-resize;
-    background: linear-gradient(135deg, transparent 50%, rgba(79, 70, 229, 0.3) 50%);
-    border-radius: 0 0 14px 0;
-}
-
-// ── Settings menu ──────────────────────────────────────────────────────────
-
-.kn-settings-card {
-    min-width: 260px;
-    border-radius: 10px;
-}
-
-.kn-settings-start-btn {
-    border-radius: 6px;
-}
-
-.kn-bm-select {
-    font-size: 0.82rem;
-}
-
-// ── Minimized pill ─────────────────────────────────────────────────────────
-
-.kn-chatbot-pill {
-    position: fixed;
-    bottom: 16px;
-    right: 80px;
-    z-index: 9100;
-    display: flex;
-    align-items: center;
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-    border-radius: 20px;
-    padding: 6px 14px 6px 10px;
-    cursor: pointer;
-    box-shadow: 0 4px 16px rgba(79, 70, 229, 0.4);
-    transition: box-shadow 0.2s ease, transform 0.15s ease;
-    user-select: none;
-
-    &:hover {
-        box-shadow: 0 6px 24px rgba(79, 70, 229, 0.55);
-        transform: translateY(-2px);
-    }
-
-    &:active {
-        transform: translateY(0);
-    }
-}
-
-.kn-chatbot-pill-label {
-    font-size: 0.78rem;
-    color: white;
-    font-weight: 500;
-    max-width: 160px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.kn-chatbot-pill-badge {
-    top: -4px;
-    right: -4px;
-}
-
-// ── Side panel slot ────────────────────────────────────────────────────────
-
-.kn-side-panel-slot {
-    height: 100%;
-}
-
-// ── Utilities ──────────────────────────────────────────────────────────────
-
-.kn-overflow-hidden {
-    overflow: hidden;
     min-width: 0;
 }
 
-.flex-shrink-0 {
+.kn-chatbot__messages {
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 12px;
+    min-height: 0;
+}
+
+.kn-chatbot__empty {
+    padding: 40px 24px;
+    text-align: center;
+    font-size: 0.85rem;
+    color: rgba(0, 0, 0, 0.54);
+}
+
+.kn-chatbot__banner {
+    background: #ffffff;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    font-size: 0.8rem;
+}
+
+.kn-chatbot__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.75);
+}
+
+.kn-chatbot__confirm {
+    width: 100%;
+    max-width: 360px;
+}
+
+.kn-chatbot__accent-btn {
+    background: var(--kn-chatbot-accent-color);
+    color: #ffffff;
+}
+
+// ── Composer ──
+
+.kn-chatbot__input {
+    padding: 8px 12px 6px;
     flex-shrink: 0;
 }
 
-// ── Transitions ────────────────────────────────────────────────────────────
+.kn-chatbot__composer {
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.24);
+    border-radius: var(--kn-chatbot-border-radius);
+    transition: border-color 0.15s ease;
 
-.kn-slide-right-enter-active,
-.kn-slide-right-leave-active {
-    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    &:focus-within {
+        border-color: var(--kn-chatbot-accent-color);
+    }
+
+    &--disabled {
+        background: #fafafa;
+    }
 }
 
-.kn-slide-right-enter-from,
-.kn-slide-right-leave-to {
-    transform: translateX(20px);
-    opacity: 0;
-    width: 0 !important;
-    min-width: 0 !important;
+// Quasar gives a dense textarea a 36px minimum and extra top padding; the doubled class outranks its selector.
+.kn-chatbot__prompt.q-textarea {
+    padding: 0 12px;
+    font-size: 0.875rem;
+
+    :deep(.q-field__control),
+    :deep(.q-field__control-container) {
+        min-height: 0;
+        padding: 0;
+    }
+
+    :deep(.q-field__native) {
+        min-height: 0;
+        max-height: 160px;
+        padding: 6px 0;
+        line-height: 1.4;
+        resize: none;
+        overflow-y: auto;
+    }
 }
 
-.kn-card-pop-enter-active,
-.kn-card-pop-leave-active {
-    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+// The divider spans the whole composer, so the footer carries its own padding.
+.kn-chatbot__composer-footer {
+    min-height: 34px;
+    padding: 2px 6px;
+    gap: 2px;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
 }
 
-.kn-card-pop-enter-from,
-.kn-card-pop-leave-to {
-    transform: scale(0.7) translateY(16px);
-    opacity: 0;
+.kn-chatbot__model-btn {
+    max-width: 60%;
+    padding: 0 6px;
+    color: rgba(0, 0, 0, 0.7);
+    font-size: 0.875rem;
+    font-weight: 400;
 }
 
-// ── Message content slide transition (for streaming updates) ─────────────
-
-.kn-message-slide-enter-active,
-.kn-message-slide-leave-active {
-    transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+.kn-chatbot__model-static {
+    max-width: 60%;
+    padding: 0 6px;
+    color: rgba(0, 0, 0, 0.7);
+    font-size: 0.875rem;
 }
 
-.kn-message-slide-enter-from {
-    transform: translateY(12px);
-    opacity: 0;
+.kn-chatbot__model-icon {
+    color: #9e9e9e;
+
+    &--ready {
+        color: var(--q-positive);
+    }
+    &--loading {
+        color: var(--q-warning);
+    }
 }
 
-.kn-message-slide-leave-to {
-    transform: translateY(-12px);
+.kn-chatbot__disclaimer {
+    margin-top: 4px;
+    text-align: center;
+    font-size: 0.65rem;
+    color: rgba(0, 0, 0, 0.45);
+}
+
+// On a phone the artifacts cover the chat instead of squeezing it.
+.kn-chatbot__side--mobile {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    width: 100% !important;
+    max-width: none;
+    border-left: none;
+}
+
+.kn-chatbot__resize {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 16px;
+    height: 16px;
+    cursor: se-resize;
+    z-index: 6;
+
+    &::after {
+        content: '';
+        position: absolute;
+        right: 4px;
+        bottom: 4px;
+        width: 7px;
+        height: 7px;
+        border-right: 2px solid rgba(0, 0, 0, 0.3);
+        border-bottom: 2px solid rgba(0, 0, 0, 0.3);
+    }
+}
+
+// ── Minimized pill ──
+
+.kn-chatbot-pill {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 9000;
+    display: flex;
+    align-items: center;
+    max-width: 240px;
+    padding: 8px 16px 8px 12px;
+    border: none;
+    border-radius: 20px;
+    background: var(--kn-chatbot-header-background-color);
+    color: var(--kn-chatbot-header-color);
+    box-shadow: 0 3px 5px -1px rgba(0, 0, 0, 0.2), 0 6px 10px 0 rgba(0, 0, 0, 0.14);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+    }
+}
+
+.kn-chatbot-pill__label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.kn-chatbot-pop-enter-active,
+.kn-chatbot-pop-leave-active {
+    transition: all 0.2s ease;
+}
+.kn-chatbot-pop-enter-from,
+.kn-chatbot-pop-leave-to {
+    transform: scale(0.8) translateY(12px);
     opacity: 0;
 }
 </style>
 
-<!-- Global: q-menu is teleported to <body> so scoped styles cannot reach it -->
 <style lang="scss">
-.kn-chatbot-menu {
+// The select popup is teleported to <body>, so it needs a global rule to open above the chat.
+.kn-chatbot-popup {
     z-index: 9500 !important;
-    border-radius: 10px !important;
+}
+
+.kn-chatbot__model-list {
+    min-width: 200px;
 }
 </style>

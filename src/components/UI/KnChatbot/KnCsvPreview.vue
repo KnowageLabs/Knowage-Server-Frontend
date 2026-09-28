@@ -1,7 +1,7 @@
 <template>
     <div class="kn-csv-preview">
         <div v-if="loading" class="kn-csv-loading row items-center justify-center q-pa-sm">
-            <q-spinner-dots size="1.4rem" color="primary" />
+            <q-spinner-dots size="1.4rem" color="grey-6" />
         </div>
         <div v-else-if="error" class="text-caption text-negative q-pa-xs">{{ error }}</div>
         <template v-else-if="rows.length > 0">
@@ -110,8 +110,8 @@ watch(() => props.url, load)
     overflow-x: auto;
     overflow-y: auto;
     max-height: 220px;
-    border-radius: 6px;
-    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
 }
 
 .kn-csv-table {
@@ -122,14 +122,15 @@ watch(() => props.url, load)
     white-space: normal;
 
     thead tr {
-        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        background: #f5f5f5;
         position: sticky;
         top: 0;
         z-index: 1;
 
         th {
-            color: white;
+            color: rgba(0, 0, 0, 0.6);
             padding: 5px 10px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.12);
             text-align: left;
             font-weight: 600;
             max-width: 140px;
@@ -143,17 +144,17 @@ watch(() => props.url, load)
     tbody {
         tr {
             &:nth-child(even) {
-                background: #f1f5f9;
+                background: #fafafa;
             }
 
             &:hover {
-                background: #e0e7ff;
+                background: rgba(0, 0, 0, 0.04);
             }
 
             td {
                 padding: 4px 10px;
-                color: #374151;
-                border-bottom: 1px solid #f1f5f9;
+                color: rgba(0, 0, 0, 0.87);
+                border-bottom: 1px solid rgba(0, 0, 0, 0.06);
                 max-width: 140px;
                 overflow: hidden;
                 text-overflow: ellipsis;

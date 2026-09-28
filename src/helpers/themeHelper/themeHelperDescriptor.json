@@ -129,6 +129,56 @@
             }
         ]
     },
+    "chatbot": {
+        "label": "virtual assistant",
+        "properties": [
+            {
+                "key": "--kn-chatbot-header-background-color",
+                "label": "Header Background",
+                "type": "color"
+            },
+            {
+                "key": "--kn-chatbot-header-color",
+                "label": "Header Text Color",
+                "type": "color"
+            },
+            {
+                "key": "--kn-chatbot-accent-color",
+                "label": "Accent Color",
+                "type": "color"
+            },
+            {
+                "key": "--kn-chatbot-background-color",
+                "label": "Background",
+                "type": "color"
+            },
+            {
+                "key": "--kn-chatbot-user-bubble-background-color",
+                "label": "User Message Background",
+                "type": "color"
+            },
+            {
+                "key": "--kn-chatbot-user-bubble-color",
+                "label": "User Message Text Color",
+                "type": "color"
+            },
+            {
+                "key": "--kn-chatbot-assistant-bubble-background-color",
+                "label": "Assistant Message Background",
+                "type": "color"
+            },
+            {
+                "key": "--kn-chatbot-assistant-bubble-color",
+                "label": "Assistant Message Text Color",
+                "type": "color"
+            },
+            {
+                "key": "--kn-chatbot-border-radius",
+                "label": "Border Radius",
+                "type": "text"
+            }
+        ]
+    },
     "documentation": {
         "label": "documentation",
         "properties": [

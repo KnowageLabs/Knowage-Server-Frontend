@@ -17,7 +17,7 @@
         {
             "align": "left",
             "field": "type",
-            "label": "Data Type",
+            "label": "dashboard.generalSettings.dataType",
             "name": "dataType",
             "sortable": true
         },

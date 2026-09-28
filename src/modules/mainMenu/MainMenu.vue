@@ -110,7 +110,10 @@
 
         <div class="kn-main-menu__scrim" aria-hidden="true"></div>
 
-        <KnChatbot v-if="showChatbot" ref="chatbot" hide-trigger />
+        <!-- Outside the nav, so hover and focus in the chat do not expand the menu. -->
+        <Teleport to="body">
+            <KnChatbot v-if="showChatbot" ref="chatbot" />
+        </Teleport>
 
         <InfoDialog v-model:visibility="infoVisible"></InfoDialog>
         <RoleDialog v-model:visibility="roleDialogVisible" :mandatory="isRoleMandatory"></RoleDialog>

@@ -2,17 +2,17 @@ import mainStore from '@/App.store'
 import axios from 'axios'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import type { Ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import type { IChat, IChatArtifactFile, IChatBlock, IChatBlockArtifacts } from './KnChatbot'
+import type { IChat, IChatArtifactFile, IChatBlock, IChatBlockArtifacts, IChatLink } from './KnChatbot'
 import { getRandomStreamingMessage } from './AiToolsStreamingMessages'
 
 const SIDE_PANEL_WIDTH_KEY = 'chatbot_side_panel_width_v1'
 const SIDE_PANEL_MIN_WIDTH = 260
 const SIDE_PANEL_MAX_WIDTH = 800
 
-export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, minimizedToCard: Ref<boolean>) {
-    const router = useRouter()
+export type ConfirmMode = 'newChat' | 'switchModel'
+
+export function useAiChat(showAlert: Ref<boolean>, minimizedToCard: Ref<boolean>) {
     const store = mainStore()
     const { t } = useI18n()
 
@@ -35,8 +35,7 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
     async function loadBusinessModels() {
         try {
             const res = await axios.get(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/2.0/businessmodels`)
-            businessModels.value = Array.isArray(res.data) ? res.data : []
-            businessModels.value = businessModels.value.filter((bm) => bm.isForAi === true)
+            businessModels.value = (Array.isArray(res.data) ? res.data : []).filter((bm) => bm.isForAi === true)
             if (businessModels.value.length > 0 && !selectedBm.value) {
                 selectedBm.value = businessModels.value[0]
             }
@@ -50,47 +49,50 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
     const sessionId = ref('')
     const sessionReady = ref(false)
     const sessionLoading = ref(false)
+    const sessionError = ref(false)
     const sessionAttempted = ref(false)
+
+    function aiBaseUrl(): string {
+        return store.configurations['KNOWAGE.AI.URL'] ?? ''
+    }
+
+    function currentUserId(): string {
+        return store.user?.userId ?? store.user?.userUniqueIdentifier ?? store.user?.userID ?? 'user'
+    }
 
     async function initSession() {
         if (!selectedBm.value) return
-        const baseUrl: string = store.configurations['KNOWAGE.AI.URL'] ?? ''
-        if (baseUrl === 'demo') {
+        sessionAttempted.value = true
+        sessionError.value = false
+        if (aiBaseUrl() === 'demo') {
             sessionReady.value = true
-            sessionAttempted.value = true
             return
         }
         sessionId.value = crypto.randomUUID()
         sessionReady.value = false
-        sessionLoading.value = true
-        sessionAttempted.value = true
         const dbId = resolveSelectedBmDbId(selectedBm.value)
         if (!dbId) {
-            pushErrorMessage(t('ai.sessionError'))
-            sessionLoading.value = false
+            sessionError.value = true
             return
         }
-        const userId: string = store.user?.userId ?? store.user?.userUniqueIdentifier ?? store.user?.userID ?? 'user'
+        sessionLoading.value = true
         try {
-            await axios.post(
-                `${baseUrl}/apps/eng_gpt_data_agent/users/${encodeURIComponent(userId)}/sessions/${encodeURIComponent(sessionId.value)}`,
-                {
-                    model_ids: [dbId],
-                    knowage_tenant: store.user?.organization ?? '',
-                    knowage_role: store.user?.defaultRole ?? (store.user?.roles?.[0] ?? ''),
-                    knowage_token: sessionStorage.getItem('token') ?? '',
-                    knowage_project_description: ''
-                }
-            )
+            await axios.post(`${aiBaseUrl()}/apps/eng_gpt_data_agent/users/${encodeURIComponent(currentUserId())}/sessions/${encodeURIComponent(sessionId.value)}`, {
+                model_ids: [dbId],
+                knowage_tenant: store.user?.organization ?? '',
+                knowage_role: store.user?.defaultRole ?? store.user?.roles?.[0] ?? '',
+                knowage_token: sessionStorage.getItem('token') ?? '',
+                knowage_project_description: ''
+            })
             sessionReady.value = true
         } catch {
-            pushErrorMessage(t('ai.sessionError'))
+            sessionError.value = true
         } finally {
             sessionLoading.value = false
         }
     }
 
-    // Only attempt session init once per open; user must explicitly retry via Settings
+    // Only one automatic attempt per open. After a failure the user retries from the banner.
     async function maybeInitSession() {
         if (showAlert.value && selectedBm.value && !sessionReady.value && !sessionLoading.value && !sessionAttempted.value) {
             await initSession()
@@ -99,65 +101,67 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
 
     // ── Conversation state ────────────────────────────────────
 
-    const confirm = ref(false)
-    const turnId = ref(0)
+    const confirmMode = ref<ConfirmMode | null>(null)
+    const pendingBm = ref<any>(null)
+    const turnId = ref(1)
     const conversationId = ref(1)
     const awaitingReply = ref(false)
     const userMessage = ref('')
     const sideItems = ref<IChatBlock[]>([])
-    const urlLinks = ref<Record<string, Array<{ title: string; url: string }>>>({})
+    const urlLinks = ref<Record<string, IChatLink[]>>({})
     const sidePanelVisible = ref(false)
     const sidePanelWidth = ref(getInitialSidePanelWidth())
     const unreadCount = ref(0)
     const artifactNavigationTargetId = ref('')
     const artifactHighlightedItemIds = ref<string[]>([])
 
-    let sideResizeStartX = 0
-    let sideResizeStartW = 0
     let artifactHighlightTimeout: ReturnType<typeof setTimeout> | null = null
 
-    /**
-     * Get the current locale in the format required by AI_TOOLS_STREAMING_MESSAGES (e.g., 'it_IT', 'en_US')
-     */
+    const hasUserMessages = computed(() => chat.value.some((m) => m.role === 'user'))
+
     function getCurrentLocale(): string {
-        const locale = store.locale || 'en_US'
-        return locale.replace('-', '_')
+        return (store.locale || 'en_US').replace('-', '_')
     }
+
+    // ── Side panel width ──────────────────────────────────────
 
     function clampSidePanelWidth(value: number): number {
         return Math.max(SIDE_PANEL_MIN_WIDTH, Math.min(SIDE_PANEL_MAX_WIDTH, value))
     }
 
     function getInitialSidePanelWidth(): number {
-        const saved = Number(localStorage.getItem(SIDE_PANEL_WIDTH_KEY))
-        if (Number.isNaN(saved) || saved <= 0) return 380
-        return clampSidePanelWidth(saved)
+        try {
+            const saved = Number(localStorage.getItem(SIDE_PANEL_WIDTH_KEY))
+            if (!Number.isNaN(saved) && saved > 0) return clampSidePanelWidth(saved)
+        } catch {
+            // Storage unavailable: use the default width.
+        }
+        return 380
     }
 
-    function persistSidePanelWidth() {
-        localStorage.setItem(SIDE_PANEL_WIDTH_KEY, String(sidePanelWidth.value))
-    }
-
-    function onSidePanelResizeMove(e: MouseEvent) {
-        const nextWidth = clampSidePanelWidth(sideResizeStartW - (e.clientX - sideResizeStartX))
-        sidePanelWidth.value = nextWidth
-    }
-
-    function onSidePanelResizeEnd() {
-        document.body.style.userSelect = ''
-        document.removeEventListener('mousemove', onSidePanelResizeMove)
-        document.removeEventListener('mouseup', onSidePanelResizeEnd)
-        persistSidePanelWidth()
-    }
-
+    // The panel can live in the pop-out window, so listen on the document the drag started in.
     function startSidePanelResize(e: MouseEvent) {
         e.stopPropagation()
-        sideResizeStartX = e.clientX
-        sideResizeStartW = sidePanelWidth.value
-        document.body.style.userSelect = 'none'
-        document.addEventListener('mousemove', onSidePanelResizeMove)
-        document.addEventListener('mouseup', onSidePanelResizeEnd)
+        const doc = (e.view?.document ?? document) as Document
+        const startX = e.clientX
+        const startW = sidePanelWidth.value
+        doc.body.style.userSelect = 'none'
+        const onMove = (ev: MouseEvent) => (sidePanelWidth.value = clampSidePanelWidth(startW - (ev.clientX - startX)))
+        const onUp = () => {
+            doc.body.style.userSelect = ''
+            doc.removeEventListener('mousemove', onMove)
+            doc.removeEventListener('mouseup', onUp)
+            try {
+                localStorage.setItem(SIDE_PANEL_WIDTH_KEY, String(sidePanelWidth.value))
+            } catch {
+                // Storage unavailable: the width is kept for this session only.
+            }
+        }
+        doc.addEventListener('mousemove', onMove)
+        doc.addEventListener('mouseup', onUp)
     }
+
+    // ── Artifacts ─────────────────────────────────────────────
 
     function clearArtifactNavigation() {
         artifactNavigationTargetId.value = ''
@@ -168,65 +172,42 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
         }
     }
 
-    function decorateSideBlock(block: IChatBlock, invocationId?: string): IChatBlock {
-        return {
-            ...block,
-            id: crypto.randomUUID(),
-            conversationId: conversationId.value,
-            createdAt: new Date(),
-            invocationId
-        }
+    function decorateSideBlock(block: IChatBlock, invocationId: string, question: string): IChatBlock {
+        return { ...block, id: crypto.randomUUID(), conversationId: conversationId.value, createdAt: new Date(), invocationId, question }
     }
 
     function upsertArtifactFilesByName(existingFiles: IChatArtifactFile[], incomingFiles: IChatArtifactFile[]): IChatArtifactFile[] {
         const mergedFiles = [...existingFiles]
-
         incomingFiles.forEach((incomingFile) => {
             const existingIndex = mergedFiles.findIndex((file) => file.name === incomingFile.name)
-            if (existingIndex >= 0) {
-                mergedFiles[existingIndex] = { ...mergedFiles[existingIndex], ...incomingFile }
-            } else {
-                mergedFiles.push(incomingFile)
-            }
+            if (existingIndex >= 0) mergedFiles[existingIndex] = { ...mergedFiles[existingIndex], ...incomingFile }
+            else mergedFiles.push(incomingFile)
         })
-
         return mergedFiles
     }
 
-    function upsertArtifactsBlock(block: IChatBlockArtifacts, invocationId: string) {
-        const decoratedBlock = decorateSideBlock(block, invocationId) as IChatBlockArtifacts
+    function upsertArtifactsBlock(block: IChatBlockArtifacts, invocationId: string, question: string) {
+        const decoratedBlock = decorateSideBlock(block, invocationId, question) as IChatBlockArtifacts
         if (!Array.isArray(decoratedBlock.files)) return
 
         const existingBlockIndex = sideItems.value.findIndex((item) => item.type === 'artifacts' && item.invocationId === invocationId)
-
-        if (existingBlockIndex < 0) {
-            sideItems.value.push(decoratedBlock)
-            return
-        }
-
-        if (!decoratedBlock.edit) {
+        if (existingBlockIndex < 0 || !decoratedBlock.edit) {
             sideItems.value.push(decoratedBlock)
             return
         }
 
         const existingBlock = sideItems.value[existingBlockIndex] as IChatBlockArtifacts
-        const updatedBlock: IChatBlockArtifacts = {
-            ...existingBlock,
-            files: upsertArtifactFilesByName(existingBlock.files, decoratedBlock.files)
-        }
-        sideItems.value[existingBlockIndex] = updatedBlock
+        sideItems.value[existingBlockIndex] = { ...existingBlock, files: upsertArtifactFilesByName(existingBlock.files, decoratedBlock.files) }
     }
 
     function isAllowedArtifactFileExt(ext?: string): boolean {
-        if (!ext) return false
-        const normalized = ext.toLowerCase()
+        const normalized = (ext ?? '').toLowerCase()
         return normalized === 'csv' || normalized === 'png'
     }
 
     function isRenderableSideItem(item: IChatBlock): boolean {
-        if (item.type === 'sql_query') return true
-        if (item.type === 'artifacts') return item.files.some((file) => isAllowedArtifactFileExt(file.ext))
-        return false
+        if (item.type === 'sql_query' || item.type === 'python_code') return true
+        return item.files.some((file) => isAllowedArtifactFileExt(file.ext))
     }
 
     function getLinkedRenderableItems(invocationId?: string): IChatBlock[] {
@@ -234,14 +215,22 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
         return sideItems.value.filter((item) => item.invocationId === invocationId && isRenderableSideItem(item))
     }
 
-    function getUrlLinksForMessage(message: IChat): Array<{ title: string; url: string }> {
+    function getUrlLinksForMessage(message: IChat): IChatLink[] {
         if (!message.invocationId) return []
         return urlLinks.value[message.invocationId] ?? []
     }
 
-    function messageHasArtifacts(message: IChat): boolean {
-        if (message.role !== 'assistant' || message.isError || !message.invocationId) return false
-        return getLinkedRenderableItems(message.invocationId).length > 0
+    // An artifacts block holds several files; each renderable file counts as one artifact.
+    function countArtifacts(items: IChatBlock[]): number {
+        return items.reduce((count, item) => count + (item.type === 'artifacts' ? item.files.filter((f) => isAllowedArtifactFileExt(f.ext)).length : 1), 0)
+    }
+
+    const artifactTotal = computed(() => countArtifacts(sideItems.value.filter(isRenderableSideItem)))
+
+    // Number of artifacts of a finished reply. A reply that is still streaming has none yet.
+    function artifactCountForMessage(message: IChat): number {
+        if (message.role !== 'assistant' || message.isLive || message.isError || !message.invocationId) return 0
+        return countArtifacts(getLinkedRenderableItems(message.invocationId))
     }
 
     async function openArtifactsForMessage(message: IChat) {
@@ -249,77 +238,59 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
         if (linkedItems.length === 0) return
 
         clearArtifactNavigation()
-        if (!sidePanelVisible.value) sidePanelVisible.value = true
-
+        sidePanelVisible.value = true
         await nextTick()
 
         artifactNavigationTargetId.value = linkedItems[0].id
         artifactHighlightedItemIds.value = linkedItems.map((item) => item.id)
-        artifactHighlightTimeout = setTimeout(() => {
-            artifactNavigationTargetId.value = ''
-            artifactHighlightedItemIds.value = []
-            artifactHighlightTimeout = null
-        }, 1800)
+        artifactHighlightTimeout = setTimeout(clearArtifactNavigation, 1800)
     }
+
+    // ── Stream event helpers ──────────────────────────────────
 
     function resolveInvocationId(evt: any): string {
         const candidate = evt?.invocationId ?? evt?.invocation_id ?? evt?.metadata?.invocationId ?? evt?.metadata?.invocation_id
-        if (candidate === null || candidate === undefined) return ''
-        return String(candidate)
+        return candidate === null || candidate === undefined ? '' : String(candidate)
     }
 
-    function resolveToolNameFromEvent(evt: any): string {
-        const directFunctionCall = evt?.functionCall ?? evt?.function_call ?? evt?.metadata?.functionCall ?? evt?.metadata?.function_call
-        const directName = directFunctionCall?.name ?? directFunctionCall?.function_name
-        if (directName !== null && directName !== undefined && String(directName).trim() !== '') {
-            return String(directName)
+    // Tool calls and tool results in an event, by tool name.
+    function resolveToolActivity(evt: any): { calls: string[]; results: string[] } {
+        const calls: string[] = []
+        const results: string[] = []
+        const nameOf = (fn: any) => {
+            const name = fn?.name ?? fn?.function_name
+            return name !== null && name !== undefined && String(name).trim() !== '' ? String(name) : ''
         }
 
-        const parts: any[] = evt?.content?.parts ?? []
-        for (const part of parts) {
-            const fromFunctionCall = part?.functionCall ?? part?.function_call
-            const fromFunctionResponse = part?.functionResponse ?? part?.function_response
-            const candidate = fromFunctionCall?.name ?? fromFunctionCall?.function_name ?? fromFunctionResponse?.name ?? fromFunctionResponse?.function_name
-            if (candidate !== null && candidate !== undefined && String(candidate).trim() !== '') {
-                return String(candidate)
-            }
-        }
+        const direct = nameOf(evt?.functionCall ?? evt?.function_call ?? evt?.metadata?.functionCall ?? evt?.metadata?.function_call)
+        if (direct) calls.push(direct)
 
-        return ''
+        for (const part of evt?.content?.parts ?? []) {
+            const call = nameOf(part?.functionCall ?? part?.function_call)
+            if (call) calls.push(call)
+            const result = nameOf(part?.functionResponse ?? part?.function_response)
+            if (result) results.push(result)
+        }
+        return { calls, results }
     }
 
-    const welcomeMessage = computed<IChat>(() => ({
-        role: 'assistant',
-        content: t('ai.welcomeMessage'),
-        turnId: 0,
-        timestamp: new Date()
-    }))
+    // ── Messages ──────────────────────────────────────────────
 
+    const welcomeMessage = computed<IChat>(() => ({ role: 'assistant', content: t('ai.welcomeMessage'), turnId: 0, timestamp: new Date() }))
     const chat = ref<IChat[]>([{ ...welcomeMessage.value }])
 
     watch(
         () => welcomeMessage.value.content,
         (newContent) => {
-            if (chat.value.length === 1 && chat.value[0].role === 'assistant') {
-                chat.value[0].content = newContent
-            }
+            if (chat.value.length === 1 && chat.value[0].role === 'assistant') chat.value[0].content = newContent
         }
     )
 
-    // ── Template refs ─────────────────────────────────────────
-
     const bottomAnchor = ref<HTMLElement | null>(null)
-    const chatContainer = ref<HTMLElement | null>(null)
     const messageInput = ref<any>(null)
 
-    // ── Scroll / focus ────────────────────────────────────────
-
-    function scrollToBottom() {
-        nextTick(() => bottomAnchor.value?.scrollIntoView({ behavior: 'smooth' }))
-    }
-
-    function scrollToBottomInstant() {
-        nextTick(() => bottomAnchor.value?.scrollIntoView({ behavior: 'auto' }))
+    function scrollToBottom(behavior: ScrollBehavior = 'smooth') {
+        nextTick(() => bottomAnchor.value?.scrollIntoView({ behavior, block: 'end' }))
     }
 
     function focusInput() {
@@ -327,55 +298,36 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
     }
 
     watch(showAlert, async (val) => {
-        if (val) {
-            nextTick(scrollToBottomInstant)
-            focusInput()
-            await maybeInitSession()
-        }
+        if (!val) return
+        scrollToBottom('auto')
+        focusInput()
+        await maybeInitSession()
     })
 
-    watch(minimized, (val) => {
-        if (!val) {
-            nextTick(scrollToBottomInstant)
-            focusInput()
-        }
-    })
-
-    // Reset unread when restored from card
     watch(minimizedToCard, (val) => {
         if (!val) unreadCount.value = 0
     })
 
-    // Track unread messages received while minimized to card
+    // Replies that arrive while the chat is minimized count as unread.
     watch(
         () => chat.value.length,
         () => {
             const last = chat.value[chat.value.length - 1]
-            if (minimizedToCard.value && last?.role === 'assistant' && !last.isLive) {
-                unreadCount.value++
-            }
+            if (minimizedToCard.value && last?.role === 'assistant' && !last.isLive) unreadCount.value++
         }
     )
 
-    // ── Helper: push error ────────────────────────────────────
-
     function pushErrorMessage(msg: string) {
-        chat.value.push({
-            role: 'assistant',
-            content: msg,
-            turnId: turnId.value++,
-            timestamp: new Date(),
-            isError: true,
-            isStreamError: false
-        })
+        chat.value.push({ role: 'assistant', content: msg, turnId: turnId.value++, timestamp: new Date(), isError: true })
         scrollToBottom()
     }
 
     // ── Conversation management ───────────────────────────────
 
     function newChat() {
+        stopReply()
         chat.value = [{ ...welcomeMessage.value, timestamp: new Date() }]
-        turnId.value = 0
+        turnId.value = 1
         conversationId.value++
         sideItems.value = []
         urlLinks.value = {}
@@ -384,111 +336,132 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
         sessionReady.value = false
         sessionAttempted.value = false
         unreadCount.value = 0
-        // Do not auto-init: user retries via Settings > Start Session if needed
-        // If BM is selected, attempt a fresh session automatically
         initSession()
     }
 
-    function confirmNewChat() {
-        // Preserve unsent message when creating new chat
+    // A model can only be changed together with a new conversation. Without messages there is nothing to lose, so no confirmation.
+    function requestModelChange(bm: any) {
+        if (!bm || bm === selectedBm.value) return
+        if (!hasUserMessages.value) {
+            selectedBm.value = bm
+            newChat()
+            return
+        }
+        pendingBm.value = bm
+        confirmMode.value = 'switchModel'
+    }
+
+    function requestNewChat() {
+        if (!hasUserMessages.value) return newChat()
+        confirmMode.value = 'newChat'
+    }
+
+    function confirmPending() {
         const savedMessage = userMessage.value
-        confirm.value = false
+        if (confirmMode.value === 'switchModel' && pendingBm.value) selectedBm.value = pendingBm.value
+        cancelPending()
         newChat()
         userMessage.value = savedMessage
     }
 
-    function formatTime(date?: Date): string {
-        if (!date) return ''
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    function cancelPending() {
+        confirmMode.value = null
+        pendingBm.value = null
     }
 
-    // ── SSE send ──────────────────────────────────────────────
+    function formatTime(date?: Date): string {
+        return date ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''
+    }
+
+    // ── Send / stop ───────────────────────────────────────────
 
     let currentSseAbort: AbortController | null = null
+    let liveMessage: IChat | null = null
+
+    function finishSteps(message: IChat) {
+        message.steps?.forEach((step) => (step.done = true))
+    }
+
+    function stopReply() {
+        if (!currentSseAbort) return
+        currentSseAbort.abort()
+        currentSseAbort = null
+        if (liveMessage) {
+            liveMessage.isLive = false
+            liveMessage.isStopped = true
+            liveMessage.liveStatus = ''
+            finishSteps(liveMessage)
+            liveMessage = null
+        }
+        awaitingReply.value = false
+    }
+
+    function sendDemoMessage(text: string) {
+        awaitingReply.value = true
+        chat.value.push({ role: 'user', content: text, turnId: turnId.value++, timestamp: new Date() })
+        scrollToBottom()
+        setTimeout(() => {
+            chat.value.push({ role: 'assistant', content: 'This is a demo response. In a real scenario, the AI would process your request and return structured data.', turnId: turnId.value++, timestamp: new Date() })
+            awaitingReply.value = false
+            scrollToBottom()
+        }, 2000)
+        focusInput()
+    }
+
+    // Returns false when the license limit is reached.
+    function checkMessageLimit(): boolean {
+        const limit = store.licenses?.engGptIntegration
+        if (!limit) return true
+        const count = Number(localStorage.getItem('chatMessageCount')) || 0
+        if (count >= limit) {
+            pushErrorMessage(t('ai.message.limitReached', { limit }))
+            return false
+        }
+        localStorage.setItem('chatMessageCount', String(count + 1))
+        return true
+    }
 
     async function sendMessage() {
-        if (!userMessage.value.trim()) return
-
-        const baseUrl: string = store.configurations['KNOWAGE.AI.URL'] ?? ''
-
-        // Demo mode
-        if (baseUrl === 'demo') {
-            const text = userMessage.value.trim()
-            userMessage.value = ''
-            awaitingReply.value = true
-            chat.value.push({ role: 'user', content: text, turnId: turnId.value++, timestamp: new Date() })
-            scrollToBottom()
-            setTimeout(() => {
-                chat.value.push({
-                    role: 'assistant',
-                    content: 'This is a demo response. In a real scenario, the AI would process your request and return structured data.',
-                    turnId: turnId.value++,
-                    timestamp: new Date()
-                })
-                awaitingReply.value = false
-                scrollToBottom()
-            }, 2000)
-            focusInput()
-            return
-        }
-
-        if (!sessionReady.value) {
-            pushErrorMessage(t('ai.sessionNotReady'))
-            return
-        }
-
-        // License check
-        if (store.licenses?.engGptIntegration) {
-            const count = Number(localStorage.getItem('chatMessageCount')) || 0
-            if (count >= store.licenses.engGptIntegration) {
-                pushErrorMessage(t('ai.message.limitReached', { limit: store.licenses.engGptIntegration }))
-                return
-            }
-            localStorage.setItem('chatMessageCount', String(count + 1))
-        }
-
         const text = userMessage.value.trim()
+        if (!text || awaitingReply.value) return
+
+        if (aiBaseUrl() === 'demo') {
+            userMessage.value = ''
+            return sendDemoMessage(text)
+        }
+        if (!sessionReady.value || !checkMessageLimit()) return
+
         userMessage.value = ''
         awaitingReply.value = true
-
         chat.value.push({ role: 'user', content: text, turnId: turnId.value++, timestamp: new Date() })
-        nextTick(() => setTimeout(scrollToBottom, 50))
 
-        // Live streaming entry
-        let activeInvocationId: string = crypto.randomUUID()
-        const liveEntry: IChat = { role: 'assistant', content: '', turnId: turnId.value, timestamp: new Date(), isLive: true, invocationId: activeInvocationId }
-        chat.value.push(liveEntry)
-        const liveIndex = chat.value.length - 1
+        chat.value.push({ role: 'assistant', content: '', turnId: turnId.value++, timestamp: new Date(), isLive: true, invocationId: crypto.randomUUID(), steps: [], liveStatus: '' })
+        // The reactive proxy, so changes below render.
+        const live = chat.value[chat.value.length - 1]
+        liveMessage = live
+        scrollToBottom()
 
-        const userId: string = store.user?.userId ?? store.user?.userUniqueIdentifier ?? store.user?.userID ?? 'user'
-        currentSseAbort = new AbortController()
+        const abort = new AbortController()
+        currentSseAbort = abort
 
         try {
-            const response = await fetch(`${baseUrl}/run_sse`, {
+            const response = await fetch(`${aiBaseUrl()}/run_sse`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    appName: 'eng_gpt_data_agent',
-                    userId,
-                    sessionId: sessionId.value,
-                    newMessage: { role: 'user', parts: [{ text }] },
-                    streaming: true
-                }),
-                signal: currentSseAbort.signal
+                body: JSON.stringify({ appName: 'eng_gpt_data_agent', userId: currentUserId(), sessionId: sessionId.value, newMessage: { role: 'user', parts: [{ text }] }, streaming: true }),
+                signal: abort.signal
             })
-
             if (!response.ok || !response.body) throw new Error(`HTTP ${response.status}`)
 
             const reader = response.body.getReader()
             const decoder = new TextDecoder()
             let buffer = ''
             let liveText = ''
-            let shouldBreakReading = false
-            let activeStreamingToolName = ''
+            let streamEnded = false
 
-            while (true) {
+            while (!streamEnded) {
                 const { done, value } = await reader.read()
-                if (done || shouldBreakReading) break
+                if (done) break
                 buffer += decoder.decode(value, { stream: true })
                 const lines = buffer.split('\n')
                 buffer = lines.pop() ?? ''
@@ -498,141 +471,107 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
                     const rawData = line.slice(6).trim()
                     if (!rawData) continue
                     let evt: any
-                    try { evt = JSON.parse(rawData) } catch { continue }
+                    try {
+                        evt = JSON.parse(rawData)
+                    } catch {
+                        continue
+                    }
 
-                    // Check for error in the stream response
                     if (evt.error) {
-                        chat.value[liveIndex] = {
-                            role: 'assistant',
-                            content: evt.error,
-                            turnId: turnId.value++,
-                            timestamp: new Date(),
-                            isError: true,
-                            isStreamError: true,
-                            isLive: false,
-                            invocationId: activeInvocationId
-                        }
-                        shouldBreakReading = true
+                        Object.assign(live, { content: evt.error, isError: true, isStreamError: true, isLive: false, liveStatus: '' })
+                        finishSteps(live)
+                        streamEnded = true
                         break
                     }
 
-                    const author: string = evt.author ?? ''
-                    const partial: boolean = evt.partial ?? false
-                    const parts: any[] = evt.content?.parts ?? []
                     const eventInvocationId = resolveInvocationId(evt)
+                    if (eventInvocationId) live.invocationId = eventInvocationId
+                    const invocationId = live.invocationId as string
 
-                    if (eventInvocationId) {
-                        activeInvocationId = eventInvocationId
-                        if (chat.value[liveIndex]) {
-                            chat.value[liveIndex] = { ...chat.value[liveIndex], invocationId: activeInvocationId }
-                        }
-                    }
+                    // Tool steps: a call opens a step, a result closes it.
+                    const { calls, results } = resolveToolActivity(evt)
+                    calls.forEach((tool) => {
+                        const running = live.steps?.find((s) => s.tool === tool && !s.done)
+                        if (running) return
+                        live.steps?.forEach((s) => (s.done = true))
+                        live.steps?.push({ id: crypto.randomUUID(), tool, done: false })
+                        if (!liveText) live.liveStatus = getRandomStreamingMessage(tool, getCurrentLocale()) ?? ''
+                        scrollToBottom()
+                    })
+                    results.forEach((tool) => {
+                        const step = live.steps?.find((s) => s.tool === tool && !s.done)
+                        if (step) step.done = true
+                    })
 
-                    // If the event carries tool execution metadata, show a tool-specific live status.
-                    const toolName = resolveToolNameFromEvent(evt)
-                    if (toolName && toolName !== activeStreamingToolName && liveText === '' && chat.value[liveIndex]?.isLive) {
-                        activeStreamingToolName = toolName
-                        const locale = getCurrentLocale()
-                        const streamingMessage = getRandomStreamingMessage(toolName, locale)
-                        if (streamingMessage) {
-                            chat.value[liveIndex] = { ...chat.value[liveIndex], content: streamingMessage, invocationId: activeInvocationId }
-                            scrollToBottom()
-                        }
-                    }
+                    const author: string = evt.author ?? ''
+                    const parts: any[] = evt.content?.parts ?? []
+                    const textPart: string = parts.find((p: any) => typeof p.text === 'string')?.text ?? ''
 
-                    if (author === 'knowage_assistant') {
-                        const textPart: string = parts.find((p: any) => typeof p.text === 'string')?.text ?? ''
-                        if (partial) {
+                    if (author === 'knowage_assistant' && textPart) {
+                        if (evt.partial) {
                             liveText += textPart
-                            chat.value[liveIndex] = { ...chat.value[liveIndex], content: liveText, invocationId: activeInvocationId }
-                            scrollToBottom()
+                            live.content = liveText
                         } else {
-                            const finalText = textPart || liveText
-                            if (finalText) {
-                                chat.value[liveIndex] = {
-                                    role: 'assistant',
-                                    content: finalText,
-                                    turnId: turnId.value++,
-                                    timestamp: new Date(),
-                                    isLive: false,
-                                    invocationId: activeInvocationId
-                                }
-                                liveText = ''
-                                scrollToBottom()
-                            }
+                            Object.assign(live, { content: textPart || liveText, isLive: false, liveStatus: '', timestamp: new Date() })
+                            finishSteps(live)
+                            liveText = ''
                         }
-                    } else if (author === 'eng_gpt_data_controller') {
-                        const rawPayload = parts.find((p: any) => typeof p.text === 'string')?.text ?? ''
-                        if (!rawPayload) continue
+                        scrollToBottom()
+                    } else if (author === 'eng_gpt_data_controller' && textPart) {
                         let block: any
-                        try { block = JSON.parse(rawPayload) } catch { continue }
-                        if (['sql_query', 'artifacts', 'python_code'].includes(block?.type)) {
-                            if (block.type === 'artifacts' && Array.isArray(block.files)) {
-                                const urlFiles: Array<{ title: string; url: string }> = block.files
-                                    .filter((f: any) => f.ext === 'url' && f.url && f.title)
-                                    .map((f: any) => ({ title: f.title as string, url: f.url as string }))
-                                const nonUrlFiles = block.files.filter((f: any) => f.ext !== 'url')
-                                if (urlFiles.length > 0) {
-                                    const existing = urlLinks.value[activeInvocationId] ?? []
-                                    urlLinks.value[activeInvocationId] = [...existing, ...urlFiles]
-                                }
-                                if (nonUrlFiles.length > 0) {
-                                    upsertArtifactsBlock({ ...block, files: nonUrlFiles } as IChatBlockArtifacts, activeInvocationId)
-                                    if (!sidePanelVisible.value) sidePanelVisible.value = true
-                                }
-                            } else {
-                                sideItems.value.push(decorateSideBlock(block as IChatBlock, activeInvocationId))
-                                if (!sidePanelVisible.value) sidePanelVisible.value = true
-                            }
+                        try {
+                            block = JSON.parse(textPart)
+                        } catch {
+                            continue
+                        }
+                        if (!['sql_query', 'artifacts', 'python_code'].includes(block?.type)) continue
+
+                        if (block.type === 'artifacts' && Array.isArray(block.files)) {
+                            const links: IChatLink[] = block.files.filter((f: any) => f.ext === 'url' && f.url && f.title).map((f: any) => ({ title: f.title, url: f.url }))
+                            const files = block.files.filter((f: any) => f.ext !== 'url')
+                            if (links.length > 0) urlLinks.value[invocationId] = [...(urlLinks.value[invocationId] ?? []), ...links]
+                            if (files.length > 0) upsertArtifactsBlock({ ...block, files }, invocationId, text)
+                        } else {
+                            sideItems.value.push(decorateSideBlock(block as IChatBlock, invocationId, text))
                         }
                     }
                 }
             }
 
-            // Finalize live entry if not yet replaced
-            if (chat.value[liveIndex]?.isLive) {
-                chat.value[liveIndex] = { ...chat.value[liveIndex], isLive: false, turnId: turnId.value++, invocationId: activeInvocationId }
+            if (live.isLive) {
+                Object.assign(live, { isLive: false, liveStatus: '' })
+                finishSteps(live)
             }
         } catch (err: any) {
             if (err?.name === 'AbortError') return
-            chat.value[liveIndex] = {
-                role: 'assistant',
-                content: t('ai.streamError'),
-                turnId: turnId.value++,
-                timestamp: new Date(),
-                isError: true,
-                isStreamError: true,
-                isLive: false,
-                invocationId: activeInvocationId
-            }
-            scrollToBottom()
+            Object.assign(live, { content: t('ai.streamError'), isError: true, isStreamError: true, isLive: false, liveStatus: '' })
+            finishSteps(live)
         } finally {
-            awaitingReply.value = false
-            currentSseAbort = null
+            // A stopped reply was already cleaned up by stopReply, and a new request may have started since.
+            if (currentSseAbort === abort) {
+                currentSseAbort = null
+                liveMessage = null
+                awaitingReply.value = false
+            }
             scrollToBottom()
             focusInput()
         }
     }
 
-    // ── Mount ─────────────────────────────────────────────────
-
-    onMounted(() => {
-        loadBusinessModels()
-    })
+    onMounted(loadBusinessModels)
 
     onUnmounted(() => {
+        currentSseAbort?.abort()
         clearArtifactNavigation()
-        document.removeEventListener('mousemove', onSidePanelResizeMove)
-        document.removeEventListener('mouseup', onSidePanelResizeEnd)
     })
 
     return {
-        confirm,
+        confirmMode,
+        pendingBm,
         awaitingReply,
         userMessage,
         chat,
         bottomAnchor,
-        chatContainer,
         messageInput,
         sideItems,
         sidePanelVisible,
@@ -643,16 +582,20 @@ export function useAiChat(showAlert: Ref<boolean>, minimized: Ref<boolean>, mini
         selectedBm,
         sessionReady,
         sessionLoading,
+        sessionError,
         unreadCount,
-        confirmNewChat,
         formatTime,
         getUrlLinksForMessage,
-        messageHasArtifacts,
+        artifactCountForMessage,
+        artifactTotal,
         openArtifactsForMessage,
         sendMessage,
+        stopReply,
         initSession,
-        startSidePanelResize,
-        newChat,
-        loadBusinessModels
+        requestNewChat,
+        requestModelChange,
+        confirmPending,
+        cancelPending,
+        startSidePanelResize
     }
 }

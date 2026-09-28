@@ -1,119 +1,104 @@
 import { computed, onUnmounted, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 const MOBILE_BP = 600
+const GEOMETRY_KEY = 'kn_chatbot_geometry_v2'
+const MIN_WIDTH = 400
+const MIN_HEIGHT = 320
+
+interface IPanelGeometry {
+    x: number
+    y: number
+    width: number
+    height: number
+}
+
+function defaultGeometry(): IPanelGeometry {
+    const width = Math.min(Math.max(MIN_WIDTH, Math.round(window.innerWidth * 0.45)), 900)
+    const height = Math.min(Math.max(MIN_HEIGHT, Math.round(window.innerHeight * 0.7)), 800)
+    return { x: window.innerWidth - width - 24, y: window.innerHeight - height - 24, width, height }
+}
+
+// Keeps the panel inside the viewport, e.g. after the window got smaller since the last visit.
+function clampGeometry(g: IPanelGeometry): IPanelGeometry {
+    const width = Math.min(Math.max(MIN_WIDTH, g.width), Math.round(window.innerWidth * 0.95))
+    const height = Math.min(Math.max(MIN_HEIGHT, g.height), Math.round(window.innerHeight * 0.95))
+    const x = Math.min(Math.max(0, g.x), window.innerWidth - width)
+    const y = Math.min(Math.max(0, g.y), window.innerHeight - height)
+    return { x, y, width, height }
+}
+
+function loadGeometry(): IPanelGeometry {
+    try {
+        const saved = JSON.parse(localStorage.getItem(GEOMETRY_KEY) ?? 'null')
+        if (saved && ['x', 'y', 'width', 'height'].every((k) => Number.isFinite(saved[k]))) return clampGeometry(saved)
+    } catch {
+        // Storage can be unavailable (private mode, blocked site data). The default geometry is fine.
+    }
+    return defaultGeometry()
+}
+
+function saveGeometry(g: IPanelGeometry) {
+    try {
+        localStorage.setItem(GEOMETRY_KEY, JSON.stringify(g))
+    } catch {
+        // See loadGeometry.
+    }
+}
 
 export function useChatbotPanel() {
-    const { locale } = useI18n()
     const showAlert = ref(false)
-    const minimized = ref(false)
     const minimizedToCard = ref(false)
-
-    const posX = ref(Math.round(window.innerWidth * 0.2))
-    const posY = ref(Math.round(window.innerHeight * 0.2))
-    const panelWidth = ref(Math.round(window.innerWidth * 0.6))
-    const panelHeight = ref(Math.round(window.innerHeight * 0.6))
-
+    const geometry = ref<IPanelGeometry>(loadGeometry())
     const isMobile = ref(window.innerWidth <= MOBILE_BP)
-
-    const todayDate = computed(() =>
-        new Date().toLocaleDateString(locale.value, {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        })
-    )
-
-    // ── Responsive ────────────────────────────────────────────
 
     function onWindowResize() {
         isMobile.value = window.innerWidth <= MOBILE_BP
-        if (isMobile.value) minimized.value = false
+        geometry.value = clampGeometry(geometry.value)
     }
     window.addEventListener('resize', onWindowResize)
 
-    // ── Panel style ───────────────────────────────────────────
-
     const panelStyle = computed((): Record<string, string> => {
-        if (isMobile.value) {
-            return { left: '0', top: '0', right: '0', bottom: '0', width: '100%', height: '100%', borderRadius: '0' }
-        }
-        if (minimized.value) {
-            return { left: posX.value + 'px', bottom: '0px', top: 'auto', height: 'auto', minHeight: 'unset', width: panelWidth.value + 'px' }
-        }
-        return { left: posX.value + 'px', top: posY.value + 'px', width: panelWidth.value + 'px', height: panelHeight.value + 'px' }
+        if (isMobile.value) return { left: '0', top: '0', width: '100%', height: '100%', borderRadius: '0' }
+        const g = geometry.value
+        return { left: g.x + 'px', top: g.y + 'px', width: g.width + 'px', height: g.height + 'px' }
     })
 
-    // ── Drag ──────────────────────────────────────────────────
+    // ── Drag and resize ───────────────────────────────────────
 
-    let dragOffsetX = 0
-    let dragOffsetY = 0
+    let startX = 0
+    let startY = 0
+    let start: IPanelGeometry = geometry.value
 
-    function disableSelect() {
+    function beginPointerAction(e: MouseEvent, onMove: (e: MouseEvent) => void) {
+        startX = e.clientX
+        startY = e.clientY
+        start = { ...geometry.value }
         document.body.style.userSelect = 'none'
-    }
-    function enableSelect() {
-        document.body.style.userSelect = ''
+        const onUp = () => {
+            document.body.style.userSelect = ''
+            document.removeEventListener('mousemove', onMove)
+            document.removeEventListener('mouseup', onUp)
+            saveGeometry(geometry.value)
+        }
+        document.addEventListener('mousemove', onMove)
+        document.addEventListener('mouseup', onUp)
     }
 
     function startDrag(e: MouseEvent) {
         if (isMobile.value) return
-        dragOffsetX = e.clientX - posX.value
-        dragOffsetY = e.clientY - posY.value
-        disableSelect()
-        document.addEventListener('mousemove', onDragMove)
-        document.addEventListener('mouseup', onDragEnd)
+        beginPointerAction(e, (ev) => {
+            geometry.value = clampGeometry({ ...start, x: start.x + ev.clientX - startX, y: start.y + ev.clientY - startY })
+        })
     }
-
-    function onDragMove(e: MouseEvent) {
-        posX.value = e.clientX - dragOffsetX
-        posY.value = e.clientY - dragOffsetY
-    }
-
-    function onDragEnd() {
-        enableSelect()
-        document.removeEventListener('mousemove', onDragMove)
-        document.removeEventListener('mouseup', onDragEnd)
-    }
-
-    // ── Resize ────────────────────────────────────────────────
-
-    let resizeStartX = 0
-    let resizeStartY = 0
-    let resizeStartW = 0
-    let resizeStartH = 0
 
     function startResize(e: MouseEvent) {
         e.stopPropagation()
-        resizeStartX = e.clientX
-        resizeStartY = e.clientY
-        resizeStartW = panelWidth.value
-        resizeStartH = panelHeight.value
-        disableSelect()
-        document.addEventListener('mousemove', onResizeMove)
-        document.addEventListener('mouseup', onResizeEnd)
+        beginPointerAction(e, (ev) => {
+            geometry.value = clampGeometry({ ...start, width: start.width + ev.clientX - startX, height: start.height + ev.clientY - startY })
+        })
     }
 
-    function onResizeMove(e: MouseEvent) {
-        panelWidth.value = Math.min(Math.round(window.innerWidth * 0.95), Math.max(400, resizeStartW + (e.clientX - resizeStartX)))
-        panelHeight.value = Math.min(Math.round(window.innerHeight * 0.95), Math.max(300, resizeStartH + (e.clientY - resizeStartY)))
-    }
-
-    function onResizeEnd() {
-        enableSelect()
-        document.removeEventListener('mousemove', onResizeMove)
-        document.removeEventListener('mouseup', onResizeEnd)
-    }
-
-    // ── Geometry / open-close ─────────────────────────────────
-
-    function resetPanelGeometry() {
-        posX.value = Math.round(window.innerWidth * 0.2)
-        posY.value = Math.round(window.innerHeight * 0.2)
-        panelWidth.value = Math.round(window.innerWidth * 0.6)
-        panelHeight.value = Math.round(window.innerHeight * 0.6)
-    }
+    // ── Open / close ──────────────────────────────────────────
 
     function minimizeToCard() {
         minimizedToCard.value = true
@@ -121,50 +106,20 @@ export function useChatbotPanel() {
 
     function restoreFromCard() {
         minimizedToCard.value = false
-        minimized.value = false
-        if (!showAlert.value) showAlert.value = true
+        showAlert.value = true
     }
 
     function closePanel() {
         showAlert.value = false
         minimizedToCard.value = false
-        resetPanelGeometry()
     }
 
     function toggleChatbot() {
-        if (showAlert.value && !minimizedToCard.value) {
-            showAlert.value = false
-            resetPanelGeometry()
-        } else if (minimizedToCard.value) {
-            restoreFromCard()
-        } else {
-            showAlert.value = true
-            minimized.value = false
-        }
+        if (minimizedToCard.value) restoreFromCard()
+        else showAlert.value = !showAlert.value
     }
 
-    // ── Cleanup ───────────────────────────────────────────────
+    onUnmounted(() => window.removeEventListener('resize', onWindowResize))
 
-    onUnmounted(() => {
-        document.removeEventListener('mousemove', onDragMove)
-        document.removeEventListener('mouseup', onDragEnd)
-        document.removeEventListener('mousemove', onResizeMove)
-        document.removeEventListener('mouseup', onResizeEnd)
-        window.removeEventListener('resize', onWindowResize)
-    })
-
-    return {
-        showAlert,
-        minimized,
-        isMobile,
-        todayDate,
-        panelStyle,
-        startDrag,
-        startResize,
-        closePanel,
-        minimizedToCard,
-        minimizeToCard,
-        restoreFromCard,
-        toggleChatbot
-    }
+    return { showAlert, minimizedToCard, isMobile, geometry, panelStyle, startDrag, startResize, closePanel, toggleChatbot, minimizeToCard, restoreFromCard }
 }

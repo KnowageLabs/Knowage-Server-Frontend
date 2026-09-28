@@ -22,20 +22,28 @@
         "title": "Account Management"
     },
     "ai": {
+        "artifactsCount": "{n} artifact | {n} artifacts",
         "dashboardLink": "Dashboard Link",
         "disclaimer": "The virtual assistant generates real-time responses using AI. Please consult other sources if necessary.",
         "error": "Sorry, I cannot help you with that right now. Please try again later.",
         "message": {
             "limitReached": "You have reached the maximum number of messages allowed by your license.",
-            "placeholder": "Type your message"
+            "placeholder": "Ask a question about your data…"
         },
+        "modelChangeConfirm": "Switching the business model starts a new conversation. The current conversation will be lost.",
+        "modelInMainWindow": "Change the business model in the main window.",
         "newChat": "New conversation",
         "newConversationConfirm": "Are you sure you want to start a new conversation? All the current conversation will be lost.",
+        "noModels": "No business model is enabled for the assistant. An administrator can enable one in AI Management.",
         "openDashboard": "Open Dashboard",
+        "popIn": "Back to the page",
+        "popOut": "Open in a separate window",
         "selectModel": "Business Model",
         "sessionError": "Unable to initialise the AI session. Please check the configuration and try again.",
         "sessionLoading": "Starting session…",
         "sessionNotReady": "The session is not ready yet. Please wait a moment.",
+        "sessionOffline": "Not connected",
+        "sessionReady": "Connected",
         "sessionSettings": "Session settings",
         "sidePanel": {
             "csvEmpty": "No data in this file.",
@@ -47,6 +55,29 @@
             "toggle": "Show / hide artifacts"
         },
         "startSession": "Start session",
+        "steps": {
+            "count": "{n} step | {n} steps",
+            "default": "Running {tool}",
+            "tools": {
+                "edit_layout_chart": "Creating the chart",
+                "knowage_activate_dashboard_tool": "Opening the dashboard",
+                "knowage_info_tool": "Looking up Knowage information",
+                "list_session_files": "Listing the session files",
+                "list_skills": "Checking the available skills",
+                "load_skill": "Loading a skill",
+                "load_skill_resource": "Reading the skill resources",
+                "ml_tool": "Running the model",
+                "read_csv": "Reading the data",
+                "read_layout_chart": "Reading the chart layout",
+                "read_todos": "Reading the plan",
+                "run_skill_script": "Running a script",
+                "sql_tool": "Querying the data",
+                "update_todo": "Updating the plan",
+                "write_todos": "Planning the steps"
+            }
+        },
+        "stop": "Stop the reply",
+        "stopped": "Reply stopped.",
         "streamError": "An error occurred while receiving the response. Please try again.",
         "thinking": "I am thinking...",
         "title": "Virtual Assistant",
@@ -293,6 +324,7 @@
         "metadata": "Metadata",
         "middle": "Middle",
         "min": "Min",
+        "minimize": "Minimize",
         "modal": "Modal",
         "modify": "modify",
         "more": "More",
@@ -340,6 +372,7 @@
         "required": "Required",
         "reset": "Reset",
         "restore": "restore",
+        "retry": "Retry",
         "reused": "Reused",
         "right": "Right",
         "role": "Role",
@@ -616,6 +649,8 @@
             "createVariable": "Create Variable",
             "css": "CSS Editor",
             "customHeader": "Custom Header",
+            "dataType": "Data type",
+            "editDescription": "Add a description",
             "executionDate": "Execution Date",
             "executionTime": "Execution Time",
             "meaningful": "Meaningful",
@@ -2841,14 +2876,40 @@
         "ai": {
             "businessModels": {
                 "enabledToggle": "Include in AI",
+                "included": "Included",
+                "notIncluded": "Not included",
                 "syncronize": "Synchronize Business Models",
                 "title": "Business Models"
+            },
+            "engine": {
+                "about": "About",
+                "businessModelsSync": "Business models sync",
+                "businessModelsSyncHint": "Sends the metadata of the business models included in AI to the AI engine.",
+                "connection": "Connection",
+                "includedCount": "No business model included | {n} business model included | {n} business models included",
+                "knowledgeBase": "Knowledge base",
+                "knowledgeBaseHint": "Loads the tenant definitions from the ai.xlsx file in the \"ai\" folder of Resources.",
+                "lastUpdate": "Last update",
+                "notConfigured": "No AI engine is configured. Set KNOWAGE.AI.URL in Configuration Management.",
+                "status": {
+                    "checking": "Checking the connection…",
+                    "error": "Error",
+                    "inProcess": "Synchronizing…",
+                    "never": "Never synchronized",
+                    "off": "Not configured",
+                    "ok": "Up to date",
+                    "reachable": "The AI engine responds.",
+                    "unreachable": "The AI engine does not respond."
+                },
+                "title": "AI Engine",
+                "url": "AI engine URL"
             },
             "goldQueries": {
                 "addColumns": "Add columns",
                 "addQuery": "Add Query",
                 "addTables": "Add tables",
                 "columns": "Columns",
+                "deleteQuery": "Delete query",
                 "editTitle": "Edit Gold Queries",
                 "editor": "JSON Editor",
                 "insertColumn": "Insert column reference",
@@ -2859,11 +2920,12 @@
                 "newQuery": "New query…",
                 "noQueries": "No gold queries yet. Add one to get started.",
                 "queries": "queries",
+                "queriesCount": "No gold queries | {n} gold query | {n} gold queries",
                 "tables": "Tables",
                 "tablesColumns": "Tables & Columns",
                 "title": "Gold Queries – {name}"
             },
-            "hint": " AI functionalities management allows you to manage the AI functionalities of the platform. You can enable or disable them, and update the tenant definitions for the AI engine.",
+            "hint": "AI functionalities management allows you to manage the AI functionalities of the platform. You can enable or disable them, and update the tenant definitions for the AI engine.",
             "syncronize": "Synchronize Tenant",
             "title": "AI functionalities management"
         },
