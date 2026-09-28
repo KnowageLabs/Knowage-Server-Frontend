@@ -59,8 +59,8 @@ export default defineComponent({
                     if (pathElement && pathElement.properties && pathElement.properties.d && this.model) {
                         let dAttribute = pathElement.properties.d
                         dAttribute = dAttribute.replaceAll(/(\r\n|\n|\r)/gm, '')
-                        dAttribute = dAttribute.replaceAll(',', '.')
-                        this.model.settings.configuration.svgSettings = { definition: dAttribute }
+                        dAttribute = dAttribute.replaceAll(',', ' ')
+                        this.model.settings.configuration.svgSettings = { definition: dAttribute, fillRule: pathElement.properties['fill-rule'] }
                         this.svgSettings = this.model.settings.configuration.svgSettings
                     } else {
                         this.setError({ title: this.$t('common.error.generic'), msg: this.$t('dashboard.widgetEditor.highcharts.svg.error') })

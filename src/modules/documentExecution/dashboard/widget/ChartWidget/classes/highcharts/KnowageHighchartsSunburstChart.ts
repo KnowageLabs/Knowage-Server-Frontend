@@ -61,15 +61,16 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
         const interactions = widgetModel.settings?.interactions
         const interactionsEnabled = interactions.selection.enabled || interactions.crossNavigation.enabled
-        this.setSunburstData(data, widgetModel, attributeColumns, measureColumns, interactionsEnabled, currentSeriesOptions)
+        const showLabels = widgetModel.settings?.series?.seriesSettings?.[0]?.label?.enabled === true
+        this.setSunburstData(data, widgetModel, attributeColumns, measureColumns, interactionsEnabled, showLabels, currentSeriesOptions)
         return this.model.series
     }
 
-    setSunburstData = (data: any, widgetModel: IWidget, attributeColumns: any[], measureColumns: any[], interactionsEnabled = false, currentSeriesOptions?: any) => {
+    setSunburstData = (data: any, widgetModel: IWidget, attributeColumns: any[], measureColumns: any[], interactionsEnabled = false, showLabels = false, currentSeriesOptions?: any) => {
         if (!data || data.results === 0 || !measureColumns[0] || attributeColumns.length < 2) return
         const measureColumn = measureColumns[0]
         const centerTextSettings = widgetModel.settings.configuration.centerText
-        const serieElement = this.createSerieElement(measureColumn, interactionsEnabled, currentSeriesOptions)
+        const serieElement = this.createSerieElement(measureColumn, interactionsEnabled, showLabels, currentSeriesOptions)
         const hierarchy = {} as any
         createHierarchyFromData(this.model, hierarchy, data, attributeColumns, measureColumn)
 
@@ -78,7 +79,7 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
             if (el.value === 0) delete el.value
         })
 
-        this.formatFirstSunburstElement(treemapArray, attributeColumns, centerTextSettings, currentSeriesOptions)
+        this.formatFirstSunburstElement(treemapArray, attributeColumns, centerTextSettings, showLabels)
         serieElement.data = treemapArray
 
         this.model.series = [serieElement]
@@ -99,7 +100,7 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
         this.model.colors = []
     }
 
-    createSerieElement(measureColumn: any, interactionsEnabled: boolean, currentSeriesOptions?: any) {
+    createSerieElement(measureColumn: any, interactionsEnabled: boolean, showLabels: boolean, currentSeriesOptions?: any) {
         const levelOneDataLabels = currentSeriesOptions?.levels?.find((level: any) => level.level === 1)?.dataLabels
         const serieElement = {
             id: 0,
@@ -110,15 +111,15 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
             allowDrillToNode: !interactionsEnabled,
             showInLegend: false,
             animationLimit: 1000,
-            ...(currentSeriesOptions?.dataLabels ? { dataLabels: deepcopy(currentSeriesOptions.dataLabels) } : {}),
+            dataLabels: { ...deepcopy(currentSeriesOptions?.dataLabels ?? {}), enabled: showLabels },
             levels: [
                 {
                     level: 1,
                     levelIsConstant: false,
                     dataLabels: {
-                        enabled: true,
-                        textOutline: 'none',
-                        ...levelOneDataLabels
+                        ...deepcopy(levelOneDataLabels ?? {}),
+                        enabled: showLabels,
+                        textOutline: 'none'
                     }
                 },
                 {
@@ -145,15 +146,13 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
         return serieElement
     }
 
-    formatFirstSunburstElement(treemapArray: any[], attributeColumns: any[], centerTextSettings: any, currentSeriesOptions?: any) {
+    formatFirstSunburstElement(treemapArray: any[], attributeColumns: any[], centerTextSettings: any, showLabels: boolean) {
         if (!treemapArray[0]) return
-        const levelOneDataLabelsEnabled = currentSeriesOptions?.levels?.find((level: any) => level.level === 1)?.dataLabels?.enabled ?? true
-        const seriesDataLabelsEnabled = currentSeriesOptions?.dataLabels?.enabled ?? true
         ;(treemapArray[0].parent = null),
             (treemapArray[0].id = 'root'),
             (treemapArray[0].name = centerTextSettings?.text ?? attributeColumns[0].column.columnName),
             (treemapArray[0].dataLabels = {
-                enabled: seriesDataLabelsEnabled && levelOneDataLabelsEnabled,
+                enabled: showLabels,
                 style: {
                     fontFamily: centerTextSettings?.style['font-family'] ?? 'Arial',
                     fontStyle: centerTextSettings?.style['font-style'] ?? 'normal',

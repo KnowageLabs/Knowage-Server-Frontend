@@ -499,7 +499,7 @@ export default defineComponent({
             let widgetUsesSelection = false
             if (!this.widgetModel.dataset) return widgetUsesSelection
             for (let i = 0; i < deletedSelections.length; i++) {
-                if (deletedSelections[i].datasetId === this.widgetModel.dataset) {
+                if (this.hasSameDatasetId(deletedSelections[i].datasetId, this.widgetModel.dataset)) {
                     widgetUsesSelection = true
                     break
                 }
@@ -522,7 +522,7 @@ export default defineComponent({
             let widgetUsesSelection = false
             if (!this.widgetModel.dataset) return widgetUsesSelection
             for (let i = 0; i < selections.length; i++) {
-                if (selections[i].datasetId === this.widgetModel.dataset) {
+                if (this.hasSameDatasetId(selections[i].datasetId, this.widgetModel.dataset)) {
                     widgetUsesSelection = true
                     break
                 }
@@ -530,12 +530,15 @@ export default defineComponent({
 
             return widgetUsesSelection
         },
+        hasSameDatasetId(firstDatasetId: string | number, secondDatasetId: string | number) {
+            return String(firstDatasetId) === String(secondDatasetId)
+        },
         checkIfMapWidgetUsesSelection(selections: ISelection[]) {
             let widgetUsesSelection = false
             if (!this.widgetModel.layers || this.widgetModel.layers.length === 0) return widgetUsesSelection
             for (let i = 0; i < selections.length; i++) {
                 for (let j = 0; j < this.widgetModel.layers.length; j++) {
-                    if (this.widgetModel.layers[j].type === 'dataset' && selections[i].datasetId === this.widgetModel.layers[j].id) {
+                    if (this.widgetModel.layers[j].type === 'dataset' && this.hasSameDatasetId(selections[i].datasetId, this.widgetModel.layers[j].id)) {
                         widgetUsesSelection = true
                         break
                     }
@@ -553,7 +556,7 @@ export default defineComponent({
                 : this.widgetModel.columns
 
             const hasAnySelection = columnsToCheck.some((column: any) => {
-                return this.activeSelections.some((selection: ISelection) => selection.datasetId === this.widgetModel.dataset && selection.columnName === column.columnName)
+                return this.activeSelections.some((selection: ISelection) => this.hasSameDatasetId(selection.datasetId, this.widgetModel.dataset) && selection.columnName === column.columnName)
             })
 
             this.selectionIsLocked = hasAnySelection
@@ -573,7 +576,7 @@ export default defineComponent({
             if (associativeSelectionsFromStore) await this.reloadWidgetData(associativeSelectionsFromStore)
         },
         async onDatasetRefresh(modelDatasetId: any) {
-            if (this.widgetModel.dataset !== modelDatasetId) return
+            if (!this.hasSameDatasetId(this.widgetModel.dataset, modelDatasetId)) return
             if (this.activeSelections.length > 0 && datasetIsUsedInAssociations(modelDatasetId, this.dashboards[this.dashboardId].configuration.associations)) {
                 loadAssociativeSelections(this.dashboardId, this.dashboards[this.dashboardId], this.datasets, this.activeSelections, this.$http)
             } else {

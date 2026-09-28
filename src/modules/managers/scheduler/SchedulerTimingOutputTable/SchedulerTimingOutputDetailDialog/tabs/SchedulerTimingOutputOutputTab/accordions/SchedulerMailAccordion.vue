@@ -197,8 +197,11 @@ export default defineComponent({
 
             const fixedRecipientsListInvalid = this.document.useFixedRecipients && (!this.document.mailtos || (this.document.mailtos.length === 0 && !this.uniqueMailEnabledOnOtherDocument))
             const expressionInvalid = this.document.useExpression && (!this.document.expression || (this.document.expression.length === 0 && !this.uniqueMailEnabledOnOtherDocument))
-            const datasetInvalid = this.document.useDataset && (!this.document.datasetLabel || this.document.datasetLabel?.length === 0 || !this.document.datasetParameter || this.document.datasetParameter?.length === 0) && !this.uniqueMailEnabledOnOtherDocument
-
+            /* * KN-9965 - Previous validation. 
+               * datasetParameter is no longer available in the current UI. 
+            */
+            // const datasetInvalid = this.document.useDataset && (!this.document.datasetLabel || this.document.datasetLabel?.length === 0 || !this.document.datasetParameter || this.document.datasetParameter?.length === 0) && !this.uniqueMailEnabledOnOtherDocument
+            const datasetInvalid = this.document.useDataset && (!this.document.datasetLabel || this.document.datasetLabel?.length === 0) && !this.uniqueMailEnabledOnOtherDocument
             this.document.invalid.invalidMail = (!this.document.useFixedRecipients && !this.document.useExpression && !this.document.useDataset) || fixedRecipientsListInvalid || expressionInvalid || datasetInvalid
         },
         onSendUniqueMailChanged() {
