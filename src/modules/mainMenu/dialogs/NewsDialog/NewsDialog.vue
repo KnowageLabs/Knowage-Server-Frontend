@@ -57,7 +57,7 @@ import newsDialogDescriptor from './NewsDialogDescriptor.json'
 import TabView from 'primevue/tabview'
 import TabPanel from 'primevue/tabpanel'
 import { formatDate } from '@/helpers/commons/localeHelper'
-import WS from '@/services/webSocket'
+import { sendWebSocketMessage } from '@/services/webSocket'
 import mainStore from '../../../../App.store.js'
 
 interface SingleNews {
@@ -110,7 +110,7 @@ export default defineComponent({
                             if (!this.selectedNews.read) {
                                 this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/newsRead/' + id).then(
                                     () => {
-                                        WS.send(JSON.stringify({ news: true }))
+                                        sendWebSocketMessage(JSON.stringify({ news: true }))
                                     },
                                     (error) => console.error(error)
                                 )

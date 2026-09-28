@@ -21,7 +21,7 @@ import Toast from 'primevue/toast'
 import { defineComponent } from 'vue'
 import mainStore from '@/App.store'
 import { mapState, mapActions } from 'pinia'
-import WEB_SOCKET from '@/services/webSocket.js'
+import { closeWebSocket, getWebSocket } from '@/services/webSocket.js'
 import themeHelper from '@/helpers/themeHelper/themeHelper'
 import { primeVueDate, getLocale } from '@/helpers/commons/localeHelper'
 import { loadLanguageAsync } from '@/App.i18n.js'
@@ -40,7 +40,9 @@ export default defineComponent({
             showMenu: false,
             closedMenu: false,
             pollingInterval: null as any,
-            stopExecution: false
+            stopExecution: false,
+            shouldReconnectWebSocket: false,
+            webSocketReconnectTimer: null as ReturnType<typeof setTimeout> | null
         }
     },
     computed: {
@@ -87,6 +89,9 @@ export default defineComponent({
                 baseZIndex: typeof newWarning.baseZIndex == 'undefined' ? 0 : newWarning.baseZIndex,
                 life: typeof newWarning.duration == 'undefined' ? import.meta.env.VUE_APP_TOAST_DURATION : newWarning.duration
             })
+        },
+        user(newUser) {
+            if (!newUser || Object.keys(newUser).length === 0) this.stopNewsDownloadHandler()
         }
     },
     async created() {
@@ -194,8 +199,9 @@ export default defineComponent({
         }
     },
 
-    beforeUnmounted() {
+    beforeUnmount() {
         clearInterval(this.pollingInterval)
+        this.stopNewsDownloadHandler()
         sessionTimeoutHelper.stop()
     },
 
@@ -295,41 +301,37 @@ export default defineComponent({
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/i18nMessages/internationalization?currLanguage=' + currLanguage).then((response) => this.setInternationalization(response.data))
         },
         newsDownloadHandler() {
-            console.log('Starting connection to WebSocket Server')
-
-            WEB_SOCKET.update = (event) => {
-                if (event.data) {
-                    const json = JSON.parse(event.data)
-                    if (json.news) {
-                        this.setNews(json.news)
-                    }
-                    if (json.downloads) {
-                        this.setDownloads(json.downloads)
-                    }
+            this.shouldReconnectWebSocket = true
+            const webSocket = getWebSocket()
+            webSocket.onmessage = this.handleWebSocketMessage
+            webSocket.onclose = () => this.scheduleWebSocketReconnect()
+        },
+        handleWebSocketMessage(event: MessageEvent<string>) {
+            if (!event.data) return
+            try {
+                const json = JSON.parse(event.data)
+                if (json.news) {
+                    this.setNews(json.news)
                 }
-            }
-            WEB_SOCKET.onopen = (event) => {
-                if (event.data) {
-                    const json = JSON.parse(event.data)
-                    if (json.news) {
-                        this.setNews(json.news)
-                    }
-                    if (json.downloads) {
-                        this.setDownloads(json.downloads)
-                    }
+                if (json.downloads) {
+                    this.setDownloads(json.downloads)
                 }
+            } catch (error) {
+                console.error('Error processing WebSocket message', error)
             }
-            WEB_SOCKET.onmessage = (event) => {
-                if (event.data) {
-                    const json = JSON.parse(event.data)
-                    if (json.news) {
-                        this.setNews(json.news)
-                    }
-                    if (json.downloads) {
-                        this.setDownloads(json.downloads)
-                    }
-                }
-            }
+        },
+        scheduleWebSocketReconnect() {
+            if (!this.shouldReconnectWebSocket || this.webSocketReconnectTimer) return
+            this.webSocketReconnectTimer = setTimeout(() => {
+                this.webSocketReconnectTimer = null
+                this.newsDownloadHandler()
+            }, 5000)
+        },
+        stopNewsDownloadHandler() {
+            this.shouldReconnectWebSocket = false
+            if (this.webSocketReconnectTimer) clearTimeout(this.webSocketReconnectTimer)
+            this.webSocketReconnectTimer = null
+            closeWebSocket()
         }
     }
 })
