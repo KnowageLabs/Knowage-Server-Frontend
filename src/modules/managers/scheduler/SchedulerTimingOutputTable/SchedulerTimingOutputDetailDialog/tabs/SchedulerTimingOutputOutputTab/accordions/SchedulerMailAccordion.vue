@@ -71,7 +71,9 @@
 
                     <div class="row">
                         <q-checkbox v-model="document.useDataset" :label="$t('managers.scheduler.useDatasetList')" @update:model-value="removeDocumentFixedRecipientsAndExpression" />
-                        <q-select v-if="document.useDataset" v-model="document.datasetLabel" :options="datasets" optionLabel="label" optionValue="label" dense filled :label="$t('managers.scheduler.datasetVerification')" class="col q-ml-md" />
+                        <!-- [Knowage-9965] -->
+                        <!--  <q-select v-if="document.useDataset" v-model="document.datasetLabel" :options="datasets" optionLabel="label" optionValue="label" dense filled :label="$t('managers.scheduler.datasetVerification')" class="col q-ml-md" /> -->
+                        <q-select v-if="document.useDataset" v-model="document.datasetLabel" :options="datasets" option-label="label" option-value="label" emit-value map-options dense filled :label="$t('managers.scheduler.datasetVerification')" class="col q-ml-md" />
                     </div>
 
                     <div class="row q-mt-md">
