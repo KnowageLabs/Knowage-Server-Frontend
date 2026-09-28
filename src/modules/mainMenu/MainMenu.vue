@@ -10,12 +10,13 @@
         @focusout="onFocusOut"
     >
         <div class="kn-main-menu__rail">
-            <div class="kn-main-menu__header">
+            <!-- The logo is the Home link. -->
+            <component :is="homeItem ? 'router-link' : 'div'" class="kn-main-menu__header" :class="{ 'kn-main-menu__header--link': homeItem }" v-bind="headerLinkAttrs">
                 <div class="kn-main-menu__logo-cell">
                     <img class="kn-main-menu__logo" :src="logoSrc" alt="" />
                 </div>
                 <span v-if="expanded" class="kn-main-menu__brand">{{ hasTenantLogo ? '' : 'Knowage' }}</span>
-            </div>
+            </component>
 
             <div class="kn-main-menu__zone kn-main-menu__zone--top">
                 <MainMenuRailItem v-if="modules.length" :label="$t('menu.modules')" icon="fas fa-cog" :expanded="expanded" :active="modulesOpen || isModulesRouteActive" has-popup :popup-open="modulesOpen" tour-id="menu-modules">
@@ -23,8 +24,6 @@
                         <MainMenuModulesPanel :groups="modules" :user-id="user.userId" :translate="translate" @activate="onModuleActivate" @close="modulesOpen = false" />
                     </q-menu>
                 </MainMenuRailItem>
-
-                <MainMenuRailItem v-if="homeItem" :label="translate(homeItem.label)" :icon="normalizeMenuIcon(homeItem.iconCls)" :link="getMenuLink(homeItem)" :expanded="expanded" :active="isRouteActive($route.path, '/')" @activate="onActivate(homeItem)" />
             </div>
 
             <div class="kn-main-menu__zone kn-main-menu__zone--middle" data-tour-id="menu-items">
@@ -57,9 +56,9 @@
                         show-chevron
                         has-popup
                         :popup-open="openFolder === item"
-                        :active="openFolder === item || containsRoute(item.items, $route.path)"
+                        :active="openFolder === item || isRouteActive($route.path, item.to) || containsRoute(item.items, $route.path)"
                     >
-                        <q-menu :model-value="openFolder === item" class="kn-main-menu-popup" anchor="top right" self="top left" :offset="[8, 0]" @update:model-value="(open) => (openFolder = open ? item : null)">
+                        <q-menu :model-value="openFolder === item" class="kn-main-menu-popup" anchor="top right" self="top left" :offset="folderOffset" max-height="min(520px, calc(100vh - 16px))" @update:model-value="(open) => (openFolder = open ? item : null)">
                             <MainMenuFolderMenu :folder="item" :translate="translate" @activate="onFolderActivate" @close="openFolder = null" />
                         </q-menu>
                     </MainMenuRailItem>
@@ -142,7 +141,7 @@ import MainMenuRailItem from '@/modules/mainMenu/MainMenuRailItem.vue'
 import NewsDialog from '@/modules/mainMenu/dialogs/NewsDialog/NewsDialog.vue'
 import RoleDialog from '@/modules/mainMenu/dialogs/RoleDialog.vue'
 import type { IMenuGroup, IMenuItem } from '@/modules/mainMenu/MainMenu'
-import { containsRoute, getInitials, getMenuLink, isHomeItem, isItemClickable, isMyAccountItem, isRouteActive, normalizeMenuIcon, translateMenuLabel } from '@/modules/mainMenu/MainMenuHelpers'
+import { containsRoute, getInitials, getMenuLink, isHomeItem, isItemClickable, isLicenseItem, isMyAccountItem, isRouteActive, normalizeMenuIcon, translateMenuLabel } from '@/modules/mainMenu/MainMenuHelpers'
 
 // Hover intent: the menu opens only after the pointer rests on it and closes only after the pointer stays away, so a quick pass across the rail does not flicker it.
 // The theme sets the delay through --kn-mainmenu-hover-delay (ms or s).
@@ -184,6 +183,7 @@ export default defineComponent({
             accountOpen: false,
             accountView: 'main' as 'main' | 'role' | 'language',
             openFolder: null as IMenuItem | null,
+            folderOffset: [8, 0] as [number, number],
             infoVisible: false,
             roleDialogVisible: false,
             downloadsVisible: false,
@@ -204,11 +204,23 @@ export default defineComponent({
         logoSrc(): string {
             return this.user?.organizationImageb64 || this.publicPath + '/images/commons/logo_knowage.svg'
         },
+        // Licenses opens from the account menu, so Modules drops it, and drops a group that holds nothing else.
         modules(): IMenuGroup[] {
-            return this.technicalUserFunctionalities ?? []
+            return (this.technicalUserFunctionalities ?? []).map((group) => ({ ...group, items: (group.items ?? []).filter((item) => !isLicenseItem(item)) })).filter((group) => group.items.length > 0)
+        },
+        licenseItem(): IMenuItem | null {
+            for (const group of this.technicalUserFunctionalities ?? []) {
+                const item = (group.items ?? []).find(isLicenseItem)
+                if (item) return { ...item, iconCls: item.iconCls || 'fas fa-certificate' }
+            }
+            return null
         },
         homeItem(): IMenuItem | null {
             return this.commonUserFunctionalities.find(isHomeItem) ?? null
+        },
+        headerLinkAttrs(): Record<string, unknown> {
+            if (!this.homeItem) return {}
+            return { to: { name: 'home' }, 'aria-label': this.translate(this.homeItem.label), 'aria-current': this.isRouteActive(this.$route.path, '/') ? 'page' : undefined }
         },
         railAllowedItems(): IMenuItem[] {
             return this.allowedUserFunctionalities.filter((item) => !isMyAccountItem(item) && this.isItemVisible(item))
@@ -220,7 +232,12 @@ export default defineComponent({
             return [...this.dynamicUserFunctionalities].sort((a, b) => (a.prog ?? 0) - (b.prog ?? 0))
         },
         accountCommonItems(): IMenuItem[] {
-            return this.commonUserFunctionalities.filter((item) => !isHomeItem(item) && this.isItemVisible(item))
+            const items = this.commonUserFunctionalities.filter((item) => !isHomeItem(item) && this.isItemVisible(item))
+            if (!this.licenseItem) return items
+            // Licenses sits right after Info.
+            const infoIndex = items.findIndex((item) => item.command === 'info')
+            items.splice(infoIndex >= 0 ? infoIndex + 1 : items.length, 0, this.licenseItem)
+            return items
         },
         initials(): string {
             return getInitials(this.user?.fullName || this.user?.userId)
@@ -253,6 +270,12 @@ export default defineComponent({
         anyPopupOpen(value: boolean) {
             // A popup keeps the menu open. When the last popup closes and the pointer is away, the menu closes too.
             if (!value) this.scheduleCollapse()
+        },
+        openFolder(folder: IMenuItem | null) {
+            // A folder popup anchors on its row. When the middle zone scrolls, its scrollbar makes the row narrower than the rail, so the popup moves right by the scrollbar width.
+            if (!folder) return
+            const zone = this.$el.querySelector('.kn-main-menu__zone--middle') as HTMLElement | null
+            this.folderOffset = [8 + (zone ? zone.offsetWidth - zone.clientWidth : 0), 0]
         },
         $route() {
             this.closePopups()
@@ -485,6 +508,18 @@ export default defineComponent({
     height: var(--kn-mainmenu-width);
     display: flex;
     align-items: center;
+    &--link {
+        color: inherit;
+        text-decoration: none;
+        cursor: pointer;
+        &:hover {
+            background: var(--kn-mainmenu-hover-background-color);
+        }
+        &:focus-visible {
+            outline: 2px solid var(--kn-mainmenu-highlight-color);
+            outline-offset: -2px;
+        }
+    }
 }
 .kn-main-menu__logo-cell {
     position: relative;
@@ -527,20 +562,34 @@ export default defineComponent({
     padding-top: 0;
     overflow-x: hidden;
     overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--kn-mainmenu-hover-background-color) transparent;
     background:
         linear-gradient(var(--kn-mainmenu-background-color) 30%, transparent) center top / 100% 24px no-repeat local,
         linear-gradient(transparent, var(--kn-mainmenu-background-color) 70%) center bottom / 100% 24px no-repeat local,
         radial-gradient(farthest-side at 50% 0, rgba(0, 0, 0, 0.5), transparent) center top / 100% 10px no-repeat scroll,
         radial-gradient(farthest-side at 50% 100%, rgba(0, 0, 0, 0.5), transparent) center bottom / 100% 10px no-repeat scroll;
     background-color: var(--kn-mainmenu-background-color);
+    /* Chrome, Edge and Safari: a 5px bar with no arrow buttons and no track. */
     &::-webkit-scrollbar {
-        width: 4px;
+        width: 5px;
+    }
+    &::-webkit-scrollbar-button {
+        display: none;
+    }
+    &::-webkit-scrollbar-track {
+        background: transparent;
     }
     &::-webkit-scrollbar-thumb {
-        border-radius: 4px;
+        border-radius: 5px;
         background: var(--kn-mainmenu-hover-background-color);
+        &:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+    }
+    /* Firefox cannot style the bar size in px. "thin" is its smallest bar, and it has no arrows.
+       Chrome 121+ also reads these properties and then ignores the ::-webkit-scrollbar rules above, so only Firefox gets them. */
+    @supports not selector(::-webkit-scrollbar) {
+        scrollbar-width: thin;
+        scrollbar-color: var(--kn-mainmenu-hover-background-color) transparent;
     }
 }
 .kn-main-menu__zone--bottom {
@@ -679,6 +728,10 @@ export default defineComponent({
 </style>
 
 <style lang="scss">
+/* The menu (z-index 9000) and its scrim sit above the Quasar menu layer (6000). The popups must sit above the menu. */
+.q-menu.kn-main-menu-popup {
+    z-index: 9100;
+}
 .kn-main-menu-popup {
     border-radius: 8px;
     background: var(--kn-mainmenu-panel-color);

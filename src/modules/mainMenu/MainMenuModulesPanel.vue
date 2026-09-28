@@ -1,5 +1,5 @@
 <template>
-    <div class="kn-modules-panel" @keydown.esc="onEsc">
+    <div class="kn-modules-panel" :style="{ height: panelHeight + 'px' }" @keydown.esc="onEsc">
         <div class="kn-modules-panel__search">
             <!-- Enter runs on keyup: on keydown the menu closes first, and the keyup then reaches the refocused rail button and reopens it. -->
             <q-input v-model="search" dense borderless autofocus class="kn-modules-panel__input" :placeholder="$t('menu.searchModules')" :aria-label="$t('menu.searchModules')" @keyup.enter.prevent="openFirstMatch">
@@ -61,6 +61,13 @@ import MainMenuPopupRow from '@/modules/mainMenu/MainMenuPopupRow.vue'
 import { getMenuLink, getModuleGroupIcon, getModuleIcon, isPrimeIcon, pushRecentModule, readRecentModules, resolveRecentModules, searchModules } from '@/modules/mainMenu/MainMenuHelpers'
 import type { IMenuGroup, IMenuItem, IModuleMatch, IRecentModule } from '@/modules/mainMenu/MainMenu'
 
+// Sizes in px. They must match the styles below.
+const PANEL_HEADER = 56
+const ROW_HEIGHT = 36
+const GROUPS_PADDING = 12
+const ITEMS_PADDING = 16
+const TITLE_HEIGHT = 28
+
 export default defineComponent({
     name: 'main-menu-modules-panel',
     components: { MainMenuPopupRow },
@@ -90,6 +97,13 @@ export default defineComponent({
         selectedItems(): IMenuItem[] {
             if (this.effectiveSelection === 'recent') return this.recentMatches.map((match) => match.item)
             return this.groups[this.effectiveSelection as number]?.items ?? []
+        },
+        // The panel fits its tallest content: the group list, or the biggest group with its title.
+        // It does not change height when the user picks another group, and it grows when the server sends more modules.
+        panelHeight(): number {
+            const groupRows = this.groups.length + (this.recentMatches.length ? 1 : 0)
+            const itemRows = Math.max(this.recentMatches.length, ...this.groups.map((group) => group.items?.length ?? 0))
+            return PANEL_HEADER + Math.max(GROUPS_PADDING + groupRows * ROW_HEIGHT, ITEMS_PADDING + TITLE_HEIGHT + itemRows * ROW_HEIGHT)
         },
         selectedTitle(): string {
             if (this.effectiveSelection === 'recent') return this.$t('menu.recentModules') as string
@@ -126,9 +140,8 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .kn-modules-panel {
-    width: 700px;
-    /* 56px header + 516px body. The body holds 14 group rows of 36px plus 12px of padding, so the group list needs no scrollbar. */
-    height: 572px;
+    width: 540px;
+    /* The script sets the height from the content (panelHeight). */
     max-height: calc(100vh - 16px);
     display: grid;
     grid-template-rows: 56px minmax(0, 1fr);
@@ -206,7 +219,9 @@ export default defineComponent({
     opacity: 0.6;
 }
 .kn-modules-panel__title {
+    height: 16px;
     margin: 4px 8px 8px;
+    line-height: 16px;
     font-size: 11px;
     letter-spacing: 0.09em;
     text-transform: uppercase;

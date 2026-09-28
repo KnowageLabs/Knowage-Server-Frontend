@@ -71,7 +71,6 @@ const MODULE_ICON_MAP: Record<string, string> = {
     '/theme-management': 'sym_o_palette',
     '/dashboard-theme-management': 'sym_o_format_paint',
     '/events-management': 'sym_o_event',
-    licenseSelection: 'sym_o_workspace_premium',
     // Internationalization
     '/internationalization-management': 'sym_o_translate',
     // Import/Export
@@ -146,13 +145,23 @@ export function isMyAccountItem(item: IMenuItem): boolean {
     return !!item.to && item.to.includes('/restful-services/signup/prepareUpdate')
 }
 
+export function isLicenseItem(item: IMenuItem): boolean {
+    return item.command === 'licenseSelection'
+}
+
 export function isItemClickable(item: IMenuItem): boolean {
     return item.isClickable !== false && item.isClickable !== 'false'
 }
 
-// H5 — link model.
+// H5 — link model. A folder row opens its popup, so it gets no link.
 export function getMenuLink(item: IMenuItem): MenuLink {
-    if (!isItemClickable(item) || item.items?.length || item.command) return { kind: 'action' }
+    if (item.items?.length) return { kind: 'action' }
+    return getOwnLink(item)
+}
+
+// The link of the item itself, also when the item is a folder. A custom folder can point to a document too.
+export function getOwnLink(item: IMenuItem): MenuLink {
+    if (!isItemClickable(item) || item.command) return { kind: 'action' }
     if (isHomeItem(item)) return { kind: 'route', to: { name: 'home' } }
     if (item.to) return { kind: 'route', to: normalizeMenuRoute(item.to) }
     if (item.url) {
@@ -161,6 +170,10 @@ export function getMenuLink(item: IMenuItem): MenuLink {
         return { kind: 'external', href: normalizeExternalUrl(item.url), target: target || '_blank' }
     }
     return { kind: 'action' }
+}
+
+export function hasOwnTarget(item: IMenuItem): boolean {
+    return isItemClickable(item) && !!(item.to || item.url)
 }
 
 export function menuItemKey(item: { label: string; to?: string; url?: string; command?: string }): string {

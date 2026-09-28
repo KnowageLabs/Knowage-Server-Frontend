@@ -1,266 +1,224 @@
 <template>
-    <div id="host-info" data-test="host-info">
-        <div id="host-labels">
-            <p>{{ $t('licenseDialog.hostName') }}:</p>
-            <p>{{ $t('licenseDialog.hardwareId') }}:</p>
-            <p>{{ $t('licenseDialog.numberOfCpu') }}:</p>
-            <p>{{ $t('licenseDialog.adminsCreated') }}:</p>
-            <p>{{ $t('licenseDialog.usersCreated') }}:</p>
-        </div>
-        <div id="host-values">
-            <p>{{ selectedHost.hostName }}</p>
-            <p id="hardwareId">{{ selectedHost.hardwareId }}</p>
-            <p>{{ cpunumber }}</p>
-            <p>{{ `${adminUsersCreated}/${maxAdminUsers}` }}</p>
-            <p>{{ `${endUsersCreated}/${maxEndUsers}` }}</p>
-        </div>
-    </div>
-    <Toolbar class="kn-toolbar--transparent p-mb-2">
-        <template #end>
-            <FabButton v-tooltip.top="$t('licenseDialog.dataRequired')" icon="fas fa-plus" :style="licenseDialogDescriptor.fabButton.style" data-test="new-button" @click="setUploadType('', false)" />
-            <KnInputFile v-if="!uploading" label="" :change-function="uploadLicense" accept=".lic" :trigger-input="triggerUpload" />
-        </template>
-    </Toolbar>
-    <q-list class="rounded-borders" bordered>
-        <q-item v-for="(license, index) in licensesList" :key="index">
-            <q-item-section avatar class="col-1">
-                <q-avatar :label="license.product" square>
-                    <img :src="`${publicPath}/images/licenseImages/${license.product}.png`" />
-                </q-avatar>
-            </q-item-section>
-            <q-item-section class="col-3 q-pl-xs">
-                <span class="text-sm">{{ license.product }}</span>
-                <span class="text-sm" :class="setLicenseClass(license.status)">{{ licenseText(license.status) }}</span>
-            </q-item-section>
-            <q-item-section class="col-6 flex flex-row items-center justify-center">
-                <span>{{ $t('licenseDialog.licenseId') }}:</span>
-                <span>{{ license.licenseId }}</span>
-            </q-item-section>
-            <q-item-section class="col-2" side>
-                <div class="flex flex-row items-center justify-center gap-2">
-                    <q-btn v-tooltip.top="$t('licenseDialog.updateLicense')" class="gt-xs" size="12px" flat dense round icon="upload" @click="setUploadType(license.product, true)" />
-                    <q-btn v-tooltip.top="$t('common.delete')" class="gt-xs" size="12px" flat dense round icon="delete" @click="showDeleteDialog(license.product)" />
+    <q-card flat bordered class="kn-license-host q-mb-md" data-test="host-info">
+        <q-card-section class="row items-center q-col-gutter-md">
+            <div class="col-12 col-md row items-center no-wrap">
+                <q-avatar icon="dns" size="44px" font-size="24px" rounded class="kn-license-host__avatar q-mr-md" />
+                <div class="col" style="min-width: 0">
+                    <div class="text-caption text-grey-7">{{ $t('licenseDialog.hostName') }}</div>
+                    <div class="text-h6 ellipsis">{{ host.hostName }}</div>
                 </div>
-            </q-item-section>
-        </q-item>
-    </q-list>
-    <Dialog v-model:visible="displayWarning" header="Error">
-        <p>{{ errorMessage }}</p>
-        <template #footer>
-            <Button label="Ok" icon="pi pi-check" @click="displayWarning = false" />
-        </template>
-    </Dialog>
+            </div>
+            <div class="col-12 col-md-auto row no-wrap kn-license-host__stats">
+                <div class="kn-license-host__stat">
+                    <div class="text-subtitle1 text-weight-medium">{{ cpunumber }}</div>
+                    <div class="text-caption text-grey-7">{{ $t('licenseDialog.numberOfCpu') }}</div>
+                </div>
+                <div class="kn-license-host__stat">
+                    <div class="text-subtitle1 text-weight-medium">{{ adminUsersCreated }} / {{ maxAdminUsers }}</div>
+                    <div class="text-caption text-grey-7">{{ $t('licenseDialog.adminsCreated') }}</div>
+                </div>
+                <div class="kn-license-host__stat">
+                    <div class="text-subtitle1 text-weight-medium">{{ endUsersCreated }} / {{ maxEndUsers }}</div>
+                    <div class="text-caption text-grey-7">{{ $t('licenseDialog.usersCreated') }}</div>
+                </div>
+            </div>
+        </q-card-section>
+
+        <q-separator />
+
+        <q-card-section>
+            <div class="text-caption text-grey-7">{{ $t('licenseDialog.hardwareId') }}</div>
+            <div class="row items-center no-wrap kn-license-host__hardware">
+                <code class="col">{{ host.hardwareId }}</code>
+                <q-btn flat dense round size="sm" icon="content_copy" data-test="copy-hardware-id" @click="copyHardwareId">
+                    <q-tooltip>{{ $t('licenseDialog.copyHardwareId') }}</q-tooltip>
+                </q-btn>
+            </div>
+            <div class="text-caption text-grey-7 q-mt-sm row items-center no-wrap">
+                <q-icon name="info" size="16px" class="q-mr-xs" />
+                {{ $t('licenseDialog.dataRequired') }}
+            </div>
+        </q-card-section>
+    </q-card>
+
+    <q-card flat bordered>
+        <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+            <q-toolbar-title>{{ $t('licenseDialog.licenses') }}</q-toolbar-title>
+            <q-btn flat round dense icon="add" data-test="new-button" @click="startUpload('')">
+                <q-tooltip>{{ $t('licenseDialog.addLicense') }}</q-tooltip>
+            </q-btn>
+        </q-toolbar>
+        <q-list separator>
+            <q-item v-for="license in licenses" :key="license.product" data-test="license-row">
+                <q-item-section avatar>
+                    <q-avatar square size="40px">
+                        <img :src="`${publicPath}/images/licenseImages/${license.product}.png`" :alt="license.product" />
+                    </q-avatar>
+                </q-item-section>
+                <q-item-section>
+                    <q-item-label>{{ license.product }}</q-item-label>
+                    <q-item-label caption>{{ $t('licenseDialog.licenseId') }}: {{ license.licenseId }}</q-item-label>
+                    <q-item-label v-if="license.expiration_date" caption>{{ $t('licenseDialog.expires', { date: license.expiration_date }) }}</q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                    <div class="row items-center no-wrap" :class="isValid(license) ? 'text-positive' : 'text-negative'">
+                        <q-icon :name="isValid(license) ? 'check_circle' : 'error'" size="18px" class="q-mr-xs" />
+                        <span class="text-body2">{{ isValid(license) ? $t('licenseDialog.validLicense') : $t('licenseDialog.invalidLicense') }}</span>
+                        <q-tooltip v-if="license.other_info || license.status_ext">{{ isValid(license) ? license.other_info : license.status_ext }}</q-tooltip>
+                    </div>
+                </q-item-section>
+                <q-item-section side>
+                    <div class="row no-wrap">
+                        <q-btn flat round dense icon="upload" data-test="update-button" @click="startUpload(license.product)">
+                            <q-tooltip>{{ $t('licenseDialog.updateLicense') }}</q-tooltip>
+                        </q-btn>
+                        <q-btn flat round dense icon="delete" data-test="delete-button" @click="confirmDelete(license.product)">
+                            <q-tooltip>{{ $t('licenseDialog.deleteLicense') }}</q-tooltip>
+                        </q-btn>
+                    </div>
+                </q-item-section>
+            </q-item>
+            <q-item v-if="licenses.length === 0">
+                <q-item-section class="text-grey-7">{{ $t('licenseDialog.noLicenses') }}</q-item-section>
+            </q-item>
+        </q-list>
+    </q-card>
+
+    <input ref="fileInput" type="file" accept=".lic" class="hidden" @change="onFileSelected" />
 </template>
 
 <script lang="ts">
-import { defineComponent, pushScopeId } from 'vue'
-import { iLicense, iHost } from './License'
-import licenseDialogDescriptor from './LicenseDialogDescriptor.json'
-import { AxiosResponse } from 'axios'
-import Avatar from 'primevue/avatar'
-import Dialog from 'primevue/dialog'
-import KnInputFile from '@/components/UI/KnInputFile.vue'
-import FabButton from '@/components/UI/KnFabButton.vue'
-import Tooltip from 'primevue/tooltip'
-import auth from '@/helpers/commons/authHelper'
-import mainStore from '../../../../App.store'
+import { defineComponent, PropType } from 'vue'
 import { mapActions } from 'pinia'
+import { AxiosResponse } from 'axios'
+import { copyToClipboard } from 'quasar'
+import auth from '@/helpers/commons/authHelper'
+import mainStore from '@/App.store'
+import type { iHost, iLicense } from './License'
 
 export default defineComponent({
     name: 'license-tab',
-    components: {
-        Avatar,
-        Dialog,
-        FabButton,
-        KnInputFile
-    },
-    directives: {
-        tooltip: Tooltip
-    },
     props: {
-        cpunumber: {
-            type: Number,
-            default: 0
-        },
-        maxAdminUsers: {
-            type: Number,
-            default: 0
-        },
-        maxEndUsers: {
-          type: Number,
-          default: 0
-        },
-        adminUsersCreated: {
-          type: Number,
-          default: 0
-        },
-        endUsersCreated: {
-          type: Number,
-          default: 0
-        },
-        licenses: {
-            type: Array,
-            required: true
-        },
-        host: {
-            type: Object,
-            required: true
-        }
+        cpunumber: { type: Number, default: 0 },
+        maxAdminUsers: { type: Number, default: 0 },
+        maxEndUsers: { type: Number, default: 0 },
+        adminUsersCreated: { type: Number, default: 0 },
+        endUsersCreated: { type: Number, default: 0 },
+        licenses: { type: Array as PropType<iLicense[]>, required: true },
+        host: { type: Object as PropType<iHost>, required: true }
     },
     data() {
         return {
-            licenseDialogDescriptor,
-            licensesList: [] as iLicense[],
-            selectedHost: {} as iHost,
-            triggerUpload: false,
-            displayWarning: false,
-            existingLicenseName: '',
-            isForUpdate: Boolean as any,
-            uploading: false,
-            errorMessage: '',
+            // The product of the license to update. Empty when the user adds a new license.
+            productToUpdate: '',
             publicPath: import.meta.env.VITE_PUBLIC_PATH
         }
     },
-    watch: {
-        licenses() {
-            this.loadLicenses()
-        },
-        host() {
-            this.loadHost()
-        }
-    },
-    created() {
-        this.loadLicenses()
-        this.loadHost()
-    },
     methods: {
         ...mapActions(mainStore, ['setError', 'setInfo', 'updateLicense']),
-        logout() {
-            auth.logout()
+        isValid(license: iLicense): boolean {
+            return license.status === 'LICENSE_VALID'
         },
-        loadLicenses() {
-            this.licensesList = this.licenses as iLicense[]
-        },
-        loadHost() {
-            this.selectedHost = { ...this.host } as iHost
-        },
-        setLicenseClass(status: string) {
-            return status === 'LICENSE_VALID' ? 'kn-text-success' : 'kn-text-error'
-        },
-        licenseText(status: string) {
-            return status === 'LICENSE_VALID' ? this.$t('licenseDialog.validLicense') : this.$t('licenseDialog.invalidLicense')
-        },
-        setUploadType(productName, value) {
-            this.triggerUpload = false
-            this.isForUpdate = value
-            this.existingLicenseName = productName
-            setTimeout(() => (this.triggerUpload = true), 200)
-        },
-        uploadLicense(event) {
-            this.uploading = true
-            const uploadedFiles = event.target.files[0]
-            if (this.isForUpdate && !uploadedFiles.name.includes(this.existingLicenseName)) {
-                this.errorMessage = this.$t('licenseDialog.wrongType')
-                this.displayWarning = true
-                this.triggerUpload = false
-            } else {
-                this.startUpload(uploadedFiles)
+        async copyHardwareId() {
+            try {
+                await copyToClipboard(this.host.hardwareId)
+                this.setInfo({ title: this.$t('licenseDialog.hardwareId'), msg: this.$t('licenseDialog.hardwareIdCopied') })
+            } catch {
+                // The browser blocked the clipboard. The field is read-only, so the user can still select and copy the value.
             }
-            this.triggerUpload = false
-            setTimeout(() => (this.uploading = false), 200)
         },
-        async startUpload(uploadedFiles) {
+        startUpload(product: string) {
+            this.productToUpdate = product
+            ;(this.$refs.fileInput as HTMLInputElement).click()
+        },
+        onFileSelected(event: Event) {
+            const input = event.target as HTMLInputElement
+            const file = input.files?.[0]
+            input.value = ''
+            if (!file) return
+            if (this.productToUpdate && !file.name.includes(this.productToUpdate)) {
+                this.setError({ title: this.$t('licenseDialog.updateLicense'), msg: this.$t('licenseDialog.wrongType') })
+                return
+            }
+            this.uploadLicense(file)
+        },
+        async uploadLicense(file: File) {
             const formData = new FormData()
-            formData.append('file', uploadedFiles)
+            formData.append('file', file)
+            const isForUpdate = !!this.productToUpdate
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/license/upload` + `/${this.selectedHost.hostName}` + `?isForUpdate=${this.isForUpdate}`, formData)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/license/upload/${this.host.hostName}?isForUpdate=${isForUpdate}`, formData)
                 .then((response: AxiosResponse<any>) => {
-                    this.setInfo({
-                        title: this.$t('common.uploading'),
-                        msg: this.$t('importExport.import.successfullyCompleted')
-                    })
-
-                    this.updateLicense({ hostName: this.selectedHost.hostName, license: response.data })
+                    this.setInfo({ title: this.$t('common.uploading'), msg: this.$t('importExport.import.successfullyCompleted') })
+                    this.updateLicense({ hostName: this.host.hostName, license: response.data })
                 })
-                .catch((response) => {
-                    if (response.message == 'error.message.license.exists') {
-                        this.setError({
-                            title: this.$t('common.uploading'),
-                            msg: this.$t('licenseDialog.errorExists')
-                        })
-                    } else {
-                        this.setError({
-                            title: this.$t('common.uploading'),
-                            msg: response.message
-                        })
-                    }
+                .catch((error) => {
+                    const msg = error.message == 'error.message.license.exists' ? this.$t('licenseDialog.errorExists') : error.message
+                    this.setError({ title: this.$t('common.uploading'), msg })
                 })
-                .finally(() => (this.triggerUpload = false))
         },
-
-        showDeleteDialog(licenseName) {
-            this.$confirm.require({
-                message: this.$t('licenseDialog.warningBeforeDelete'),
-                header: this.$t('common.toast.deleteConfirmTitle'),
-                icon: 'pi pi-exclamation-triangle',
-                accept: () => this.deleteLicense(licenseName)
-            })
+        confirmDelete(product: string) {
+            this.$q
+                .dialog({
+                    title: this.$t('licenseDialog.deleteLicense'),
+                    message: this.$t('licenseDialog.warningBeforeDelete', [product]),
+                    cancel: true,
+                    persistent: true
+                })
+                .onOk(() => this.deleteLicense(product))
         },
-        async deleteLicense(licenseName) {
+        async deleteLicense(product: string) {
             await this.$http
-                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/license/delete` + `/${this.selectedHost.hostName}/` + licenseName, {
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/license/delete/${this.host.hostName}/${product}`, {
                     headers: {
                         Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
                     }
                 })
                 .then((response: AxiosResponse<any>) => {
                     if (response.data.errors) {
-                        this.setError({
-                            title: this.$t('licenseDialog.errorLicense'),
-                            msg: this.$t('licenseDialog.errorMessage')
-                        })
+                        this.setError({ title: this.$t('licenseDialog.errorLicense'), msg: this.$t('licenseDialog.errorMessage') })
                     } else {
-                        this.setInfo({
-                            title: this.$t('common.toast.deleteTitle'),
-                            msg: this.$t('common.toast.deleteSuccess')
-                        })
-                        this.$emit('reloadList')
+                        this.setInfo({ title: this.$t('common.toast.deleteTitle'), msg: this.$t('common.toast.deleteSuccess') })
                     }
                 })
-                .finally(() => this.logout())
+                // The server needs a new login after a license is deleted.
+                .finally(() => auth.logout())
         }
     }
 })
 </script>
 
-<style scoped>
-#host-info {
-    font-size: 0.7rem;
-    padding: 0.5rem;
-    border: 1px solid rgba(59, 103, 140, 0.1);
-    background-color: #eaf0f6;
-    margin: 20px auto 0;
-    width: 80%;
-    display: flex;
-    flex-direction: row;
+<style lang="scss" scoped>
+.kn-license-host__avatar {
+    background: rgba(0, 0, 0, 0.06);
+    color: rgba(0, 0, 0, 0.6);
 }
-#host-labels {
-    flex: 0 0 auto;
-    margin-left: 1rem;
+.kn-license-host__stat {
+    padding: 0 16px;
+    text-align: center;
+    white-space: nowrap;
+    & + & {
+        border-left: 1px solid rgba(0, 0, 0, 0.12);
+    }
+    &:last-child {
+        padding-right: 0;
+    }
 }
-
-
-#host-values {
-  flex: 1;
-  min-width: 0;
+/* Below the md breakpoint the counts move under the host name and share the full width. */
+@media (max-width: 1023px) {
+    .kn-license-host__stat {
+        flex: 1 1 0;
+        padding: 0 8px;
+    }
 }
-
-
-#host-info p {
-    margin: 0;
-}
-
-#hardwareId {
-    word-break: break-all;
+.kn-license-host__hardware {
+    margin-top: 4px;
+    padding: 4px 4px 4px 10px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.04);
+    code {
+        font-size: 12px;
+        word-break: break-all;
+    }
 }
 </style>

@@ -10,6 +10,7 @@
             <span v-if="meta" class="kn-popup-row__meta">{{ meta }}</span>
             <q-icon v-if="checked" name="check" class="kn-popup-row__check" size="18px" />
             <q-icon v-if="showChevron" name="chevron_right" class="kn-popup-row__chevron" size="18px" />
+            <q-icon v-if="trailingIcon" :name="trailingIcon" class="kn-popup-row__trailing" size="16px" />
         </a>
     </router-link>
 
@@ -23,6 +24,7 @@
         <span v-if="meta" class="kn-popup-row__meta">{{ meta }}</span>
         <q-icon v-if="checked" name="check" class="kn-popup-row__check" size="18px" />
         <q-icon v-if="showChevron" name="chevron_right" class="kn-popup-row__chevron" size="18px" />
+        <q-icon v-if="trailingIcon" :name="trailingIcon" class="kn-popup-row__trailing" size="16px" />
     </a>
 
     <button v-else type="button" class="kn-popup-row" :class="rowClasses" :disabled="disabled" :data-tour-id="tourId" @click="onPlainClick">
@@ -35,6 +37,7 @@
         <span v-if="meta" class="kn-popup-row__meta">{{ meta }}</span>
         <q-icon v-if="checked" name="check" class="kn-popup-row__check" size="18px" />
         <q-icon v-if="showChevron" name="chevron_right" class="kn-popup-row__chevron" size="18px" />
+        <q-icon v-if="trailingIcon" :name="trailingIcon" class="kn-popup-row__trailing" size="16px" />
     </button>
 </template>
 
@@ -58,6 +61,8 @@ export default defineComponent({
         link: { type: Object as PropType<MenuLink>, default: () => ({ kind: 'action' }) },
         showChevron: { type: Boolean, default: false },
         checked: { type: Boolean, default: false },
+        active: { type: Boolean, default: false },
+        trailingIcon: { type: String, default: '' },
         danger: { type: Boolean, default: false },
         disabled: { type: Boolean, default: false },
         highlight: { type: String, default: '' },
@@ -67,6 +72,7 @@ export default defineComponent({
     computed: {
         rowClasses(): Record<string, boolean> {
             return {
+                'kn-popup-row--active': this.active,
                 'kn-popup-row--danger': this.danger,
                 'kn-popup-row--disabled': this.disabled
             }
@@ -130,6 +136,10 @@ export default defineComponent({
         outline: 2px solid var(--kn-mainmenu-highlight-color);
         outline-offset: -2px;
     }
+    &--active {
+        color: var(--kn-mainmenu-highlight-color);
+        font-weight: 500;
+    }
     &--danger {
         color: var(--q-negative);
     }
@@ -181,5 +191,9 @@ export default defineComponent({
 }
 .kn-popup-row__chevron {
     flex: 0 0 auto;
+}
+.kn-popup-row__trailing {
+    flex: 0 0 auto;
+    opacity: 0.6;
 }
 </style>

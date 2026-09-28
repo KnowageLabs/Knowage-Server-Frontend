@@ -43,10 +43,10 @@ const store = defineStore('store', {
 
             const hostNameLicenses = licenses.licenses[el.hostName]
 
-            const existingLicense = hostNameLicenses.filter((x) => x.product === el.license.product)
+            const existingIndex = hostNameLicenses.findIndex((x) => x.product === el.license.product)
 
-            if (existingLicense.length == 1) {
-                hostNameLicenses.splice(existingLicense, 1)
+            if (existingIndex >= 0) {
+                hostNameLicenses.splice(existingIndex, 1)
             }
 
             hostNameLicenses.push(el.license)
