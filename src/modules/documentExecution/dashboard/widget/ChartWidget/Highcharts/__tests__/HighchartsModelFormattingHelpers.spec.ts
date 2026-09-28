@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import Highcharts from 'highcharts/esm/highcharts.js'
 import { KnowageHighcharts } from '../../classes/highcharts/KnowageHighcharts'
-import { addCategoryXAxisLabelTooltips, normalizeCategoryXAxisLabels, updateAxisLabelFormatters } from '../HighchartsModelFormattingHelpers'
+import { addCategoryXAxisLabelTooltips, formatVariables, normalizeCategoryXAxisLabels, updateAxisLabelFormatters } from '../HighchartsModelFormattingHelpers'
 
 const createModel = (categories: string[], labels: Record<string, any> = {}) =>
     ({
@@ -208,5 +208,37 @@ describe('categorical X-axis labels', () => {
 
         chart.destroy()
         container.remove()
+    })
+})
+
+describe('axis plot bands and lines', () => {
+    it('preserves numeric plot band boundaries after formatting variables', () => {
+        const model = {
+            chart: { type: 'column' },
+            xAxis: [],
+            yAxis: [{ plotBands: [{ from: 0, to: 5000 }], plotLines: [{ value: 2500 }] }]
+        } as any
+
+        formatVariables(model, [])
+
+        expect(model.yAxis[0].plotBands[0]).toMatchObject({ from: 0, to: 5000 })
+        expect(typeof model.yAxis[0].plotBands[0].from).toBe('number')
+        expect(typeof model.yAxis[0].plotBands[0].to).toBe('number')
+        expect(model.yAxis[0].plotLines[0].value).toBe(2500)
+    })
+
+    it('converts variable-derived plot band boundaries to numbers', () => {
+        const model = {
+            chart: { type: 'column' },
+            xAxis: [],
+            yAxis: [{ plotBands: [{ from: '$V{lowerBound}', to: '$V{upperBound}' }] }]
+        } as any
+
+        formatVariables(model, [
+            { name: 'lowerBound', value: '0' },
+            { name: 'upperBound', value: '5000' }
+        ] as any)
+
+        expect(model.yAxis[0].plotBands[0]).toMatchObject({ from: 0, to: 5000 })
     })
 })

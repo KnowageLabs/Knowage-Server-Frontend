@@ -364,21 +364,19 @@ const formatVariablesForAxis = (formattedChartModel: IHighchartsChartModel, vari
 const formatVariablesForPlotBands = (axis: any, variables: IVariable[]) => {
     if (!axis || !axis.plotBands) return
     axis.plotBands.forEach((plotBand: any) => {
-        plotBand.from = isNumberAndConvert(plotBand.from)
-        plotBand.from = replaceVariablesPlaceholdersByVariableName(plotBand.from, variables)
-
-        plotBand.to = isNumberAndConvert(plotBand.to)
-        plotBand.to = replaceVariablesPlaceholdersByVariableName(plotBand.to, variables)
+        plotBand.from = formatAxisValue(plotBand.from, variables)
+        plotBand.to = formatAxisValue(plotBand.to, variables)
     })
 }
 
 const formatVariablesForPlotLines = (axis: any, variables: IVariable[]) => {
     if (!axis || !axis.plotLines) return
     axis.plotLines.forEach((plotLine: any) => {
-        plotLine.value = isNumberAndConvert(plotLine.value)
-        plotLine.value = replaceVariablesPlaceholdersByVariableName(plotLine.value, variables)
+        plotLine.value = formatAxisValue(plotLine.value, variables)
     })
 }
+
+const formatAxisValue = (value: any, variables: IVariable[]) => isNumberAndConvert(replaceVariablesPlaceholdersByVariableName(value, variables))
 
 const isNumberAndConvert = (value: any) => {
     const stringValue = typeof value === 'string' ? value : String(value)
