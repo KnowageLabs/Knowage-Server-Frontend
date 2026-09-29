@@ -17,14 +17,15 @@
             <q-card class="full-width">
                 <q-card-section>
                     <div class="row q-col-gutter-sm">
+                        <!-- [KNOWAGE-9973] -->
+                        <!-- :error-message="$t('common.validation.required', { fieldName: $t('managers.profileAttributesManagement.form.name') })" -->
+                        <!-- :error-message="$t(`common.validation.${v$.attribute.attributeName.$errors[0]?.$validator}`, {...v$.attribute.attributeName.$errors[0]?.$params, fieldName: $t('managers.profileAttributesManagement.form.name')})" -->
                         <q-input
                             filled
                             class="col"
                             v-model="v$.attribute.attributeName.$model"
                             maxLength="100"
-                            :error="v$.attribute.attributeName.$invalid && v$.attribute.attributeName.$dirty"
-                            <!-- [KNOWAGE-9973] -->
-                            <!-- :error-message="$t('common.validation.required', { fieldName: $t('managers.profileAttributesManagement.form.name') })" -->
+                            :error="v$.attribute.attributeName.$invalid && v$.attribute.attributeName.$dirty"                 
                             :error-message="$t(`common.validation.${v$.attribute.attributeName.$errors[0]?.$validator}`, {...v$.attribute.attributeName.$errors[0]?.$params, fieldName: $t('managers.profileAttributesManagement.form.name')})"
                             :label="$t('managers.profileAttributesManagement.form.name') + '*'"
                             @update:model-value="onDataChange(v$.attribute.attributeName)"
