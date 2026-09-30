@@ -73,6 +73,25 @@ describe('applyAdvancedSettingsToModelForRender', () => {
         expect(showDashboardWidgetError).not.toHaveBeenCalled()
     })
 
+    it('applies advanced data label settings to matching series and point overrides', () => {
+        const model = {
+            chart: { type: 'line' },
+            plotOptions: {},
+            series: [
+                { type: 'column', dataLabels: { style: { fontWeight: 'normal' } }, data: [{ dataLabels: { style: { fontWeight: 'normal' } } }] },
+                { dataLabels: { style: { fontWeight: 'normal' } }, data: [{ dataLabels: { style: { fontWeight: 'normal' } } }] }
+            ]
+        }
+
+        applyAdvancedSettingsToModelForRender(model, [{ propertyPath: 'plotOptions.column.dataLabels.style.fontWeight', propertyValue: 'bold' }])
+
+        expect((model.plotOptions as any).column.dataLabels.style.fontWeight).toBe('bold')
+        expect(model.series[0].dataLabels.style.fontWeight).toBe('bold')
+        expect(model.series[0].data[0].dataLabels.style.fontWeight).toBe('bold')
+        expect(model.series[1].dataLabels.style.fontWeight).toBe('normal')
+        expect(model.series[1].data[0].dataLabels.style.fontWeight).toBe('normal')
+    })
+
     it('reports invalid and out-of-bounds paths without creating ineffective properties', () => {
         const model = createModel()
 
