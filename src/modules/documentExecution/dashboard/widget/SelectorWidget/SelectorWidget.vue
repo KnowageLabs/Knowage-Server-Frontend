@@ -1,26 +1,28 @@
 <template>
-    <div v-if="options" :class="['selector-widget', 'dashboard-scrollbar', { 'selector-widget--impossible': hasImpossibleSelection }]" @mouseenter="isWidgetHovered = true" @mouseleave="isWidgetHovered = false">
-        <RadioSelector v-if="widgetType === 'singleValue'" :model-value="selectedValue" :options="singleValueOptions" :radio-style="propWidget.settings.style.radio" @update:model-value="radioSelectorChanged" />
+    <div v-if="options" :class="['selector-widget', { 'selector-widget--impossible': hasImpossibleSelection }]" @mouseenter="isWidgetHovered = true" @mouseleave="isWidgetHovered = false">
+        <div class="selector-widget-scroll dashboard-scrollbar">
+            <RadioSelector v-if="widgetType === 'singleValue'" :model-value="selectedValue" :options="singleValueOptions" :radio-style="propWidget.settings.style.radio" @update:model-value="radioSelectorChanged" />
 
-        <CheckboxSelector v-if="widgetType === 'multiValue'" :model-value="selectedValues" :options="multiValueOptions" :checkbox-style="propWidget.settings.style.checkbox" @update:model-value="checkboxSelectorChanged" />
+            <CheckboxSelector v-if="widgetType === 'multiValue'" :model-value="selectedValues" :options="multiValueOptions" :checkbox-style="propWidget.settings.style.checkbox" @update:model-value="checkboxSelectorChanged" />
 
-        <DropdownSelector v-if="widgetType === 'dropdown'" :model-value="selectedValue" :base-options="getBaseDropdownOptions()" :label-key="descriptionLabelKey" :show-mode="showMode" :dropdown-style="propWidget.settings.style.dropdown" :column-alias="columnAlias" :date-format="dashboardDescriptor.selectionsDateFormat" @update:model-value="dropdownSelectorChanged" />
+            <DropdownSelector v-if="widgetType === 'dropdown'" :model-value="selectedValue" :base-options="getBaseDropdownOptions()" :label-key="descriptionLabelKey" :show-mode="showMode" :dropdown-style="propWidget.settings.style.dropdown" :column-alias="columnAlias" :date-format="dashboardDescriptor.selectionsDateFormat" @update:model-value="dropdownSelectorChanged" />
 
-        <MultiDropdownSelector v-if="widgetType === 'multiDropdown'" :model-value="selectedValues" :base-options="getBaseDropdownOptions()" :label-key="descriptionLabelKey" :show-mode="showMode" :multi-dropdown-style="propWidget.settings.style.multiDropdown" :column-alias="columnAlias" @update:model-value="multiDropdownSelectorChanged" />
+            <MultiDropdownSelector v-if="widgetType === 'multiDropdown'" :model-value="selectedValues" :base-options="getBaseDropdownOptions()" :label-key="descriptionLabelKey" :show-mode="showMode" :multi-dropdown-style="propWidget.settings.style.multiDropdown" :column-alias="columnAlias" @update:model-value="multiDropdownSelectorChanged" />
 
-        <DateSelector v-if="widgetType === 'date'" :model-value="selectedDate" :date-style="propWidget.settings.style.date" :column-alias="columnAlias" :available-dates="availableDateOptions" :min-date="getDateRangeFormatted('startDate')" :max-date="getDateRangeFormatted('endDate')" @update:model-value="dateSelectionChanged" />
+            <DateSelector v-if="widgetType === 'date'" :model-value="selectedDate" :date-style="propWidget.settings.style.date" :column-alias="columnAlias" :available-dates="availableDateOptions" :min-date="getDateRangeFormatted('startDate')" :max-date="getDateRangeFormatted('endDate')" @update:model-value="dateSelectionChanged" />
 
-        <DateRangeSelector v-if="widgetType === 'dateRange'" :model-value="getDateRangeValues()" :date-range-style="propWidget.settings.style.dateRange" :column-alias="columnAlias" :available-dates="availableDateOptions" :min-date="getDateRangeFormatted('startDate')" :max-date="getDateRangeFormatted('endDate')" @update:model-value="dateRangeSelectionChangedNew" />
+            <DateRangeSelector v-if="widgetType === 'dateRange'" :model-value="getDateRangeValues()" :date-range-style="propWidget.settings.style.dateRange" :column-alias="columnAlias" :available-dates="availableDateOptions" :min-date="getDateRangeFormatted('startDate')" :max-date="getDateRangeFormatted('endDate')" @update:model-value="dateRangeSelectionChangedNew" />
 
-        <SliderSelector v-if="widgetType === 'slider'" :model-value="selectedValue" :options="sliderOptions" :slider-style="propWidget.settings.style.slider" @update:model-value="sliderSelectorChanged" />
+            <SliderSelector v-if="widgetType === 'slider'" :model-value="selectedValue" :options="sliderOptions" :slider-style="propWidget.settings.style.slider" @update:model-value="sliderSelectorChanged" />
 
-        <RangeSelector v-if="widgetType === 'range'" :model-value="selectedRange" :options="sliderOptions" :range-style="propWidget.settings.style.range" @update:model-value="rangeSelectorChanged" />
+            <RangeSelector v-if="widgetType === 'range'" :model-value="selectedRange" :options="sliderOptions" :range-style="propWidget.settings.style.range" @update:model-value="rangeSelectorChanged" />
 
-        <ButtonToggleSelector v-if="widgetType === 'buttonToggle'" :model-value="selectedValue" :options="singleValueOptions" :button-toggle-style="propWidget.settings.style.buttonToggle" @update:model-value="buttonToggleSelectorChanged" />
+            <ButtonToggleSelector v-if="widgetType === 'buttonToggle'" :model-value="selectedValue" :options="singleValueOptions" :button-toggle-style="propWidget.settings.style.buttonToggle" @update:model-value="buttonToggleSelectorChanged" />
 
-        <TreeSelector v-else-if="widgetType === 'tree'" :model-value="selectedValue" :nodes="treeNodes" :tree-style="propWidget.settings.style.tree" @update:model-value="treeSelectorChanged" />
+            <TreeSelector v-else-if="widgetType === 'tree'" :model-value="selectedValue" :nodes="treeNodes" :tree-style="propWidget.settings.style.tree" @update:model-value="treeSelectorChanged" />
 
-        <MultiTreeSelector v-else-if="widgetType === 'multiTree'" :model-value="selectedValues" :nodes="treeNodes" :tree-style="propWidget.settings.style.multiTree" @update:model-value="multiTreeSelectorChanged" />
+                <MultiTreeSelector v-else-if="widgetType === 'multiTree'" :model-value="selectedValues" :nodes="treeNodes" :tree-style="propWidget.settings.style.multiTree" @update:model-value="multiTreeSelectorChanged" />
+        </div>
 
         <transition name="widget-lock-overlay-fade">
             <div v-if="selectionIsLocked && !localMode && isWidgetHovered" class="widget-lock-overlay" @mousemove.stop>
@@ -534,6 +536,16 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     height: 100%;
+    // the inner wrapper scrolls, so the lock overlay stays pinned over the whole visible widget
+    overflow: hidden;
+
+    .selector-widget-scroll {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+    }
 
     .widget-lock-overlay {
         position: absolute;
