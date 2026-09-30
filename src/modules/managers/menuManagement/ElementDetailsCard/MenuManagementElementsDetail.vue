@@ -16,7 +16,7 @@
         <Card class="q-ma-md q-mb-sm">
             <template #content>
                 <div class="row q-col-gutter-sm">
-                    <kn-icon-picker v-if="chooseIconModalShown" :enable-base64="true" :current-icon="selectedIcon" @save="onChosenIcon" @close="closeFontAwesomeSelectionModal"></kn-icon-picker>
+                    <kn-icon-picker v-if="chooseIconModalShown" :enable-base64="true" :sets="['fontawesome']" :current-icon="selectedIcon" @save="onChosenIcon" @close="closeFontAwesomeSelectionModal"></kn-icon-picker>
                     <q-input filled class="col" v-model="v$.menuNode.name.$model" :error="v$.menuNode.name.$invalid && v$.menuNode.name.$dirty" :error-message="$t('common.validation.required', { fieldName: $t('managers.menuManagement.form.name') })" :label="$t('managers.menuManagement.form.name') + '*'" @update:model-value="onDataChange(v$.menuNode.name)" data-test="name-input">
                         <template #before v-if="isIconSelectorShown(menuNode)">
                             <div class="relative-position">

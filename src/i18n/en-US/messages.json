@@ -513,8 +513,15 @@
             "type": "Type"
         },
         "knIconPicker": {
+            "all": "All",
+            "brands": "Brands",
             "chooseIcon": "Choose Icon",
+            "fontAwesome": "Font Awesome",
+            "materialSymbols": "Material Symbols",
+            "noneSelected": "No icon selected",
             "recentlyUsed": "Recently Used",
+            "regular": "Regular",
+            "solid": "Solid",
             "upload": "Upload your image"
         }
     },
@@ -3645,10 +3652,12 @@
             },
             "showBlankMessages": "Show Only Blank Fields",
             "table": {
+                "addEntry": "Add entry",
                 "addLabel": "Add Label",
                 "defaultMessage": "Default Message Code",
                 "messageCode": "Message Code"
-            }
+            },
+            "title": "Internationalization"
         },
         "layersManagement": {
             "baseLayer": "Base Layer",
