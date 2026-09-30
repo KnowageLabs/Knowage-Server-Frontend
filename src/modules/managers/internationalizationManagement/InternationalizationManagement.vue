@@ -167,7 +167,6 @@ function setScrollArea(area: any) {
     scrollTarget.value = area?.getScrollTarget?.()
 }
 
-<<<<<<< Updated upstream
 // A header click sorts ascending, then descending, then back to the original order.
 function toggleSort(key: IField) {
     if (sortKey.value !== key) {
@@ -177,175 +176,6 @@ function toggleSort(key: IField) {
         sortDir.value = 'desc'
     } else {
         sortKey.value = null
-=======
-        async setEmptyDatatableData(selectedTab) {
-            this.defaultLangMessages.forEach((defMess) => {
-                const newMess = {} as any
-                newMess.language = selectedTab.languageTag
-                newMess.label = defMess.label
-                newMess.defaultMessageCode = defMess.message
-                newMess.message = ''
-                this.messages.push(newMess)
-            })
-        },
-
-        async checkForMessages(response, selectedTab) {
-            if (response.data.length != 0) {
-                await this.setFilledDatatableData(response, selectedTab)
-            } else {
-                await this.setEmptyDatatableData(selectedTab)
-            }
-            this.initCheck()
-        },
-
-        async setFilledDatatableData(response, selectedTab) {
-            this.defaultLangMessages.forEach((defMess) => {
-                const translatedMessage = response.data.find((item) => {
-                    return item.label == defMess.label
-                })
-                if (translatedMessage) {
-                    translatedMessage.defaultMessageCode = defMess.message
-                    this.messages.push(translatedMessage)
-                } else {
-                    const message = {
-                        language: selectedTab.languageTag,
-                        label: defMess.label,
-                        defaultMessageCode: defMess.message,
-                        message: ''
-                    }
-                    this.messages.push(message)
-                }
-            })
-        },
-
-        getMessages(selectedTab) {
-            this.messages = []
-            this.loading = true
-            return this.$http
-                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/i18nMessages/internationalization/?currLanguage=' + selectedTab.languageTag)
-                .then((response: AxiosResponse<any>) => {
-                    if (selectedTab.defaultLanguage) {
-                        this.setDataForDefaultLanguage(response)
-                    } else {
-                        this.checkForMessages(response, selectedTab)
-                    }
-                    this.allMessages = [...this.messages]
-                })
-                .finally(() => (this.loading = false))
-        },
-
-        async getLanguages() {
-            this.loading = true
-            return this.$http
-                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/internationalization/languages')
-                .then((response: AxiosResponse<any>) => {
-                    this.languages = response.data
-                })
-                .finally(() => (this.loading = false))
-        },
-
-        saveOrUpdateMessage(url, toSave, langObj) {
-            if (toSave.id) {
-                delete toSave.defaultMessageCode
-
-                return this.$http.put(url, toSave)
-            } else {
-                if (toSave.defaultMessageCode) delete toSave.defaultMessageCode
-                toSave.language = langObj.languageTag
-                return this.$http.post(url, toSave)
-            }
-        },
-
-        saveLabel(langObj, message) {
-            this.loading = true
-            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/i18nMessages'
-            const bkDefault = { message_default: message['message_default'], label_default: message['label_default'] }
-            delete message['message_default']
-            delete message['label_default']
-            const toSave = { ...message } as iMessage
-            this.saveOrUpdateMessage(url, toSave, langObj)
-                .then((response: AxiosResponse<any>) => {
-                    if (response.data.errors) {
-                        message['message_default'] = bkDefault['message_default']
-                        message['label_default'] = bkDefault['label_default']
-                        this.setError({ msg: response.data.errors })
-                    } else {
-                        this.setInfo({ msg: this.$t('common.toast.updateSuccess') })
-                    }
-                    this.getMessages(langObj)
-    })
-    .catch((error) => {
-        message['message_default'] = bkDefault['message_default']
-        message['label_default'] = bkDefault['label_default']
- 
-        const violation = error.response?.data?.parameterViolations?.[0]
- 
-        if (violation?.path?.endsWith('.label') && violation?.value === '') {
-            this.setError({
-                msg: this.$t('common.validation.required', {
-                    fieldName: this.$t('common.label')
-                })
-            })
-        } else {
-            this.setError({ msg: violation?.message || error.message })
-        }
-    })
-    .finally(() => {
-        this.loading = false
-    })
-            this.initialShowEmptyFields = false
-            this.showOnlyEmptyFields = false
-        },
-
-        deleteLabelConfirm(langObj, message, rowIndex, isDefault) {
-            const msgToDelete = message
-            if (msgToDelete.id) {
-                let url = ''
-                if (msgToDelete.defaultMessageCode) {
-                    url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/i18nMessages/'
-                    this.$confirm.require({
-                        message: this.$t('managers.internationalizationManagement.delete.deleteMessage'),
-                        header: this.$t('managers.internationalizationManagement.delete.deleteMessageTitle'),
-                        icon: 'pi pi-exclamation-triangle',
-                        accept: () => this.deleteLabel(url, msgToDelete.id, langObj)
-                    })
-                } else {
-                    url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/i18nMessages/deletedefault/'
-                    this.$confirm.require({
-                        message: this.$t('managers.internationalizationManagement.delete.deleteDefault'),
-                        header: this.$t('managers.internationalizationManagement.delete.deleteDefaultTitle'),
-
-                        icon: 'pi pi-exclamation-triangle',
-                        accept: () => this.deleteLabel(url, msgToDelete.id, langObj)
-                    })
-                }
-            } else {
-                isDefault ? this.messages.splice(rowIndex, 1) : this.setError({ title: this.$t('managers.internationalizationManagement.delete.deleteDefaultTitle'), msg: this.$t('managers.internationalizationManagement.delete.cantDelete') })
-            }
-        },
-
-        updateModel(event, rowIndex, column) {
-            if (!this.messages[rowIndex][column + '_default']) this.messages[rowIndex][column + '_default'] = this.messages[rowIndex][column]
-            this.messages[rowIndex][column] = event.target.value
-        },
-
-        async deleteLabel(url, id, langObj) {
-            await this.$http.delete(url + id).then((response: AxiosResponse<any>) => {
-                if (response.data.errors) {
-                    this.setError({ title: 'Error', msg: response.data.errors })
-                } else {
-                    this.setInfo({ title: this.$t('common.toast.deleteTitle'), msg: this.$t('common.toast.deleteSuccess') })
-                    this.getMessages(langObj)
-                }
-            })
-            this.initialShowEmptyFields = false
-            this.showOnlyEmptyFields = false
-        },
-
-        getFlag(locale) {
-            return `${import.meta.env.VITE_PUBLIC_PATH}images/flags/${locale.toLowerCase().substring(locale.length - 2)}.svg`
-        }
->>>>>>> Stashed changes
     }
 }
 
@@ -466,6 +296,18 @@ async function saveLabel(language: iLanguage, row: IRow) {
             showOnlyEmptyFields.value = false
             // The default messages are the source of the other languages' rows.
             await loadMessages(language)
+        }
+    } catch (error: any) {
+        const violation = error.response?.data?.parameterViolations?.[0]
+ 
+        if (violation?.path?.endsWith('.label') && violation?.value === '') {
+            store.setError({
+                msg: t('common.validation.required', {
+                    fieldName: t('common.label')
+                })
+            })
+        } else {
+            store.setError({ msg: violation?.message || error.message })
         }
     } finally {
         loading.value = false
