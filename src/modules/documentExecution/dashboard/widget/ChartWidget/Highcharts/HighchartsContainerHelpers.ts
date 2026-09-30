@@ -91,12 +91,20 @@ export const getFormattedDynamicOutputParameter = (formattedChartValues: IChartI
 export const applyAdvancedSettingsToModelForRender = (modelToRender: any, advancedChartSettings: IHighchartsAdvancedPropertySettings[] | null, widget?: IWidget) => {
     if (!advancedChartSettings) return
     advancedChartSettings.forEach((propertySettings: IHighchartsAdvancedPropertySettings) => {
-        if (propertySettings.propertyPath) setPropertyValueToChartModel(modelToRender, propertySettings, widget)
+        if (!propertySettings.propertyPath) return
+
+        const properties = getPropertyPathParts(propertySettings.propertyPath)
+        if (setPropertyValueToChartModel(modelToRender, properties, propertySettings, widget)) {
+            applyAdvancedDataLabelSettingToSeries(modelToRender, properties, propertySettings.propertyValue)
+        }
     })
 }
 
-const setPropertyValueToChartModel = (modelToRender: any, propertySettings: IHighchartsAdvancedPropertySettings, widget?: IWidget) => {
-    const properties = propertySettings.propertyPath.replace(/\[['"]?([^'"\]]+)['"]?\]/g, '.$1').split('.').map((property) => property.trim()).filter(Boolean)
+const getPropertyPathParts = (propertyPath: string) => {
+    return propertyPath.replace(/\[['"]?([^'"\]]+)['"]?\]/g, '.$1').split('.').map((property) => property.trim()).filter(Boolean)
+}
+
+const setPropertyValueToChartModel = (modelToRender: any, properties: string[], propertySettings: IHighchartsAdvancedPropertySettings, widget?: IWidget) => {
     let currentModelToRender = modelToRender
 
     for (let i = 0; i < properties.length; i++) {
@@ -106,18 +114,18 @@ const setPropertyValueToChartModel = (modelToRender: any, propertySettings: IHig
         if (Array.isArray(currentModelToRender)) {
             if (!/^\d+$/.test(property)) {
                 showInvalidAdvancedPropertyError(widget, propertySettings.propertyPath)
-                return
+                return false
             }
 
             const index = parseInt(property, 10)
             if (index >= currentModelToRender.length) {
                 showInvalidAdvancedPropertyError(widget, propertySettings.propertyPath)
-                return
+                return false
             }
 
             if (i === properties.length - 1) {
                 currentModelToRender[index] = getFormattedPropertyValue(propertySettings.propertyValue)
-                return
+                return true
             }
 
             currentModelToRender = currentModelToRender[index]
@@ -126,12 +134,12 @@ const setPropertyValueToChartModel = (modelToRender: any, propertySettings: IHig
 
         if (typeof currentModelToRender !== 'object' || currentModelToRender === null) {
             showInvalidAdvancedPropertyError(widget, propertySettings.propertyPath)
-            return
+            return false
         }
 
         if (i === properties.length - 1) {
             currentModelToRender[property] = getFormattedPropertyValue(propertySettings.propertyValue)
-            return
+            return true
         }
 
         if (!(property in currentModelToRender)) {
@@ -140,7 +148,7 @@ const setPropertyValueToChartModel = (modelToRender: any, propertySettings: IHig
                 currentModelToRender[property] = deepcopy(defaultOptionValue)
             } else {
                 showInvalidAdvancedPropertyError(widget, propertySettings.propertyPath)
-                return
+                return false
             }
         }
 
@@ -148,11 +156,43 @@ const setPropertyValueToChartModel = (modelToRender: any, propertySettings: IHig
         if ((property === 'xAxis' || property === 'yAxis') && Array.isArray(currentModelToRender) && !/^\d+$/.test(nextProperty)) {
             if (!currentModelToRender.length) {
                 showInvalidAdvancedPropertyError(widget, propertySettings.propertyPath)
-                return
+                return false
             }
             currentModelToRender = currentModelToRender[0]
         }
     }
+
+    return false
+}
+
+const applyAdvancedDataLabelSettingToSeries = (modelToRender: any, properties: string[], propertyValue: string) => {
+    if (properties[0] !== 'plotOptions' || properties[2] !== 'dataLabels' || properties.length < 4 || !Array.isArray(modelToRender.series)) return
+
+    const seriesType = properties[1]
+    const dataLabelProperties = properties.slice(3)
+    const formattedPropertyValue = getFormattedPropertyValue(propertyValue)
+
+    modelToRender.series.forEach((serie: any) => {
+        if ((serie.type ?? modelToRender.chart?.type) !== seriesType) return
+
+        if (serie.dataLabels && typeof serie.dataLabels === 'object') setNestedPropertyValue(serie.dataLabels, dataLabelProperties, formattedPropertyValue)
+        serie.data?.forEach((point: any) => {
+            if (point?.dataLabels && typeof point.dataLabels === 'object') setNestedPropertyValue(point.dataLabels, dataLabelProperties, formattedPropertyValue)
+        })
+    })
+}
+
+const setNestedPropertyValue = (target: Record<string, any>, properties: string[], propertyValue: string | boolean) => {
+    let currentTarget = target
+
+    properties.forEach((property: string, index: number) => {
+        if (index === properties.length - 1) {
+            currentTarget[property] = propertyValue
+        } else {
+            currentTarget[property] ??= {}
+            currentTarget = currentTarget[property]
+        }
+    })
 }
 
 const getDefaultOptionValue = (properties: string[]) => {
