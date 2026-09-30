@@ -202,7 +202,7 @@ export default defineComponent({
         selectedMenuItem: { type: Object },
         propCrossNavigationPopupDialogDocument: { type: Object }
     },
-    emits: ['close', 'updateDocumentName', 'parametersChanged'],
+    emits: ['close', 'updateDocumentName', 'parametersChanged', 'dashboardSaved'],
     data() {
         return {
             descriptor,
@@ -1481,6 +1481,7 @@ export default defineComponent({
             if (this.breadcrumbs[0]) this.breadcrumbs[0].label = document.name
             this.document.label = document.label
             this.newDashboardMode = false
+            this.$emit('dashboardSaved', { name: document.name, label: document.label })
             await this.loadDocument()
             this.userRole = this.user.sessionRole && this.user.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user.sessionRole : this.document.creationUser
             this.userRole ? await this.loadPage(true) : (this.parameterSidebarVisible = true)

@@ -1,5 +1,5 @@
 import { AgGridVue } from 'ag-grid-vue3'
-import { ClientSideRowModelModule, ClientSideRowModelApiModule, RowSelectionModule, RowApiModule, RenderApiModule, ScrollApiModule, CustomEditorModule, RowStyleModule, TooltipModule, CellStyleModule, CellSpanModule, PinnedRowModule, ModuleRegistry } from 'ag-grid-community'
+import { ClientSideRowModelModule, ClientSideRowModelApiModule, RowSelectionModule, RowApiModule, RenderApiModule, ScrollApiModule, CustomEditorModule, RowStyleModule, TooltipModule, CellStyleModule, CellSpanModule, PinnedRowModule, ColumnApiModule, ModuleRegistry } from 'ag-grid-community'
 
 // ES modules are singletons: this runs exactly once regardless of how many
 // components import this file, preventing duplicate module registrations.
@@ -15,7 +15,8 @@ ModuleRegistry.registerModules([
     TooltipModule, // tooltipComponent in colDef
     CellStyleModule, // cellClassRules in defaultColDef
     CellSpanModule, // spanRows / enableCellSpan (virtualisation-aware row spanning)
-    PinnedRowModule // pinnedBottomRowData (summary rows)
+    PinnedRowModule, // pinnedBottomRowData (summary rows)
+    ColumnApiModule // getAllDisplayedColumns (SummaryRowRenderer first-column check)
 ])
 
 export { AgGridVue }

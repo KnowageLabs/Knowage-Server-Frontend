@@ -32,7 +32,7 @@
                         <q-tab-panel v-for="(tab, index) in tabs" :key="index" :name="'tab-' + index" class="q-pa-none full-height" />
                     </q-tab-panels>
 
-                    <DocumentBrowserTab v-show="selectedItem && selectedItem.mode" style="position: absolute; inset: 0; overflow: auto" :item="selectedItem?.item" :functionality-id="selectedItem?.functionalityId" @close="closeDocument('current')" @iframeCreated="onIFrameCreated" @closeIframe="closeIframe" @documentSaved="onDocumentSaved" />
+                    <DocumentBrowserTab v-show="selectedItem && selectedItem.mode" style="position: absolute; inset: 0; overflow: auto" :item="selectedItem?.item" :functionality-id="selectedItem?.functionalityId" @close="closeDocument('current')" @iframeCreated="onIFrameCreated" @closeIframe="closeIframe" @documentSaved="onDocumentSaved" @dashboardSaved="onDashboardSaved" />
                     <div v-for="(iframe, index) in iFrameContainers" :key="index">
                         <iframe v-show="iframe.item?.routerId === selectedItem?.item.routerId" ref="iframe" class="document-browser-cockpit-iframe" :src="iframe.iframe"></iframe>
                     </div>
@@ -260,6 +260,13 @@ export default defineComponent({
             } else {
                 return tab.mode === 'documentDetail' ? 'new document' : 'new dashboard'
             }
+        },
+        onDashboardSaved(document: { name: string; label: string }) {
+            if (!this.selectedItem?.item) return
+            // Mutate in place: routerId is the tab component key, so the running dashboard must not remount.
+            Object.assign(this.selectedItem.item, { name: document.name, label: document.label, id: document.label, typeCode: 'DASHBOARD', showMode: 'execute' })
+            this.selectedItem.functionalityId = null
+            this.$router.replace(`/document-browser/${this.getRouteDocumentType(this.selectedItem.item)}/${document.label}`)
         },
         onDocumentSaved(document: any) {
             this.documentSaved = document
