@@ -55,7 +55,7 @@
             </a>
             <a v-if="edit" class="sheet-label" :title="$t('dashboard.sheets.add')" @click="addSheet"><i class="fa-solid fa-circle-plus"></i></a>
         </div>
-        <kn-icon-picker v-if="iconPickerVisible" :enable-base64="true" :current-icon="sheets[iconPickerVisible - 1].icon" @save="saveIcon" @close="closeIcon"></kn-icon-picker>
+        <kn-icon-picker v-if="iconPickerVisible" :enable-base64="true" :sets="['fontawesome']" :current-icon="sheets[iconPickerVisible - 1].icon" @save="saveIcon" @close="closeIcon"></kn-icon-picker>
 
         <div class="sheets-wrapper" @touchstart.passive="onTouchStart($event)" @touchmove.passive="onTouchMove($event)" @touchend.passive="onTouchEnd($event)">
             <div class="sheet-content" :style="{ transform: `translate3d(${translateX}px, 0, 0)` }">

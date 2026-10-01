@@ -64,7 +64,10 @@
                             <q-input v-else-if="property.type === 'text'" :id="`theme-setting-${property.key}`" v-model="selectedTheme.config[property.key]" dense outlined square hide-bottom-space @update:model-value="updateModelToSend(property.key)" />
                             <div v-else-if="property.type === 'icon'" class="theme-setting-control">
                                 <q-input :id="`theme-setting-${property.key}`" v-model="selectedTheme.config[property.key]" dense outlined square hide-bottom-space @update:model-value="updateModelToSend(property.key)" />
-                                <Button :icon="selectedTheme.config[property.key] || 'pi pi-image'" class="p-button-outlined p-button-secondary theme-icon-picker-button" :aria-label="property.label" @click="openIconPicker(property.key)" />
+                                <q-btn outline dense class="theme-icon-picker-button" :aria-label="property.label" @click="openIconPicker(property.key)">
+                                    <q-icon v-if="String(selectedTheme.config[property.key]).startsWith('sym_o_')" :name="selectedTheme.config[property.key]" size="20px" />
+                                    <i v-else :class="selectedTheme.config[property.key] || 'pi pi-image'"></i>
+                                </q-btn>
                             </div>
                             <q-toggle
                                 v-else-if="property.type === 'toggle'"
@@ -85,7 +88,7 @@
                 </div>
             </div>
         </div>
-        <kn-icon-picker v-if="iconPickerVisible" :enable-base64="true" :current-icon="selectedTheme.config[currentIconProp]" @save="onChoosenIcon" @close="closeIconPicker"></kn-icon-picker>
+        <kn-icon-picker v-if="iconPickerVisible" :current-icon="selectedTheme.config[currentIconProp]" @save="onChoosenIcon" @close="closeIconPicker"></kn-icon-picker>
     </div>
 </template>
 

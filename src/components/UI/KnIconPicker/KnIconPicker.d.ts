@@ -1,3 +1,5 @@
+export type IIconSet = 'material' | 'fontawesome'
+
 export interface IIcon {
     category?: string
     className?: string

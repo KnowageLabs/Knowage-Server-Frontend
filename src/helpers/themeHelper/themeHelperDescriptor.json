@@ -278,6 +278,28 @@
                 "type": "color"
             },
             {
+                "key": "--kn-hintcard-border-color",
+                "label": "Border Color",
+                "type": "color"
+            },
+            {
+                "key": "--kn-hintcard-border-radius",
+                "label": "Border Radius",
+                "type": "text"
+            },
+            {
+                "key": "--kn-hintcard-corner-color",
+                "label": "Corner Accent Color",
+                "type": "color"
+            },
+            {
+                "key": "--kn-hintcard-corner-display",
+                "label": "Corner Accent",
+                "type": "toggle",
+                "trueValue": "block",
+                "falseValue": "none"
+            },
+            {
                 "key": "--kn-hintcard-title-color",
                 "label": "Title Color",
                 "type": "color"
@@ -286,6 +308,11 @@
                 "key": "--kn-hintcard-text-color",
                 "label": "Text Color",
                 "type": "color"
+            },
+            {
+                "key": "--kn-hintcard-icon",
+                "label": "Icon",
+                "type": "icon"
             },
             {
                 "key": "--kn-hintcard-icon-color",

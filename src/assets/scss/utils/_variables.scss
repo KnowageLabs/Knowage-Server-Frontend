@@ -137,10 +137,15 @@
     --kn-message-border-radius: 4px;
 
     //hint card
-    --kn-hintcard-background-color: #72aadb;
-    --kn-hintcard-title-color: #000;
-    --kn-hintcard-text-color: #000;
-    --kn-hintcard-icon-color: #000;
+    --kn-hintcard-background-color: #3f3f3f;
+    --kn-hintcard-border-color: transparent;
+    --kn-hintcard-border-radius: 5px;
+    --kn-hintcard-corner-color: var(--kn-color-fab);
+    --kn-hintcard-corner-display: block;
+    --kn-hintcard-title-color: #ffffff;
+    --kn-hintcard-text-color: rgba(255, 255, 255, 0.75);
+    --kn-hintcard-icon: sym_o_lightbulb;
+    --kn-hintcard-icon-color: #ffffff;
 
     //parameter sidebar
     --kn-param-sidebar-expanded-icon: fa fa-angles-right;
