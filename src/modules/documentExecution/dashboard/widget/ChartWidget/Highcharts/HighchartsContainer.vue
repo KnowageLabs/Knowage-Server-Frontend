@@ -537,6 +537,7 @@ export default defineComponent({
         },
         setSeriesEvents() {
             const normalizeTreemapDataLabels = this.normalizeTreemapDataLabels
+            const alignWaterfallConnectors = this.alignWaterfallConnectors
             const pointEvents = { ...(this.chartModel.plotOptions.series.point?.events ?? {}) }
             delete pointEvents.mouseOver
             delete pointEvents.mouseOut
@@ -549,6 +550,7 @@ export default defineComponent({
                 checkboxClick: this.onCheckboxClicked,
                 render: function () {
                     normalizeTreemapDataLabels(this)
+                    alignWaterfallConnectors(this)
                 }
             }
             if (this.chartModel.plotOptions.series) {
@@ -570,6 +572,29 @@ export default defineComponent({
                 }
                 if (this.chartModel.chart.type === 'sunburst') this.chartModel.plotOptions.series.events.legendItemClick = this.onSunburstLegendItemClick
             }
+        },
+        alignWaterfallConnectors(chart: any) {
+            if (chart?.inverted) return
+
+            chart.series?.forEach((serie: any) => {
+                if (serie.type !== 'waterfall' || serie.options.stacking || !serie.graph) return
+
+                const connectorPath: (string | number)[][] = []
+                for (let index = 1; index < serie.points.length; index++) {
+                    const previousPoint = serie.points[index - 1]
+                    const currentPoint = serie.points[index]
+                    const previousShape = previousPoint.shapeArgs
+                    const currentShape = currentPoint.shapeArgs
+                    if (!previousShape || !currentShape || previousPoint.isNull || currentPoint.isNull) continue
+
+                    const previousEndpoint = previousPoint.y >= 0 ? previousShape.y : previousShape.y + previousShape.height
+                    const currentEndpoint = currentPoint.y >= 0 ? currentShape.y + currentShape.height : currentShape.y
+                    const y = (previousEndpoint + currentEndpoint) / 2
+                    connectorPath.push(['M', previousShape.x + previousShape.width, y], ['L', currentShape.x, y])
+                }
+
+                serie.graph.attr({ d: connectorPath })
+            })
         },
         onDrillUp(event: any) {
             this.drillLevel = event.seriesOptions._levelNumber
