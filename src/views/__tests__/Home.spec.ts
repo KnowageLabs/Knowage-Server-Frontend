@@ -14,6 +14,7 @@ import Home from '../Home.vue'
 
 describe('Home dynamic navigation', () => {
     const methods = (Home as any).methods
+    const computed = (Home as any).computed
 
     beforeEach(() => {
         vi.clearAllMocks()
@@ -238,5 +239,25 @@ describe('Home dynamic navigation', () => {
         await methods.resolveHomeTarget.call(context)
 
         expect(context.$router.replace).toHaveBeenCalledWith('/dashboard/Sales')
+    })
+
+    it('renders an image homepage without an iframe', () => {
+        const context = {
+            homePage: { loading: false, type: 'image' },
+            completeUrl: 'https://example.com/homepage.png'
+        }
+
+        expect(computed.showImage.call(context)).toBe(true)
+        expect(computed.showIframe.call(context)).toBe(false)
+    })
+
+    it('renders non-image homepages in an iframe', () => {
+        const context = {
+            homePage: { loading: false, type: 'static' },
+            completeUrl: 'https://example.com/homepage.html'
+        }
+
+        expect(computed.showImage.call(context)).toBe(false)
+        expect(computed.showIframe.call(context)).toBe(true)
     })
 })
