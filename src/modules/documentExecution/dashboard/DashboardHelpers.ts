@@ -29,6 +29,45 @@ const store = mainStore(pinia)
 
 export const SHEET_WIDGET_SIZES = ['xxs', 'xs', 'sm', 'md', 'lg'] as string[]
 export const DATASET_EXPORT_FORMATS = ['csv', 'xls'] as string[]
+const sheetColumnsBySize: Record<string, number> = { lg: 100, md: 100, sm: 50, xs: 20, xxs: 10 }
+
+export const normalizeDashboardSheetLayouts = (dashboard: IDashboard) => {
+    dashboard.sheets?.forEach((sheet: IDashboardSheet) => {
+        SHEET_WIDGET_SIZES.forEach((size: string) => {
+            const layout = sheet.widgets?.[size]
+            if (!layout) return
+
+            const columns = sheetColumnsBySize[size]
+            const validItemsBottom = layout
+                .filter((item: IWidgetSheetItem) => item.w > 0 && item.w <= columns && item.x >= 0 && item.x + item.w <= columns && item.y >= 0)
+                .reduce((bottom: number, item: IWidgetSheetItem) => Math.max(bottom, item.y + item.h), 0)
+            const placedItems: IWidgetSheetItem[] = []
+
+            layout.forEach((item: IWidgetSheetItem) => {
+                const width = Math.min(Math.max(item.w, 1), columns)
+                const originalPositionIsValid = item.x >= 0 && item.x + width <= columns && item.y >= 0 && item.w === width
+                let x = Math.min(Math.max(item.x, 0), columns - width)
+                let y = Math.max(item.y, 0)
+
+                if (!originalPositionIsValid) {
+                    x = 0
+                    y = Math.max(y, validItemsBottom, placedItems.reduce((bottom: number, placedItem: IWidgetSheetItem) => Math.max(bottom, placedItem.y + placedItem.h), 0))
+                }
+
+                let overlappingItems = placedItems.filter((placedItem: IWidgetSheetItem) => x < placedItem.x + placedItem.w && x + width > placedItem.x && y < placedItem.y + placedItem.h && y + item.h > placedItem.y)
+                while (overlappingItems.length > 0) {
+                    y = Math.max(...overlappingItems.map((placedItem: IWidgetSheetItem) => placedItem.y + placedItem.h))
+                    overlappingItems = placedItems.filter((placedItem: IWidgetSheetItem) => x < placedItem.x + placedItem.w && x + width > placedItem.x && y < placedItem.y + placedItem.h && y + item.h > placedItem.y)
+                }
+
+                item.w = width
+                item.x = x
+                item.y = y
+                placedItems.push(item)
+            })
+        })
+    })
+}
 
 export const createNewDashboardModel = () => {
     const dashboardModel = deepcopy(descriptor.newDashboardModel) as IDashboard
@@ -48,7 +87,11 @@ export const addNewWidgetToSheets = (dashboardModel: IDashboard, selectedSheetIn
 }
 
 const addNewFullGridWidgetToSheetsWidgetSizeArray = (dashboardModel: IDashboard, selectedSheetIndex: number, widget: IWidget) => {
-    SHEET_WIDGET_SIZES.forEach((size: string) => dashboardModel.sheets[selectedSheetIndex].widgets[size].push(createDashboardSheetWidgetItem(widget)))
+    SHEET_WIDGET_SIZES.forEach((size: string) => {
+        const sheetWidgetItem = createDashboardSheetWidgetItem(widget)
+        sheetWidgetItem.w = sheetColumnsBySize[size]
+        dashboardModel.sheets[selectedSheetIndex].widgets[size].push(sheetWidgetItem)
+    })
     disableOtherWidgetFullGridInASheet(dashboardModel, widget)
 }
 
@@ -72,49 +115,24 @@ export const moveWidgetToSheet = (widgetToAdd: IWidgetSheetItem | null, dashboar
     const selectedSheetInDashboard = dashboard.sheets.find((sheet: IDashboardSheet) => sheet.id === selectedSheet.id)
     const sheetWidgets = selectedSheetInDashboard?.widgets as { xxs: IWidgetSheetItem[]; xs: IWidgetSheetItem[]; sm: IWidgetSheetItem[]; md: IWidgetSheetItem[]; lg: IWidgetSheetItem[] }
     if (!widgetToAdd || !sheetWidgets) return
-    SHEET_WIDGET_SIZES.forEach((size: string) => moveWidgetItemToSpecificSizeArray(widgetToAdd, size, sheetWidgets))
+    SHEET_WIDGET_SIZES.forEach((size: string) => moveWidgetItemToSpecificSizeArray({ ...widgetToAdd }, size, sheetWidgets))
 }
 
 const moveWidgetItemToSpecificSizeArray = (widgetToAdd: IWidgetSheetItem, size: string, sheetWidgets: { xxs: IWidgetSheetItem[]; xs: IWidgetSheetItem[]; sm: IWidgetSheetItem[]; md: IWidgetSheetItem[]; lg: IWidgetSheetItem[] }) => {
+    const columns = sheetColumnsBySize[size]
+    widgetToAdd.w = Math.min(Math.max(widgetToAdd.w, 1), columns)
     widgetToAdd.x = 0
     widgetToAdd.y = 0
-    let overlap = false
-    let maxWidth = getMaxWidthForSpecificSize(size)
 
     for (let i = 0; i < sheetWidgets[size].length; i++) {
         const existingItem = sheetWidgets[size][i]
         if (widgetToAdd.x < existingItem.x + existingItem.w && widgetToAdd.x + widgetToAdd.w > existingItem.x && widgetToAdd.y < existingItem.y + existingItem.h && widgetToAdd.y + widgetToAdd.h > existingItem.y) {
-            overlap = true
+            widgetToAdd.y = sheetWidgets[size].reduce((maxY, item) => Math.max(maxY, item.y + item.h), 0)
             break
         }
-        if (existingItem.x + existingItem.w > maxWidth) maxWidth = existingItem.x + existingItem.w
     }
 
-    if (overlap) updateWidgetCoordinatesIfOverlaping(widgetToAdd, maxWidth, sheetWidgets[size])
     if (sheetWidgets && widgetToAdd) sheetWidgets[size].push({ id: widgetToAdd.id ?? '', h: widgetToAdd.h, i: crypto.randomUUID(), w: widgetToAdd.w, x: widgetToAdd.x, y: widgetToAdd.y, moved: false })
-}
-
-const getMaxWidthForSpecificSize = (size: string) => {
-    switch (size) {
-        case 'xxs':
-            return 10
-        case 'xs':
-            return 20
-        case 'md':
-            return 100
-        default:
-            return 100
-    }
-}
-
-const updateWidgetCoordinatesIfOverlaping = (widgetToAdd: IWidgetSheetItem, maxWidth: number, sheetWidgets: IWidgetSheetItem[]) => {
-    const newX = Math.max(maxWidth + 1, widgetToAdd.x)
-    const newY = Math.max(
-        widgetToAdd.y,
-        sheetWidgets.reduce((maxY, item) => (item.y + item.h > maxY ? item.y + item.h : maxY), 0)
-    )
-    widgetToAdd.x = newX
-    widgetToAdd.y = newY
 }
 
 export const cloneSheet = (dashboard: IDashboard, selectedSheet: IDashboardSheet, sheetIndex: number) => {
@@ -156,7 +174,7 @@ export const cloneWidgetInSheet = (widget: IWidget, dashboard: IDashboard, selec
     dashboard.widgets.push(clonedWidget)
     if (selectedSheet && clonedWidget.settings.responsive) {
         Object.keys(clonedWidget.settings.responsive).forEach((size: string) => {
-            if (size !== 'fullGrid') moveWidgetItemToSpecificSizeArray(clonedWidgetSheetItem, size, selectedSheet.widgets)
+            if (size !== 'fullGrid') moveWidgetItemToSpecificSizeArray({ ...clonedWidgetSheetItem }, size, selectedSheet.widgets)
         })
     }
 }
@@ -239,6 +257,7 @@ const deleteWidgetFromSheets = (dashboard: IDashboard, widgetId: string) => {
 }
 
 export const formatDashboardForSave = (dashboard: IDashboard) => {
+    normalizeDashboardSheetLayouts(dashboard)
     dashboard.widgets.forEach((widget: IWidget) => synchronizeTableWidgetHeaderVariableLabels(widget, dashboard.configuration?.variables))
 
     for (let i = 0; i < dashboard.widgets.length; i++) {
@@ -261,6 +280,7 @@ export const formatNewModel = async (dashboard: IDashboard, datasets: IDataset[]
     if (!dashboard.configuration.theme || !dashboard.configuration.theme.id) addDefaultThemeToTheDashboardModel(dashboard, themes)
 
     updateDatasetLabelsInDashboardConfiguration(dashboard.configuration, datasets)
+    normalizeDashboardSheetLayouts(dashboard)
 
     for (let i = 0; i < dashboard.configuration.variables.length; i++) {
         if (dashboard.configuration.variables[i].type === 'dataset') await setVariableValueFromDataset(dashboard.configuration.variables[i], datasets, $http)

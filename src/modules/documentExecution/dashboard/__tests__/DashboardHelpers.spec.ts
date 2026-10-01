@@ -70,7 +70,7 @@ vi.mock('../widget/WidgetEditor/helpers/tableWidget/TableWidgetBackendSaveHelper
 }))
 
 // ─── Import after mocks ────────────────────────────────────────────────────────
-import { createNewDashboardModel, addNewWidgetToSheets, deleteWidgetHelper, addWidgetMenuConfig, addWidgetHelpConfig, getFormattedOutputParameters, applyDashboardViewToModel, addMissingMenuWidgetsConfiguration, SHEET_WIDGET_SIZES } from '../DashboardHelpers'
+import { createNewDashboardModel, addNewWidgetToSheets, deleteWidgetHelper, addWidgetMenuConfig, addWidgetHelpConfig, getFormattedOutputParameters, applyDashboardViewToModel, addMissingMenuWidgetsConfiguration, normalizeDashboardSheetLayouts, SHEET_WIDGET_SIZES } from '../DashboardHelpers'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -148,6 +148,24 @@ describe('createNewDashboardModel', () => {
         const m1 = createNewDashboardModel()
         const m2 = createNewDashboardModel()
         expect(m1.configuration.id).not.toBe(m2.configuration.id)
+    })
+})
+
+describe('normalizeDashboardSheetLayouts', () => {
+    it('moves out-of-grid widgets below valid widgets and clamps their width for each breakpoint', () => {
+        const dashboard = makeDashboard()
+        dashboard.sheets[0].widgets.lg = [
+            { id: 'line', i: 'line-lg', x: 2, y: 42, w: 97, h: 8, moved: false },
+            { id: 'table', i: 'table-lg', x: 101, y: 37, w: 25, h: 10, moved: false }
+        ]
+        dashboard.sheets[0].widgets.xs = [{ id: 'table', i: 'table-xs', x: 21, y: 0, w: 25, h: 10, moved: false }]
+        dashboard.sheets[0].widgets.xxs = [{ id: 'table', i: 'table-xxs', x: 11, y: 0, w: 25, h: 10, moved: false }]
+
+        normalizeDashboardSheetLayouts(dashboard)
+
+        expect(dashboard.sheets[0].widgets.lg[1]).toMatchObject({ x: 0, y: 50, w: 25 })
+        expect(dashboard.sheets[0].widgets.xs[0]).toMatchObject({ x: 0, y: 0, w: 20 })
+        expect(dashboard.sheets[0].widgets.xxs[0]).toMatchObject({ x: 0, y: 0, w: 10 })
     })
 })
 
