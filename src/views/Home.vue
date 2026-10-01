@@ -1,5 +1,6 @@
 <template>
-    <iframe v-if="showIframe" v-show="iframeLoaded" :src="`${completeUrl}`" @load="onIframeLoad"></iframe>
+    <img v-if="showImage" v-show="contentLoaded" :src="completeUrl" class="homepage-image" @load="onContentLoad" />
+    <iframe v-if="showIframe" v-show="contentLoaded" :src="completeUrl" @load="onContentLoad"></iframe>
     <div v-if="showDefaultHome" class="homeContainer">
         <div class="upperSection p-d-flex">
             <div class="p-d-flex p-flex-column kn-flex">
@@ -29,7 +30,7 @@ export default defineComponent({
     data() {
         return {
             completeUrl: '',
-            iframeLoaded: false,
+            contentLoaded: false,
             isManagingGlobalLoading: false,
             logo: logo
         }
@@ -45,7 +46,7 @@ export default defineComponent({
         async resolveHomeTarget() {
             const router = (this as any).$router
             this.completeUrl = ''
-            this.iframeLoaded = false
+            this.contentLoaded = false
             this.stopGlobalLoading()
 
             if (this.homePage?.loading) return
@@ -74,9 +75,18 @@ export default defineComponent({
                 this.completeUrl = this.homePage.url
             }
         },
-        onIframeLoad() {
-            this.iframeLoaded = true
+        onContentLoad() {
+            this.contentLoaded = true
             this.stopGlobalLoading()
+        },
+        isImageUrl(url: string): boolean {
+            if (url.startsWith('data:image/')) return true
+
+            try {
+                return /\.(avif|bmp|gif|ico|jpe?g|png|svg|tiff?|webp)$/i.test(new URL(url, window.location.origin).pathname)
+            } catch {
+                return false
+            }
         },
         startGlobalLoading() {
             if (!this.isManagingGlobalLoading) {
@@ -108,8 +118,14 @@ export default defineComponent({
         showDefaultHome(): boolean {
             return this.homePage?.loading === false && !this.hasConfiguredHomeTarget && !this.user?.configuration?.['home.button.url']
         },
+        isImageHomePage(): boolean {
+            return this.homePage?.type?.toLowerCase() === 'image' || this.isImageUrl(this.completeUrl)
+        },
+        showImage(): boolean {
+            return this.homePage?.loading === false && this.isImageHomePage && !!this.completeUrl
+        },
         showIframe(): boolean {
-            return this.homePage?.loading === false && !!this.completeUrl
+            return this.homePage?.loading === false && !this.isImageHomePage && !!this.completeUrl
         }
     },
     watch: {
@@ -248,5 +264,12 @@ iframe {
     border: 0;
     width: 100%;
     height: 100%;
+}
+
+.homepage-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 </style>
