@@ -1,6 +1,7 @@
 import deepcopy from 'deepcopy'
 import { IDashboard, IDashboardDataset, IDashboardDatasetDriver, IDashboardDriver, ISelection, IVariable, IWidget, IWidgetSearch } from '../Dashboard'
 import { getTableWidgetLikeSelections } from './tableWidget/TableWidgetSearchHelper'
+import { synchronizeTableWidgetHeaderVariableLabels } from './tableWidget/TableWidgetHeaderHelper'
 
 type IDashboardExportState = Pick<IDashboard, 'configuration'> & {
     currentView?: unknown
@@ -125,6 +126,8 @@ export const createWidgetExportBody = (type: string, widget: IWidget, dashboard:
         creationUser,
         locale: normalizeDashboardExportLocale(locale)
     } as IWidgetExportBody
+
+    synchronizeTableWidgetHeaderVariableLabels(body, body.variables)
 
     if (dataset?.drivers) body.datasetDrivers = dataset.drivers
     if (type === 'spreadsheet') body.xlsxStyleEnabled = getDashboardXlsxStyleEnabled(dashboard)

@@ -22,6 +22,7 @@ import pinia from '@/pinia'
 import { addMissingFilterProperties } from './widget/WidgetEditor/helpers/selectionsWidget/SelectionsWidgetFunctions'
 import { formatSelectorSettings } from './widget/WidgetEditor/helpers/selectorWidget/SelectorWidgetFunctions'
 import { formatPivotTableSettings } from './widget/WidgetEditor/helpers/pivotTableWidget/PivotTableFunctions'
+import { synchronizeTableWidgetHeaderVariableLabels } from './helpers/tableWidget/TableWidgetHeaderHelper'
 
 const { t } = i18n.global
 const store = mainStore(pinia)
@@ -238,6 +239,8 @@ const deleteWidgetFromSheets = (dashboard: IDashboard, widgetId: string) => {
 }
 
 export const formatDashboardForSave = (dashboard: IDashboard) => {
+    dashboard.widgets.forEach((widget: IWidget) => synchronizeTableWidgetHeaderVariableLabels(widget, dashboard.configuration?.variables))
+
     for (let i = 0; i < dashboard.widgets.length; i++) {
         dashboard.widgets[i] = formatWidgetForSave(dashboard.widgets[i]) as IWidget
     }
