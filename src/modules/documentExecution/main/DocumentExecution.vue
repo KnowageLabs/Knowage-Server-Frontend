@@ -1,24 +1,43 @@
 <template>
     <div ref="document" class="kn-height-full detail-page-container">
-        <Toolbar v-if="showToolbar" class="kn-toolbar kn-toolbar--primary p-col-12">
-            <template #start>
-                <DocumentExecutionBreadcrumb v-if="breadcrumbs.length > 1" :breadcrumbs="breadcrumbs" @breadcrumbClicked="onBreadcrumbClick"></DocumentExecutionBreadcrumb>
-                <span v-else>{{ crossNavigationSourceDocumentName ? crossNavigationSourceDocumentName : document?.name }}</span>
-            </template>
-            <template #end>
-                <div class="p-d-flex p-jc-around">
-                    <Button v-if="mode == 'dashboard' && canSeeDashboardFunctions() && propMode !== 'document-execution-cross-navigation-popup'" v-tooltip.left="$t('common.datasets')" icon="fas fa-database" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="openDashboardDatasetManagement"></Button>
-                    <Button v-if="mode == 'dashboard' && canSeeDashboardFunctions() && propMode !== 'document-execution-cross-navigation-popup'" v-tooltip.left="$t('common.save')" icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" data-test="save-button" @click="saveDashboard"></Button>
-                    <Button v-if="mode !== 'dashboard' && canEditCockpit && documentMode === 'VIEW'" v-tooltip.left="$t('documentExecution.main.editCockpit')" icon="pi pi-pencil" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="editCockpitDocumentConfirm"></Button>
-                    <Button v-if="mode !== 'dashboard' && canEditCockpit && documentMode === 'EDIT'" v-tooltip.left="$t('documentExecution.main.viewCockpit')" icon="fa fa-eye" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="editCockpitDocumentConfirm"></Button>
-                    <Button v-if="!newDashboardMode && propMode !== 'document-execution-cross-navigation-popup'" v-tooltip.left="$t('common.refresh')" icon="pi pi-refresh" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="refresh"></Button>
-                    <Button v-if="propMode !== 'document-execution-cross-navigation-popup'" v-tooltip.left="$t('common.menu')" icon="fa fa-ellipsis-v" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="toggle"></Button>
-                    <TieredMenu ref="menu" :model="toolbarMenuItems" :popup="true" />
-                    <Button v-if="mode == 'dashboard' && canSeeDashboardFunctions() && propMode != 'document-execution-cross-navigation-popup'" id="add-widget-button" class="p-button-sm" :label="$t('dashboard.widgetEditor.addWidget')" icon="pi pi-plus-circle" @click="addWidget" />
-                    <Button v-if="isInDocBrowser || isInWorkspace" v-tooltip.left="$t('common.close')" icon="fa fa-times" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="closeDocumentConfirm"></Button>
-                </div>
-            </template>
-        </Toolbar>
+        <q-toolbar v-if="showToolbar" class="kn-toolbar kn-toolbar--primary kn-document-toolbar">
+            <DocumentExecutionBreadcrumb v-if="breadcrumbs.length > 1" :breadcrumbs="breadcrumbs" @breadcrumbClicked="onBreadcrumbClick"></DocumentExecutionBreadcrumb>
+            <span v-else>{{ crossNavigationSourceDocumentName ? crossNavigationSourceDocumentName : document?.name }}</span>
+            <q-space />
+            <div v-if="mode == 'dashboard' && canSeeDashboardFunctions() && propMode !== 'document-execution-cross-navigation-popup'" class="kn-toolbar-group kn-add-widget">
+                <button id="add-widget-button" type="button" :aria-label="$t('dashboard.widgetEditor.addWidget')" @click="addWidget">
+                    <span class="kn-add-widget__label">{{ $t('dashboard.widgetEditor.addWidget') }}</span>
+                    <q-icon name="sym_o_add" size="20px" />
+                </button>
+            </div>
+            <div v-if="mode == 'dashboard' && canSeeDashboardFunctions() && propMode !== 'document-execution-cross-navigation-popup'" class="kn-toolbar-group">
+                <q-btn flat round dense icon="sym_o_database" :aria-label="$t('common.datasets')" @click="openDashboardDatasetManagement">
+                    <q-tooltip anchor="bottom middle" self="top middle" :delay="300">{{ $t('common.datasets') }}</q-tooltip>
+                </q-btn>
+                <q-btn flat round dense icon="sym_o_save" :aria-label="$t('common.save')" data-test="save-button" @click="saveDashboard">
+                    <q-tooltip anchor="bottom middle" self="top middle" :delay="300">{{ $t('common.save') }}</q-tooltip>
+                </q-btn>
+            </div>
+            <div v-if="mode !== 'dashboard' && canEditCockpit" class="kn-toolbar-group">
+                <q-btn v-if="documentMode === 'VIEW'" flat round dense icon="sym_o_edit" :aria-label="$t('documentExecution.main.editCockpit')" @click="editCockpitDocumentConfirm">
+                    <q-tooltip anchor="bottom middle" self="top middle" :delay="300">{{ $t('documentExecution.main.editCockpit') }}</q-tooltip>
+                </q-btn>
+                <q-btn v-if="documentMode === 'EDIT'" flat round dense icon="sym_o_visibility" :aria-label="$t('documentExecution.main.viewCockpit')" @click="editCockpitDocumentConfirm">
+                    <q-tooltip anchor="bottom middle" self="top middle" :delay="300">{{ $t('documentExecution.main.viewCockpit') }}</q-tooltip>
+                </q-btn>
+            </div>
+            <div v-if="propMode !== 'document-execution-cross-navigation-popup'" class="kn-toolbar-group">
+                <q-btn v-if="!newDashboardMode" flat round dense icon="sym_o_refresh" :aria-label="$t('common.refresh')" @click="refresh">
+                    <q-tooltip anchor="bottom middle" self="top middle" :delay="300">{{ $t('common.refresh') }}</q-tooltip>
+                </q-btn>
+                <DocumentExecutionToolbarMenu :items="toolbarMenuItems" @before-show="createMenuItems"></DocumentExecutionToolbarMenu>
+            </div>
+            <div v-if="isInDocBrowser || isInWorkspace" class="kn-toolbar-group">
+                <q-btn flat round dense icon="sym_o_close" :aria-label="$t('common.close')" @click="closeDocumentConfirm">
+                    <q-tooltip anchor="bottom middle" self="top middle" :delay="300">{{ $t('common.close') }}</q-tooltip>
+                </q-btn>
+            </div>
+        </q-toolbar>
         <ProgressBar v-if="loading || loadingCrossNavigationDocument" class="kn-progress-bar" mode="indeterminate" />
         <div ref="document-execution-view" class="p-d-flex p-flex-row document-execution-view myDivToPrint">
             <Button v-if="isScheduledExport" id="scheduledExcelExportButton" @click="hiddenExport('XLSX')"></Button>
@@ -97,7 +116,7 @@ import { defineComponent } from 'vue'
 import { AxiosResponse } from 'axios'
 import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
 import { iURLData, iExporter, iSchedulation, ICrossNavigationBreadcrumb, ICrossNavigationParameter } from './DocumentExecution'
-import { canEditDocument, canSeeDashboardEditorActions, createToolbarMenuItems, getCurrentDashboardReadyState, getCurrentDocumentBreadcrumb } from './DocumentExecutionHelpers'
+import { canEditDocument, canSeeDashboardEditorActions, createToolbarMenuItems, EXPORT_MENU_ICON, EXPORTER_ICON, getCurrentDashboardReadyState, getCurrentDocumentBreadcrumb } from './DocumentExecutionHelpers'
 import { emitter, formatDashboardForSave } from '../dashboard/DashboardHelpers'
 import { mapState, mapActions } from 'pinia'
 import { getCorrectRolesForExecution } from '../../../helpers/commons/roleHelper'
@@ -117,7 +136,7 @@ import DocumentExecutionMailDialog from './dialogs/documentExecutionMailDialog/D
 import DocumentExecutionSchedulationsTable from './tables/documentExecutionSchedulationsTable/DocumentExecutionSchedulationsTable.vue'
 import DocumentExecutionLinkDialog from './dialogs/documentExecutionLinkDialog/DocumentExecutionLinkDialog.vue'
 import KnParameterSidebar from '@/components/UI/KnParameterSidebar/KnParameterSidebar.vue'
-import TieredMenu from 'primevue/tieredmenu'
+import DocumentExecutionToolbarMenu from './DocumentExecutionToolbarMenu.vue'
 import Registry from '../registry/Registry.vue'
 import Dossier from '../dossier/Dossier.vue'
 import Olap from '../olap/Olap.vue'
@@ -183,7 +202,7 @@ export default defineComponent({
         DocumentExecutionSchedulationsTable,
         DocumentExecutionLinkDialog,
         KnParameterSidebar,
-        TieredMenu,
+        DocumentExecutionToolbarMenu,
         Registry,
         Dossier,
         Olap,
@@ -634,11 +653,6 @@ export default defineComponent({
             this.reportRefreshInterval = setInterval(async () => {
                 await this.refresh()
             }, refreshIntervalMs)
-        },
-        toggle(event: Event) {
-            this.createMenuItems()
-            const menu = this.$refs.menu as any
-            menu.toggle(event)
         },
         createMenuItems() {
             this.toolbarMenuItems = createToolbarMenuItems(
@@ -1137,12 +1151,13 @@ export default defineComponent({
                 const index = this.toolbarMenuItems.findIndex((item: any) => item.label === this.$t('common.export'))
                 index === -1
                     ? this.toolbarMenuItems.splice(1, 0, {
+                          icon: EXPORT_MENU_ICON,
                           label: this.$t('common.export'),
                           items: []
                       })
                     : this.exporters?.forEach((exporter: any) =>
                           this.toolbarMenuItems[index].items.push({
-                              icon: 'fa fa-file-excel',
+                              icon: EXPORTER_ICON,
                               label: exporter.name,
                               command: () => this.export(exporter.name)
                           })
@@ -1661,6 +1676,7 @@ export default defineComponent({
     }
 }
 
+// Unscoped: these also shape the PrimeVue TieredMenus of the Text/HTML/Python widget editors. Remove them when those migrate to Quasar.
 .p-tieredmenu .p-menuitem-active > .p-submenu-list {
     left: unset !important;
 }
@@ -1669,16 +1685,85 @@ export default defineComponent({
     right: 100% !important;
 }
 
-.dashboard-toolbar-icon {
-    border: 1px solid white !important;
-    padding: 1.5px !important;
-    border-radius: 5px !important;
+.kn-document-toolbar {
+    // The shared toolbar leaves 0.75rem on the right, which makes the last button look pushed in.
+    padding-right: 4px !important;
+    // One flex row, groups of buttons divided by a hairline. Groups that are not rendered leave no divider behind.
+    .kn-toolbar-group {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        & + .kn-toolbar-group {
+            margin-left: 8px;
+            padding-left: 8px;
+            border-left: 1px solid rgba(255, 255, 255, 0.22);
+        }
+    }
+    .q-btn--round {
+        width: 32px;
+        height: 32px;
+        min-width: 0;
+        min-height: 0;
+    }
+    .q-btn--round .q-icon {
+        font-size: 20px;
+    }
 }
 
-#add-widget-button {
-    background-color: var(--kn-color-fab);
-    min-width: 120px;
+// Add widget: a round + (26px, so it does not touch the toolbar edges) that grows to the left on hover. The wrapper keeps its 32px, and the button is
+// anchored to its right edge, so the growth overlaps free space and never moves the other buttons.
+.kn-add-widget {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
 }
+#add-widget-button {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: 26px;
+    min-width: 26px;
+    padding: 0 3px;
+    border: 0;
+    border-radius: 13px;
+    background-color: var(--kn-color-fab);
+    color: #fff;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    &:hover,
+    &:focus-visible {
+        filter: brightness(1.12);
+    }
+    &:focus-visible {
+        outline: 2px solid #fff;
+        outline-offset: 1px;
+    }
+    .kn-add-widget__label {
+        max-width: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        opacity: 0;
+        text-transform: none;
+        transition:
+            max-width 0.22s ease,
+            opacity 0.15s ease,
+            margin 0.22s ease;
+    }
+    &:hover .kn-add-widget__label,
+    &:focus-visible .kn-add-widget__label {
+        max-width: 220px;
+        margin-left: 8px;
+        margin-right: 4px;
+        opacity: 1;
+    }
+}
+
 .downloadingBox {
     position: absolute;
     top: 50%;

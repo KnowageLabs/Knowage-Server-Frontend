@@ -9,7 +9,7 @@ import { formatChartJSWidget } from './widget/WidgetEditor/helpers/chartWidget/c
 import { formatHighchartsWidget } from './widget/WidgetEditor/helpers/chartWidget/highcharts/HighchartsHelpers'
 import { AxiosResponse } from 'axios'
 import mainStore from '@/App.store'
-import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
+import { isDashboardEditor } from './DashboardPermissions'
 import descriptor from './DashboardDescriptor.json'
 import { formatDashboardTableWidgetAfterLoading } from './widget/WidgetEditor/helpers/tableWidget/TableWidgetFunctions'
 import { updateWidgetThemeAndApplyStyle } from './generalSettings/themes/ThemesHelper'
@@ -396,10 +396,7 @@ const getDatasetIdsFromDashboardModel = (dashboardModel: IDashboard | any) => {
     return datasetIds.join(',')
 }
 
-export const canEditDashboard = (document): boolean => {
-    if (!store.user || !document || document.seeAsFinalUser) return false
-    return store.user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) || document.creationUser === store.user.userId
-}
+export const canEditDashboard = (document): boolean => isDashboardEditor(store.user, document)
 
 export const getFormattedOutputParameters = (documentOutputParameters: IDashboardOutputParameter[]) => {
     if (!documentOutputParameters) return []
