@@ -258,6 +258,7 @@ export default defineComponent({
             const homePage: any = { loading: false }
             if (config && config.type && config.type !== 'default') {
                 homePage.roleName = roleName
+                homePage.type = config.type
                 switch (config.type) {
                     case 'document': {
                         const documentNavigation = await this.resolveHomepageDocumentNavigation(config)
