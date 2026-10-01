@@ -281,7 +281,8 @@ export default defineComponent({
             if (this.widgetModel.settings.configuration.rows.indexColumn) {
                 columns.push({
                     colId: 'indexColumn',
-                    valueGetter: `node.rowIndex + 1`,
+                    // pinned (summary) rows are not data rows, so they get no index number
+                    valueGetter: `node.rowPinned ? '' : node.rowIndex + 1`,
                     headerName: '',
                     pinned: 'left',
                     width: 55,
@@ -339,7 +340,8 @@ export default defineComponent({
                         // spanRows: true spans contiguous leaf rows with equal values in this column, independently
                         // per column, and keeps the span rendered even when the group's first row is virtualised out.
                         if (this.widgetModel.settings.configuration.rows.rowSpan.enabled && (this.widgetModel.settings.configuration.rows.rowSpan.columns ?? []).includes(this.widgetModel.columns[datasetColumn].id)) {
-                            tempCol.spanRows = true
+                            // Summary rows are pinned and each carries its own label/value, so they must never merge.
+                            tempCol.spanRows = (params) => !params.nodeA?.rowPinned && !params.nodeB?.rowPinned
                             // A spanned cell floats over several rows, so it inherits no row-level getRowStyle
                             // background (that lives on the row <div>). Paint the alternated-row colour on the tall
                             // .ag-cell itself, mirroring getRowStyle and keyed on the origin rowIndex so the whole

@@ -45,8 +45,9 @@ export default defineComponent({
             return false
         },
         isFirstColumn() {
+            // The index/icon helper columns carry no summary data, so the label goes in the first real column
             const allColumns = this.params.api.getAllDisplayedColumns()
-            const firstColumn = allColumns[0]
+            const firstColumn = allColumns.find((column) => column.getColId() !== 'indexColumn' && column.getColId() !== 'iconColumn')
             return this.params.column?.colId === firstColumn?.colId
         },
         handleParentPointerEvents() {
