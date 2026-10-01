@@ -17,8 +17,11 @@
                         @update:model-value="onParameterTypeChange"
                     />
                 </div>
+                <!-- knowage-9969] -->
+                <!-- old  <q-input v-if="!parameterValues.lov" v-model="parameter.value" dense filled :label="$t('common.values')" /> -->
+                <!-- new  <q-input v-if="parameterValues.manualInput" v-model="parameter.value" dense filled :label="$t('common.values')" /> -->
                 <div v-if="parameter.type === 'fixed'" class="col-12 col-md-4">
-                    <q-input v-if="!parameterValues.lov" v-model="parameter.value" dense filled :label="$t('common.values')" />
+                    <q-input v-if="parameterValues.manualInput" v-model="parameter.value" dense filled :label="$t('common.values')" />
                     <q-select
                         v-else
                         v-model="parameter.selectedValues"
