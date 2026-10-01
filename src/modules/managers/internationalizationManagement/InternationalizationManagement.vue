@@ -297,6 +297,18 @@ async function saveLabel(language: iLanguage, row: IRow) {
             // The default messages are the source of the other languages' rows.
             await loadMessages(language)
         }
+    } catch (error: any) {
+        const violation = error.response?.data?.parameterViolations?.[0]
+ 
+        if (violation?.path?.endsWith('.label') && violation?.value === '') {
+            store.setError({
+                msg: t('common.validation.required', {
+                    fieldName: t('common.label')
+                })
+            })
+        } else {
+            store.setError({ msg: violation?.message || error.message })
+        }
     } finally {
         loading.value = false
     }

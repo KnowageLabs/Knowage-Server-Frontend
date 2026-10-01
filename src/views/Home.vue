@@ -1,5 +1,6 @@
 encode<template>
     <iframe v-if="!homePage.loading && homePage.type === 'dynamic' && dynamicSrcdoc" ref="dynamicHomeFrame" :srcdoc="dynamicSrcdoc" style="border:0;width:100%;height:100%;" @load="bindDynamicHomeFrameInteractions"></iframe>
+    <img v-else-if="showImage" v-show="iframeLoaded" :src="completeUrl" class="homepage-image" @load="onIframeLoad" />
     <iframe v-else-if="showIframe" v-show="iframeLoaded" :src="`${completeUrl}`" @load="onIframeLoad"></iframe>
     <div v-if="showDefaultHome" class="homeContainer">
         <div class="upperSection p-d-flex">
@@ -396,8 +397,11 @@ export default defineComponent({
         showDefaultHome(): boolean {
             return this.homePage?.loading === false && this.homePage?.type !== 'dynamic' && !this.hasConfiguredHomeTarget && !this.user?.configuration?.['home.button.url']
         },
+        showImage(): boolean {
+            return this.homePage?.loading === false && this.homePage?.type === 'image' && !!this.completeUrl
+        },
         showIframe(): boolean {
-            return this.homePage?.loading === false && !!this.completeUrl
+            return this.homePage?.loading === false && this.homePage?.type !== 'image' && !!this.completeUrl
         }
     },
     watch: {
@@ -536,5 +540,12 @@ iframe {
     border: 0;
     width: 100%;
     height: 100%;
+}
+
+.homepage-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 </style>
