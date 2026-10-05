@@ -1,3 +1,21 @@
+export interface iQbeTreeNode {
+    id: string
+    text: string
+    iconCls: string
+    attributes: {
+        type: string
+        iconCls: string
+        longDescription?: string
+        londDescription?: string
+    }
+    children?: iQbeTreeNode[]
+    qtip?: string
+    description?: string
+    color?: string
+    expanded?: boolean
+    isSpatial?: boolean
+}
+
 export interface iQBE {
     actions: { name: string; description: string }[]
     canLoadData: boolean

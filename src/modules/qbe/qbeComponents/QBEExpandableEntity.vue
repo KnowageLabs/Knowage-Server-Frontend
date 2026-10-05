@@ -1,14 +1,33 @@
 <template>
-    <div v-for="(entity, index) in entities" :key="index" class="expandable-entities">
-        <h4 v-tooltip.top="getTooltipText(entity)" class="entity-item-container" :style="{ 'border-left': `10px solid ${entity.color}` }" draggable="true" :data-test="'entity-container-' + entity.id" @dragstart="onDragStart($event, entity)">
-            <i v-tooltip.top="$t(`qbe.entities.types.${entity.attributes.iconCls}`)" :class="getIconCls(entity.attributes.iconCls)" class="p-mx-2" />
+    <div v-for="entity in entities" :key="entity.id" class="expandable-entities">
+        <h4
+            v-tooltip.top="getTooltipText(entity)"
+            class="entity-item-container"
+            :class="{ 'group-item-container': isGroupNode(entity) }"
+            :style="{ 'border-left': `10px solid ${entity.color}`, 'padding-left': `${8 + depth * 10}px` }"
+            :draggable="!isGroupNode(entity)"
+            :data-test="'entity-container-' + entity.id"
+            @dragstart="onDragStart($event, entity)"
+        >
+            <i v-tooltip.top="getNodeTypeLabel(entity)" :class="getIconCls(entity.attributes.iconCls)" class="p-mx-2" />
             <span class="kn-flex" :data-test="'expand-' + entity.id" @click="expandEntity(entity)">{{ entity.text }}</span>
-            <Button v-tooltip.top="$t('qbe.entities.relations')" icon="fas fa-info" class="p-button-text p-button-rounded p-button-plain" @click="$emit('showRelationDialog', entity)" />
+            <Button v-if="!isGroupNode(entity)" v-tooltip.top="$t('qbe.entities.relations')" icon="fas fa-info" class="p-button-text p-button-rounded p-button-plain" @click="$emit('showRelationDialog', entity)" />
             <Button v-if="entity.expanded" icon="pi pi-chevron-up" class="p-button-text p-button-rounded p-button-plain" @click="entity.expanded = false" />
             <Button v-else icon="pi pi-chevron-down" class="p-button-text p-button-rounded p-button-plain" @click="entity.expanded = true" />
         </h4>
-        <ul v-show="entity.expanded">
-            <li v-for="(child, index) in entity.children" :key="index" v-tooltip.top="getTooltipText(child)" :style="{ 'border-left': `5px solid ${child.color}` }" draggable="true" @click="$emit('entityChildClicked', child)" @dragstart="onDragStart($event, child)">
+        <div v-if="isGroupNode(entity) && entity.expanded" class="entity-children">
+            <QBEExpandableEntity
+                :available-entities="entity.children"
+                :query="query"
+                :depth="depth + 1"
+                @showRelationDialog="$emit('showRelationDialog', $event)"
+                @entityClicked="$emit('entityClicked', $event)"
+                @entityChildClicked="$emit('entityChildClicked', $event)"
+                @openFilterDialog="$emit('openFilterDialog', $event)"
+            />
+        </div>
+        <ul v-else-if="entity.expanded" class="entity-children">
+            <li v-for="(child, index) in entity.children" :key="index" v-tooltip.top="getTooltipText(child)" :style="{ 'border-left': `10px solid ${child.color}`, 'padding-left': `${20 + (depth + 1) * 10}px` }" draggable="true" @click="$emit('entityChildClicked', child)" @dragstart="onDragStart($event, child)">
                 <i v-tooltip.top="$t(`qbe.entities.types.${child.attributes.iconCls}`)" :class="getIconCls(child.attributes.iconCls)" class="p-mx-2" />
                 <span :data-test="'entity-' + entity.id">{{ child.text }}</span>
                 <Button icon="fas fa-filter" :class="{ 'qbe-active-filter-icon': fieldHasFilters(child) }" class="p-button-text p-button-rounded p-button-plain p-ml-auto" :data-test="'child-' + child.id" @click.stop="openFiltersDialog(child)" />
@@ -19,16 +38,17 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { iQuery } from '../QBE'
+import { iQuery, iQbeTreeNode } from '../QBE'
+import { isQbeGroup } from '@/helpers/commons/qbeHelpers'
 
 export default defineComponent({
-    name: 'expandable-entity',
+    name: 'qbe-expandable-entity',
     components: {},
-    props: { availableEntities: { type: Array }, query: { type: Object as PropType<iQuery>, required: true } },
-    emits: ['close', 'showRelationDialog', 'openFilterDialog', 'entityChildClicked'],
+    props: { availableEntities: { type: Array as PropType<iQbeTreeNode[]>, default: () => [] }, query: { type: Object as PropType<iQuery>, required: true }, depth: { type: Number, default: 0 } },
+    emits: ['close', 'showRelationDialog', 'openFilterDialog', 'entityChildClicked', 'entityClicked'],
     data() {
         return {
-            entities: [] as any,
+            entities: [] as iQbeTreeNode[],
             colors: ['#D7263D', '#F46036', '#2E294E', '#1B998B', '#C5D86D', '#3F51B5', '#8BC34A', '#009688', '#F44336']
         }
     },
@@ -43,26 +63,36 @@ export default defineComponent({
         this.setupEntities()
     },
     methods: {
-        expandEntity(entity) {
+        expandEntity(entity: iQbeTreeNode) {
             entity.expanded = !entity.expanded
         },
-        setupEntities() {
-            let usedColorIndex = 0
-            this.entities?.forEach((entity) => {
-                if (!this.colors[usedColorIndex]) usedColorIndex = 0
-                const color = this.colors[usedColorIndex]
-                usedColorIndex++
-                entity.color = color
-                if (entity.children) {
-                    entity.children.forEach((child) => {
-                        child.color = color
-                    })
+        setupEntities(entitiesToSetup = this.entities, usedColorIndex = 0) {
+            entitiesToSetup?.forEach((entity) => {
+                if (this.isGroupNode(entity)) {
+                    entity.color = '#78909c'
+                    usedColorIndex = this.setupEntities(entity.children ?? [], usedColorIndex)
+                } else {
+                    if (!this.colors[usedColorIndex]) usedColorIndex = 0
+                    const color = entity.color ?? this.colors[usedColorIndex]
+                    usedColorIndex++
+                    entity.color = color
+                    if (entity.children) {
+                        entity.children.forEach((child) => {
+                            child.color = color
+                        })
+                    }
                 }
             })
+            return usedColorIndex
         },
-
+        isGroupNode: isQbeGroup,
+        getNodeTypeLabel(entity: iQbeTreeNode) {
+            return this.isGroupNode(entity) ? entity.text : this.$t(`qbe.entities.types.${entity.attributes.iconCls}`)
+        },
         getIconCls(iconCls) {
             switch (iconCls) {
+                case 'folder':
+                    return 'fas fa-folder'
                 case 'measure':
                     return 'fas fa-ruler'
                 case 'cube':
@@ -83,10 +113,14 @@ export default defineComponent({
                     return 'fas fa-cube'
             }
         },
-        getTooltipText(item: any) {
-            return item?.qtip || item?.attributes?.longDescription || item?.description || item?.text || ''
+        getTooltipText(item: iQbeTreeNode) {
+            return item.qtip || item.attributes.longDescription || item.attributes.londDescription || item.description || item.text || ''
         },
         onDragStart(event, entity) {
+            if (this.isGroupNode(entity)) {
+                event.preventDefault()
+                return
+            }
             event.dataTransfer.setData('text', JSON.stringify(entity))
             event.dataTransfer.dropEffect = 'move'
             event.dataTransfer.effectAllowed = 'move'
@@ -141,6 +175,9 @@ export default defineComponent({
             }
         }
     }
+    > .entity-children {
+        padding-left: 0;
+    }
     h4 {
         display: flex;
         background-color: #fff;
@@ -163,6 +200,9 @@ export default defineComponent({
         }
         i {
             cursor: help;
+        }
+        &.group-item-container {
+            cursor: pointer;
         }
     }
 }

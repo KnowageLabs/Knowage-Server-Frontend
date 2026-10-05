@@ -54,6 +54,7 @@ export interface iChangedData {
 export interface iBusinessModel {
     calculatedBusinessColumns: any[]
     columns: iBusinessModelColumn[]
+    description?: string | null
     name: string
     physicalTable: { physicalTableIndex: number }
     properties: any[]
@@ -63,6 +64,14 @@ export interface iBusinessModel {
     physicalColumn?: any
     physicalTables?: any[]
     joinRelationships?: any[]
+}
+
+export interface iBusinessDomain {
+    id: number | string | null
+    name: string
+    uniqueName: string | null
+    description: string | null
+    tables: string[]
 }
 
 export interface iBusinessModelColumn {
