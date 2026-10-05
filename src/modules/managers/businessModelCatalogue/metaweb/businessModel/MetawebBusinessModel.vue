@@ -57,6 +57,35 @@
                     </div>
                 </div>
             </div>
+            <div class="p-d-flex p-flex-column kn-flex">
+                <Toolbar class="kn-toolbar kn-toolbar--default">
+                    <template #start>
+                        <span>{{ $t('metaweb.businessModel.businessDomain') }}</span>
+                    </template>
+                    <template #end>
+                        <KnFabButton icon="fas fa-plus" data-test="new-domain-button" @click="showBusinessDomain()" />
+                    </template>
+                </Toolbar>
+                <div class="kn-relative kn-flex">
+                    <div class="kn-height-full kn-width-full kn-absolute">
+                        <DataTable class="p-datatable-sm metaweb-table kn-table metaweb-right-border" :loading="loading" :scrollable="true" scroll-height="100%" :value="meta.businessDomains ?? []" data-test="bd-table">
+                            <Column :style="mainDescriptor.style.columnMain">
+                                <template #body="slotProps">
+                                    <span>{{ slotProps.data.name }}</span>
+                                    <Chip :label="(slotProps.data.tables?.length ?? 0) + ' ' + $t('metaweb.businessModel.assignedEntities')" class="p-ml-2" :style="mainDescriptor.style.chip" />
+                                </template>
+                            </Column>
+
+                            <Column :style="{ width: '6rem' }">
+                                <template #body="slotProps">
+                                    <Button icon="pi pi-pencil" class="p-button-link p-mr-2" @click="showBusinessDomain(slotProps.data)" />
+                                    <Button icon="pi pi-trash" class="p-button-link" @click="confirmDeleteBusinessDomain(slotProps.data)" />
+                                </template>
+                            </Column>
+                        </DataTable>
+                    </div>
+                </div>
+            </div>
         </div>
         <div id="CONTAINER ELEMENT DETAILS" class="p-col-8 p-sm-8 p-md-9 p-p-0 p-m-0 p-d-flex p-flex-column" :style="mainDescriptor.style.flex3">
             <Toolbar class="kn-toolbar kn-toolbar--secondary">
@@ -142,11 +171,12 @@
     <Menu id="optionsMenu" ref="optionsMenu" :model="menuButtons" data-test="menu" />
     <BusinessClassDialog v-if="showBusinessClassDialog" :meta="meta" :observer="observer" :physical-models="meta.physicalModels" :show-business-class-dialog="showBusinessClassDialog" @closeDialog="showBusinessClassDialog = false" />
     <BusinessViewDialog v-if="showBusinessViewDialog" :meta="meta" :observer="observer" :show-business-view-dialog="showBusinessViewDialog" @closeDialog="showBusinessViewDialog = false" />
+    <BusinessDomainDialog v-if="showBusinessDomainDialog" :meta="meta" :observer="observer" :show-business-domain-dialog="showBusinessDomainDialog" :selected-business-domain="selectedBusinessDomain" @closeDialog="closeBusinessDomainDialog" @saved="$emit('metaUpdated')" />
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { iBusinessModel } from '../Metaweb'
+import { iBusinessDomain, iBusinessModel } from '../Metaweb'
 import { AxiosResponse } from 'axios'
 import mainDescriptor from '../MetawebDescriptor.json'
 import KnFabButton from '@/components/UI/KnFabButton.vue'
@@ -157,6 +187,7 @@ import Menu from 'primevue/contextmenu'
 import MetawebBusinessPropertyListTab from './tabs/propertyListTab/MetawebBusinessPropertyListTab.vue'
 import BusinessClassDialog from './dialogs/MetawebBusinessClassDialog.vue'
 import BusinessViewDialog from './dialogs/MetawebBusinessViewDialog.vue'
+import BusinessDomainDialog from './dialogs/MetawebBusinessDomainDialog.vue'
 import MetawebAttributesTab from './tabs/metawebAttributesTab/MetawebAttributesTab.vue'
 import InboundRelationships from './tabs/inboundRelationships/MetawebInboundRelationships.vue'
 import OutboundRelationships from './tabs/outboundRelationships/MetawebOutboundRelationships.vue'
@@ -182,6 +213,7 @@ export default defineComponent({
         OutboundRelationships,
         BusinessClassDialog,
         BusinessViewDialog,
+        BusinessDomainDialog,
         KnFabButton,
         TabView,
         TabPanel,
@@ -207,7 +239,9 @@ export default defineComponent({
             customFunctions: [] as any,
             showBusinessClassDialog: false,
             showBusinessViewDialog: false,
+            showBusinessDomainDialog: false,
             selectedBusinessModel: {} as iBusinessModel,
+            selectedBusinessDomain: null as iBusinessDomain | null,
             roles: [] as any[],
             loading: false
         }
@@ -249,6 +283,14 @@ export default defineComponent({
         showBusinessView() {
             this.showBusinessViewDialog = true
         },
+        showBusinessDomain(selectedBusinessDomain: iBusinessDomain | null = null) {
+            this.selectedBusinessDomain = selectedBusinessDomain ? { ...selectedBusinessDomain, tables: [...selectedBusinessDomain.tables] } : null
+            this.showBusinessDomainDialog = true
+        },
+        closeBusinessDomainDialog() {
+            this.showBusinessDomainDialog = false
+            this.selectedBusinessDomain = null
+        },
         async deleteFromList(itemForDeletion) {
             const postData = { data: { name: itemForDeletion.uniqueName }, diff: generate(this.observer) }
             let url = ''
@@ -265,6 +307,33 @@ export default defineComponent({
                     generate(this.observer)
                 })
                 .catch(() => {})
+        },
+        confirmDeleteBusinessDomain(itemForDeletion: iBusinessDomain) {
+            this.$confirm.require({
+                message: this.$t('common.toast.deleteMessage'),
+                header: this.$t('common.toast.deleteTitle'),
+                icon: 'pi pi-exclamation-triangle',
+                accept: () => this.deleteBusinessDomain(itemForDeletion)
+            })
+        },
+        async deleteBusinessDomain(itemForDeletion: iBusinessDomain) {
+            const postData = { data: { id: itemForDeletion.id, uniqueName: itemForDeletion.uniqueName, name: itemForDeletion.name }, diff: generate(this.observer) }
+            this.loading = true
+            try {
+                const response: AxiosResponse = await this.$http.post(import.meta.env.VITE_KNOWAGEMETA_CONTEXT + '/restful-services/1.0/metaWeb/deleteBusinessDomain', postData)
+                this.meta = applyPatch(this.meta, response.data).newDocument
+                this.store.setInfo({ title: this.$t('common.toast.deleteTitle'), msg: this.$t('common.toast.deleteSuccess') })
+                generate(this.observer)
+                this.closeBusinessDomainDialog()
+                this.$emit('metaUpdated')
+            } catch (error: unknown) {
+                this.store.setError({
+                    title: this.$t('common.toast.errorTitle'),
+                    msg: typeof error === 'object' && error !== null && 'message' in error && typeof error.message === 'string' ? error.message : this.$t('common.error.generic')
+                })
+            } finally {
+                this.loading = false
+            }
         },
         async loadRoles() {
             this.loading = true
