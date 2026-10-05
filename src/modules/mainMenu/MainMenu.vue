@@ -139,6 +139,10 @@ export default defineComponent({
             const orig = JSON.parse(JSON.stringify(this.allowedUserFunctionalities))
             this.setConditionedVisibility(orig)
         },
+        downloads() {
+            const orig = JSON.parse(JSON.stringify(this.allowedUserFunctionalities))
+            this.setConditionedVisibility(orig)
+        },
         closeMenu(newProp) {
             // @ts-ignore
             if (newProp) this.$refs.menu.hide()
