@@ -3892,9 +3892,12 @@
                 "structural": "Structural",
                 "title": "Attribute's Detail"
             },
+            "assignedEntities": "assigned entities",
             "businessClass": "Business Class",
+            "businessDomain": "Business Domain",
             "businessView": "Business View",
             "decrypt": "Decrypt",
+            "editBusinessDomain": "Edit Business Domain",
             "editJoin": "Edit Join Relationship",
             "inbound": {
                 "name": "Insert a Business Relationship Name",
@@ -3902,6 +3905,7 @@
                 "targetBc": "Target Business Class"
             },
             "newBusiness": "New Business Class",
+            "newBusinessDomain": "New Business Domain",
             "newView": "New Business View",
             "noUnusedFields": "No columns to add",
             "personal": "Personal",

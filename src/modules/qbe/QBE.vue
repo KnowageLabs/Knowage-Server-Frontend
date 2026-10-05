@@ -28,7 +28,7 @@
                     </Toolbar>
                     <div class="kn-flex kn-overflow-hidden">
                         <ScrollPanel class="kn-height-full qbe-scroll-panel">
-                            <ExpandableEntity :available-entities="entities.entities" :query="mainQuery" @showRelationDialog="showRelationDialog" @entityClicked="onDropComplete($event, false)" @entityChildClicked="onDropComplete($event, false)" @openFilterDialog="openFilterDialog" />
+                            <ExpandableEntity :available-entities="groupedEntities" :query="mainQuery" @showRelationDialog="showRelationDialog" @entityClicked="onDropComplete($event, false)" @entityChildClicked="onDropComplete($event, false)" @openFilterDialog="openFilterDialog" />
                         </ScrollPanel>
                     </div>
                 </div>
@@ -148,11 +148,11 @@
 import { AxiosResponse } from 'axios'
 import { defineComponent } from 'vue'
 import { downloadDirect } from '@/helpers/commons/fileHelper'
-import { iQBE, iQuery, iField, iQueryResult, iFilter } from './QBE'
+import { iQBE, iQuery, iField, iQueryResult, iFilter, iQbeTreeNode } from './QBE'
 import { onFiltersSaveCallback } from './QBEFilterService'
 import { formatDrivers } from './QBEDriversService'
 import { onHavingsSaveCallback } from './QBEHavingsService'
-import { createNewField, creatNewMetadataFromField } from '@/helpers/commons/qbeHelpers'
+import { createNewField, creatNewMetadataFromField, prepareQbeEntities } from '@/helpers/commons/qbeHelpers'
 import { buildCalculatedField, updateCalculatedField } from '@/helpers/commons/buildQbeCalculatedField'
 import { removeInPlace } from './qbeDialogs/qbeAdvancedFilterDialog/treeService'
 import moment from 'moment'
@@ -223,6 +223,7 @@ export default defineComponent({
             calcFieldDescriptor,
             qbe: null as iQBE | null,
             customizedDatasetFunctions: {} as any,
+            groupedEntities: [] as iQbeTreeNode[],
             entities: {} as any,
             queryPreviewData: {} as iQueryResult,
             selectedQuery: {} as any,
@@ -565,26 +566,12 @@ export default defineComponent({
 
             await this.$http
                 .get(url)
-                .then(async (response: AxiosResponse<any>) => {
-                    this.addExpandedProperty(response.data.entities)
-                    await this.addSpatialProperty(response.data.entities)
-                    this.entities = response.data
+                .then((response: AxiosResponse<{ entities: iQbeTreeNode[] }>) => {
+                    const flatEntities = prepareQbeEntities(response.data.entities)
+                    this.groupedEntities = response.data.entities
+                    this.entities = { ...response.data, entities: flatEntities }
                 })
                 .catch((error: any) => console.log('ERROR: ', error))
-        },
-        addExpandedProperty(entities) {
-            entities.forEach((entity) => {
-                entity.expanded = false
-            })
-        },
-        async addSpatialProperty(entities) {
-            await entities.forEach((entity) => {
-                if (entity.iconCls == 'geographic_dimension') {
-                    entity.children.forEach((child) => {
-                        child.isSpatial = true
-                    })
-                }
-            })
         },
         async executeQBEQuery(showPreview: boolean, filters?: iFilter[]) {
             if (!this.qbe) return

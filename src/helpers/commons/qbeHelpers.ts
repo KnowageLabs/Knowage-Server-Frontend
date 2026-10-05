@@ -1,3 +1,25 @@
+import type { iQbeTreeNode } from '@/modules/qbe/QBE'
+
+export function isQbeGroup(node: iQbeTreeNode): boolean {
+    return node.attributes.type === 'group'
+}
+
+export function prepareQbeEntities(nodes: iQbeTreeNode[]): iQbeTreeNode[] {
+    const entities: iQbeTreeNode[] = []
+    for (const node of nodes) {
+        node.expanded = false
+        if (isQbeGroup(node)) {
+            entities.push(...prepareQbeEntities(node.children ?? []))
+        } else {
+            if (node.iconCls === 'geographic_dimension') {
+                node.children?.forEach((field) => (field.isSpatial = true))
+            }
+            entities.push(node)
+        }
+    }
+    return entities
+}
+
 export function createNewField(editQueryObj, field) {
     var newField = {
         id: field.attributes.type === 'inLineCalculatedField' ? field.attributes.formState : field.id,

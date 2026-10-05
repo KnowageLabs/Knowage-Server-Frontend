@@ -32,7 +32,7 @@
     </Dialog>
 </template>
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, markRaw } from 'vue'
 import { AxiosResponse } from 'axios'
 import useValidate from '@vuelidate/core'
 import mainDescriptor from './MetawebDescriptor.json'
@@ -73,12 +73,12 @@ export default defineComponent({
         this.loadMeta()
     },
     methods: {
-        ...mapActions(mainStore, ['setInfo']),
+        ...mapActions(mainStore, ['setInfo', 'setError']),
         loadMeta() {
             this.meta = this.propMeta
 
             if (this.meta) {
-                this.observer = observe(this.meta)
+                this.observer = markRaw(observe(this.meta))
             }
         },
         setLoading(loading: boolean) {
@@ -96,8 +96,8 @@ export default defineComponent({
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGEMETA_CONTEXT + `/restful-services/1.0/metaWeb/checkRelationships`, postData)
                 .then(async (response: AxiosResponse<any>) => {
-                    this.observer = applyPatch(this.observer, response.data).newDocument
-                    this.observer = observe(this.meta)
+                    this.meta = applyPatch(this.meta, JSON.parse(response.data.patch)).newDocument
+                    generate(this.observer)
                     this.metaUpdated = !this.metaUpdated
                     if (generateModel)
                         if (response.data.incorrectRelationships.length === 0) {
@@ -107,7 +107,7 @@ export default defineComponent({
                             this.incorrectRelationships = response.data.incorrectRelationships
                         }
                 })
-                .catch(() => {})
+                .catch((error: unknown) => this.reportError(error))
             this.loading = false
         },
         async generateModel() {
@@ -121,8 +121,14 @@ export default defineComponent({
                     })
                     this.$emit('modelGenerated')
                 })
-                .catch(() => {})
+                .catch((error: unknown) => this.reportError(error))
                 .finally(() => (this.invalidRelationshipsDialogVisible = false))
+        },
+        reportError(error: unknown) {
+            this.setError({
+                title: this.$t('common.toast.errorTitle'),
+                msg: typeof error === 'object' && error !== null && 'message' in error && typeof error.message === 'string' ? error.message : this.$t('common.error.generic')
+            })
         },
         closeMetawebConfirm() {
             this.$confirm.require({
