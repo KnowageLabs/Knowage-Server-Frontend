@@ -1127,8 +1127,13 @@ export default defineComponent({
             if (index !== -1) this.breadcrumbs[index].hiddenFormData = this.hiddenFormData
         },
         async sendHiddenFormData() {
+            let url = this.hiddenFormUrl
+            const servletIndex = url.indexOf('/servlet/')
+            if (this.document.typeCode === 'DATAMART' && servletIndex !== -1) {
+                url = import.meta.env.VITE_KNOWAGEQBE_CONTEXT.replace(/\/+$/, '') + url.slice(servletIndex)
+            }
             await this.$http
-                .post(this.hiddenFormUrl, this.hiddenFormData, {
+                .post(url, this.hiddenFormData, {
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                         Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
