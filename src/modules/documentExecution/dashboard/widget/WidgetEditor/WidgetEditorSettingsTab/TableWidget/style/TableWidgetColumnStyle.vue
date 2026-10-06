@@ -1,6 +1,6 @@
 <template>
     <div v-if="columnStyles" class="q-px-md q-pb-md">
-        <div v-if="themeStyle" class="row items-center q-mb-sm">
+        <div v-if="themeStyle" class="row items-center q-mb-sm kn-theme-enabled-toggle">
             <q-toggle v-model="columnStyles.enabled" :label="$t('common.enabled')" dense />
         </div>
 

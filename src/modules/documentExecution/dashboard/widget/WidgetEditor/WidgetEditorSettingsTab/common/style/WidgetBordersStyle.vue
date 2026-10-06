@@ -1,8 +1,8 @@
 <template>
     <div v-if="bordersStyleModel" class="q-px-md q-pb-md kn-width-full">
         <div class="row q-col-gutter-sm">
-            <div v-if="themeStyle" class="col-12">
-                <q-toggle v-model="bordersStyleModel.enabled" :label="$t('common.enabled')" @update:model-value="bordersStyleChanged" />
+            <div v-if="themeStyle" class="col-12 kn-theme-enabled-toggle">
+                <q-toggle v-model="bordersStyleModel.enabled" :label="$t('common.enabled')" :disable="readOnly" @update:model-value="bordersStyleChanged" />
             </div>
 
             <div class="col-4">
@@ -46,7 +46,7 @@ import WidgetEditorColorPicker from '../../common/WidgetEditorColorPicker.vue'
 export default defineComponent({
     name: 'widget-borders-style',
     components: { WidgetEditorColorPicker },
-    props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true }, themeStyle: { type: Object as PropType<IWidgetBordersStyle | null>, required: true } },
+    props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true }, themeStyle: { type: Object as PropType<IWidgetBordersStyle | null>, required: true }, readOnly: { type: Boolean, default: false } },
     emits: ['styleChanged'],
     data() {
         return {
@@ -57,6 +57,7 @@ export default defineComponent({
     },
     computed: {
         bordersStyleDisabled() {
+            if (this.readOnly) return true
             return !this.bordersStyleModel || !this.bordersStyleModel.enabled
         },
         translatedBorderStyles(): { label: string; value: string }[] {

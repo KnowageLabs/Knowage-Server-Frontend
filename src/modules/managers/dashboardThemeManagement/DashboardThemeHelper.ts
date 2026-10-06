@@ -1,5 +1,7 @@
 import { ITextWidgetStyle as IGenericStyle } from '@/modules/documentExecution/dashboard/interfaces/DashboardTextWidget'
-import { IDashboardThemeConfig } from './DashboardThememanagement'
+import { IDashboardThemeConfig, IDashboardThemeSharedSection } from './DashboardThememanagement'
+import deepcopy from 'deepcopy'
+import deepEqual from 'deep-equal'
 import { ITableWidgetStyle } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IDiscoveryWidgetStyle } from '@/modules/documentExecution/dashboard/interfaces/DashboardDiscoveryWidget'
 import { ISelectorWidgetStyle } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectorWidget'
@@ -112,4 +114,83 @@ export const themeBackwardsCompatibility = (theme: IDashboardThemeConfig) => {
         if (!selectorStyle.multiTree) selectorStyle.multiTree = selectorWidgetDefaultValues.getDefaultMultiTreeStyle()
         if (!selectorStyle.flex) selectorStyle.flex = selectorWidgetDefaultValues.getDefaultFlexStyle()
     }
+}
+
+// The widget types the theme editor shows. `spacer` and `r` stay in the saved config untouched: no widget uses their style.
+export const EDITOR_WIDGET_TYPES = ['text', 'image', 'html', 'activeSelections', 'chart', 'selector', 'customChart', 'table', 'python', 'discovery', 'map', 'pivot'] as const
+export type IEditorWidgetType = (typeof EDITOR_WIDGET_TYPES)[number]
+
+export const SHARED_STYLE_SECTIONS: IDashboardThemeSharedSection[] = ['title', 'borders', 'padding', 'shadows', 'background']
+
+// The title text is not a theme value: applyStylesToWidget keeps the widget's own text.
+const comparableSection = (section: IDashboardThemeSharedSection, value: any) => {
+    if (section !== 'title' || !value) return value
+    const { text, ...rest } = value
+    return rest
+}
+
+export const isSameSectionStyle = (section: IDashboardThemeSharedSection, first: any, second: any) => deepEqual(comparableSection(section, first), comparableSection(section, second), { strict: true })
+
+// Adds the types a theme may miss, then the shared layer and the inherit flags. Themes saved before the shared layer
+// get the most common value of each section as the shared value, and inherit it only where they already match it.
+export const prepareThemeForEditor = (config: IDashboardThemeConfig) => {
+    const defaults = getDefaultDashboardThemeConfig()
+    EDITOR_WIDGET_TYPES.forEach((type) => {
+        if (!config[type]?.style) config[type] = deepcopy(defaults[type])
+    })
+    themeBackwardsCompatibility(config)
+
+    if (!config.shared?.style) {
+        const shared = {} as any
+        SHARED_STYLE_SECTIONS.forEach((section) => (shared[section] = deepcopy(getMostCommonSectionStyle(config, section))))
+        config.shared = { style: shared }
+    }
+
+    EDITOR_WIDGET_TYPES.forEach((type) => {
+        const inherit = config[type].inherit ?? {}
+        SHARED_STYLE_SECTIONS.forEach((section) => {
+            if (inherit[section] === undefined) inherit[section] = isSameSectionStyle(section, config[type].style[section], config.shared?.style[section])
+        })
+        config[type].inherit = inherit
+    })
+}
+
+const getMostCommonSectionStyle = (config: IDashboardThemeConfig, section: IDashboardThemeSharedSection) => {
+    const candidates = [] as { value: any; count: number }[]
+    EDITOR_WIDGET_TYPES.forEach((type) => {
+        const value = config[type].style[section]
+        if (!value) return
+        const candidate = candidates.find((existing) => isSameSectionStyle(section, existing.value, value))
+        if (candidate) candidate.count++
+        else candidates.push({ value, count: 1 })
+    })
+    candidates.sort((first, second) => second.count - first.count)
+    return candidates[0]?.value ?? (createGenericWidgetStyle().style as any)[section]
+}
+
+// Copies the shared style into every type that inherits it, so the saved per-type style stays fully resolved.
+export const resolveThemeInheritance = (config: IDashboardThemeConfig, sections: IDashboardThemeSharedSection[] = SHARED_STYLE_SECTIONS) => {
+    if (!config.shared?.style) return
+    EDITOR_WIDGET_TYPES.forEach((type) => {
+        sections.forEach((section) => {
+            if (!config[type]?.inherit?.[section]) return
+            if (isSameSectionStyle(section, config[type].style[section], config.shared?.style[section])) return
+            config[type].style[section] = deepcopy(config.shared?.style[section])
+        })
+    })
+}
+
+export const getTypesNotInheriting = (config: IDashboardThemeConfig, section: IDashboardThemeSharedSection) => EDITOR_WIDGET_TYPES.filter((type) => config[type]?.inherit?.[section] === false)
+
+// Makes every widget type inherit the given shared sections again. Their own values for these sections are replaced.
+export const inheritSharedInAllTypes = (config: IDashboardThemeConfig, sections: IDashboardThemeSharedSection[] = SHARED_STYLE_SECTIONS) => {
+    EDITOR_WIDGET_TYPES.forEach((type) => {
+        const typeConfig = config[type]
+        if (!typeConfig) return
+        typeConfig.inherit = { ...(typeConfig.inherit ?? {}) }
+        sections.forEach((section) => {
+            if (typeConfig.inherit) typeConfig.inherit[section] = true
+        })
+    })
+    resolveThemeInheritance(config, sections)
 }
