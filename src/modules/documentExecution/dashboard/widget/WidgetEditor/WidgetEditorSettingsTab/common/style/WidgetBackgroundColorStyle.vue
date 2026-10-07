@@ -1,8 +1,8 @@
 <template>
     <div v-if="backgroundStyleModel" class="q-px-md q-pb-md">
         <div class="row q-col-gutter-sm">
-            <div v-if="themeStyle" class="col-12">
-                <q-toggle v-model="backgroundStyleModel.enabled" :label="$t('common.enabled')" @update:model-value="backgroundColorStyleChanged" />
+            <div v-if="themeStyle" class="col-12 kn-theme-enabled-toggle">
+                <q-toggle v-model="backgroundStyleModel.enabled" :label="$t('common.enabled')" :disable="readOnly" @update:model-value="backgroundColorStyleChanged" />
             </div>
             <div class="col-6">
                 <WidgetEditorColorPicker :initial-value="backgroundStyleModel.properties['background-color']" :label="$t('dashboard.widgetEditor.iconTooltips.backgroundColor')" :disabled="backgroundStyleDisabled" @change="onBackgroundColorChanged"></WidgetEditorColorPicker>
@@ -21,7 +21,7 @@ import WidgetEditorColorPicker from '../WidgetEditorColorPicker.vue'
 export default defineComponent({
     name: 'widget-background-color-style',
     components: { WidgetEditorColorPicker },
-    props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true }, themeStyle: { type: Object as PropType<IWidgetBackgroundStyle | null>, required: true } },
+    props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true }, themeStyle: { type: Object as PropType<IWidgetBackgroundStyle | null>, required: true }, readOnly: { type: Boolean, default: false } },
     emits: ['styleChanged'],
     data() {
         return {
@@ -32,6 +32,7 @@ export default defineComponent({
     },
     computed: {
         backgroundStyleDisabled() {
+            if (this.readOnly) return true
             if (!this.backgroundStyleModel) return true
             // In theme mode the toggle controls enabled; outside theme mode the picker is always active
             if (!this.themeStyle) return false

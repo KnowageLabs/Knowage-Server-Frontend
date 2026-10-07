@@ -1,8 +1,8 @@
 <template>
     <div v-if="paddingStyleModel" class="q-px-md q-pb-md kn-width-full">
         <div class="row q-col-gutter-sm items-center">
-            <div v-if="themeStyle" class="col-12">
-                <q-toggle v-model="paddingStyleModel.enabled" :label="$t('common.enabled')" @update:model-value="paddingStyleChanged" />
+            <div v-if="themeStyle" class="col-12 kn-theme-enabled-toggle">
+                <q-toggle v-model="paddingStyleModel.enabled" :label="$t('common.enabled')" :disable="readOnly" @update:model-value="paddingStyleChanged" />
             </div>
 
             <div class="col-auto">
@@ -32,7 +32,7 @@ import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 export default defineComponent({
     name: 'widget-padding-style',
     components: {},
-    props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true }, themeStyle: { type: Object as PropType<IWidgetPaddingStyle | null>, required: true } },
+    props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true }, themeStyle: { type: Object as PropType<IWidgetPaddingStyle | null>, required: true }, readOnly: { type: Boolean, default: false } },
     emits: ['styleChanged'],
     data() {
         return {
@@ -41,6 +41,7 @@ export default defineComponent({
     },
     computed: {
         paddingStyleDisabled() {
+            if (this.readOnly) return true
             return !this.paddingStyleModel || !this.paddingStyleModel.enabled
         }
     },

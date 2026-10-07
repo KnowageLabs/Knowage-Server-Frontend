@@ -1,6 +1,6 @@
 <template>
     <div v-if="labelStyleModel" class="p-ai-center kn-flex p-p-4">
-        <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="labelStyleModel.enabled" color="black" /> </span>
+        <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2 kn-theme-enabled-toggle"> {{ $t('common.enabled') }} <q-toggle v-model="labelStyleModel.enabled" color="black" /> </span>
 
         <div class="p-field p-col-12 p-mb-2 p-d-flex p-flex-row p-ai-center">
             <InputSwitch v-model="labelStyleModel.wrapText" :disabled="labelStyleDisabled" @change="labelStyleChanged"></InputSwitch>

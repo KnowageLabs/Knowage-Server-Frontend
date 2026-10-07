@@ -50,7 +50,7 @@ export default defineComponent({
         },
         getHeaderMultiline() {
             const headerConfig = this.params.propWidget.settings.configuration.headers
-            if (headerConfig.enabled && headerConfig.enabledMultiline) return ';white-space:normal;word-break:break-word;'
+            if (headerConfig?.enabled && headerConfig?.enabledMultiline) return ';white-space:normal;word-break:break-word;'
 
             return ''
         },

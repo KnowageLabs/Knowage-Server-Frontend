@@ -147,6 +147,19 @@
     --kn-hintcard-icon: sym_o_lightbulb;
     --kn-hintcard-icon-color: #ffffff;
 
+    //canvas (pan and zoom editors)
+    --kn-canvas-background-color: #f4f5f7;
+    --kn-canvas-dot-color: #d8dce2;
+    --kn-canvas-dot-gap: 24px;
+    --kn-canvas-dot-size: 1.5px;
+    --kn-canvas-grain-opacity: 0.06;
+    --kn-canvas-control-background-color: #ffffff;
+    --kn-canvas-control-border-color: #d9dce1;
+    --kn-canvas-control-color: #5f6368;
+    --kn-canvas-control-hover-background-color: #eef0f3;
+    --kn-canvas-control-hover-color: #202124;
+    --kn-canvas-selection-color: var(--kn-color-fab);
+
     //parameter sidebar
     --kn-param-sidebar-expanded-icon: fa fa-angles-right;
     --kn-param-sidebar-collapsed-icon: fa fa-angles-left;

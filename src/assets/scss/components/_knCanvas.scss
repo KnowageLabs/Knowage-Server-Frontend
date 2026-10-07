@@ -1,0 +1,161 @@
+// Ground and floating controls for pan-and-zoom editors (dashboard themes first).
+// The dot field follows the pan through --kn-canvas-pan-x and --kn-canvas-pan-y. --kn-canvas-dot-step is the dot
+// spacing on screen: the page keeps it in a readable range at every zoom. The page sets all three on .kn-canvas.
+// The grain does not move.
+
+.kn-canvas {
+    --kn-canvas-pan-x: 0px;
+    --kn-canvas-pan-y: 0px;
+    --kn-canvas-dot-step: var(--kn-canvas-dot-gap);
+
+    position: relative;
+    overflow: hidden;
+    background-color: var(--kn-canvas-background-color);
+    isolation: isolate;
+
+    &__dots,
+    &__grain {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+    }
+
+    // Half a pixel of feather on the outer stop: a hard stop aliases into a lumpy dot at 2px.
+    &__dots {
+        z-index: 0;
+        background-image: radial-gradient(circle at center, var(--kn-canvas-dot-color) calc(var(--kn-canvas-dot-size) / 2), transparent calc(var(--kn-canvas-dot-size) / 2 + 0.5px));
+        background-size: var(--kn-canvas-dot-step) var(--kn-canvas-dot-step);
+        background-position: var(--kn-canvas-pan-x) var(--kn-canvas-pan-y);
+    }
+
+    // stitchTiles makes the tile seamless; the colour matrix keeps the grain grey, so it darkens and does not tint.
+    // Above about 0.08 opacity it reads as noise.
+    &__grain {
+        z-index: 2;
+        opacity: var(--kn-canvas-grain-opacity);
+        background-size: 256px 256px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+    }
+
+    &__viewport {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        // Panzoom sets overflow: hidden here (inline). A hidden overflow can still scroll: focusing an input inside
+        // a widget scrolls it into view and moves the stage away from the pan and zoom, and from the overlays placed
+        // with it. A clip cannot scroll.
+        overflow: clip !important;
+        cursor: grab;
+
+        &:active {
+            cursor: grabbing;
+        }
+
+        // Content that does not start a drag pan (the widgets) keeps its own cursor.
+        .panzoom-exclude {
+            cursor: auto;
+        }
+
+        // Space + drag pans over everything.
+        &--space-pan,
+        &--space-pan * {
+            cursor: grab !important;
+        }
+    }
+}
+
+// A bordered group of square buttons, like the Vue Flow controls in ABI.
+.kn-canvas-controls {
+    display: flex;
+    overflow: hidden;
+    border: 1px solid var(--kn-canvas-control-border-color);
+    border-radius: 6px;
+    background-color: var(--kn-canvas-control-background-color);
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.04),
+        0 6px 16px -8px rgba(0, 0, 0, 0.18);
+
+    &--vertical {
+        flex-direction: column;
+    }
+
+    &__button {
+        all: unset;
+        box-sizing: border-box;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        cursor: pointer;
+        color: var(--kn-canvas-control-color);
+        font-size: 0.8rem;
+        font-weight: 500;
+        transition:
+            background-color 0.15s,
+            color 0.15s;
+
+        &:hover {
+            background-color: var(--kn-canvas-control-hover-background-color);
+            color: var(--kn-canvas-control-hover-color);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--kn-canvas-selection-color);
+            outline-offset: -2px;
+        }
+
+        &:disabled {
+            opacity: 0.5;
+            cursor: default;
+
+            &:hover {
+                background-color: transparent;
+                color: var(--kn-canvas-control-color);
+            }
+        }
+
+        &--primary {
+            background-color: var(--kn-color-fab);
+            color: #ffffff;
+
+            &:hover {
+                background-color: color-mix(in oklab, var(--kn-color-fab) 85%, black);
+                color: #ffffff;
+            }
+        }
+
+        // A toggle that is on.
+        &--active {
+            color: var(--kn-canvas-selection-color);
+        }
+
+        &--success {
+            background-color: var(--kn-color-success);
+            color: #ffffff;
+        }
+
+        .q-icon {
+            font-size: 18px;
+        }
+    }
+
+    &--vertical &__button {
+        padding: 0;
+        border-bottom: 1px solid var(--kn-canvas-control-border-color);
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    &:not(.kn-canvas-controls--vertical) &__button {
+        border-right: 1px solid var(--kn-canvas-control-border-color);
+
+        &:last-child {
+            border-right: none;
+        }
+    }
+}

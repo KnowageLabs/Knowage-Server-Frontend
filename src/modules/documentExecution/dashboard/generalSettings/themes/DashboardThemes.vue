@@ -50,14 +50,13 @@ import { defineComponent } from 'vue'
 import descriptor from '../DashboardGeneralSettingsDescriptor.json'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import { mapActions } from 'pinia'
-import ThemeExamples from '@/modules/managers/dashboardThemeManagement/dashboardThemeManagementExamples/DashboardThemeManagementExamples.vue'
 import KnHint from '@/components/UI/KnHint.vue'
 import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
 import { applySelectedThemeToWidgets } from './ThemesHelper'
 
 export default defineComponent({
     name: 'dashboard-variables',
-    components: { ThemeExamples },
+    components: {},
     props: {
         dashboardModelProp: {
             type: Object as any,

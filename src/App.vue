@@ -29,6 +29,7 @@ import auth from '@/helpers/commons/authHelper'
 import sessionTimeoutHelper from '@/helpers/commons/sessionTimeoutHelper'
 import { driver } from 'driver.js'
 import 'driver.js/dist/driver.css'
+import { getPageTour } from '@/composables/usePageTour'
 import { useServiceWorker } from '@/composables/useServiceWorker'
 import { decodeJWT, isTokenExpired } from '@/helpers/commons/jwtHelper'
 import { isAuthCallbackInProgress, isLoginRouteByLocation, markAuthReady } from '@/helpers/commons/authState'
@@ -451,6 +452,10 @@ export default defineComponent({
         async startTour() {
             if (this.isMobileDevice) return
             if (this.tourRunning) return
+
+            // A page with its own tour shows that one instead of the main menu tour.
+            const pageTour = getPageTour()
+            if (pageTour) return pageTour()
 
             this.tourRunning = true
             ;(window as any).__knowageTourRunning = true
