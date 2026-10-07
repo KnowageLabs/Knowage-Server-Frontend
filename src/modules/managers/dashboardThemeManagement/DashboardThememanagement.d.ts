@@ -5,24 +5,36 @@ import { ISelectorWidgetStyle } from '@/modules/documentExecution/dashboard/inte
 import { ITextWidgetStyle as IGenericStyle } from '@/modules/documentExecution/dashboard/interfaces/DashboardTextWidget'
 
 export interface IDashboardTheme {
-    id: number | null
+    // The backend returns UUID strings.
+    id: string | number | null
     themeName: string
     config: IDashboardThemeConfig
     isDefault: boolean
 }
 
+export type IDashboardThemeSharedSection = 'title' | 'borders' | 'padding' | 'shadows' | 'background'
+
+// Stored next to `style`, never inside it: the dashboard copies every key of `style` into the widget.
+export type IDashboardThemeInheritance = Partial<Record<IDashboardThemeSharedSection, boolean>>
+
+export interface IDashboardThemeTypeConfig<T> {
+    style: T
+    inherit?: IDashboardThemeInheritance
+}
+
 export interface IDashboardThemeConfig {
-    text: { style: IGenericStyle }
-    image: { style: IGenericStyle }
-    chart: { style: IGenericStyle }
-    html: { style: IGenericStyle }
-    map: { style: IGenericStyle }
-    customChart: { style: IGenericStyle }
-    python: { style: IGenericStyle }
-    r: { style: IGenericStyle }
-    table: { style: ITableWidgetStyle }
-    pivot: { style: any }
-    discovery: { style: IDiscoveryWidgetStyle }
-    activeSelections: { style: ISelectionWidgetStyle }
-    selector: { style: ISelectorWidgetStyle }
+    shared?: { style: IGenericStyle }
+    text: IDashboardThemeTypeConfig<IGenericStyle>
+    image: IDashboardThemeTypeConfig<IGenericStyle>
+    chart: IDashboardThemeTypeConfig<IGenericStyle>
+    html: IDashboardThemeTypeConfig<IGenericStyle>
+    map: IDashboardThemeTypeConfig<IGenericStyle>
+    customChart: IDashboardThemeTypeConfig<IGenericStyle>
+    python: IDashboardThemeTypeConfig<IGenericStyle>
+    r: IDashboardThemeTypeConfig<IGenericStyle>
+    table: IDashboardThemeTypeConfig<ITableWidgetStyle>
+    pivot: IDashboardThemeTypeConfig<any>
+    discovery: IDashboardThemeTypeConfig<IDiscoveryWidgetStyle>
+    activeSelections: IDashboardThemeTypeConfig<ISelectionWidgetStyle>
+    selector: IDashboardThemeTypeConfig<ISelectorWidgetStyle>
 }

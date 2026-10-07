@@ -1,8 +1,8 @@
 <template>
     <div v-if="shadowsStyleModel" class="q-px-md q-pb-md kn-width-full">
         <div class="row q-col-gutter-sm">
-            <div v-if="themeStyle" class="col-12">
-                <q-toggle v-model="shadowsStyleModel.enabled" :label="$t('common.enabled')" @update:model-value="shadowStyleChanged" />
+            <div v-if="themeStyle" class="col-12 kn-theme-enabled-toggle">
+                <q-toggle v-model="shadowsStyleModel.enabled" :label="$t('common.enabled')" :disable="readOnly" @update:model-value="shadowStyleChanged" />
             </div>
 
             <div class="col-8">
@@ -25,7 +25,7 @@ import WidgetEditorColorPicker from '../../common/WidgetEditorColorPicker.vue'
 export default defineComponent({
     name: 'widget-shadows-style',
     components: { WidgetEditorColorPicker },
-    props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true }, themeStyle: { type: Object as PropType<IWidgetShadowsStyle | null>, required: true } },
+    props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true }, themeStyle: { type: Object as PropType<IWidgetShadowsStyle | null>, required: true }, readOnly: { type: Boolean, default: false } },
     emits: ['styleChanged'],
     data() {
         return {
@@ -36,6 +36,7 @@ export default defineComponent({
     },
     computed: {
         shadowsStyleDisabled() {
+            if (this.readOnly) return true
             return !this.shadowsStyleModel || !this.shadowsStyleModel.enabled
         },
         translatedShadowSizes(): { label: string; value: string }[] {

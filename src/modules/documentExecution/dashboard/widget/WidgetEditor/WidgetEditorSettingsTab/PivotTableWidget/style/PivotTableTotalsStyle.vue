@@ -1,6 +1,6 @@
 <template>
     <div v-if="totalsStyleModel" class="q-px-md q-pb-md">
-        <q-toggle v-if="themeStyle" v-model="totalsStyleModel.enabled" class="q-mb-sm" :label="$t('common.enabled')" color="black" dense />
+        <q-toggle v-if="themeStyle" v-model="totalsStyleModel.enabled" class="q-mb-sm kn-theme-enabled-toggle" :label="$t('common.enabled')" color="black" dense />
         <WidgetEditorStyleToolbar :options="toolbarStyleSettings" :prop-model="totalsStyleModel.properties" :disabled="totalsStyleDisabled" @change="onStyleToolbarChange"> </WidgetEditorStyleToolbar>
     </div>
 </template>
