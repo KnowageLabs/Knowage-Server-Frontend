@@ -19,11 +19,11 @@
                 <span class="theme-canvas__hover-chip-bar"></span>
                 {{ $t('managers.dashboardThemeManager.canvas.clickToEdit') }}
             </div>
-            <div v-if="selectorMenuRect" class="theme-canvas__variant-menu" :style="{ left: `${selectorMenuRect.left + selectorMenuRect.width}px`, top: `${selectorMenuRect.top}px` }">
-                <q-btn-dropdown dense unelevated no-caps size="sm" color="white" text-color="dark" class="theme-canvas__variant-button" :label="variantLabel(selectorVariant)">
+            <div v-for="menu in variantMenus" :key="menu.themeType" class="theme-canvas__variant-menu" :style="{ left: `${menu.rect.left + menu.rect.width}px`, top: `${menu.rect.top}px` }">
+                <q-btn-dropdown dense unelevated no-caps size="sm" color="white" text-color="dark" class="theme-canvas__variant-button" :label="menu.label(menu.current)">
                     <q-list dense>
-                        <q-item v-for="variant in SELECTOR_VARIANTS" :key="variant" v-close-popup clickable :active="variant === selectorVariant" @click="emit('update:selectorVariant', variant)">
-                            <q-item-section>{{ variantLabel(variant) }}</q-item-section>
+                        <q-item v-for="variant in menu.variants" :key="variant" v-close-popup clickable :active="variant === menu.current" @click="menu.select(variant)">
+                            <q-item-section>{{ menu.label(variant) }}</q-item-section>
                         </q-item>
                     </q-list>
                 </q-btn-dropdown>
@@ -35,10 +35,6 @@
         </div>
         <div class="theme-canvas__floating theme-canvas__floating--top-right" :style="{ right: `${panelWidth + 12}px` }">
             <slot name="top-right"></slot>
-        </div>
-
-        <div class="theme-canvas__note" :style="{ right: `${panelWidth}px` }">
-            <span>{{ $t('managers.dashboardThemeManager.canvas.previewNote') }}</span>
         </div>
 
         <div class="kn-canvas-controls kn-canvas-controls--vertical theme-canvas__zoom">
@@ -54,7 +50,7 @@
                 <q-icon name="fit_screen" />
                 <q-tooltip :delay="500" anchor="center right" self="center left">{{ $t('managers.dashboardThemeManager.canvas.fit') }}</q-tooltip>
             </button>
-            <button class="kn-canvas-controls__button" :class="{ 'kn-canvas-controls__button--active': dimEnabled }" type="button" :aria-pressed="dimEnabled" :aria-label="$t('managers.dashboardThemeManager.canvas.dimOthers')" @click="toggleDim">
+            <button data-tour-id="theme-dim" class="kn-canvas-controls__button" :class="{ 'kn-canvas-controls__button--active': dimEnabled }" type="button" :aria-pressed="dimEnabled" :aria-label="$t('managers.dashboardThemeManager.canvas.dimOthers')" @click="toggleDim">
                 <q-icon :name="dimEnabled ? 'filter_center_focus' : 'center_focus_weak'" />
                 <q-tooltip :delay="500" anchor="center right" self="center left">{{ $t('managers.dashboardThemeManager.canvas.dimOthers') }}</q-tooltip>
             </button>
@@ -75,7 +71,7 @@ import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { applyStylesToWidget } from '@/modules/documentExecution/dashboard/generalSettings/themes/ThemesHelper'
 import { IDashboardTheme } from '../DashboardThememanagement'
 import { IEditorWidgetType } from '../DashboardThemeHelper'
-import { CANVAS_LAYOUT, CANVAS_SIZE, createMockWidget, createPreviewDashboard, createSelectorMock, IMockWidget, ISelectorVariant, MOCK_ACTIVE_SELECTIONS, MOCK_IMAGE_URL, MOCK_MAP_URL, PREVIEW_DASHBOARD_ID, SELECTOR_SECTION_VARIANTS, SELECTOR_VARIANTS } from './DashboardThemeMockWidgets'
+import { ACTIVE_SELECTIONS_SECTION_VARIANTS, ACTIVE_SELECTIONS_VARIANTS, CANVAS_LAYOUT, CANVAS_SIZE, createMockWidget, createPreviewDashboard, createSelectorMock, IActiveSelectionsVariant, IMockWidget, ISelectorVariant, MOCK_ACTIVE_SELECTIONS, MOCK_IMAGE_URL, MOCK_MAP_URL, PREVIEW_DASHBOARD_ID, SELECTOR_SECTION_VARIANTS, SELECTOR_VARIANTS } from './DashboardThemeMockWidgets'
 import { ICanvasRect, useCanvasPanZoom } from './useCanvasPanZoom'
 
 interface ICanvasTile {
@@ -92,6 +88,7 @@ const props = defineProps<{
     theme: IDashboardTheme
     panelWidth: number
     selectorVariant: ISelectorVariant
+    activeSelectionsVariant: IActiveSelectionsVariant
     // The widget type being edited. It is interactive and the rest of the canvas is dimmed.
     activeType: IEditorWidgetType | null
 }>()
@@ -100,6 +97,7 @@ const emit = defineEmits<{
     (e: 'select', type: IEditorWidgetType): void
     (e: 'deselect'): void
     (e: 'update:selectorVariant', variant: ISelectorVariant): void
+    (e: 'update:activeSelectionsVariant', variant: IActiveSelectionsVariant): void
 }>()
 
 const { t } = useI18n()
@@ -111,22 +109,23 @@ const NO_SELECTIONS = []
 const NO_VARIABLES = []
 
 // Types whose widget applies the theme only when it renders: they remount on every theme change.
-const REMOUNT_ON_CHANGE: IEditorWidgetType[] = ['pivot']
+// The discovery widget builds its grid columns from the style once and does not watch the widget.
+const REMOUNT_ON_CHANGE: IEditorWidgetType[] = ['pivot', 'discovery']
 
 const canvasRef = ref<HTMLElement | null>(null)
 const viewportRef = ref<HTMLElement | null>(null)
 const stageRef = ref<HTMLElement | null>(null)
 const hover = ref<{ themeType: IEditorWidgetType; x: number; y: number } | null>(null)
 
-// Dimming the other widgets is a viewer preference, off by default. Storage can be unavailable (private mode).
+// Dimming the other widgets is a viewer preference, on by default. Storage can be unavailable (private mode).
 const DIM_STORAGE_KEY = 'kn-dashboard-theme-canvas-dim'
 const dimEnabled = ref(readDimPreference())
 
 function readDimPreference() {
     try {
-        return localStorage.getItem(DIM_STORAGE_KEY) === 'true'
+        return localStorage.getItem(DIM_STORAGE_KEY) !== 'false'
     } catch {
-        return false
+        return true
     }
 }
 
@@ -221,17 +220,27 @@ function tileRect(type: IEditorWidgetType): ICanvasRect | null {
     return tile ? { left: tile.left, top: tile.top, width: tile.width, height: tile.height } : null
 }
 
-// The selector variant menu sits above the selector widget and follows the pan and zoom.
-const selectorMenuRect = computed(() => {
-    if (panZoom.isPanning.value || (props.activeType && props.activeType !== 'selector')) return null
-    const rect = tileRect('selector')
-    return rect ? panZoom.toViewportRect(rect) : null
-})
-
-function variantLabel(variant: ISelectorVariant) {
-    const section = Object.keys(SELECTOR_SECTION_VARIANTS).find((key) => SELECTOR_SECTION_VARIANTS[key] === variant) ?? variant
+// A variant is labelled with the theme section that styles it.
+function sectionLabel(sectionVariants: Record<string, string>, variant: string) {
+    const section = Object.keys(sectionVariants).find((key) => sectionVariants[key] === variant) ?? variant
     return t(`managers.dashboardThemeManager.styleTypes.${section}`)
 }
+
+// The focused widget gets a variant menu above its top-right corner, if it has variants. It follows the pan and zoom.
+const variantMenus = computed(() => {
+    if (panZoom.isPanning.value || !props.activeType) return []
+    const menus = [
+        { themeType: 'selector' as IEditorWidgetType, variants: SELECTOR_VARIANTS as readonly string[], current: props.selectorVariant as string, label: (variant: string) => sectionLabel(SELECTOR_SECTION_VARIANTS, variant), select: (variant: string) => emit('update:selectorVariant', variant as ISelectorVariant) },
+        { themeType: 'activeSelections' as IEditorWidgetType, variants: ACTIVE_SELECTIONS_VARIANTS as readonly string[], current: props.activeSelectionsVariant as string, label: (variant: string) => sectionLabel(ACTIVE_SELECTIONS_SECTION_VARIANTS, variant), select: (variant: string) => emit('update:activeSelectionsVariant', variant as IActiveSelectionsVariant) }
+    ]
+    return menus
+        .filter((menu) => props.activeType === menu.themeType)
+        .map((menu) => {
+            const rect = tileRect(menu.themeType)
+            return rect ? { ...menu, rect: panZoom.toViewportRect(rect) } : null
+        })
+        .filter((menu) => !!menu)
+})
 
 // A click on a widget focuses it. A click on the background or the scrim ends the focus.
 function onCanvasClick(event: PointerEvent) {
@@ -283,6 +292,16 @@ watch(
         applyStylesToWidget(tile.mock.widget, props.theme, props.theme.config.selector)
         tile.renderKey++
     }
+)
+
+// The active selections widget reads its display type reactively, so it needs no remount.
+watch(
+    () => props.activeSelectionsVariant,
+    (variant) => {
+        const tile = tiles.find((item) => item.themeType === 'activeSelections')
+        if (tile) tile.mock.widget.settings.configuration.type = variant
+    },
+    { immediate: true }
 )
 
 applyTheme()
@@ -338,6 +357,12 @@ defineExpose({ fit })
     &--active {
         z-index: 6;
         box-shadow: 0 12px 48px -12px rgba(0, 0, 0, 0.55);
+    }
+
+    // In a dashboard the map container does not clip (overflow: visible, for the legend), so the tiles ignore the
+    // border radius. The canvas map has no legend: clip it, so the frame style shows as it does on other widgets.
+    &--map :deep(.widget-container) {
+        overflow: hidden !important;
     }
 
     &--map :deep(.leaflet-container) {
@@ -429,24 +454,5 @@ defineExpose({ fit })
 
 .theme-canvas__zoom-value {
     font-size: 0.7rem;
-}
-
-.theme-canvas__note {
-    position: absolute;
-    left: 0;
-    bottom: 16px;
-    z-index: 3;
-    display: flex;
-    justify-content: center;
-    pointer-events: none;
-
-    span {
-        padding: 4px 10px;
-        border-radius: 12px;
-        background-color: color-mix(in oklab, var(--kn-canvas-control-background-color) 85%, transparent);
-        border: 1px solid var(--kn-canvas-control-border-color);
-        font-size: 0.75rem;
-        color: var(--kn-canvas-control-color);
-    }
 }
 </style>

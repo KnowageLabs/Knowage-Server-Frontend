@@ -41,6 +41,10 @@
         position: absolute;
         inset: 0;
         z-index: 1;
+        // Panzoom sets overflow: hidden here (inline). A hidden overflow can still scroll: focusing an input inside
+        // a widget scrolls it into view and moves the stage away from the pan and zoom, and from the overlays placed
+        // with it. A clip cannot scroll.
+        overflow: clip !important;
         cursor: grab;
 
         &:active {

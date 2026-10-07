@@ -31,7 +31,7 @@
                             <q-item-section v-if="hasHeaderEnabled(section) || isInheritable(section)" side @click.stop>
                                 <div class="row items-center no-wrap q-gutter-x-md">
                                     <q-toggle v-if="hasHeaderEnabled(section)" v-model="sectionStyle(section).enabled" dense size="sm" :disable="isInheritable(section) && isInheriting(section)" :label="$t('common.enabled')" left-label />
-                                    <q-toggle v-if="isInheritable(section)" :model-value="isInheriting(section)" dense size="sm" :label="$t('managers.dashboardThemeManager.inheritShared')" left-label @update:model-value="(value) => onInheritChange(section, value)" />
+                                    <q-toggle v-if="isInheritable(section)" :data-tour-id="section === 'borders' ? 'theme-inherit' : undefined" :model-value="isInheriting(section)" dense size="sm" :label="$t('managers.dashboardThemeManager.inheritShared')" left-label @update:model-value="(value) => onInheritChange(section, value)" />
                                 </div>
                             </q-item-section>
                         </template>

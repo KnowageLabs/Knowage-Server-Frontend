@@ -21,7 +21,7 @@
             </div>
 
             <div :class="radiusLinked ? 'col-12' : 'col-3'">
-                <q-input v-model="bordersStyleModel.properties['border-top-left-radius']" outlined dense :label="radiusLinked ? $t('dashboard.widgetEditor.borders.borderRadius') : $t('dashboard.widgetEditor.borders.borderRadiusTopLeft')" :placeholder="$t('dashboard.widgetEditor.inputHintForPixels')" hide-bottom-space :disable="bordersStyleDisabled" @change="onRadiusChange" />
+                <q-input :model-value="bordersStyleModel.properties['border-top-left-radius']" outlined dense :label="radiusLinked ? $t('dashboard.widgetEditor.borders.borderRadius') : $t('dashboard.widgetEditor.borders.borderRadiusTopLeft')" :placeholder="$t('dashboard.widgetEditor.inputHintForPixels')" hide-bottom-space :disable="bordersStyleDisabled" @update:model-value="onTopLeftRadiusInput" @change="bordersStyleChanged" />
             </div>
             <div v-if="!radiusLinked" class="col-3">
                 <q-input v-model="bordersStyleModel.properties['border-top-right-radius']" outlined dense :label="$t('dashboard.widgetEditor.borders.borderRadiusTopRight')" :placeholder="$t('dashboard.widgetEditor.inputHintForPixels')" hide-bottom-space :disable="bordersStyleDisabled" @change="bordersStyleChanged" />
@@ -81,6 +81,7 @@ export default defineComponent({
         loadBordersStyle() {
             if (this.widgetModel?.settings?.style?.borders) this.bordersStyleModel = this.widgetModel.settings.style.borders
             else if (this.themeStyle) this.bordersStyleModel = this.themeStyle
+            if (this.bordersStyleModel) this.radiusLinked = this.cornersMatch(this.bordersStyleModel.properties)
         },
         bordersStyleChanged() {
             if (this.widgetModel) this.$emit('styleChanged')
@@ -90,15 +91,21 @@ export default defineComponent({
             this.bordersStyleModel.properties['border-color'] = event
             this.bordersStyleChanged()
         },
-        onRadiusChange() {
+        // Linked: every keystroke writes all four corners. Writing the other three only on change (blur) left them
+        // behind when the form closed or the theme preview applied the value before the blur.
+        onTopLeftRadiusInput(value: string | number | null) {
             if (!this.bordersStyleModel) return
+            this.bordersStyleModel.properties['border-top-left-radius'] = value as string
             if (this.radiusLinked) {
-                const v = this.bordersStyleModel.properties['border-top-left-radius']
-                this.bordersStyleModel.properties['border-top-right-radius'] = v
-                this.bordersStyleModel.properties['border-bottom-left-radius'] = v
-                this.bordersStyleModel.properties['border-bottom-right-radius'] = v
+                this.bordersStyleModel.properties['border-top-right-radius'] = value as string
+                this.bordersStyleModel.properties['border-bottom-left-radius'] = value as string
+                this.bordersStyleModel.properties['border-bottom-right-radius'] = value as string
             }
-            this.bordersStyleChanged()
+        },
+        // Corners with different values start unlinked, so the single field does not hide them.
+        cornersMatch(properties: Record<string, any>) {
+            const corners = ['border-top-left-radius', 'border-top-right-radius', 'border-bottom-left-radius', 'border-bottom-right-radius'].map((corner) => properties?.[corner] ?? '')
+            return corners.every((corner) => corner === corners[0])
         }
     }
 })

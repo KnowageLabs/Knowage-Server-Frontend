@@ -3,7 +3,7 @@
         <q-drawer v-model="drawerVisible" side="left" :width="300" :breakpoint="0" show-if-above bordered class="column no-wrap">
             <q-toolbar class="kn-toolbar kn-toolbar--primary">
                 <q-toolbar-title>{{ $t('managers.dashboardThemeManager.title') }}</q-toolbar-title>
-                <q-btn flat round dense icon="add" :aria-label="$t('managers.dashboardThemeManager.addTheme')">
+                <q-btn flat round dense icon="add" data-tour-id="theme-add" :aria-label="$t('managers.dashboardThemeManager.addTheme')">
                     <q-tooltip :delay="500">{{ $t('managers.dashboardThemeManager.addTheme') }}</q-tooltip>
                     <q-menu auto-close>
                         <q-list dense style="min-width: 200px">
@@ -20,7 +20,7 @@
                 </q-btn>
             </q-toolbar>
             <q-linear-progress v-if="loading" indeterminate color="primary" />
-            <DashboardThemeList class="col" :themes="themes" :selected-id="selectedTheme?.id ?? null" :loading="loading" @select="(theme) => leaveTheme(() => selectTheme(theme))" @delete="confirmDelete" />
+            <DashboardThemeList class="col" data-tour-id="theme-list" :themes="themes" :selected-id="selectedTheme?.id ?? null" :loading="loading" @select="(theme) => leaveTheme(() => selectTheme(theme))" @delete="confirmDelete" />
             <input ref="fileInput" type="file" accept="application/json" class="hidden" @change="onImportFile" />
         </q-drawer>
 
@@ -30,17 +30,16 @@
 
         <q-page-container>
             <q-page class="theme-management__page">
-                <DashboardThemeCanvas v-if="selectedTheme" class="theme-management__canvas" :key="canvasKey" v-model:selector-variant="selectorVariant" :theme="selectedTheme" :panel-width="panelOpen ? PANEL_WIDTH : 0" :active-type="panelOpen && !panelAllWidgets ? panelType : null" @select="openTypePanel" @deselect="closePanel">
+                <DashboardThemeCanvas v-if="selectedTheme" class="theme-management__canvas" :key="canvasKey" v-model:selector-variant="selectorVariant" v-model:active-selections-variant="activeSelectionsVariant" :theme="selectedTheme" :panel-width="panelOpen ? PANEL_WIDTH : 0" :active-type="panelOpen && !panelAllWidgets ? panelType : null" @select="openTypePanel" @deselect="closePanel">
                     <template #top-left>
                         <div class="kn-canvas-controls">
                             <button class="kn-canvas-controls__button" type="button" :aria-label="$t('managers.dashboardThemeManager.toggleList')" @click="drawerVisible = !drawerVisible">
                                 <q-icon :name="drawerVisible ? 'menu_open' : 'menu'" />
                                 <q-tooltip :delay="500">{{ $t('managers.dashboardThemeManager.toggleList') }}</q-tooltip>
                             </button>
-                            <button class="kn-canvas-controls__button theme-management__name" type="button">
+                            <button class="kn-canvas-controls__button theme-management__name" type="button" data-tour-id="theme-name">
                                 <span class="ellipsis">{{ selectedTheme.themeName }}</span>
                                 <span v-if="dirty" class="theme-management__dirty-dot" :title="$t('managers.dashboardThemeManager.unsavedChanges')"></span>
-                                <q-badge v-if="selectedTheme.isDefault" outline color="grey-7" :label="$t('managers.dashboardThemeManager.default')" />
                                 <q-icon name="edit" size="14px" />
                                 <q-tooltip :delay="500">{{ $t('managers.dashboardThemeManager.rename') }}</q-tooltip>
                                 <q-popup-edit v-slot="scope" v-model="selectedTheme.themeName" auto-save :validate="(value) => !!value?.trim()">
@@ -51,7 +50,7 @@
                     </template>
                     <template #top-right>
                         <div class="kn-canvas-controls">
-                            <button class="kn-canvas-controls__button" type="button" @click="openAllWidgetsPanel">
+                            <button class="kn-canvas-controls__button" type="button" data-tour-id="theme-edit-all" @click="openAllWidgetsPanel">
                                 <q-icon name="dashboard_customize" />
                                 {{ $t('managers.dashboardThemeManager.editAllWidgets') }}
                             </button>
@@ -59,9 +58,13 @@
                                 <q-icon name="download" />
                                 <q-tooltip :delay="500">{{ $t('managers.themeManagement.download') }}</q-tooltip>
                             </button>
-                            <button class="kn-canvas-controls__button" :class="{ 'kn-canvas-controls__button--primary': dirty && saveState === 'idle', 'kn-canvas-controls__button--success': saveState === 'success' }" type="button" :disabled="(!dirty && saveState === 'idle') || saveState === 'saving'" :aria-label="$t('managers.themeManagement.save')" @click="saveTheme">
+                            <button data-tour-id="theme-save" class="kn-canvas-controls__button" :class="{ 'kn-canvas-controls__button--primary': dirty && saveState === 'idle', 'kn-canvas-controls__button--success': saveState === 'success' }" type="button" :disabled="(!dirty && saveState === 'idle') || saveState === 'saving'" :aria-label="$t('managers.themeManagement.save')" @click="saveTheme">
                                 <q-icon :name="saveState === 'saving' ? 'hourglass_empty' : saveState === 'success' ? 'check' : 'save'" />
                                 <q-tooltip :delay="500">{{ $t('managers.themeManagement.save') }}</q-tooltip>
+                            </button>
+                            <button class="kn-canvas-controls__button" type="button" :aria-label="$t('common.close')" @click="leaveTheme(closeTheme)">
+                                <q-icon name="close" />
+                                <q-tooltip :delay="500">{{ $t('common.close') }}</q-tooltip>
                             </button>
                         </div>
                     </template>
@@ -88,9 +91,11 @@ import { downloadDirect } from '@/helpers/commons/fileHelper'
 import DashboardThemeList from './DashboardThemeList.vue'
 import DashboardThemeCanvas from './canvas/DashboardThemeCanvas.vue'
 import DashboardThemeStylePanel from './panel/DashboardThemeStylePanel.vue'
+import { startDashboardThemeTour } from './DashboardThemeTour'
+import { usePageTour } from '@/composables/usePageTour'
 import { IDashboardTheme } from './DashboardThememanagement'
 import { getDefaultDashboardThemeConfig, IEditorWidgetType, prepareThemeForEditor, resolveThemeInheritance, themeBackwardsCompatibility } from './DashboardThemeHelper'
-import { ISelectorVariant, SELECTOR_SECTION_VARIANTS } from './canvas/DashboardThemeMockWidgets'
+import { ACTIVE_SELECTIONS_SECTION_VARIANTS, IActiveSelectionsVariant, ISelectorVariant, SELECTOR_SECTION_VARIANTS } from './canvas/DashboardThemeMockWidgets'
 
 const PANEL_WIDTH = 520
 const THEMES_URL = `${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/1.0/dashboardtheme`
@@ -110,6 +115,7 @@ const panelType = ref<IEditorWidgetType | null>(null)
 const panelAllWidgets = ref(false)
 const panelFocusSection = ref<string | null>(null)
 const selectorVariant = ref<ISelectorVariant>('singleValue')
+const activeSelectionsVariant = ref<IActiveSelectionsVariant>('list')
 const saveState = ref<'idle' | 'saving' | 'success'>('idle')
 const canvasKey = ref(0)
 const fileInput = ref<HTMLInputElement | null>(null)
@@ -130,14 +136,9 @@ onMounted(async () => {
         router.back()
         return
     }
+    // No theme opens by itself: the page shows the hint until the user picks one.
     await loadThemes()
-    openInitialTheme()
 })
-
-function openInitialTheme() {
-    const initial = themes.value.find((theme) => theme.isDefault) ?? themes.value[0]
-    if (initial) selectTheme(initial)
-}
 
 onBeforeRouteLeave((_to, _from, next) => {
     if (!dirty.value) return next()
@@ -168,6 +169,38 @@ function openTheme(theme: IDashboardTheme, snapshot: boolean) {
     savedSnapshot.value = snapshot ? JSON.stringify(theme) : null
     closePanel()
     canvasKey.value++
+}
+
+// The main menu tour button starts this tour on this page.
+usePageTour(startTour)
+
+// The tour points at the canvas, so it opens a theme when none is open: the default one, else the first.
+function startTour() {
+    startDashboardThemeTour({
+        t,
+        ensureTheme: async () => {
+            drawerVisible.value = true
+            if (!selectedTheme.value) {
+                const initial = themes.value.find((theme) => theme.isDefault) ?? themes.value[0]
+                if (!initial) return false
+                selectTheme(initial)
+            }
+            closePanel()
+            // Wait for the canvas and its first fit.
+            await new Promise((resolve) => setTimeout(resolve, 600))
+            return true
+        },
+        openTablePanel: () => openTypePanel('table'),
+        closePanel
+    })
+}
+
+function closeTheme() {
+    selectedTheme.value = null
+    savedSnapshot.value = null
+    closePanel()
+    // The list toggle lives on the canvas, so without a theme the list must stay open.
+    drawerVisible.value = true
 }
 
 function selectTheme(theme: IDashboardTheme) {
@@ -201,6 +234,7 @@ function closePanel() {
 
 function onSectionOpened(section: string) {
     if (panelType.value === 'selector' && SELECTOR_SECTION_VARIANTS[section]) selectorVariant.value = SELECTOR_SECTION_VARIANTS[section]
+    if (panelType.value === 'activeSelections' && ACTIVE_SELECTIONS_SECTION_VARIANTS[section]) activeSelectionsVariant.value = ACTIVE_SELECTIONS_SECTION_VARIANTS[section]
 }
 
 // A form may fill in missing defaults when it mounts. That is not a user change: if the theme was clean, it stays clean.
@@ -259,12 +293,7 @@ function confirmDelete(theme: IDashboardTheme) {
         await axios.delete(`${THEMES_URL}/${theme.id}`)
         store.setInfo({ title: t('common.toast.deleteTitle'), msg: t('common.toast.deleteSuccess') })
         await loadThemes()
-        if (selectedTheme.value?.id === theme.id) {
-            selectedTheme.value = null
-            savedSnapshot.value = null
-            closePanel()
-            openInitialTheme()
-        }
+        if (selectedTheme.value?.id === theme.id) closeTheme()
     })
 }
 
@@ -318,8 +347,12 @@ function onImportFile(event: Event) {
 }
 
 .theme-management__empty {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
     max-width: 640px;
-    margin: 48px auto;
     padding: 0 16px;
 }
 

@@ -56,6 +56,16 @@ export const SELECTOR_SECTION_VARIANTS: Record<string, ISelectorVariant> = {
     multiTree: 'multiTree'
 }
 
+// The active selections widget shows its selections as chips or as a list (the rows style).
+export const ACTIVE_SELECTIONS_VARIANTS = ['chips', 'list'] as const
+export type IActiveSelectionsVariant = (typeof ACTIVE_SELECTIONS_VARIANTS)[number]
+
+// Opening one of these theme sections switches the active selections tile to the variant that shows it.
+export const ACTIVE_SELECTIONS_SECTION_VARIANTS: Record<string, IActiveSelectionsVariant> = {
+    chips: 'chips',
+    rows: 'list'
+}
+
 // The image widget shows a gallery image by id. The canvas replaces it with this picture, so it needs no gallery.
 const MOCK_IMAGE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice">
 <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9cc9f0"/><stop offset="1" stop-color="#e8f3fb"/></linearGradient></defs>
@@ -170,7 +180,8 @@ export const createSelectorMock = (variant: ISelectorVariant): IMockWidget => {
     let data = isTree ? selectorWidgetMock.treeDataMock : selectorWidgetMock.selectorDataMock
     // Sliders and toggles label every value: 24 values do not fit in one row.
     if (['buttonToggle', 'slider', 'range'].includes(variant)) data = { ...data, rows: data.rows.slice(0, 6), results: 6 } as any
-    const formatted = isTree ? data : formatSelectorData(data, widget)
+    // A tree reads all its levels under the first column too.
+    const formatted = formatSelectorData(data, widget)
     return { themeType: 'selector', widget, data: formatted, initialData: formatted }
 }
 

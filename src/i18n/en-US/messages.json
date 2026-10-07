@@ -3154,7 +3154,6 @@
                 "clickToEdit": "Click to edit",
                 "dimOthers": "Dim other widgets",
                 "fit": "Fit to screen",
-                "previewNote": "Mock data.",
                 "resetZoom": "Reset to 100%",
                 "zoomIn": "Zoom in",
                 "zoomOut": "Zoom out"
@@ -3181,6 +3180,24 @@
             "unsavedChanges": "Unsaved changes",
             "widgetTitle": "{type} widget",
             "scrollToWidget": "Find Widget in Preview",
+            "tour": {
+                "listTitle": "Your themes",
+                "listDescription": "Pick a theme here to open it on the canvas. The default theme is marked Default.",
+                "addTitle": "Add or upload a theme",
+                "addDescription": "Start a new theme, or upload a theme saved as JSON with Import theme.",
+                "nameTitle": "Rename the theme",
+                "nameDescription": "Click the name to change it. A dot next to it means the theme has unsaved changes.",
+                "widgetTitle": "Edit one widget type",
+                "widgetDescription": "Click a widget to style that widget type. The style panel opens on the right, and the widget comes into focus.",
+                "inheritTitle": "Inherit the shared style",
+                "inheritDescription": "Title, borders, padding, shadows and background come from the shared style while Inherit is on. Turn it off to give this widget type its own values.",
+                "editAllTitle": "Edit all widgets",
+                "editAllDescription": "Change the shared style once for every widget type that inherits it. Apply to all makes every type inherit it again.",
+                "dimTitle": "Dim the other widgets",
+                "dimDescription": "When a widget is in focus, the rest of the canvas is dimmed. Turn the dimming off here if you want to see everything.",
+                "saveTitle": "Save",
+                "saveDescription": "Save the theme when you are done. Download saves a copy as JSON, and the X closes the theme."
+            },
             "styleTypes": {
                 "background": "Background",
                 "borders": "Borders",

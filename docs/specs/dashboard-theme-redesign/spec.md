@@ -398,3 +398,25 @@ Import of an old JSON file uses the same step.
 The enterprise pivot (DevExtreme) is not part of this repository. The addon files, the DevExtreme import and the `dx-viewport` class are reverted, and so are the enterprise pivot mock (section 16) and the `_devextreme.scss` change. The canvas always renders the ce-pivot.
 
 Follow-up for the enterprise build: with the addon, `body.dx-theme-generic-typography a:not(.pivot-widget-container a)` in `_devextreme.scss` has specificity (0,2,3) and overrides the link colours of the main menu (dark icons). Wrapping the `:not()` in `:where()` lowers it to (0,1,2) and fixes it.
+
+## 19. Fourth round of feedback (2026-10-07)
+
+- **Tree selectors:** the tree and multi tree mocks passed their data unwrapped. `WidgetRenderer` reads single selector data under the first column name, so the tree got no rows. All selector mocks now use the per-column shape.
+- **Discovery:** the discovery widget builds its grid columns from the style once and does not watch the widget. The canvas remounts it on every theme change, like the pivot.
+- **Active selections variants:** the tile shows chips or a list (the Rows section). Opening the Chips or Rows section switches the tile, and a variant menu on the tile does the same, as for the selector. The default is the list (Rows), the widget default.
+- **Linked border radius:** the linked field wrote the other three corners only on `change` (blur). The preview could apply the first corner alone, and closing the form before the blur lost the others. The linked field now writes all four corners on each input. Corners with different values open unlinked. This is in `WidgetBordersStyle.vue`, so it also applies in the widget editor.
+- **Map clipping:** `WidgetRenderer` sets `overflow: visible` on map widgets (for the legend), so the map ignored the border radius. The canvas clips its map tile. Dashboards keep the old behaviour; the same bleed is possible there.
+- **Toolbar (trial, reverted):** a standard `kn-toolbar--secondary` header over the canvas was tried and removed. The floating controls stay; the decision waits for user feedback.
+- **Variant menus only on the focused widget:** the selector and active selections menus show only while their widget is in focus (this replaces the hover rule of section 6.2 and the "hidden while another widget is in focus" rule of section 17).
+- **Menus drifted from their widget:** panzoom sets `overflow: hidden` on the canvas viewport. A focused input inside a widget scrolled the viewport, which moved the widgets away from the pan and zoom and from the menus placed with it. The viewport now uses `overflow: clip !important`, which cannot scroll.
+- **No theme opens by itself:** the page opens with the hint. The user picks a theme in the list. A close button (X) at the end of the action bar closes the open theme and asks first when there are unsaved changes. Deleting the open theme also closes it.
+- **Chrome trimmed:** the "Mock data." note and the Default badge on the name chip are removed. The theme list still shows the default theme.
+- **Hint centred:** with no open theme, the hint sits in the centre of the page.
+- **List reopens on close:** the list toggle is on the canvas, so closing a theme opens the list again. Otherwise a collapsed list could not be expanded.
+- **Dimming on by default:** the focus scrim is on until the user turns it off (this replaces the default of section 17). A stored choice still wins.
+
+## 20. Guided tour
+
+The guided tour button in the main menu starts a driver.js tour (`DashboardThemeTour.ts`, same popover style as the main tour). It has 8 steps: theme list, add or upload (import JSON), rename, click a widget, Inherit (the tour opens the Table panel and points at the Borders toggle), Edit all widgets, dim toggle, save. When no theme is open, the tour opens the default theme, or the first one. Closing the tour closes the panel. Elements are found by `data-tour-id`.
+
+The page registers the tour with `usePageTour()` (`src/composables/usePageTour.ts`). While a page with a registered tour is mounted, the main menu tour button starts that page's tour. On other pages it starts the main menu tour, as before. Other pages can add their own tour the same way.
