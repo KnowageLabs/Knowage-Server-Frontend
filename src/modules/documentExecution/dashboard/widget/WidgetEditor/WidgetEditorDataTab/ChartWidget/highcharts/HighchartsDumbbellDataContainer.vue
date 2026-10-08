@@ -112,7 +112,7 @@ export default defineComponent({
         },
         onColumnsReorder(columns: IWidgetColumn[], type: string) {
             this.columnTableItems[type] = columns
-            this.widgetModel.columns = this.columnTableItems['MEASURES'].concat(this.columnTableItems['start']).concat(this.columnTableItems['end'])
+            this.widgetModel.columns = this.columnTableItems['ATTRIBUTES'].concat(this.columnTableItems['start']).concat(this.columnTableItems['end'])
             emitter.emit('columnsReordered', this.widgetModel.columns)
             emitter.emit('refreshWidgetWithData', this.widgetModel.id)
         },

@@ -340,7 +340,7 @@ export default defineComponent({
             this.selectedLayer = layer
         },
         onDatasetSelectedFromList(dataset: IDataset) {
-            if (this.selectedDataset && dataset.id !== this.selectedDataset.id && this.widget?.settings?.sortingColumn) {
+            if (this.selectedDataset && dataset?.id !== this.selectedDataset.id && this.widget?.settings?.sortingColumn) {
                 this.widget.settings.sortingColumn = ''
             }
             this.selectedDataset = dataset

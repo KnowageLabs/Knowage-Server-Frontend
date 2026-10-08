@@ -32,8 +32,9 @@ export default defineComponent({
     },
     methods: {
         loadLimitModel() {
-            if (this.widgetModel.settings?.configuration?.limit) this.limitModel = this.widgetModel.settings.configuration.limit
-            else this.limitModel = { enabled: false, itemsNumber: null }
+            const configuration = this.widgetModel.settings?.configuration
+            if (configuration && !configuration.limit) configuration.limit = { enabled: false, itemsNumber: null }
+            this.limitModel = configuration?.limit ?? { enabled: false, itemsNumber: null }
         }
     }
 })
