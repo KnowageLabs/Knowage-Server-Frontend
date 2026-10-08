@@ -1,9 +1,9 @@
 <template>
-    <div v-if="widgetModel" class="p-d-flex p-flex-column p-mx-3">
+    <div v-if="widgetModel" class="column no-wrap q-mx-md">
         <div class="col-tables-container">
             <WidgetEditorColumnTable
                 v-if="['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'bubble', 'scatter', 'line', 'treemap', 'sunburst', 'spline', 'pictorial', 'funnel', 'waterfall', 'wordcloud'].includes(chartType)"
-                class="attribute-table p-order-1"
+                class="attribute-table" style="order: 1"
                 :widget-model="widgetModel"
                 :items="columnTableItems['ATTRIBUTES'] ?? []"
                 :settings="columnTableSettings"
@@ -14,7 +14,7 @@
                 @itemUpdated="onColumnItemUpdate"
                 @itemDeleted="onColumnDelete"
             ></WidgetEditorColumnTable>
-            <WidgetEditorColumnTable class="measure-table p-order-3" :widget-model="widgetModel" :items="columnTableItems['MEASURES'] ?? []" :settings="valuesColumnSettings" :chart-type="chartType" :error="isMeasureTableInvalid()" @rowReorder="onColumnsReorder($event, 'MEASURES')" @itemAdded="onColumnAdded" @itemUpdated="onColumnItemUpdate" @itemDeleted="onColumnDelete"></WidgetEditorColumnTable>
+            <WidgetEditorColumnTable class="measure-table" style="order: 3" :widget-model="widgetModel" :items="columnTableItems['MEASURES'] ?? []" :settings="valuesColumnSettings" :chart-type="chartType" :error="isMeasureTableInvalid()" @rowReorder="onColumnsReorder($event, 'MEASURES')" @itemAdded="onColumnAdded" @itemUpdated="onColumnItemUpdate" @itemDeleted="onColumnDelete"></WidgetEditorColumnTable>
         </div>
     </div>
 </template>
@@ -296,22 +296,10 @@ export default defineComponent({
 })
 </script>
 <style lang="scss" scoped>
+// The tables stack: each one uses the full width of the panel
 .col-tables-container {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     gap: 1rem;
-}
-.attribute-table,
-.measure-table {
-    flex: 1;
-}
-@media screen and (max-width: 1300px) {
-    .col-tables-container {
-        flex-direction: column;
-    }
-    .attribute-table,
-    .measure-table {
-        flex: 1;
-    }
 }
 </style>

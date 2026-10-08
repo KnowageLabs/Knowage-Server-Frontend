@@ -42,10 +42,63 @@
 
 .kn-dropzone-visible {
     height: 12px;
-    background-color: rgba(0, 0, 0, 0.04);
+    background-color: var(--kn-dropzone-visible-background);
 }
 
 .kn-dropzone-active {
     height: 14px;
-    background-color: #aec1d3;
+    background-color: var(--kn-dropzone-active-background);
+}
+
+// Drop area variant: a target for items that come from another list (for example dataset columns)
+.kn-dropzone.kn-dropzone--area {
+    height: auto;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px;
+    border: 1px dashed rgba(0, 0, 0, 0.24);
+    color: rgba(0, 0, 0, 0.54);
+    font-size: 0.9rem;
+
+    &.kn-dropzone-active {
+        border-color: var(--kn-color-primary);
+        color: var(--kn-color-primary);
+    }
+}
+
+// Compact field (32px) for dense rows, for example the widget editor column tables
+.kn-field-compact.q-field--dense {
+    .q-field__control {
+        padding: 0 8px;
+    }
+
+    .q-field__control,
+    .q-field__marginal {
+        height: 32px;
+        min-height: 32px;
+    }
+
+    .q-field__native,
+    .q-field__input {
+        min-height: 32px;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+}
+
+// Widget editor: uppercase section label of the cards (same as the document details labels)
+.kn-editor-card-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #9e9e9e;
+}
+
+.kn-editor-card-hint {
+    color: #9e9e9e;
+    cursor: help;
 }

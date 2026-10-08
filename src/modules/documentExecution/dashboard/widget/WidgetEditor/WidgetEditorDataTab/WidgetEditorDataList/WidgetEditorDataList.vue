@@ -1,44 +1,45 @@
 <template>
-    <div v-if="widgetModel">
-        <span class="p-float-label p-mx-2 p-mt-4 p-mb-1">
-            <Dropdown id="dataset" v-model="selectedDataset" class="kn-material-input kn-width-full" :options="datasetOptions" option-label="label" :show-clear="isTextOrHTMLWidget" @change="onDatasetSelected" @clear="onDatasetCleared"></Dropdown>
-            <label for="dataset" class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.selectDataset') }} </label>
-        </span>
-        <div v-if="widgetModel.type !== 'selector'" class="p-col-12 p-d-flex">
-            <label class="kn-material-input-label p-as-center p-ml-1 p-mr-auto"> {{ $t('common.columns') }} </label>
-
-            <q-btn v-if="isEnterprise && !isTextOrHTMLWidget && !isSolrDataset" color="primary" class="kn-cursor-pointer p-ml-auto p-mr-1" :label="$t('common.add')">
+    <div v-if="widgetModel" class="data-list">
+        <div class="data-list__top row items-center no-wrap q-pa-sm">
+            <q-select v-model="selectedDataset" :options="datasetOptions" option-value="id" option-label="label" :clearable="isTextOrHTMLWidget" outlined dense hide-bottom-space options-dense class="col kn-field-compact" @update:model-value="onDatasetSelected">
+                <template v-if="!selectedDataset" #selected>
+                    <span class="data-list__placeholder">{{ $t('dashboard.widgetEditor.selectDataset') }}</span>
+                </template>
+            </q-select>
+            <q-btn v-if="addMenuVisible" unelevated dense no-caps color="primary" icon="add" :label="$t('common.add')" class="data-list__action q-ml-sm q-px-sm" data-test="add-button">
                 <q-menu>
-                    <q-list style="min-width: 100px">
-                        <q-item clickable v-close-popup @click="createNewCalcField">
-                            <q-item-section>{{ $t('common.addCalculatedField') }}</q-item-section>
+                    <q-list style="min-width: 160px">
+                        <q-item v-if="calcFieldAvailable" clickable v-close-popup data-test="new-button" @click="createNewCalcField">
+                            <q-item-section>{{ isEnterprise ? $t('common.addCalculatedField') : $t('common.addColumn') }}</q-item-section>
                         </q-item>
-                        <q-item v-if="widgetModel.type !== 'python'" clickable v-close-popup :disable="createNewFormulaDisabled" @click="createNewFormulaField">
+                        <q-item v-if="isEnterprise && calcFieldAvailable && widgetModel.type !== 'python'" clickable v-close-popup :disable="createNewFormulaDisabled" @click="createNewFormulaField">
                             <q-item-section>{{ $t('dashboard.widgetEditor.addFunction') }}</q-item-section>
                         </q-item>
-                        <q-item v-if="widgetModel.type === 'table' && selectedDataset" clickable v-close-popup @click="openDynamicColumnsDialog">
+                        <q-item v-if="isEnterprise && calcFieldAvailable && widgetModel.type === 'table' && selectedDataset" clickable v-close-popup @click="openDynamicColumnsDialog">
                             <q-item-section>{{ $t('dashboard.widgetEditor.addDynamicColumns') }}</q-item-section>
+                        </q-item>
+                        <q-separator v-if="calcFieldAvailable && addAllAvailable" />
+                        <q-item v-if="addAllAvailable" clickable v-close-popup data-test="add-all-columns-button" @click="addAllColumnsToWidgetModel">
+                            <q-item-section>{{ $t('dashboard.widgetEditor.addAllColumns') }}</q-item-section>
                         </q-item>
                     </q-list>
                 </q-menu>
             </q-btn>
-
-            <Button v-else-if="!isTextOrHTMLWidget && !isSolrDataset" :label="$t('common.addColumn')" icon="pi pi-plus-circle" class="p-button-outlined p-ml-auto p-mr-1" data-test="new-button" @click="createNewCalcField"></Button>
-            <Button id="add-all-columns-button" icon="fa fa-arrow-right" class="p-button-text p-button-rounded p-button-plain" @click="addAllColumnsToWidgetModel" />
         </div>
+        <q-separator />
 
-        <Listbox v-if="selectedDataset" class="kn-list kn-list-no-border-right dashboard-editor-list" :options="selectedDatasetColumns" :filter="true" :filter-placeholder="$t('common.search')" :filter-fields="descriptor.filterFields" :empty-filter-message="$t('common.info.noDataFound')">
-            <template #empty>{{ $t('common.info.noDataFound') }}</template>
-            <template #option="slotProps">
-                <div class="kn-list-item kn-draggable" draggable="true" :style="dataListDescriptor.style.list.listItem" data-test="list-item" @dragstart="onDragStart($event, slotProps.option)" @dragend="onDragEnd($event)">
-                    <i class="pi pi-bars" :style="dataListDescriptor.style.list.listIcon"></i>
-                    <i :style="dataListDescriptor.style.list.listIcon" :class="slotProps.option.fieldType === 'ATTRIBUTE' ? 'fas fa-font' : 'fas fa-hashtag'" class="p-ml-2"></i>
-                    <div class="kn-list-item-text">
-                        <span v-tooltip.top="slotProps.option.alias" class="dashboard-editor-list-alias-container">{{ slotProps.option.alias }}</span>
-                    </div>
-                </div>
+        <WidgetEditorDrawerList v-if="selectedDataset" v-model:search="columnSearch" :search-placeholder="$t('dashboard.widgetEditor.searchColumns')" :items="filteredDatasetColumns" item-key="name" draggable class="data-list__columns" @item-dragstart="onDragStart" @item-dragend="onDragEnd">
+            <template #leading="{ item }">
+                <q-icon name="drag_indicator" size="14px" class="data-list__icon" />
+                <q-icon :name="item.fieldType === 'ATTRIBUTE' ? 'fas fa-font' : 'fas fa-hashtag'" size="14px" class="data-list__icon" />
             </template>
-        </Listbox>
+            <template #label="{ item }">
+                <span class="data-list__alias">
+                    {{ item.alias }}
+                    <q-tooltip :delay="500">{{ item.alias }}</q-tooltip>
+                </span>
+            </template>
+        </WidgetEditorDrawerList>
     </div>
     <KnBlockly v-if="calcFieldDialogVisible" :fields="calcFieldColumns" :variables="variables" :field-name="selectedCalcField?.alias || ''" :initial-state="selectedCalcField?.blocklyXml" v-model:visibility="calcFieldDialogVisible" @save="onCalcFieldSave" @cancel="calcFieldDialogVisible = false"></KnBlockly>
 
@@ -51,11 +52,7 @@ import { defineComponent, PropType } from 'vue'
 import { IDashboardDataset, IDatasetColumn, IDataset, IWidget, IWidgetColumn, IVariable, IWidgetFunctionColumn, IDynamicColumnSource } from '../../../../Dashboard'
 import { emitter } from '../../../../DashboardHelpers'
 import { removeColumnFromDiscoveryWidgetModel } from '../../helpers/discoveryWidget/DiscoveryWidgetFunctions'
-import descriptor from './WidgetEditorDataListDescriptor.json'
-import Dropdown from 'primevue/dropdown'
 import mainStore from '../../../../../../../App.store'
-import Listbox from 'primevue/listbox'
-import dataListDescriptor from '../../../../dataset/DatasetEditorDataTab/DatasetEditorDataList/DatasetEditorDataListDescriptor.json'
 import KnBlockly from '@/components/UI/KnBlockly/KnBlockly.vue'
 import calcFieldDescriptor from './WidgetEditorCalcFieldDescriptor.json'
 import { AxiosResponse } from 'axios'
@@ -65,10 +62,11 @@ import WidgetEditorFunctionsDialog from './WidgetEditorFunctionsDialog/WidgetEdi
 import { createNewFunctionColumn } from './WidgetEditorFunctionsDialog/WidgetEditorFunctionsDialogHelper'
 import WidgetEditorDynamicColumnsDialog from './WidgetEditorDynamicColumnsDialog.vue'
 import deepcopy from 'deepcopy'
+import WidgetEditorDrawerList from '../../common/WidgetEditorDrawerList.vue'
 
 export default defineComponent({
     name: 'widget-editor-data-list',
-    components: { Dropdown, Listbox, KnBlockly, WidgetEditorFunctionsDialog, WidgetEditorDynamicColumnsDialog },
+    components: { KnBlockly, WidgetEditorFunctionsDialog, WidgetEditorDynamicColumnsDialog, WidgetEditorDrawerList },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, datasets: { type: Array }, selectedDatasets: { type: Array as PropType<IDataset[]> }, variables: { type: Array as PropType<IVariable[]>, required: true } },
     emits: ['datasetSelected', 'selectedDatasetColumnsChanged', 'toggleListDrag'],
     setup() {
@@ -77,12 +75,11 @@ export default defineComponent({
     },
     data() {
         return {
-            descriptor,
-            dataListDescriptor,
             model: null as IWidget | null,
             datasetOptions: [] as IDashboardDataset[],
             selectedDataset: null as IDashboardDataset | null,
             selectedDatasetColumns: [] as IDatasetColumn[],
+            columnSearch: '',
             calcFieldDescriptor,
             calcFieldDialogVisible: false,
             calcFieldColumns: [] as any,
@@ -116,6 +113,22 @@ export default defineComponent({
 
             const dataset = this.selectedDatasets.find((dataset) => dataset.id?.dsId === this.selectedDataset?.id)
             return dataset?.type === 'SbiSolrDataSet'
+        },
+        calcFieldAvailable(): boolean {
+            return this.widgetModel.type !== 'selector' && !this.isTextOrHTMLWidget && !this.isSolrDataset
+        },
+        // "Add all columns" writes to widget.columns: only the widgets whose data table shows that array support it
+        // (pivot uses widget.fields, the chart containers build their own column lists)
+        addAllAvailable(): boolean {
+            return !!this.selectedDataset && ['table', 'html', 'text', 'discovery', 'customchart', 'python', 'r'].includes(this.widgetModel.type)
+        },
+        addMenuVisible(): boolean {
+            return this.calcFieldAvailable || this.addAllAvailable
+        },
+        filteredDatasetColumns(): IDatasetColumn[] {
+            const search = this.columnSearch.trim().toLowerCase()
+            if (!search) return this.selectedDatasetColumns
+            return this.selectedDatasetColumns.filter((column: IDatasetColumn) => column.alias?.toLowerCase().includes(search))
         }
     },
     watch: {
@@ -213,17 +226,6 @@ export default defineComponent({
             emitter.emit('clearWidgetData', this.widgetModel.id)
             emitter.emit('reloadChartColumns', this.widgetModel.id)
         },
-        onDatasetCleared() {
-            this.selectedDataset = null
-            this.selectedDatasetColumns = []
-            this.removeSelectedColumnsFromModel()
-            if (this.model) {
-                this.model.dataset = null
-            }
-            this.$emit('datasetSelected', null)
-            emitter.emit('clearWidgetData', this.widgetModel.id)
-            emitter.emit('reloadChartColumns', this.widgetModel.id)
-        },
         addAllColumnsToWidgetModel() {
             const formattedColumns = [] as IWidgetColumn[]
             this.selectedDatasetColumns.forEach((column: IDatasetColumn) => {
@@ -237,6 +239,7 @@ export default defineComponent({
                     emitter.emit('columnAdded', column)
                 }
             })
+            if (this.model) emitter.emit('refreshWidgetWithData', this.model.id)
         },
         removeSelectedColumnsFromModel() {
             if (!this.model?.columns) return
@@ -264,10 +267,10 @@ export default defineComponent({
             event.dataTransfer.setData('text/plain', JSON.stringify(datasetColumn))
             event.dataTransfer.dropEffect = 'move'
             event.dataTransfer.effectAllowed = 'move'
-            this.$emit('toggleListDrag')
+            this.$emit('toggleListDrag', true)
         },
-        onDragEnd(event: any) {
-            this.$emit('toggleListDrag')
+        onDragEnd() {
+            this.$emit('toggleListDrag', false)
         },
         createNewCalcField() {
             this.createCalcFieldColumns()
@@ -410,11 +413,19 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.dashboard-editor-list-alias-container {
-    font-size: 0.8rem;
+// Same height as the compact dataset select
+.data-list__action {
+    height: 32px;
+    min-height: 32px;
 }
 
-#add-all-columns-button {
-    font-size: 1.5rem;
+.data-list__placeholder {
+    color: rgba(0, 0, 0, 0.54);
 }
+
+.data-list__icon {
+    color: var(--kn-editor-list-icon-color);
+}
+
+
 </style>

@@ -1,6 +1,6 @@
 <template>
-    <div v-if="widgetModel" class="p-m-3">
-        <TableWidgetDataForm v-if="widgetType !== 'discovery'" class="p-mb-3" :widget-model="widgetModel" :sorting-column-options="columnTableItems"></TableWidgetDataForm>
+    <div v-if="widgetModel" class="q-ma-md">
+        <TableWidgetDataForm v-if="widgetType !== 'discovery'" class="q-mb-md" :widget-model="widgetModel" :sorting-column-options="columnTableItems"></TableWidgetDataForm>
         <WidgetEditorColumnTable :widget-model="widgetModel" :items="columnTableItems" :settings="descriptor.columnTableSettings" @rowReorder="onColumnsReorder" @itemAdded="onColumnAdded" @itemUpdated="onColumnItemUpdate" @itemDeleted="onColumnDelete"></WidgetEditorColumnTable>
     </div>
 </template>

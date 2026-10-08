@@ -1,53 +1,61 @@
 <template>
-    <q-card :class="{ ['widget-editor-column-table-invalid']: error, 'dropzone-active': listDragActive }" flat bordered>
-        <q-toolbar class="kn-toolbar kn-toolbar--secondary">
-            <q-toolbar-title v-if="settings.label">{{ $t(settings.label) }}</q-toolbar-title>
-            <Button v-if="settings.hint" v-tooltip.left="$t(settings.hint)" icon="pi pi-question-circle" class="p-button-text p-button-plain" />
-        </q-toolbar>
-        <q-card-section class="p-p-0">
-            <div @drop.stop="onDropComplete($event)" @dragover.prevent @dragenter.prevent @dragleave.prevent>
-                <InlineMessage v-if="settings.dropIsActive && rows.length === 0" class="p-d-flex p-flex-row p-jc-center p-ai-center p-m-1 p-p-5" severity="info" closable="false">{{ $t(settings.dragColumnsHint) }}</InlineMessage>
-                <DataTable v-else :value="rows" v-model:expandedRows="expandedRows" class="kn-table p-datatable-sm editor-col-table" :data-key="settings.dataKey" :row-class="getRowClass" collapsedRowIcon="fas fa-cog" expandedRowIcon="fas fa-cog" responsiveLayout="scroll" breakpoint="940px" @rowReorder="onRowReorder">
-                    <Column v-if="rowReorderEnabled" :row-reorder="rowReorderEnabled" style="padding-top: 5px" :style="settings.rowReorder.rowReorderColumnStyle">
-                        <template #body="slotProps">
-                            <span class="p-datatable-reorderablerow-handle pi pi-bars" style="cursor: move" @mouseenter="hoveredSourceId = slotProps.data.dynamicSourceDatasetId ?? null" @mouseleave="hoveredSourceId = null" />
-                        </template>
-                    </Column>
-                    <Column v-if="widgetModel.type !== 'highcharts' && widgetModel.type !== 'chartJS'" :style="settings.rowReorder.rowReorderColumnStyle">
-                        <template #body="slotProps">
-                            <i :class="getIcon(slotProps.data)"></i>
-                        </template>
-                    </Column>
-                    <Column v-for="column in settings.columns" :key="column.field" class="kn-truncated p-pl-2" :field="column.field" :header="column.header ? $t(column.header) : ''" :sortable="column.sortable">
-                        <template #body="slotProps">
-                            <q-input v-if="column.field === 'alias'" :label="$t('common.alias')" v-model="slotProps.data[column.field]" dense square :disable="slotProps.data.type === 'pythonFunction'" @change="onColumnAliasRenamed(slotProps.data)" />
-                            <q-select v-else-if="aggregationDropdownIsVisible(column, slotProps.data)" v-model="slotProps.data[column.field]" :options="commonDescriptor.columnAggregationOptions" emitValue dense option-label="label" option-value="value" @update:model-value="$emit('itemUpdated', slotProps.data)" />
-                            <q-input v-else-if="column.field === 'columnName'" :label="$t('components.knCalculatedField.columnName')" v-model="slotProps.data[column.field]" dense square readonly @change="onColumnAliasRenamed(slotProps.data)" />
-                            <span v-else-if="!slotProps.data.formula && column.field !== 'columnName' && slotProps.data.fieldType !== 'ATTRIBUTE'" class="kn-truncated 2">{{ slotProps.data[column.field] }}</span>
-                        </template>
-                    </Column>
-                    <Column :style="settings.buttonColumnStyle">
-                        <template #body="slotProps">
-                            <Button v-if="showSortButton" class="p-button-link" :icon="sortIcon(slotProps.data.orderType)" v-tooltip.top="slotProps.data.orderType ?? 'NONE'" @click="toggleSort(slotProps.data)" />
-                            <Button v-if="slotProps.data.formula" v-tooltip.top="$t('common.edit')" icon="fas fa-calculator" class="p-button-link" @click.stop="openCalculatedFieldDialog(slotProps.data)"></Button>
-                            <Button v-if="slotProps.data.type === 'pythonFunction'" v-tooltip.top="$t('common.edit')" icon="fas fa-superscript" class="p-button-link" @click.stop="openFunctionsColumnDialog(slotProps.data)"></Button>
-                        </template>
-                    </Column>
-                    <Column expander style="width: 10px" />
-                    <Column style="width: 10px">
-                        <template #body="slotProps">
-                            <Button v-tooltip.top="slotProps.data.dynamicSourceDatasetId ? $t('dashboard.widgetEditor.deleteDynamicGroup') : $t('common.delete')" icon="pi pi-trash" class="p-button-link" data-test="delete-button" @click.stop="deleteItem(slotProps.data)" />
-                        </template>
-                    </Column>
-                    <template #expansion="slotProps">
-                        <ChartWidgetColumnForm v-if="widgetType === 'highcharts' || widgetType === 'chartJS'" :widget-model="widgetModel" :selected-column="slotProps.data" :chart-type="chartType"></ChartWidgetColumnForm>
-                        <SelectorDataForm v-else-if="widgetType === 'selector'" :prop-column="slotProps.data" :widget-model="widgetModel" />
-                        <TableWidgetColumnForm v-else :widget-model="widgetModel" :selected-column="slotProps.data"></TableWidgetColumnForm>
-                    </template>
-                </DataTable>
+    <WidgetEditorColumnList
+        :rows="rows"
+        row-key="id"
+        :label="settings.label"
+        :hint="settings.hint"
+        :error="error"
+        :drop-active="listDragActive"
+        :empty-hint="settings.dropIsActive ? settings.dragColumnsHint : null"
+        :reorder-enabled="rowReorderEnabled"
+        :cells-template="cellsTemplate"
+        :show-type-icon="widgetModel.type !== 'highcharts' && widgetModel.type !== 'chartJS'"
+        :get-row-class="getRowClass"
+        @column-drop="onDropComplete"
+        @row-reorder="onRowReorder"
+        @handle-hover="hoveredSourceId = $event?.dynamicSourceDatasetId ?? null"
+    >
+        <template #header>
+            <div v-for="column in displayedColumns" :key="column.field">{{ getColumnHeader(column.field) }}</div>
+        </template>
+        <template #cells="{ row }">
+            <div v-for="column in displayedColumns" :key="column.field">
+                <div v-if="column.field === 'alias'">
+                    <q-input v-model="row[column.field]" outlined dense hide-bottom-space class="kn-field-compact" :disable="row.type === 'pythonFunction'" @change="onColumnAliasRenamed(row)" />
+                    <q-tooltip v-if="row[column.field]" :delay="500">{{ row[column.field] }}</q-tooltip>
+                </div>
+                <q-select v-else-if="aggregationDropdownIsVisible(column, row)" v-model="row[column.field]" :options="commonDescriptor.columnAggregationOptions" option-label="label" option-value="value" emit-value map-options outlined dense hide-bottom-space options-dense class="kn-field-compact" @update:model-value="$emit('itemUpdated', row)">
+                    <q-tooltip v-if="row[column.field]" :delay="500">{{ row[column.field] }}</q-tooltip>
+                </q-select>
+                <div v-else-if="column.field === 'columnName'">
+                    <q-input v-model="row[column.field]" outlined dense hide-bottom-space readonly class="kn-field-compact" />
+                    <q-tooltip v-if="row[column.field]" :delay="500">{{ row[column.field] }}</q-tooltip>
+                </div>
+                <span v-else-if="!row.formula && row.fieldType !== 'ATTRIBUTE'" class="kn-truncated">{{ row[column.field] }}</span>
             </div>
-        </q-card-section>
-    </q-card>
+        </template>
+        <template #actions="{ row }">
+            <q-btn v-if="showSortButton" flat round dense size="sm" :icon="sortIcon(row.orderType)" :color="row.orderType ? 'primary' : undefined" @click.stop="toggleSort(row)">
+                <q-tooltip :delay="500">{{ row.orderType ?? 'NONE' }}</q-tooltip>
+            </q-btn>
+            <q-btn v-if="row.formula" flat round dense size="sm" icon="fas fa-calculator" @click.stop="openCalculatedFieldDialog(row)">
+                <q-tooltip :delay="500">{{ $t('common.edit') }}</q-tooltip>
+            </q-btn>
+            <q-btn v-if="row.type === 'pythonFunction'" flat round dense size="sm" icon="fas fa-superscript" @click.stop="openFunctionsColumnDialog(row)">
+                <q-tooltip :delay="500">{{ $t('common.edit') }}</q-tooltip>
+            </q-btn>
+        </template>
+        <template #trailing="{ row }">
+            <q-btn flat round dense size="sm" icon="delete" data-test="delete-button" @click.stop="deleteItem(row)">
+                <q-tooltip :delay="500">{{ row.dynamicSourceDatasetId ? $t('dashboard.widgetEditor.deleteDynamicGroup') : $t('common.delete') }}</q-tooltip>
+            </q-btn>
+        </template>
+        <template #expansion="{ row }">
+            <ChartWidgetColumnForm v-if="widgetType === 'highcharts' || widgetType === 'chartJS'" :widget-model="widgetModel" :selected-column="row" :chart-type="chartType"></ChartWidgetColumnForm>
+            <SelectorDataForm v-else-if="widgetType === 'selector'" :prop-column="row" :widget-model="widgetModel" />
+            <TableWidgetColumnForm v-else :widget-model="widgetModel" :selected-column="row"></TableWidgetColumnForm>
+        </template>
+    </WidgetEditorColumnList>
 </template>
 
 <script lang="ts">
@@ -56,20 +64,17 @@ import { IDatasetColumn, IWidget, IWidgetColumn, IWidgetFunctionColumn } from '.
 import { emitter } from '../../../../DashboardHelpers'
 import { addChartColumnToTable } from '../../helpers/chartWidget/ChartWidgetDataTabHelpers'
 import { createNewWidgetColumn } from '../../helpers/WidgetEditorHelpers'
-import Column from 'primevue/column'
-import DataTable from 'primevue/datatable'
-import Dropdown from 'primevue/dropdown'
 import commonDescriptor from '../common/WidgetCommonDescriptor.json'
 import deepcopy from 'deepcopy'
-import InlineMessage from 'primevue/inlinemessage'
 import ChartWidgetColumnForm from '../ChartWidget/common/ChartWidgetColumnForm.vue'
 import TableWidgetColumnForm from '../TableWidget/TableWidgetColumnForm.vue'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import SelectorDataForm from '../SelectorWidget/SelectorDataForm.vue'
+import WidgetEditorColumnList from './WidgetEditorColumnList.vue'
 
 export default defineComponent({
     name: 'widget-editor-column-table',
-    components: { Column, DataTable, Dropdown, InlineMessage, ChartWidgetColumnForm, TableWidgetColumnForm, SelectorDataForm },
+    components: { WidgetEditorColumnList, ChartWidgetColumnForm, TableWidgetColumnForm, SelectorDataForm },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, items: { type: Array, required: true }, settings: { type: Object, required: true }, chartType: { type: String }, axis: { type: String }, error: { type: Boolean } },
     emits: ['rowReorder', 'itemUpdated', 'itemDeleted', 'itemAdded', 'singleItemReplaced'],
     setup() {
@@ -80,38 +85,29 @@ export default defineComponent({
         return {
             commonDescriptor,
             rows: [] as IWidgetColumn[],
-            inputValuesMap: {},
             listDragActive: inject('listDragActive', false) as boolean,
-            hoveredSourceId: null as number | null,
-            expandedRows: [],
-            products: [
-                {
-                    id: '1000',
-                    code: 'f230fh0g3',
-                    name: 'Bamboo Watch',
-                    description: 'Product Description',
-                    image: 'bamboo-watch.jpg',
-                    price: 65,
-                    category: 'Accessories',
-                    quantity: 24,
-                    inventoryStatus: 'INSTOCK',
-                    rating: 5,
-                    orders: [
-                        {
-                            id: '1000-0',
-                            productCode: 'f230fh0g3',
-                            date: '2020-09-13',
-                            amount: 65,
-                            quantity: 1,
-                            customer: 'David James',
-                            status: 'PENDING'
-                        }
-                    ]
-                }
-            ]
+            hoveredSourceId: null as number | null
         }
     },
     computed: {
+        // One grid for the header and the rows. Without an alias the name takes 2/3 and the aggregation 1/3.
+        cellsTemplate(): string {
+            const fields = this.displayedColumns.map((column: any) => column.field)
+            const hasAlias = fields.includes('alias')
+            // A chart Dimensions table keeps the empty aggregation track, so its names line up with the Values table
+            if (!hasAlias && !fields.includes('aggregation')) return 'minmax(0, 2fr) minmax(140px, 1fr)'
+            return fields
+                .map((field: string) => {
+                    if (field === 'aggregation') return hasAlias ? '150px' : 'minmax(140px, 1fr)'
+                    if (field === 'columnName' && !hasAlias) return 'minmax(0, 2fr)'
+                    return 'minmax(0, 1fr)'
+                })
+                .join(' ')
+        },
+        // The aggregation column shows only when a row has an aggregation (a chart Dimensions table has none)
+        displayedColumns(): any[] {
+            return this.settings.columns.filter((column: any) => column.field !== 'aggregation' || this.rows.some((row: IWidgetColumn) => this.aggregationDropdownIsVisible(column, row) || (!row.formula && row.fieldType !== 'ATTRIBUTE')))
+        },
         widgetType(): string {
             return this.widgetModel?.type
         },
@@ -166,6 +162,12 @@ export default defineComponent({
         loadItems() {
             this.rows = this.items as IWidgetColumn[]
         },
+        getColumnHeader(field: string): string {
+            if (field === 'columnName') return this.$t('components.knCalculatedField.columnName')
+            if (field === 'alias') return this.$t('common.alias')
+            if (field === 'aggregation') return this.$t('dashboard.widgetEditor.aggregation')
+            return ''
+        },
         getIcon(item: IWidgetColumn) {
             return item.fieldType === 'ATTRIBUTE' ? 'fas fa-font' : 'fas fa-hashtag'
         },
@@ -201,9 +203,15 @@ export default defineComponent({
             }
             return result
         },
-        onDropComplete(event: any) {
-            if (event.dataTransfer.getData('text/plain') === 'b') return
-            const eventData = JSON.parse(event.dataTransfer.getData('text/plain'))
+        onDropComplete(event: DragEvent) {
+            const data = event.dataTransfer?.getData('text/plain')
+            if (!data || data === 'b') return
+            let eventData: any
+            try {
+                eventData = JSON.parse(data)
+            } catch {
+                return
+            }
             const tempColumn = createNewWidgetColumn(eventData, this.widgetType)
             if (this.widgetType === 'highcharts' && this.chartType === 'scatter' && !this.store.getHighchartsScatterAttributePresent()) {
                 if (tempColumn.fieldType === 'MEASURE') {
@@ -341,60 +349,3 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss" scoped>
-.editor-col-table {
-    :deep(tr.dynamic-col-row) {
-        > td:first-child {
-            box-shadow: inset 3px 0 0 0 var(--kn-color-fab);
-        }
-    }
-    :deep(tr.dynamic-col-row--active) {
-        > td {
-            background-color: rgba(99, 102, 241, 0.08);
-            border-top: 1px solid var(--kn-color-fab);
-            border-bottom: 1px solid var(--kn-color-fab);
-        }
-        > td:first-child {
-            box-shadow: inset 3px 0 0 0 var(--kn-color-fab);
-            border-left: 1px solid var(--kn-color-fab);
-        }
-        > td:last-child {
-            border-right: 1px solid var(--kn-color-fab);
-        }
-    }
-    :deep(.p-datatable-thead) {
-        display: none;
-    }
-    :deep(.p-datatable-row-expansion > td) {
-        padding: 0px !important;
-    }
-    :deep(tr.col-is-descriptor) {
-        background-color: rgba(99, 102, 241, 0.04);
-
-        > td:first-child {
-            border-left: 3px solid var(--kn-color-fab);
-        }
-
-        button {
-            visibility: hidden;
-            pointer-events: none;
-        }
-    }
-}
-
-#drag-columns-hint {
-    min-height: 200px;
-    min-width: 200px;
-}
-
-.column-aggregation-dropdown {
-    min-width: 200px;
-    max-width: 400px;
-}
-
-.widget-editor-column-table-invalid {
-    border: 1px solid rgba(255, 0, 0, 0.61);
-    border-radius: 0px 0px 6px 6px;
-    box-shadow: 0px 0px 3px 1px rgba(255, 0, 0, 0.637) !important;
-}
-</style>

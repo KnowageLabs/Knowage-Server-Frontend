@@ -1,36 +1,36 @@
 <template>
     <div class="kn-full-width">
-        <Card v-if="selectedFunction && functionColumn?.catalogFunctionConfig" class="p-m-2">
-            <template #content>
-                <q-expansion-item class="function-description-expander kn-full-width p-m-2" icon="fas fa-eye" default-opened :label="$t('common.description')">
+        <q-card v-if="selectedFunction && functionColumn?.catalogFunctionConfig" flat bordered>
+            <q-card-section>
+                <q-expansion-item class="function-description-expander kn-full-width q-mb-sm" icon="fas fa-eye" default-opened :label="$t('common.description')">
                     <div>
                         <p v-html="selectedFunction.description"></p>
                     </div>
                 </q-expansion-item>
 
-                <q-expansion-item v-if="selectedFunction.benchmark" class="kn-full-width p-m-2" :label="$t('managers.functionsCatalog.benchmarks')">
+                <q-expansion-item v-if="selectedFunction.benchmark" class="kn-full-width q-mb-sm" :label="$t('managers.functionsCatalog.benchmarks')">
                     <div>
                         <p v-html="selectedFunction.benchmark"></p>
                     </div>
                 </q-expansion-item>
 
-                <div v-if="functionColumn.catalogFunctionConfig.inputColumns.length > 0" class="p-m-2">
-                    <label class="kn-material-input-label"> {{ $t('managers.functionsCatalog.columnsSettings') }}</label>
+                <div v-if="functionColumn.catalogFunctionConfig.inputColumns.length > 0" class="q-mb-md">
+                    <div class="kn-editor-card-label q-mb-xs"> {{ $t('managers.functionsCatalog.columnsSettings') }}</div>
                     <FunctionsCatalogDatasetFormColumnsTable :prop-rows="functionColumn.catalogFunctionConfig.inputColumns" :dataset-columns="datasetColumns"></FunctionsCatalogDatasetFormColumnsTable>
                 </div>
-                <div v-if="functionColumn.catalogFunctionConfig.inputVariables.length > 0" class="p-mx-2 p-mt-3">
-                    <label class="kn-material-input-label"> {{ $t('managers.functionsCatalog.variablesSettings') }}</label>
+                <div v-if="functionColumn.catalogFunctionConfig.inputVariables.length > 0" class="q-mt-md">
+                    <div class="kn-editor-card-label q-mb-xs"> {{ $t('managers.functionsCatalog.variablesSettings') }}</div>
                     <FunctionsCatalogDatasetFormVariablesTable :variables="functionColumn.catalogFunctionConfig.inputVariables"></FunctionsCatalogDatasetFormVariablesTable>
                 </div>
-                <div class="p-mx-2 p-mt-3">
+                <div class="q-mt-md">
                     <q-select v-model="selectedEnvironment" dense clearable emit-value outlined :options="pythonEnvironments" option-value="label" option-label="label" map-options :label="$t('common.environment')" @update:model-value="onEnvironmentSelected" />
                 </div>
 
-                <div v-if="selectedEnvironment" class="p-mx-2 p-mt-3">
+                <div v-if="selectedEnvironment" class="q-mt-md">
                     <FunctionsCatalogDatasetEnvironmentTable :libraries="libraries"></FunctionsCatalogDatasetEnvironmentTable>
                 </div>
-            </template>
-        </Card>
+            </q-card-section>
+        </q-card>
     </div>
 </template>
 
@@ -45,14 +45,10 @@ import mainStore from '@/App.store'
 import FunctionsCatalogDatasetFormColumnsTable from '@/modules/managers/functionsCatalog/FunctionsCatalogPreviewDialog/tabs/FunctionsCatalogConfiguratorTab/FunctionsCatalogDatasetForm/FunctionsCatalogDatasetFormColumnsTable.vue'
 import FunctionsCatalogDatasetFormVariablesTable from '@/modules/managers/functionsCatalog/FunctionsCatalogPreviewDialog/tabs/FunctionsCatalogConfiguratorTab/FunctionsCatalogDatasetForm/FunctionsCatalogDatasetFormVariablesTable.vue'
 import FunctionsCatalogDatasetEnvironmentTable from '@/modules/managers/functionsCatalog/FunctionsCatalogPreviewDialog/tabs/FunctionsCatalogConfiguratorTab/FunctionsCatalogDatasetForm/FunctionsCatalogDatasetEnvironmentTable.vue'
-import Accordion from 'primevue/accordion'
-import AccordionTab from 'primevue/accordiontab'
-import Card from 'primevue/card'
-import Dropdown from 'primevue/dropdown'
 
 export default defineComponent({
     name: 'widget-editors-functions-form',
-    components: { Accordion, AccordionTab, Card, Dropdown, FunctionsCatalogDatasetFormColumnsTable, FunctionsCatalogDatasetFormVariablesTable, FunctionsCatalogDatasetEnvironmentTable },
+    components: { FunctionsCatalogDatasetFormColumnsTable, FunctionsCatalogDatasetFormVariablesTable, FunctionsCatalogDatasetEnvironmentTable },
     props: { propFunctionColumn: { type: Object as PropType<IWidgetFunctionColumn | null>, required: true }, propFunction: { type: Object as PropType<iFunction | null>, required: true }, selectedDataset: { type: Object as PropType<IDataset | null>, required: true } },
     emits: ['environmentSelected'],
     data() {

@@ -1,6 +1,6 @@
 <template>
     <ChartGallery v-if="chartPickerVisible" :widget-model="widget" @selectedChartTypeChanged="onChartTypeChanged" />
-    <div v-else-if="widget" class="p-d-flex kn-flex">
+    <div v-else-if="widget" class="flex no-wrap kn-flex">
         <WidgetEditorHint v-if="!selectedDataset"></WidgetEditorHint>
         <WidgetEditorCommonDataContainer v-else-if="['table', 'html', 'text', 'discovery', 'customchart', 'python', 'r'].includes(widget.type)" class="kn-flex" :prop-widget-model="widget" :selected-dataset="selectedDataset"></WidgetEditorCommonDataContainer>
         <SelectorWidgetDataContainer v-else-if="widget.type === 'selector'" class="kn-flex" :widget-model="widget" :selected-dataset="selectedDataset"></SelectorWidgetDataContainer>

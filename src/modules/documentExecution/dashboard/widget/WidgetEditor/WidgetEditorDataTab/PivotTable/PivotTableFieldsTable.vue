@@ -1,67 +1,72 @@
 <template>
-    <q-card :class="{ ['widget-editor-column-table-invalid']: error && fieldType !== 'filters', 'dropzone-active': listDragActive }" flat bordered>
-        <q-toolbar class="kn-toolbar kn-toolbar--secondary">
-            <q-toolbar-title v-if="settings.label">{{ $t(settings.label) }}</q-toolbar-title>
-            <Button v-if="settings.hint" v-tooltip.left="$t(settings.hint)" icon="pi pi-question-circle" class="p-button-text p-button-plain" />
-        </q-toolbar>
-        <q-card-section class="p-p-0">
-            <div @drop.stop="onDropComplete($event)" @dragover.prevent @dragenter.prevent @dragleave.prevent>
-                <InlineMessage v-if="settings.dropIsActive && rows.length === 0" class="p-d-flex p-flex-row p-jc-center p-ai-center p-m-1 p-p-5" severity="info" closable="false">{{ $t(settings.dragColumnsHint) }}</InlineMessage>
-                <DataTable v-else v-model:filters="filters" :value="rows" v-model:expandedRows="expandedRows" class="kn-table p-datatable-sm editor-col-table" :data-key="settings.dataKey" :global-filter-fields="settings.globalFilterFields" collapsedRowIcon="fas fa-cog" expandedRowIcon="fas fa-cog" :responsive-layout="'scroll'" :breakpoint="'600px'" @rowReorder="onRowReorder">
-                    <Column v-if="rowReorderEnabled" :row-reorder="rowReorderEnabled" style="padding-top: 5px" :style="settings.rowReorder.rowReorderColumnStyle" />
-                    <Column :style="settings.rowReorder.rowReorderColumnStyle">
-                        <template #body="slotProps">
-                            <i :class="getIcon(slotProps.data)"></i>
-                        </template>
-                    </Column>
-                    <Column v-for="column in settings.columns" :key="column.field" class="kn-truncated p-pl-2" :field="column.field" :header="column.header ? $t(column.header) : ''" :sortable="column.sortable">
-                        <template #body="slotProps">
-                            <q-input v-if="column.field === 'alias'" :label="$t('common.alias')" v-model="slotProps.data[column.field]" dense square @change="onColumnAliasRenamed(slotProps.data)" />
-                            <q-select v-else-if="column.field === 'aggregation' && aggregationDropdownIsVisible(slotProps.data)" v-model="slotProps.data[column.field]" :options="getAggregationOptions(slotProps.data)" emitValue dense option-label="label" option-value="value" @update:model-value="$emit('itemUpdated', slotProps.data)" />
-                            <q-input v-else-if="column.field === 'columnName'" :label="$t('components.knCalculatedField.columnName')" v-model="slotProps.data[column.field]" dense square readonly />
-                            <span v-else-if="!slotProps.data.formula && column.field !== 'columnName'" class="kn-truncated 2">{{ slotProps.data[column.field] }}</span>
-                        </template>
-                    </Column>
-                    <Column :style="settings.buttonColumnStyle">
-                        <template #body="slotProps">
-                            <Button v-if="fieldType !== 'data'" v-tooltip.top="$t('common.sort')" :icon="getColumnSortIcon(slotProps.data)" class="p-button-link" @click.stop="changeColumnSort(slotProps.data)"></Button>
-                            <Button v-if="slotProps.data.formula" v-tooltip.top="$t('common.edit')" icon="fas fa-calculator" class="p-button-link" @click.stop="openCalculatedFieldDialog(slotProps.data)"></Button>
-                            <Button v-if="slotProps.data.type === 'pythonFunction'" v-tooltip.top="$t('common.edit')" icon="fas fa-superscript" class="p-button-link" @click.stop="openFunctionsColumnDialog(slotProps.data)"></Button>
-                        </template>
-                    </Column>
-                    <Column expander style="width: 10px" />
-                    <Column style="width: 10px">
-                        <template #body="slotProps">
-                            <Button v-tooltip.top="$t('common.delete')" icon="pi pi-trash" class="p-button-link" data-test="delete-button" @click.stop="deleteItem(slotProps.data, slotProps.index)"></Button>
-                        </template>
-                    </Column>
-                    <template #expansion="slotProps">
-                        <TableWidgetColumnForm :widget-model="widgetModel" :selected-column="slotProps.data"></TableWidgetColumnForm>
-                    </template>
-                </DataTable>
+    <WidgetEditorColumnList
+        :rows="rows"
+        row-key="id"
+        :label="settings.label"
+        :hint="settings.hint"
+        :error="error && fieldType !== 'filters'"
+        :drop-active="listDragActive"
+        :empty-hint="settings.dropIsActive ? settings.dragColumnsHint : null"
+        :reorder-enabled="rowReorderEnabled"
+        :cells-template="cellsTemplate"
+        @column-drop="onDropComplete"
+        @row-reorder="onRowReorder"
+    >
+        <template #header>
+            <div v-for="column in displayedColumns" :key="column.field">{{ getColumnHeader(column.field) }}</div>
+        </template>
+        <template #cells="{ row }">
+            <div v-for="column in displayedColumns" :key="column.field">
+                <div v-if="column.field === 'alias'">
+                    <q-input v-model="row[column.field]" outlined dense hide-bottom-space class="kn-field-compact" @change="onColumnAliasRenamed(row)" />
+                    <q-tooltip v-if="row[column.field]" :delay="500">{{ row[column.field] }}</q-tooltip>
+                </div>
+                <q-select v-else-if="column.field === 'aggregation' && aggregationDropdownIsVisible(row)" v-model="row[column.field]" :options="getAggregationOptions(row)" option-label="label" option-value="value" emit-value map-options outlined dense hide-bottom-space options-dense class="kn-field-compact" @update:model-value="$emit('itemUpdated', row)">
+                    <q-tooltip v-if="row[column.field]" :delay="500">{{ row[column.field] }}</q-tooltip>
+                </q-select>
+                <div v-else-if="column.field === 'columnName'">
+                    <q-input v-model="row[column.field]" outlined dense hide-bottom-space readonly class="kn-field-compact" />
+                    <q-tooltip v-if="row[column.field]" :delay="500">{{ row[column.field] }}</q-tooltip>
+                </div>
+                <span v-else-if="!row.formula" class="kn-truncated">{{ row[column.field] }}</span>
             </div>
-        </q-card-section>
-    </q-card>
+        </template>
+        <template #actions="{ row }">
+            <q-btn v-if="fieldType !== 'data'" flat round dense size="sm" :icon="getColumnSortIcon(row)" :color="row.sort ? 'primary' : undefined" @click.stop="changeColumnSort(row)">
+                <q-tooltip :delay="500">{{ $t('common.sort') }}</q-tooltip>
+            </q-btn>
+            <q-btn v-if="row.formula" flat round dense size="sm" icon="fas fa-calculator" @click.stop="openCalculatedFieldDialog(row)">
+                <q-tooltip :delay="500">{{ $t('common.edit') }}</q-tooltip>
+            </q-btn>
+            <q-btn v-if="row.type === 'pythonFunction'" flat round dense size="sm" icon="fas fa-superscript" @click.stop="openFunctionsColumnDialog(row)">
+                <q-tooltip :delay="500">{{ $t('common.edit') }}</q-tooltip>
+            </q-btn>
+        </template>
+        <template #trailing="{ row }">
+            <q-btn flat round dense size="sm" icon="delete" data-test="delete-button" @click.stop="deleteItem(row)">
+                <q-tooltip :delay="500">{{ $t('common.delete') }}</q-tooltip>
+            </q-btn>
+        </template>
+        <template #expansion="{ row }">
+            <TableWidgetColumnForm :widget-model="widgetModel" :selected-column="row"></TableWidgetColumnForm>
+        </template>
+    </WidgetEditorColumnList>
 </template>
 
 <script lang="ts">
 import { defineComponent, inject, PropType } from 'vue'
-import { filterDefault } from '@/helpers/commons/filterHelper'
 import { IWidget, IWidgetColumn, IWidgetFunctionColumn } from '../../../../Dashboard'
 import { emitter } from '../../../../DashboardHelpers'
 import { createNewWidgetColumn } from '../../helpers/WidgetEditorHelpers'
-import Column from 'primevue/column'
-import DataTable from 'primevue/datatable'
-import Dropdown from 'primevue/dropdown'
 import commonDescriptor from '../common/WidgetCommonDescriptor.json'
 import descriptor from './PivotTableDataContainerDescriptor.json'
 import deepcopy from 'deepcopy'
-import InlineMessage from 'primevue/inlinemessage'
 import TableWidgetColumnForm from '../TableWidget/TableWidgetColumnForm.vue'
+import WidgetEditorColumnList from '../common/WidgetEditorColumnList.vue'
 
 export default defineComponent({
     name: 'widget-editor-column-table',
-    components: { Column, DataTable, Dropdown, InlineMessage, TableWidgetColumnForm },
+    components: { WidgetEditorColumnList, TableWidgetColumnForm },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, items: { type: Array, required: true }, settings: { type: Object, required: true }, fieldType: { type: String }, error: { type: Boolean } },
     emits: ['rowReorder', 'itemUpdated', 'itemSelected', 'itemDeleted', 'itemAdded', 'singleItemReplaced'],
     data() {
@@ -69,13 +74,26 @@ export default defineComponent({
             descriptor,
             commonDescriptor,
             rows: [] as IWidgetColumn[],
-            filters: {} as any,
-            inputValuesMap: {},
-            listDragActive: inject('listDragActive', false) as boolean,
-            expandedRows: []
+            listDragActive: inject('listDragActive', false) as boolean
         }
     },
     computed: {
+        // One grid for the header and the rows. Without an alias the name takes 2/3 and the aggregation 1/3.
+        cellsTemplate(): string {
+            const fields = this.displayedColumns.map((column: any) => column.field)
+            const hasAlias = fields.includes('alias')
+            return fields
+                .map((field: string) => {
+                    if (field === 'aggregation') return hasAlias ? '150px' : 'minmax(140px, 1fr)'
+                    if (field === 'columnName' && !hasAlias) return 'minmax(0, 2fr)'
+                    return 'minmax(0, 1fr)'
+                })
+                .join(' ')
+        },
+        // The aggregation column shows only when a row has an aggregation
+        displayedColumns(): any[] {
+            return this.settings.columns.filter((column: any) => column.field !== 'aggregation' || this.rows.some((row: IWidgetColumn) => this.aggregationDropdownIsVisible(row) || (!row.formula && !!row.aggregation)))
+        },
         widgetType() {
             return this.widgetModel.type
         },
@@ -91,7 +109,6 @@ export default defineComponent({
     created() {
         this.setEventListeners()
         this.loadItems()
-        this.setFilters()
     },
     unmounted() {
         this.removeEventListeners()
@@ -115,19 +132,25 @@ export default defineComponent({
         loadItems() {
             this.rows = this.items as IWidgetColumn[]
         },
-        setFilters() {
-            if (this.settings?.globalFilterFields?.length) this.filters.global = [filterDefault]
-        },
-        getIcon(item: IWidgetColumn) {
-            return item.fieldType === 'ATTRIBUTE' ? 'fas fa-font' : 'fas fa-hashtag'
+        getColumnHeader(field: string): string {
+            if (field === 'columnName') return this.$t('components.knCalculatedField.columnName')
+            if (field === 'alias') return this.$t('common.alias')
+            if (field === 'aggregation') return this.$t('dashboard.widgetEditor.aggregation')
+            return ''
         },
         onRowReorder(event: any) {
             this.rows = event.value
             this.$emit('rowReorder', { fields: event.value, fieldType: this.fieldType })
         },
-        onDropComplete(event: any) {
-            if (event.dataTransfer.getData('text/plain') === 'b') return
-            const eventData = JSON.parse(event.dataTransfer.getData('text/plain'))
+        onDropComplete(event: DragEvent) {
+            const data = event.dataTransfer?.getData('text/plain')
+            if (!data || data === 'b') return
+            let eventData: any
+            try {
+                eventData = JSON.parse(data)
+            } catch {
+                return
+            }
             const tempColumn = createNewWidgetColumn(eventData, this.widgetType)
             if (!this.isFieldUsed(tempColumn)) this.rows.push(tempColumn as IWidgetColumn)
 
@@ -141,9 +164,23 @@ export default defineComponent({
 
             return colIndex !== -1 || rowIndex !== -1 || dataIndex !== -1 || filtIndex !== -1
         },
-        deleteItem(item: IWidgetColumn, index: number) {
+        deleteItem(item: IWidgetColumn) {
+            // Function output fields share the id of their function column: find the clicked row itself
+            let index = this.rows.indexOf(item)
+            if (index === -1) index = this.rows.findIndex((row: IWidgetColumn) => row.id === item.id)
+            if (index === -1) return
             this.rows.splice(index, 1)
             this.$emit('itemDeleted', item)
+        },
+        // An edited function column replaces all of its output fields (as in WidgetEditorColumnTable)
+        deleteFunctionColumns(functionColumn: IWidgetFunctionColumn) {
+            for (let i = this.rows.length - 1; i >= 0; i--) {
+                const row = this.rows[i] as IWidgetFunctionColumn
+                if (row.id === functionColumn.id || (functionColumn.originalFunctionColumnName && row.originalFunctionColumnName === functionColumn.originalFunctionColumnName)) {
+                    this.rows.splice(i, 1)
+                    this.$emit('itemDeleted', row)
+                }
+            }
         },
         aggregationDropdownIsVisible(row: any) {
             return row.fieldType === 'MEASURE' && !row.formula
@@ -197,7 +234,7 @@ export default defineComponent({
             this.$emit('itemAdded', { column: column, rows: this.rows, settings: this.settings, fieldType: 'data' })
         },
         onFunctionsColumnEdited(functionColumn: any) {
-            this.deleteItem(functionColumn, -1)
+            this.deleteFunctionColumns(functionColumn)
             this.onFunctionsColumnAdded(functionColumn)
         },
         openFunctionsColumnDialog(functionColumn: IWidgetFunctionColumn) {
@@ -219,18 +256,3 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss" scoped>
-.editor-col-table {
-    :deep(.p-datatable-thead) {
-        display: none;
-    }
-    :deep(.p-datatable-row-expansion > td) {
-        padding: 0px !important;
-    }
-}
-.widget-editor-column-table-invalid {
-    border: 1px solid rgba(255, 0, 0, 0.61);
-    border-radius: 0px 0px 6px 6px;
-    box-shadow: 0px 0px 3px 1px rgba(255, 0, 0, 0.637) !important;
-}
-</style>

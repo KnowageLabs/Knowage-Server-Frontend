@@ -1,53 +1,20 @@
 <template>
     <q-card v-if="widget" flat bordered>
-        <q-toolbar class="kn-toolbar kn-toolbar--secondary">
-            <q-toolbar-title>{{ $t('dashboard.widgetEditor.toolbars.general') }}</q-toolbar-title>
-        </q-toolbar>
-        <!-- <div class="row q-col-gutter-md p-p-3">
-            <q-select class="col-6" v-model="sortingColumn" :options="sortingColumnOptions" option-value="id" option-label="alias" outlined emitValue clearable dense square :label="$t('dashboard.widgetEditor.sortingColumn')" @update:model-value="sortingChanged">
-                <template v-slot:selected-item="scope">
-                    {{ sortingColumnOptions.find((tempColumn: IWidgetColumn) => tempColumn.id === scope.opt)?.alias ?? '' }}
-                </template>
-            </q-select>
-            <q-select class="col-6" v-model="sortingOrder" :options="commonDescriptor.sortingOrderOptions" outlined emitValue clearable dense square :label="$t('dashboard.widgetEditor.drillSortingOrder')" option-label="label" option-value="value" @update:model-value="selectedColumnUpdated">
-                <template v-slot:option="scope">
-                    <q-item v-bind="scope.itemProps">
-                        <q-item-section>
-                            <q-item-label>{{ $t(scope.opt.label) }}</q-item-label>
-                        </q-item-section>
-                    </q-item>
-                </template>
-            </q-select>
-        </div> -->
-        <q-card-section class="p-pb-0">
-            <div class="p-fluid p-grid p-formgrid">
-                <span class="p-field p-float-label p-col-12 p-lg-6">
-                    <Dropdown v-model="sortingColumn" class="kn-material-input" :options="sortingColumnOptions" option-value="id" option-label="alias" show-clear @change="sortingChanged"> </Dropdown>
-                    <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.sortingColumn') }}</label>
-                </span>
-                <span class="p-field p-float-label p-col-12 p-lg-6">
-                    <Dropdown v-model="sortingOrder" class="kn-material-input" :options="commonDescriptor.sortingOrderOptions" option-label="value" option-value="value" show-clear @change="sortingChanged">
-                        <template #option="slotProps">
-                            <div>
-                                <span>{{ $t(slotProps.option.label) }}</span>
-                            </div>
-                        </template>
-                    </Dropdown>
-                    <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.sortingOrder') }}</label>
-                </span>
+        <q-card-section class="q-py-sm">
+            <div class="kn-editor-card-label">{{ $t('dashboard.widgetEditor.toolbars.general') }}</div>
+        </q-card-section>
+        <q-separator />
+        <q-card-section>
+            <div class="row q-col-gutter-sm">
+                <q-select class="col-6" v-model="sortingColumn" :options="sortingColumnOptions" option-value="id" option-label="alias" emit-value map-options clearable outlined dense hide-bottom-space options-dense :label="$t('dashboard.widgetEditor.sortingColumn')" @update:model-value="sortingChanged" />
+                <q-select class="col-6" v-model="sortingOrder" :options="commonDescriptor.sortingOrderOptions" option-value="value" :option-label="(option) => (option?.label ? $t(option.label) : option ?? '')" emit-value map-options clearable outlined dense hide-bottom-space options-dense :label="$t('dashboard.widgetEditor.sortingOrder')" @update:model-value="sortingChanged" />
             </div>
-            <form v-if="widget.type === 'table'" class="p-fluid p-formgrid p-grid p-mb-4">
-                <div class="p-col-6 p-lg-4">
-                    <span class="p-float-label">
-                        <InputText v-model="itemsNumber" class="kn-material-input p-inputtext-sm" type="number" :disabled="!paginationEnabled" @change="paginationChanged" />
-                        <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.itemsPerPage') }}</label>
-                    </span>
+            <div v-if="widget.type === 'table'" class="row items-center q-col-gutter-sm q-mt-xs">
+                <q-input class="col-6 col-lg-4" v-model="itemsNumber" type="number" outlined dense hide-bottom-space :label="$t('dashboard.widgetEditor.itemsPerPage')" :disable="!paginationEnabled" @change="paginationChanged" />
+                <div class="col-6 col-lg-6">
+                    <q-toggle v-model="paginationEnabled" dense :label="$t('common.enable') + ' ' + $t('dashboard.widgetEditor.pagination')" @update:model-value="paginationChanged" />
                 </div>
-                <span class="p-col-6 p-lg-6 p-d-flex p-ai-center">
-                    <InputSwitch v-model="paginationEnabled" @change="paginationChanged"></InputSwitch>
-                    <label for="visible" class="kn-material-input-label p-ml-2"> {{ $t('common.enable') }} {{ $t('dashboard.widgetEditor.pagination') }}</label>
-                </span>
-            </form>
+            </div>
         </q-card-section>
     </q-card>
 </template>
@@ -56,14 +23,11 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '../../../../DashboardHelpers'
-import Dropdown from 'primevue/dropdown'
 import descriptor from '../TableWidget/TableWidgetDataDescriptor.json'
 import commonDescriptor from '../common/WidgetCommonDescriptor.json'
-import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
     name: 'table-widget-data-form',
-    components: { Dropdown, InputSwitch },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, sortingColumnOptions: { type: Array as PropType<IWidgetColumn[]>, required: true } },
     data() {
         return {
