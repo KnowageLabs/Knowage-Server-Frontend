@@ -1,23 +1,19 @@
 <template>
-    <Dialog class="p-fluid kn-dialog--toolbar--primary" :content-style="descriptor.dialog.style" :visible="visible" :modal="true" :closable="false">
-        <template #header>
-            <Toolbar class="kn-toolbar kn-toolbar--primary p-p-0 p-m-0 p-col-12">
-                <template #start>
-                    {{ $t('dashboard.widgetEditor.catalogFunction') }}
-                </template>
-            </Toolbar>
-        </template>
-
-        <div class="p-formgrid p-grid p-pt-2">
-            <WidgetEditorFunctionsList class="p-lg-3" :prop-functions="functions" :propSelectedFunction="selectedFunction" @selectedFunction="onSelectedFunction"></WidgetEditorFunctionsList>
-            <WidgetEditorFunctionsForm class="p-lg-9" :propFunctionColumn="functionColumn" :prop-function="selectedFunction" :selected-dataset="selectedDataset" :python-environments="[]" :libraries="[]"></WidgetEditorFunctionsForm>
-        </div>
-
-        <template #footer>
-            <Button class="kn-button kn-button--primary" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
-            <Button class="kn-button kn-button--primary" :disabled="functionColumnInvalid" @click="save"> {{ $t('common.save') }}</Button>
-        </template>
-    </Dialog>
+    <q-dialog :model-value="visible" persistent>
+        <q-card class="column no-wrap" :style="{ ...descriptor.dialog.style, maxWidth: descriptor.dialog.style.width }">
+            <q-toolbar class="kn-toolbar kn-toolbar--primary">
+                <q-toolbar-title>{{ $t('dashboard.widgetEditor.catalogFunction') }}</q-toolbar-title>
+            </q-toolbar>
+            <q-card-section class="col row no-wrap q-col-gutter-md scroll">
+                <WidgetEditorFunctionsList class="col-3" :prop-functions="functions" :propSelectedFunction="selectedFunction" @selectedFunction="onSelectedFunction"></WidgetEditorFunctionsList>
+                <WidgetEditorFunctionsForm class="col-9" :propFunctionColumn="functionColumn" :prop-function="selectedFunction" :selected-dataset="selectedDataset"></WidgetEditorFunctionsForm>
+            </q-card-section>
+            <q-card-actions align="right">
+                <q-btn flat color="secondary" :label="$t('common.cancel')" @click="closeDialog" />
+                <q-btn unelevated color="primary" :label="$t('common.save')" :disable="functionColumnInvalid" @click="save" />
+            </q-card-actions>
+        </q-card>
+    </q-dialog>
 </template>
 
 <script lang="ts">
@@ -28,13 +24,12 @@ import { IDataset, IWidgetFunctionColumn } from '@/modules/documentExecution/das
 import { mapActions } from 'pinia'
 import appStore from '@/App.store'
 import descriptor from './WidgetEditorFunctionsDialogDescriptor.json'
-import Dialog from 'primevue/dialog'
 import WidgetEditorFunctionsList from './WidgetEditorFunctionsList.vue'
 import WidgetEditorFunctionsForm from './WidgetEditorFunctionsForm.vue'
 
 export default defineComponent({
     name: 'widget-editor-functions-dialog',
-    components: { Dialog, WidgetEditorFunctionsList, WidgetEditorFunctionsForm },
+    components: { WidgetEditorFunctionsList, WidgetEditorFunctionsForm },
     props: { propFunctionColumn: { type: Object as PropType<IWidgetFunctionColumn | null>, required: true }, selectedDataset: { type: Object as PropType<IDataset | null>, required: true }, editMode: { type: Boolean } },
     emits: ['close', 'save'],
     data() {

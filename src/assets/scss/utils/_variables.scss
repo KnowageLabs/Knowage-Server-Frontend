@@ -67,6 +67,17 @@
     --kn-list-item-alternated-background-color: #dcdcdc;
     --kn-list-item-height: 45px;
 
+    // EDITOR LIST (widget editor drawer lists)
+    --kn-editor-list-icon-color: #929292;
+    --kn-editor-list-hover-background: rgba(0, 0, 0, 0.04);
+    --kn-editor-list-selected-background: rgba(0, 0, 0, 0.12);
+    --kn-editor-column-expansion-background: rgba(0, 0, 0, 0.05);
+    --kn-editor-filter-band-background: rgba(0, 0, 0, 0.06);
+
+    // DRAG AND DROP (.kn-dropzone)
+    --kn-dropzone-visible-background: rgba(0, 0, 0, 0.04);
+    --kn-dropzone-active-background: #aec1d3;
+
     // MENU
     --kn-mainmenu-background-color: #363636;
     --kn-mainmenu-hover-background-color: #555555;

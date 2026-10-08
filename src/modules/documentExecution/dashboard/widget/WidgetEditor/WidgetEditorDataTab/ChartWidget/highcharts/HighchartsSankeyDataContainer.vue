@@ -1,10 +1,10 @@
 <template>
-    <div v-if="widgetModel" class="p-d-flex p-flex-column p-mx-3">
+    <div v-if="widgetModel" class="column no-wrap q-mx-md">
         <WidgetEditorColumnTable
             v-for="axis in ['from', 'to']"
             :key="axis"
-            class="p-mb-3"
-            :class="{ 'p-order-1': axis === 'from', 'p-order-3': axis === 'to' }"
+            class="q-mb-md"
+            :style="{ order: axis === 'from' ? 1 : axis === 'to' ? 3 : 0 }"
             :widget-model="widgetModel"
             :items="columnTableItems[axis] ?? []"
             :settings="getAttributesAxisSettings(axis)"
@@ -16,7 +16,7 @@
             @itemUpdated="onColumnItemUpdate"
             @itemDeleted="onColumnDelete"
         ></WidgetEditorColumnTable>
-        <WidgetEditorColumnTable class="p-mb-3 p-order-5" :widget-model="widgetModel" :items="columnTableItems['MEASURES'] ?? []" :settings="valuesColumnSettings" :chart-type="chartType" :error="isMeasureTableInvalid()" :selected-dataset-columns="selectedDatasetColumns" @rowReorder="onColumnsReorder($event, 'MEASURES')" @itemAdded="onColumnAdded($event, null)" @itemUpdated="onColumnItemUpdate" @itemDeleted="onColumnDelete"></WidgetEditorColumnTable>
+        <WidgetEditorColumnTable class="q-mb-md" style="order: 5" :widget-model="widgetModel" :items="columnTableItems['MEASURES'] ?? []" :settings="valuesColumnSettings" :chart-type="chartType" :error="isMeasureTableInvalid()" @rowReorder="onColumnsReorder($event, 'MEASURES')" @itemAdded="onColumnAdded($event, null)" @itemUpdated="onColumnItemUpdate" @itemDeleted="onColumnDelete"></WidgetEditorColumnTable>
     </div>
 </template>
 

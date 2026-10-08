@@ -348,8 +348,8 @@ export default defineComponent({
         onSelectedDatasetColumnsChanged(columns: IDatasetColumn[]) {
             this.selectedDatasetColumns = columns
         },
-        onToggleListDrag() {
-            this.listDragActive = !this.listDragActive
+        onToggleListDrag(active?: boolean) {
+            this.listDragActive = active ?? !this.listDragActive
         },
         changeChartPickerVisbility(value: any) {
             this.chartPickerVisible = value

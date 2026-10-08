@@ -1,8 +1,8 @@
 <template>
-    <div v-if="widgetModel" class="p-d-flex p-flex-column p-mx-3">
+    <div v-if="widgetModel" class="column no-wrap q-mx-md">
         <WidgetEditorColumnTable
             v-if="['pie', 'heatmap', 'radar', 'column', 'bubble', 'scatter', 'line', 'treemap', 'sunburst'].includes(chartType)"
-            class="p-mb-3 p-order-1"
+            class="q-mb-md" style="order: 1"
             :axis="'dimensions'"
             :widget-model="widgetModel"
             :items="columnTableItems['ATTRIBUTES'] ?? []"
@@ -17,8 +17,8 @@
         <WidgetEditorColumnTable
             v-for="axis in ['Y', 'X', 'Z']"
             :key="axis"
-            class="p-mb-3"
-            :class="{ 'p-order-3': axis === 'Y', 'p-order-5': axis === 'X', 'p-order-6': axis === 'Z' }"
+            class="q-mb-md"
+            :style="{ order: axis === 'Y' ? 3 : axis === 'X' ? 5 : axis === 'Z' ? 6 : 0 }"
             :widget-model="widgetModel"
             :items="columnTableItems[axis] ?? []"
             :settings="getValuesAxisSettings(axis)"

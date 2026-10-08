@@ -1,32 +1,22 @@
 <template>
-    <div v-if="widgetModel" class="dashboard-editor-list-card-container">
-        <q-input v-model="filterText" :placeholder="$t('common.search')" dense borderless clearable class="settings-search q-px-sm">
-            <template #prepend>
-                <q-icon name="search" size="16px" />
-            </template>
-            <template #append>
-                <q-btn class="q-mr-xs" unelevated round dense icon="add" color="primary" size="xs" :title="$t('workspace.gis.dnl.addLayer')" @click="openLayersDialog" />
-            </template>
-        </q-input>
-        <q-separator></q-separator>
-        <Listbox class="kn-list kn-list-no-border-right dashboard-editor-list" :options="filteredLayers">
-            <template #empty>{{ $t('common.info.noDataFound') }}</template>
-            <template #option="slotProps">
-                <div class="kn-list-item kn-draggable" draggable="true" style="height: 30px" data-test="list-item" @dragstart="onDragStart($event, slotProps.index)" @drop.stop="onDropComplete($event, slotProps.index)" @dragover.prevent @dragenter.prevent @dragleave.prevent @click="$emit('layerSelected', slotProps.option)">
-                    <i class="pi pi-bars q-mr-sm"></i>
-                    <i :class="slotProps.option.type.toLowerCase() === 'dataset' ? 'fas fa-database' : 'fas fa-map'">
-                        <q-tooltip>{{ slotProps.option.type.toLowerCase() === 'dataset' ? $t('common.dataset') : $t('common.layer') }}</q-tooltip>
-                    </i>
-                    <div class="kn-list-item-text">
-                        <span class="dashboard-editor-list-alias-container"
-                            >{{ slotProps.option.name }}<q-tooltip>{{ slotProps.option.name }}</q-tooltip></span
-                        >
-                    </div>
-                    <q-btn flat round dense icon="delete" size="sm" class="q-ml-auto" data-test="delete-button" @click.stop="deleteLayer(slotProps.index)" />
-                </div>
-            </template>
-        </Listbox>
-    </div>
+    <WidgetEditorDrawerList v-if="widgetModel" v-model:search="filterText" :items="filteredLayers" item-key="layerId" :active-key="selectedLayerId" draggable @item-click="onLayerClick" @item-dragstart="onDragStart" @item-drop="onDropComplete">
+        <template #search-append>
+            <q-btn class="q-mr-xs" unelevated round dense icon="add" color="primary" size="xs" :title="$t('workspace.gis.dnl.addLayer')" @click="openLayersDialog" />
+        </template>
+        <template #leading="{ item }">
+            <q-icon name="drag_indicator" size="14px" />
+            <q-icon :name="item.type.toLowerCase() === 'dataset' ? 'fas fa-database' : 'fas fa-map'" size="14px">
+                <q-tooltip>{{ item.type.toLowerCase() === 'dataset' ? $t('common.dataset') : $t('common.layer') }}</q-tooltip>
+            </q-icon>
+        </template>
+        <template #label="{ item }">
+            {{ item.name }}
+            <q-tooltip :delay="500">{{ item.name }}</q-tooltip>
+        </template>
+        <template #trailing="{ item }">
+            <q-btn flat round dense icon="delete" size="sm" class="q-ml-auto" data-test="delete-button" @click.stop="deleteLayer(item)" />
+        </template>
+    </WidgetEditorDrawerList>
 
     <LayersDialog :visible="layersDialogVisible" :available-datasets-prop="selectedDatasets" :selected-datasets-prop="widgetModel.layers" @add-selected-datasets="addDatasets" @close="closeLayersDialog" />
 </template>
@@ -36,7 +26,7 @@ import { PropType, defineComponent } from 'vue'
 import { IDataset, IWidget } from '../../../Dashboard'
 import { IMapWidgetLayer, IWidgetMapLayerColumn } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import LayersDialog from './MapWidgetLayersTabDialog.vue'
-import Listbox from 'primevue/listbox'
+import WidgetEditorDrawerList from '../common/WidgetEditorDrawerList.vue'
 
 import deepcopy from 'deepcopy'
 import { removeLayerFromModel } from './MapWidgetLayersTabListHelper'
@@ -44,7 +34,7 @@ import { setDefaultMeasureValuesForMapWidgetColumns } from '../../MapWidget/MapW
 
 export default defineComponent({
     name: 'map-widget-layers-list',
-    components: { LayersDialog, Listbox },
+    components: { LayersDialog, WidgetEditorDrawerList },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
         datasets: {
@@ -65,6 +55,7 @@ export default defineComponent({
         return {
             layers: [] as IMapWidgetLayer[],
             filterText: '',
+            selectedLayerId: null as string | null,
             layersDialogVisible: false
         }
     },
@@ -88,15 +79,25 @@ export default defineComponent({
         closeLayersDialog() {
             this.layersDialogVisible = false
         },
-        onDragStart(event: any, startIndex: number) {
-            event.dataTransfer.setData('text/plain', JSON.stringify(startIndex))
+        onLayerClick(layer: IMapWidgetLayer) {
+            this.selectedLayerId = layer.layerId
+            this.$emit('layerSelected', layer)
+        },
+        // The list can be filtered, so indexes are taken from the full layers array
+        onDragStart(event: DragEvent, layer: IMapWidgetLayer) {
+            if (!event.dataTransfer) return
+            event.dataTransfer.setData('application/x-kn-row', JSON.stringify({ index: this.layers.indexOf(layer) }))
             event.dataTransfer.dropEffect = 'move'
             event.dataTransfer.effectAllowed = 'move'
         },
-        onDropComplete(event: any, dropIndex: number) {
-            const eventData = JSON.parse(event.dataTransfer.getData('text/plain'))
-            const temp = this.widgetModel.layers[eventData]
-            this.layers.splice(eventData, 1)
+        onDropComplete(event: DragEvent, targetLayer: IMapWidgetLayer) {
+            const data = event.dataTransfer?.getData('application/x-kn-row')
+            if (!data) return
+            const startIndex = JSON.parse(data).index
+            const dropIndex = this.layers.indexOf(targetLayer)
+            if (startIndex === -1 || dropIndex === -1 || startIndex === dropIndex) return
+            const temp = this.layers[startIndex]
+            this.layers.splice(startIndex, 1)
             this.layers.splice(dropIndex, 0, temp)
         },
         addDatasets(datasets: IMapWidgetLayer[]) {
@@ -113,12 +114,13 @@ export default defineComponent({
             setDefaultMeasureValuesForMapWidgetColumns(this.widgetModel)
             this.closeLayersDialog()
         },
-        deleteLayer(index: number) {
-            removeLayerFromModel(deepcopy(this.layers[index]), this.widgetModel)
+        deleteLayer(layer: IMapWidgetLayer) {
+            const index = this.layers.indexOf(layer)
+            if (index === -1) return
+            removeLayerFromModel(deepcopy(layer), this.widgetModel)
             this.layers.splice(index, 1)
+            if (this.selectedLayerId === layer.layerId) this.selectedLayerId = null
         }
     }
 })
 </script>
-
-<style lang="scss" scoped></style>

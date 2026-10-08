@@ -1,6 +1,6 @@
 <template>
-    <div v-if="widgetModel" class="p-d-flex p-flex-column p-mx-3">
-        <FieldTable v-for="(field, index) in widgetModel.fields" :key="index" class="p-mb-3" :field-type="index" :widget-model="widgetModel" :items="field" :settings="descriptor[index]" :error="getErrorForFieldType(index)" @row-reorder="onFieldsReorder" @item-added="onFieldAdded" @item-selected="setSelectedField" @item-updated="onFieldItemUpdate" @item-deleted="onFieldDelete" />
+    <div v-if="widgetModel" class="column no-wrap q-mx-md">
+        <FieldTable v-for="(field, index) in widgetModel.fields" :key="index" class="q-mb-md" :field-type="index" :widget-model="widgetModel" :items="field" :settings="descriptor[index]" :error="getErrorForFieldType(index)" @row-reorder="onFieldsReorder" @item-added="onFieldAdded" @item-selected="setSelectedField" @item-updated="onFieldItemUpdate" @item-deleted="onFieldDelete" />
     </div>
 </template>
 

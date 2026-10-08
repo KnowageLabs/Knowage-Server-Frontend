@@ -1,6 +1,14 @@
 <template>
     <div v-if="widgetModel">
-        <ChartWidgetChartTypeDropdown :widget-model="widgetModel" @selectedChartTypeChanged="$emit('selectedChartTypeChanged', $event)"></ChartWidgetChartTypeDropdown>
+        <q-card class="q-ma-md" flat bordered>
+            <q-card-section class="q-py-sm">
+                <div class="kn-editor-card-label">{{ $t('dashboard.widgetEditor.toolbars.general') }}</div>
+            </q-card-section>
+            <q-separator />
+            <q-card-section>
+                <ChartWidgetChartTypeDropdown :widget-model="widgetModel" @selectedChartTypeChanged="$emit('selectedChartTypeChanged', $event)"></ChartWidgetChartTypeDropdown>
+            </q-card-section>
+        </q-card>
         <ChartJSPieChartDataContainer :widget-model="widgetModel" :selected-dataset="selectedDataset"></ChartJSPieChartDataContainer>
     </div>
 </template>

@@ -801,9 +801,11 @@
                 "perSeriesOverrides": "Per-series overrides",
                 "title": "Accessibility"
             },
+            "addAllColumns": "Add all columns",
             "addDynamicColumns": "Add Dynamic Columns",
             "addFunction": "Add Function",
             "addWidget": "Add widget",
+            "searchColumns": "Search columns",
             "aggregation": "Aggregation",
             "area": "Area",
             "ascending": "Ascending",

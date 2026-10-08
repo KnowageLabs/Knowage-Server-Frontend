@@ -1,11 +1,11 @@
 <template>
-    <div v-if="widgetModel" class="p-d-flex p-flex-column p-mx-3">
-        <WidgetEditorColumnTable class="p-mb-3 p-order-1" :widget-model="widgetModel" :items="columnTableItems['ATTRIBUTES'] ?? []" :settings="attributesColumnSettings" :chart-type="chartType" :error="isAttributesTableInvalid()" :selected-dataset-columns="selectedDatasetColumns" @rowReorder="onColumnsReorder($event, 'ATTRIBUTES')" @itemAdded="onColumnAdded" @itemUpdated="onColumnItemUpdate" @itemDeleted="onColumnDelete"></WidgetEditorColumnTable>
+    <div v-if="widgetModel" class="column no-wrap q-mx-md">
+        <WidgetEditorColumnTable class="q-mb-md" style="order: 1" :widget-model="widgetModel" :items="columnTableItems['ATTRIBUTES'] ?? []" :settings="attributesColumnSettings" :chart-type="chartType" :error="isAttributesTableInvalid()" @rowReorder="onColumnsReorder($event, 'ATTRIBUTES')" @itemAdded="onColumnAdded" @itemUpdated="onColumnItemUpdate" @itemDeleted="onColumnDelete"></WidgetEditorColumnTable>
         <WidgetEditorColumnTable
             v-for="axis in ['start', 'end']"
             :key="axis"
-            class="p-mb-3"
-            :class="{ 'p-order-3': axis === 'start', 'p-order-5': axis === 'end' }"
+            class="q-mb-md"
+            :style="{ order: axis === 'start' ? 3 : axis === 'end' ? 5 : 0 }"
             :widget-model="widgetModel"
             :items="columnTableItems[axis] ?? []"
             :settings="getValuesAxisSettings(axis)"

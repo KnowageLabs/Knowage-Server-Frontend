@@ -1,33 +1,25 @@
 <template>
-    <div class="dashboard-editor-list-card-container">
-        <q-input v-model="inputText" :placeholder="$t('common.search')" dense borderless clearable class="settings-search q-px-sm" @update:model-value="onInputChanged">
-            <template #prepend>
-                <q-icon name="search" size="16px" />
-            </template>
-        </q-input>
-        <Listbox v-model="selectedItem" class="kn-list kn-list-no-border-right dashboard-editor-list" :options="computedOptions" option-disabled="disabled">
-            <template #option="slotProps">
-                <div class="kn-list-item" :style="descriptor.listStyle.listItem" data-test="list-item" @click="itemClicked(slotProps.option)">
-                    <q-icon v-if="slotProps.option.icon" :name="slotProps.option.icon" class="p-mr-2" size="16px" />
-                    <div class="kn-list-item-text">{{ $t(slotProps.option.label) }}</div>
-                    <q-chip v-if="isSearchActive" dense class="q-ml-auto search-count-chip" :color="(matchCounts[slotProps.option.value] ?? 0) > 0 ? 'primary' : 'grey-3'" :text-color="(matchCounts[slotProps.option.value] ?? 0) > 0 ? 'white' : 'grey-6'" size="sm">
-                        {{ matchCounts[slotProps.option.value] ?? 0 }}
-                    </q-chip>
-                </div>
-            </template>
-        </Listbox>
-    </div>
+    <WidgetEditorDrawerList v-model:search="inputText" :items="computedOptions" item-key="value" :active-key="selectedItem?.value ?? null" @update:search="onInputChanged" @item-click="itemClicked">
+        <template #leading="{ item }">
+            <q-icon v-if="item.icon" :name="item.icon" size="16px" />
+        </template>
+        <template #label="{ item }">{{ $t(item.label) }}</template>
+        <template #trailing="{ item }">
+            <q-chip v-if="isSearchActive" dense class="q-ml-auto search-count-chip" :color="(matchCounts[item.value] ?? 0) > 0 ? 'primary' : 'grey-3'" :text-color="(matchCounts[item.value] ?? 0) > 0 ? 'white' : 'grey-6'" size="sm">
+                {{ matchCounts[item.value] ?? 0 }}
+            </q-chip>
+        </template>
+    </WidgetEditorDrawerList>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
-import Listbox from 'primevue/listbox'
-import descriptor from './WidgetEditorSettingsTabDescriptor.json'
+import WidgetEditorDrawerList from '../common/WidgetEditorDrawerList.vue'
 
 export default defineComponent({
     name: 'widget-editor-list',
-    components: { Listbox },
+    components: { WidgetEditorDrawerList },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
         options: { type: Array as PropType<{ icon: string; label: string; value: string; disabled?: boolean }[]> },
@@ -37,7 +29,6 @@ export default defineComponent({
     emits: ['itemClicked', 'search-changed'],
     data() {
         return {
-            descriptor,
             selectedItem: null as { icon: string; label: string; value: string } | null,
             inputText: '' as string,
             debounceTimer: null as ReturnType<typeof setTimeout> | null,
@@ -76,6 +67,7 @@ export default defineComponent({
     methods: {
         itemClicked(item: { icon: string; label: string; value: string; disabled?: boolean }) {
             if (item.disabled) return
+            this.selectedItem = item
             this.inputText = ''
             this.localCommittedSearch = ''
             if (this.debounceTimer) clearTimeout(this.debounceTimer)
@@ -103,9 +95,3 @@ export default defineComponent({
     }
 })
 </script>
-
-<style lang="scss" scoped>
-.settings-search {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-}
-</style>

@@ -1,10 +1,8 @@
 <template>
-    <q-card v-if="column" flat square class="p-p-3" style="background-color: rgb(0, 0, 0, 0.03)">
-        <div v-if="widgetModel.type !== 'selector'" class="row q-col-gutter-xs p-pb-3">
-            <!-- <q-input class="col-4" :label="$t('components.knCalculatedField.columnName')" v-model="column.columnName" dense square disable /> -->
-            <!-- <q-input class="col-4" :label="$t('common.alias')" v-model="column.alias" dense square /> -->
-            <q-select class="col-4" v-model="column.fieldType" :options="descriptor.columnTypeOptions" emitValue dense square :label="$t('common.type')" option-value="value" option-label="label" :disable="column.formula !== undefined" @update:model-value="columnTypeChanged">
-                <template v-slot:option="scope">
+    <div v-if="column">
+        <div v-if="widgetModel.type !== 'selector'" class="row q-col-gutter-sm">
+            <q-select class="col-4" v-model="column.fieldType" :options="descriptor.columnTypeOptions" emit-value outlined dense hide-bottom-space options-dense :label="$t('common.type')" option-value="value" option-label="label" :disable="column.formula !== undefined" @update:model-value="columnTypeChanged">
+                <template #option="scope">
                     <q-item v-bind="scope.itemProps">
                         <q-item-section>
                             <q-item-label>{{ $t(scope.opt.label) }}</q-item-label>
@@ -12,17 +10,17 @@
                     </q-item>
                 </template>
             </q-select>
-            <q-select class="col-4" v-model="column.orderColumn" :options="selectedDatasetColumns" emitValue clearable dense square :label="$t('dashboard.widgetEditor.sortingColumn')" option-value="name" option-label="name" @update:model-value="selectedColumnUpdated">
-                <template v-slot:selected-item="scope">
+            <q-select class="col-4" v-model="column.orderColumn" :options="selectedDatasetColumns" emit-value clearable outlined dense hide-bottom-space options-dense :label="$t('dashboard.widgetEditor.sortingColumn')" option-value="name" option-label="name" @update:model-value="selectedColumnUpdated">
+                <template #selected-item="scope">
                     {{ selectedDatasetColumns.find((tempColumn: IDatasetColumn) => tempColumn.name === scope.opt)?.alias ?? '' }}
                 </template>
             </q-select>
 
-            <q-select v-if="column.fieldType === 'ATTRIBUTE' && widgetType === 'discovery' && column.aggregation !== 'COUNT'" class="col-12" v-model="column.aggregationColumn" :options="widgetMeasureColumns" emitValue clearable dense square :label="$t('dashboard.widgetEditor.drillSortingColumn')" option-value="columnName" option-label="columnName" @update:model-value="selectedColumnUpdated" />
+            <q-select v-if="column.fieldType === 'ATTRIBUTE' && widgetType === 'discovery' && column.aggregation !== 'COUNT'" class="col-12" v-model="column.aggregationColumn" :options="widgetMeasureColumns" emit-value clearable outlined dense hide-bottom-space options-dense :label="$t('dashboard.widgetEditor.drillSortingColumn')" option-value="columnName" option-label="columnName" @update:model-value="selectedColumnUpdated" />
         </div>
 
         <WidgetEditorFilterForm v-if="column.filter" :prop-column="column"></WidgetEditorFilterForm>
-    </q-card>
+    </div>
 </template>
 
 <script lang="ts">
@@ -31,12 +29,11 @@ import { IDatasetColumn, IWidget, IWidgetColumn, IWidgetColumnFilter } from '../
 import { emitter } from '../../../../DashboardHelpers'
 import descriptor from './TableWidgetDataDescriptor.json'
 import commonDescriptor from '../common/WidgetCommonDescriptor.json'
-import Dropdown from 'primevue/dropdown'
 import WidgetEditorFilterForm from '../common/WidgetEditorFilterForm.vue'
 
 export default defineComponent({
     name: 'table-widget-column-form',
-    components: { Dropdown, WidgetEditorFilterForm },
+    components: { WidgetEditorFilterForm },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, selectedColumn: { type: Object as PropType<IWidgetColumn | null>, required: true } },
     data() {
         return {

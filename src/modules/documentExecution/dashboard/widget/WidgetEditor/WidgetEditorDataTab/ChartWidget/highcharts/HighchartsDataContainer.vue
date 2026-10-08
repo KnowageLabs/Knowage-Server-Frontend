@@ -1,9 +1,10 @@
 <template>
     <div v-if="widgetModel">
-        <q-card class="q-ma-md rounded-borders" flat bordered>
-            <q-toolbar class="kn-toolbar kn-toolbar--secondary">
-                <q-toolbar-title>{{ $t('dashboard.widgetEditor.toolbars.general') }}</q-toolbar-title>
-            </q-toolbar>
+        <q-card class="q-ma-md" flat bordered>
+            <q-card-section class="q-py-sm">
+                <div class="kn-editor-card-label">{{ $t('dashboard.widgetEditor.toolbars.general') }}</div>
+            </q-card-section>
+            <q-separator />
             <q-card-section>
                 <ChartWidgetChartTypeDropdown :widget-model="widgetModel" @selectedChartTypeChanged="$emit('selectedChartTypeChanged', $event)"></ChartWidgetChartTypeDropdown>
                 <HighchartsLimitSettings :widget-model="widgetModel"> </HighchartsLimitSettings>

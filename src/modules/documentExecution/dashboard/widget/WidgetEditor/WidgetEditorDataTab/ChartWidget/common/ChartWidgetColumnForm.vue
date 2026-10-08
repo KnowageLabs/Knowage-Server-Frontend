@@ -1,16 +1,16 @@
 <template>
-    <q-card v-if="column" flat square class="p-p-3" style="background-color: rgb(0, 0, 0, 0.03)">
-        <div class="row q-col-gutter-xs p-pb-4">
-            <q-select class="col-6 col-grow" v-model="column.orderColumn" :options="selectedDatasetColumns" emitValue clearable dense square :label="$t('dashboard.widgetEditor.sortingColumn')" option-value="name" option-label="name" @update:model-value="selectedColumnUpdated">
-                <template v-slot:selected-item="scope">
+    <div v-if="column">
+        <div class="row q-col-gutter-sm">
+            <q-select class="col-6 col-grow" v-model="column.orderColumn" :options="selectedDatasetColumns" emit-value clearable outlined dense hide-bottom-space options-dense :label="$t('dashboard.widgetEditor.sortingColumn')" option-value="name" option-label="name" @update:model-value="selectedColumnUpdated">
+                <template #selected-item="scope">
                     {{ selectedDatasetColumns.find((tempColumn: IDatasetColumn) => tempColumn.name === scope.opt)?.alias ?? '' }}
                 </template>
             </q-select>
-            <q-select v-if="showTypeDropdown" class="col-6" v-model="column.serieType" :options="descriptor.serieTypeOptions" emitValue clearable dense square :label="$t('dashboard.widgetEditor.visualizationType.title')" option-value="value" @update:model-value="selectedColumnUpdated">
-                <template v-slot:selected-item="scope">
+            <q-select v-if="showTypeDropdown" class="col-6" v-model="column.serieType" :options="descriptor.serieTypeOptions" emit-value clearable outlined dense hide-bottom-space options-dense :label="$t('dashboard.widgetEditor.visualizationType.title')" option-value="value" @update:model-value="selectedColumnUpdated">
+                <template #selected-item="scope">
                     {{ $t(descriptor.serieTypeOptions.find((option) => option.value === scope.opt)?.label ?? '') }}
                 </template>
-                <template v-slot:option="scope">
+                <template #option="scope">
                     <q-item v-bind="scope.itemProps">
                         <q-item-section>
                             <q-item-label>{{ $t(scope.opt.label) }}</q-item-label>
@@ -21,7 +21,7 @@
         </div>
 
         <WidgetEditorFilterForm v-if="column.filter" :prop-column="column"></WidgetEditorFilterForm>
-    </q-card>
+    </div>
 </template>
 
 <script lang="ts">
@@ -30,13 +30,12 @@ import { IDatasetColumn, IWidget, IWidgetColumn, IWidgetColumnFilter } from '../
 import { emitter } from '../../../../../DashboardHelpers'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import commonDescriptor from '../../common/WidgetCommonDescriptor.json'
-import Dropdown from 'primevue/dropdown'
 import WidgetEditorFilterForm from '../../common/WidgetEditorFilterForm.vue'
 import descriptor from './ChartWidgetColumnFormDescriptor.json'
 
 export default defineComponent({
     name: 'table-widget-column-form',
-    components: { Dropdown, WidgetEditorFilterForm },
+    components: { WidgetEditorFilterForm },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, selectedColumn: { type: Object as PropType<IWidgetColumn | null>, required: true }, chartType: { type: String, required: true } },
     data() {
         return {
