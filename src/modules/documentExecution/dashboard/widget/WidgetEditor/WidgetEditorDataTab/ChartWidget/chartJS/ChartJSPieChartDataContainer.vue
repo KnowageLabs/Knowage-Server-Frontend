@@ -1,7 +1,7 @@
 <template>
     <div v-if="widget" class="p-d-flex p-flex-column">
         <WidgetEditorColumnTable class="p-m-2 p-order-1" :widget-model="widget" :items="columnTableItems['ATTRIBUTES'] ?? []" :settings="{ ...commonDescriptor.columnTableSettings, ...chartJSDescriptor.pieChartColumnTableSettings[0] }" :error="isAttributesTableInvalid()" @rowReorder="onColumnsReorder" @itemAdded="onColumnAdded" @itemUpdated="onColumnItemUpdate" @itemDeleted="onColumnDelete"></WidgetEditorColumnTable>
-        <WidgetEditorColumnTable class="p-m-2 p-order-3" :widget-model="widget" :items="columnTableItems['MEASURES'] ?? []" :settings="{ ...commonDescriptor.columnTableSettings, ...chartJSDescriptor.pieChartColumnTableSettings[1] }" :error="isMeasureTableInvalid()" @itemAdded="onColumnAdded" @itemUpdated="onColumnItemUpdate" @itemDeleted="onColumnDelete"></WidgetEditorColumnTable>
+        <WidgetEditorColumnTable class="p-m-2 p-order-3" :widget-model="widget" :items="columnTableItems['MEASURES'] ?? []" :settings="{ ...commonDescriptor.columnTableSettings, ...chartJSDescriptor.pieChartColumnTableSettings[1] }" :error="isMeasureTableInvalid()" @rowReorder="onColumnsReorder($event, 'MEASURES')" @itemAdded="onColumnAdded" @itemUpdated="onColumnItemUpdate" @itemDeleted="onColumnDelete"></WidgetEditorColumnTable>
     </div>
 </template>
 

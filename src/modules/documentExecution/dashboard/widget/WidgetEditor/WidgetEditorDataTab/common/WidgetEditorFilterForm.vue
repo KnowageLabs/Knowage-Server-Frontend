@@ -15,13 +15,13 @@
                 </q-item>
             </template>
         </q-select>
-        <q-input v-if="['=', '<', '>', '<=', '>=', '!=', 'like', 'range'].includes(column.filter.operator)" class="col-4 col-grow" :label="column.filter.operator === 'range' ? $t('common.from') : $t('common.value')" v-model="column.filter.value" dense square :disable="!column.filter.enabled" @update:model-value="onFilterOperatorChange" />
+        <q-input v-if="['=', '<', '>', '<=', '>=', '!=', 'like', 'range'].includes(column.filter.operator)" class="col-4 col-grow" :label="column.filter.operator === 'range' ? $t('common.from') : $t('common.value')" v-model="column.filter.value" dense square :disable="!column.filter.enabled" @update:model-value="onFilterValueChange" />
         <span v-if="['IN', 'not IN'].includes(column.filter.operator)" class="col-grow p-float-label kn-material-input">
             <Chips v-model="inFilterValues" class="kn-width-full" :add-on-blur="true" :disabled="!column.filter.enabled" @add="onInFilterValuesChange" @remove="onInFilterValuesChange" />
             <label class="kn-material-input-label">{{ $t('common.value') }}</label>
             <small>{{ $t('common.chipsHint') }}</small>
         </span>
-        <q-input v-if="column.filter.operator === 'range'" class="col-4" :label="$t('common.to')" v-model="column.filter.value2" dense square :disable="!column.filter.enabled" @update:model-value="onFilterOperatorChange" />
+        <q-input v-if="column.filter.operator === 'range'" class="col-4" :label="$t('common.to')" v-model="column.filter.value2" dense square :disable="!column.filter.enabled" @update:model-value="onFilterValueChange" />
     </div>
 </template>
 
@@ -41,7 +41,8 @@ export default defineComponent({
     data() {
         return {
             commonDescriptor,
-            column: null as IWidgetColumn | null
+            column: null as IWidgetColumn | null,
+            filterValueTimer: undefined as ReturnType<typeof setTimeout> | undefined
         }
     },
     computed: {
@@ -83,6 +84,10 @@ export default defineComponent({
             if (!['=', '<', '>', '<=', '>=', '!=', 'IN', 'like', 'range', 'not IN'].includes(this.column.filter.operator)) this.column.filter.value = ''
             if (this.column.filter.operator !== 'range') delete this.column.filter.value2
             this.selectedColumnUpdated()
+        },
+        onFilterValueChange() {
+            clearTimeout(this.filterValueTimer)
+            this.filterValueTimer = setTimeout(() => this.onFilterOperatorChange(), 500)
         },
         onInFilterValuesChange() {
             this.selectedColumnUpdated()

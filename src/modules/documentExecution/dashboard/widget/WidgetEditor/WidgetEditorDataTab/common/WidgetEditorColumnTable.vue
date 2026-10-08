@@ -40,7 +40,7 @@
                         </template>
                     </Column>
                     <template #expansion="slotProps">
-                        <ChartWidgetColumnForm v-if="widgetType === 'highcharts' || widgetType === 'chartjs'" :widget-model="widgetModel" :selected-column="slotProps.data" :chart-type="chartType"></ChartWidgetColumnForm>
+                        <ChartWidgetColumnForm v-if="widgetType === 'highcharts' || widgetType === 'chartJS'" :widget-model="widgetModel" :selected-column="slotProps.data" :chart-type="chartType"></ChartWidgetColumnForm>
                         <SelectorDataForm v-else-if="widgetType === 'selector'" :prop-column="slotProps.data" :widget-model="widgetModel" />
                         <TableWidgetColumnForm v-else :widget-model="widgetModel" :selected-column="slotProps.data"></TableWidgetColumnForm>
                     </template>
@@ -123,7 +123,8 @@ export default defineComponent({
         },
         showSortButton(): boolean {
             if (this.widgetType === 'highcharts' && this.chartType === 'bubble') return this.axis === 'dimensions'
-            return this.widgetType === 'highcharts' || this.widgetType === 'chartjs' || this.widgetType === 'selector'
+            if (this.widgetType === 'chartJS') return this.widgetModel.settings?.chartModel?.model?.chart?.type !== 'pie'
+            return this.widgetType === 'highcharts' || this.widgetType === 'selector'
         },
         descriptorColumnNames(): Set<string> {
             if (this.widgetType !== 'selector') return new Set()
@@ -262,7 +263,6 @@ export default defineComponent({
             return column.field === 'aggregation' && row.type !== 'pythonFunction' && (row.fieldType === 'MEASURE' || ['Y', 'Z'].includes(row.axis)) && this.widgetType !== 'discovery' && !row.formula
         },
         updateSelectedColumn(selectedColumn: IWidgetColumn) {
-            console.log('Updating selected column:', selectedColumn)
             const index = this.rows.findIndex((tempColumn: IWidgetColumn) => tempColumn.id === selectedColumn.id)
             if (index !== -1) {
                 // this.rows[index] = { ...selectedColumn }

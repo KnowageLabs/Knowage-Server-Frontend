@@ -123,10 +123,10 @@ export default defineComponent({
             emitter.emit('refreshWidgetWithData', this.widget.id)
         },
         updateSortingColumn(column: IWidgetColumn) {
-            if (column.columnName === this.sortingColumn) {
+            if (column.id === this.sortingColumn) {
                 this.sortingColumn = ''
                 this.sortingOrder = ''
-                this.paginationChanged()
+                this.sortingChanged()
             }
         }
     }

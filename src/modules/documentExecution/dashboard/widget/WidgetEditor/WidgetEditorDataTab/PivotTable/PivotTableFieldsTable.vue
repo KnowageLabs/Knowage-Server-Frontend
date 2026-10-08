@@ -106,8 +106,8 @@ export default defineComponent({
         removeEventListeners() {
             emitter.off('selectedColumnUpdated', this.onSelectedColumnUpdated)
             emitter.off('addNewCalculatedField', this.onCalcFieldAdded)
-            emitter.on('addNewFunctionColumn', this.onFunctionsColumnAdded)
-            emitter.on('functionColumnEdited', this.onFunctionsColumnEdited)
+            emitter.off('addNewFunctionColumn', this.onFunctionsColumnAdded)
+            emitter.off('functionColumnEdited', this.onFunctionsColumnEdited)
         },
         onSelectedColumnUpdated(column: any) {
             this.updateSelectedColumn(column)
