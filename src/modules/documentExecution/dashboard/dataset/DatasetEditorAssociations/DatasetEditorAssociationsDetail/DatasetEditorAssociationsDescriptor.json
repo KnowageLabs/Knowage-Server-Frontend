@@ -14,15 +14,5 @@
         "java.util.LinkedHashMap": "Hash Map",
         "net.minidev.json.JSONArray": "JSON",
         "oracle.sql.TIMESTAMP": "Date"
-    },
-    "style": {
-        "metaCard": {
-            "card": {
-                "width": "240px"
-            },
-            "listItem": {
-                "height": "30px"
-            }
-        }
     }
 }

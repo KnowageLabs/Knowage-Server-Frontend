@@ -1,40 +1,29 @@
 <template>
-    <div v-if="driver && driver.parameterValue" class="p-fluid p-formgrid p-grid p-jc-center p-ai-center p-p-5 p-m-0">
-        <DataTable
-            v-model:selection="selectedRows"
-            v-model:filters="filters"
-            :value="rows"
-            class="p-datatable-sm kn-table p-col-12"
+    <div v-if="driver && driver.parameterValue" class="q-pa-md">
+        <q-table
+            v-model:selected="selectedRows"
+            :rows="rows"
+            :columns="tableColumns"
+            :row-key="getRowKey"
+            :selection="driver.multivalue ? 'multiple' : 'single'"
+            :filter="search"
             :loading="loading"
-            :selection-mode="driver.multivalue ? 'multiple' : 'single'"
-            :global-filter-fields="globalFilterFields"
-            :paginator="rows.length > 20"
-            :rows="20"
-            responsive-layout="stack"
-            breakpoint="600px"
-            @row-select="onRowSelect"
-            @row-unselect="onRowSelect"
-            @row-select-all="onRowSelect"
-            @row-unselect-all="onRowSelect"
+            v-model:pagination="pagination"
+            :rows-per-page-options="[0, 20]"
+            :no-data-label="$t('common.info.noDataFound')"
+            :no-results-label="$t('common.info.noDataFound')"
+            flat
+            dense
+            @update:selected="onRowSelect"
         >
-            <template #empty>
-                <Message class="p-m-2" severity="info" :closable="false" :style="descriptor.style.message">
-                    {{ $t('common.info.noDataFound') }}
-                </Message>
+            <template #top>
+                <q-input v-model="search" outlined dense clearable hide-bottom-space :placeholder="$t('common.search')" class="full-width" data-test="search-input">
+                    <template #prepend>
+                        <q-icon name="search" />
+                    </template>
+                </q-input>
             </template>
-
-            <template #header>
-                <div class="table-header p-d-flex p-ai-center">
-                    <span id="search-container" class="p-input-icon-left p-mr-3">
-                        <i class="pi pi-search" />
-                        <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" data-test="search-input" />
-                    </span>
-                </div>
-            </template>
-
-            <Column v-if="driver.multivalue" selection-mode="multiple" :style="descriptor.style.checkboxColumn"></Column>
-            <Column v-for="col of columns" :key="col.name" class="kn-truncated" :field="col.name" :header="col.header" :sortable="true"> </Column>
-        </DataTable>
+        </q-table>
     </div>
 </template>
 
@@ -42,35 +31,31 @@
 import { defineComponent, PropType } from 'vue'
 import { AxiosResponse } from 'axios'
 import { IDashboardDatasetDriver } from '@/modules/documentExecution/dashboard/Dashboard'
-import { filterDefault } from '@/helpers/commons/filterHelper'
-import Column from 'primevue/column'
-import DataTable from 'primevue/datatable'
-import Message from 'primevue/message'
-import descriptor from '../DatasetEditorDataDetailDescriptor.json'
 import { getFormattedDrivers, getUserRole } from './DatasetEditorDriverHelper'
 import { mapState } from 'pinia'
 import mainStore from '@/App.store'
 
 export default defineComponent({
     name: 'driver-dialog-popup',
-    components: { Column, DataTable, Message },
     props: { propDriver: { type: Object as PropType<IDashboardDatasetDriver | null>, required: true }, dashboardId: { type: String, required: true }, selectedDatasetProp: { required: true, type: Object }, drivers: { type: Array as PropType<IDashboardDatasetDriver[]>, required: true } },
     data() {
         return {
-            descriptor,
             driver: null as IDashboardDatasetDriver | null,
             rows: [] as any[],
             columns: [] as { header: string; name: string }[],
-            filters: { global: [filterDefault] } as any,
-            globalFilterFields: [] as string[],
-            selectedRows: null as any,
+            search: '' as string | null,
+            selectedRows: [] as any[],
+            pagination: { rowsPerPage: 0 },
             loading: false
         }
     },
     computed: {
         ...mapState(mainStore, {
             user: 'user'
-        })
+        }),
+        tableColumns(): any[] {
+            return this.columns.map((column) => ({ name: column.name, label: column.header, field: column.name, sortable: true, align: 'left', classes: 'ellipsis', style: 'max-width: 300px' }))
+        }
     },
     watch: {
         propDriver() {
@@ -85,13 +70,15 @@ export default defineComponent({
             this.driver = this.propDriver
             this.getDriverPopupInfo()
         },
+        getRowKey(row: any) {
+            return `${row.value}|${row.description}`
+        },
         async getDriverPopupInfo() {
             if (!this.driver || !this.selectedDatasetProp) return
             this.loading = true
-            const role = getUserRole(this.user)
             const postData = {
                 OBJECT_NAME: this.selectedDatasetProp.configuration?.qbeDatamarts,
-                ROLE: role,
+                ROLE: getUserRole(this.user),
                 PARAMETER_ID: this.driver.urlName,
                 MODE: 'extra',
                 PARAMETERS: getFormattedDrivers(this.drivers)
@@ -101,8 +88,9 @@ export default defineComponent({
                 .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/businessModelOpening/getParameters', postData)
                 .then((response: AxiosResponse<any>) => {
                     this.columns = response.data.result.metaData.fields.splice(1, response.data.result.metaData.fields.length - 2)
-                    this.columns.forEach((column: { header: string; name: string }) => this.globalFilterFields.push(column.name))
                     this.rows = response.data.result.root
+                    // Same as the PrimeVue paginator: pages of 20 only when there are more than 20 rows
+                    this.pagination = { rowsPerPage: this.rows.length > 20 ? 20 : 0 }
                 })
                 .catch((error: any) => console.log('ERROR: ', error))
 
@@ -116,13 +104,14 @@ export default defineComponent({
                 if (index !== -1) this.selectedRows.push(this.rows[index])
             })
         },
+        // q-table always gives an array; the single selection is its first item
         onRowSelect() {
             if (!this.driver) return
             if (this.driver.multivalue) {
-                this.driver.parameterValue = []
-                this.selectedRows.forEach((row: any) => this.driver?.parameterValue.push({ value: row.value, description: row.description }))
+                this.driver.parameterValue = this.selectedRows.map((row: any) => ({ value: row.value, description: row.description }))
             } else {
-                this.driver.parameterValue[0] = { value: this.selectedRows.value, description: this.selectedRows.description }
+                const row = this.selectedRows[0]
+                this.driver.parameterValue[0] = row ? { value: row.value, description: row.description } : { value: '', description: '' }
             }
         }
     }

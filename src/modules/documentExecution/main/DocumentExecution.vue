@@ -5,7 +5,7 @@
             <span v-else>{{ crossNavigationSourceDocumentName ? crossNavigationSourceDocumentName : document?.name }}</span>
             <q-space />
             <div v-if="mode == 'dashboard' && canSeeDashboardFunctions() && propMode !== 'document-execution-cross-navigation-popup'" class="kn-toolbar-group kn-add-widget">
-                <button id="add-widget-button" type="button" :aria-label="$t('dashboard.widgetEditor.addWidget')" @click="addWidget">
+                <button id="add-widget-button" type="button" data-widget-picker-trigger :aria-label="$t('dashboard.widgetEditor.addWidget')" @click="addWidget">
                     <span class="kn-add-widget__label">{{ $t('dashboard.widgetEditor.addWidget') }}</span>
                     <q-icon name="sym_o_add" size="20px" />
                 </button>

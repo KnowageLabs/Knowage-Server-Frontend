@@ -1,22 +1,16 @@
 <template>
-    <div v-if="driver" class="p-fluid p-formgrid p-grid p-jc-center p-ai-center p-p-5 p-m-0">
-        <div v-for="(option, index) in driver.options" :key="index" class="p-field-radiobutton p-col-12">
-            <RadioButton v-if="!driver.multivalue && driver.parameterValue" v-model="driver.parameterValue[0].value" :value="option.value" @change="setRadioButtonValue" />
-            <Checkbox v-if="driver.multivalue && driver.parameterValue" v-model="checkedValues" :value="option.value" @change="setCheckboxValue" />
-            <label>{{ option.description }}</label>
-        </div>
+    <div v-if="driver" class="q-pa-md">
+        <q-option-group v-if="!driver.multivalue && driver.parameterValue" v-model="driver.parameterValue[0].value" :options="groupOptions" type="radio" @update:model-value="setRadioButtonValue" />
+        <q-option-group v-if="driver.multivalue && driver.parameterValue" v-model="checkedValues" :options="groupOptions" type="checkbox" @update:model-value="setCheckboxValue" />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IDashboardDatasetDriver } from '@/modules/documentExecution/dashboard/Dashboard'
-import Checkbox from 'primevue/checkbox'
-import RadioButton from 'primevue/radiobutton'
 
 export default defineComponent({
     name: 'driver-dialog-list',
-    components: { Checkbox, RadioButton },
     props: { propDriver: { type: Object as PropType<IDashboardDatasetDriver | null>, required: true } },
     data() {
         return {
@@ -24,7 +18,11 @@ export default defineComponent({
             checkedValues: [] as string[]
         }
     },
-    computed: {},
+    computed: {
+        groupOptions(): { label: string; value: string }[] {
+            return (this.driver?.options ?? []).map((option: { value: string; description: string }) => ({ label: option.description, value: option.value }))
+        }
+    },
     watch: {
         propDriver() {
             this.loadDriver()

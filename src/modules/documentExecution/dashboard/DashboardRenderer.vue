@@ -10,7 +10,7 @@
                         <img :src="getImageSource('images/dashboard/common/databaseWizardDashboard.svg')" />
                         <span>{{ $t('dashboard.wizard.addDataset') }}</span>
                     </div>
-                    <div v-if="activeDashboardSheet.widgets?.lg?.length === 0" class="dashboardWizardContainer" data-test="new-button" @click="addWidget">
+                    <div v-if="activeDashboardSheet.widgets?.lg?.length === 0" class="dashboardWizardContainer" data-test="new-button" data-widget-picker-trigger @click="addWidget">
                         <img :src="getImageSource('images/dashboard/common/widgetWizardDashboard.svg')" />
                         <span>{{ $t('dashboard.wizard.addWidget') }}</span>
                     </div>

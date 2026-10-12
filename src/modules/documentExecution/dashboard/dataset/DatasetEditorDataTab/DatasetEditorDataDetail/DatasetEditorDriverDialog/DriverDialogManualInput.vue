@@ -1,12 +1,7 @@
 <!-- eslint-disable vue/valid-v-model -->
 <template>
-    <div v-if="driver && driver.parameterValue" class="p-fluid p-formgrid p-grid p-p-5 p-m-0">
-        <div class="p-field p-col-12">
-            <span class="p-float-label">
-                <InputText v-model="driver.parameterValue[0].value as string" class="kn-material-input" :type="driver.type === 'NUM' ? 'number' : 'text'" />
-                <label class="kn-material-input-label">{{ $t('common.value') }}</label>
-            </span>
-        </div>
+    <div v-if="driver && driver.parameterValue" class="q-pa-md">
+        <q-input v-model="driver.parameterValue[0].value as string" :type="driver.type === 'NUM' ? 'number' : 'text'" :label="$t('common.value')" outlined dense hide-bottom-space autofocus data-test="driver-manual-input" />
     </div>
 </template>
 

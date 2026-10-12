@@ -1,10 +1,18 @@
 <template>
-    <Button icon="fas fa-eye" class="p-button-text p-button-rounded p-button-plain dataset-preview-button" :disabled="!selectedDataset.id" @click="previewSelectedDataset" />
+    <div class="dataset-editor-tab row no-wrap">
+        <aside class="dataset-editor-tab__list">
+            <q-scroll-area class="fit">
+                <DataList :dashboard-datasets-prop="dashboardDatasetsProp" :available-datasets-prop="availableDatasetsProp" :selected-datasets-prop="selectedDatasets" :selected-dataset-id="selectedDatasetId" @addSelectedDatasets="addSelectedDatasets" @datasetSelected="selectDataset" @deleteDataset="$emit('deleteDataset', $event)" />
+            </q-scroll-area>
+        </aside>
+        <div class="dataset-editor-tab__content col kn-background">
+            <q-scroll-area class="fit">
+                <DataDetail :dashboard-datasets-prop="dashboardDatasetsProp" :selected-dataset-prop="selectedDataset" :document-drivers-prop="documentDriversProp" :dashboard-id="dashboardId" data-test="dataset-detail" @preview="previewSelectedDataset" />
+            </q-scroll-area>
+        </div>
 
-    <DataList :dashboard-datasets-prop="dashboardDatasetsProp" :available-datasets-prop="availableDatasetsProp" :selected-datasets-prop="selectedDatasets" @addSelectedDatasets="addSelectedDatasets" @datasetSelected="selectDataset" @deleteDataset="$emit('deleteDataset', $event)" />
-    <DataDetail :dashboard-datasets-prop="dashboardDatasetsProp" :selected-dataset-prop="selectedDataset" :document-drivers-prop="documentDriversProp" :dashboard-id="dashboardId" data-test="dataset-detail" class="kn-flex" />
-
-    <DatasetEditorPreview v-if="previewShown" :visible="previewShown" :prop-dataset="datasetToPreview" :dashboardId="dashboardId" @close="previewShown = false" />
+        <DatasetEditorPreview v-if="previewShown" :visible="previewShown" :prop-dataset="datasetToPreview" :dashboardId="dashboardId" @close="previewShown = false" />
+    </div>
 </template>
 
 <script lang="ts">
@@ -29,10 +37,15 @@ export default defineComponent({
     data() {
         return {
             previewShown: false,
-            selectedDataset: {} as any,
+            selectedDatasetId: null as number | null,
             datasetToPreview: {} as any,
-            selectedDatasets: [] as any[],
-            datasetDriversMap: {}
+            selectedDatasets: [] as any[]
+        }
+    },
+    computed: {
+        // A deleted dataset leaves the detail, because the lookup no longer finds it
+        selectedDataset(): any {
+            return this.selectedDatasets.find((dataset) => dataset.id.dsId === this.selectedDatasetId) ?? {}
         }
     },
     watch: {
@@ -45,17 +58,13 @@ export default defineComponent({
     },
     methods: {
         selectDataset(datasetId) {
-            this.selectedDataset = this.availableDatasetsProp.find((dataset) => dataset.id.dsId === datasetId)
+            this.selectedDatasetId = datasetId
         },
         loadSelectedDatasets() {
             this.selectedDatasets = this.selectedDatasetsProp
         },
         addSelectedDatasets(datasetsToAdd) {
             this.$emit('addSelectedDatasets', datasetsToAdd)
-        },
-        deleteAndUnselectDataset(event) {
-            this.selectedDataset = null
-            this.$emit('deleteDataset', event)
         },
         async loadDataset(datasetLabel: string) {
             await this.$http
@@ -83,25 +92,3 @@ export default defineComponent({
     }
 })
 </script>
-<style lang="scss">
-@media screen and (max-width: 1199px) {
-    #dataset-editor-preview {
-        -webkit-transition: width 0.3s;
-        transition: flex 0.3s;
-        flex: 0;
-    }
-}
-@media screen and (min-width: 1200px) {
-    #dataset-editor-preview {
-        -webkit-transition: width 0.3s;
-        transition: flex 0.3s;
-        flex: 1;
-        border-left: 1px solid #ccc;
-    }
-}
-.dataset-preview-button {
-    position: absolute;
-    right: 10px;
-    top: 40px;
-}
-</style>

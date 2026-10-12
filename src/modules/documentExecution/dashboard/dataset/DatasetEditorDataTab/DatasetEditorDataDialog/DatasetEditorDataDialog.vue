@@ -5,7 +5,7 @@
                 <q-toolbar-title>{{ $t('dashboard.datasetEditor.selectDatasets') }}</q-toolbar-title>
             </q-toolbar>
             <q-card-section>
-                <q-input filled dense v-model="searchWord" class="q-my-sm" type="text" :placeholder="$t('common.search')" data-test="search-input" @update:model-value="searchDatasets">
+                <q-input outlined dense v-model="searchWord" class="q-my-sm" type="text" :placeholder="$t('common.search')" data-test="search-input" @update:model-value="searchDatasets">
                     <template v-slot:append>
                         <q-icon name="search" />
                     </template>
@@ -21,7 +21,7 @@
                     </template>
                     <template #body-cell-params="props">
                         <q-td :props="props">
-                            <i v-if="props.row.parameters?.length > 0 || props.row.drivers?.length > 0" class="fas fa-check p-button-link" />
+                            <q-icon v-if="props.row.parameters?.length > 0 || props.row.drivers?.length > 0" name="check" color="primary" size="18px" />
                         </q-td>
                     </template>
                 </q-table>

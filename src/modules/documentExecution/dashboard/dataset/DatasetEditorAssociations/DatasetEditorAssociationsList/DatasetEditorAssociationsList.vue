@@ -1,74 +1,83 @@
 <template>
-    <div class="dashboard-editor-list-card-container p-m-3">
-        <div class="dashboard-editor-list-card">
-            <div class="p-d-flex p-m-2" :style="associationListDescriptor.style.buttonContainer">
-                <Button :label="$t('dashboard.datasetEditor.addAssociation')" icon="pi pi-plus-circle" class="p-button-outlined kn-flex p-mr-1" @click="$emit('createNewAssociation')"></Button>
-                <!--Button :label="$t('dashboard.datasetEditor.addIndexes')" icon="pi pi-plus-circle" class="p-button-outlined kn-flex" @click="$emit('addIndexesOnAssociations')"></Button-->
-            </div>
-            <Listbox
-                v-model="selectedAssociation"
-                class="kn-list kn-list-no-border-right dashboard-editor-list"
-                :options="dashboardAssociationsProp"
-                :filter="true"
-                :filter-placeholder="$t('common.search')"
-                option-label="label"
-                filter-match-mode="contains"
-                :filter-fields="['label']"
-                :empty-filter-message="$t('common.info.noDataFound')"
-                @change="selectAssociation"
-            >
-                <template #empty>{{ $t('common.info.noDataFound') }}</template>
-                <template #option="slotProps">
-                    <div v-tooltip.right="slotProps.option.fields.length" class="kn-list-item" :style="associationListDescriptor.style.list.listItem">
-                        <i v-if="slotProps.option.fields.length === 0" class="fa-solid fa-circle-exclamation p-ml-1 details-warning-color" />
-                        <!-- <div v-for="(field, index) of slotProps.option.fields" :key="index">
-                            {{ field.column }}
-                            <i class="fa-solid fa-arrows-left-right p-mr-1" v-if="index != slotProps.option.fields.length - 1" />
-                        </div> -->
-                        <span class="p-mx-2">{{ $t('dashboard.datasetEditor.association') }} - {{ slotProps.index }}</span>
-                        <Button icon="far fa-trash-alt" class="p-button-text p-button-rounded p-button-plain p-ml-auto" @click.stop="deleteAssociation(slotProps.option.id)" />
-                    </div>
+    <div class="associations-list">
+        <div class="row items-center no-wrap q-pa-sm">
+            <q-input v-model="search" outlined dense clearable hide-bottom-space :placeholder="$t('common.search')" class="col kn-field-compact" data-test="association-search">
+                <template #prepend>
+                    <q-icon name="search" size="16px" />
                 </template>
-            </Listbox>
+            </q-input>
+            <q-btn unelevated dense no-caps color="primary" icon="add" :label="$t('common.add')" class="kn-editor-add-button q-ml-sm q-px-sm" data-test="add-association-button" @click="$emit('createNewAssociation')">
+                <q-tooltip :delay="500">{{ $t('dashboard.datasetEditor.addAssociation') }}</q-tooltip>
+            </q-btn>
         </div>
+        <q-separator />
+        <WidgetEditorDrawerList :searchable="false" :items="filteredAssociations" item-key="id" :active-key="selectedAssociationProp?.id ?? null" @item-click="(association) => $emit('associationSelected', association)">
+            <template #leading="{ item }">
+                <q-icon v-if="item.fields.length < 2" name="error" size="14px" class="associations-list__error" data-test="association-error-icon" />
+                <q-icon v-else name="link" size="14px" class="associations-list__icon" />
+            </template>
+            <template #label="{ item }">
+                <span data-test="association-list-item">
+                    {{ getSummary(item) }}
+                    <q-tooltip :delay="500">{{ getSummary(item) }}</q-tooltip>
+                </span>
+            </template>
+            <template #trailing="{ item }">
+                <q-btn flat round dense size="sm" icon="delete" class="kn-editor-action" data-test="delete-association-button" @click.stop="confirmDelete(item)">
+                    <q-tooltip :delay="500">{{ $t('common.delete') }}</q-tooltip>
+                </q-btn>
+            </template>
+        </WidgetEditorDrawerList>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, PropType } from 'vue'
 import { IAssociation } from '../../../Dashboard'
-import Listbox from 'primevue/listbox'
-import dashStore from '../../../Dashboard.store'
-import associationListDescriptor from './DatasetEditorAssociationsListDescriptor.json'
+import WidgetEditorDrawerList from '../../../widget/WidgetEditor/common/WidgetEditorDrawerList.vue'
+import { getAssociationSummary } from '../DatasetEditorAssociationsHelper'
 
 export default defineComponent({
-    name: 'dataset-editor-data-list',
-    components: { Listbox },
-    props: { dashboardAssociationsProp: { required: true, type: Array as any }, selectedAssociationProp: { required: true, type: Object as any } },
-    emits: ['createNewAssociation', 'associationSelected', 'associationDeleted', 'addIndexesOnAssociations'],
-    setup() {
-        const dashboardStore = dashStore()
-        return { dashboardStore }
-    },
+    name: 'dataset-editor-associations-list',
+    components: { WidgetEditorDrawerList },
+    props: { dashboardAssociationsProp: { required: true, type: Array as PropType<IAssociation[]> }, selectedAssociationProp: { type: Object as PropType<IAssociation | null>, default: null }, selectedDatasetsProp: { required: true, type: Array as any } },
+    emits: ['createNewAssociation', 'associationSelected', 'associationDeleted'],
     data() {
         return {
-            associationListDescriptor,
-            selectedAssociation: {} as IAssociation
+            search: '' as string | null
         }
     },
-    watch: {
-        selectedAssociationProp() {
-            this.selectedAssociation = this.selectedAssociationProp
+    computed: {
+        filteredAssociations(): IAssociation[] {
+            const search = (this.search ?? '').trim().toLowerCase()
+            if (!search) return this.dashboardAssociationsProp
+            return this.dashboardAssociationsProp.filter((association) => this.getSummary(association).toLowerCase().includes(search))
         }
     },
-    created() {},
     methods: {
-        selectAssociation(event) {
-            this.$emit('associationSelected', event.value)
+        getSummary(association: IAssociation): string {
+            return getAssociationSummary(association, this.selectedDatasetsProp) || this.$t('dashboard.datasetEditor.newAssociation')
         },
-        deleteAssociation(associationId) {
-            this.$emit('associationDeleted', associationId)
+        confirmDelete(association: IAssociation) {
+            this.$q
+                .dialog({
+                    title: this.$t('common.toast.deleteConfirmTitle'),
+                    message: this.$t('common.toast.deleteMessage'),
+                    cancel: true,
+                    persistent: true
+                })
+                .onOk(() => this.$emit('associationDeleted', association.id))
         }
     }
 })
 </script>
+
+<style lang="scss" scoped>
+.associations-list__icon {
+    color: var(--kn-editor-list-icon-color);
+}
+
+.associations-list__error {
+    color: var(--kn-color-error);
+}
+</style>
