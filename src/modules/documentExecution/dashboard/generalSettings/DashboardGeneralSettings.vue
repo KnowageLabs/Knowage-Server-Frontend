@@ -10,7 +10,7 @@
 
         <div class="datasetEditor-container kn-background">
             <DashboardGeneralSettingsList :dashboard-model-prop="dashboardModel" :selected="selectedOption" @selected-option="setSelectedOption"></DashboardGeneralSettingsList>
-            <div v-if="selectedOption !== 'Custom Header' && selectedOption !== 'CrossNavigation'" class="general-settings-content">
+            <div v-if="selectedOption !== 'Custom Header' && selectedOption !== 'CrossNavigation'" class="general-settings-content" data-tour-id="settings-content">
                 <div class="general-settings-panel-wrapper">
                     <KnHint v-if="!selectedOption || selectedOption === 'General'" class="p-as-center" :title="'common.settings'" :hint="'dashboard.widgetEditor.settings.hint'"></KnHint>
                     <q-card v-else class="q-ma-sm">
@@ -26,7 +26,7 @@
                     </q-card>
                 </div>
             </div>
-            <div v-if="customHeaderWidgetEditorVisible && customHeaderWidget" class="p-d-flex p-flex-column kn-flex dashboard-card-shadow q-ma-md">
+            <div v-if="customHeaderWidgetEditorVisible && customHeaderWidget" class="p-d-flex p-flex-column kn-flex dashboard-card-shadow q-ma-md" data-tour-id="settings-content">
                 <span class="p-p-3">
                     <InputSwitch v-model="menuWidgetsConfig.enableCustomHeader" />
                     <label class="kn-material-input-label p-ml-3">{{ $t('dashboard.generalSettings.menuWidgets.enableCustomHeader') }}</label>
@@ -34,7 +34,7 @@
                 <WidgetEditor ref="widgetEditor" :dashboard-id="dashboardId" :datasets="datasets" :variables="variables" :prop-widget="customHeaderWidget" :class="{ 'editor-disabled': !menuWidgetsConfig.enableCustomHeader }"></WidgetEditor>
             </div>
 
-            <q-card v-if="selectedOption === 'CrossNavigation'" class="kn-flex q-ma-md column" style="overflow: hidden">
+            <q-card v-if="selectedOption === 'CrossNavigation'" class="kn-flex q-ma-md column" style="overflow: hidden" data-tour-id="settings-content">
                 <DashboardCrossNavigation ref="crossNavRef" :dashboard-id="dashboardId" />
             </q-card>
         </div>
@@ -65,6 +65,8 @@ import { addMissingMenuWidgetsConfiguration } from '../DashboardHelpers'
 import descriptor from './DashboardGeneralSettingsDescriptor.json'
 import KnHint from '@/components/UI/KnHint.vue'
 import InputSwitch from 'primevue/inputswitch'
+import { registerPageTour } from '@/composables/usePageTour'
+import { startGeneralSettingsTour } from './DashboardGeneralSettingsTour'
 
 export default defineComponent({
     name: 'dashboard-general-settings',
@@ -86,7 +88,8 @@ export default defineComponent({
             customHeaderWidget: null as IWidget | null,
             customHeaderWidgetEditorVisible: false,
             menuWidgetsConfig: {} as IMenuAndWidgets,
-            accordionOpen: true as boolean
+            accordionOpen: true as boolean,
+            unregisterTour: null as (() => void) | null
         }
     },
     computed: {
@@ -109,6 +112,12 @@ export default defineComponent({
         this.loadSelectedDatasets()
         this.loadSelectedDatasetColumnNames()
         this.loadMenuAndWidgetConfiguration()
+    },
+    mounted() {
+        this.unregisterTour = registerPageTour(() => startGeneralSettingsTour({ t: this.$t, root: this.$el }))
+    },
+    beforeUnmount() {
+        this.unregisterTour?.()
     },
     methods: {
         ...mapActions(store, ['getDashboard', 'getAllThemes']),

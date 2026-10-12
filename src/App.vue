@@ -27,9 +27,6 @@ import { primeVueDate, getLocale } from '@/helpers/commons/localeHelper'
 import { loadLanguageAsync } from '@/App.i18n.js'
 import auth from '@/helpers/commons/authHelper'
 import sessionTimeoutHelper from '@/helpers/commons/sessionTimeoutHelper'
-import { driver } from 'driver.js'
-import 'driver.js/dist/driver.css'
-import { getPageTour } from '@/composables/usePageTour'
 import { useServiceWorker } from '@/composables/useServiceWorker'
 import { decodeJWT, isTokenExpired } from '@/helpers/commons/jwtHelper'
 import { isAuthCallbackInProgress, isLoginRouteByLocation, markAuthReady } from '@/helpers/commons/authState'
@@ -44,8 +41,6 @@ export default defineComponent({
             isMobileDevice: false,
             pollingInterval: null as any,
             stopExecution: false,
-            tourRunning: false,
-            activeTour: null as any,
             showUpdatePrompt: false,
             swRefresh: null as any,
             postLoginInitDone: false,
@@ -311,8 +306,6 @@ export default defineComponent({
         if (/Android|iPhone/i.test(navigator.userAgent)) {
             this.isMobileDevice = false
         }
-        ;(window as any).__knowageTourRunning = false
-        ;(window as any).startKnowageTour = () => this.startTour()
     },
 
     beforeUnmount() {
@@ -435,110 +428,10 @@ export default defineComponent({
                     .finally(() => {
                         this.loadInternationalization()
                         this.setLoading(false)
-                        // Tour is started manually from the menu (no auto-start)
                     })
             } else {
                 this.loadInternationalization()
                 this.setLoading(false)
-                // Tour is started manually from the menu (no auto-start)
-            }
-        },
-        maybeStartTour() {
-            if (this.isMobileDevice) return
-            if (localStorage.getItem('knowageTourDone')) return
-            // Ensure layout is rendered before starting
-            setTimeout(() => this.startTour(), 400)
-        },
-        async startTour() {
-            if (this.isMobileDevice) return
-            if (this.tourRunning) return
-
-            // A page with its own tour shows that one instead of the main menu tour.
-            const pageTour = getPageTour()
-            if (pageTour) return pageTour()
-
-            this.tourRunning = true
-            ;(window as any).__knowageTourRunning = true
-
-            const byTourId = (id: string) => document.querySelector(`[data-tour-id='${id}']`) as Element | null
-
-            const waitForElement = async (getEl: () => Element | null, opts?: { timeoutMs?: number; intervalMs?: number }) => {
-                const timeoutMs = opts?.timeoutMs ?? 4000
-                const intervalMs = opts?.intervalMs ?? 100
-
-                const start = Date.now()
-                while (Date.now() - start < timeoutMs) {
-                    const el = getEl()
-                    if (el) return el
-                    await new Promise((r) => setTimeout(r, intervalMs))
-                }
-                return null
-            }
-
-            try {
-                const mainMenuEl = await waitForElement(() => byTourId('main-menu'))
-                if (!mainMenuEl) return
-
-                const steps: any[] = [
-                    {
-                        element: mainMenuEl,
-                        popover: {
-                            title: this.$t('tour.mainMenuTitle') || 'Menu',
-                            description: this.$t('tour.mainMenuDescription') || 'Usa il menu per navigare tra le funzionalità.',
-                            side: 'right',
-                            onNextClick: async (_el, _step, opts) => {
-                                // The language row exists only while the account micromenu is open.
-                                if (!byTourId('menu-action-languageSelection')) {
-                                    const accountBtn = document.querySelector("[data-tour-id='menu-profile'] button") as HTMLElement | null
-                                    if (accountBtn) accountBtn.click()
-                                }
-
-                                await waitForElement(() => byTourId('menu-action-languageSelection'), { timeoutMs: 1500, intervalMs: 100 })
-
-                                opts.driver.moveNext()
-                            }
-                        }
-                    },
-                    {
-                        element: () => byTourId('menu-action-languageSelection') as Element,
-                        popover: {
-                            title: this.$t('tour.languageTitle') || 'Lingua',
-                            description: this.$t('tour.languageDescription') || 'Clicca qui (bandiera) per cambiare lingua.',
-                            side: 'right'
-                        }
-                    }
-                ]
-
-                const tour = driver({
-                    allowClose: true,
-                    overlayOpacity: 0.6,
-                    animate: true,
-                    smoothScroll: true,
-                    stagePadding: 8,
-                    stageRadius: 10,
-                    showProgress: true,
-                    nextBtnText: this.$t('common.next') || 'Avanti',
-                    prevBtnText: this.$t('common.previous') || 'Indietro',
-                    doneBtnText: this.$t('common.close') || 'Chiudi',
-                    popoverClass: 'kn-tour-popover',
-                    onDestroyed: () => {
-                        this.tourRunning = false
-                        this.activeTour = null
-                        ;(window as any).__knowageTourRunning = false
-                    }
-                } as any)
-
-                this.activeTour = tour
-
-                tour.setSteps(steps)
-                tour.drive()
-                localStorage.setItem('knowageTourDone', 'true')
-            } finally {
-                // If we bailed out early before creating the tour, unlock.
-                if (!this.activeTour) {
-                    this.tourRunning = false
-                    ;(window as any).__knowageTourRunning = false
-                }
             }
         },
         async loadInternationalization() {

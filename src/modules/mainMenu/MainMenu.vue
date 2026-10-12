@@ -144,6 +144,8 @@ import MainMenuRailItem from '@/modules/mainMenu/MainMenuRailItem.vue'
 import NewsDialog from '@/modules/mainMenu/dialogs/NewsDialog/NewsDialog.vue'
 import RoleDialog from '@/modules/mainMenu/dialogs/RoleDialog.vue'
 import type { IMenuGroup, IMenuItem } from '@/modules/mainMenu/MainMenu'
+import { startGuidedTour } from '@/composables/usePageTour'
+import { startMainMenuTour } from '@/modules/mainMenu/MainMenuTour'
 import { containsRoute, getInitials, getMenuLink, isHomeItem, isItemClickable, isLicenseItem, isMyAccountItem, isRouteActive, normalizeMenuIcon, translateMenuLabel } from '@/modules/mainMenu/MainMenuHelpers'
 
 // Hover intent: the menu opens only after the pointer rests on it and closes only after the pointer stays away, so a quick pass across the rail does not flicker it.
@@ -412,7 +414,7 @@ export default defineComponent({
                     break
                 case 'guidedTour':
                     this.closePopups()
-                    ;(window as any).startKnowageTour?.()
+                    startGuidedTour(() => startMainMenuTour({ t: this.$t, openAccount: () => this.openAccount('main'), closeAccount: () => (this.accountOpen = false) }))
                     break
                 case 'languageSelection':
                     this.openAccount('language')

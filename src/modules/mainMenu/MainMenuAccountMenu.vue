@@ -1,5 +1,5 @@
 <template>
-    <div class="kn-account-menu" @keydown.esc="onEsc">
+    <div class="kn-account-menu" data-tour-id="menu-account-popup" @keydown.esc="onEsc">
         <template v-if="view === 'main'">
             <div class="kn-account-menu__header">
                 <span class="kn-account-menu__avatar">{{ initials }}</span>

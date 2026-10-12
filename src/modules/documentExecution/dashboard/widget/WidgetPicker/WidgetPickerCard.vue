@@ -1,5 +1,5 @@
 <template>
-    <q-item class="widget-picker-row" :class="{ 'widget-picker-row--locked': locked }" clickable :disable="locked" data-test="list-item" @click="emit('select', widget)">
+    <q-item class="widget-picker-row" :class="{ 'widget-picker-row--locked': locked }" :data-tour-id="locked ? 'picker-locked' : undefined" clickable :disable="locked" data-test="list-item" @click="emit('select', widget)">
         <q-item-section avatar class="widget-picker-row__avatar">
             <div class="widget-picker-row__tile">
                 <div class="widget-picker-row__icon" :style="iconStyle"></div>
