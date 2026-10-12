@@ -1,37 +1,35 @@
 <template>
-    <div v-if="driver && driver.parameterValue" class="p-fluid p-formgrid p-grid p-p-5 p-m-0">
-        <Tree
+    <div v-if="driver && driver.parameterValue" class="q-pa-md">
+        <q-linear-progress v-if="loading" indeterminate color="primary" class="q-mb-sm" />
+        <q-tree
             id="kn-parameter-tree"
-            v-model:selectionKeys="selectedValuesKeys"
-            class="p-col-12"
-            :value="nodes as any"
-            :selection-mode="!driver.multivalue ? 'single' : undefined"
-            :meta-key-selection="false"
-            :loading="loading"
-            @nodeSelect="setSelectedValue"
-            @nodeUnselect="removeSelectedValue"
-            @nodeExpand="loadTreeInfo"
-            @nodeCollapse="setClosedFolderIcon"
+            :nodes="nodes"
+            node-key="id"
+            :selected="selectedKey"
+            :ticked="tickedKeys"
+            :tick-strategy="tickStrategy"
+            :no-nodes-label="$t('common.info.noDataFound')"
+            no-connectors
+            selected-color="primary"
+            @update:selected="onSelectedChange"
+            @update:ticked="onTickedChange"
+            @lazy-load="onLazyLoad"
         >
-            <template #default="slotProps">
-                <Checkbox v-if="driver.multivalue && slotProps.node.selectable" v-model="selectedNodes" class="p-ml-2" :value="slotProps.node.data" @change="onNodeChange" />
-                <span>{{ slotProps.node.label }}</span>
+            <template #default-header="{ node, expanded }">
+                <q-icon :name="node.leaf ? 'description' : expanded ? 'folder_open' : 'folder'" size="18px" class="q-mr-sm text-grey-7" />
+                <span>{{ node.label }}</span>
             </template>
-        </Tree>
+        </q-tree>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IDashboardDatasetDriver } from '@/modules/documentExecution/dashboard/Dashboard'
-import { iNode } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
 import { getFormattedDrivers, getUserRole } from './DatasetEditorDriverHelper'
 import { AxiosResponse } from 'axios'
-import descriptor from '../DatasetEditorDataDetailDescriptor.json'
 import { mapState } from 'pinia'
 import mainStore from '@/App.store'
-import Checkbox from 'primevue/checkbox'
-import Tree from 'primevue/tree'
 
 interface IFilterValueResponse {
     isEnabled: boolean
@@ -42,9 +40,13 @@ interface IFilterValueResponse {
     leaf?: boolean
 }
 
+interface IDriverValue {
+    value: string
+    description: string
+}
+
 export default defineComponent({
     name: 'driver-dialog-tree',
-    components: { Checkbox, Tree },
     props: {
         propDriver: {
             type: Object as PropType<IDashboardDatasetDriver | null>,
@@ -58,20 +60,24 @@ export default defineComponent({
     },
     data() {
         return {
-            descriptor,
             driver: null as IDashboardDatasetDriver | null,
-            nodes: [] as iNode[],
-            selectedValuesKeys: {} as any,
-            selectedValue: null as { value: string; description: string } | null,
-            multipleSelectedValues: [] as any[],
-            selectedNodes: [] as { value: string; description: string }[],
+            nodes: [] as any[],
+            nodeDataMap: {} as Record<string, IDriverValue & { leaf: boolean }>,
+            selectedKey: null as string | null,
+            tickedKeys: [] as string[],
+            // Saved values whose node is not loaded yet; they stay in the value until their node shows
+            pendingValues: [] as IDriverValue[],
             loading: false
         }
     },
     computed: {
         ...mapState(mainStore, {
             user: 'user'
-        })
+        }),
+        tickStrategy(): 'none' | 'strict' | 'leaf' {
+            if (!this.driver?.multivalue) return 'none'
+            return this.driver.allowInternalNodeSelection ? 'strict' : 'leaf'
+        }
     },
     watch: {
         propDriver() {
@@ -84,167 +90,76 @@ export default defineComponent({
     methods: {
         async loadDriver() {
             this.driver = this.propDriver
-            await this.loadTreeInfo(null)
-            this.setSelectedValues()
+            this.nodeDataMap = {}
+            this.selectedKey = null
+            this.tickedKeys = []
+            this.pendingValues = this.driver?.multivalue ? (this.driver.parameterValue ?? []).filter((el) => el.value !== '' && el.value !== null && el.value !== undefined).map((el) => ({ value: el.value as string, description: el.description })) : []
+            this.nodes = await this.fetchNodes(null)
         },
-        setSelectedValues() {
-            if (!this.driver || this.driver.parameterValue.length === 0) return
-            if (this.driver.multivalue) {
-                this.setMultipleSelectedRows()
-            } else {
-                this.selectedValue = { value: this.driver.parameterValue[0].value as string, description: this.driver.parameterValue[0].description }
-                this.selectedNodes = [this.selectedValue]
-                if (this.selectedValue) {
-                    this.selectedValuesKeys[this.selectedValue.description] = true
-                }
-            }
-        },
-        setMultipleSelectedRows() {
-            if (!this.driver) return
-            this.multipleSelectedValues = this.driver.parameterValue
-            this.selectedNodes = [...this.multipleSelectedValues]
-        },
-        async loadTreeInfo(parent: iNode | null) {
-            if (!this.driver || !this.selectedDatasetProp) return
+        async fetchNodes(parent: any) {
+            if (!this.driver || !this.selectedDatasetProp) return []
             this.loading = true
-            const role = getUserRole(this.user)
             const postData = {
                 name: this.selectedDatasetProp.configuration?.qbeDatamarts,
-                role: role,
+                role: getUserRole(this.user),
                 parameterId: this.driver.urlName,
                 mode: 'complete',
                 treeLovNode: parent ? parent.id : 'lovroot',
                 PARAMETERS: getFormattedDrivers(this.drivers)
             }
 
-            const content = [] as iNode[]
+            const content = [] as any[]
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/businessModelOpening/parametervalues', postData, { headers: { 'X-Disable-Interceptor': 'true' } })
                 .then((response: AxiosResponse<any>) => {
-                    response.data.filterValues.forEach((el: IFilterValueResponse) => {
-                        content.push(this.createNode(el, parent))
-                    })
+                    response.data.filterValues.forEach((el: IFilterValueResponse) => content.push(this.createNode(el)))
                 })
                 .catch((error: any) => console.log('ERROR: ', error))
-            this.attachContentToTree(parent, content)
-            content.forEach((el: iNode) => this.checkIfNodeIsSelected(el))
-            if (parent) this.setOpenFolderIcon(parent)
+            content.forEach((node) => this.checkIfNodeIsSelected(node))
             this.loading = false
+            return content
         },
-        checkIfNodeIsSelected(node: iNode) {
-            const index = this.driver?.parameterValue.findIndex((el: any) => el.value === node.data.value)
-            if (index !== -1) {
-                this.selectedValuesKeys[node.key] = true
-                if (node.leaf && this.checkIfAllChildrensAreSelected(node.parent))
-                    this.selectedValuesKeys[node.parent.key] = {
-                        checked: true,
-                        partialyChecked: false
-                    }
-            }
+        async onLazyLoad({ node, done }: { node: any; done: (nodes?: any[]) => void }) {
+            done(await this.fetchNodes(node))
         },
-        checkIfAllChildrensAreSelected(node: iNode) {
-            let allChecked = true
-            for (let i = 0; i < node.children.length; i++) {
-                if (!this.selectedValuesKeys[node.children[i].key] || !this.selectedValuesKeys[node.children[i].key].checked) {
-                    allChecked = false
-                    break
-                }
-            }
-
-            return allChecked
+        createNode(el: IFilterValueResponse) {
+            const leaf = el.leaf ?? false
+            this.nodeDataMap[el.id] = { value: el.value, description: el.description, leaf }
+            const node: any = { id: el.id, label: el.label, data: { value: el.value, description: el.description }, leaf, noTick: !this.isNodeSelectable(leaf) }
+            if (!leaf) node.lazy = true
+            return node
         },
-        attachContentToTree(parent: iNode | null, content: iNode[]) {
-            if (parent) {
-                parent.children = []
-                parent.children = content
-            } else {
-                this.nodes = []
-                this.nodes = content
-            }
-        },
-        createNode(filterValueResponse: IFilterValueResponse, parent: iNode | null) {
-            return {
-                key: filterValueResponse.label,
-                id: filterValueResponse.id,
-                label: filterValueResponse.label,
-                children: [] as iNode[],
-                data: {
-                    value: filterValueResponse.value,
-                    description: filterValueResponse.description
-                },
-                style: descriptor.style.nodeStyle,
-                leaf: filterValueResponse.leaf ? filterValueResponse.leaf : false,
-                selectable: this.isNodeSelectable(filterValueResponse),
-                parent: parent,
-                icon: filterValueResponse.leaf ? 'pi pi-file' : 'pi pi-folder'
-            } as iNode
-        },
-        isNodeSelectable(filterValueResponse: IFilterValueResponse) {
+        // Multivalue: only leaves, unless the driver allows internal nodes. Single value: every node.
+        isNodeSelectable(leaf: boolean) {
             if (!this.driver || !this.driver.multivalue) return true
-
-            return this.driver.allowInternalNodeSelection || filterValueResponse.leaf
+            return this.driver.allowInternalNodeSelection || leaf
         },
-        setOpenFolderIcon(node: iNode) {
-            node.icon = 'pi pi-folder-open'
-        },
-        setClosedFolderIcon(node: iNode) {
-            node.icon = 'pi pi-folder'
-        },
-        onNodeChange() {
-            this.multipleSelectedValues = [...this.selectedNodes]
-            this.updateDriverValueWithMultipleSelectedValues()
-        },
-        setSelectedValue(node: iNode) {
+        checkIfNodeIsSelected(node: any) {
             if (!this.driver) return
-            if (!this.driver.multivalue) {
-                this.selectedValue = node.data
-                this.driver.parameterValue = this.selectedValue ? [{ value: this.selectedValue.value, description: this.selectedValue.description ?? '' }] : []
-            } else if (node.leaf) {
-                this.multipleSelectedValues.push(node.data)
-                this.updateDriverValueWithMultipleSelectedValues()
-            } else {
-                node?.children.forEach((child: iNode) => {
-                    const index = this.multipleSelectedValues.findIndex((el: { value: string; description: string }) => el.value === child.data.value && el.description === child.data.description)
-                    if (index === -1) this.multipleSelectedValues.push(child.data)
-                })
-                this.updateDriverValueWithMultipleSelectedValues()
+            if (this.driver.multivalue) {
+                const index = this.pendingValues.findIndex((el) => el.value === node.data.value)
+                if (index === -1) return
+                this.pendingValues.splice(index, 1)
+                if (!this.tickedKeys.includes(node.id)) this.tickedKeys = [...this.tickedKeys, node.id]
+            } else if (this.driver.parameterValue[0]?.value === node.data.value) {
+                this.selectedKey = node.id
             }
         },
-        updateDriverValueWithMultipleSelectedValues() {
-            if (!this.driver) return
-            this.driver.parameterValue = []
-            this.multipleSelectedValues?.forEach((el: any) =>
-                this.driver?.parameterValue.push({
-                    value: el.value,
-                    description: el.description ?? ''
-                })
-            )
+        onSelectedChange(key: string | null) {
+            if (!this.driver || this.driver.multivalue) return
+            this.selectedKey = key
+            const data = key ? this.nodeDataMap[key] : null
+            this.driver.parameterValue = data ? [{ value: data.value, description: data.description ?? '' }] : [{ value: '', description: '' }]
         },
-        removeSelectedValue(node: iNode) {
+        onTickedChange(keys: string[]) {
             if (!this.driver) return
-            if (!this.driver.multivalue) {
-                this.selectedValue = null
-                this.driver.parameterValue = [{ value: '', description: '' }]
-            } else if (node.leaf) {
-                this.removeSelectedNode(node)
-                this.updateDriverValueWithMultipleSelectedValues()
-            } else {
-                node?.children.forEach((child: iNode) => {
-                    this.removeSelectedNode(child)
-                })
-                this.updateDriverValueWithMultipleSelectedValues()
-            }
-        },
-        removeSelectedNode(node: iNode) {
-            const index = this.multipleSelectedValues.findIndex((el: any) => el.value === node.data.value)
-            if (index !== -1) this.multipleSelectedValues.splice(index, 1)
+            this.tickedKeys = keys
+            const tickedValues = keys
+                .map((key) => this.nodeDataMap[key])
+                .filter(Boolean)
+                .map((data) => ({ value: data.value, description: data.description ?? '' }))
+            this.driver.parameterValue = [...this.pendingValues, ...tickedValues]
         }
     }
 })
 </script>
-
-<style lang="scss" scoped>
-#kn-parameter-tree {
-    border: none;
-}
-</style>

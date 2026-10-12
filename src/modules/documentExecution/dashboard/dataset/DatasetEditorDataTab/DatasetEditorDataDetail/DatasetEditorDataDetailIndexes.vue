@@ -1,34 +1,26 @@
 <template>
-    <Accordion>
-        <AccordionTab :header="$t('dashboard.datasetEditor.indexesTitle')">
-            <div class="p-col-12 p-d-flex">
-                <div class="kn-flex">
-                    <span class="p-float-label">
-                        <MultiSelect v-model="selectedDataset.modelIndexes" class="kn-material-input" :style="descriptor.style.indexMultiselect" :options="selectedDatasetProp.metadata.fieldsMeta" option-label="alias" option-value="alias" />
-                        <label for="field" class="kn-material-input-label"> {{ $t('common.field') }}</label>
-                    </span>
-                </div>
-                <i v-tooltip.top="$t('dashboard.datasetEditor.indexHint')" class="fas fa-info-circle p-button-text p-button-plain p-as-center p-ml-2" :style="descriptor.style.indexInfoIcon" />
-            </div>
-        </AccordionTab>
-    </Accordion>
+    <q-card flat bordered class="dataset-detail-card">
+        <q-card-section class="dataset-detail-card__header row items-center no-wrap q-py-xs">
+            <div class="kn-editor-card-label col">{{ $t('dashboard.datasetEditor.indexesTitle') }}</div>
+            <q-icon name="help_outline" size="18px" class="kn-editor-card-hint">
+                <q-tooltip anchor="center left" self="center right" max-width="300px">{{ $t('dashboard.datasetEditor.indexHint') }}</q-tooltip>
+            </q-icon>
+        </q-card-section>
+        <q-separator />
+        <q-card-section>
+            <q-select v-model="selectedDataset.modelIndexes" :options="selectedDatasetProp.metadata.fieldsMeta" option-label="alias" option-value="alias" emit-value map-options multiple use-chips outlined dense hide-bottom-space options-dense :label="$t('common.fields')" data-test="indexes-select" />
+        </q-card-section>
+    </q-card>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Accordion from 'primevue/accordion'
-import AccordionTab from 'primevue/accordiontab'
-import MultiSelect from 'primevue/multiselect'
-import descriptor from './DatasetEditorDataDetailDescriptor.json'
 
 export default defineComponent({
-    name: 'dataset-editor-data-detail-info',
-    components: { Accordion, AccordionTab, MultiSelect },
+    name: 'dataset-editor-data-detail-indexes',
     props: { selectedDatasetProp: { required: true, type: Object } },
-    emits: [],
     data() {
         return {
-            descriptor,
             selectedDataset: {} as any
         }
     },

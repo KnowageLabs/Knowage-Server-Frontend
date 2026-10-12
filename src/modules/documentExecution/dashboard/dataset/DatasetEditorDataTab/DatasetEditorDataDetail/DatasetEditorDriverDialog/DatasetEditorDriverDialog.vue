@@ -1,37 +1,33 @@
 <template>
-    <Dialog class="p-fluid kn-dialog--toolbar--primary widget-tags-dialog" :style="descriptor.driverDialogStyle" :visible="visible" :modal="true" :closable="false">
-        <template #header>
-            <Toolbar class="kn-toolbar kn-toolbar--primary">
-                <template #start>
-                    {{ driver ? driver.label : '' }}
-                </template>
-            </Toolbar>
-        </template>
+    <q-dialog :model-value="visible" persistent>
+        <q-card class="driver-dialog column no-wrap">
+            <q-toolbar class="kn-toolbar kn-toolbar--primary">
+                <q-toolbar-title>{{ driver ? driver.label : '' }}</q-toolbar-title>
+            </q-toolbar>
 
-        <div v-if="driver">
-            <DriverDialogManualInput v-if="driver.typeCode === 'MAN_IN' && (driver.type === 'NUM' || driver.type === 'STRING')" :prop-driver="driver"></DriverDialogManualInput>
-            <DriverDialogList v-else-if="driver.selectionType === 'LIST'" :prop-driver="driver"></DriverDialogList>
-            <DriverDialogDropdown v-else-if="driver.selectionType === 'COMBOBOX'" :prop-driver="driver"></DriverDialogDropdown>
-            <DriverDialogDateInput v-else-if="driver.type === 'DATE'" :prop-driver="driver"></DriverDialogDateInput>
-            <DriverDialogPopup v-else-if="driver.selectionType === 'LOOKUP'" :prop-driver="driver" :dashboard-id="dashboardId" :selected-dataset-prop="selectedDatasetProp" :drivers="drivers"></DriverDialogPopup>
-            <DriverDialogTree v-else-if="driver.selectionType === 'TREE'" :prop-driver="driver" :dashboard-id="dashboardId" :selected-dataset-prop="selectedDatasetProp" :drivers="drivers"></DriverDialogTree>
-            <span v-else>
-                {{ driver }}
-            </span>
-        </div>
+            <div v-if="driver" class="col driver-dialog__body">
+                <DriverDialogManualInput v-if="driver.typeCode === 'MAN_IN' && (driver.type === 'NUM' || driver.type === 'STRING')" :prop-driver="driver"></DriverDialogManualInput>
+                <DriverDialogList v-else-if="driver.selectionType === 'LIST'" :prop-driver="driver"></DriverDialogList>
+                <DriverDialogDropdown v-else-if="driver.selectionType === 'COMBOBOX'" :prop-driver="driver"></DriverDialogDropdown>
+                <DriverDialogDateInput v-else-if="driver.type === 'DATE'" :prop-driver="driver"></DriverDialogDateInput>
+                <DriverDialogPopup v-else-if="driver.selectionType === 'LOOKUP'" :prop-driver="driver" :dashboard-id="dashboardId" :selected-dataset-prop="selectedDatasetProp" :drivers="drivers"></DriverDialogPopup>
+                <DriverDialogTree v-else-if="driver.selectionType === 'TREE'" :prop-driver="driver" :dashboard-id="dashboardId" :selected-dataset-prop="selectedDatasetProp" :drivers="drivers"></DriverDialogTree>
+                <span v-else class="q-pa-md">
+                    {{ driver }}
+                </span>
+            </div>
 
-        <template #footer>
-            <Button class="kn-button kn-button--secondary" data-test="close-button" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
-            <Button class="kn-button kn-button--primary" data-test="save-button" @click="updateDriver"> {{ $t('common.save') }}</Button>
-        </template>
-    </Dialog>
+            <q-card-actions align="right">
+                <q-btn flat color="secondary" :label="$t('common.cancel')" data-test="close-button" @click="closeDialog" />
+                <q-btn unelevated color="primary" :label="$t('common.save')" data-test="save-button" @click="updateDriver" />
+            </q-card-actions>
+        </q-card>
+    </q-dialog>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IDashboardDatasetDriver } from '@/modules/documentExecution/dashboard/Dashboard'
-import Dialog from 'primevue/dialog'
-import descriptor from '../DatasetEditorDataDetailDescriptor.json'
 import deepcopy from 'deepcopy'
 import DriverDialogManualInput from './DriverDialogManualInput.vue'
 import DriverDialogList from './DriverDialogList.vue'
@@ -42,7 +38,7 @@ import DriverDialogTree from './DriverDialogTree.vue'
 
 export default defineComponent({
     name: 'dataset-editor-driver-dialog',
-    components: { Dialog, DriverDialogManualInput, DriverDialogList, DriverDialogDropdown, DriverDialogPopup, DriverDialogDateInput, DriverDialogTree },
+    components: { DriverDialogManualInput, DriverDialogList, DriverDialogDropdown, DriverDialogPopup, DriverDialogDateInput, DriverDialogTree },
     props: {
         visible: Boolean,
         propDriver: { type: Object as PropType<IDashboardDatasetDriver | null>, required: true },
@@ -53,7 +49,6 @@ export default defineComponent({
     emits: ['close', 'updateDriver'],
     data() {
         return {
-            descriptor,
             driver: null as IDashboardDatasetDriver | null
         }
     },
@@ -84,5 +79,18 @@ export default defineComponent({
 <style lang="scss">
 .widget-tags-dialog .p-dialog-content {
     padding: 0;
+}
+</style>
+
+<style lang="scss" scoped>
+.driver-dialog {
+    width: 60vw;
+    max-width: 900px;
+    max-height: 85vh;
+
+    &__body {
+        min-height: 0;
+        overflow: auto;
+    }
 }
 </style>

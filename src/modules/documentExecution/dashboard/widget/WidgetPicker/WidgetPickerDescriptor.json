@@ -1,80 +1,86 @@
 {
     "imageExtension": ".svg",
     "imagePath": "/images/dashboard/widgetTypes/",
-    "style": {
-        "dialog": {
-            "width": "60%"
-        },
-        "mainIcon": {
-            "font-size": "35px"
-        }
-    },
+    "categories": ["data", "charts", "content", "filters"],
     "widgets": [
         {
+            "category": "content",
             "description": "dashboard.widgets.text.description",
             "name": "dashboard.widgets.text.title",
             "type": "text"
         },
         {
+            "category": "content",
             "description": "dashboard.widgets.image.description",
             "name": "dashboard.widgets.image.title",
             "type": "image"
         },
         {
+            "category": "charts",
             "description": "dashboard.widgets.chart.description",
             "name": "dashboard.widgets.chart.title",
             "type": "chart"
         },
         {
+            "category": "content",
             "description": "dashboard.widgets.html.description",
             "name": "dashboard.widgets.html.title",
             "type": "html"
         },
         {
+            "category": "data",
             "description": "dashboard.widgets.table.description",
             "name": "dashboard.widgets.table.title",
             "type": "table"
         },
         {
+            "category": "data",
             "description": "dashboard.widgets.static-pivot-table.description",
             "enterpriseOnly": true,
             "name": "dashboard.widgets.static-pivot-table.title",
             "type": "static-pivot-table"
         },
         {
+            "category": "charts",
             "description": "dashboard.widgets.map.description",
-            "name": "Map",
+            "name": "dashboard.widgets.map.title",
             "type": "map"
         },
         {
+            "category": "filters",
             "description": "dashboard.widgets.selection.description",
             "name": "dashboard.widgets.selection.title",
             "type": "selection"
         },
         {
+            "category": "filters",
             "description": "dashboard.widgets.selector.description",
             "name": "dashboard.widgets.selector.title",
             "type": "selector"
         },
         {
+            "category": "charts",
             "description": "dashboard.widgets.customchart.description",
             "functionality": "CreateCustomChart",
-            "name": "Custom Chart",
+            "name": "dashboard.widgets.customchart.title",
             "type": "customchart"
         },
         {
+            "category": "data",
             "description": "dashboard.widgets.discovery.description",
             "functionality": "DiscoveryWidgetUse",
             "name": "dashboard.widgets.discovery.title",
             "type": "discovery"
         },
         {
+            "category": "charts",
             "description": "dashboard.widgets.python.description",
             "functionality": "PythonWidget",
             "name": "dashboard.widgets.python.title",
             "type": "python"
         },
         {
+            "category": "content",
             "description": "dashboard.widgets.spacer.description",
             "name": "dashboard.widgets.spacer.title",
             "type": "spacer"

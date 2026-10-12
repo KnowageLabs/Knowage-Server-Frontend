@@ -20,15 +20,15 @@
                 </q-btn>
             </q-toolbar>
 
-            <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar p-ml-2" data-test="progress-bar" />
-            <div class="p-d-flex p-flex-column kn-flex workspace-scrollable-table">
+            <q-linear-progress v-if="loading" indeterminate color="primary" data-test="progress-bar" />
+            <div class="column no-wrap kn-flex workspace-scrollable-table">
                 <q-banner v-if="errorMessageVisible" rounded dense class="bg-warning q-ma-sm text-center">
                     <template v-slot:avatar>
                         <q-icon name="warning" />
                     </template>
                     {{ errorMessage }}
                 </q-banner>
-                <DatasetPreviewTable v-else class="p-d-flex p-flex-column kn-flex p-m-2" :preview-columns="columns" :preview-rows="rows" :pagination="pagination" :preview-type="previewType" @pageChanged="updatePagination($event)" @sort="onSort" @filter="onFilter"></DatasetPreviewTable>
+                <DatasetPreviewTable v-else class="column no-wrap kn-flex q-ma-sm" :preview-columns="columns" :preview-rows="rows" :pagination="pagination" :preview-type="previewType" @pageChanged="updatePagination($event)" @sort="onSort" @filter="onFilter"></DatasetPreviewTable>
             </div>
         </q-card>
     </q-dialog>

@@ -1,15 +1,19 @@
 <template>
-    <AssociationsList
-        :dashboard-associations-prop="dashboardAssociationsProp"
-        :selected-association-prop="selectedAssociation"
-        :association-invalid="associationInvalid"
-        @createNewAssociation="createNewAssociation"
-        @associationDeleted="deleteAssociation"
-        @associationSelected="associationSelected"
-        @addIndexesOnAssociations="addIndexesOnAssociations"
-    />
-    <AssociationsDetail v-if="selectedAssociation" :dashboard-associations-prop="dashboardAssociationsProp" :selected-datasets-prop="selectedDatasets" :selected-association-prop="selectedAssociation" @fieldSelected="manageAssociationField" @fieldUnselected="unselectAssociationField" />
-    <KnHint v-else class="p-as-center" :title="'dashboard.datasetEditor.associationsDetailTitle'" :hint="'dashboard.datasetEditor.associationsDetailMsg'"></KnHint>
+    <div class="dataset-editor-tab row no-wrap">
+        <aside class="dataset-editor-tab__list">
+            <q-scroll-area class="fit">
+                <AssociationsList :dashboard-associations-prop="dashboardAssociationsProp" :selected-association-prop="selectedAssociation" :selected-datasets-prop="selectedDatasets" @createNewAssociation="createNewAssociation" @associationDeleted="deleteAssociation" @associationSelected="associationSelected" />
+            </q-scroll-area>
+        </aside>
+        <div class="dataset-editor-tab__content col kn-background">
+            <q-scroll-area class="fit">
+                <AssociationsDetail v-if="selectedAssociation" :dashboard-associations-prop="dashboardAssociationsProp" :selected-datasets-prop="selectedDatasets" :selected-association-prop="selectedAssociation" @fieldSelected="manageAssociationField" @fieldUnselected="unselectAssociationField" />
+                <div v-else class="dataset-detail">
+                    <KnHint :title="'dashboard.datasetEditor.associationsDetailTitle'" :hint="'dashboard.datasetEditor.associationsDetailMsg'"></KnHint>
+                </div>
+            </q-scroll-area>
+        </div>
+    </div>
 </template>
 
 <script lang="ts">
@@ -18,20 +22,15 @@ import { IAssociation, IAssociationField } from '../../Dashboard'
 import KnHint from '@/components/UI/KnHint.vue'
 import AssociationsList from './DatasetEditorAssociationsList/DatasetEditorAssociationsList.vue'
 import AssociationsDetail from './DatasetEditorAssociationsDetail/DatasetEditorAssociationsDetail.vue'
-import mainStore from '../../../../../App.store'
 
 export default defineComponent({
-    name: 'dataset-editor-data-tab',
+    name: 'dataset-editor-associations',
     components: { AssociationsList, AssociationsDetail, KnHint },
-    props: { selectedDatasetsProp: { required: true, type: Array as any }, dashboardAssociationsProp: { required: true, type: Array as PropType<IAssociation[]> }, selectedAssociationProp: { required: true, type: Object as PropType<IAssociation> } },
-    emits: ['createNewAssociation', 'associationDeleted', 'addIndexesOnAssociations', 'associationSelected'],
-    setup() {
-        const store = mainStore()
-        return { store }
-    },
+    props: { selectedDatasetsProp: { required: true, type: Array as any }, dashboardAssociationsProp: { required: true, type: Array as PropType<IAssociation[]> }, selectedAssociationProp: { type: Object as PropType<IAssociation | null>, default: null } },
+    emits: ['associationSelected'],
     data() {
         return {
-            selectedAssociation: null as any,
+            selectedAssociation: null as IAssociation | null,
             selectedDatasets: [] as any[],
             dashboardAssociations: [] as IAssociation[]
         }
@@ -73,35 +72,24 @@ export default defineComponent({
         deleteAssociation(associationId) {
             const index = this.dashboardAssociations.findIndex((association) => association.id === associationId)
             if (index !== -1) this.dashboardAssociations.splice(index, 1)
-            this.selectedAssociation = null as any
+            if (this.selectedAssociation?.id === associationId) this.associationSelected(null)
         },
-        addIndexesOnAssociations() {
-            const selectedFields = {}
-            this.dashboardAssociations.forEach((association) => {
-                association.fields.reduce((obj, item) => {
-                    obj[item.dataset] = obj[item.dataset] || []
-                    obj[item.dataset].push(item.column)
-                    return obj
-                }, selectedFields)
-            })
-
-            this.selectedDatasetsProp.forEach((dataset) => {
-                dataset.modelIndexes ? '' : (dataset.modelIndexes = [])
-                dataset.modelIndexes.push(...selectedFields[dataset.id.dsId].filter((item) => dataset.modelIndexes.indexOf(item) == -1))
-            })
+        // One field per dataset: a second pick in the same dataset replaces the first
+        setAssociationField(association: IAssociation, selectedField: IAssociationField) {
+            const fieldToEdit = association.fields.find((field) => selectedField.dataset === field.dataset)
+            if (fieldToEdit) fieldToEdit.column = selectedField.column
+            else association.fields.push(selectedField)
+        },
+        removeAssociationField(association: IAssociation, datasetId: number) {
+            const fieldToUnselectIndex = association.fields.findIndex((field) => datasetId === field.dataset)
+            if (fieldToUnselectIndex === -1) return
+            association.fields.splice(fieldToUnselectIndex, 1)
         },
         manageAssociationField(selectedField: IAssociationField) {
-            const fieldToEdit = this.selectedAssociation.fields.find((field) => selectedField.dataset === field.dataset) as IAssociationField
-
-            if (fieldToEdit && selectedField.column !== fieldToEdit.column) {
-                fieldToEdit.column = selectedField.column
-            } else {
-                this.selectedAssociation.fields.push(selectedField)
-            }
+            if (this.selectedAssociation) this.setAssociationField(this.selectedAssociation, selectedField)
         },
-        unselectAssociationField(unselectedFieldDatasetId: IAssociationField) {
-            const fieldToUnselectIndex = this.selectedAssociation.fields.findIndex((field) => unselectedFieldDatasetId === field.dataset) as IAssociationField
-            this.selectedAssociation.fields.splice(fieldToUnselectIndex, 1)
+        unselectAssociationField(datasetId: number) {
+            if (this.selectedAssociation) this.removeAssociationField(this.selectedAssociation, datasetId)
         }
     }
 })

@@ -102,3 +102,18 @@
     color: #9e9e9e;
     cursor: help;
 }
+
+// Primary "Add" button next to a compact (32 px) field in an editor list header
+.kn-editor-add-button {
+    height: 32px;
+    min-height: 32px;
+}
+
+// Clickable icons in editor cards and lists: darker than the hint, so they are easy to find
+.kn-editor-action {
+    color: var(--kn-editor-action-icon-color);
+
+    &:hover {
+        color: var(--kn-editor-action-icon-hover-color);
+    }
+}

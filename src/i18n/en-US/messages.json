@@ -611,7 +611,8 @@
         },
         "dashboard": "Dashboard",
         "datasetEditor": {
-            "addAssociation": "Association",
+            "addAssociation": "Add association",
+            "addDataset": "Add dataset",
             "addIndexes": "Index",
             "association": "Association",
             "associationsDetailMsg": "<b>Associations</b> link two or more datasets by connecting some of their fields. <br />Click the button <b>+ Association</b> to add one and picking the fields you want to use as a relation between selected datasets.",
@@ -626,14 +627,18 @@
             "duplicateAssociationsMsg": "Association already exists!",
             "dynamic": "Dynamic",
             "emptyAssociationError": "You must have at least 2 fields selected to create association.",
+            "frequency": "Frequency",
             "indexHint": "Indexes will be created on single selected columns.",
             "indexPresentMsg": "Index already exists!",
             "indexesTitle": "Indexes",
+            "newAssociation": "New association",
             "noDatasetsFound": "No datasets found",
             "pendingChanges": "You have unsaved changes, are you sure you want to exit the editor?",
+            "saveDisabledAssociations": "Every association needs at least 2 fields.",
             "selectDatasets": "Select Datasets",
             "static": "Static",
-            "title": "Dataset Management"
+            "title": "Dataset Management",
+            "usedInAssociation": "Used in another association"
         },
         "errors": {
             "screenshotError": "An error occurred during the screenshot capture"
@@ -1927,6 +1932,9 @@
             "preview": "Preview",
             "selection": "Selection"
         },
+        "widgetPicker": {
+            "search": "Search widgets"
+        },
         "widgets": {
             "chart": {
                 "description": "Custom chart with binding to datasources data. Pie chart, bar chart and scatter chart available.",
@@ -1934,7 +1942,7 @@
             },
             "customchart": {
                 "description": "Custom chart with binding to datasources data. Custom javascript and external libraries are available.",
-                "title": "custom"
+                "title": "custom chart"
             },
             "discovery": {
                 "description": "Advanced faceted table to interact with Solr datasets",
