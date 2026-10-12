@@ -11,14 +11,14 @@
             </q-toolbar>
 
             <div class="q-pa-sm">
-                <q-input v-model="searchText" outlined dense clearable autofocus hide-bottom-space :placeholder="$t('dashboard.widgetPicker.search')" data-test="search-input">
+                <q-input v-model="searchText" outlined dense clearable autofocus hide-bottom-space :placeholder="$t('dashboard.widgetPicker.search')" data-test="search-input" data-tour-id="picker-search">
                     <template #prepend>
                         <q-icon name="search" />
                     </template>
                 </q-input>
             </div>
 
-            <q-scroll-area class="col">
+            <q-scroll-area class="col" data-tour-id="picker-list">
                 <!-- No group labels; the widgets keep the group order -->
                 <q-list class="q-pt-xs">
                     <WidgetPickerCard v-for="widget in visibleWidgets" :key="widget.type" :widget="widget" :locked="isLocked(widget)" @select="openWidgetEditor" />
@@ -36,6 +36,9 @@ import { IWidgetPickerType } from '../../Dashboard'
 import appStore from '@/App.store'
 import WidgetPickerCard from './WidgetPickerCard.vue'
 import descriptor from './WidgetPickerDescriptor.json'
+import { usePageTour } from '@/composables/usePageTour'
+import { isTourRunning } from '@/helpers/commons/tourHelper'
+import { startWidgetPickerTour } from './WidgetPickerTour'
 
 defineProps<{ visible?: boolean }>()
 const emit = defineEmits<{
@@ -74,15 +77,20 @@ function close() {
     emit('closeWidgetPicker')
 }
 
+usePageTour(() => {
+    if (panelRef.value) startWidgetPickerTour({ t, root: panelRef.value })
+})
+
+// Esc closes the tour first, not the panel
 function onKeydown(event: KeyboardEvent) {
-    if (event.key === 'Escape') close()
+    if (event.key === 'Escape' && !isTourRunning()) close()
 }
 
 function onPointerDown(event: PointerEvent) {
     const target = event.target as HTMLElement | null
-    if (!target || panelRef.value?.contains(target)) return
-    // The open buttons and the Quasar popups (teleported to body) do not count as outside
-    if (target.closest('[data-widget-picker-trigger], .q-menu, .q-tooltip')) return
+    if (!target || panelRef.value?.contains(target) || isTourRunning()) return
+    // The open buttons, the Quasar popups (teleported to body) and the guided tour button do not count as outside
+    if (target.closest("[data-widget-picker-trigger], .q-menu, .q-tooltip, [data-tour-id='menu-action-guidedTour']")) return
     close()
 }
 

@@ -1,6 +1,6 @@
 <template>
     <div class="sheets-container">
-        <div v-if="(edit && sheets && sheets.length >= 1) || (!edit && sheets && sheets.length > 1)" class="sheets-list" :class="labelPosition" role="tablist">
+        <div v-if="(edit && sheets && sheets.length >= 1) || (!edit && sheets && sheets.length > 1)" class="sheets-list" :class="labelPosition" role="tablist" data-tour-id="dashboard-sheets">
             <a v-for="(sheet, index) in sheets" :key="index" class="sheet-label" :class="{ active: currentPage === index, hidden: sheets.length <= 1 }" @touchstart.passive="setPage(index)" @click="setPage(index)" @dblclick.stop="renameSheet(index)">
                 <slot name="label" v-bind="sheet">
                     <template v-if="sheet.icon">

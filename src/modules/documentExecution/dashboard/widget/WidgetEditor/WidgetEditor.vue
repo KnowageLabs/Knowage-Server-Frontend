@@ -7,7 +7,7 @@
                 <q-btn flat round dense icon="save" :disable="widgetIsInvalid" data-test="save-button" @click="save" />
                 <q-btn flat round dense icon="close" data-test="close-button" @click="close" />
             </q-toolbar>
-            <q-tabs v-model="activeTab" align="left" dense class="bg-white text-black">
+            <q-tabs v-model="activeTab" align="left" dense class="bg-white text-black" data-tour-id="editor-tabs">
                 <q-tab v-if="hasDataTab" class="" name="data" :label="$t(widget.type === 'map' ? 'common.layers' : 'common.data')" />
                 <q-tab class="q-mr-auto" name="settings" :label="$t('common.settings')" />
                 <q-btn v-if="rightDrawerOpen" class="text-secondary" flat round dense icon="refresh" @click="refreshPreview" />
@@ -18,7 +18,7 @@
         <q-btn :class="['drawer-attached-btn', 'right-drawer-btn', { open: rightDrawerOpen, closed: !rightDrawerOpen }]" round dense :icon="rightDrawerOpen ? 'chevron_right' : 'chevron_left'" color="secondary" @click="rightDrawerOpen = !rightDrawerOpen" />
 
         <q-drawer v-model="dataListDrawerOpen" side="left" :breakpoint="0" bordered :width="leftDrawerWidth" class="resizable-drawer">
-            <q-scroll-area :style="{ height: scrollAreaHeight }">
+            <q-scroll-area :style="{ height: scrollAreaHeight }" data-tour-id="editor-side">
                 <div v-show="activeTab === 'data'">
                     <LayersList v-if="widget.type === 'map'" :widget-model="widget" :datasets="datasets" :selected-datasets="selectedDatasets" @layerSelected="onLayerSelected" />
                     <WidgetEditorDataList v-else :widget-model="widget" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" @datasetSelected="onDatasetSelectedFromList" @selectedDatasetColumnsChanged="onSelectedDatasetColumnsChanged" @toggle-list-drag="onToggleListDrag" />
@@ -29,13 +29,13 @@
         </q-drawer>
 
         <q-drawer v-model="rightDrawerOpen" side="right" bordered :breakpoint="0" :width="rightDrawerWidth" class="resizable-drawer">
-            <WidgetEditorPreview v-if="widget.type !== 'static-pivot-table' && !chartPickerVisible && rightDrawerOpen && showPreview" class="kn-width-full kn-height-full" :prop-widget="widget" :dashboard-id="dashboardId" :datasets="selectedModelDatasets" :variables="variables" />
+            <WidgetEditorPreview v-if="widget.type !== 'static-pivot-table' && !chartPickerVisible && rightDrawerOpen && showPreview" class="kn-width-full kn-height-full" :prop-widget="widget" :dashboard-id="dashboardId" :datasets="selectedModelDatasets" :variables="variables" data-tour-id="editor-preview" />
             <div class="resize-handle resize-handle-left" @mousedown="handleResizeStartRight"></div>
         </q-drawer>
 
         <q-page-container class="widget-page-container">
             <!-- with some ungodly hacking, this scroll area preserves the whole layout of the editor, i have no idea how it works -->
-            <q-scroll-area class="kn-background" :style="{ height: scrollAreaHeight }">
+            <q-scroll-area class="kn-background" :style="{ height: scrollAreaHeight }" data-tour-id="editor-main">
                 <q-tab-panels v-model="activeTab" keep-alive class="kn-width-full kn-height-full column kn-background">
                     <q-tab-panel v-if="hasDataTab" name="data" class="column" style="max-width: 850px !important; margin-left: auto !important; margin-right: auto !important">
                         <MapWidgetLayersTab v-if="widget.type === 'map'" :prop-widget="widget" :datasets="datasets" :selected-datasets="selectedDatasets" :layers="layers" :variables="variables" :dashboard-id="dashboardId" :selected-layer="selectedLayer" @layerSelected="onLayerSelected" />
@@ -73,6 +73,8 @@ import { AxiosResponse } from 'axios'
 import ChartWidgetChartTypeDropdown from './WidgetEditorDataTab/ChartWidget/common/ChartWidgetChartTypeDropdown.vue'
 import { IGalleryItem } from '../../Dashboard'
 import { mapActions } from 'pinia'
+import { registerPageTour } from '@/composables/usePageTour'
+import { startWidgetEditorTour } from './WidgetEditorTour'
 
 export default defineComponent({
     name: 'widget-editor',
@@ -113,7 +115,8 @@ export default defineComponent({
             isResizingLeft: false,
             isResizingRight: false,
             resizeStartX: 0,
-            showPreview: true
+            showPreview: true,
+            unregisterTour: null as (() => void) | null
         }
     },
     computed: {
@@ -181,10 +184,15 @@ export default defineComponent({
         window.addEventListener('keydown', this.handleKeyDown)
     },
     mounted() {
+        // The custom header editor inside General Settings has no tour of its own
+        if (!this.isDashboardHeader) this.unregisterTour = registerPageTour(this.startTour)
         this.updateScrollAreaHeight()
         window.addEventListener('resize', () => this.updateScrollAreaHeight())
         document.addEventListener('mousemove', this.handleResizeMove)
         document.addEventListener('mouseup', this.handleResizeEnd)
+    },
+    beforeUnmount() {
+        this.unregisterTour?.()
     },
     unmounted() {
         this.removeEventListeners()
@@ -195,6 +203,30 @@ export default defineComponent({
     },
     methods: {
         ...mapActions(dashStore, ['getHTMLGaleryItems', 'getPythonGaleryItems', 'getCustomChartGaleryItems']),
+        // The tour opens the side list and the preview and switches tabs; at the end the editor goes back to how it was.
+        startTour() {
+            const previousTab = this.activeTab
+            const sideWasOpen = this.dataListDrawerOpen
+            const previewWasOpen = this.rightDrawerOpen
+            this.dataListDrawerOpen = true
+            startWidgetEditorTour({
+                t: this.$t,
+                root: this.$el,
+                hasDataTab: this.hasDataTab,
+                isMap: this.widget.type === 'map',
+                hasPreview: this.widget.type !== 'static-pivot-table' && !this.chartPickerVisible,
+                showTab: async (tab) => {
+                    this.activeTab = tab
+                    await this.$nextTick()
+                },
+                showPreview: () => (this.rightDrawerOpen = true),
+                onDestroyed: () => {
+                    this.activeTab = previousTab
+                    this.dataListDrawerOpen = sideWasOpen
+                    this.rightDrawerOpen = previewWasOpen
+                }
+            })
+        },
         setEventListeners() {
             emitter.on('chartPickerVisible', this.changeChartPickerVisbility)
         },

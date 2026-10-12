@@ -5,13 +5,13 @@
             <span v-else>{{ crossNavigationSourceDocumentName ? crossNavigationSourceDocumentName : document?.name }}</span>
             <q-space />
             <div v-if="mode == 'dashboard' && canSeeDashboardFunctions() && propMode !== 'document-execution-cross-navigation-popup'" class="kn-toolbar-group kn-add-widget">
-                <button id="add-widget-button" type="button" data-widget-picker-trigger :aria-label="$t('dashboard.widgetEditor.addWidget')" @click="addWidget">
+                <button id="add-widget-button" type="button" data-widget-picker-trigger data-tour-id="dashboard-add-widget" :aria-label="$t('dashboard.widgetEditor.addWidget')" @click="addWidget">
                     <span class="kn-add-widget__label">{{ $t('dashboard.widgetEditor.addWidget') }}</span>
                     <q-icon name="sym_o_add" size="20px" />
                 </button>
             </div>
             <div v-if="mode == 'dashboard' && canSeeDashboardFunctions() && propMode !== 'document-execution-cross-navigation-popup'" class="kn-toolbar-group">
-                <q-btn flat round dense icon="sym_o_database" :aria-label="$t('common.datasets')" @click="openDashboardDatasetManagement">
+                <q-btn flat round dense icon="sym_o_database" :aria-label="$t('common.datasets')" data-tour-id="dashboard-datasets" @click="openDashboardDatasetManagement">
                     <q-tooltip anchor="bottom middle" self="top middle" :delay="300">{{ $t('common.datasets') }}</q-tooltip>
                 </q-btn>
                 <q-btn flat round dense icon="sym_o_save" :aria-label="$t('common.save')" data-test="save-button" @click="saveDashboard">
@@ -30,7 +30,7 @@
                 <q-btn v-if="!newDashboardMode" flat round dense icon="sym_o_refresh" :aria-label="$t('common.refresh')" @click="refresh">
                     <q-tooltip anchor="bottom middle" self="top middle" :delay="300">{{ $t('common.refresh') }}</q-tooltip>
                 </q-btn>
-                <DocumentExecutionToolbarMenu :items="toolbarMenuItems" @before-show="createMenuItems"></DocumentExecutionToolbarMenu>
+                <DocumentExecutionToolbarMenu ref="toolbarMenu" :items="toolbarMenuItems" @before-show="createMenuItems"></DocumentExecutionToolbarMenu>
             </div>
             <div v-if="isInDocBrowser || isInWorkspace" class="kn-toolbar-group">
                 <q-btn flat round dense icon="sym_o_close" :aria-label="$t('common.close')" @click="closeDocumentConfirm">
@@ -137,6 +137,9 @@ import DocumentExecutionSchedulationsTable from './tables/documentExecutionSched
 import DocumentExecutionLinkDialog from './dialogs/documentExecutionLinkDialog/DocumentExecutionLinkDialog.vue'
 import KnParameterSidebar from '@/components/UI/KnParameterSidebar/KnParameterSidebar.vue'
 import DocumentExecutionToolbarMenu from './DocumentExecutionToolbarMenu.vue'
+import { startDashboardTour } from './DashboardTour'
+import { registerPageTour } from '@/composables/usePageTour'
+import { isVisible } from '@/helpers/commons/tourHelper'
 import Registry from '../registry/Registry.vue'
 import Dossier from '../dossier/Dossier.vue'
 import Olap from '../olap/Olap.vue'
@@ -226,6 +229,7 @@ export default defineComponent({
         return {
             descriptor,
             EnginesConstants,
+            unregisterTour: null as (() => void) | null,
             managementOpened: false,
             document: null as any,
             hiddenFormData: {} as any,
@@ -387,6 +391,8 @@ export default defineComponent({
     },
 
     async mounted() {
+        // The guided tour button starts the dashboard tour while this dashboard is visible and editable.
+        this.unregisterTour = registerPageTour(this.startTour, { isActive: () => this.mode === 'dashboard' && this.canSeeDashboardFunctions() && this.propMode !== 'document-execution-cross-navigation-popup' && isVisible(this.$el) })
         this.$q.loading.show()
         this.initializePolling = setInterval(() => {
             if (this.configurations && Object.keys(this.configurations).length > 0) {
@@ -394,6 +400,9 @@ export default defineComponent({
                 this.initialize()
             }
         }, 200)
+    },
+    beforeUnmount() {
+        this.unregisterTour?.()
     },
     unmounted() {
         if (this.initializePolling) clearInterval(this.initializePolling)
@@ -490,6 +499,10 @@ export default defineComponent({
                 }
                 if (!invalidRole && !this.dataLoaded) this.userRole ? await this.loadPage(true) : (this.parameterSidebarVisible = true)
             })
+        },
+        startTour() {
+            const toolbarMenu = this.$refs.toolbarMenu as InstanceType<typeof DocumentExecutionToolbarMenu> | undefined
+            startDashboardTour({ t: this.$t, root: this.$el, openMenu: () => toolbarMenu?.show(), closeMenu: () => toolbarMenu?.hide() })
         },
         canSeeDashboardFunctions() {
             return canSeeDashboardEditorActions(this.user, this.document, this.seeAsFinalUser, this.newDashboardMode)

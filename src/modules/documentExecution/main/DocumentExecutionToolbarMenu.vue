@@ -2,7 +2,7 @@
     <q-btn flat round dense icon="more_vert" :aria-label="$t('common.menu')" data-test="toolbar-menu-button">
         <q-tooltip v-if="!open" anchor="bottom middle" self="top middle" :delay="300">{{ $t('common.menu') }}</q-tooltip>
         <q-menu v-model="open" class="kn-toolbar-menu" anchor="bottom right" self="top right" :offset="[0, 4]" @before-show="$emit('before-show')" @hide="closeSubmenu">
-            <div class="kn-toolbar-menu__list">
+            <div class="kn-toolbar-menu__list" data-tour-id="dashboard-menu">
                 <template v-for="(item, index) in items" :key="item.label + index">
                     <div v-if="item.items" class="kn-toolbar-menu__group" @mouseenter="onGroupEnter(index)" @mouseleave="onGroupLeave(index)" @keydown.left="openSubmenu = index" @keydown.right="closeSubmenu">
                         <MainMenuPopupRow :icon="item.icon" :label="item.label" :active="openSubmenu === index" show-chevron @activate="toggleSubmenu(index)" />
@@ -51,6 +51,12 @@ export default defineComponent({
         this.clearHoverTimer()
     },
     methods: {
+        show() {
+            this.open = true
+        },
+        hide() {
+            this.open = false
+        },
         clearHoverTimer() {
             if (this.hoverTimer) clearTimeout(this.hoverTimer)
             this.hoverTimer = null

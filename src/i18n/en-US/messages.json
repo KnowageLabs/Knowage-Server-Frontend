@@ -455,6 +455,9 @@
             "warning": "Warning"
         },
         "top": "top",
+        "tour": {
+            "progress": "Step {current} of {total}"
+        },
         "triangle": "Triangle",
         "type": "type",
         "unlock": "Unlock",
@@ -708,6 +711,60 @@
         },
         "getDataError": "Unable to load data from dataset {datasetLabel}. Please check dataset & widget configuration.",
         "lockAllWidgets": "Lock all widgets",
+        "tour": {
+            "dashboard": {
+                "datasetsTitle": "Datasets",
+                "datasetsDescription": "Start here. Add the datasets that your widgets use.",
+                "addWidgetTitle": "Add a widget",
+                "addWidgetDescription": "Pick a table, a chart, a selector or another widget. The widget editor opens next.",
+                "widgetTitle": "Widgets",
+                "widgetDescription": "Point at a widget to show its handle and its menu. Drag the handle to move the widget, and drag the corner to resize it.",
+                "menuTitle": "More options",
+                "menuDescription": "The settings, the views, the export and other options are in this menu.",
+                "sheetsTitle": "Sheets",
+                "sheetsDescription": "Each tab is a sheet. Click + to add a sheet. Use the menu of a tab to rename, clone or move it."
+            },
+            "picker": {
+                "searchTitle": "Search",
+                "searchDescription": "Type a widget name or a word from its description.",
+                "listTitle": "Widgets",
+                "listDescription": "Widgets of the same kind are next to each other. Click a widget to open the widget editor.",
+                "lockedTitle": "Enterprise widgets",
+                "lockedDescription": "A widget with the EE badge needs the Enterprise Edition."
+            },
+            "dataset": {
+                "listTitle": "Dashboard datasets",
+                "listDescription": "These are the datasets of this dashboard. Select one to see its details.",
+                "addTitle": "Add a dataset",
+                "addDescription": "Add one or more datasets from the catalog.",
+                "detailTitle": "Dataset details",
+                "detailDescription": "See the information of the selected dataset. Set its parameters, its drivers and its indexes here.",
+                "associationsTitle": "Associations",
+                "associationsDescription": "Link datasets by a shared column. Then a selection in one dataset filters the other datasets."
+            },
+            "editor": {
+                "tabsTitle": "Data and settings",
+                "tabsDescription": "Data sets what the widget shows. Settings sets how it looks and acts.",
+                "dataListTitle": "Datasets and columns",
+                "dataListDescription": "Select a dataset. Then drag its columns into the widget.",
+                "layersTitle": "Layers",
+                "layersDescription": "Select the layers of the map.",
+                "dataPanelTitle": "Widget data",
+                "dataPanelDescription": "The columns of the widget show here. Drop columns here and change their options.",
+                "settingsTitle": "Settings",
+                "settingsDescription": "The settings are in groups. Search for a setting, or click a group to open it.",
+                "previewTitle": "Preview",
+                "previewDescription": "The preview shows the widget with your changes. Click Refresh to update it."
+            },
+            "settings": {
+                "searchTitle": "Search",
+                "searchDescription": "Find a section by its name.",
+                "listTitle": "Sections",
+                "listDescription": "Pick a section: variables, background, CSS, themes and more.",
+                "contentTitle": "Options",
+                "contentDescription": "The options of the selected section show here."
+            }
+        },
         "widgetTypeLabels": {
             "genericWidget": "Widget",
             "locateWidget": "Locate widget"
@@ -4512,7 +4569,21 @@
         "recentModules": "Recent",
         "resourceManagement": "Resource manager",
         "role": "Role",
-        "searchModules": "Search modules"
+        "searchModules": "Search modules",
+        "tour": {
+            "modulesTitle": "Modules",
+            "modulesDescription": "Open the managers and the tools of Knowage here.",
+            "pagesTitle": "Your pages",
+            "pagesDescription": "Open your documents, your workspace and the other pages here. The list depends on your role.",
+            "aiTitle": "AI assistant",
+            "aiDescription": "Open the AI assistant. Ask it questions about your data.",
+            "guidedTourTitle": "Guided tour",
+            "guidedTourDescription": "Click here on any page to see a tour of that page. If an editor is open, the tour shows the editor.",
+            "accountTitle": "Your account",
+            "accountDescription": "Click your name to open the account menu.",
+            "accountMenuTitle": "Account menu",
+            "accountMenuDescription": "Change the language and the role here. Open your account settings, or log out."
+        }
     },
     "metaweb": {
         "businessModel": {

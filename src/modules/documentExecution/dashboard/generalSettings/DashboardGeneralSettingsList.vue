@@ -1,11 +1,11 @@
 <template>
     <div class="dashboard-editor-list-card-container" style="box-shadow: none; border-radius: 0; border-right: 1px solid rgba(0, 0, 0, 0.12)">
-        <q-input v-model="filterText" :placeholder="$t('common.search')" dense borderless clearable class="settings-search q-px-sm">
+        <q-input v-model="filterText" :placeholder="$t('common.search')" dense borderless clearable class="settings-search q-px-sm" data-tour-id="settings-search">
             <template #prepend>
                 <q-icon name="search" size="16px" />
             </template>
         </q-input>
-        <Listbox v-model="selectedItem" class="kn-list kn-list-no-border-right dashboard-editor-list" :options="filteredList">
+        <Listbox v-model="selectedItem" class="kn-list kn-list-no-border-right dashboard-editor-list" :options="filteredList" data-tour-id="settings-list">
             <template #option="slotProps">
                 <div class="kn-list-item" :style="descriptor.listStyle.listItem" data-test="list-item" @click="selectOption(slotProps.option)">
                     <i :class="slotProps.option.icon" :style="descriptor.listStyle.listIcon" class="p-mr-2" style="font-size: 16px; width: 20px; text-align: center" />

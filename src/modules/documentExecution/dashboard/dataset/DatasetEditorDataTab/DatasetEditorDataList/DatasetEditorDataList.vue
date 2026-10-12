@@ -6,7 +6,7 @@
                     <q-icon name="search" size="16px" />
                 </template>
             </q-input>
-            <q-btn unelevated dense no-caps color="primary" icon="add" :label="$t('common.add')" class="kn-editor-add-button q-ml-sm q-px-sm" data-test="add-dataset-button" @click="toggleDataDialog">
+            <q-btn unelevated dense no-caps color="primary" icon="add" :label="$t('common.add')" class="kn-editor-add-button q-ml-sm q-px-sm" data-test="add-dataset-button" data-tour-id="dataset-add" @click="toggleDataDialog">
                 <q-tooltip :delay="500">{{ $t('dashboard.datasetEditor.addDataset') }}</q-tooltip>
             </q-btn>
         </div>

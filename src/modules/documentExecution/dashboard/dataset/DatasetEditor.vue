@@ -1,6 +1,6 @@
 <template>
     <Teleport :to="`.dashboard-container-${dashboardIdProp}`">
-        <div class="dashboardEditor dataset-editor">
+        <div ref="editorRoot" class="dashboardEditor dataset-editor">
             <q-toolbar class="kn-toolbar kn-toolbar--primary">
                 <q-toolbar-title>{{ $t('dashboard.datasetEditor.title') }}</q-toolbar-title>
                 <span>
@@ -13,7 +13,7 @@
             </q-toolbar>
             <q-tabs v-model="activeTab" align="left" dense no-caps class="dataset-editor__tabs">
                 <q-tab name="data" :label="$t('dashboard.datasetEditor.dataTabTitle')" />
-                <q-tab v-if="associationsTabVisible" name="associations" :class="{ 'text-negative': modelHasEmptyAssociations }" data-test="associations-tab">
+                <q-tab v-if="associationsTabVisible" name="associations" :class="{ 'text-negative': modelHasEmptyAssociations }" data-test="associations-tab" data-tour-id="dataset-associations">
                     <div class="row items-center no-wrap">
                         <span class="q-tab__label">{{ $t('dashboard.datasetEditor.associationsTabTitle') }}</span>
                         <q-icon v-if="modelHasEmptyAssociations" name="error" size="16px" class="q-ml-xs" />
@@ -44,6 +44,8 @@ import AssociationsTab from './DatasetEditorAssociations/DatasetEditorAssociatio
 import mainStore from '../../../../App.store'
 import dashStore from '../Dashboard.store'
 import deepcopy from 'deepcopy'
+import { registerPageTour } from '@/composables/usePageTour'
+import { startDatasetEditorTour } from './DatasetEditorTour'
 
 export default defineComponent({
     name: 'dataset-editor',
@@ -58,6 +60,7 @@ export default defineComponent({
     data() {
         return {
             activeTab: 'data',
+            unregisterTour: null as (() => void) | null,
             availableDatasets: {} as any,
             dashboardDatasets: [] as IDashboardDataset[],
             selectedDatasets: [] as any,
@@ -91,9 +94,22 @@ export default defineComponent({
     async created() {
         await this.setDatasetsData()
     },
+    mounted() {
+        this.unregisterTour = registerPageTour(this.startTour)
+    },
+    beforeUnmount() {
+        this.unregisterTour?.()
+    },
 
     methods: {
         ...mapActions(dashStore, ['setAllDatasets']),
+        // The tour points at the Data tab, then goes back to the tab that was open.
+        async startTour() {
+            const previousTab = this.activeTab
+            this.activeTab = 'data'
+            await this.$nextTick()
+            startDatasetEditorTour({ t: this.$t, root: this.$refs.editorRoot as HTMLElement, onDestroyed: () => (this.activeTab = previousTab) })
+        },
         async setDatasetsData() {
             await this.loadAvailableDatasets()
             this.dashboardDatasets = deepcopy(this.dashboardStore.$state.dashboards[this.dashboardIdProp].configuration.datasets)

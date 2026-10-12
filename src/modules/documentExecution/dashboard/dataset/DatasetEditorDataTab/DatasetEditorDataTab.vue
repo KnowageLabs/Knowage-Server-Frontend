@@ -1,11 +1,11 @@
 <template>
     <div class="dataset-editor-tab row no-wrap">
-        <aside class="dataset-editor-tab__list">
+        <aside class="dataset-editor-tab__list" data-tour-id="dataset-list">
             <q-scroll-area class="fit">
                 <DataList :dashboard-datasets-prop="dashboardDatasetsProp" :available-datasets-prop="availableDatasetsProp" :selected-datasets-prop="selectedDatasets" :selected-dataset-id="selectedDatasetId" @addSelectedDatasets="addSelectedDatasets" @datasetSelected="selectDataset" @deleteDataset="$emit('deleteDataset', $event)" />
             </q-scroll-area>
         </aside>
-        <div class="dataset-editor-tab__content col kn-background">
+        <div class="dataset-editor-tab__content col kn-background" data-tour-id="dataset-detail">
             <q-scroll-area class="fit">
                 <DataDetail :dashboard-datasets-prop="dashboardDatasetsProp" :selected-dataset-prop="selectedDataset" :document-drivers-prop="documentDriversProp" :dashboard-id="dashboardId" data-test="dataset-detail" @preview="previewSelectedDataset" />
             </q-scroll-area>
