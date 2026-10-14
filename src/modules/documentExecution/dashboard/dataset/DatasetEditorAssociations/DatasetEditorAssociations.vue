@@ -6,12 +6,11 @@
             </q-scroll-area>
         </aside>
         <div class="dataset-editor-tab__content col kn-background">
-            <q-scroll-area class="fit">
-                <AssociationsDetail v-if="selectedAssociation" :dashboard-associations-prop="dashboardAssociationsProp" :selected-datasets-prop="selectedDatasets" :selected-association-prop="selectedAssociation" @fieldSelected="manageAssociationField" @fieldUnselected="unselectAssociationField" />
-                <div v-else class="dataset-detail">
-                    <KnHint :title="'dashboard.datasetEditor.associationsDetailTitle'" :hint="'dashboard.datasetEditor.associationsDetailMsg'"></KnHint>
-                </div>
+            <!-- The hint sits outside the scroll area, so it can center in the full height -->
+            <q-scroll-area v-if="selectedAssociation" class="fit">
+                <AssociationsDetail :dashboard-associations-prop="dashboardAssociationsProp" :selected-datasets-prop="selectedDatasets" :selected-association-prop="selectedAssociation" @fieldSelected="manageAssociationField" @fieldUnselected="unselectAssociationField" />
             </q-scroll-area>
+            <KnHint v-else :title="'dashboard.datasetEditor.associationsDetailTitle'" :hint="'dashboard.datasetEditor.associationsDetailMsg'"></KnHint>
         </div>
     </div>
 </template>

@@ -11,3 +11,10 @@ export default defineComponent({
     components: { KnHint }
 })
 </script>
+
+<style lang="scss" scoped>
+// The Data tab is a flex row: an auto height lets the hint stretch to the full height and center in it
+.kn-hint {
+    height: auto;
+}
+</style>

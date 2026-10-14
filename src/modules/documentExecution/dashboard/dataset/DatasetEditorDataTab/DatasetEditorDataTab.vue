@@ -6,9 +6,11 @@
             </q-scroll-area>
         </aside>
         <div class="dataset-editor-tab__content col kn-background" data-tour-id="dataset-detail">
-            <q-scroll-area class="fit">
+            <!-- The hint sits outside the scroll area, so it can center in the full height -->
+            <q-scroll-area v-if="selectedDataset?.id" class="fit">
                 <DataDetail :dashboard-datasets-prop="dashboardDatasetsProp" :selected-dataset-prop="selectedDataset" :document-drivers-prop="documentDriversProp" :dashboard-id="dashboardId" data-test="dataset-detail" @preview="previewSelectedDataset" />
             </q-scroll-area>
+            <KnHint v-else :title="'dashboard.datasetEditor.dataDetailTitle'" :hint="'dashboard.datasetEditor.dataDetailMsg'" data-test="dataset-hint"></KnHint>
         </div>
 
         <DatasetEditorPreview v-if="previewShown" :visible="previewShown" :prop-dataset="datasetToPreview" :dashboardId="dashboardId" @close="previewShown = false" />
@@ -21,11 +23,12 @@ import { IDataset } from '../../Dashboard'
 import DataList from './DatasetEditorDataList/DatasetEditorDataList.vue'
 import DataDetail from './DatasetEditorDataDetail/DatasetEditorDataDetail.vue'
 import DatasetEditorPreview from './DatasetEditorPreview.vue'
+import KnHint from '@/components/UI/KnHint.vue'
 import { AxiosResponse } from 'axios'
 
 export default defineComponent({
     name: 'dataset-editor-data-tab',
-    components: { DataList, DataDetail, DatasetEditorPreview },
+    components: { DataList, DataDetail, DatasetEditorPreview, KnHint },
     props: {
         dashboardDatasetsProp: { required: true, type: Array as any },
         availableDatasetsProp: { required: true, type: Array as PropType<IDataset[]> },
