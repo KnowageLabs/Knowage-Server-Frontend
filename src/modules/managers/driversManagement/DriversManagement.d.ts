@@ -11,6 +11,7 @@ export interface iDriver {
     modalityValue?: any
     modalityValueForDefault?: any
     modalityValueForMax?: any
+    modalityValueForMin?: any
     defaultFormula?: string
     valueSelection?: any
     selectedLayer?: any
