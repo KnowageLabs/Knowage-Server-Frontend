@@ -133,7 +133,7 @@ export default defineComponent({
             )
         },
         async selectRole(role: string) {
-            await this.$http.get(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/setsessionrole?SELECTED_ROLE=${encodeURIComponent(role)}`)
+            await this.$http.post(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/setsessionrole`, new URLSearchParams({ SELECTED_ROLE: role }))
             const user = { ...this.user, sessionRole: role }
             this.setUser(user)
             localStorage.setItem('sessionRole', role)
