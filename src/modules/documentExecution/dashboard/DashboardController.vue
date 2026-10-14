@@ -100,7 +100,8 @@ export default defineComponent({
         newDashboardMode: { type: Boolean },
         mode: { type: Object as PropType<string | null>, required: true },
         propView: { type: Object as PropType<IDashboardView | null> },
-        filtersLoaded: { type: Boolean }
+        filtersLoaded: { type: Boolean },
+        userRole: { type: String as PropType<string | null>, default: null }
     },
     emits: ['newDashboardSaved', 'executeCrossNavigation', 'dashboardIdSet', 'executeView', 'dashboardReadyStateChanged'],
     provide() {
@@ -284,8 +285,10 @@ export default defineComponent({
                         }
                     })
                 }
+                // Send the role the document is executed with; with an empty role the backend falls back to the user's first role.
+                const sessionRole = this.user?.sessionRole && this.user.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user.sessionRole : null
                 const payload = {
-                    role: roleFromQuery ?? this.user?.sessionRole ?? '',
+                    role: this.userRole || roleFromQuery || sessionRole || '',
                     label: this.document?.label ?? '',
                     parameters
                 }

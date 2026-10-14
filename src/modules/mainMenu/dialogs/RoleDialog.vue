@@ -48,9 +48,9 @@ export default defineComponent({
         },
         changeRole() {
             const role = this.user.sessionRole === this.$t('role.defaultRolePlaceholder') ? '' : this.user.sessionRole
-            const postUrl = `${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/setsessionrole?SELECTED_ROLE=${role}`
+            const postUrl = `${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/setsessionrole`
 
-            this.$http.get(postUrl).then(() => {
+            this.$http.post(postUrl, new URLSearchParams({ SELECTED_ROLE: role })).then(() => {
                 this.setUser(this.user)
                 localStorage.setItem('sessionRole', this.user.sessionRole)
                 this.closeDialog()
