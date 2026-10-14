@@ -12,7 +12,7 @@
             <DashboardGeneralSettingsList :dashboard-model-prop="dashboardModel" :selected="selectedOption" @selected-option="setSelectedOption"></DashboardGeneralSettingsList>
             <div v-if="selectedOption !== 'Custom Header' && selectedOption !== 'CrossNavigation'" class="general-settings-content" data-tour-id="settings-content">
                 <div class="general-settings-panel-wrapper">
-                    <KnHint v-if="!selectedOption || selectedOption === 'General'" class="p-as-center" :title="'common.settings'" :hint="'dashboard.widgetEditor.settings.hint'"></KnHint>
+                    <KnHint v-if="!selectedOption || selectedOption === 'General'" :title="'common.settings'" :hint="'dashboard.widgetEditor.settings.hint'"></KnHint>
                     <q-card v-else class="q-ma-sm">
                         <q-expansion-item v-model="accordionOpen" :label="selectedOptionLabel" header-class="general-settings-accordion-header">
                             <DashboardVariables v-if="selectedOption === 'Variables'" :dashboard-id="dashboardId" :prop-variables="variables" :selected-datasets="selectedDatasets" :selected-datasets-columns-map="selectedDatasetColumnsMap" :profile-attributes="profileAttributes" />
@@ -215,11 +215,18 @@ export default defineComponent({
 <style scoped lang="scss">
 .general-settings-content {
     flex: 1;
+    display: flex;
+    flex-direction: column;
     overflow-y: auto;
     padding: 16px;
 }
 
+// Grows to the full height of the content, so the hint can center in it
 .general-settings-panel-wrapper {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
     max-width: 800px;
     margin: 0 auto;
 }

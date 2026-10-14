@@ -35,8 +35,8 @@
 
         <q-page-container class="widget-page-container">
             <!-- with some ungodly hacking, this scroll area preserves the whole layout of the editor, i have no idea how it works -->
-            <q-scroll-area class="kn-background" :style="{ height: scrollAreaHeight }" data-tour-id="editor-main">
-                <q-tab-panels v-model="activeTab" keep-alive class="kn-width-full kn-height-full column kn-background">
+            <q-scroll-area class="kn-background" :style="{ height: scrollAreaHeight }" :content-style="fillContentStyle" :content-active-style="fillContentStyle" data-tour-id="editor-main">
+                <q-tab-panels v-model="activeTab" keep-alive class="widget-editor-panels kn-width-full column kn-background">
                     <q-tab-panel v-if="hasDataTab" name="data" class="column" style="max-width: 850px !important; margin-left: auto !important; margin-right: auto !important">
                         <MapWidgetLayersTab v-if="widget.type === 'map'" :prop-widget="widget" :datasets="datasets" :selected-datasets="selectedDatasets" :layers="layers" :variables="variables" :dashboard-id="dashboardId" :selected-layer="selectedLayer" @layerSelected="onLayerSelected" />
                         <WidgetEditorDataTab v-else :prop-widget="widget" :selected-dataset="selectedDataset" :selected-dataset-columns="selectedDatasetColumns" :list-drag-active="listDragActive" data-test="data-tab" />
@@ -116,6 +116,8 @@ export default defineComponent({
             isResizingRight: false,
             resizeStartX: 0,
             showPreview: true,
+            // The scroll content has only a min-height; as a flex column it lets the tab panels fill it, so the hints center
+            fillContentStyle: { display: 'flex', flexDirection: 'column' },
             unregisterTour: null as (() => void) | null
         }
     },
@@ -426,6 +428,22 @@ export default defineComponent({
         0 1px 1px 0 rgb(0 0 0 / 14%),
         0 1px 3px 0 rgb(0 0 0 / 12%);
     border-radius: 4px;
+}
+
+// The tab panels fill the scroll content (a flex column), and each panel fills them
+.widget-editor-panels {
+    flex: 1 0 auto;
+
+    > .q-panel {
+        flex: 1 0 auto;
+        display: flex;
+        flex-direction: column;
+        height: auto;
+
+        > .q-tab-panel {
+            flex: 1 0 auto;
+        }
+    }
 }
 
 .widget-editor-layout {
