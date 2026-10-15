@@ -110,6 +110,7 @@ import { formatDate } from '@/helpers/commons/localeHelper'
 import mainStore from '../../../../App.store'
 import { useQuasar } from 'quasar'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
+import { canManageDocument } from '@/helpers/commons/documentPermissionsHelper'
 
 export default defineComponent({
     name: 'document-browser-sidebar',
@@ -133,18 +134,7 @@ export default defineComponent({
             return this.user?.isSuperadmin
         },
         canEditDocument(): boolean {
-            if (!this.user) return false
-            switch (this.document?.stateCode) {
-                case 'DEV':
-                    return this.user.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_DEV_MANAGEMENT)
-                case 'REL':
-                    return this.user.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT)
-                case 'SUSPENDED':
-                case 'SUSP':
-                    return this.user.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT)
-                default:
-                    return false
-            }
+            return canManageDocument(this.user, this.document)
         }
     },
     watch: {

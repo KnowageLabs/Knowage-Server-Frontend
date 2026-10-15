@@ -381,7 +381,7 @@ export default defineComponent({
                         }
                     })
                     .then(async (response: any) => {
-                        if (response.status === 'KO') {
+                        if (response.data?.STATUS === 'KO') {
                             this.setError({
                                 title: this.$t('common.error.generic'),
                                 msg: this.$t('documentExecution.dossier.templateUploadError')

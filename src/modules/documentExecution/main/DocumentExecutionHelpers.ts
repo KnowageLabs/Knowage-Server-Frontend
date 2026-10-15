@@ -4,7 +4,8 @@ import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 import deepcopy from 'deepcopy'
 import { parameterSidebarEmitter } from '@/components/UI/KnParameterSidebar/KnParameterSidebarHelper'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
-import { isDashboardEditor, isDocumentCreator } from '@/modules/documentExecution/dashboard/DashboardPermissions'
+import { isDashboardEditor } from '@/modules/documentExecution/dashboard/DashboardPermissions'
+import { canManageDocument } from '@/helpers/commons/documentPermissionsHelper'
 import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
 import store from '@/App.store.js'
 
@@ -132,7 +133,7 @@ export const canEditDocument = (user: any, document: any) => {
     if (!user || !document) return false
     const isEditableEngine = document.engine?.toLowerCase() === 'knowagecockpitengine' || document.engine?.toLowerCase() === 'knowagedashboardengine'
     if (!isEditableEngine) return false
-    return user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) || isDocumentCreator(user, document) || (document.stateCode === 'DEV' && user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_DEV_MANAGEMENT))
+    return canManageDocument(user, document)
 }
 
 export const canSeeDashboardEditorActions = (user: any, document: any, seeAsFinalUser = false, newDashboardMode = false) => {

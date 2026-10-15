@@ -119,9 +119,7 @@ export default defineComponent({
         async reloadTrigger() {
             this.getDossierTemplate()
             this.getDossierActivities()
-            this.interval = setInterval(() => {
-                this.getDossierActivities()
-            }, 10000)
+            this.startPolling()
         }
     },
     created() {
@@ -172,12 +170,15 @@ export default defineComponent({
         ]
         this.getDossierTemplate()
         this.getDossierActivities()
-        this.interval = setInterval(() => {
-            this.getDossierActivities()
-        }, 10000)
+        this.startPolling()
+    },
+    activated() {
+        if (this.interval) return
+        this.getDossierActivities()
+        this.startPolling()
     },
     deactivated() {
-        clearInterval(this.interval)
+        this.stopPolling()
     },
     validations() {
         return {
@@ -186,6 +187,16 @@ export default defineComponent({
     },
     methods: {
         ...mapActions(mainStore, ['setInfo', 'setError']),
+        startPolling() {
+            this.stopPolling()
+            this.interval = setInterval(() => {
+                this.getDossierActivities()
+            }, 10000)
+        },
+        stopPolling() {
+            clearInterval(this.interval)
+            this.interval = null
+        },
         formatDate(date) {
             return formatDateWithLocale(date, { dateStyle: 'short', timeStyle: 'short' })
         },
@@ -409,17 +420,19 @@ export default defineComponent({
         async uploadTemplate(uploadedFile) {
             const formData = new FormData()
             formData.append('file', uploadedFile)
+            formData.append('documentId', '' + this.id)
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/dossier/importTemplateFile', formData, { headers: { 'X-Disable-Errors': 'true' } })
-                .then(async () => {
-                    this.setInfo({ title: this.$t('common.toast.success'), msg: this.$t('common.toast.uploadSuccess') })
+                .then((response: AxiosResponse<any>) => {
+                    if (response.data?.STATUS === 'KO') this.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.dossier.templateUploadError') })
+                    else this.setInfo({ title: this.$t('common.toast.success'), msg: this.$t('common.toast.uploadSuccess') })
                 })
                 .catch(() => this.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.dossier.templateUploadError') }))
                 .finally(() => (this.triggerUpload = false))
         }
     },
     beforeUnmount() {
-        clearInterval(this.interval)
+        this.stopPolling()
     }
 })
 </script>
