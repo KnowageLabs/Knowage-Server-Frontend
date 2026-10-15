@@ -1,0 +1,21 @@
+{
+    "driverTypes": [
+        {
+            "code": "dynamic",
+            "label": "dashboard.widgetEditor.interactions.dynamic"
+        },
+        {
+            "code": "static",
+            "label": "common.static"
+        },
+        {
+            "code": "inherit",
+            "label": "documentExecution.dossier.designerDialog.inherit"
+        }
+    ],
+    "defaultPlaceholderSize": {
+        "sheetWidth": 1024,
+        "sheetHeight": 768,
+        "deviceScaleFactor": 1
+    }
+}

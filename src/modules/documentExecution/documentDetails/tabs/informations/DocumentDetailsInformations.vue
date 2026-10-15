@@ -4,8 +4,8 @@
             <div class="dd-grid">
                 <!-- ══════ LEFT COLUMN ══════ -->
                 <div class="dd-col">
-                    <!-- Template -->
-                    <q-card>
+                    <!-- Template (a dossier uploads its template in the Designer tab) -->
+                    <q-card v-if="!isDossier">
                         <q-card-section class="q-py-sm">
                             <div class="dd-section-label">{{ $t('documentExecution.documentDetails.history.template') }}</div>
                         </q-card-section>
@@ -82,7 +82,7 @@
                     <q-card>
                         <q-card-section class="q-py-sm row items-center justify-between">
                             <div class="dd-section-label">{{ $t('common.configuration') }}</div>
-                            <q-btn v-if="designerButtonVisible" class="q-ma-none q-pa-none" flat dense size="sm" color="primary" :label="$t('documentExecution.olap.openDesigner')" @click="openDesignerConfirm" />
+                            <q-btn v-if="designerButtonVisible" flat dense no-caps size="sm" color="accent" icon="design_services" :label="$t('documentExecution.olap.openDesigner')" class="q-ma-none q-py-none q-px-xs" data-test="open-designer-button" @click="openDesignerConfirm" />
                         </q-card-section>
                         <q-separator />
                         <q-card-section>
@@ -288,7 +288,7 @@ export default defineComponent({
         availableTemplates: { type: Array as PropType<iTemplate[]> },
         availableAttributes: { type: Array as PropType<iAttribute[]> }
     },
-    emits: ['setTemplateForUpload', 'setImageForUpload', 'deleteImage', 'touched', 'openDesignerDialog'],
+    emits: ['setTemplateForUpload', 'setImageForUpload', 'deleteImage', 'touched', 'openDesignerDialog', 'openDesignerTab'],
     computed: {
         filteredEngines(): any {
             if (this.document.typeCode) {
@@ -322,8 +322,11 @@ export default defineComponent({
                     return false
             }
         },
+        isDossier(): boolean {
+            return this.document.engine == 'knowagedossierengine'
+        },
         designerButtonVisible(): boolean {
-            return this.document.typeCode == 'OLAP' || this.document.typeCode == 'KPI' || this.document.engine == 'knowagegisengine' || (this.document.engine == 'knowagedossierengine' && this.document.id !== undefined)
+            return this.document.typeCode == 'OLAP' || this.document.typeCode == 'KPI' || this.document.engine == 'knowagegisengine' || (this.isDossier && this.document.id !== undefined && !!this.user?.enterprise)
         },
         ...mapState(mainStore, {
             user: 'user'
@@ -470,11 +473,19 @@ export default defineComponent({
             this.document.engine = ''
         },
         openDesignerConfirm() {
-            this.$confirm.require({
-                header: this.$t('common.toast.warning'),
-                message: this.$t('documentExecution.olap.openDesignerMsg'),
-                icon: 'pi pi-exclamation-triangle',
-                accept: () => {
+            // The dossier designer is a tab of this page: the user loses nothing, so no confirmation
+            if (this.isDossier) {
+                this.$emit('openDesignerTab')
+                return
+            }
+            this.$q
+                .dialog({
+                    title: this.$t('common.toast.warning'),
+                    message: this.$t('documentExecution.olap.openDesignerMsg'),
+                    cancel: true,
+                    persistent: true
+                })
+                .onOk(() => {
                     switch (this.document.typeCode) {
                         case 'KPI':
                             this.openKpiDocumentDesigner()
@@ -483,18 +494,10 @@ export default defineComponent({
                             this.openGis()
                             break
                         }
-                        case 'DOSSIER': {
-                            this.openDossierDesigner()
-                            break
-                        }
                         default:
                             this.openDesigner()
                     }
-                }
-            })
-        },
-        async openDossierDesigner() {
-            this.$emit('openDesignerDialog')
+                })
         },
         async openDesigner() {
             if (this.listOfTemplates.length === 0) {

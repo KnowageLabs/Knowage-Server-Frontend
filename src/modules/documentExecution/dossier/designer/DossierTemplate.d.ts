@@ -1,4 +1,4 @@
-import type { iDriver } from '../../DocumentDetails'
+import type { iDriver } from '@/modules/documentExecution/documentDetails/DocumentDetails'
 
 export interface iDossierTemplate {
     type: string
@@ -45,4 +45,11 @@ export interface iDossierDriver extends Partial<iDriver> {
     urlNameDescription?: string
     value?: string
     inherit?: boolean
+}
+
+// State that the designer body reports to its container (document details tab, workspace dialog)
+export interface iDossierDesignerState {
+    dirty: boolean
+    valid: boolean
+    invalidReason: string | null
 }

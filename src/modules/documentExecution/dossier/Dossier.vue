@@ -1,438 +1,549 @@
 <template>
-    <div class="q-ma-sm q-gutter-md">
-        <q-card class="col-12 q-ml-none">
-            <q-toolbar class="kn-toolbar kn-toolbar--secondary">
-                <q-toolbar-title>{{ $t('common.details') }}</q-toolbar-title>
-                <q-btn v-if="hasTemplateOptions" flat round dense icon="more_vert">
-                    <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.more') }}</q-tooltip>
-                    <q-menu auto-close v-if="visibleMenuButtons.length">
-                        <q-list dense>
-                            <q-item v-for="button in visibleMenuButtons" :key="button.key" clickable v-close-popup>
-                                <q-item-section avatar>
-                                    <q-icon color="primary" :name="button.icon" />
-                                </q-item-section>
-                                <q-item-section @click="button.command()">{{ button.label }}</q-item-section>
-                            </q-item>
-                        </q-list>
-                    </q-menu>
-                </q-btn>
-            </q-toolbar>
-            <q-card-section>
-                <form class="row q-gutter-md items-start">
-                    <q-input class="col" dense filled v-model="v$.activity.activityName.$model" :label="$t('documentExecution.dossier.headers.activity') + ' *'" :error="v$.activity.activityName.$invalid && v$.activity.activityName.$dirty" :error-message="v$.activity.activityName.$errors[0]?.$message" data-test="activityName-input" />
-                    <q-btn color="primary" :disable="buttonDisabled || launchButtonDisabled || launchClicked" :label="$t('documentExecution.dossier.launchActivity')" data-test="input-button" @click="createNewActivity" />
-                </form>
-            </q-card-section>
-        </q-card>
-        <q-card class="col-12 q-ml-none">
-            <q-toolbar class="kn-toolbar kn-toolbar--secondary">
-                <q-toolbar-title>{{ $t('documentExecution.dossier.launchedActivities') }}</q-toolbar-title>
-            </q-toolbar>
-            <q-card-section>
-                <q-banner v-if="showHint" class="col-12 q-mt-sm bg-info text-black" rounded dense>{{ $t('documentExecution.dossier.hint') }}</q-banner>
-                <q-table v-else dense flat :rows="dossierActivities" :columns="columns" :pagination="{ rowsPerPage: 10 }">
+    <div class="dossier-page kn-background">
+        <div class="dossier-page__column">
+            <q-card flat bordered class="dossier-card" data-test="dossier-template-card">
+                <q-card-section class="dossier-card__header row items-center no-wrap">
+                    <template v-if="templateName">
+                        <span class="dossier-card__template ellipsis" data-test="template-name">
+                            {{ templateName }}
+                            <q-tooltip :delay="500">{{ templateName }}</q-tooltip>
+                        </span>
+                        <q-badge outline color="grey-7" class="dossier-card__badge">{{ $t(templateType === 'DOC_TEMPLATE' ? 'documentExecution.dossier.typeDoc' : 'documentExecution.dossier.typePpt') }}</q-badge>
+                    </template>
+                    <q-space />
+                    <q-btn v-if="templateOptionEnabled('downloadable')" flat dense no-caps size="sm" color="accent" icon="download" :label="$t('documentExecution.dossier.downloadTemplate')" class="dossier-card__action" data-test="download-template" @click="downloadTemplate" />
+                    <q-btn v-if="templateOptionEnabled('uploadable')" flat dense no-caps size="sm" color="accent" icon="upload" :label="$t('documentExecution.dossier.uploadTemplate')" class="dossier-card__action" data-test="upload-template" @click="pickTemplateFile" />
+                    <input ref="templateInput" type="file" accept=".docx, .pptx" class="hidden" @change="onTemplateFileChange" />
+                </q-card-section>
+                <q-separator />
+                <q-card-section class="row items-start no-wrap q-gutter-x-sm">
+                    <q-input
+                        v-model="activityName"
+                        :label="$t('documentExecution.dossier.headers.activity') + ' *'"
+                        outlined
+                        dense
+                        stack-label
+                        maxlength="100"
+                        class="col"
+                        :error="activityNameTouched && !activityNameValid"
+                        :error-message="$t('common.validation.regex')"
+                        hide-bottom-space
+                        data-test="activityName-input"
+                        @blur="activityNameTouched = true"
+                        @keyup.enter="launchActivity"
+                    />
+                    <span>
+                        <q-btn unelevated no-caps color="primary" icon="play_arrow" :label="$t('documentExecution.dossier.launch')" :disable="launchDisabled" class="dossier-card__launch" data-test="input-button" @click="launchActivity" />
+                        <q-tooltip v-if="runningRecently" :delay="300">{{ $t('documentExecution.dossier.launchBlocked') }}</q-tooltip>
+                    </span>
+                </q-card-section>
+            </q-card>
+
+            <q-card flat bordered class="dossier-card dossier-card--activities column no-wrap" data-test="dossier-activities-card">
+                <q-card-section class="dossier-card__header row items-center no-wrap">
+                    <div class="kn-editor-card-label">{{ $t('documentExecution.dossier.activities') }}</div>
+                    <q-badge v-if="activities.length" rounded color="grey-4" text-color="black" data-test="activities-count">{{ activities.length }}</q-badge>
+                    <q-space />
+                    <span v-if="lastUpdate" class="dossier-card__updated" data-test="last-update">{{ $t('documentExecution.dossier.updatedAgo', { time: lastUpdateText }) }}</span>
+                    <q-btn flat round dense size="sm" icon="refresh" class="kn-editor-action" data-test="refresh-button" @click="getActivities">
+                        <q-tooltip :delay="500">{{ $t('common.refresh') }}</q-tooltip>
+                    </q-btn>
+                    <q-input v-if="activities.length" v-model="search" outlined dense clearable hide-bottom-space :placeholder="$t('common.search')" class="kn-field-compact dossier-card__search" data-test="activities-search">
+                        <template #prepend>
+                            <q-icon name="search" size="16px" />
+                        </template>
+                    </q-input>
+                </q-card-section>
+                <q-separator />
+                <KnHint v-if="activities.length === 0" class="col" title="documentExecution.dossier.activities" hint="documentExecution.dossier.hint" data-test="activities-hint" />
+                <q-table
+                    v-else
+                    v-model:pagination="pagination"
+                    class="col dossier-table"
+                    flat
+                    dense
+                    virtual-scroll
+                    :virtual-scroll-sticky-size-start="32"
+                    :rows="activities"
+                    :columns="columns"
+                    row-key="id"
+                    :filter="search"
+                    :filter-method="filterActivities"
+                    hide-pagination
+                    data-test="activities-table"
+                >
+                    <template #body-cell-activity="props">
+                        <q-td :props="props" class="dossier-table__name">
+                            <div class="ellipsis">{{ props.value }}</div>
+                            <q-tooltip :delay="500">{{ props.value }}</q-tooltip>
+                        </q-td>
+                    </template>
+                    <template #body-cell-status="props">
+                        <q-td :props="props">
+                            <q-chip dense square size="sm" :class="`dossier-status dossier-status--${statusKey(props.row.status)}`" data-test="activity-status">
+                                <q-spinner v-if="props.row.status === 'STARTED'" size="14px" :thickness="4" class="q-mr-xs" />
+                                {{ $t(`documentExecution.dossier.status.${statusKey(props.row.status)}`) }}
+                            </q-chip>
+                        </q-td>
+                    </template>
+                    <template #body-cell-progress="props">
+                        <q-td :props="props">
+                            <div v-if="props.row.total > 0" class="row items-center no-wrap">
+                                <q-linear-progress :value="progressValue(props.row)" rounded size="6px" :color="props.row.status === 'ERROR' ? 'negative' : 'primary'" class="col" />
+                                <span class="dossier-table__count q-ml-sm">{{ props.row.partial }} / {{ props.row.total }}</span>
+                            </div>
+                            <span v-else>-</span>
+                        </q-td>
+                    </template>
+                    <template #body-cell-creationDate="props">
+                        <q-td :props="props">
+                            {{ relativeTime(props.row.creationDate) }}
+                            <q-tooltip :delay="500">{{ formatDate(props.row.creationDate) }}</q-tooltip>
+                        </q-td>
+                    </template>
                     <template #body-cell-actions="props">
-                        <q-td class="text-right">
-                            <q-btn flat round size="sm" icon="download" class="q-mr-sm" data-test="download" @click="downloadActivity(props.row)">
-                                <q-tooltip :delay="500">{{ $t('common.download') }}</q-tooltip>
-                            </q-btn>
-                            <q-btn flat round size="sm" icon="delete" :disabled="dateCheck(props.row)" data-test="delete-button" @click="deleteDossierConfirm(props.row)">
-                                <q-tooltip :delay="500">{{ $t('common.delete') }}</q-tooltip>
-                            </q-btn>
+                        <q-td :props="props" class="text-right">
+                            <span>
+                                <q-btn flat round dense size="sm" :icon="props.row.status === 'ERROR' ? 'sym_o_bug_report' : 'download'" :disable="!canDownload(props.row)" class="kn-editor-action" data-test="download" @click="downloadActivity(props.row)" />
+                                <q-tooltip :delay="500">{{ downloadTooltip(props.row) }}</q-tooltip>
+                            </span>
+                            <span>
+                                <q-btn flat round dense size="sm" icon="delete" :disable="deleteBlocked(props.row)" class="kn-editor-action" data-test="delete-button" @click="deleteActivityConfirm(props.row)" />
+                                <q-tooltip :delay="500">{{ $t(deleteBlocked(props.row) ? 'documentExecution.dossier.deleteBlocked' : 'common.delete') }}</q-tooltip>
+                            </span>
                         </q-td>
                     </template>
                 </q-table>
-            </q-card-section>
-        </q-card>
+            </q-card>
+        </div>
     </div>
-    <KnInputFile v-if="!uploading" label="" :change-function="startTemplateUpload" :trigger-input="triggerUpload" />
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
-import { createValidations } from '@/helpers/commons/validationHelper'
-import { filterDefault } from '@/helpers/commons/filterHelper'
-import { AxiosResponse } from 'axios'
-import useValidate from '@vuelidate/core'
-import dossierDescriptor from './DossierDescriptor.json'
-import KnValidationMessages from '@/components/UI/KnValidatonMessages.vue'
+<script setup lang="ts">
+import { computed, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useQuasar } from 'quasar'
+import moment from 'moment'
+import axios from '@/axios.js'
+import mainStore from '@/App.store'
+import KnHint from '@/components/UI/KnHint.vue'
+import { extendedAlphanumeric } from '@/helpers/commons/regexHelper'
 import { formatDateWithLocale } from '@/helpers/commons/localeHelper'
-import mainStore from '../../../App.store'
-import KnInputFile from '@/components/UI/KnInputFile.vue'
-import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
 import { downloadDirectFromResponse } from '@/helpers/commons/fileHelper'
-import { mapActions } from 'pinia'
+import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
 
-export default defineComponent({
-    name: 'dossier',
-    components: { KnInputFile, KnValidationMessages },
-    props: { id: { type: String, required: false }, reloadTrigger: { type: Boolean }, filterData: Object, userRole: String },
-    data() {
-        return {
-            v$: useValidate() as any,
-            dossierDescriptor,
-            activity: { activityName: '' } as any,
-            loading: false,
-            launchClicked: false,
-            triggerUpload: false,
-            uploading: false,
-            interval: null as any,
-            dossierActivities: [] as any,
-            jsonTemplate: {} as any,
-            filters: {
-                global: [filterDefault]
-            } as Object,
-            columns: [] as any
-        }
-    },
-    computed: {
-        showHint() {
-            if (this.dossierActivities.length != 0) {
-                return false
-            }
-            return true
-        },
-        buttonDisabled(): any {
-            return this.v$.$invalid
-        },
-        launchButtonDisabled(): boolean {
-            const startedActivity = this.dossierActivities.find((activity) => {
-                return activity.status === 'STARTED'
-            })
-            if (startedActivity && this.timeDifference(startedActivity)) return true
-            else return false
-        },
-        menuButtons(): any[] {
-            return [
-                { key: '1', visible: this.templateOptionEnabled('uploadable'), icon: 'upload', label: this.$t('documentExecution.dossier.uploadTemplate'), command: () => this.setUploadType() },
-                { key: '2', visible: this.templateOptionEnabled('downloadable'), icon: 'download', label: this.$t('documentExecution.dossier.downloadTemplate'), command: () => this.downloadTemplate() }
-            ]
-        },
-        visibleMenuButtons(): any[] {
-            return this.menuButtons.filter((button) => button.visible)
-        },
-        hasTemplateOptions(): boolean {
-            return this.visibleMenuButtons.length > 0
-        }
-    },
-    watch: {
-        async reloadTrigger() {
-            this.getDossierTemplate()
-            this.getDossierActivities()
-            this.startPolling()
-        }
-    },
-    created() {
-        this.columns = [
-            {
-                name: 'activity',
-                field: 'activity',
-                label: this.$t('documentExecution.dossier.headers.activity'),
-                align: 'left',
-                sortable: true
-            },
-            {
-                name: 'creationDate',
-                field: 'creationDate',
-                label: this.$t('common.creationDate'),
-                align: 'left',
-                sortable: true,
-                format: (value) => this.formatDate(value),
-                style: { width: '20%' }
-            },
-            {
-                name: 'partial',
-                field: 'partial',
-                label: this.$t('documentExecution.dossier.headers.partial'),
-                align: 'left',
-                sortable: true
-            },
-            {
-                name: 'total',
-                field: 'total',
-                label: this.$t('documentExecution.dossier.headers.total'),
-                align: 'left',
-                sortable: true
-            },
-            {
-                name: 'status',
-                field: 'status',
-                label: this.$t('documentExecution.dossier.headers.status'),
-                align: 'left',
-                sortable: true
-            },
-            {
-                name: 'actions',
-                field: 'actions',
-                label: '',
-                alight: 'right'
-            }
-        ]
-        this.getDossierTemplate()
-        this.getDossierActivities()
-        this.startPolling()
-    },
-    activated() {
-        if (this.interval) return
-        this.getDossierActivities()
-        this.startPolling()
-    },
-    deactivated() {
-        this.stopPolling()
-    },
-    validations() {
-        return {
-            activity: createValidations('activity', dossierDescriptor.validations.activity)
-        }
-    },
-    methods: {
-        ...mapActions(mainStore, ['setInfo', 'setError']),
-        startPolling() {
-            this.stopPolling()
-            this.interval = setInterval(() => {
-                this.getDossierActivities()
-            }, 10000)
-        },
-        stopPolling() {
-            clearInterval(this.interval)
-            this.interval = null
-        },
-        formatDate(date) {
-            return formatDateWithLocale(date, { dateStyle: 'short', timeStyle: 'short' })
-        },
-        dateCheck(item): boolean {
-            return Date.now() - item.creationDate < 86400000 && item.status === 'STARTED'
-        },
-        timeDifference(startedActivity) {
-            const startDate = startedActivity.creationDate
-            const currentDate = new Date()
-            const seconds = (currentDate.getTime() - startDate) / 1000
+const props = defineProps<{ id?: string | number; reloadTrigger?: boolean; filterData?: any; userRole?: string }>()
 
-            return seconds <= 600
-        },
-        async getDossierActivities() {
-            this.loading = true
-            await this.$http
-                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/dossier/activities/${this.id}`)
-                .then((response: AxiosResponse<any>) => {
-                    this.dossierActivities = [...response.data]
-                })
-                .finally(() => {
-                    this.loading = false
-                })
-        },
-        async getDossierTemplate() {
-            this.loading = true
-            this.jsonTemplate = {}
-            const url = `${import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT}/api/start/dossierTemplate?documentId=${this.id}`
-            const filters = this.filterData ? this.filterData : {}
-            filters.filterStatus?.forEach((filter: iParameter) => {
-                const fields = ['dataDependsOnParameters', 'dataDependentParameters', 'lovDependsOnParameters', 'lovDependentParameters', 'dependsOnParameters', 'dependentParameters']
-                fields.forEach((field: string) => delete filter[field])
-            })
-            const config = {
-                data: encodeURIComponent(JSON.stringify(filters))
-            }
-            await this.$http
-                .post(url, config)
-                .then((response: AxiosResponse<any>) => {
-                    this.jsonTemplate = { ...response.data }
-                })
-                .catch((error) => {
-                    if (error) this.setError({ title: this.$t('common.error.generic'), msg: error.message })
-                })
-                .finally(() => {
-                    this.loading = false
-                })
-        },
-        deleteDossierConfirm(selectedDossier) {
-            this.$confirm.require({
-                message: this.$t('documentExecution.dossier.deleteConfirm'),
-                header: this.$t('documentExecution.dossier.deleteTitle'),
-                icon: 'pi pi-exclamation-triangle',
-                accept: () => this.deleteDossier(selectedDossier)
-            })
-        },
-        async deleteDossier(selectedDossier) {
-            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/dossier/activity/${selectedDossier.id}`
-            if (selectedDossier.status == 'DOWNLOAD' || selectedDossier.status == 'ERROR' || !this.dateCheck(selectedDossier)) {
-                await this.$http
-                    .delete(url)
-                    .then(() => {
-                        this.setInfo({
-                            title: this.$t('common.toast.deleteTitle'),
-                            msg: this.$t('documentExecution.dossier.deleteSuccess')
-                        })
-                        this.getDossierActivities()
-                    })
-                    .catch((error) => {
-                        if (error) {
-                            this.setError({
-                                title: this.$t('common.error.generic'),
-                                msg: error.message
-                            })
-                        }
-                    })
-            } else {
-                this.setError({
-                    title: this.$t('common.error.generic'),
-                    msg: this.$t('documentExecution.dossier.progressNotFinished')
-                })
-            }
-        },
-        async createNewActivity() {
-            this.launchClicked = true
-            setTimeout(() => (this.launchClicked = false), 3000)
+const store = mainStore()
+const { t } = useI18n()
+const $q = useQuasar()
 
-            if (this.jsonTemplate) this.jsonTemplate.executionRole = this.userRole
+const knowageContext = import.meta.env.VITE_KNOWAGE_CONTEXT
+const dossierContext = import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT
+const POLL_INTERVAL = 10000
+const LAUNCH_BLOCK_SECONDS = 600
+const DELETE_BLOCK_MS = 86400000
 
-            const url = `${import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT}/api/dossier/run?activityName=${this.activity.activityName}&documentId=${this.id}`
-            await this.$http.post(url, this.jsonTemplate).then((response: AxiosResponse<any>) => {
-                if (response.data.errors) {
-                    this.setError({ title: this.$t('common.error.saving'), msg: response.data.errors })
-                } else {
-                    this.setInfo({ title: this.$t('common.save'), msg: this.$t('documentExecution.dossier.saveSuccess') })
-                }
-            })
-            this.getDossierActivities()
-        },
-        async downloadActivity(selectedActivity) {
-            if (selectedActivity.status == 'ERROR') {
-                if (selectedActivity.hasBinContent) {
-                    const link = import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT + `/restful-services/dossier/activity/${selectedActivity.id}/txt?activityName=${selectedActivity.activity}`
-                    this.downloadFile(link)
-                } else {
-                    await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/dossier/random-key/${selectedActivity.progressId}`).then((response: AxiosResponse<any>) => {
-                        let url = `/api/start/errorFile?activityId=${selectedActivity.id}&randomKey=${response.data}&activityName=${selectedActivity.activity}`
-                        if (this.jsonTemplate.PPT_TEMPLATE != null) {
-                            url += '&type=PPT'
-                            url += '&templateName=' + this.jsonTemplate.PPT_TEMPLATE.name
-                        } else if (this.jsonTemplate.DOC_TEMPLATE != null) {
-                            url += '&type=DOC'
-                            url += '&templateName=' + this.jsonTemplate.DOC_TEMPLATE.name
-                        } else {
-                            url += '&type=PPTV2'
-                            url += '&templateName=' + this.jsonTemplate.PPT_TEMPLATE_V2.name
-                        }
-                        const link = import.meta.env.VITE_KNOWAGE_CONTEXT + url
-                        this.downloadFile(link)
-                        response.data.errors ? this.setError({ title: this.$t('common.error.generic'), msg: response.data.errors[0].message }) : ''
-                    })
-                }
-            } else if (selectedActivity.partial == selectedActivity.total) {
-                if (selectedActivity.hasBinContent) {
-                    const link = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/dossier/activity/${selectedActivity.id}/pptx?activityName=${selectedActivity.activity}`
-                    this.downloadFile(link)
-                } else if (selectedActivity.hasDocBinContent) {
-                    const link = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/dossier/activity/${selectedActivity.id}/doc?activityName=${selectedActivity.activity}`
-                    this.downloadFile(link)
-                } else if (selectedActivity.hasPptV2BinContent) {
-                    const link = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/dossier/activity/${selectedActivity.id}/pptv2?activityName=${selectedActivity.activity}`
-                    this.downloadFile(link)
-                } else {
-                    const link = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/dossier/random-key/${selectedActivity.progressId}`
-                    await this.$http.get(link).then((response: AxiosResponse<any>) => {
-                        if (this.jsonTemplate.PPT_TEMPLATE != null) {
-                            this.storePPT(selectedActivity.id, response.data, selectedActivity.activity)
-                        } else if (this.jsonTemplate.DOC_TEMPLATE != null) {
-                            this.storeDOC(selectedActivity.id, response.data, selectedActivity.activity)
-                        } else {
-                            this.storePPTV2(selectedActivity.id, response.data, selectedActivity.activity)
-                        }
-                        response.data.errors ? this.setError({ title: this.$t('common.error.generic'), msg: response.data.errors[0].message }) : ''
-                    })
-                }
-            } else {
-                this.setError({
-                    title: this.$t('common.error.generic'),
-                    msg: this.$t('documentExecution.dossier.progressNotFinished')
-                })
-            }
-        },
+const activities = ref<any[]>([])
+const jsonTemplate = ref<any>({})
+const activityName = ref('')
+const activityNameTouched = ref(false)
+const launchClicked = ref(false)
+const search = ref('')
+const pagination = ref({ sortBy: 'creationDate', descending: true, rowsPerPage: 0 })
+const lastUpdate = ref<number | null>(null)
+const now = ref(Date.now())
+const templateInput = ref<HTMLInputElement | null>(null)
 
-        storePPT(id, randomKey, activityName) {
-            const generateType = 'generatePPT'
-            const templateName = this.jsonTemplate.PPT_TEMPLATE.name
-            this.storeDossier(id, randomKey, activityName, generateType, templateName)
-        },
-        storePPTV2(id, randomKey, activityName) {
-            const generateType = 'generatePPTV2'
-            const templateName = this.jsonTemplate.PPT_TEMPLATE_V2.name
-            this.storeDossier(id, randomKey, activityName, generateType, templateName)
-        },
-        storeDOC(id, randomKey, activityName) {
-            const generateType = 'generateDOC'
-            const templateName = this.jsonTemplate.DOC_TEMPLATE.name
-            this.storeDossier(id, randomKey, activityName, generateType, templateName)
-        },
-        storeDossier(id, randomKey, activityName, generateType, templateName) {
-            const link = import.meta.env.VITE_HOST_URL + `${import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT}/api/start/` + generateType + `?activityId=${id}&randomKey=${randomKey}&templateName=${templateName}&activityName=${activityName}`
-            window.open(link)
-        },
+let pollInterval: ReturnType<typeof setInterval> | null = null
+let clockInterval: ReturnType<typeof setInterval> | null = null
 
-        templateOptionEnabled(optionName: string) {
-            const optionValue = this.jsonTemplate?.PPT_TEMPLATE?.[optionName] ?? this.jsonTemplate?.PPT_TEMPLATE_V2?.[optionName] ?? this.jsonTemplate?.DOC_TEMPLATE?.[optionName]
+const columns = computed(() => [
+    { name: 'activity', field: 'activity', label: t('documentExecution.dossier.headers.activity'), align: 'left', sortable: true, style: 'max-width: 280px' },
+    { name: 'status', field: 'status', label: t('documentExecution.dossier.headers.status'), align: 'left', sortable: true },
+    { name: 'progress', field: (row: any) => progressValue(row), label: t('documentExecution.dossier.headers.progress'), align: 'left', sortable: true, style: 'width: 22%' },
+    { name: 'creationDate', field: 'creationDate', label: t('common.creationDate'), align: 'left', sortable: true },
+    { name: 'executionRole', field: 'executionRole', label: t('documentExecution.dossier.headers.role'), align: 'left', sortable: true },
+    { name: 'actions', field: 'actions', label: '', align: 'right' }
+])
 
-            if (typeof optionValue === 'boolean') return optionValue
+const templateEntry = computed(() => jsonTemplate.value?.PPT_TEMPLATE_V2 ?? jsonTemplate.value?.DOC_TEMPLATE ?? jsonTemplate.value?.PPT_TEMPLATE ?? null)
+const templateName = computed(() => templateEntry.value?.name ?? '')
+const templateType = computed(() => (jsonTemplate.value?.DOC_TEMPLATE ? 'DOC_TEMPLATE' : 'PPT_TEMPLATE_V2'))
 
-            return String(optionValue).toLowerCase() === 'true'
-        },
-        async downloadTemplate() {
-            if (this.jsonTemplate.PPT_TEMPLATE == null) {
-                const fileName = this.jsonTemplate?.DOC_TEMPLATE?.name ? this.jsonTemplate?.DOC_TEMPLATE?.name : this.jsonTemplate?.PPT_TEMPLATE_V2?.name
-                await this.$http
-                    .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/dossier/checkPathFile?templateName=${fileName}&documentId=${this.id}`)
-                    .then((response: AxiosResponse<any>) => {
-                        if (response.data.STATUS == 'KO') {
-                            this.setInfo({ title: this.$t('common.error.generic'), msg: this.$t('documentExecution.dossier.templateDownloadError') })
-                        } else if (response.data.STATUS == 'OK') {
-                            this.downloadFile(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/dossier/resourcePath?templateName=${fileName}&documentId=${this.id}`)
-                        }
-                    })
-                    .catch((error) => {
-                        if (error) this.setError({ title: this.$t('common.error.generic'), msg: error.message })
-                    })
-            } else {
-                const fileName = this.jsonTemplate.PPT_TEMPLATE.name
-                this.downloadFile(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/resourcePath?templateName=${fileName}&documentId=${this.id}`)
-            }
-        },
-        async downloadFile(url) {
-            await this.$http
-                .get(url, { responseType: 'arraybuffer' })
-                .then((response: AxiosResponse<any>) => {
-                    downloadDirectFromResponse(response)
-                })
-                .catch((error) => {
-                    if (error) this.setError({ title: this.$t('common.error.generic'), msg: error.message })
-                })
-        },
-        setUploadType() {
-            this.triggerUpload = false
-            setTimeout(() => (this.triggerUpload = true), 200)
-        },
-        startTemplateUpload(event) {
-            this.uploading = true
-            this.uploadTemplate(event.target.files[0])
-            this.triggerUpload = false
-            setTimeout(() => (this.uploading = false), 200)
-        },
-        async uploadTemplate(uploadedFile) {
-            const formData = new FormData()
-            formData.append('file', uploadedFile)
-            formData.append('documentId', '' + this.id)
-            await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/dossier/importTemplateFile', formData, { headers: { 'X-Disable-Errors': 'true' } })
-                .then((response: AxiosResponse<any>) => {
-                    if (response.data?.STATUS === 'KO') this.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.dossier.templateUploadError') })
-                    else this.setInfo({ title: this.$t('common.toast.success'), msg: this.$t('common.toast.uploadSuccess') })
-                })
-                .catch(() => this.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.dossier.templateUploadError') }))
-                .finally(() => (this.triggerUpload = false))
-        }
-    },
-    beforeUnmount() {
-        this.stopPolling()
+const activityNameValid = computed(() => !!activityName.value?.trim() && extendedAlphanumeric.test(activityName.value))
+const isRunning = (activity: any) => activity.status === 'PREPARED' || activity.status === 'STARTED'
+const anyRunning = computed(() => activities.value.some(isRunning))
+// A new activity waits 10 minutes after the last start, as before
+const runningRecently = computed(() => activities.value.some((activity) => activity.status === 'STARTED' && (now.value - activity.creationDate) / 1000 <= LAUNCH_BLOCK_SECONDS))
+const launchDisabled = computed(() => !activityNameValid.value || launchClicked.value || runningRecently.value)
+const lastUpdateText = computed(() => (lastUpdate.value ? moment(lastUpdate.value).from(now.value) : ''))
+
+watch(
+    () => props.reloadTrigger,
+    () => {
+        getTemplate()
+        getActivities()
     }
+)
+
+onMounted(() => {
+    getTemplate()
+    getActivities()
+    startClock()
 })
+
+onActivated(() => {
+    if (clockInterval) return
+    getActivities()
+    startClock()
+})
+
+onDeactivated(stopTimers)
+onBeforeUnmount(stopTimers)
+
+// The poll runs only while an activity is waiting or running; a load, an Execute, a launch and the refresh button read the list once
+function updatePolling() {
+    if (anyRunning.value && !pollInterval) pollInterval = setInterval(getActivities, POLL_INTERVAL)
+    else if (!anyRunning.value && pollInterval) stopPolling()
+}
+
+function stopPolling() {
+    if (pollInterval) clearInterval(pollInterval)
+    pollInterval = null
+}
+
+function startClock() {
+    if (!clockInterval) clockInterval = setInterval(() => (now.value = Date.now()), 1000)
+}
+
+function stopTimers() {
+    stopPolling()
+    if (clockInterval) clearInterval(clockInterval)
+    clockInterval = null
+}
+
+async function getActivities() {
+    if (!props.id) return
+    await axios.get(`${knowageContext}/restful-services/dossier/activities/${props.id}`).then((response: any) => {
+        activities.value = [...(response.data ?? [])]
+        lastUpdate.value = Date.now()
+        now.value = lastUpdate.value
+    })
+    updatePolling()
+}
+
+async function getTemplate() {
+    jsonTemplate.value = {}
+    const filters = props.filterData ? props.filterData : {}
+    filters.filterStatus?.forEach((filter: iParameter) => {
+        const fields = ['dataDependsOnParameters', 'dataDependentParameters', 'lovDependsOnParameters', 'lovDependentParameters', 'dependsOnParameters', 'dependentParameters']
+        fields.forEach((field: string) => delete filter[field])
+    })
+    await axios
+        .post(`${dossierContext}/api/start/dossierTemplate?documentId=${props.id}`, { data: encodeURIComponent(JSON.stringify(filters)) })
+        .then((response: any) => (jsonTemplate.value = { ...response.data }))
+        .catch((error: any) => {
+            if (error) store.setError({ title: t('common.error.generic'), msg: error.message })
+        })
+}
+
+async function launchActivity() {
+    activityNameTouched.value = true
+    if (launchDisabled.value) return
+    launchClicked.value = true
+    setTimeout(() => (launchClicked.value = false), 3000)
+
+    if (jsonTemplate.value) jsonTemplate.value.executionRole = props.userRole
+    const url = `${dossierContext}/api/dossier/run?activityName=${encodeURIComponent(activityName.value)}&documentId=${props.id}`
+    await axios
+        .post(url, jsonTemplate.value, { headers: { 'X-Disable-Errors': 'true' } })
+        .then((response: any) => {
+            if (response.data?.errors) {
+                store.setError({ title: t('common.error.saving'), msg: response.data.errors })
+                return
+            }
+            store.setInfo({ title: t('common.save'), msg: t('documentExecution.dossier.saveSuccess') })
+            activityName.value = ''
+            activityNameTouched.value = false
+        })
+        .catch((error: any) => store.setError({ title: t('common.error.saving'), msg: error?.message ?? t('common.error.generic') }))
+    await getActivities()
+}
+
+function statusKey(status: string): string {
+    switch (status) {
+        case 'PREPARED':
+            return 'prepared'
+        case 'STARTED':
+            return 'started'
+        case 'DOWNLOAD':
+            return 'download'
+        case 'ERROR':
+            return 'error'
+        default:
+            return 'prepared'
+    }
+}
+
+function progressValue(activity: any): number {
+    if (activity.status === 'DOWNLOAD') return 1
+    return activity.total > 0 ? Math.min(activity.partial / activity.total, 1) : 0
+}
+
+function relativeTime(date: number): string {
+    return date ? moment(date).from(now.value) : '-'
+}
+
+function formatDate(date: number): string {
+    return formatDateWithLocale(date, { dateStyle: 'short', timeStyle: 'short' })
+}
+
+function filterActivities(rows: readonly any[], terms: string) {
+    const text = (terms ?? '').trim().toLowerCase()
+    return text ? rows.filter((row) => row.activity?.toLowerCase().includes(text)) : rows
+}
+
+function canDownload(activity: any): boolean {
+    // Same rule as before the redesign: an error log, or a finished generation
+    return activity.status === 'ERROR' || (activity.status !== 'PREPARED' && activity.total > 0 && activity.partial == activity.total) || activity.status === 'DOWNLOAD'
+}
+
+function downloadTooltip(activity: any): string {
+    if (activity.status === 'ERROR') return t('documentExecution.dossier.downloadErrorLog')
+    return canDownload(activity) ? t('common.download') : t('documentExecution.dossier.progressNotFinished')
+}
+
+// A running activity can be deleted 24 hours after its start
+function deleteBlocked(activity: any): boolean {
+    return Date.now() - activity.creationDate < DELETE_BLOCK_MS && activity.status === 'STARTED'
+}
+
+function deleteActivityConfirm(activity: any) {
+    $q.dialog({ title: t('documentExecution.dossier.deleteTitle'), message: t('documentExecution.dossier.deleteConfirm'), cancel: true, persistent: true }).onOk(() => deleteActivity(activity))
+}
+
+async function deleteActivity(activity: any) {
+    await axios
+        .delete(`${knowageContext}/restful-services/dossier/activity/${activity.id}`)
+        .then(() => {
+            store.setInfo({ title: t('common.toast.deleteTitle'), msg: t('documentExecution.dossier.deleteSuccess') })
+            getActivities()
+        })
+        .catch((error: any) => {
+            if (error) store.setError({ title: t('common.error.generic'), msg: error.message })
+        })
+}
+
+async function downloadActivity(activity: any) {
+    if (activity.status == 'ERROR') {
+        if (activity.hasBinContent) {
+            downloadFile(dossierContext + `/restful-services/dossier/activity/${activity.id}/txt?activityName=${activity.activity}`)
+            return
+        }
+        await axios.get(`${knowageContext}/restful-services/dossier/random-key/${activity.progressId}`).then((response: any) => {
+            let url = `/api/start/errorFile?activityId=${activity.id}&randomKey=${response.data}&activityName=${activity.activity}`
+            if (jsonTemplate.value.PPT_TEMPLATE != null) url += '&type=PPT&templateName=' + jsonTemplate.value.PPT_TEMPLATE.name
+            else if (jsonTemplate.value.DOC_TEMPLATE != null) url += '&type=DOC&templateName=' + jsonTemplate.value.DOC_TEMPLATE.name
+            else url += '&type=PPTV2&templateName=' + jsonTemplate.value.PPT_TEMPLATE_V2.name
+            downloadFile(knowageContext + url)
+            if (response.data.errors) store.setError({ title: t('common.error.generic'), msg: response.data.errors[0].message })
+        })
+    } else if (activity.partial == activity.total) {
+        if (activity.hasBinContent) downloadFile(knowageContext + `/restful-services/dossier/activity/${activity.id}/pptx?activityName=${activity.activity}`)
+        else if (activity.hasDocBinContent) downloadFile(knowageContext + `/restful-services/dossier/activity/${activity.id}/doc?activityName=${activity.activity}`)
+        else if (activity.hasPptV2BinContent) downloadFile(knowageContext + `/restful-services/dossier/activity/${activity.id}/pptv2?activityName=${activity.activity}`)
+        else {
+            await axios.get(`${knowageContext}/restful-services/dossier/random-key/${activity.progressId}`).then((response: any) => {
+                if (jsonTemplate.value.PPT_TEMPLATE != null) storeDossier(activity, response.data, 'generatePPT', jsonTemplate.value.PPT_TEMPLATE.name)
+                else if (jsonTemplate.value.DOC_TEMPLATE != null) storeDossier(activity, response.data, 'generateDOC', jsonTemplate.value.DOC_TEMPLATE.name)
+                else storeDossier(activity, response.data, 'generatePPTV2', jsonTemplate.value.PPT_TEMPLATE_V2.name)
+                if (response.data.errors) store.setError({ title: t('common.error.generic'), msg: response.data.errors[0].message })
+            })
+        }
+    } else {
+        store.setError({ title: t('common.error.generic'), msg: t('documentExecution.dossier.progressNotFinished') })
+    }
+}
+
+function storeDossier(activity: any, randomKey: string, generateType: string, templateName: string) {
+    window.open(import.meta.env.VITE_HOST_URL + `${dossierContext}/api/start/${generateType}?activityId=${activity.id}&randomKey=${randomKey}&templateName=${templateName}&activityName=${activity.activity}`)
+}
+
+function templateOptionEnabled(optionName: string): boolean {
+    const optionValue = templateEntry.value?.[optionName]
+    if (typeof optionValue === 'boolean') return optionValue
+    return String(optionValue).toLowerCase() === 'true'
+}
+
+async function downloadTemplate() {
+    if (jsonTemplate.value.PPT_TEMPLATE != null) {
+        downloadFile(knowageContext + `/restful-services/resourcePath?templateName=${jsonTemplate.value.PPT_TEMPLATE.name}&documentId=${props.id}`)
+        return
+    }
+    const fileName = templateName.value
+    await axios
+        .get(`${knowageContext}/restful-services/dossier/checkPathFile?templateName=${fileName}&documentId=${props.id}`)
+        .then((response: any) => {
+            if (response.data.STATUS == 'KO') store.setError({ title: t('common.error.generic'), msg: t('documentExecution.dossier.templateDownloadError') })
+            else if (response.data.STATUS == 'OK') downloadFile(knowageContext + `/restful-services/dossier/resourcePath?templateName=${fileName}&documentId=${props.id}`)
+        })
+        .catch((error: any) => {
+            if (error) store.setError({ title: t('common.error.generic'), msg: error.message })
+        })
+}
+
+async function downloadFile(url: string) {
+    await axios
+        .get(url, { responseType: 'arraybuffer' })
+        .then((response: any) => downloadDirectFromResponse(response))
+        .catch((error: any) => {
+            if (error) store.setError({ title: t('common.error.generic'), msg: error.message })
+        })
+}
+
+function pickTemplateFile() {
+    if (!templateInput.value) return
+    templateInput.value.value = ''
+    templateInput.value.click()
+}
+
+async function onTemplateFileChange(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0]
+    if (!file) return
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('documentId', '' + props.id)
+    await axios
+        .post(`${knowageContext}/restful-services/dossier/importTemplateFile`, formData, { headers: { 'X-Disable-Errors': 'true' } })
+        .then((response: any) => {
+            if (response.data?.STATUS === 'KO') store.setError({ title: t('common.toast.errorTitle'), msg: t('documentExecution.dossier.templateUploadError') })
+            else store.setInfo({ title: t('common.toast.success'), msg: t('common.toast.uploadSuccess') })
+        })
+        .catch(() => store.setError({ title: t('common.toast.errorTitle'), msg: t('documentExecution.dossier.templateUploadError') }))
+}
 </script>
+
+<style lang="scss" scoped>
+.dossier-page {
+    height: 100%;
+    overflow: auto;
+
+    &__column {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        height: 100%;
+        min-height: 420px;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 16px;
+        box-sizing: border-box;
+    }
+}
+
+.dossier-card {
+    border-radius: 4px;
+    background-color: #fff;
+
+    // One gap for every item of the header row
+    &__header {
+        min-height: 44px;
+        padding-top: 4px;
+        padding-bottom: 4px;
+        gap: 8px;
+    }
+
+    // Icon and label of the compact header buttons on one center line
+    &__action :deep(.q-btn__content) {
+        align-items: center;
+        line-height: 1;
+    }
+
+    // Same line height as the card label, so the label, the name and the badge share one center line
+    &__template {
+        min-width: 0;
+        max-width: 50%;
+        font-size: 13px;
+        font-weight: 500;
+        line-height: 16px;
+    }
+
+    &__badge {
+        font-size: 10px;
+        line-height: 12px;
+        padding: 1px 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    &__launch {
+        height: 40px;
+    }
+
+    &__updated {
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.54);
+        white-space: nowrap;
+    }
+
+    &__search {
+        width: 220px;
+    }
+
+    &--activities {
+        flex: 1;
+        min-height: 0;
+    }
+}
+
+.dossier-table {
+    min-height: 0;
+
+    :deep(thead tr th) {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background-color: #fff;
+    }
+
+    :deep(thead tr:first-child th) {
+        top: 0;
+    }
+
+    &__name {
+        max-width: 280px;
+    }
+
+    &__count {
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.6);
+        min-width: 48px;
+        text-align: right;
+    }
+}
+
+.dossier-status {
+    font-weight: 500;
+
+    &--prepared {
+        background-color: rgba(0, 0, 0, 0.08);
+        color: rgba(0, 0, 0, 0.7);
+    }
+
+    &--started {
+        background-color: var(--kn-message-info-background-color);
+        color: var(--kn-message-info-color);
+    }
+
+    &--download {
+        background-color: var(--kn-message-success-background-color);
+        color: var(--kn-message-success-color);
+    }
+
+    &--error {
+        background-color: var(--kn-message-error-background-color);
+        color: var(--kn-message-error-color);
+    }
+}
+</style>

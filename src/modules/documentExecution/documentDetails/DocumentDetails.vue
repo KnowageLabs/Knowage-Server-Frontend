@@ -2,9 +2,10 @@
     <div v-if="viewMode === 'document-detail' || route.name === 'document-details-new-document' || route.name === 'document-details-edit-document'" id="document-details-container" class="column kn-flex kn-height-full">
         <q-toolbar class="kn-toolbar kn-toolbar--primary">
             <q-toolbar-title>{{ $t('documentExecution.documentDetails.title') }}</q-toolbar-title>
-            <q-btn flat round dense icon="save" :disable="invalidDrivers > 0 || invalidOutputParams > 0 || invalidFunctionalities == 0 || v$.$invalid" data-test="submit-button" @click="saveDocument">
-                <q-tooltip>{{ $t('common.save') }}</q-tooltip>
-            </q-btn>
+            <span>
+                <q-btn flat round dense icon="save" :disable="saveDisabled" data-test="submit-button" @click="saveDocument" />
+                <q-tooltip>{{ designerBlocksSave ? $t(designerState.invalidReason) : $t('common.save') }}</q-tooltip>
+            </span>
             <q-btn v-if="propMode === 'execution'" flat round dense icon="close" data-test="close-button" @click="closeDocument">
                 <q-tooltip>{{ $t('common.close') }}</q-tooltip>
             </q-btn>
@@ -24,8 +25,14 @@
                 <q-tab v-if="selectedDocument?.id && showDataLineageTab" name="dataLineage" :label="$t('documentExecution.documentDetails.dataLineage.title')" />
                 <q-tab v-if="selectedDocument?.id" name="history" :label="$t('documentExecution.documentDetails.history.title')" />
                 <q-tab v-if="selectedDocument?.id && selectedDocument?.typeCode == 'REPORT' && selectedDocument?.engine == 'knowagejasperreporte'" name="subreports" :label="$t('documentExecution.documentDetails.subreports.title')" />
+                <q-tab v-if="designerTabVisible" name="designer" data-test="designer-tab">
+                    <span :class="{ 'details-warning-color': designerBlocksSave }">{{ $t('documentExecution.dossier.designer.tab') }}</span>
+                    <q-badge v-if="designerBlocksSave" color="negative" floating>!</q-badge>
+                    <q-badge v-else-if="designerState.dirty" color="primary" floating rounded class="dd-dirty-dot" />
+                </q-tab>
             </q-tabs>
-            <q-tab-panels v-model="activeTab" animated class="row kn-flex">
+            <!-- keep-alive only for the designer: its unsaved work must survive a tab change, the toolbar Save writes it -->
+            <q-tab-panels v-model="activeTab" animated keep-alive keep-alive-include="designer" class="row kn-flex">
                 <q-tab-panel name="informations" class="q-pa-none kn-height-full row">
                     <InformationsTab
                         v-if="!loading"
@@ -42,6 +49,7 @@
                         @setImageForUpload="setImageForUpload"
                         @deleteImage="deleteImage"
                         @openDesignerDialog="openDesignerDialog"
+                        @openDesignerTab="openDesignerTab"
                     />
                 </q-tab-panel>
                 <q-tab-panel v-if="selectedDocument?.id" name="drivers" class="q-pa-none kn-height-full row">
@@ -59,11 +67,13 @@
                 <q-tab-panel v-if="selectedDocument?.id && selectedDocument?.typeCode == 'REPORT' && selectedDocument?.engine == 'knowagejasperreporte'" name="subreports" class="q-pa-none kn-height-full row">
                     <SubreportsTab :selected-document="selectedDocument" :all-document-details-prop="allDocumentDetails" />
                 </q-tab-panel>
+                <q-tab-panel v-if="designerTabVisible" name="designer" class="q-pa-none kn-height-full">
+                    <DossierDesigner ref="dossierDesigner" :document="selectedDocument" mode="details" @state="designerState = $event" @run="runDossier" />
+                </q-tab-panel>
             </q-tab-panels>
         </div>
 
         <DocumentDetailOlapDesignerDialog v-if="designerDialogVisible" :visible="designerDialogVisible" :selected-document="selectedDocument" @close="designerDialogVisible = false" @designerStarted="onDesignerStart"></DocumentDetailOlapDesignerDialog>
-        <DocumentDetailDossierDesignerDialog v-if="user.enterprise && dossierDesignerDialogVisible" :visible="dossierDesignerDialogVisible" :selected-document="selectedDocument" @close="closeDossierDesignerDialog($event)"></DocumentDetailDossierDesignerDialog>
     </div>
 </template>
 
@@ -82,7 +92,8 @@ import HistoryTab from './tabs/history/DocumentDetailsHistory.vue'
 import SubreportsTab from './tabs/subreports/DocumentDetailsSubreports.vue'
 import { iDataSource, iAnalyticalDriver, iDriver, iEngine, iTemplate, iAttribute, iParType, iDateFormat, iFolder, iTableSmall, iOutputParam, iDocumentType } from '@/modules/documentExecution/documentDetails/DocumentDetails'
 import DocumentDetailOlapDesignerDialog from './dialogs/olapDesignerDialog/DocumentDetailOlapDesignerDialog.vue'
-import DocumentDetailDossierDesignerDialog from './dialogs/dossierDesignerDialog/DocumentDetailDossierDesignerDialog.vue'
+import DossierDesigner from '@/modules/documentExecution/dossier/designer/DossierDesigner.vue'
+import EnginesConstants from '@/EnginesConstants.json'
 import mainStore from '../../../App.store'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 import { mapState, mapActions } from 'pinia'
@@ -97,7 +108,7 @@ export default defineComponent({
         HistoryTab,
         SubreportsTab,
         DocumentDetailOlapDesignerDialog,
-        DocumentDetailDossierDesignerDialog
+        DossierDesigner
     },
     props: { propDocId: { type: String }, propFolderId: { type: String }, propMode: { type: String }, viewMode: { type: String }, wholeItem: { type: Object } },
     emits: ['closeDetails', 'documentSaved'],
@@ -136,7 +147,8 @@ export default defineComponent({
             savedSubreports: [] as any,
             selectedSubreports: [] as any,
             designerDialogVisible: false,
-            dossierDesignerDialogVisible: false,
+            savedEngine: null as string | null,
+            designerState: { dirty: false, valid: true, invalidReason: null } as { dirty: boolean; valid: boolean; invalidReason: string | null },
             refreshDrivers: false,
             refreshHistory: false,
             activeTab: 'informations'
@@ -163,6 +175,16 @@ export default defineComponent({
         },
         showDataLineageTab(): boolean {
             return this.user.functionalities.includes(UserFunctionalitiesConstants.DATA_SOURCE_MANAGEMENT)
+        },
+        // The engine of the saved document, not the value in the form: the template belongs to a saved dossier
+        designerTabVisible(): boolean {
+            return !!this.selectedDocument?.id && this.savedEngine === EnginesConstants.DOSSIER_ENGINE && !!this.user?.enterprise
+        },
+        designerBlocksSave(): boolean {
+            return this.designerTabVisible && this.designerState.dirty && !this.designerState.valid
+        },
+        saveDisabled(): boolean {
+            return this.invalidDrivers > 0 || this.invalidOutputParams > 0 || this.invalidFunctionalities == 0 || this.v$.$invalid || this.designerBlocksSave
         }
     },
     watch: {
@@ -222,10 +244,14 @@ export default defineComponent({
         },
         async getSelectedDocumentById(id) {
             if (id) {
-                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documents/${id}`).then((response: AxiosResponse<any>) => (this.selectedDocument = response.data))
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documents/${id}`).then((response: AxiosResponse<any>) => {
+                    this.selectedDocument = response.data
+                    this.savedEngine = response.data.engine
+                })
             } else {
                 this.selectedDocument = { ...this.mainDescriptor.newDocument }
                 this.selectedDocument.functionalities = []
+                this.savedEngine = null
             }
         },
         async getFunctionalities() {
@@ -336,34 +362,38 @@ export default defineComponent({
         },
         async saveOutputParams() {
             if (this.selectedDocument.outputParameters) {
-                this.selectedDocument.outputParameters.forEach((parameter: iOutputParam) => {
+                const requests = this.selectedDocument.outputParameters.map((parameter: iOutputParam) => {
                     if (!parameter.id) {
                         delete parameter.numberOfErrors
                         delete parameter.tempId
                         delete parameter.isChanged
-                        this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/outputparameters`, parameter, { headers: { 'X-Disable-Errors': 'true' } }).catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.outputParams.persistError') }))
+                        return this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/outputparameters`, parameter, { headers: { 'X-Disable-Errors': 'true' } }).catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.outputParams.persistError') }))
                     } else if (parameter.isChanged) {
                         delete parameter.numberOfErrors
                         delete parameter.isChanged
-                        this.$http.put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/outputparameters/${parameter.id}`, parameter, { headers: { 'X-Disable-Errors': 'true' } }).catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.outputParams.persistError') }))
+                        return this.$http.put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/outputparameters/${parameter.id}`, parameter, { headers: { 'X-Disable-Errors': 'true' } }).catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.outputParams.persistError') }))
                     }
+                    return null
                 })
+                await Promise.all(requests)
             }
         },
         async saveDrivers() {
             if (this.selectedDocument.drivers) {
-                this.selectedDocument.drivers.forEach((driver: iDriver) => {
+                const requests = this.selectedDocument.drivers.map((driver: iDriver) => {
                     driver.modifiable = 0
                     if (!driver.id) {
                         delete driver.numberOfErrors
                         delete driver.isChanged
-                        this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/drivers`, driver, { headers: { 'X-Disable-Errors': 'true' } }).catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.drivers.persistError') }))
+                        return this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/drivers`, driver, { headers: { 'X-Disable-Errors': 'true' } }).catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.drivers.persistError') }))
                     } else if (driver.isChanged) {
                         delete driver.numberOfErrors
                         delete driver.isChanged
-                        this.$http.put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/drivers/${driver.id}`, driver, { headers: { 'X-Disable-Errors': 'true' } }).catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.drivers.persistError') }))
+                        return this.$http.put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/drivers/${driver.id}`, driver, { headers: { 'X-Disable-Errors': 'true' } }).catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.drivers.persistError') }))
                     }
+                    return null
                 })
+                await Promise.all(requests)
             }
         },
         saveRequest(docToSave) {
@@ -387,12 +417,15 @@ export default defineComponent({
                     await this.saveDrivers()
                     await this.uploadTemplate(this.templateToUpload, response.data.id)
                     await this.uploadImage(this.imageToUpload, response.data.id)
+                    // After the drivers, so a dynamic link can use a driver added in the Drivers tab
+                    const templateSaved = await this.saveDossierTemplate()
                     this.store.setInfo({ title: this.$t('common.save'), msg: this.$t('common.toast.updateSuccess') })
-                    setTimeout(() => {
+                    setTimeout(async () => {
                         const path = `/document-details/${response.data.id}`
                         !this.selectedDocument.id ? this.router.push(path) : ''
                         this.$emit('documentSaved', { ...response.data, folderId: folderId })
-                        this.loadPage(response.data.id)
+                        await this.loadPage(response.data.id)
+                        if (templateSaved) (this.$refs.dossierDesigner as any)?.reload()
                     }, 200)
                 })
                 .catch((error) => {
@@ -406,25 +439,32 @@ export default defineComponent({
             if (tabName === 'subreports') this.getAllSubreports()
         },
         openDesignerDialog() {
-            if (this.selectedDocument.engine === 'knowagedossierengine') {
-                this.dossierDesignerDialogVisible = true
-                this.refreshDrivers = false
-                this.refreshHistory = false
-                this.designerDialogVisible = false
-            } else {
-                this.designerDialogVisible = true
-                this.dossierDesignerDialogVisible = false
-            }
+            this.designerDialogVisible = true
         },
         onDesignerStart(document: any) {
             this.router.push(`/olap-designer/${document.sbiExecutionId}?olapId=${document.id}&olapName=${document.name}&olapLabel=${document.label}&noTemplate=${true}&reference=${document.reference}&engine=${document.engine}&artifactId=${document.artifactId}`)
         },
-        closeDossierDesignerDialog(refreshObj) {
-            this.dossierDesignerDialogVisible = false
-
-            if (refreshObj.refreshDrivers) this.refreshDrivers = true
-
-            if (refreshObj.refreshHistory) this.refreshHistory = true
+        // Saves the dossier template when the Designer tab has changes; the document part is already saved
+        async saveDossierTemplate(): Promise<boolean> {
+            const designer = this.$refs.dossierDesigner as any
+            if (!this.designerTabVisible || !designer || !this.designerState.dirty) return false
+            this.refreshDrivers = false
+            this.refreshHistory = false
+            const result = await designer.save()
+            if (!result?.ok) {
+                this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.dossier.designer.saveError') })
+                return false
+            }
+            this.refreshHistory = true
+            if (result.driversChanged) this.refreshDrivers = true
+            return true
+        },
+        openDesignerTab() {
+            if (this.designerTabVisible) this.activeTab = 'designer'
+            else this.store.setInfo({ title: this.$t('common.information'), msg: this.$t('documentExecution.dossier.designer.saveFirst') })
+        },
+        runDossier() {
+            this.router.push(`/dossier/${this.selectedDocument.label}`)
         }
     }
 })
@@ -437,6 +477,14 @@ export default defineComponent({
 
 .details-warning-color {
     color: red;
+}
+
+// Unsaved changes in the Designer tab
+.dd-dirty-dot {
+    width: 8px;
+    min-height: 8px;
+    height: 8px;
+    padding: 0;
 }
 
 /* ── Shared DocumentDetails tab styles ────────────────────────── */

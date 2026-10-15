@@ -48,7 +48,7 @@
                 <Dossier v-else-if="showExecutedDocument && mode === 'dossier'" :id="document.id" :reload-trigger="reloadTrigger" :filter-data="filtersData" :user-role="userRole"></Dossier>
                 <Olap v-else-if="showExecutedDocument && mode === 'olap'" :id="urlData?.sbiExecutionId" :olap-id="document.id" :olap-name="document.label" :reload-trigger="reloadTrigger" :olap-custom-view-visible="olapCustomViewVisible" :hidden-form-data-prop="hiddenFormData" @closeOlapCustomView="olapCustomViewVisible = false" @applyCustomView="executeOlapCustomView" @executeCrossNavigation="executeOLAPCrossNavigation"></Olap>
                 <DashboardController v-else-if="showExecutedDocument && propMode === 'document-execution-cross-navigation-popup' && document" :visible="filtersData && filtersData.isReadyForExecution && !loading" :document="document" :reload-trigger="reloadTrigger" :mode="'dashboard-popup'" :filters-data="filtersData" :new-dashboard-mode="false" :user-role="userRole" @dashboardReadyStateChanged="onDashboardReadyStateChanged($event)"></DashboardController>
-                <div v-show="mode === 'dashboard' || newDashboardMode" class="p-d-flex p-flex-row" style="height: 100%">
+                <div v-show="mode === 'dashboard' || newDashboardMode" class="row no-wrap" style="height: 100%">
                     <template v-for="(item, index) in breadcrumbs" :key="index">
                         <DashboardController
                             :visible="((filtersData && filtersData.isReadyForExecution) || newDashboardMode) && !loading && !schedulationsTableVisible && (item.label === document.name || newDashboardMode || (crossNavigationDialogVisible && index === breadcrumbs.length - 1))"
@@ -1618,6 +1618,8 @@ export default defineComponent({
     background: white;
     position: relative;
     height: 100%;
+    // Fit under the toolbar of the flex column; without it a full-height page (dossier) overflows by the toolbar height
+    min-height: 0;
     width: 100%;
     // The collapsed parameter toggle button sits at right: -5px; without clipping it widens scrollable parents (e.g. document browser tab).
     overflow-x: clip;

@@ -2194,9 +2194,29 @@
             "title": "Document Details"
         },
         "dossier": {
+            "activities": "Activities",
+            "deleteBlocked": "You can delete a running activity 24 hours after its start.",
             "deleteConfirm": "Are you sure you want to delete the selected activity?",
             "deleteSuccess": "Successfully deleted selected activity.",
             "deleteTitle": "Delete dossier activity",
+            "designer": {
+                "driverTypeMissing": "Every driver of a linked document needs a link type.",
+                "fileMissing": "Upload a template file.",
+                "findPlaceholders": "Find placeholders",
+                "imageSettings": "Image settings",
+                "noPlaceholders": "Upload a template and find the placeholders.",
+                "notInTemplate": "Not in the template. This placeholder is not saved.",
+                "prefixMissing": "Set a valid prefix.",
+                "rescanNeeded": "Find the placeholders again to apply the change.",
+                "run": "Run",
+                "runDisabled": "Save the dossier before you run it.",
+                "saveError": "The document is saved, but the dossier template is not. Check the Designer tab and save again.",
+                "saveFirst": "Save the document as a dossier to open the designer.",
+                "scanResult": "{found} found, {added} new, {missing} not in the template",
+                "tab": "Designer",
+                "template": "Template",
+                "title": "Dossier designer"
+            },
             "designerDialog": {
                 "closeConfirm": "Are you sure you want to close the designer? All changes will be lost.",
                 "closeTitle": "Close Designer",
@@ -2213,13 +2233,11 @@
                 },
                 "errorDuringValidation": "The uploaded template is not valid for the dossier document",
                 "inherit": "Inherit",
-                "linkTo": "Link to",
                 "linkToDocumentDriverPart": " or setting values for the driver parameters",
                 "linkToDocumentHint": "Select the document to attach it to the placeholder. Then choose the link type and proceed using a saved view ",
                 "noDocumentLinkedToThePlaceholder": "No document linked to the placeholder",
                 "noPlaceholdersFound": "The uploaded document doesn't contain placeholders accordingly to the prefix. Please, try again with another document",
                 "noPlaceholdersHint": "No placeholder selected. Click on a list element to select one.",
-                "noViewsAvailable": "No views available",
                 "placeholders": "Placeholders",
                 "prefixHint": "This prefix will be used case sensitive to search for images within the template",
                 "resetPlaceholder": "Reset placeholder",
@@ -2227,35 +2245,36 @@
                 "sheetHeight": "Sheet Height (px)",
                 "sheetNumber": "Sheet Number",
                 "sheetWidth": "Sheet width (px)",
-                "step0": {
-                    "info": "Upload the template for the dossier and set the prefix to use to search for images within",
-                    "title": "Dossier designer - Upload file and choose the prefix for images"
-                },
-                "step1": {
-                    "title": "Dossier designer - Hook placeholders to documents"
-                },
                 "templateFile": "Template file",
                 "uploadable": "Uploadable",
-                "uploadableHint": "Enable the flag if you want the docx/pptx template to be uploadable from the dossier execution interface",
-                "urlName": "Url name"
+                "uploadableHint": "Enable the flag if you want the docx/pptx template to be uploadable from the dossier execution interface"
             },
+            "downloadErrorLog": "Download the error log",
             "downloadMissingError": "Download ERROR - Document is missing",
-            "downloadTemplate": "Download document template",
+            "downloadTemplate": "Download template",
             "headers": {
                 "activity": "Activity Name",
-                "partial": "Partial",
-                "status": "State",
-                "total": "Total"
+                "progress": "Progress",
+                "role": "Role",
+                "status": "State"
             },
             "hint": "No dossier activity has been launched yet. Set a name and click 'Launch activity' to create the first one.",
-            "launchActivity": "Launch Activity",
-            "launchedActivities": "Launched activities for this document",
+            "launch": "Launch",
+            "launchBlocked": "An activity is running. You can launch a new one 10 minutes after the last start.",
             "progressNotFinished": "Please wait until document will be generated.",
             "saveSuccess": "Activity successfully saved!",
+            "status": {
+                "download": "Ready",
+                "error": "Error",
+                "prepared": "Waiting",
+                "started": "Running"
+            },
             "templateDownloadError": "Error downloading template",
             "templateUploadError": "Error uploading template",
-            "title": "Dossier",
-            "uploadTemplate": "Upload document template",
+            "typeDoc": "Word",
+            "typePpt": "PowerPoint",
+            "updatedAgo": "Updated {time}",
+            "uploadTemplate": "Upload template",
             "warning": {
                 "oldVersion": "This dossier is based on an old version of the document. The designer is not available for this version. Please create a new dossier from scratch."
             }

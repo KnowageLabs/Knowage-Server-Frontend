@@ -61,7 +61,7 @@
             <KnHint v-if="!showTemplateContent" class="kn-hint-sm" :title="'documentExecution.documentDetails.history.templateTitle'" :hint="$t('documentExecution.documentDetails.history.templateHint')" data-test="hint"></KnHint>
             <template v-else>
                 <div class="dd-history-editor-toolbar row items-center q-px-sm q-py-xs" style="background-color: #f3f3f3 !">
-                    <q-btn v-if="designerButtonVisible" flat dense :label="$t('documentExecution.olap.openDesigner')" color="primary" size="sm" @click="openDesignerConfirm" />
+                    <q-btn v-if="designerButtonVisible" flat dense no-caps size="sm" color="accent" icon="design_services" :label="$t('documentExecution.olap.openDesigner')" class="q-ma-none q-py-none q-px-xs" data-test="open-designer-button" @click="openDesignerConfirm" />
                     <q-space />
                     <template v-if="!isEditMode">
                         <q-btn flat round dense icon="fa-solid fa-pen-to-square" size="sm" @click="enterEditMode">
