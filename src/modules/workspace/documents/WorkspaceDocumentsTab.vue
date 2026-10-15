@@ -31,7 +31,7 @@
         <WorkspaceEditDetailsDialog v-model="editDialog.open" :row="editDialog.row" :dialog-class="drawerOpen ? 'kn-ws-above-drawer' : undefined" />
         <WorkspaceViewRenameDialog v-model="renameDialog.open" :row="renameDialog.row" :dialog-class="drawerOpen ? 'kn-ws-above-drawer' : undefined" />
         <WorkspaceCockpitDialog v-model="cockpitVisible" @closed="store.loadDocuments(true)" />
-        <DocumentDetailDossierDesignerDialog v-if="appStore.isEnterprise && dossier.open" :visible="dossier.open" :selected-document="dossier.document" :is-from-workspace="true" @close="closeDossierDesigner" />
+        <DossierDesignerDialog v-if="appStore.isEnterprise && dossier.open" :visible="dossier.open" :selected-document="dossier.document" @close="closeDossierDesigner" />
         <input ref="previewInput" type="file" accept="image/*" class="hidden" @change="onPreviewPicked" />
     </div>
 </template>
@@ -41,7 +41,7 @@ import { computed, onActivated, onDeactivated, onMounted, reactive, ref, watch }
 import { useI18n } from 'vue-i18n'
 import mainStore from '@/App.store'
 import KnHint from '@/components/UI/KnHint.vue'
-import DocumentDetailDossierDesignerDialog from '@/modules/documentExecution/documentDetails/dialogs/dossierDesignerDialog/DocumentDetailDossierDesignerDialog.vue'
+import DossierDesignerDialog from '@/modules/documentExecution/dossier/designer/DossierDesignerDialog.vue'
 import useWorkspaceStore from '../workspace.store'
 import { WsCollection, WsDocumentRow } from '../Workspace'
 import { canUseCollections, documentTypeIcon, documentTypeLabelKey, filterDocuments, inDocumentScope, rowTypeKey, sortDocumentsDefault } from '../workspaceHelpers'
@@ -176,8 +176,6 @@ async function onCollectionSaved(folderId: string | null) {
 
 function openDossierDesigner(row: WsDocumentRow | null) {
     dossier.document = row ? { id: row.biObjectId, label: row.label, name: row.name, description: row.description, typeCode: row.typeCode } : null
-    // the 9.1 designer is a PrimeVue dialog, it opens below the drawer
-    drawerOpen.value = false
     dossier.open = true
 }
 function closeDossierDesigner(event: { refreshHistory: boolean }) {

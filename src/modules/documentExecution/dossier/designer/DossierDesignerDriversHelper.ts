@@ -1,6 +1,6 @@
 import deepcopy from 'deepcopy'
 import type { iDriver } from '@/modules/documentExecution/documentDetails/DocumentDetails'
-import type { iDossierDriver, iDossierDriverLinkType, iDossierTemplate, iPlaceholder } from '@/modules/documentExecution/documentDetails/dialogs/dossierDesignerDialog/DossierTemplate'
+import type { iDossierDriver, iDossierDriverLinkType, iDossierTemplate, iPlaceholder } from './DossierTemplate'
 
 export function getDossierDriverParameterUrlName(driver?: iDossierDriver | null): string | undefined {
     if (!driver) return undefined
