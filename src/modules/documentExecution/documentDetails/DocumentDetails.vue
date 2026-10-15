@@ -151,6 +151,8 @@ export default defineComponent({
             designerState: { dirty: false, valid: true, invalidReason: null } as { dirty: boolean; valid: boolean; invalidReason: string | null },
             refreshDrivers: false,
             refreshHistory: false,
+            // The document as loaded, to find unsaved changes before the user leaves the page
+            documentSnapshot: '',
             activeTab: 'informations'
         }
     },
@@ -241,6 +243,14 @@ export default defineComponent({
             this.loading = true
             await Promise.all([await this.getSelectedDocumentById(id), this.getFunctionalities(), this.getAnalyticalDrivers(), this.getDatasources(), this.getTypes(), this.getEngines(), this.getAttributes(), this.getParTypes(), this.getDateFormats(), this.getSavedTablesByDocumentID(), this.getDataset(), this.getDataSources()])
             this.loading = false
+            this.documentSnapshot = this.buildDocumentSnapshot()
+        },
+        // Not changes: numberOfErrors is validation state, and selecting a driver fills its parameter object (the choice itself is parID)
+        buildDocumentSnapshot(): string {
+            return JSON.stringify({ document: this.selectedDocument, template: !!this.templateToUpload, image: !!this.imageToUpload }, (key, value) => (key === 'numberOfErrors' || key === 'parameter' ? undefined : value))
+        },
+        hasUnsavedChanges(): boolean {
+            return this.designerState.dirty || this.buildDocumentSnapshot() !== this.documentSnapshot
         },
         async getSelectedDocumentById(id) {
             if (id) {
@@ -433,7 +443,22 @@ export default defineComponent({
                 })
         },
         closeDocument() {
-            this.$emit('closeDetails')
+            this.confirmLeave(() => this.$emit('closeDetails'))
+        },
+        // Close and Run leave the page: changes in any tab are lost, so ask first
+        confirmLeave(leave: () => void) {
+            if (!this.hasUnsavedChanges()) {
+                leave()
+                return
+            }
+            this.quasar
+                .dialog({
+                    title: this.$t('common.toast.unsavedChangesHeader'),
+                    message: this.$t('common.toast.unsavedChangesMessage'),
+                    cancel: true,
+                    persistent: true
+                })
+                .onOk(leave)
         },
         onTabChange(tabName: string) {
             if (tabName === 'subreports') this.getAllSubreports()
@@ -464,7 +489,7 @@ export default defineComponent({
             else this.store.setInfo({ title: this.$t('common.information'), msg: this.$t('documentExecution.dossier.designer.saveFirst') })
         },
         runDossier() {
-            this.router.push(`/dossier/${this.selectedDocument.label}`)
+            this.confirmLeave(() => this.router.push(`/dossier/${this.selectedDocument.label}`))
         }
     }
 })

@@ -4,8 +4,7 @@
             <div class="kn-editor-card-label">{{ $t('documentExecution.dossier.designer.template') }}</div>
             <q-badge v-if="template.name" outline color="grey-7" class="dossier-designer-card__badge q-ml-sm" data-test="template-type">{{ $t(template.type === 'DOC_TEMPLATE' ? 'documentExecution.dossier.typeDoc' : 'documentExecution.dossier.typePpt') }}</q-badge>
             <q-space />
-            <q-btn flat dense no-caps size="sm" color="primary" icon="image_search" :label="$t('documentExecution.dossier.designer.findPlaceholders')" :disable="!canScan" :loading="scanning" class="dossier-designer-card__action" data-test="scan-button" @click="emit('scan')" />
-            <span v-if="showRun" class="q-ml-xs">
+            <span v-if="showRun">
                 <q-btn flat dense no-caps size="sm" color="accent" icon="play_arrow" :label="$t('documentExecution.dossier.designer.run')" :disable="!!runDisabledReason" class="dossier-designer-card__action" data-test="run-button" @click="emit('run')" />
                 <q-tooltip v-if="runDisabledReason" :delay="500">{{ $t(runDisabledReason) }}</q-tooltip>
             </span>
@@ -29,6 +28,8 @@
                     </q-icon>
                 </template>
             </q-input>
+            <!-- Last in the row: the user goes from the file to the prefix to the scan -->
+            <q-btn unelevated no-caps color="primary" icon="image_search" :label="$t('documentExecution.dossier.designer.findPlaceholders')" :disable="!canScan" :loading="scanning" class="dossier-template__scan" data-test="scan-button" @click="emit('scan')" />
             <div class="dossier-template__toggles">
                 <div class="row items-center no-wrap">
                     <q-toggle v-model="template.uploadable" dense :label="$t('documentExecution.dossier.designerDialog.uploadable')" data-test="uploadable-toggle" />
@@ -79,7 +80,13 @@ const prefixTouched = ref(false)
     gap: 12px;
     align-items: center;
 
+    // Same height as the dense fields of the row
+    &__scan {
+        min-height: 40px;
+    }
+
     &__toggles {
+        grid-column: 1 / -1;
         display: flex;
         align-items: center;
         gap: 16px;
@@ -96,8 +103,9 @@ const prefixTouched = ref(false)
     .dossier-template {
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 
-        &__toggles {
+        &__scan {
             grid-column: 1 / -1;
+            justify-self: end;
         }
     }
 }
