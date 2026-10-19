@@ -90,7 +90,7 @@
                     </q-select>
                 </div>
                 <div class="col-12">
-                    <q-select v-model="dataset.tags" :options="filteredTagsNames" option-label="name" label-slot filled multiple use-input use-chips input-debounce="250" @filter="searchTag" @keyup.enter="createTagChip" data-test="search-input">
+                    <q-select v-model="dataset.tags" :options="filteredTagsNames" option-label="name" label-slot filled multiple use-input use-chips input-debounce="250" @filter="searchTag" @new-value="createTagChip" data-test="search-input">
                         <template #label>
                             <span>{{ $t('common.tags') }}</span>
                         </template>
@@ -323,16 +323,14 @@ export default defineComponent({
                 this.filteredTagsNames = this.availableTags.filter((tag) => tag.name.toLowerCase().startsWith(needle))
             })
         },
-        createTagChip(event) {
-            const value = event.target.value
-            if (value) {
-                const tempWord = this.availableTags.find((el) => el.name == value)
-                if (!tempWord) {
-                    this.dataset.tags.push(value)
-                    this.buildTagObject()
-                    event.target.value = ''
-                }
+        createTagChip(val, done) {
+            const name = (val ?? '').trim()
+            if (!name || this.dataset.tags?.some((tag) => (typeof tag === 'string' ? tag : tag.name) === name)) {
+                done()
+                return
             }
+            const existingTag = this.availableTags.find((el) => el.name == name)
+            done(existingTag ?? { name }, 'add')
         },
         buildTagObject() {
             this.dataset.tags = this.dataset.tags.map((tag) => {
