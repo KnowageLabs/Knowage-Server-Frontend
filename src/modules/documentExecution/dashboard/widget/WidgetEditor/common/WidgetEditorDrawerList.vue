@@ -14,7 +14,7 @@
                 v-for="(item, index) in items"
                 :key="getKey(item, index)"
                 class="kn-drawer-list__item"
-                :class="{ 'kn-drawer-list__item--active': isActive(item, index), 'kn-drawer-list__item--draggable': draggable }"
+                :class="[{ 'kn-drawer-list__item--active': isActive(item, index), 'kn-drawer-list__item--draggable': draggable }, item.rowClass]"
                 clickable
                 manual-focus
                 :disable="!!item.disabled"

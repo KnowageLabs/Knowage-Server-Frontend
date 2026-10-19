@@ -1,5 +1,5 @@
 <template>
-    <q-card flat bordered class="associations-card column no-wrap" :class="{ 'associations-card--linked': !!selectedColumn }" data-test="associations-card">
+    <q-card v-show="visible" flat bordered class="associations-card column no-wrap" :class="{ 'associations-card--linked': !!selectedColumn }" data-test="associations-card">
         <q-card-section class="associations-card__header row items-center no-wrap q-py-xs">
             <div class="kn-editor-card-label col ellipsis">
                 {{ datasetProp.label }}
@@ -64,18 +64,32 @@ export default defineComponent({
     props: {
         datasetProp: { required: true, type: Object as any },
         selectedAssociationProp: { required: true, type: Object as PropType<IAssociation> },
-        fieldUsage: { type: Function as PropType<(datasetId: number, column: string) => string[]>, required: true }
+        fieldUsage: { type: Function as PropType<(datasetId: number, column: string) => string[]>, required: true },
+        filter: { type: String, default: '' },
+        filterMode: { type: String as PropType<'highlight' | 'hide'>, default: 'highlight' }
     },
     emits: ['fieldSelected', 'fieldUnselected'],
     computed: {
         datasetId(): number {
             return this.datasetProp.id.dsId
         },
-        columnRows(): { key: string; name: string; fieldType: string; typeLabel: string }[] {
-            return (this.datasetProp.metadata?.fieldsMeta ?? []).map((field) => ({ key: field.alias, name: field.name, fieldType: field.fieldType, typeLabel: descriptor.datasetTypes[field.type] ?? '' }))
+        columnRows(): { key: string; name: string; fieldType: string; typeLabel: string; rowClass?: string }[] {
+            const rows = (this.datasetProp.metadata?.fieldsMeta ?? []).map((field) => ({ key: field.alias, name: field.name, fieldType: field.fieldType, typeLabel: descriptor.datasetTypes[field.type] ?? '' }))
+            return this.applyFilter(rows)
         },
-        parameterRows(): { key: string; typeLabel: string }[] {
-            return (this.datasetProp.parameters ?? []).map((parameter) => ({ key: getParameterColumn(parameter.name), typeLabel: parameter.type }))
+        parameterRows(): { key: string; typeLabel: string; rowClass?: string }[] {
+            const rows = (this.datasetProp.parameters ?? []).map((parameter) => ({ key: getParameterColumn(parameter.name), name: parameter.name, typeLabel: parameter.type }))
+            return this.applyFilter(rows)
+        },
+        // In hide mode a card without matches disappears
+        visible(): boolean {
+            return !this.isFiltering || this.filterMode !== 'hide' || this.columnRows.length + this.parameterRows.length > 0
+        },
+        normalizedFilter(): string {
+            return this.filter.trim().toLowerCase()
+        },
+        isFiltering(): boolean {
+            return this.normalizedFilter.length > 0
         },
         // The field of this dataset in the selected association (one per dataset)
         selectedColumn(): string | null {
@@ -83,6 +97,12 @@ export default defineComponent({
         }
     },
     methods: {
+        applyFilter<T extends { key: string; name?: string }>(rows: T[]): (T & { rowClass?: string })[] {
+            if (!this.isFiltering) return rows
+            const matches = (row: T) => row.key.toLowerCase().includes(this.normalizedFilter) || (row.name ?? '').toLowerCase().includes(this.normalizedFilter)
+            if (this.filterMode === 'hide') return rows.filter(matches)
+            return rows.map((row) => ({ ...row, rowClass: matches(row) ? 'associations-card__row--match' : 'associations-card__row--dim' }))
+        },
         onRowClick(row: { key: string }) {
             if (row.key === this.selectedColumn) this.$emit('fieldUnselected', this.datasetId)
             else this.$emit('fieldSelected', { column: row.key, dataset: this.datasetId })
@@ -104,6 +124,22 @@ export default defineComponent({
     &--linked {
         border-color: var(--kn-color-primary);
         box-shadow: 0 0 0 1px var(--kn-color-primary);
+    }
+
+    // Selection color options: --kn-color-secondary (#bbd6ed), --kn-color-selected (#deecf8), --kn-color-info (#329ef4)
+    :deep(.kn-drawer-list__item--active),
+    :deep(.kn-drawer-list__item--active:hover) {
+        background-color: var(--kn-color-secondary);
+        box-shadow: inset 3px 0 0 var(--kn-color-info);
+        font-weight: 500;
+    }
+
+    :deep(.associations-card__row--match) {
+        background-color: var(--kn-color-warning-alpha);
+    }
+
+    :deep(.associations-card__row--dim) {
+        opacity: 0.4;
     }
 
     &__header {

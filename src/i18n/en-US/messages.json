@@ -641,7 +641,10 @@
             "selectDatasets": "Select Datasets",
             "static": "Static",
             "title": "Dataset Management",
-            "usedInAssociation": "Used in another association"
+            "usedInAssociation": "Used in another association",
+            "filterFields": "Filter fields and parameters",
+            "filterHighlight": "Highlight matches",
+            "filterHide": "Hide non-matching"
         },
         "errors": {
             "screenshotError": "An error occurred during the screenshot capture"

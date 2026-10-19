@@ -472,7 +472,25 @@ export default defineComponent({
     width: 280px;
     display: flex;
     flex-direction: column;
+    flex-shrink: 0;
     overflow: hidden;
+
+    // A long name must truncate instead of widening the scroll area
+    // Quasar sizes the scroll content to its widest child; pin it to the column so rows truncate
+    .q-scrollarea__content {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .q-item__section--main {
+        min-width: 0;
+    }
+
+    .q-item__label {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 }
 
 .dd-tab-detail-scroll {
