@@ -1,5 +1,5 @@
 <template>
-    <q-layout view="hHh lpR fFf" container>
+    <q-layout view="hHh lpR fFf" container class="doc-browser-layout">
         <q-header class="bg-grey-2 text-grey-8" bordered>
             <div class="row no-wrap items-center">
                 <q-tabs v-model="activeTab" dense align="left" indicator-color="primary" class="doc-browser-tabs col" @update:model-value="onTabChange">
@@ -280,6 +280,11 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
+/* q-page min-height is computed from rounded sizes, so at fractional device pixel ratios it can exceed the container by ~1px and show a stray scrollbar. Inner panels scroll on their own. */
+.doc-browser-layout > .absolute-full > .scroll {
+    overflow: hidden;
+}
+
 .doc-browser-tabs {
     flex: 0 0 auto;
 }
