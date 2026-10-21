@@ -91,7 +91,7 @@
                     <KnValidationMessages
                         :v-comp="v$.businessModel.category"
                         :additional-translate-params="{
-                            fieldName: $t('managers.businessModelManager.analyticalDriver')
+                            fieldName: $t('common.category')
                         }"
                     />
                 </div>
