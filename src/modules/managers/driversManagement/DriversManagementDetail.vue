@@ -147,16 +147,12 @@ export default defineComponent({
                 if (mode.idLovForMax === null) {
                     mode.idLovForMax = -1
                 }
-                if (mode.idLovForMin === null) {
-                    mode.idLovForMin = -1
-                }
 
                 const obj = JSON.parse(JSON.stringify(mode))
                 delete obj.numberOfErrors
                 delete obj.defLov
                 delete obj.typeLov
                 delete obj.maxLov
-                delete obj.minLov
                 delete obj.edited
                 this.modesToSave.push(obj)
             })

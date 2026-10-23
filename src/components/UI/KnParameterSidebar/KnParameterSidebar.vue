@@ -83,7 +83,6 @@
                             'p-invalid': parameter.mandatory && parameter.parameterValue && !parameter.parameterValue[0]?.value
                         }"
                         :maxDate="parameter.driverMaxDateValue ?? undefined"
-                        :minDate="parameter.driverMinDateValue ?? undefined"
                         :data-test="'parameter-date-input-' + parameter.id"
                         @change="updateDependency(parameter)"
                         @date-select="updateDependency(parameter)"

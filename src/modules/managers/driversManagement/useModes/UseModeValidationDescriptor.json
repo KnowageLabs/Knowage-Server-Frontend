@@ -76,14 +76,6 @@
                         "key": "required_lov_for_max"
                     }
                 ]
-            },
-            {
-                "fieldName": "minLov",
-                "validators": [
-                    {
-                        "key": "required_lov_for_min"
-                    }
-                ]
             }
         ]
     }

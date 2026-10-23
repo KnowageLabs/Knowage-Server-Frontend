@@ -46,18 +46,12 @@
             "width": "70vw"
         }
     },
-    "globalFilterFields": ["label", "name", "description"],
-    "maxValues": [
-        {
-            "label": "none",
-            "name": "None"
-        },
-        {
-            "label": "lov",
-            "name": "Use a LOV"
-        }
+    "globalFilterFields": [
+        "label",
+        "name",
+        "description"
     ],
-    "minValues": [
+    "maxValues": [
         {
             "label": "none",
             "name": "None"
