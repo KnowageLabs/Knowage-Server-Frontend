@@ -17,7 +17,12 @@ Blockly.Blocks['agg_field'] = {
                     ['MIN', 'MIN'],
                     ['MAX', 'MAX'],
                     ['COUNT', 'COUNT'],
-                    ['COUNT_DISTINCT', 'COUNT_DISTINCT']
+                    ['COUNT_DISTINCT', 'COUNT_DISTINCT'],
+                    ['TOTAL_SUM', 'TOTAL_SUM'],
+                    ['TOTAL_AVG', 'TOTAL_AVG'],
+                    ['TOTAL_MIN', 'TOTAL_MIN'],
+                    ['TOTAL_MAX', 'TOTAL_MAX'],
+                    ['TOTAL_COUNT', 'TOTAL_COUNT']
                 ]),
                 'AGG'
             )
