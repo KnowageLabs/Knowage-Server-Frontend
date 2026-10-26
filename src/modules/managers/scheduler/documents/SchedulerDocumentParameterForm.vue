@@ -1,82 +1,22 @@
 <template>
-    <div class="parameter-card">
-        <div v-if="parameter && !loading">
-            <h2>{{ parameter.name }}</h2>
-            <div class="row q-col-gutter-md">
-                <div class="col-12 col-md-4">
-                    <q-select
-                        v-model="parameter.type"
-                        dense
-                        filled
-                        :options="parameter.temporal ? triggerStrategies : triggerStrategies.slice(0, 2)"
-                        option-label="label"
-                        option-value="value"
-                        emit-value
-                        map-options
-                        :label="$t('managers.scheduler.parameterValueType')"
-                        @update:model-value="onParameterTypeChange"
-                    />
-                </div>
-                <!-- knowage-9969] -->
-                <!-- old  <q-input v-if="!parameterValues.lov" v-model="parameter.value" dense filled :label="$t('common.values')" /> -->
-                <!-- new  <q-input v-if="parameterValues.manualInput" v-model="parameter.value" dense filled :label="$t('common.values')" /> -->
-                <div v-if="parameter.type === 'fixed'" class="col-12 col-md-4">
-                    <q-input v-if="parameterValues.manualInput" v-model="parameter.value" dense filled :label="$t('common.values')" />
-                    <q-select
-                        v-else
-                        v-model="parameter.selectedValues"
-                        filled
-                        dense
-                        :multiple="parameter.multivalue"
-                        :use-chips="parameter.multivalue"
-                        :options="parameterValues.lov"
-                        option-label="description"
-                        option-value="value"
-                        emit-value
-                        map-options
-                        :label="$t('common.values')"
-                        @update:model-value="formatSelectedValues"
-                    />
-                </div>
-                <div v-else-if="parameter.type === 'loadAtRuntime'" class="col-12 col-md-4">
-                    <q-select
-                        v-model="parameter.value"
-                        dense
-                        filled
-                        :options="rolesOptions"
-                        option-label="role"
-                        option-value="userAndRole"
-                        emit-value
-                        map-options
-                        :label="$t('common.role')"
-                    />
-                </div>
-                <div v-else-if="parameter.type === 'formula'" class="col-12 col-md-4">
-                    <q-select
-                        v-model="parameter.value"
-                        dense
-                        filled
-                        :options="formulaOptions"
-                        option-label="description"
-                        option-value="name"
-                        emit-value
-                        map-options
-                        :label="$t('managers.scheduler.selectFormula')"
-                    />
-                </div>
-                <div class="col-12 col-md-4">
-                    <q-select
-                        v-model="parameter.iterative"
-                        dense
-                        filled
-                        :options="triggerIterations"
-                        option-label="label"
-                        option-value="value"
-                        emit-value
-                        map-options
-                        :label="$t('managers.scheduler.iterations')"
-                    />
-                </div>
+    <div class="scheduler-parameter-row">
+        <div v-if="parameter && !loading" class="row q-col-gutter-sm items-center">
+            <div class="col-12 col-md-3 text-weight-medium ellipsis" :title="parameter.name">{{ parameter.name }}</div>
+            <div class="col-12 col-md-3">
+                <q-select v-model="parameter.type" outlined dense hide-bottom-space :options="parameter.temporal ? triggerStrategies : triggerStrategies.slice(0, 2)" option-label="label" option-value="value" emit-value map-options :label="$t('managers.scheduler.parameterValueType')" @update:model-value="onParameterTypeChange" />
+            </div>
+            <div v-if="parameter.type === 'fixed'" class="col-12 col-md-3">
+                <q-input v-if="parameterValues.manualInput" v-model="parameter.value" outlined dense hide-bottom-space :label="$t('common.values')" />
+                <q-select v-else v-model="parameter.selectedValues" outlined dense hide-bottom-space :multiple="parameter.multivalue" :use-chips="parameter.multivalue" :options="parameterValues.lov" option-label="description" option-value="value" emit-value map-options :label="$t('common.values')" @update:model-value="formatSelectedValues" />
+            </div>
+            <div v-else-if="parameter.type === 'loadAtRuntime'" class="col-12 col-md-3">
+                <q-select v-model="parameter.value" outlined dense hide-bottom-space :options="rolesOptions" option-label="role" option-value="userAndRole" emit-value map-options :label="$t('common.role')" />
+            </div>
+            <div v-else-if="parameter.type === 'formula'" class="col-12 col-md-3">
+                <q-select v-model="parameter.value" outlined dense hide-bottom-space :options="formulaOptions" option-label="description" option-value="name" emit-value map-options :label="$t('managers.scheduler.selectFormula')" />
+            </div>
+            <div class="col-12 col-md-3">
+                <q-select v-model="parameter.iterative" outlined dense hide-bottom-space :options="triggerIterations" option-label="label" option-value="value" emit-value map-options :label="$t('managers.scheduler.iterations')" />
             </div>
         </div>
     </div>
@@ -88,7 +28,6 @@ import axios from 'axios'
 
 export default defineComponent({
     name: 'scheduler-document-parameter-form',
-    components: {},
     props: { propParameter: { type: Object }, roles: { type: Array }, formulas: { type: Array }, documentLabel: { type: String } },
     emits: ['loading'],
     data() {
@@ -209,8 +148,13 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss" scoped>
-.parameter-card {
-    padding: 0;
+<style scoped lang="scss">
+.scheduler-parameter-row {
+    padding: 8px 0;
+    border-bottom: 1px solid #eeeeee;
+
+    &:last-child {
+        border-bottom: 0;
+    }
 }
 </style>

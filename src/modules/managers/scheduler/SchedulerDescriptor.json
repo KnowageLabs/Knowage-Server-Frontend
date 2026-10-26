@@ -1,29 +1,12 @@
 {
-    "knListSettings": {
-        "badgeField": "numberOfDocuments",
-        "badgeSeverity": "info",
-        "buttons": [
-            {
-                "emits": "clone",
-                "icon": "far fa-copy",
-                "label": "common.clone"
-            },
-            {
-                "emits": "delete",
-                "icon": "far fa-trash-alt",
-                "label": "common.delete"
-            }
-        ],
-        "defaultSortField": "jobName",
-        "filterFields": ["jobName", "jobParameters.mailtos", "jobDescription", "documents"],
-        "fullTextSearch": true,
-        "interaction": {
-            "parameterLabel": "jobName",
-            "parameterValue": "jobName",
-            "type": "event"
-        },
-        "sortFields": ["jobName"],
-        "titleField": "jobName",
-        "tooltipField": "jobDescription"
+    "limits": {
+        "jobName": 80,
+        "jobDescription": 120,
+        "triggerDescription": 500,
+        "triggerName": 100,
+        "snapshot": { "name": 100 },
+        "file": { "name": 100, "destinationFolder": 100, "zipFileName": 100 },
+        "document": { "name": 100, "description": 100 },
+        "mail": { "mailTo": 1000, "expression": 100, "zipMailName": 100, "mailSubject": 100, "fileName": 100, "mailText": 2000 }
     }
 }
