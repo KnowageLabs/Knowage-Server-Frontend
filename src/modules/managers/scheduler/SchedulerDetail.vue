@@ -1,203 +1,322 @@
 <template>
-  <q-toolbar class="kn-toolbar kn-toolbar--secondary">
-    <q-toolbar-title>{{ job?.jobName }}</q-toolbar-title>
+    <q-layout view="lHh lpR lFf" container class="scheduler-detail" style="height: 100%">
+        <q-drawer :model-value="!!triggerEditor" side="right" overlay behavior="desktop" :width="triggerDrawerWidth" :breakpoint="0" no-swipe-open no-swipe-close class="scheduler-detail__trigger-drawer">
+            <SchedulerTriggerDrawer v-if="triggerEditor && job" ref="triggerDrawer" :key="triggerEditor.key" :job="job" :list-trigger="triggerEditor.trigger" :datasets="datasets" @close="triggerEditor = null" @saved="onTriggerSaved" @stale="onTriggerSaved" />
+        </q-drawer>
 
-    <q-btn flat round dense icon="save" :disable="saveDisabled" data-test="save-button" @click="saveJob">
-      <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.save') }}</q-tooltip>
-    </q-btn>
-    <q-btn flat round dense icon="cancel" data-test="close-button" @click="closeJobDetail">
-      <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.cancel') }}</q-tooltip>
-    </q-btn>
-  </q-toolbar>
-  <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar"/>
-  <Card v-if="job" id="scheduler-detail-card" class="p-m-2">
-    <template #content>
-      <div class="row q-col-gutter-sm q-mx-sm">
-        <q-input
-            id="jobName"
-            v-model.trim="job.jobName"
-            class="col-6"
-            :error= "job.jobName?.length === 0 && jobNameDirty"
-            :error-message="$t('common.validation.required', { fieldName: $t('common.name') })"
-            :label="$t('common.name')"
-            maxLength="80"
-            filled
-            :disable="testReadonly"
-            data-test="name-input"
-            @update:model-value="jobNameDirty = true"
-        />
-        <q-select
-            class="col-6"
-            v-model="job.role"
-            :options="getRoleOptions()"
-            :error= "job.role?.length === 0 || job.role === $t('role.defaultRolePlaceholder')"
-            :error-message="$t('common.validation.required', { fieldName: $t('common.role') })"
-            :label="$t('common.role')"
-            filled
-            data-test="role-input"
-        />
-        <q-input
-            v-model="job.jobDescription"
-            class="col-12"
-            maxLength="120"
-            :label="$t('common.description')"
-            filled
-            row="2"
-            data-test="description-input"
-        />
-      </div>
-      <SchedulerDocumentsTable class="p-mt-4" :job-documents="job.documents"
-                               @loading="setLoading"></SchedulerDocumentsTable>
-      <SchedulerTimingOutputTable v-if="job.edit" class="p-mt-4" :job="job" @loading="setLoading"
-                                  @triggerSaved="$emit('triggerSaved')"></SchedulerTimingOutputTable>
-    </template>
-  </Card>
+        <q-page-container>
+            <q-page class="column no-wrap" :style-fn="pageStyle">
+                <q-resize-observer @resize="(size) => (pageWidth = size.width)" />
+                <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+                    <q-btn flat round dense :icon="drawerVisible ? 'menu_open' : 'menu'" @click="emit('toggleDrawer')" />
+                    <q-toolbar-title>{{ job?.jobName || $t('managers.scheduler.newJob') }}</q-toolbar-title>
+                    <span>
+                        <q-btn flat round dense icon="save" :disable="!!saveError || loading" data-test="save-button" @click="saveJob" />
+                        <q-tooltip :delay="500">{{ saveError || $t('common.save') }}</q-tooltip>
+                    </span>
+                    <q-btn flat round dense icon="cancel" data-test="close-button" @click="cancel">
+                        <q-tooltip :delay="500">{{ $t('common.cancel') }}</q-tooltip>
+                    </q-btn>
+                </q-toolbar>
+                <q-linear-progress v-if="loading" indeterminate color="primary" data-test="progress-bar" />
+
+                <q-scroll-area class="col scheduler-detail__scroll kn-background">
+                    <div v-if="job" class="scheduler-detail__column">
+                        <q-card>
+                            <q-card-section class="scheduler-card__header row items-center no-wrap">
+                                <div class="kn-editor-card-label col">{{ $t('common.info.info') }}</div>
+                            </q-card-section>
+                            <q-separator />
+                            <q-card-section>
+                                <div class="row q-col-gutter-sm">
+                                    <div class="col-12 col-sm-6">
+                                        <q-input v-model.trim="job.jobName" outlined dense hide-bottom-space :readonly="job.edit" :maxlength="descriptor.limits.jobName" :label="$t('common.name') + ' *'" :error="jobNameDirty && !job.jobName" :error-message="$t('common.validation.required', { fieldName: $t('common.name') })" data-test="name-input" @update:model-value="jobNameDirty = true" />
+                                    </div>
+                                    <div class="col-12 col-sm-6">
+                                        <q-select v-model="job.role" outlined dense hide-bottom-space :options="roleOptions" :label="$t('common.role') + ' *'" :error="!job.role" :error-message="$t('common.validation.required', { fieldName: $t('common.role') })" data-test="role-input" />
+                                    </div>
+                                    <div class="col-12">
+                                        <q-input v-model="job.jobDescription" outlined dense hide-bottom-space autogrow type="textarea" :maxlength="descriptor.limits.jobDescription" :label="$t('common.description')" data-test="description-input" />
+                                    </div>
+                                </div>
+                            </q-card-section>
+                        </q-card>
+
+                        <SchedulerDocumentsCard :key="loadCount" :documents="job.documents" @loading="(value: boolean) => (loading = value)" />
+
+                        <SchedulerTriggersCard v-if="job.edit" :job="job" :dirty="dirty" :datasets="datasets" @add="openTriggerEditor(null)" @edit="openTriggerEditor" @loading="(value: boolean) => (loading = value)" />
+                    </div>
+                </q-scroll-area>
+
+                <div v-if="triggerEditor" class="scheduler-detail__backdrop" @click="requestCloseTriggerEditor" />
+            </q-page>
+        </q-page-container>
+    </q-layout>
 </template>
 
-<script lang="ts">
-import {defineComponent} from 'vue'
-import {iPackage} from './Scheduler'
-import Card from 'primevue/card'
-import SchedulerDocumentsTable from './SchedulerDocumentsTable/SchedulerDocumentsTable.vue'
-import SchedulerTimingOutputTable from './SchedulerTimingOutputTable/SchedulerTimingOutputTable.vue'
-import {AxiosResponse} from 'axios'
+<script setup lang="ts">
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { useQuasar } from 'quasar'
+import axios, { AxiosResponse } from 'axios'
+import deepcopy from 'deepcopy'
+import { iPackage, iTrigger } from './Scheduler'
+import { condensedParameters } from './schedulerHelpers'
+import descriptor from './SchedulerDescriptor.json'
+import SchedulerDocumentsCard from './documents/SchedulerDocumentsCard.vue'
+import SchedulerTriggersCard from './triggers/SchedulerTriggersCard.vue'
+import SchedulerTriggerDrawer from './triggers/SchedulerTriggerDrawer.vue'
 import mainStore from '../../../App.store'
 
-export default defineComponent({
-  name: 'scheduler-detail',
-  components: {Card, SchedulerDocumentsTable, SchedulerTimingOutputTable},
-  props: {id: {type: String}, clone: {type: String}, selectedJob: {type: Object}},
-  emits: ['documentSaved', 'close'],
-  setup() {
-    const store = mainStore()
-    return {store}
-  },
-  data() {
-    return {
-      job: null as iPackage | null,
-      roleOptions: [] as Array<string>,
-      jobNameDirty: false,
-      operation: 'create',
-      loading: false,      preventJobReload: false    }
-  },
-  computed: {
-    saveDisabled(): any {
-      return this.job && (!this.job.jobName || this.job.documents?.length === 0 || this.job.role === this.$t('role.defaultRolePlaceholder') || this.job.role === '' || this.job.role === undefined)
-    },
-    testReadonly(): any {
-      return !!(this.job && this.job.edit)
-    }
-  },
-  watch: {
-    selectedJob() {
-      if (this.preventJobReload) {
-        this.preventJobReload = false
-        return
-      }
-      this.loadJob()
-    }
-  },
-  created() {
-    this.loadJob()
-  },
-  methods: {
-    loadJob() {
-      this.job = {...this.selectedJob} as iPackage
-      this.job.jobParameters = this.job.jobParameters || []
-      if (this.job && this.job.jobParameters) {
-        this.job.role = this.job.jobParameters.find((param: any) => param.name === 'userRoles')?.value
-      }
-      this.enrichDocumentCondensedParameters()
-    },
-    enrichDocumentCondensedParameters() {
-      if (!this.job?.jobParameters || !this.job?.documents) return
-      const documentLabelsParam = this.job.jobParameters.find((p: any) => p.name === 'documentLabels')
-      if (!documentLabelsParam?.value) return
-      const docKeys = documentLabelsParam.value.split(',').map((s: string) => s.trim())
-      docKeys.forEach((key: string) => {
-        const docName = key.split('__')[0]
-        const docIndex = this.job?.documents.findIndex((d: any) => d.name === docName)
-        if (docIndex !== undefined && docIndex !== -1) {
-          const descParam = this.job?.jobParameters.find((p: any) => p.name === key + '_description')
-          if (descParam?.value) {
-            this.job!.documents[docIndex].condensedParameters = descParam.value
-          }
-        }
-      })
-    },
-    setLoading(loading: boolean) {
-      this.loading = loading
-    },
-    async saveJob() {
-      this.loading = true
-      const originalJob = {...this.job}
+const TRIGGER_DRAWER_WIDTH = 760
 
-      this.formatJob()
-      await this.$http
-          .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/scheduleree/saveJob`, this.job)
-          .then((response: AxiosResponse<any>) => {
-            if (response.data.resp === 'ok') {
-              this.store.setInfo({
-                title: this.$t('common.toast.' + this.operation + 'Title'),
-                msg: this.$t('common.toast.success')
-              })
-              // Restore fields removed by formatJob so the UI stays consistent
-              if (this.job) this.job.edit = true
-              // Ensure jobGroup is set (new jobs don't have it until the server assigns it)
-              if (this.job && !this.job.jobGroup) this.job.jobGroup = 'BIObjectExecutions'
-              this.operation = 'update'
-              // Prevent the selectedJob watch from overwriting the current job
-              // (which has the correct parameter values) with the server-reloaded version
-              this.preventJobReload = true
-              this.$router.push(`/scheduler/edit-package-schedule?id=${this.job?.jobName}&clone=false`)
-              this.$emit('documentSaved', this.job?.jobName)
+const props = defineProps<{ id?: string; clone?: string; selectedJob?: iPackage | null; datasets?: any[]; drawerVisible?: boolean }>()
+const emit = defineEmits<{
+    (e: 'documentSaved', jobName: string): void
+    (e: 'close'): void
+    (e: 'triggerSaved'): void
+    (e: 'dirtyChange', dirty: boolean): void
+    (e: 'toggleDrawer'): void
+}>()
+
+const store = mainStore()
+const { t } = useI18n()
+const $q = useQuasar()
+const router = useRouter()
+
+const job = ref<iPackage | null>(null)
+const savedJob = ref<iPackage | null>(null)
+const snapshot = ref('')
+const jobNameDirty = ref(false)
+const loading = ref(false)
+const operation = ref('create')
+const pageWidth = ref(TRIGGER_DRAWER_WIDTH)
+const triggerEditor = ref<{ key: number; trigger: iTrigger | null } | null>(null)
+const triggerDrawer = ref<any>(null)
+const loadCount = ref(0)
+let preventJobReload = false
+
+// No placeholder in the options: the old code put it into the user role list (B1)
+const roleOptions = computed(() => [...(store.user?.roles ?? [])])
+
+const saveError = computed(() => {
+    if (!job.value) return ''
+    if (!job.value.jobName) return t('common.validation.required', { fieldName: t('common.name') })
+    if (!job.value.role) return t('common.validation.required', { fieldName: t('common.role') })
+    if (!job.value.documents?.length) return t('common.validation.required', { fieldName: t('common.documents') })
+    return ''
+})
+
+// The parameter dialog writes ids, roles and LOV descriptions when it opens: only the values the user sets count
+function getJobSnapshot(tempJob: iPackage | null) {
+    if (!tempJob) return ''
+    return JSON.stringify({
+        jobName: tempJob.jobName,
+        jobDescription: tempJob.jobDescription,
+        role: tempJob.role,
+        documents: (tempJob.documents ?? []).map((document: any) => ({
+            name: document.name,
+            parameters: (document.parameters ?? []).map((parameter: any) => ({ name: parameter.name, value: parameter.value, type: parameter.type, iterative: parameter.iterative }))
+        }))
+    })
+}
+
+const dirty = computed(() => !!job.value && getJobSnapshot(job.value) !== snapshot.value)
+const triggerDrawerWidth = computed(() => Math.min(TRIGGER_DRAWER_WIDTH, pageWidth.value))
+
+watch(dirty, (value) => emit('dirtyChange', value))
+
+watch(
+    () => props.selectedJob,
+    () => {
+        if (preventJobReload) {
+            preventJobReload = false
+            return
+        }
+        loadJob()
+    }
+)
+
+onMounted(loadJob)
+
+function pageStyle(offset: number, height: number) {
+    return { height: height - offset + 'px' }
+}
+
+function loadJob() {
+    triggerEditor.value = null
+    jobNameDirty.value = false
+    if (!props.selectedJob) {
+        job.value = null
+        snapshot.value = ''
+        return
+    }
+    const tempJob = deepcopy(props.selectedJob) as iPackage
+    tempJob.jobParameters = tempJob.jobParameters || []
+    tempJob.role = tempJob.jobParameters.find((param: any) => param.name === 'userRoles')?.value
+    enrichDocumentCondensedParameters(tempJob)
+    tempJob.documents?.forEach((document: any) => {
+        if (document.parameters?.length > 0) document.description = condensedParameters(document.parameters)
+    })
+    operation.value = tempJob.edit ? 'update' : 'create'
+    job.value = tempJob
+    loadCount.value++
+    takeSnapshot()
+}
+
+function takeSnapshot() {
+    savedJob.value = deepcopy(job.value)
+    snapshot.value = getJobSnapshot(job.value)
+}
+
+function enrichDocumentCondensedParameters(tempJob: iPackage) {
+    if (!tempJob.jobParameters || !tempJob.documents) return
+    const documentLabelsParam = tempJob.jobParameters.find((p: any) => p.name === 'documentLabels')
+    if (!documentLabelsParam?.value) return
+    const docKeys = documentLabelsParam.value.split(',').map((s: string) => s.trim())
+    docKeys.forEach((key: string) => {
+        const docName = key.split('__')[0]
+        const docIndex = tempJob.documents.findIndex((d: any) => d.name === docName)
+        if (docIndex !== -1) {
+            const descParam = tempJob.jobParameters.find((p: any) => p.name === key + '_description')
+            if (descParam?.value) tempJob.documents[docIndex].condensedParameters = descParam.value
+        }
+    })
+}
+
+async function saveJob() {
+    if (!job.value) return
+    loading.value = true
+    const originalJob = deepcopy(job.value)
+
+    formatJob()
+    await axios
+        .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/scheduleree/saveJob`, job.value)
+        .then((response: AxiosResponse<any>) => {
+            if (response.data.resp !== 'ok' || !job.value) {
+                job.value = originalJob
+                return
             }
-          })
-          .catch(() => {
-            this.job = originalJob as iPackage
-          })
-      this.loading = false
-    },
-    formatJob() {
-      delete this.job?.edit
-      delete this.job?.numberOfDocuments
-      this.job?.documents.forEach((document: any) => document.parameters?.forEach((parameter: any) => (parameter.value = parameter.value.trim())))
-      if (this.job && this.job.jobParameters && this.job.jobParameters.length > 0) {
-        this.job?.jobParameters.forEach(param => {
-          if (param.name === 'userRoles' && this.job?.role) {
-            param.value = this.job.role
-            delete this.job?.role
-          }
+            store.setInfo({ title: t('common.toast.' + operation.value + 'Title'), msg: t('common.toast.success') })
+            job.value.edit = true
+            if (!job.value.jobGroup) job.value.jobGroup = 'BIObjectExecutions'
+            job.value.role = job.value.jobParameters.find((param: any) => param.name === 'userRoles')?.value
+            operation.value = 'update'
+            takeSnapshot()
+            // The reloaded list job would replace this one, which has the parameter values the user set
+            preventJobReload = true
+            router.push({ path: '/scheduler/edit-package-schedule', query: { id: job.value.jobName, clone: 'false' } })
+            emit('documentSaved', job.value.jobName)
         })
-      } else {
-        let jobParameter = {} as { name: string, description: string, value: string }
-        jobParameter.name = 'userRoles'
-        jobParameter.description = this.job?.jobDescription || ''
-        jobParameter.value = this.job?.role || ""
-        this.job?.jobParameters.push(jobParameter)
-        delete this.job?.role
-      }
-    },
-    closeJobDetail() {
-      this.job = null
-      this.jobNameDirty = false
-      this.$emit('close')
-      this.$router.push('/scheduler')
-    },
-    getRoleOptions(): Array<string> {
-      const rolesOptions = this.store.user.roles
-      if (this.job && !this.job.role) {
-        this.job.role = this.job?.jobParameters?.find(param => param.name === 'userRoles')?.value || this.job?.role
-      }
-      if (rolesOptions[0] !== this.$t('role.defaultRolePlaceholder')) rolesOptions.unshift(this.$t('role.defaultRolePlaceholder'))
-      return rolesOptions
-    },
-  }
+        .catch(() => (job.value = originalJob))
+    loading.value = false
+}
+
+function formatJob() {
+    const tempJob = job.value as iPackage
+    delete tempJob.edit
+    delete tempJob.numberOfDocuments
+    tempJob.documents.forEach((document: any) => document.parameters?.forEach((parameter: any) => (parameter.value = parameter.value.trim())))
+    if (tempJob.jobParameters && tempJob.jobParameters.length > 0) {
+        tempJob.jobParameters.forEach((param: any) => {
+            if (param.name === 'userRoles' && tempJob.role) {
+                param.value = tempJob.role
+                delete tempJob.role
+            }
+        })
+    } else {
+        tempJob.jobParameters.push({ name: 'userRoles', description: tempJob.jobDescription || '', value: tempJob.role || '' } as any)
+        delete tempJob.role
+    }
+}
+
+function askUnsavedChanges(): Promise<boolean> {
+    return new Promise((resolve) => {
+        $q.dialog({ title: t('common.toast.unsavedChangesHeader'), message: t('common.toast.unsavedChangesMessage'), cancel: true, persistent: true })
+            .onOk(() => resolve(true))
+            .onCancel(() => resolve(false))
+    })
+}
+
+async function cancel() {
+    if (!job.value?.edit) {
+        const failure = await router.push('/scheduler')
+        if (!failure) emit('close')
+        return
+    }
+    if (dirty.value && !(await askUnsavedChanges())) return
+    job.value = deepcopy(savedJob.value)
+    jobNameDirty.value = false
+    // The route guard of the list must not ask a second time
+    emit('dirtyChange', false)
+    const failure = await router.push('/scheduler')
+    if (!failure) emit('close')
+}
+
+function openTriggerEditor(trigger: iTrigger | null) {
+    if (dirty.value) return
+    triggerEditor.value = { key: Date.now(), trigger }
+}
+
+function requestCloseTriggerEditor() {
+    triggerDrawer.value?.requestClose()
+}
+
+function onTriggerSaved() {
+    triggerEditor.value = null
+    emit('triggerSaved')
+}
+
+async function openFirstTrigger() {
+    const trigger = job.value?.triggers?.[0]
+    if (!trigger) return false
+    if (!triggerEditor.value) openTriggerEditor(trigger)
+    for (let i = 0; i < 40 && !triggerDrawer.value?.isReady(); i++) await new Promise((resolve) => setTimeout(resolve, 100))
+    return !!triggerDrawer.value?.isReady()
+}
+
+defineExpose({
+    hasTriggers: () => !!job.value?.edit && (job.value?.triggers?.length ?? 0) > 0,
+    openFirstTrigger,
+    showTriggerStep: (step: 'timing' | 'outputs' | 'review') => triggerDrawer.value?.showStep(step),
+    closeTriggerDrawer: () => (triggerEditor.value = null)
 })
 </script>
 
-<style lang="scss">
-#scheduler-detail-card .p-card-body {
-  padding: 0;
+<style scoped lang="scss">
+.scheduler-detail__scroll {
+    min-height: 0;
+}
+
+// q-scroll-area shrinks its content to fit; keep it at the full width so the column centers at its max width
+.scheduler-detail__scroll :deep(.q-scrollarea__content) {
+    width: 100%;
+}
+
+.scheduler-detail__column {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+.scheduler-detail__backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 2000;
+    background: var(--kn-editor-backdrop-color);
+}
+
+:deep(.scheduler-card__header) {
+    min-height: 40px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+.scheduler-detail__trigger-drawer {
+    z-index: 2001;
 }
 </style>

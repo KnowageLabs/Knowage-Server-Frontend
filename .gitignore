@@ -30,3 +30,5 @@ pnpm-debug.log*
 /.apt_generated/
 /.apt_generated_tests/
 target/*
+# local research and planning notes for reworks
+docs/specs/

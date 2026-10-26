@@ -1,13 +1,11 @@
 <template>
-    <KnHint :title="'managers.scheduler.title'" :hint="'managers.scheduler.hint'"></KnHint>
+    <div class="col column no-wrap kn-background">
+        <KnHint class="col" :title="'managers.scheduler.title'" :hint="'managers.scheduler.hint'" />
+    </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script setup lang="ts">
 import KnHint from '@/components/UI/KnHint.vue'
 
-export default defineComponent({
-    name: 'scheduler-hint',
-    components: { KnHint }
-})
+defineOptions({ inheritAttrs: false })
 </script>
