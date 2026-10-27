@@ -26,19 +26,29 @@
 
         <q-separator />
 
-        <q-card-section>
-            <div class="text-caption text-grey-7">{{ $t('licenseDialog.hardwareId') }}</div>
-            <div class="row items-center no-wrap kn-license-host__hardware">
-                <code class="col">{{ host.hardwareId }}</code>
-                <q-btn flat dense round size="sm" icon="content_copy" data-test="copy-hardware-id" @click="copyHardwareId">
-                    <q-tooltip>{{ $t('licenseDialog.copyHardwareId') }}</q-tooltip>
-                </q-btn>
-            </div>
-            <div class="text-caption text-grey-7 q-mt-sm row items-center no-wrap">
-                <q-icon name="info" size="16px" class="q-mr-xs" />
-                {{ $t('licenseDialog.dataRequired') }}
-            </div>
-        </q-card-section>
+        <!-- The full hardware ID, wrapped when it does not fit. -->
+        <div class="kn-license-host__hardware row items-baseline no-wrap q-px-md q-py-sm" data-test="hardware-id">
+            <span class="text-caption text-grey-7 q-mr-md">{{ $t('licenseDialog.hardwareId') }}</span>
+            <code class="col">{{ host.hardwareId }}</code>
+        </div>
+    </q-card>
+
+    <q-card flat bordered class="kn-license-support q-mb-md" :class="{ 'kn-license-support--copied': copied }">
+        <q-item clickable v-ripple data-test="copy-support-info" @click="copySupportInfo">
+            <q-item-section avatar>
+                <q-icon :name="copied ? 'check_circle' : 'support_agent'" :color="copied ? 'positive' : 'primary'" />
+            </q-item-section>
+            <q-item-section>
+                <q-item-label>{{ $t('licenseDialog.copyForSupport') }}</q-item-label>
+                <q-item-label caption>{{ $t('licenseDialog.dataRequired') }}</q-item-label>
+            </q-item-section>
+            <q-item-section side>
+                <div class="row items-center no-wrap text-weight-medium" :class="copied ? 'text-positive' : 'text-primary'">
+                    <q-icon :name="copied ? 'check' : 'content_copy'" size="18px" class="q-mr-xs" />
+                    {{ copied ? $t('licenseDialog.copied') : $t('licenseDialog.copy') }}
+                </div>
+            </q-item-section>
+        </q-item>
     </q-card>
 
     <q-card flat bordered>
@@ -111,20 +121,33 @@ export default defineComponent({
         return {
             // The product of the license to update. Empty when the user adds a new license.
             productToUpdate: '',
-            publicPath: import.meta.env.VITE_PUBLIC_PATH
+            publicPath: import.meta.env.VITE_PUBLIC_PATH,
+            copied: false,
+            copiedTimeout: undefined as ReturnType<typeof setTimeout> | undefined
         }
+    },
+    computed: {
+        // The text the user pastes in the license request. It always has the full host name.
+        supportInfo(): string {
+            return [`Knowage version: ${import.meta.env.PACKAGE_VERSION}`, `Host name: ${this.host.hostName}`, `Hardware id: ${this.host.hardwareId}`, `Cores: ${this.cpunumber}`].join('\n')
+        }
+    },
+    beforeUnmount() {
+        clearTimeout(this.copiedTimeout)
     },
     methods: {
         ...mapActions(mainStore, ['setError', 'setInfo', 'updateLicense']),
         isValid(license: iLicense): boolean {
             return license.status === 'LICENSE_VALID'
         },
-        async copyHardwareId() {
+        async copySupportInfo() {
             try {
-                await copyToClipboard(this.host.hardwareId)
-                this.setInfo({ title: this.$t('licenseDialog.hardwareId'), msg: this.$t('licenseDialog.hardwareIdCopied') })
+                await copyToClipboard(this.supportInfo)
+                this.copied = true
+                clearTimeout(this.copiedTimeout)
+                this.copiedTimeout = setTimeout(() => (this.copied = false), 2500)
             } catch {
-                // The browser blocked the clipboard. The field is read-only, so the user can still select and copy the value.
+                // The browser blocked the clipboard. The hardware ID is plain text, so the user can still select and copy it.
             }
         },
         startUpload(product: string) {
@@ -212,13 +235,24 @@ export default defineComponent({
     }
 }
 .kn-license-host__hardware {
-    margin-top: 4px;
-    padding: 4px 4px 4px 10px;
-    border-radius: 4px;
     background: rgba(0, 0, 0, 0.04);
     code {
         font-size: 12px;
+        line-height: 1.5;
         word-break: break-all;
     }
+}
+.kn-license-support {
+    transition:
+        border-color 0.15s,
+        background-color 0.15s;
+    &:hover {
+        border-color: var(--q-primary);
+    }
+}
+.kn-license-support--copied,
+.kn-license-support--copied:hover {
+    border-color: var(--q-positive);
+    background: rgba(33, 186, 69, 0.06);
 }
 </style>
