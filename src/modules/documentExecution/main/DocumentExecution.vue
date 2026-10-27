@@ -91,6 +91,13 @@
                 @parametersChanged="$emit('parametersChanged', $event)"
             ></KnParameterSidebar>
 
+            <Dialog :visible="birtUpgradeVisible" :header="$t('documentExecution.main.birtUpgradeTitle')" :modal="true" @update:visible="resolveBirtUpgrade(false)">
+                <p>{{ $t('documentExecution.main.birtUpgradeConfirm') }}</p>
+                <template #footer>
+                    <Button class="p-button-text" :label="$t('common.cancel')" @click="resolveBirtUpgrade(false)" />
+                    <Button :label="$t('common.update')" @click="resolveBirtUpgrade(true)" />
+                </template>
+            </Dialog>
             <DocumentExecutionHelpDialog :visible="helpDialogVisible" :prop-document="document" @close="helpDialogVisible = false"></DocumentExecutionHelpDialog>
 
             <DocumentExecutionRankDialog :visible="rankDialogVisible" :prop-document-rank="documentRank" @close="rankDialogVisible = false" @saveRank="onSaveRank"></DocumentExecutionRankDialog>
@@ -304,7 +311,9 @@ export default defineComponent({
             datasetToPreview: {} as any,
             initializePolling: null as any,
             filtersLoaded: false,
-            reportRefreshInterval: null as any
+            reportRefreshInterval: null as any,
+            birtUpgradeVisible: false,
+            birtUpgradeResolver: null as ((accepted: boolean) => void) | null
         }
     },
     computed: {
@@ -386,9 +395,13 @@ export default defineComponent({
         if (this.mode === 'iframe' && this.$route.name !== 'new-dashboard') this.userRole ? await this.loadPage(true) : (this.parameterSidebarVisible = true)
     },
     deactivated() {
+        this.resolveBirtUpgrade(false)
         this.parameterSidebarVisible = false
         window.removeEventListener('message', this.iframeEventsListener)
         if (this.reportRefreshInterval) clearInterval(this.reportRefreshInterval)
+    },
+    beforeUnmount() {
+        this.resolveBirtUpgrade(false)
     },
 
     async mounted() {
@@ -985,7 +998,47 @@ export default defineComponent({
                 .catch(() => {})
             this.loading = false
         },
+        resolveBirtUpgrade(accepted: boolean) {
+            this.birtUpgradeVisible = false
+            if (this.birtUpgradeResolver) this.birtUpgradeResolver(accepted)
+            this.birtUpgradeResolver = null
+        },
+        async checkBirtTemplateUpgrade(): Promise<boolean> {
+            if (this.document.typeCode !== 'REPORT') return true
+            const documentId = this.document.id
+            const endpoint = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/backendservices/documenttemplate/${documentId}/birt-upgrade`
+            try {
+                const { data } = await this.$http.get(endpoint)
+                if (this.document.id !== documentId) return false
+                if (!data.needsUpgrade) return true
+                if (!data.canUpgrade) {
+                    this.setError({
+                        title: this.$t('documentExecution.main.birtUpgradeTitle'),
+                        msg: this.$t('documentExecution.main.birtUpgradePermission')
+                    })
+                    return false
+                }
+                const accepted = await new Promise<boolean>((resolve) => {
+                    this.birtUpgradeResolver = resolve
+                    this.birtUpgradeVisible = true
+                })
+                // Navigation may have changed while the confirmation was open.
+                if (!accepted || this.document.id !== documentId) return false
+                await this.$http.post(endpoint, { templateId: data.templateId })
+                return this.document.id === documentId
+            } catch {
+                this.setError({
+                    title: this.$t('documentExecution.main.birtUpgradeTitle'),
+                    msg: this.$t('documentExecution.main.birtUpgradeError')
+                })
+                return false
+            }
+        },
         async loadURL(olapParameters: any, documentLabel: string | null = null, crossNavigationPopupMode = false) {
+            if (!(await this.checkBirtTemplateUpgrade())) {
+                this.urlData = null
+                return
+            }
             // Only call the /documentexecution/url service for OLAP and REGISTRY (DATAMART) documents
             if (this.document.typeCode !== 'DASHBOARD') {
                 let error = false
