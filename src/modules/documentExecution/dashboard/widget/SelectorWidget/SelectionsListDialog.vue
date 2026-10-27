@@ -1,27 +1,53 @@
 <template>
-    <Dialog class="kn-dialog--toolbar--secondary selectionsDialog" :visible="visible" style="width: 60%" :header="$t('dashboard.selectionsList')" :closable="false" modal :breakpoints="{ '960px': '75vw', '640px': '100vw' }">
-        <ag-grid-vue class="kn-table-widget-grid ag-theme-alpine selectionGrid p-m-2" :grid-options="gridOptions" :context="context"></ag-grid-vue>
-        {{ document?.seeAsFinalUser }}
-        <template #footer>
-            <Button class="kn-button kn-button--secondary p-mb-2" :label="$t('common.close')" data-test="close-button" @click="closeDialog" />
-            <Button class="kn-button kn-button p-mb-2" :label="$t('common.save')" data-test="save-button" @click="onSave" />
-        </template>
-    </Dialog>
+    <q-dialog :model-value="visible" persistent @show="updateTruncatedCells">
+        <q-card ref="card" class="selections-dialog">
+            <q-toolbar class="kn-toolbar kn-toolbar--primary">
+                <q-toolbar-title>{{ $t('dashboard.selectionsList') }}</q-toolbar-title>
+            </q-toolbar>
+            <q-card-section class="q-pa-none">
+                <q-table class="selections-table" :rows="activeSelections" :columns="columns" :row-key="getRowKey" :rows-per-page-options="[0]" :no-data-label="$t('common.info.noElementSelected')" flat dense hide-bottom>
+                    <template #body="props">
+                        <q-tr :props="props" :class="{ 'selections-table__row--locked': props.row.locked }">
+                            <q-td v-for="col in props.cols.filter((col) => col.name !== 'actions')" :key="col.name" :props="props" class="selections-table__cell">
+                                <div class="ellipsis" :data-cell-key="`${props.key}-${col.name}`">{{ col.value }}</div>
+                                <q-tooltip v-if="truncatedCells[`${props.key}-${col.name}`] && openMenuCell !== `${props.key}-${col.name}`" :delay="500" max-width="400px" class="selections-table__tooltip">{{ col.value }}</q-tooltip>
+                                <q-menu class="selections-table__menu" @show="openMenuCell = `${props.key}-${col.name}`" @hide="openMenuCell = null">
+                                    <div class="text-caption text-grey-7">{{ col.label }}</div>
+                                    <div v-if="col.name === 'value'">
+                                        <div v-for="(value, index) in props.row.value" :key="index">{{ value }}</div>
+                                    </div>
+                                    <div v-else>{{ col.value }}</div>
+                                </q-menu>
+                            </q-td>
+                            <q-td key="actions" :props="props" class="selections-table__actions">
+                                <q-btn v-if="!document?.seeAsFinalUser" flat round dense size="sm" :icon="props.row.locked ? 'fas fa-lock' : 'fas fa-lock-open'" :color="props.row.locked ? 'negative' : 'grey-8'" @click="toggleSelectionLock(props.row)">
+                                    <q-tooltip>{{ props.row.locked ? $t('common.unlock') : $t('common.lock') }}</q-tooltip>
+                                </q-btn>
+                                <q-btn flat round dense size="sm" icon="fas fa-trash-alt" color="grey-8" :disable="props.row.locked" @click="deleteSelection(props.row)">
+                                    <q-tooltip>{{ $t('common.delete') }}</q-tooltip>
+                                </q-btn>
+                            </q-td>
+                        </q-tr>
+                    </template>
+                </q-table>
+            </q-card-section>
+            <q-card-actions align="right">
+                <q-btn flat color="secondary" :label="$t('common.close')" data-test="close-button" @click="closeDialog" />
+                <q-btn unelevated color="primary" :label="$t('common.save')" data-test="save-button" @click="onSave" />
+            </q-card-actions>
+        </q-card>
+    </q-dialog>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Dialog from 'primevue/dialog'
-import buttonRenderer from './SelectionsListDialogCellRenderer.vue'
-import { mapState, mapActions } from 'pinia'
+import { mapActions } from 'pinia'
 import store from '../../Dashboard.store'
 import deepcopy from 'deepcopy'
 import { ISelection } from '../../Dashboard'
-import { AgGridVue } from '@/composables/useAgGrid'
 
 export default defineComponent({
-    name: 'datasets-catalog-datatable',
-    components: { Dialog, AgGridVue },
+    name: 'selections-list-dialog',
     props: {
         visible: { type: Boolean },
         dashboardId: { type: String, required: true },
@@ -30,87 +56,55 @@ export default defineComponent({
     emits: ['close', 'save'],
     data() {
         return {
-            gridApi: null as any,
-            gridColumnApi: null as any,
-            gridOptions: {
-                rowData: [],
-                columnDefs: [
-                    { headerName: 'Dataset', field: 'datasetLabel', flex: 1 },
-                    { headerName: 'Column Name', field: 'columnName', flex: 1 },
-                    { headerName: 'Values', field: 'value', flex: 1 },
-                    {
-                        headerName: '',
-                        cellRenderer: buttonRenderer,
-                        cellRendererParams: { isFinalUser: this.document?.seeAsFinalUser },
-                        field: 'id',
-                        cellStyle: {
-                            'text-align': 'center',
-                            display: 'flex',
-                            'align-items': 'center',
-                            'justify-content': 'center',
-                            border: 'none'
-                        },
-                        width: 100,
-                        suppressSizeToFit: true,
-                        tooltip: false
-                    }
-                ],
-                enableColResize: false,
-                enableFilter: false,
-                enableSorting: false,
-                pagination: false,
-                suppressRowTransform: true,
-                suppressMovableColumns: true,
-                suppressDragLeaveHidesColumns: true,
-                suppressRowGroupHidesColumns: true,
-                rowHeight: 36,
-                headerHeight: 30,
-                onGridReady: this.onGridReady,
-                getRowStyle: this.getRowStyle
-            } as any,
-            context: null as any,
             activeSelections: [] as ISelection[],
-            selectionsToRemove: [] as ISelection[]
+            selectionsToRemove: [] as ISelection[],
+            truncatedCells: {} as Record<string, boolean>,
+            openMenuCell: null as string | null
         }
     },
     computed: {
-        ...mapState(store, ['dashboards'])
+        columns(): any[] {
+            return [
+                { name: 'datasetLabel', label: this.$t('common.dataset'), field: 'datasetLabel', align: 'left' },
+                { name: 'columnName', label: this.$t('common.column'), field: 'columnName', align: 'left' },
+                { name: 'value', label: this.$t('common.values'), field: 'value', align: 'left', format: (value: (string | number)[]) => (Array.isArray(value) ? value.join(', ') : value) },
+                { name: 'actions', label: '', field: 'actions', align: 'right', style: 'width: 90px', headerStyle: 'width: 90px' }
+            ]
+        }
     },
-    beforeMount() {
-        this.context = { componentParent: this }
+    created() {
+        this.activeSelections = deepcopy(this.getSelections(this.dashboardId))
+        window.addEventListener('resize', this.updateTruncatedCells)
+    },
+    unmounted() {
+        window.removeEventListener('resize', this.updateTruncatedCells)
     },
     methods: {
-        ...mapActions(store, ['getDashboard', 'getSelections']),
-        onGridReady(params) {
-            this.activeSelections = deepcopy(this.getSelections(this.dashboardId))
-            this.gridApi = params.api
-            this.gridColumnApi = params.columnApi
-
-            params.api.sizeColumnsToFit()
-            window.addEventListener('resize', function () {
-                setTimeout(function () {
-                    params.api.sizeColumnsToFit()
-                })
+        ...mapActions(store, ['getSelections']),
+        updateTruncatedCells() {
+            const cells = (this.$refs.card as any)?.$el?.querySelectorAll('[data-cell-key]') ?? []
+            const truncatedCells = {} as Record<string, boolean>
+            cells.forEach((cell: HTMLElement) => {
+                if (cell.scrollWidth > cell.clientWidth) truncatedCells[cell.dataset.cellKey as string] = true
             })
-
-            const updateData = (data) => params.api.setGridOption('rowData', data)
-
-            updateData(this.activeSelections)
+            this.truncatedCells = truncatedCells
+        },
+        getRowKey(selection: ISelection) {
+            return `${selection.datasetId}-${selection.columnName}`
+        },
+        findSelectionIndex(selection: ISelection) {
+            return this.activeSelections.findIndex((tempSelection: ISelection) => tempSelection.datasetId === selection.datasetId && tempSelection.columnName === selection.columnName)
         },
         deleteSelection(selection: ISelection) {
-            const index = this.activeSelections.findIndex((tempSelection: ISelection) => tempSelection.datasetId === selection.datasetId && tempSelection.columnName === selection.columnName)
+            const index = this.findSelectionIndex(selection)
             if (index !== -1) {
                 this.selectionsToRemove.push(this.activeSelections[index])
                 this.activeSelections.splice(index, 1)
-                this.gridApi.setGridOption('rowData', this.activeSelections)
             }
         },
         toggleSelectionLock(selection: ISelection) {
-            const index = this.activeSelections.findIndex((tempSelection: ISelection) => tempSelection.datasetId === selection.datasetId && tempSelection.columnName === selection.columnName)
-            if (index !== -1) {
-                this.activeSelections[index].locked = !this.activeSelections[index].locked
-                this.gridApi?.redrawRows()
-            }
+            const index = this.findSelectionIndex(selection)
+            if (index !== -1) this.activeSelections[index].locked = !this.activeSelections[index].locked
         },
         saveSelectionLocks() {
             const storeSelections = this.getSelections(this.dashboardId)
@@ -121,9 +115,6 @@ export default defineComponent({
                     if (storeSelection) storeSelection.locked = selection.locked
                 }
             })
-        },
-        getRowStyle(params) {
-            if (params.node.data.locked) return { opacity: '0.7', background: '#00000020' }
         },
         closeDialog() {
             this.activeSelections = []
@@ -138,17 +129,52 @@ export default defineComponent({
 })
 </script>
 
+<style lang="scss" scoped>
+.selections-dialog {
+    width: 60vw;
+    max-width: 900px;
+}
+
+@media (max-width: 960px) {
+    .selections-dialog {
+        width: 90vw;
+    }
+}
+
+.selections-table {
+    max-height: 300px;
+
+    :deep(table) {
+        table-layout: fixed;
+        width: 100%;
+    }
+
+    &__cell {
+        cursor: pointer;
+    }
+
+    &__actions {
+        white-space: nowrap;
+    }
+
+    &__row--locked {
+        opacity: 0.7;
+        background: rgba(0, 0, 0, 0.12);
+    }
+}
+</style>
+
 <style lang="scss">
-.selectionsDialog {
-    .selectionGrid {
-        height: 250px;
-        .ag-root-wrapper {
-            border: none;
-        }
-    }
-    .p-dialog-content,
-    .p-dialog-footer {
-        padding: 0;
-    }
+.selections-table__tooltip {
+    word-break: break-word;
+}
+
+.selections-table__menu {
+    max-width: 400px;
+    max-height: 300px;
+    padding: 8px 12px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    user-select: text;
 }
 </style>

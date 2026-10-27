@@ -149,6 +149,7 @@
         "noConnectors": false,
         "popupMode": false,
         "selectedColor": "",
+        "showCheckboxes": false,
         "showFilter": false,
         "textColor": ""
     },

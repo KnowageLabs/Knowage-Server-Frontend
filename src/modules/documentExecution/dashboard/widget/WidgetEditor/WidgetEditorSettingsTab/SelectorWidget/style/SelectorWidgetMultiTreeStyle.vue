@@ -11,6 +11,9 @@
                 <q-checkbox v-model="multiTreeStyleModel.showFilter" :label="$t('dashboard.widgetEditor.selectorWidget.tree.showFilter')" @update:model-value="multiTreeStyleChanged" />
             </div>
             <div class="col-6">
+                <q-checkbox v-model="multiTreeStyleModel.showCheckboxes" :label="$t('dashboard.widgetEditor.selectorWidget.tree.showCheckboxes')" @update:model-value="multiTreeStyleChanged" />
+            </div>
+            <div class="col-6">
                 <q-checkbox v-model="multiTreeStyleModel.defaultExpandAll" :label="$t('dashboard.widgetEditor.selectorWidget.tree.defaultExpandAll')" @update:model-value="multiTreeStyleChanged" />
             </div>
             <div class="col-6">

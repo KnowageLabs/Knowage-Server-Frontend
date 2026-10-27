@@ -386,6 +386,7 @@
         "script": "Script",
         "search": "search",
         "select": "select",
+        "selectAll": "Select all",
         "send": "Send",
         "sendByEmail": "Send by e-mail",
         "sendMail": "Send Mail",
@@ -1873,6 +1874,7 @@
                     "noConnectors": "No Connectors",
                     "popupMode": "Popup Mode",
                     "selectedColor": "Selected Node Color",
+                    "showCheckboxes": "Show Checkboxes",
                     "showFilter": "Show Filter",
                     "textColor": "Text Color",
                     "title": "Tree Style"
