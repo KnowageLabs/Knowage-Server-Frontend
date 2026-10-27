@@ -4355,7 +4355,7 @@
                 "reviewTitle": "Review and save",
                 "stepperDescription": "A trigger has three steps: when it runs, what it produces, and a review.",
                 "stepperTitle": "Trigger editor",
-                "triggersDescription": "A trigger runs the job. Each card shows when it runs, its outputs and its state. Use the icons to edit, run, pause or delete it.",
+                "triggersDescription": "A trigger runs the job. Each card shows when it runs, its outputs and its state. Click a card to edit it, use the switch to pause or resume it, and the icons to run or delete it.",
                 "triggersTitle": "Triggers"
             },
             "triggerAlreadyPresent": "Trigger already existing with this name",
