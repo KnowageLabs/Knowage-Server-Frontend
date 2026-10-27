@@ -22,9 +22,12 @@ const BUTTON_ZOOM_STEP = 1.1
 const WHEEL_ZOOM_SPEED = 0.0012
 // Elements with this class (the widgets) do not start a drag pan, so the user can interact with them.
 const EXCLUDE_CLASS = 'panzoom-exclude'
+// Over elements with this class the wheel only scrolls them and never zooms.
+const SCROLL_ONLY_CLASS = 'kn-canvas-scroll-only'
 
 // Pan and zoom for a canvas editor. @panzoom/panzoom handles drag and pinch. Wheel, fit and centering are ours:
-// the wheel zooms toward the cursor, except over widget content that can scroll. Space + drag pans over widgets too.
+// the wheel zooms toward the cursor, except over widget content that can scroll and over scroll-only areas.
+// Space + drag pans over widgets too.
 // The transform is `scale(s) translate(x, y)` with origin 0 0, so a canvas point p sits at s * (p + pan) in the viewport.
 export function useCanvasPanZoom(viewportRef: Ref<HTMLElement | null>, stageRef: Ref<HTMLElement | null>, options: ICanvasPanZoomOptions) {
     const x = ref(0)
@@ -79,6 +82,12 @@ export function useCanvasPanZoom(viewportRef: Ref<HTMLElement | null>, stageRef:
 
     function onPointerDown(event: PointerEvent) {
         if (event.button !== 0) return
+        // A QScrollArea bar drags with mouse events. Panzoom prevents the pointerdown default, which cancels them,
+        // so the event stops here (capture phase) and never reaches Panzoom.
+        if ((event.target as HTMLElement | null)?.closest?.('.q-scrollarea__bar, .q-scrollarea__thumb')) {
+            event.stopPropagation()
+            return
+        }
         pointerStart = { x: event.clientX, y: event.clientY }
     }
 
@@ -96,10 +105,21 @@ export function useCanvasPanZoom(viewportRef: Ref<HTMLElement | null>, stageRef:
     }
 
     function onWheel(event: WheelEvent) {
-        if (canScrollInside(event)) return
-        event.preventDefault()
         // deltaMode 1 counts lines, not pixels.
         const delta = event.deltaMode === 1 ? event.deltaY * 33 : event.deltaY
+        // A scroll-only area (the laptop screen) scrolls like a page: the wheel never zooms over it, at its ends too.
+        const scrollOnly = (event.target as HTMLElement | null)?.closest?.(`.${SCROLL_ONLY_CLASS}`) as HTMLElement | null
+        if (scrollOnly) {
+            event.preventDefault()
+            // A QScrollArea scrolls its inner container.
+            const scrollElement = scrollOnly.querySelector<HTMLElement>('.q-scrollarea__container') ?? scrollOnly
+            // A mouse wheel step is large and scrolls smoothly; a trackpad sends many small steps.
+            scrollElement.scrollBy({ top: delta, behavior: Math.abs(delta) >= 50 ? 'smooth' : 'auto' })
+            return
+        }
+        // Ctrl + wheel and trackpad pinch come with ctrlKey. They zoom the canvas, never the browser page.
+        if (!event.ctrlKey && canScrollInside(event)) return
+        event.preventDefault()
         zoomAtPoint(scale.value * Math.exp(-delta * WHEEL_ZOOM_SPEED), { clientX: event.clientX, clientY: event.clientY })
     }
 
@@ -202,5 +222,5 @@ export function useCanvasPanZoom(viewportRef: Ref<HTMLElement | null>, stageRef:
         return { left: s * (rect.left + x.value), top: s * (rect.top + y.value), width: rect.width * s, height: rect.height * s }
     }
 
-    return { ready, x, y, scale, isPanning, isSpacePressed, EXCLUDE_CLASS, zoomIn, zoomOut, zoomTo, fitToFreeArea, fitWidth, toViewportRect }
+    return { ready, x, y, scale, isPanning, isSpacePressed, EXCLUDE_CLASS, SCROLL_ONLY_CLASS, zoomIn, zoomOut, zoomTo, fitToFreeArea, fitWidth, toViewportRect }
 }

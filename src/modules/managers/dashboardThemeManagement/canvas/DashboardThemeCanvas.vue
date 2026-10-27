@@ -3,11 +3,24 @@
         <div class="kn-canvas__dots"></div>
 
         <div ref="viewportRef" class="kn-canvas__viewport" :class="{ 'kn-canvas__viewport--space-pan': panZoom.isSpacePressed.value }" @pointermove="onPointerMove" @pointerleave="hover = null">
-            <div ref="stageRef" class="theme-canvas__stage" :style="{ width: `${CANVAS_SIZE.width}px`, height: `${CANVAS_SIZE.height}px` }">
-                <!-- The focused widget sits above this scrim; the rest of the canvas is dimmed. -->
-                <div v-if="activeType && dimEnabled" class="theme-canvas__scrim"></div>
-                <div v-for="tile in tiles" :key="tile.themeType" class="theme-canvas__tile" :class="tileClass(tile)" :style="tileStyle(tile)" :data-theme-type="tile.themeType">
-                    <WidgetRenderer :key="tile.renderKey" :widget="tile.mock.widget" :widget-loading="false" :widget-data="tile.mock.data" :widget-initial-data="tile.mock.initialData" :datasets="NO_DATASETS" :dashboard-id="PREVIEW_DASHBOARD_ID" :selection-is-locked="false" :prop-active-selections="tile.themeType === 'activeSelections' ? MOCK_ACTIVE_SELECTIONS : NO_SELECTIONS" :variables="NO_VARIABLES" />
+            <div ref="stageRef" class="theme-canvas__stage" :style="{ width: `${stageSize.width}px`, height: `${stageSize.height}px` }">
+                <!-- Canvas mode: the sheet frame shows the background color. Laptop mode: one laptop screen whose sheet scrolls over a fixed background. -->
+                <div class="theme-canvas__frame" :class="{ 'theme-canvas__frame--laptop': laptopMode, 'theme-canvas__frame--outlined': laptopMode || !!theme.config.sheetBackground?.sheetsBackgroundColor }" :style="frameStyle">
+                    <div v-if="laptopMode" class="theme-canvas__laptop-toolbar" :style="{ height: `${LAPTOP_TOOLBAR_HEIGHT}px` }"></div>
+                    <!-- Only the laptop sheet scrolls. The canvas sheet must not clip: the scrim covers the canvas around it. -->
+                    <component :is="laptopMode ? QScrollArea : 'div'" class="theme-canvas__sheet" :class="{ [panZoom.SCROLL_ONLY_CLASS]: laptopMode }" :style="sheetStyle" @scroll="onSheetScroll">
+                        <div class="theme-canvas__tiles" :style="tilesStyle">
+                            <!-- The focused widget sits above this scrim; the rest of the canvas is dimmed. -->
+                            <div v-if="activeType && dimEnabled" class="theme-canvas__scrim"></div>
+                            <div v-for="tile in tiles" :key="tile.themeType" class="theme-canvas__tile" :class="tileClass(tile)" :style="tileStyle(tile)" :data-theme-type="tile.themeType">
+                                <WidgetRenderer :key="tile.renderKey" :widget="tile.mock.widget" :widget-loading="false" :widget-data="tile.mock.data" :widget-initial-data="tile.mock.initialData" :datasets="NO_DATASETS" :dashboard-id="PREVIEW_DASHBOARD_ID" :selection-is-locked="false" :prop-active-selections="tile.themeType === 'activeSelections' ? MOCK_ACTIVE_SELECTIONS : NO_SELECTIONS" :variables="NO_VARIABLES" />
+                            </div>
+                        </div>
+                    </component>
+                    <div v-if="laptopMode" class="theme-canvas__laptop-tabs" :style="{ height: `${LAPTOP_TABS_HEIGHT}px` }">
+                        <span class="theme-canvas__laptop-tab theme-canvas__laptop-tab--active">{{ $t('managers.dashboardThemeManager.canvas.sheetName', { number: 1 }) }}</span>
+                        <span class="theme-canvas__laptop-tab">{{ $t('managers.dashboardThemeManager.canvas.sheetName', { number: 2 }) }}</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -15,6 +28,16 @@
         <div class="kn-canvas__grain"></div>
 
         <div class="theme-canvas__overlay">
+            <div v-if="frameLabel" class="theme-canvas__frame-label" :style="{ left: `${frameLabel.x}px`, top: `${frameLabel.y}px` }">
+                <button class="theme-canvas__frame-label-button" type="button" @click="emit('openBackground')">
+                    <q-icon :name="laptopMode ? 'laptop' : 'wallpaper'" size="14px" />
+                    {{ laptopMode ? $t('managers.dashboardThemeManager.laptopPreview') : $t('managers.dashboardThemeManager.sheetBackground') }}
+                </button>
+                <button v-if="!laptopMode && hasImageOrCss" class="theme-canvas__frame-hint" type="button" @click="setLaptopMode(true)">
+                    <q-icon name="info" size="14px" />
+                    {{ $t('managers.dashboardThemeManager.imageInLaptopMode') }}
+                </button>
+            </div>
             <div v-if="hoverChip" class="theme-canvas__hover-chip" :style="{ left: `${hoverChip.x}px`, top: `${hoverChip.y}px` }">
                 <span class="theme-canvas__hover-chip-bar"></span>
                 {{ $t('managers.dashboardThemeManager.canvas.clickToEdit') }}
@@ -54,6 +77,11 @@
                 <q-icon :name="dimEnabled ? 'filter_center_focus' : 'center_focus_weak'" />
                 <q-tooltip :delay="500" anchor="center right" self="center left">{{ $t('managers.dashboardThemeManager.canvas.dimOthers') }}</q-tooltip>
             </button>
+            <button data-tour-id="theme-laptop" class="kn-canvas-controls__button" :class="{ 'kn-canvas-controls__button--active': laptopMode }" type="button" :aria-pressed="laptopMode" :aria-label="$t('managers.dashboardThemeManager.laptopPreview')" @click="setLaptopMode(!laptopMode)">
+                <q-icon name="laptop" />
+                <span class="kn-canvas-controls__badge">{{ $t('managers.dashboardThemeManager.newBadge') }}</span>
+                <q-tooltip :delay="500" anchor="center right" self="center left">{{ $t('managers.dashboardThemeManager.laptopPreview') }}</q-tooltip>
+            </button>
             <button class="kn-canvas-controls__button theme-canvas__zoom-value" type="button" :aria-label="$t('managers.dashboardThemeManager.canvas.resetZoom')" @click="panZoom.zoomTo(1)">
                 {{ Math.round(panZoom.scale.value * 100) }}%
                 <q-tooltip :delay="500" anchor="center right" self="center left">{{ $t('managers.dashboardThemeManager.canvas.resetZoom') }}</q-tooltip>
@@ -63,15 +91,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { QScrollArea } from 'quasar'
 import WidgetRenderer from '@/modules/documentExecution/dashboard/widget/WidgetRenderer.vue'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { applyStylesToWidget } from '@/modules/documentExecution/dashboard/generalSettings/themes/ThemesHelper'
 import { IDashboardTheme } from '../DashboardThememanagement'
 import { IEditorWidgetType } from '../DashboardThemeHelper'
-import { ACTIVE_SELECTIONS_SECTION_VARIANTS, ACTIVE_SELECTIONS_VARIANTS, CANVAS_LAYOUT, CANVAS_SIZE, createMockWidget, createPreviewDashboard, createSelectorMock, IActiveSelectionsVariant, IMockWidget, ISelectorVariant, MOCK_ACTIVE_SELECTIONS, MOCK_IMAGE_URL, MOCK_MAP_URL, PREVIEW_DASHBOARD_ID, SELECTOR_SECTION_VARIANTS, SELECTOR_VARIANTS } from './DashboardThemeMockWidgets'
+import { getSheetBackgroundStyle } from '@/modules/documentExecution/dashboard/generalSettings/background/DashboardBackgroundHelper'
+import { ACTIVE_SELECTIONS_SECTION_VARIANTS, ACTIVE_SELECTIONS_VARIANTS, CANVAS_LAYOUT, CANVAS_SIZE, createMockWidget, createPreviewDashboard, createSelectorMock, IActiveSelectionsVariant, IMockWidget, ISelectorVariant, LAPTOP_SCREEN, LAPTOP_SCROLLBAR_WIDTH, LAPTOP_SHEET, LAPTOP_SHEET_GUTTER, LAPTOP_TABS_HEIGHT, LAPTOP_TOOLBAR_HEIGHT, FRAME_TOP, MOCK_ACTIVE_SELECTIONS, MOCK_IMAGE_URL, MOCK_MAP_URL, PREVIEW_DASHBOARD_ID, SELECTOR_SECTION_VARIANTS, SELECTOR_VARIANTS, SHEET_PADDING } from './DashboardThemeMockWidgets'
 import { ICanvasRect, useCanvasPanZoom } from './useCanvasPanZoom'
 
 interface ICanvasTile {
@@ -94,6 +124,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
+    (e: 'openBackground'): void
     (e: 'select', type: IEditorWidgetType): void
     (e: 'deselect'): void
     (e: 'update:selectorVariant', variant: ISelectorVariant): void
@@ -183,8 +214,61 @@ const canvasStyle = computed(() => ({
     '--kn-canvas-scale': panZoom.scale.value
 }))
 
+// Laptop mode is a viewer aid and is not saved.
+const laptopMode = ref(false)
+const sheetScrollTop = ref(0)
+
+// In laptop mode the widths follow the sheet width and the heights stay, as in the dashboard grid (100 columns in %, 30 px rows).
+const LAPTOP_WIDTH_SCALE = (LAPTOP_SHEET.width - 2 * LAPTOP_SHEET_GUTTER - LAPTOP_SCROLLBAR_WIDTH) / CANVAS_SIZE.width
+
+const frameSize = computed(() => (laptopMode.value ? { ...LAPTOP_SCREEN } : { width: CANVAS_SIZE.width + 2 * SHEET_PADDING, height: CANVAS_SIZE.height + 2 * SHEET_PADDING }))
+const stageSize = computed(() => ({ width: frameSize.value.width, height: FRAME_TOP + frameSize.value.height }))
+
+const frameStyle = computed(() => ({ top: `${FRAME_TOP}px`, width: `${frameSize.value.width}px`, height: `${frameSize.value.height}px` }))
+
+// Canvas mode shows only the color: an image or CSS sized to this tall frame would not look as in a dashboard.
+const sheetStyle = computed(() => {
+    const background = props.theme.config.sheetBackground
+    // With no color the sheet is transparent and the widgets sit on the dots, as in a new dashboard.
+    if (!laptopMode.value) return { padding: `${SHEET_PADDING}px`, 'background-color': background?.sheetsBackgroundColor || 'transparent' }
+    // The renderer style sets min-height: 100%; here the sheet shares the frame with the toolbar and the tabs.
+    return { ...getSheetBackgroundStyle(background), 'min-height': '0' }
+})
+
+const tilesStyle = computed(() => (laptopMode.value ? { width: '100%', height: `${CANVAS_SIZE.height + 2 * LAPTOP_SHEET_GUTTER}px` } : { width: `${CANVAS_SIZE.width}px`, height: `${CANVAS_SIZE.height}px` }))
+
+const hasImageOrCss = computed(() => !!(props.theme.config.sheetBackground?.imageBackgroundUrl || props.theme.config.sheetBackground?.sheetsBackgroundStyle))
+
+// Tile position inside the tiles container.
+function tileBox(tile: { left: number; top: number; width: number; height: number }) {
+    if (!laptopMode.value) return { left: tile.left, top: tile.top, width: tile.width, height: tile.height }
+    return { left: LAPTOP_SHEET_GUTTER + tile.left * LAPTOP_WIDTH_SCALE, top: LAPTOP_SHEET_GUTTER + tile.top, width: tile.width * LAPTOP_WIDTH_SCALE, height: tile.height }
+}
+
+// QScrollArea emits its scroll details; the canvas sheet does not scroll.
+function onSheetScroll(details: { verticalPosition?: number }) {
+    sheetScrollTop.value = details?.verticalPosition ?? 0
+}
+
+// The widgets remount so charts, grids and maps draw at the new width.
+function setLaptopMode(value: boolean) {
+    if (laptopMode.value === value) return
+    laptopMode.value = value
+    sheetScrollTop.value = 0
+    tiles.forEach((tile) => tile.renderKey++)
+    nextTick(() => fit())
+}
+
+// The frame label sits above the top-left corner of the frame and keeps its screen size at every zoom.
+const frameLabel = computed(() => {
+    if (panZoom.isPanning.value) return null
+    const rect = panZoom.toViewportRect({ left: 0, top: FRAME_TOP, width: frameSize.value.width, height: frameSize.value.height })
+    return { x: rect.left, y: rect.top }
+})
+
 function tileStyle(tile: ICanvasTile) {
-    const style: Record<string, string> = { left: `${tile.left}px`, top: `${tile.top}px`, width: `${tile.width}px`, height: `${tile.height}px` }
+    const box = tileBox(tile)
+    const style: Record<string, string> = { left: `${box.left}px`, top: `${box.top}px`, width: `${box.width}px`, height: `${box.height}px` }
     if (tile.themeType === 'image') style['--theme-canvas-image'] = `url("${MOCK_IMAGE_URL}")`
     if (tile.themeType === 'map') style['--theme-canvas-map'] = `url("${MOCK_MAP_URL}")`
     return style
@@ -215,9 +299,13 @@ function onPointerMove(event: PointerEvent) {
 
 const hoverChip = computed(() => (hover.value && hover.value.themeType !== props.activeType ? { x: hover.value.x + 16, y: hover.value.y + 14 } : null))
 
+// The tile rectangle in stage coordinates: the frame offset, the sheet padding or the laptop toolbar, and the sheet scroll.
 function tileRect(type: IEditorWidgetType): ICanvasRect | null {
     const tile = tiles.find((item) => item.themeType === type)
-    return tile ? { left: tile.left, top: tile.top, width: tile.width, height: tile.height } : null
+    if (!tile) return null
+    const box = tileBox(tile)
+    if (laptopMode.value) return { ...box, top: FRAME_TOP + LAPTOP_TOOLBAR_HEIGHT + box.top - sheetScrollTop.value }
+    return { ...box, left: SHEET_PADDING + box.left, top: FRAME_TOP + SHEET_PADDING + box.top }
 }
 
 // A variant is labelled with the theme section that styles it.
@@ -307,11 +395,11 @@ watch(
 applyTheme()
 
 function fit() {
-    panZoom.fitToFreeArea(CANVAS_SIZE)
+    panZoom.fitToFreeArea(stageSize.value)
 }
 
 onMounted(() => {
-    panZoom.ready.then(() => panZoom.fitWidth(CANVAS_SIZE))
+    panZoom.ready.then(() => panZoom.fitWidth(stageSize.value))
     window.addEventListener('keydown', onKeyDown)
 })
 
@@ -321,7 +409,7 @@ onBeforeUnmount(() => {
     store.removeDashboard({ id: PREVIEW_DASHBOARD_ID })
 })
 
-defineExpose({ fit })
+defineExpose({ fit, setLaptopMode })
 </script>
 
 <style lang="scss" scoped>
@@ -332,6 +420,115 @@ defineExpose({ fit })
 
 .theme-canvas__stage {
     position: relative;
+}
+
+// The outline keeps a 1px screen width at every zoom.
+.theme-canvas__frame {
+    position: absolute;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    border-radius: 6px;
+
+    // The frame shows only when it has a color, or as the laptop screen.
+    &--outlined {
+        outline: calc(1px / var(--kn-canvas-scale)) solid var(--kn-canvas-control-border-color);
+    }
+
+    // The laptop screen clips its sheet. The canvas frame does not, so the scrim still covers the canvas around it.
+    &--laptop {
+        overflow: hidden;
+        box-shadow: 0 16px 48px -16px rgba(0, 0, 0, 0.35);
+    }
+}
+
+.theme-canvas__sheet {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    border-radius: inherit;
+
+    // A QScrollArea in laptop mode: it scrolls its inner container, so the background on this element stays fixed.
+    .theme-canvas__frame--laptop & {
+        border-radius: 0;
+    }
+}
+
+.theme-canvas__tiles {
+    position: relative;
+}
+
+.theme-canvas__laptop-toolbar {
+    flex: none;
+    background-color: var(--kn-toolbar-primary-background-color);
+}
+
+.theme-canvas__laptop-tabs {
+    flex: none;
+    display: flex;
+    gap: 2px;
+    padding: 0 4px;
+    border-top: 1px solid #cccccc;
+    background-color: #f1f1f1;
+}
+
+.theme-canvas__laptop-tab {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    font-size: 0.8rem;
+    color: #555555;
+
+    &--active {
+        font-weight: 900;
+        background-color: #ffffff;
+        border-top: 2px solid var(--kn-toolbar-primary-background-color);
+    }
+}
+
+.theme-canvas__frame-label {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transform: translateY(calc(-100% - 8px));
+    pointer-events: auto;
+    white-space: nowrap;
+}
+
+.theme-canvas__frame-label-button,
+.theme-canvas__frame-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: transparent;
+    font: inherit;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+.theme-canvas__frame-label-button {
+    color: var(--kn-canvas-control-color);
+    font-weight: 600;
+
+    &:hover {
+        color: var(--kn-canvas-selection-color);
+        background-color: var(--kn-canvas-control-background-color);
+        border-color: var(--kn-canvas-control-border-color);
+    }
+}
+
+.theme-canvas__frame-hint {
+    border-radius: 12px;
+    background-color: #eef4fb;
+    color: #35506b;
+
+    &:hover {
+        border-color: #c6d7ea;
+    }
 }
 
 .theme-canvas__tile {

@@ -16,7 +16,7 @@ const PANEL_ANIMATION_MS = 350
 const text = (t: IThemeTourContext['t'], key: string) => ({ title: t(`managers.dashboardThemeManager.tour.${key}Title`), description: t(`managers.dashboardThemeManager.tour.${key}Description`) })
 
 // Order: find or add a theme, name it, edit one widget type, see what inherit does, edit the shared style for all,
-// focus settings, then save.
+// set the sheet background, focus settings, preview on a laptop screen, then save.
 export async function startDashboardThemeTour(context: IThemeTourContext) {
     const { t } = context
 
@@ -39,7 +39,9 @@ export async function startDashboardThemeTour(context: IThemeTourContext) {
             }
         },
         { element: element('theme-edit-all'), popover: { ...text(t, 'editAll'), side: 'bottom' } },
+        { element: element('theme-background'), popover: { ...text(t, 'background'), side: 'bottom' } },
         { element: element('theme-dim'), popover: { ...text(t, 'dim'), side: 'right' } },
+        { element: element('theme-laptop'), popover: { ...text(t, 'laptop'), side: 'right' } },
         { element: element('theme-save'), popover: { ...text(t, 'save'), side: 'bottom' } }
     ]
 

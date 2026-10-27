@@ -1,5 +1,5 @@
 import { ITextWidgetStyle as IGenericStyle } from '@/modules/documentExecution/dashboard/interfaces/DashboardTextWidget'
-import { IDashboardThemeConfig, IDashboardThemeSharedSection } from './DashboardThememanagement'
+import { IDashboardThemeBackground, IDashboardThemeConfig, IDashboardThemeSharedSection } from './DashboardThememanagement'
 import deepcopy from 'deepcopy'
 import deepEqual from 'deep-equal'
 import { ITableWidgetStyle } from '@/modules/documentExecution/dashboard/Dashboard'
@@ -26,9 +26,15 @@ export const getDefaultDashboardThemeConfig = () => {
     addUniqueActiveSelectionsWidgetStyles(defaultDashboardThemeConfig.activeSelections.style)
     addUniqueSelectorWidgetStyles(defaultDashboardThemeConfig.selector.style)
     addUniqueChartWidgetStyles(defaultDashboardThemeConfig.chart.style)
+    defaultDashboardThemeConfig.sheetBackground = getDefaultSheetBackground()
 
     return defaultDashboardThemeConfig
 }
+
+export const getDefaultSheetBackground = (): IDashboardThemeBackground => ({ sheetsBackgroundColor: '', imageBackgroundUrl: '', imageBackgroundSize: '', sheetsBackgroundStyle: '' })
+
+// A theme with all four fields empty has no background: applying it leaves the dashboard background as it is.
+export const themeHasBackground = (background?: Partial<IDashboardThemeBackground> | null) => !!(background?.sheetsBackgroundColor || background?.imageBackgroundUrl || background?.imageBackgroundSize || background?.sheetsBackgroundStyle)
 
 const createGenericWidgetStyle = () => {
     return {
@@ -90,6 +96,9 @@ const addUniqueChartWidgetStyles = (config: any) => {
 }
 
 export const themeBackwardsCompatibility = (theme: IDashboardThemeConfig) => {
+    // Themes saved before the sheet background have none.
+    theme.sheetBackground = { ...getDefaultSheetBackground(), ...(theme.sheetBackground ?? {}) }
+
     if (theme.chart?.style) {
         const chartStyle = theme.chart.style as any
         if (!chartStyle.colors) addUniqueChartWidgetStyles(chartStyle)

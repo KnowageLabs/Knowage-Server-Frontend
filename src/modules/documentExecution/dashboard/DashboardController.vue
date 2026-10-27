@@ -71,6 +71,7 @@ import dashboardDescriptor from './DashboardDescriptor.json'
 import { Toaster } from 'vue-sonner'
 import 'vue-sonner/style.css'
 import { showDashboardActionToast } from './helpers/DashboardToastHelper'
+import { applyThemeBackground } from './generalSettings/themes/ThemesHelper'
 
 export default defineComponent({
     name: 'dashboard-controller',
@@ -301,6 +302,8 @@ export default defineComponent({
 
             this.datasets = this.newDashboardMode ? [] : await loadDatasets(tempModel, this.appStore, this.setAllDatasets, this.$http)
             this.model = (tempModel && this.newDashboardMode) || typeof tempModel.configuration?.id != 'undefined' ? await formatNewModel(tempModel, this.datasets, this.$http, this.dashboardThemes) : await (formatModel(tempModel, this.document, this.datasets, this.drivers, this.profileAttributes, this.$http, this.user) as any)
+            // A new dashboard starts with the background of its theme (the default one). Old dashboards without a theme keep theirs.
+            if (this.newDashboardMode && this.model?.configuration?.theme?.id) applyThemeBackground(this.model.configuration.background, this.dashboardThemes.find((theme: IDashboardTheme) => theme.id === this.model.configuration.theme.id))
             // Store the model in the same tick it is assigned. DashboardRenderer reads the store when `model` changes, so an
             // await in between (e.g. syncDynamicColumns) can leave it on a stale object when getData runs twice (first cross-nav).
             this.store.setDashboard(this.dashboardId, this.model)
