@@ -1,3 +1,33 @@
 .q-tree {
     max-width: 100%;
 }
+
+// selected options are otherwise only text-primary (#363636), indistinguishable from the rest
+.q-virtual-scroll__content[role='listbox'] {
+    .q-item[aria-selected='true'] {
+        background-color: var(--kn-color-selected);
+    }
+    .q-item--dark[aria-selected='true'] {
+        background-color: rgba(255, 255, 255, 0.16);
+    }
+    &[aria-multiselectable='true'] .q-item[aria-selected='true']::after {
+        content: 'check';
+        font-family: 'Material Icons';
+        font-feature-settings: 'liga';
+        font-size: 18px;
+        line-height: 1;
+        align-self: center;
+        margin-left: 8px;
+    }
+}
+
+// keep the filter input beside the truncated value instead of wrapping to a new line
+.q-select--multiple.q-select--with-input.q-select--without-chips {
+    .q-field__native {
+        flex-wrap: nowrap;
+    }
+    .q-select__selected-value {
+        flex: 0 1 auto;
+        min-width: 0;
+    }
+}
