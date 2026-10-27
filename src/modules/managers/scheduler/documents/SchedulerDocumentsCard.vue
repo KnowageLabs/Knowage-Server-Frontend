@@ -2,29 +2,9 @@
     <q-card data-tour-id="scheduler-documents">
         <q-card-section class="scheduler-card__header row items-center no-wrap">
             <div class="kn-editor-card-label col">{{ $t('common.documents') }}</div>
-            <q-btn flat dense no-caps size="sm" color="accent" :icon="addPanelOpen ? 'close' : 'add'" :label="addPanelOpen ? $t('common.close') : $t('managers.scheduler.addDocuments')" class="q-ma-none q-py-none q-px-xs" data-test="add-documents-button" @click="toggleAddPanel" />
+            <q-btn flat dense no-caps size="sm" color="accent" icon="add" :label="$t('managers.scheduler.addDocuments')" class="q-ma-none q-py-none q-px-xs" data-test="add-documents-button" @click="emit('add')" />
         </q-card-section>
         <q-separator />
-
-        <div v-if="addPanelOpen" class="scheduler-documents__add">
-            <q-input v-model="treeFilter" outlined dense clearable hide-bottom-space :placeholder="$t('common.search')" class="q-mb-sm">
-                <template #append><q-icon name="search" /></template>
-            </q-input>
-            <q-scroll-area class="scheduler-documents__tree">
-                <q-tree :nodes="nodes" node-key="key" :filter="treeFilter ?? ''" default-expand-all dense no-selection-unset no-transition no-nodes-label="" :no-results-label="$t('common.info.noDataFound')">
-                    <template #default-header="{ node }">
-                        <div class="row items-center no-wrap full-width scheduler-documents__node">
-                            <q-icon :name="node.isDocument ? 'description' : 'folder'" class="scheduler-documents__node-icon q-mr-sm" />
-                            <span class="col ellipsis">{{ node.label }}</span>
-                            <template v-if="node.isDocument">
-                                <q-icon v-if="isAdded(node.data)" name="check" color="positive" size="18px" class="q-mr-sm"><q-tooltip :delay="500">{{ $t('managers.scheduler.added') }}</q-tooltip></q-icon>
-                                <q-btn v-else flat dense no-caps size="sm" color="accent" icon="add" :label="$t('common.add')" class="q-py-none q-px-xs" @click.stop="addDocument(node.data)" />
-                            </template>
-                        </div>
-                    </template>
-                </q-tree>
-            </q-scroll-area>
-        </div>
 
         <q-card-section class="q-py-sm">
             <q-banner v-if="deletedDocuments.length > 0" dense rounded class="bg-warning q-mb-sm">
@@ -56,32 +36,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuasar } from 'quasar'
-import axios, { AxiosResponse } from 'axios'
 import { iFile } from '../Scheduler'
 import { condensedParameters } from '../schedulerHelpers'
+import { loadDocumentData } from './schedulerDocumentData'
 import SchedulerDocumentParameterDialog from './SchedulerDocumentParameterDialog.vue'
 
-interface iTreeNode {
-    key: string
-    id: number
-    label: string
-    data: any
-    isDocument?: boolean
-    children?: iTreeNode[]
-}
-
-const props = defineProps<{ documents: any[] }>()
-const emit = defineEmits<{ (e: 'loading', value: boolean): void }>()
+const props = defineProps<{ documents: any[]; files: iFile[] }>()
+const emit = defineEmits<{ (e: 'add'): void; (e: 'loading', value: boolean): void }>()
 
 const { t } = useI18n()
 const $q = useQuasar()
 
-const files = ref<iFile[]>([])
-const addPanelOpen = ref(false)
-const treeFilter = ref<string | null>('')
 const selectedDocument = ref<any>(null)
 const selectedIndex = ref(-1)
 const documentParameterDialogVisible = ref(false)
@@ -93,63 +61,9 @@ const deletedDocuments = computed(() => props.documents.filter((document: any) =
 
 const folderPaths = computed(() => {
     const paths = {} as Record<string, string>
-    files.value.forEach((file: any) => file.biObjects?.forEach((document: any) => (paths[document.label] = file.path)))
+    props.files.forEach((file: any) => file.biObjects?.forEach((document: any) => (paths[document.label] = file.path)))
     return paths
 })
-
-const nodes = computed(() => createNodeTree(files.value))
-
-onMounted(loadFiles)
-
-async function loadFiles() {
-    if (files.value.length > 0) return
-    await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/scheduleree/folders/?includeDocs=true`).then((response: AxiosResponse<any>) => (files.value = response.data))
-}
-
-// Folders first, then the visible documents; empty folders are hidden, as in the old selection dialog
-function createNodeTree(folders: iFile[]): iTreeNode[] {
-    const sorted = [...folders].sort((a: iFile, b: iFile) => a.id - b.id)
-    const folderNodes = new Map<number, iTreeNode>()
-    sorted.forEach((folder: iFile) => folderNodes.set(folder.id, { key: 'f' + folder.id, id: folder.id, label: folder.name, data: folder, children: [] }))
-
-    const roots = [] as iTreeNode[]
-    sorted.forEach((folder: iFile) => {
-        const node = folderNodes.get(folder.id) as iTreeNode
-        const parent = folder.parentId ? folderNodes.get(folder.parentId) : null
-        if (parent) parent.children?.push(node)
-        else roots.push(node)
-    })
-    sorted.forEach((folder: iFile) => {
-        const node = folderNodes.get(folder.id) as iTreeNode
-        folder.biObjects?.filter((document: any) => document.visible).forEach((document: any) => node.children?.push({ key: 'd' + folder.id + '-' + document.id, id: document.id, label: document.name, data: document, isDocument: true }))
-    })
-
-    const prune = (list: iTreeNode[]): iTreeNode[] =>
-        list.filter((node: iTreeNode) => {
-            if (node.isDocument) return true
-            node.children = prune(node.children ?? [])
-            return node.children.length > 0
-        })
-    return prune(roots)
-}
-
-async function toggleAddPanel() {
-    addPanelOpen.value = !addPanelOpen.value
-    if (addPanelOpen.value && files.value.length === 0) {
-        emit('loading', true)
-        await loadFiles().finally(() => emit('loading', false))
-    }
-}
-
-function isAdded(document: any) {
-    return props.documents.some((jobDocument: any) => jobDocument.name === document.label)
-}
-
-// A document can be added only once; its parameters start empty
-function addDocument(document: any) {
-    if (isAdded(document)) return
-    loadDocumentData({ ...document, parameters: undefined }, true)
-}
 
 function parameterValuesSet(parameters: any[]) {
     return parameters.every((parameter: any) => !!parameter.value)
@@ -159,71 +73,24 @@ function removeDocumentConfirm(documentIndex: number) {
     $q.dialog({ title: t('common.toast.deleteTitle'), message: t('common.toast.deleteMessage'), cancel: true, persistent: true }).onOk(() => props.documents.splice(documentIndex, 1))
 }
 
-async function loadDocumentData(document: any, pushToTable: boolean) {
+async function loadParametersData(document: any) {
     emit('loading', true)
     try {
         if (document?.parametersTouched) return
-        const label = document.label ?? document.name
-        const tempDocument = await loadDocumentInfo(label)
-
-        roles.value = await loadSelectedDocumentRoles(tempDocument)
-
-        const tempParams = await loadSelectedDocumentParameters(label)
-        updateDocumentParameters(document, tempParams)
-
-        selectedDocument.value = { name: label, nameTitle: tempDocument.label, description: updateCondensedParameters(document.parameters ?? tempParams), parameters: document.parameters }
+        const data = await loadDocumentData(document)
+        roles.value = data.roles
+        deletedParams.value = data.deletedParams
+        selectedDocument.value = { name: data.label, nameTitle: data.tempDocument.label, description: condensedParameters(document.parameters ?? data.apiParameters), parameters: document.parameters }
         selectedDocument.value.parameters?.forEach((el: any) => (el.role = roles.value[0]?.role))
-        if (pushToTable) props.documents.push(selectedDocument.value)
     } finally {
         emit('loading', false)
     }
 }
 
-function updateDocumentParameters(document: any, apiParameters: any[]) {
-    if (!document.parameters) {
-        deletedParams.value = []
-        document.parameters = apiParameters
-    } else {
-        deletedParams.value = document.parameters.filter((parameter: any) => !apiParameters.some((apiParameter: any) => apiParameter.name === parameter.name))
-        for (let i = 0; i < apiParameters.length; i++) {
-            const index = document.parameters.findIndex((el: any) => el.name === apiParameters[i].name)
-            if (index !== -1) {
-                document.parameters[index].id = apiParameters[i].id
-                document.parameters[index].temporal = apiParameters[i].temporal
-            }
-        }
-    }
-}
-
-async function loadDocumentInfo(documentLabel: string) {
-    let tempDocument = null as any
-    await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documents/${documentLabel}`).then((response: AxiosResponse<any>) => (tempDocument = response.data))
-    return tempDocument
-}
-
-async function loadSelectedDocumentRoles(tempDocument: any) {
-    let tempRoles = [] as string[]
-    await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documents/${tempDocument.id}/userroles`).then((response: AxiosResponse<any>) => (tempRoles = response.data))
-    return tempRoles.map((el: string) => {
-        const userAndRole = el.split('|')
-        return { userAndRole: el, user: userAndRole[0], role: userAndRole[1] }
-    })
-}
-
-async function loadSelectedDocumentParameters(label: string) {
-    let tempParameters = [] as any[]
-    await axios.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documents/${label}/parameters`).then((response: AxiosResponse<any>) => (tempParameters = response.data))
-    return tempParameters.map((el: any) => ({ id: el.parID, name: el.parameterUrlName, value: '', type: 'fixed', iterative: false, temporal: el.parameter.temporal, multivalue: el.multivalue, documentLabel: label }))
-}
-
-function updateCondensedParameters(parameters: any[]) {
-    return condensedParameters(parameters)
-}
-
 async function openDocumentParameterDialog(document: any, index: number) {
     selectedDocument.value = document
     selectedIndex.value = index
-    await loadDocumentData(document, false)
+    await loadParametersData(document)
     documentLabel.value = selectedDocument.value.name
     documentParameterDialogVisible.value = true
 }
@@ -237,7 +104,7 @@ function closeDocumentParameterDialog() {
 // The old table replaced the first row with the same name; with the same document twice it changed the wrong row
 function onParametersSet(parameters: any[]) {
     selectedDocument.value.parameters = parameters
-    selectedDocument.value.condensedParameters = updateCondensedParameters(parameters)
+    selectedDocument.value.condensedParameters = condensedParameters(parameters)
     selectedDocument.value.parametersTouched = true
     if (selectedIndex.value !== -1) props.documents[selectedIndex.value] = selectedDocument.value
     documentParameterDialogVisible.value = false
@@ -245,28 +112,6 @@ function onParametersSet(parameters: any[]) {
 </script>
 
 <style scoped lang="scss">
-.scheduler-documents__add {
-    padding: 12px 16px;
-    background: #fafafa;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-}
-
-.scheduler-documents__tree {
-    height: 280px;
-    background: #ffffff;
-    border: 1px solid var(--kn-color-borders);
-    border-radius: 4px;
-}
-
-.scheduler-documents__tree :deep(.q-scrollarea__content) {
-    width: 100%;
-    padding: 4px 8px;
-}
-
-.scheduler-documents__node {
-    min-height: 28px;
-}
-
 .scheduler-documents__node-icon {
     color: var(--kn-editor-list-icon-color);
 }

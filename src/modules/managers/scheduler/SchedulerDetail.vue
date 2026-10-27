@@ -4,6 +4,10 @@
             <SchedulerTriggerDrawer v-if="triggerEditor && job" ref="triggerDrawer" :key="triggerEditor.key" :job="job" :list-trigger="triggerEditor.trigger" :datasets="datasets" @close="triggerEditor = null" @saved="onTriggerSaved" @stale="onTriggerSaved" />
         </q-drawer>
 
+        <q-drawer :model-value="documentsDrawerOpen" side="right" overlay behavior="desktop" :width="documentsDrawerWidth" :breakpoint="0" no-swipe-open no-swipe-close class="scheduler-detail__trigger-drawer">
+            <SchedulerDocumentsDrawer v-if="documentsDrawerOpen && job" :documents="job.documents" :files="files" :job-name="job.jobName" @close="documentsDrawerOpen = false" />
+        </q-drawer>
+
         <q-page-container>
             <q-page class="column no-wrap" :style-fn="pageStyle">
                 <q-resize-observer @resize="(size) => (pageWidth = size.width)" />
@@ -42,13 +46,13 @@
                             </q-card-section>
                         </q-card>
 
-                        <SchedulerDocumentsCard :key="loadCount" :documents="job.documents" @loading="(value: boolean) => (loading = value)" />
+                        <SchedulerDocumentsCard :key="loadCount" :documents="job.documents" :files="files" @add="documentsDrawerOpen = true" @loading="(value: boolean) => (loading = value)" />
 
                         <SchedulerTriggersCard v-if="job.edit" :job="job" :dirty="dirty" :datasets="datasets" @add="openTriggerEditor(null)" @edit="openTriggerEditor" @loading="(value: boolean) => (loading = value)" />
                     </div>
                 </q-scroll-area>
 
-                <div v-if="triggerEditor" class="scheduler-detail__backdrop" @click="requestCloseTriggerEditor" />
+                <div v-if="triggerEditor || documentsDrawerOpen" class="scheduler-detail__backdrop" @click="onBackdropClick" />
             </q-page>
         </q-page-container>
     </q-layout>
@@ -61,15 +65,17 @@ import { useI18n } from 'vue-i18n'
 import { useQuasar } from 'quasar'
 import axios, { AxiosResponse } from 'axios'
 import deepcopy from 'deepcopy'
-import { iPackage, iTrigger } from './Scheduler'
+import { iFile, iPackage, iTrigger } from './Scheduler'
 import { condensedParameters } from './schedulerHelpers'
 import descriptor from './SchedulerDescriptor.json'
 import SchedulerDocumentsCard from './documents/SchedulerDocumentsCard.vue'
+import SchedulerDocumentsDrawer from './documents/SchedulerDocumentsDrawer.vue'
 import SchedulerTriggersCard from './triggers/SchedulerTriggersCard.vue'
 import SchedulerTriggerDrawer from './triggers/SchedulerTriggerDrawer.vue'
 import mainStore from '../../../App.store'
 
 const TRIGGER_DRAWER_WIDTH = 760
+const DOCUMENTS_DRAWER_WIDTH = 560
 
 const props = defineProps<{ id?: string; clone?: string; selectedJob?: iPackage | null; datasets?: any[]; drawerVisible?: boolean }>()
 const emit = defineEmits<{
@@ -94,6 +100,8 @@ const operation = ref('create')
 const pageWidth = ref(TRIGGER_DRAWER_WIDTH)
 const triggerEditor = ref<{ key: number; trigger: iTrigger | null } | null>(null)
 const triggerDrawer = ref<any>(null)
+const documentsDrawerOpen = ref(false)
+const files = ref<iFile[]>([])
 const loadCount = ref(0)
 let preventJobReload = false
 
@@ -124,6 +132,7 @@ function getJobSnapshot(tempJob: iPackage | null) {
 
 const dirty = computed(() => !!job.value && getJobSnapshot(job.value) !== snapshot.value)
 const triggerDrawerWidth = computed(() => Math.min(TRIGGER_DRAWER_WIDTH, pageWidth.value))
+const documentsDrawerWidth = computed(() => Math.min(DOCUMENTS_DRAWER_WIDTH, pageWidth.value))
 
 watch(dirty, (value) => emit('dirtyChange', value))
 
@@ -138,7 +147,20 @@ watch(
     }
 )
 
-onMounted(loadJob)
+onMounted(() => {
+    loadJob()
+    loadFiles()
+})
+
+// The folders and documents feed the add drawer and the folder path of each row of the Documents card
+async function loadFiles() {
+    loading.value = true
+    await axios
+        .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/scheduleree/folders/?includeDocs=true`)
+        .then((response: AxiosResponse<any>) => (files.value = response.data))
+        .catch(() => {})
+    loading.value = false
+}
 
 function pageStyle(offset: number, height: number) {
     return { height: height - offset + 'px' }
@@ -146,6 +168,7 @@ function pageStyle(offset: number, height: number) {
 
 function loadJob() {
     triggerEditor.value = null
+    documentsDrawerOpen.value = false
     jobNameDirty.value = false
     if (!props.selectedJob) {
         job.value = null
@@ -259,8 +282,9 @@ function openTriggerEditor(trigger: iTrigger | null) {
     triggerEditor.value = { key: Date.now(), trigger }
 }
 
-function requestCloseTriggerEditor() {
-    triggerDrawer.value?.requestClose()
+function onBackdropClick() {
+    if (triggerEditor.value) triggerDrawer.value?.requestClose()
+    else documentsDrawerOpen.value = false
 }
 
 function onTriggerSaved() {

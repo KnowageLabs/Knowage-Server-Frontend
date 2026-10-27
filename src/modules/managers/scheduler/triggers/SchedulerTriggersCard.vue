@@ -9,51 +9,40 @@
         </q-card-section>
         <q-separator />
         <q-card-section>
-            <div class="scheduler-triggers__grid" :class="{ 'scheduler-triggers__grid--empty': triggers.length === 0 }">
-                <div v-for="(trigger, index) in triggers" :key="triggerKey(trigger)" class="scheduler-trigger-card column" data-test="trigger-card">
-                    <div class="row items-center no-wrap q-gutter-x-sm">
-                        <span class="scheduler-trigger-card__chip" :class="'scheduler-trigger-card__chip--' + isTriggerActive(trigger)">{{ $t('managers.scheduler.state.' + isTriggerActive(trigger)) }}</span>
-                        <span class="col text-weight-medium ellipsis" :title="trigger.triggerName">{{ trigger.triggerName }}</span>
+            <div v-if="triggers.length === 0" class="text-grey-7">{{ $t('managers.scheduler.noTriggersInfo') }}</div>
+            <div v-else class="scheduler-triggers__grid">
+                <div v-for="(trigger, index) in triggers" :key="triggerKey(trigger)" class="scheduler-trigger-card column no-wrap" :class="['scheduler-trigger-card--' + isTriggerActive(trigger), { 'scheduler-trigger-card--locked': dirty }]" data-test="trigger-card" @click="onCardClick(trigger)">
+                    <div class="scheduler-trigger-card__band row items-center no-wrap">
+                        <span class="scheduler-trigger-card__dimmable col text-weight-medium ellipsis q-mr-sm" :title="trigger.triggerName">{{ trigger.triggerName }}</span>
+                        <q-toggle :model-value="isTriggerActive(trigger) === 'active'" dense color="positive" :disable="isTriggerActive(trigger) === 'ended'" data-test="trigger-toggle" @click.stop @update:model-value="triggerPauseConfirm(trigger)">
+                            <q-tooltip :delay="500">{{ toggleTooltip(trigger) }}</q-tooltip>
+                        </q-toggle>
                     </div>
-                    <div class="row no-wrap items-start q-mt-sm">
-                        <q-icon name="schedule" size="18px" class="scheduler-trigger-card__icon q-mr-xs" />
-                        <span class="col">{{ scheduleText(trigger) }}</span>
+                    <div class="scheduler-trigger-card__dimmable scheduler-trigger-card__body">
+                        <div class="row no-wrap items-start">
+                            <q-icon name="schedule" size="18px" class="scheduler-trigger-card__icon q-mr-xs" />
+                            <span class="col">{{ scheduleText(trigger) }}</span>
+                        </div>
+                        <div class="text-grey-7 text-caption q-mt-xs">{{ datesText(trigger) }}</div>
                     </div>
-                    <div class="text-grey-7 text-caption q-mt-xs">{{ datesText(trigger) }}</div>
-                    <div class="row q-gutter-x-xs q-mt-xs scheduler-trigger-card__outputs">
-                        <q-icon v-for="output in outputIcons(trigger)" :key="output.kind" :name="output.icon" size="18px" :class="output.invalid ? 'text-negative' : 'scheduler-trigger-card__icon'">
-                            <q-tooltip :delay="500">{{ $t(output.label) }}</q-tooltip>
-                        </q-icon>
-                    </div>
-                    <div class="row items-center no-wrap scheduler-trigger-card__footer">
-                        <span class="col text-grey-7 text-caption">{{ $t('managers.scheduler.documentsCount', { n: documentsCount(trigger) }) }}</span>
-                        <q-btn flat round dense size="sm" icon="info" class="kn-editor-action" @click="openInfo(trigger)">
-                            <q-tooltip :delay="500">{{ $t('managers.scheduler.info') }}</q-tooltip>
-                        </q-btn>
-                        <span>
-                            <q-btn flat round dense size="sm" icon="edit" class="kn-editor-action" :disable="dirty" data-test="edit-trigger-button" @click="emit('edit', trigger)" />
-                            <q-tooltip :delay="500">{{ dirty ? $t('managers.scheduler.saveJobFirst') : $t('common.edit') }}</q-tooltip>
+                    <div class="scheduler-trigger-card__band scheduler-trigger-card__band--footer row items-center no-wrap">
+                        <span class="scheduler-trigger-card__dimmable row q-gutter-x-xs scheduler-trigger-card__outputs">
+                            <q-icon v-for="output in outputIcons(trigger)" :key="output.kind" :name="output.icon" size="18px" :class="output.invalid ? 'text-negative' : 'scheduler-trigger-card__icon'">
+                                <q-tooltip :delay="500">{{ $t(output.label) }}</q-tooltip>
+                            </q-icon>
                         </span>
-                        <q-btn flat round dense size="sm" icon="play_arrow" class="kn-editor-action" @click="triggerExecuteConfirm(trigger)">
-                            <q-tooltip :delay="500">{{ $t('managers.scheduler.runNow') }}</q-tooltip>
-                        </q-btn>
-                        <q-btn flat round dense size="sm" :icon="trigger.triggerIsPaused ? 'play_circle_outline' : 'pause_circle_outline'" class="kn-editor-action" @click="triggerPauseConfirm(trigger)">
-                            <q-tooltip :delay="500">{{ trigger.triggerIsPaused ? $t('managers.scheduler.resumeSchedulation') : $t('managers.scheduler.pauseSchedulation') }}</q-tooltip>
-                        </q-btn>
-                        <q-btn flat round dense size="sm" icon="delete" class="kn-editor-action" @click="deleteTriggerConfirm(trigger, index)">
+                        <span class="scheduler-trigger-card__dimmable col text-grey-7 text-caption q-ml-xs">{{ $t('managers.scheduler.documentsCount', { n: documentsCount(trigger) }) }}</span>
+                        <q-btn flat round dense icon="delete" color="negative" data-test="delete-trigger-button" @click.stop="deleteTriggerConfirm(trigger, index)">
                             <q-tooltip :delay="500">{{ $t('common.delete') }}</q-tooltip>
                         </q-btn>
+                        <q-btn flat round dense icon="play_circle_outline" class="kn-editor-action" data-test="run-trigger-button" @click.stop="triggerExecuteConfirm(trigger)">
+                            <q-tooltip :delay="500">{{ $t('managers.scheduler.runNow') }}</q-tooltip>
+                        </q-btn>
                     </div>
-                </div>
-                <button type="button" class="scheduler-trigger-card scheduler-trigger-card--add column items-center justify-center" :disabled="dirty" @click="emit('add')">
-                    <q-icon name="add_circle_outline" size="32px" />
-                    <span>{{ $t('managers.scheduler.addTrigger') }}</span>
                     <q-tooltip v-if="dirty" :delay="300">{{ $t('managers.scheduler.saveJobFirst') }}</q-tooltip>
-                </button>
+                </div>
             </div>
         </q-card-section>
-
-        <SchedulerTriggerInfoDialog v-model="infoDialogVisible" :trigger="infoTrigger" :datasets="datasets" />
     </q-card>
 </template>
 
@@ -65,7 +54,6 @@ import axios, { AxiosResponse } from 'axios'
 import { iPackage, iTrigger, iTriggerDocument, OutputKind } from '../Scheduler'
 import { describeChrono, formatScheduleDate, formatScheduleTime, getMailSource, getOutputErrors, isTriggerActive, OUTPUT_FLAGS, OUTPUT_ICONS, OUTPUT_KINDS, OUTPUT_LABELS, triggerQuery } from '../schedulerHelpers'
 import { getLocale } from '@/helpers/commons/localeHelper'
-import SchedulerTriggerInfoDialog from './SchedulerTriggerInfoDialog.vue'
 import mainStore from '../../../../App.store'
 
 const props = defineProps<{ job: iPackage; dirty: boolean; datasets?: any[] }>()
@@ -81,8 +69,6 @@ const $q = useQuasar()
 const locale = getLocale(true)
 
 const infos = ref<Record<string, any>>({})
-const infoDialogVisible = ref(false)
-const infoTrigger = ref<any>(null)
 
 const triggers = computed(() => (props.job.triggers ?? []) as iTrigger[])
 
@@ -131,10 +117,15 @@ function documentsCount(trigger: iTrigger) {
     return infos.value[triggerKey(trigger)]?.documents?.length ?? props.job.documents?.length ?? 0
 }
 
-function openInfo(trigger: iTrigger) {
-    infoTrigger.value = infos.value[triggerKey(trigger)] ?? null
-    if (!infoTrigger.value) return
-    infoDialogVisible.value = true
+// The whole card opens the editor; a job with unsaved changes has to be saved first
+function onCardClick(trigger: iTrigger) {
+    if (!props.dirty) emit('edit', trigger)
+}
+
+function toggleTooltip(trigger: iTrigger) {
+    const state = isTriggerActive(trigger)
+    if (state === 'ended') return t('managers.scheduler.state.ended')
+    return state === 'paused' ? t('managers.scheduler.resumeSchedulation') : t('managers.scheduler.pauseSchedulation')
 }
 
 function confirm(message: string, action: () => void, title = t('managers.scheduler.confirmHeader')) {
@@ -199,37 +190,55 @@ async function deleteTrigger(trigger: iTrigger, index: number) {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 12px;
-
-    &--empty {
-        grid-template-columns: 1fr;
-    }
 }
 
 .scheduler-trigger-card {
     border: 1px solid var(--kn-color-borders);
-    border-radius: 4px;
-    padding: 10px 12px;
+    border-left: 4px solid var(--kn-color-success);
     background: #ffffff;
     min-width: 0;
+    cursor: pointer;
+
+    &:hover {
+        background: var(--kn-editor-row-hover-background);
+    }
+
+    &--paused {
+        border-left-color: var(--kn-color-warning);
+    }
+
+    &--ended {
+        border-left-color: var(--kn-color-default);
+    }
+
+    &--paused,
+    &--ended {
+        .scheduler-trigger-card__dimmable {
+            opacity: 0.55;
+        }
+    }
+
+    &--locked {
+        cursor: not-allowed;
+    }
 }
 
-.scheduler-trigger-card--add {
-    border-style: dashed;
-    color: var(--kn-color-default);
-    min-height: 150px;
-    cursor: pointer;
-    font: inherit;
-    gap: 4px;
+.scheduler-trigger-card__band {
+    min-height: 32px;
+    padding: 2px 8px 2px 12px;
+    background: #fafafa;
+    border-bottom: 1px solid #e0e0e0;
 
-    &:hover:not(:disabled) {
-        background: var(--kn-editor-row-hover-background);
-        color: var(--kn-color-primary);
+    &--footer {
+        margin-top: auto;
+        padding: 2px 8px 2px 12px;
+        border-top: 1px solid #e0e0e0;
+        border-bottom: 0;
     }
+}
 
-    &:disabled {
-        cursor: not-allowed;
-        opacity: 0.6;
-    }
+.scheduler-trigger-card__body {
+    padding: 10px 12px;
 }
 
 .scheduler-trigger-card__icon {
@@ -238,32 +247,5 @@ async function deleteTrigger(trigger: iTrigger, index: number) {
 
 .scheduler-trigger-card__outputs {
     min-height: 22px;
-}
-
-.scheduler-trigger-card__footer {
-    border-top: 1px solid #eeeeee;
-    margin-top: auto;
-    padding-top: 6px;
-}
-
-.scheduler-trigger-card__chip {
-    flex: none;
-    border-radius: 12px;
-    padding: 1px 9px;
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    background: #e0e0e0;
-    color: rgba(0, 0, 0, 0.6);
-
-    &--active {
-        background: #e2f0d6;
-        color: #41691f;
-    }
-
-    &--paused {
-        background: #fdf0c8;
-        color: #7a5b00;
-    }
 }
 </style>
