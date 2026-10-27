@@ -25,12 +25,13 @@
         </q-drawer>
 
         <q-drawer v-model="panelOpen" side="right" overlay :width="PANEL_WIDTH" :breakpoint="0" bordered class="theme-management__panel">
-            <DashboardThemeStylePanel v-if="selectedTheme && panelOpen" :theme="selectedTheme" :widget-type="panelType" :all-widgets="panelAllWidgets" :focus-section="panelFocusSection" :dirty="dirty" @close="closePanel" @discard="discardChanges" @section-opened="onSectionOpened" @form-mounting="onFormMounting" @form-mounted="onFormMounted" />
+            <DashboardThemeBackgroundPanel v-if="selectedTheme && panelOpen && panelBackground" :theme="selectedTheme" :dirty="dirty" @close="closePanel" @discard="discardChanges" />
+            <DashboardThemeStylePanel v-else-if="selectedTheme && panelOpen" :theme="selectedTheme" :widget-type="panelType" :all-widgets="panelAllWidgets" :focus-section="panelFocusSection" :dirty="dirty" @close="closePanel" @discard="discardChanges" @section-opened="onSectionOpened" @form-mounting="onFormMounting" @form-mounted="onFormMounted" />
         </q-drawer>
 
         <q-page-container>
             <q-page class="theme-management__page">
-                <DashboardThemeCanvas v-if="selectedTheme" class="theme-management__canvas" :key="canvasKey" v-model:selector-variant="selectorVariant" v-model:active-selections-variant="activeSelectionsVariant" :theme="selectedTheme" :panel-width="panelOpen ? PANEL_WIDTH : 0" :active-type="panelOpen && !panelAllWidgets ? panelType : null" @select="openTypePanel" @deselect="closePanel">
+                <DashboardThemeCanvas v-if="selectedTheme" class="theme-management__canvas" :key="canvasKey" v-model:selector-variant="selectorVariant" v-model:active-selections-variant="activeSelectionsVariant" :theme="selectedTheme" :panel-width="panelOpen ? PANEL_WIDTH : 0" :active-type="panelOpen && !panelAllWidgets ? panelType : null" @select="openTypePanel" @deselect="closePanel" @open-background="openBackgroundPanel">
                     <template #top-left>
                         <div class="kn-canvas-controls">
                             <button class="kn-canvas-controls__button" type="button" :aria-label="$t('managers.dashboardThemeManager.toggleList')" @click="drawerVisible = !drawerVisible">
@@ -50,6 +51,11 @@
                     </template>
                     <template #top-right>
                         <div class="kn-canvas-controls">
+                            <button class="kn-canvas-controls__button" :class="{ 'kn-canvas-controls__button--active': panelOpen && panelBackground }" type="button" data-tour-id="theme-background" @click="openBackgroundPanel">
+                                <q-icon name="wallpaper" />
+                                {{ $t('managers.dashboardThemeManager.background') }}
+                                <span class="kn-canvas-controls__badge">{{ $t('managers.dashboardThemeManager.newBadge') }}</span>
+                            </button>
                             <button class="kn-canvas-controls__button" type="button" data-tour-id="theme-edit-all" @click="openAllWidgetsPanel">
                                 <q-icon name="dashboard_customize" />
                                 {{ $t('managers.dashboardThemeManager.editAllWidgets') }}
@@ -91,6 +97,7 @@ import { downloadDirect } from '@/helpers/commons/fileHelper'
 import DashboardThemeList from './DashboardThemeList.vue'
 import DashboardThemeCanvas from './canvas/DashboardThemeCanvas.vue'
 import DashboardThemeStylePanel from './panel/DashboardThemeStylePanel.vue'
+import DashboardThemeBackgroundPanel from './panel/DashboardThemeBackgroundPanel.vue'
 import { startDashboardThemeTour } from './DashboardThemeTour'
 import { usePageTour } from '@/composables/usePageTour'
 import { IDashboardTheme } from './DashboardThememanagement'
@@ -113,6 +120,7 @@ const drawerVisible = ref(true)
 const panelOpen = ref(false)
 const panelType = ref<IEditorWidgetType | null>(null)
 const panelAllWidgets = ref(false)
+const panelBackground = ref(false)
 const panelFocusSection = ref<string | null>(null)
 const selectorVariant = ref<ISelectorVariant>('singleValue')
 const activeSelectionsVariant = ref<IActiveSelectionsVariant>('list')
@@ -214,6 +222,7 @@ function addTheme() {
 function openTypePanel(type: IEditorWidgetType) {
     panelType.value = type
     panelAllWidgets.value = false
+    panelBackground.value = false
     panelFocusSection.value = null
     panelOpen.value = true
 }
@@ -221,6 +230,16 @@ function openTypePanel(type: IEditorWidgetType) {
 function openAllWidgetsPanel() {
     panelType.value = null
     panelAllWidgets.value = true
+    panelBackground.value = false
+    panelFocusSection.value = null
+    panelOpen.value = true
+}
+
+// The sheet background panel. It ends the widget focus.
+function openBackgroundPanel() {
+    panelType.value = null
+    panelAllWidgets.value = false
+    panelBackground.value = true
     panelFocusSection.value = null
     panelOpen.value = true
 }
@@ -229,6 +248,7 @@ function closePanel() {
     panelOpen.value = false
     panelType.value = null
     panelAllWidgets.value = false
+    panelBackground.value = false
     panelFocusSection.value = null
 }
 

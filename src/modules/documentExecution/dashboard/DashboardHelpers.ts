@@ -12,7 +12,7 @@ import mainStore from '@/App.store'
 import { isDashboardEditor } from './DashboardPermissions'
 import descriptor from './DashboardDescriptor.json'
 import { formatDashboardTableWidgetAfterLoading } from './widget/WidgetEditor/helpers/tableWidget/TableWidgetFunctions'
-import { updateWidgetThemeAndApplyStyle } from './generalSettings/themes/ThemesHelper'
+import { updateBackgroundFromTheme, updateWidgetThemeAndApplyStyle } from './generalSettings/themes/ThemesHelper'
 import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
 import { formatDashboardDiscoveryWidgetAfterLoading } from './widget/WidgetEditor/helpers/discoveryWidget/DiscoveryWidgetFunctions'
 import * as widgetCommonDefaultValues from './widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
@@ -291,6 +291,7 @@ export const formatNewModel = async (dashboard: IDashboard, datasets: IDataset[]
         if (store.isEnterprise && themes.length > 0) updateWidgetThemeAndApplyStyle(dashboard.widgets[i], themes)
         if (dashboard.widgets[i].settings.configuration.updateFromSelections === undefined) dashboard.widgets[i].settings.configuration.updateFromSelections = true
     }
+    if (store.isEnterprise && themes.length > 0) updateBackgroundFromTheme(dashboard.configuration.background, themes)
 
     if (store.isEnterprise && (!dashboard.configuration.theme || !dashboard.configuration.theme.id)) dashboard.configuration.theme = { id: null, config: getDefaultDashboardThemeConfig() }
     addMissingMenuWidgetsConfiguration(dashboard)

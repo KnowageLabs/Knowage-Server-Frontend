@@ -22,8 +22,18 @@ export interface IDashboardThemeTypeConfig<T> {
     inherit?: IDashboardThemeInheritance
 }
 
+// The sheet background of the dashboard. "Show grid" is an editor aid and stays in the dashboard.
+export interface IDashboardThemeBackground {
+    sheetsBackgroundColor: string
+    imageBackgroundUrl: string
+    imageBackgroundSize: string
+    sheetsBackgroundStyle: string
+}
+
 export interface IDashboardThemeConfig {
     shared?: { style: IGenericStyle }
+    // Not `background`: every widget type and the shared layer already have a `style.background`.
+    sheetBackground?: IDashboardThemeBackground
     text: IDashboardThemeTypeConfig<IGenericStyle>
     image: IDashboardThemeTypeConfig<IGenericStyle>
     chart: IDashboardThemeTypeConfig<IGenericStyle>

@@ -38,6 +38,22 @@
                                 ><q-item-label>{{ $t('dashboard.generalSettings.themes.toWidgetsWithThemes') }}</q-item-label></q-item-section
                             >
                         </q-item>
+                        <q-separator />
+                        <!-- No v-close-popup: the checkbox is set before one of the items above is picked. -->
+                        <q-item clickable :disable="!selectedThemeHasBackground" @click="applyBackground = !applyBackground">
+                            <q-item-section side><q-checkbox :model-value="applyBackground && selectedThemeHasBackground" dense class="no-pointer-events" :disable="!selectedThemeHasBackground" /></q-item-section>
+                            <q-item-section>
+                                <q-item-label>{{ $t('dashboard.generalSettings.themes.alsoApplyBackground') }}</q-item-label>
+                                <q-item-label v-if="!selectedThemeHasBackground" caption>{{ $t('dashboard.generalSettings.themes.noBackground') }}</q-item-label>
+                            </q-item-section>
+                        </q-item>
+                        <q-separator />
+                        <q-item clickable v-close-popup :disable="!selectedThemeHasBackground" @click="applyThemeBackgroundOnly">
+                            <q-item-section side><q-icon name="wallpaper" size="xs" /></q-item-section>
+                            <q-item-section>
+                                <q-item-label>{{ $t('dashboard.generalSettings.themes.onlyBackground') }}</q-item-label>
+                            </q-item-section>
+                        </q-item>
                     </q-list>
                 </q-btn-dropdown>
             </div>
@@ -52,7 +68,8 @@ import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.stor
 import { mapActions } from 'pinia'
 import KnHint from '@/components/UI/KnHint.vue'
 import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
-import { applySelectedThemeToWidgets } from './ThemesHelper'
+import { applySelectedThemeToWidgets, applyThemeBackground } from './ThemesHelper'
+import { themeHasBackground } from '@/modules/managers/dashboardThemeManagement/DashboardThemeHelper'
 
 export default defineComponent({
     name: 'dashboard-variables',
@@ -71,7 +88,14 @@ export default defineComponent({
             bannerVisible: true,
             dashboardModel: {} as any,
             document: {} as any,
-            availableThemes: [] as any
+            availableThemes: [] as any,
+            applyBackground: true
+        }
+    },
+    computed: {
+        selectedThemeHasBackground(): boolean {
+            const selectedTheme = this.getSelectedTheme(this.dashboardModelProp.configuration.theme?.id ?? null)
+            return themeHasBackground(selectedTheme?.config?.sheetBackground)
         }
     },
     watch: {},
@@ -98,7 +122,12 @@ export default defineComponent({
                 const selectedTheme = this.getSelectedTheme(this.dashboardModel.configuration.theme.id)
                 if (selectedTheme) this.dashboardModel.configuration.theme = { ...selectedTheme }
                 applySelectedThemeToWidgets(this.dashboardModel.widgets, this.dashboardModel.configuration.theme, filterType)
+                if (this.applyBackground) applyThemeBackground(this.dashboardModel.configuration.background, selectedTheme)
             }
+        },
+        applyThemeBackgroundOnly() {
+            if (this.dashboardModel.configuration.theme?.id == null) return
+            applyThemeBackground(this.dashboardModel.configuration.background, this.getSelectedTheme(this.dashboardModel.configuration.theme.id))
         }
     }
 })

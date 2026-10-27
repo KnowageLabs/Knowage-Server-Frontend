@@ -39,6 +39,7 @@ import dashboardStore from './Dashboard.store'
 import mainStore from '@/App.store'
 import poweredBy from '/images/commons/knowage_poweredby.svg'
 import { splitDashboardCssForContainer } from './helpers/common/DashboardCssHelper'
+import { getSheetBackgroundStyle } from './generalSettings/background/DashboardBackgroundHelper'
 
 export default defineComponent({
     name: 'dashboard-manager',
@@ -74,19 +75,7 @@ export default defineComponent({
         },
         backgroundStyle(): any {
             if (!this.dashboardModel.configuration) return ''
-
-            const backgroundConfig = this.dashboardModel.configuration.background as IBackground
-            if (backgroundConfig?.sheetsBackgroundStyle) {
-                return { background: backgroundConfig.sheetsBackgroundStyle, 'min-height': '100%' }
-            }
-
-            const backgroundStyle = { 'background-size': backgroundConfig?.imageBackgroundSize || '100%', 'background-position': 'center', 'background-repeat': 'no-repeat', 'min-height': '100%' }
-
-            if (backgroundConfig?.imageBackgroundUrl) backgroundStyle['background-image'] = `url('${backgroundConfig.imageBackgroundUrl}')`
-            if (backgroundConfig?.sheetsBackgroundColor) backgroundStyle['background-color'] = backgroundConfig.sheetsBackgroundColor
-            backgroundStyle['background-size'] = backgroundConfig?.imageBackgroundSize || 'contain'
-
-            return backgroundStyle
+            return getSheetBackgroundStyle(this.dashboardModel.configuration.background as IBackground)
         },
         dashboardCssParts(): { imports: string; scopedCss: string } {
             return splitDashboardCssForContainer(this.dashboardModel?.configuration?.cssToRender ?? '', this.dashboardCssScopeSelector)

@@ -158,4 +158,25 @@
             border-right: none;
         }
     }
+
+    // Marks a new control for a few releases. The group clips its overflow, so the badge sits inside the button corner.
+    .kn-canvas-controls__button:has(.kn-canvas-controls__badge) {
+        position: relative;
+    }
+
+    &__badge {
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 1px 3px;
+        border-radius: 0 0 0 4px;
+        background-color: #f57c00;
+        color: #ffffff;
+        font-size: 8px;
+        font-weight: 700;
+        line-height: 1.2;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        pointer-events: none;
+    }
 }

@@ -702,6 +702,8 @@ interface IBackground {
     imageBackgroundSize: string
     sheetsBackgroundStyle?: string
     showGrid: boolean
+    // The theme this background comes from. A change to any background value sets it to null.
+    themeId?: string | number | null
 }
 
 interface IMenuAndWidgets {

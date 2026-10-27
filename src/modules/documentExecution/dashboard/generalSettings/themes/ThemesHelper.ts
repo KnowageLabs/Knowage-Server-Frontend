@@ -1,5 +1,6 @@
-import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
-import { IWidget } from '../../Dashboard'
+import { IDashboardTheme, IDashboardThemeBackground } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
+import { themeHasBackground } from '@/modules/managers/dashboardThemeManagement/DashboardThemeHelper'
+import { IBackground, IWidget } from '../../Dashboard'
 import deepcopy from 'deepcopy'
 
 export const applySelectedThemeToWidgets = (widgets: IWidget[], selectedTheme: IDashboardTheme, filterType: 'allWidgets' | 'withThemes' | 'withoutThemes' = 'allWidgets') => {
@@ -81,4 +82,27 @@ export const updateWidgetThemeAndApplyStyle = (widget: IWidget, themes: IDashboa
         const theme = themes.find((theme: IDashboardTheme) => theme.id === widget.settings.style.themeId)
         if (theme) applySelectedThemeToWidgets([widget], theme)
     }
+}
+
+const copySheetBackground = (background: IBackground, themeBackground: Partial<IDashboardThemeBackground> | undefined) => {
+    background.sheetsBackgroundColor = themeBackground?.sheetsBackgroundColor ?? ''
+    background.imageBackgroundUrl = themeBackground?.imageBackgroundUrl ?? ''
+    background.imageBackgroundSize = themeBackground?.imageBackgroundSize ?? ''
+    background.sheetsBackgroundStyle = themeBackground?.sheetsBackgroundStyle ?? ''
+}
+
+// Copies the theme background into the dashboard and connects it to the theme, as applyStylesToWidget does for a widget.
+// A theme with no background leaves the dashboard background as it is.
+export const applyThemeBackground = (background: IBackground | undefined, theme: IDashboardTheme | undefined) => {
+    if (!background || !theme || !themeHasBackground(theme.config?.sheetBackground)) return
+    copySheetBackground(background, theme.config.sheetBackground)
+    background.themeId = theme.id
+}
+
+// On load, a connected background gets the current theme background again, as connected widgets do.
+// The saved template has no theme config, so the values come from the loaded themes. A deleted theme keeps the saved values.
+export const updateBackgroundFromTheme = (background: IBackground | undefined, themes: IDashboardTheme[]) => {
+    if (background?.themeId == null) return
+    const theme = themes.find((theme: IDashboardTheme) => theme.id === background.themeId)
+    if (theme) copySheetBackground(background, theme.config?.sheetBackground)
 }

@@ -38,6 +38,23 @@ export const CANVAS_SIZE = {
     height: Math.max(...CANVAS_LAYOUT.map((item) => item.top + item.height))
 }
 
+// The space around the widgets on the sheet frame in canvas mode.
+export const SHEET_PADDING = 24
+
+// Laptop mode shows one laptop screen: the document toolbar (--kn-toolbar-height), the sheet and the sheet tabs
+// (.sheets-list in KnDashboardTabsPanel). The real size depends on the screen of each user: this is one reference.
+export const LAPTOP_SCREEN = { width: 1440, height: 900 }
+export const LAPTOP_TOOLBAR_HEIGHT = 40
+export const LAPTOP_TABS_HEIGHT = 35
+export const LAPTOP_SHEET = { width: LAPTOP_SCREEN.width, height: LAPTOP_SCREEN.height - LAPTOP_TOOLBAR_HEIGHT - LAPTOP_TABS_HEIGHT }
+// The gap between the sheet edge and the widgets in laptop mode.
+export const LAPTOP_SHEET_GUTTER = 8
+// The dashboard sheet has a native scrollbar that takes width. The preview scroll bar floats over the content,
+// so the widgets leave the same room to keep the dashboard widths.
+export const LAPTOP_SCROLLBAR_WIDTH = 12
+// Stage space above the frame for its label, so the label does not sit under the top controls after a fit.
+export const FRAME_TOP = 80
+
 export const SELECTOR_VARIANTS = ['dropdown', 'multiDropdown', 'singleValue', 'multiValue', 'date', 'dateRange', 'slider', 'range', 'buttonToggle', 'tree', 'multiTree'] as const
 export type ISelectorVariant = (typeof SELECTOR_VARIANTS)[number]
 
