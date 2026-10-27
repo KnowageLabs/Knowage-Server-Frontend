@@ -230,6 +230,7 @@ export interface ISelectorWidgetTreeStyle {
     noConnectors?: boolean
     dark?: boolean
     showFilter?: boolean
+    showCheckboxes?: boolean
     popupMode?: boolean
     color?: string
     textColor?: string
