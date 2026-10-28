@@ -1,19 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { observe } from 'fast-json-patch'
-import { markRaw } from 'vue'
+import { markRaw, reactive } from 'vue'
 import MetawebBusinessDomainDialog from '../MetawebBusinessDomainDialog.vue'
 
 const store = vi.hoisted(() => ({ setInfo: vi.fn(), setError: vi.fn() }))
 vi.mock('@/App.store', () => ({ default: () => store }))
 
-const renderDialog = (editing = false) => {
+const renderDialog = (editing = false, assignedTables: string[] = []) => {
     const domain = { id: 'domain-id', name: 'Sales', uniqueName: 'Sales', description: 'Sales area', tables: ['orders'] }
-    const meta = {
+    const meta = reactive({
         businessModels: [{ name: 'Orders', uniqueName: 'orders' }],
         businessViews: [{ name: 'Summary', uniqueName: 'summary' }],
-        businessDomains: editing ? [domain] : []
-    }
+        businessDomains: [
+            ...(editing ? [domain] : []),
+            ...(assignedTables.length ? [{ id: 'other-domain-id', name: 'Other', uniqueName: 'Other', description: '', tables: assignedTables }] : [])
+        ]
+    })
     const post = vi.fn()
     const wrapper = mount(MetawebBusinessDomainDialog, {
         props: { showBusinessDomainDialog: true, meta, observer: markRaw(observe(meta)), selectedBusinessDomain: editing ? domain : null },
@@ -42,6 +45,47 @@ describe('Metaweb business domains', () => {
         expect(wrapper.vm.buttonDisabled).toBe(true)
         await wrapper.vm.saveBusinessDomain()
         expect(post).not.toHaveBeenCalled()
+        wrapper.unmount()
+    })
+
+    it.each(['orders', 'summary'])('hides the entity %s when it belongs to another business domain', async (entity) => {
+        const { wrapper } = renderDialog(false, [entity])
+        await flushPromises()
+
+        expect(wrapper.vm.businessElementOptions.map((option) => option.value)).toEqual(entity === 'orders' ? ['summary'] : ['orders'])
+        wrapper.unmount()
+    })
+
+    it('keeps the edited domain entities available while hiding entities assigned elsewhere', async () => {
+        const { wrapper, domain } = renderDialog(true, ['summary'])
+        await wrapper.setProps({ selectedBusinessDomain: { ...domain, tables: [...domain.tables] } })
+
+        expect(wrapper.vm.tmpBusinessDomain.tables).toEqual(['orders'])
+        expect(wrapper.vm.businessElementOptions.map((option) => option.value)).toEqual(['orders'])
+
+        wrapper.vm.tmpBusinessDomain.name = 'Renamed'
+        wrapper.vm.tmpBusinessDomain.tables = []
+        await flushPromises()
+
+        expect(wrapper.vm.businessElementOptions.map((option) => option.value)).toEqual(['orders'])
+        wrapper.unmount()
+    })
+
+    it('updates available entities when another domain assigns, releases or deletes them', async () => {
+        const { wrapper } = renderDialog(false, ['orders', 'summary'])
+        expect(wrapper.vm.businessElementOptions).toEqual([])
+
+        wrapper.vm.meta.businessDomains[0].tables.splice(0, 1)
+        await flushPromises()
+        expect(wrapper.vm.businessElementOptions.map((option) => option.value)).toEqual(['orders'])
+
+        wrapper.vm.meta.businessDomains[0].tables.push('orders')
+        await flushPromises()
+        expect(wrapper.vm.businessElementOptions).toEqual([])
+
+        wrapper.vm.meta.businessDomains.splice(0, 1)
+        await flushPromises()
+        expect(wrapper.vm.businessElementOptions.map((option) => option.value)).toEqual(['orders', 'summary'])
         wrapper.unmount()
     })
 
