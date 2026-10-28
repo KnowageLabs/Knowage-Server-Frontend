@@ -134,7 +134,7 @@ export class KnowageHighcharts {
     }
 
     updateSerieAccessibilitySettings(serieName: string, accessibility: IHighchartsSerieAccessibility) {
-        const index = this.model.series.findIndex((serie: IHighchartsChartSerie) => serie.name === serieName)
+        const index = this.model.series.findIndex((serie: IHighchartsChartSerie) => serie.name === serieName || serie.custom?.groupingValue === serieName)
         if (index !== -1) this.model.series[index].accessibility = { ...accessibility }
     }
 

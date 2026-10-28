@@ -34,7 +34,7 @@ const getSerieNameForCrossNavigation = (chartPoint: any, chartType: string, data
     if (['pictorial', 'scatter'].includes(chartType)) return dataToShow?.metaData?.fields[2] ? dataToShow?.metaData?.fields[2].header : ''
     else if (['spline'].includes(chartType)) return chartPoint.category
     else if (['packedbubble'].includes(chartType)) return chartPoint.options.name
-    else return chartPoint.series.name
+    else return chartPoint.series.options?.custom?.groupingValue ?? chartPoint.series.name
 }
 
 const getSerieValueForCrossNavigation = (chartPoint: any, chartType: string) => {

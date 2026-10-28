@@ -350,7 +350,8 @@ export const setGroupedByCategoriesData = (model: any, data: any, attributeColum
     setUniqueCategoriesValuesFromCategoryValueMap(uniqueCategoryValues, categoryValueMap)
 
     const measureSerieElementValueMap = {} as any
-    createSeriesForGroupedByCategoriesData(model, categoryValueMap, categoryValuesOrder, measureSerieElementValueMap)
+    const measureAlias = getColumnAlias(measureForGrouping.column, widgetModel.settings?.series?.aliases ?? [])
+    createSeriesForGroupedByCategoriesData(model, categoryValueMap, categoryValuesOrder, measureSerieElementValueMap, measureAlias)
     removeXAxisCategories(model)
 }
 
@@ -362,9 +363,9 @@ const setUniqueCategoriesValuesFromCategoryValueMap = (uniqueCategoryValues: str
     })
 }
 
-const createSeriesForGroupedByCategoriesData = (model: any, categoryValueMap: any, categoryValuesOrder: string[], measureSerieElementValueMap: any) => {
+const createSeriesForGroupedByCategoriesData = (model: any, categoryValueMap: any, categoryValuesOrder: string[], measureSerieElementValueMap: any, measureAlias: string) => {
     categoryValuesOrder.forEach((key: string, index: number) => {
-        const serieElement = { id: index, name: key, data: [] as any[], connectNulls: true }
+        const serieElement = { id: index, name: `${measureAlias} - ${key}`, custom: { groupingValue: key }, data: [] as any[], connectNulls: true }
         Object.keys(categoryValueMap[key]).forEach((tempKey: string) => {
             const tempData = { name: tempKey } as { name: string; y?: number | null; color?: string }
             if (hasOwnProperty(categoryValueMap[key], tempKey)) {

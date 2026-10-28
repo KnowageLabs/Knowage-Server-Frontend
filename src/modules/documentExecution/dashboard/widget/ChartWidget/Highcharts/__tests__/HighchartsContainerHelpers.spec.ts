@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { applyAdvancedSettingsToModelForRender } from '../HighchartsContainerHelpers'
+import { applyAdvancedSettingsToModelForRender, getFormattedChartValues } from '../HighchartsContainerHelpers'
 
 const { showDashboardWidgetError } = vi.hoisted(() => ({
     showDashboardWidgetError: vi.fn()
@@ -13,6 +13,24 @@ const createModel = () => ({
     xAxis: [{ labels: { style: {} } }, { labels: { style: {} } }],
     yAxis: [{ labels: { style: {} } }, { labels: { style: {} } }],
     legend: {}
+})
+
+describe('grouped chart cross-navigation', () => {
+    it('keeps the original grouping value instead of the display alias', () => {
+        const values = getFormattedChartValues(
+            { point: { series: { name: 'Prestazioni - 2026', options: { custom: { groupingValue: '2026' } } }, options: { name: '01', y: 20 } } },
+            { metaData: { fields: [{}, { header: 'MESE' }] } },
+            'line'
+        )
+
+        expect(values).toMatchObject({ serieName: '2026', serieValue: 20, categoryValue: '01' })
+    })
+
+    it('keeps the series name for charts without grouping', () => {
+        const values = getFormattedChartValues({ point: { series: { name: 'Prestazioni' }, options: { name: '01', y: 20 } } }, {}, 'line')
+
+        expect(values.serieName).toBe('Prestazioni')
+    })
 })
 
 describe('applyAdvancedSettingsToModelForRender', () => {
