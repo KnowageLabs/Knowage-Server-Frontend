@@ -116,7 +116,8 @@
                 :columns="[
                     { name: 'userIn', label: $t('managers.datasetManagement.creationUser'), field: 'userIn', sortable: true, align: 'left' },
                     { name: 'type', label: $t('importExport.gallery.column.type'), field: 'type', sortable: true, align: 'left' },
-                    { name: 'dateIn', label: $t('managers.mondrianSchemasManagement.headers.creationDate'), field: 'dateIn', sortable: true, format: (val) => formatDate(val), align: 'left' }
+                    { name: 'dateIn', label: $t('managers.mondrianSchemasManagement.headers.creationDate'), field: 'dateIn', sortable: true, format: (val) => formatDate(val), align: 'left' },
+                    { name: 'actions', label: '', field: 'actions', align: 'right' }
                 ]"
                 dense
                 flat
@@ -133,8 +134,14 @@
                     <q-td>{{ formatDate(props.row.dateIn) }}</q-td>
                 </template>
                 <template #body-cell-actions="props">
-                    <q-btn v-if="props.row.versNum !== 0" flat round size="sm" icon="fas fa-retweet" @click="restoreVersionConfirm(props.row)" />
-                    <q-btn v-if="props.row.versNum !== 0" flat round size="sm" icon="pi pi-trash" @click="deleteConfirm('deleteOne', props.row)" />
+                    <q-td :props="props" auto-width>
+                        <q-btn v-if="props.row.versNum !== 0" flat round size="sm" icon="fas fa-retweet" :disable="loadingVersion" :aria-label="$t('managers.datasetManagement.restoreTitle')" :data-test="`restore-version-${props.row.versNum}`" @click.stop="restoreVersionConfirm(props.row)">
+                            <q-tooltip>{{ $t('managers.datasetManagement.restoreTitle') }}</q-tooltip>
+                        </q-btn>
+                        <q-btn v-if="props.row.versNum !== 0" flat round size="sm" icon="pi pi-trash" :disable="loadingVersion" :aria-label="$t('common.delete')" :data-test="`delete-version-${props.row.versNum}`" @click.stop="deleteConfirm('deleteOne', props.row)">
+                            <q-tooltip>{{ $t('common.delete') }}</q-tooltip>
+                        </q-btn>
+                    </q-td>
                 </template>
                 <template #item="props">
                     <q-tr :props="props">
@@ -262,53 +269,18 @@ export default defineComponent({
                 .onOk(() => this.restoreVersion(event))
         },
         async restoreVersion(dsToRestore) {
+            this.loadingVersion = true
             this.$emit('loadingOlderVersion')
-            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/datasets/${this.dataset.id}/restore?versionId=${dsToRestore.versNum}`).then((response: AxiosResponse<any>) => {
-                this.dataset.dsTypeCd.toLowerCase() == 'file' ? this.refactorFileDatasetConfig(response.data[0]) : ''
-                this.$emit('olderVersionLoaded', response.data[0])
-            })
-            this.loadingVersion = false
-        },
-        refactorFileDatasetConfig(item) {
-            this.dataset.fileType = item != undefined ? item.fileType : ''
-            this.dataset.fileName = item != undefined ? item.fileName : ''
-            this.dataset.csvEncoding = item != undefined ? item.csvEncoding : 'UTF-8'
-            this.dataset.csvDelimiter = item != undefined ? item.csvDelimiter : ','
-            this.dataset.csvQuote = item != undefined ? item.csvQuote : '"'
-            this.dataset.dateFormat = item != undefined && item.dateFormat != undefined ? item.dateFormat : 'dd/MM/yyyy'
-            this.dataset.timestampFormat = item != undefined && item.timestampFormat != undefined ? item.timestampFormat : 'dd/MM/yyyy HH:mm:ss'
-
-            if (item != undefined) {
-                if (item.limitRows != null && item.limitRows != '') {
-                    this.dataset.limitRows = Number(item.limitRows)
-                } else {
-                    this.dataset.limitRows = item.limitRows
-                }
-            } else {
-                this.dataset.limitRows = null
+            let restoredDataset: any
+            try {
+                const response: AxiosResponse<any> = await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/datasets/${this.dataset.id}/restore?versionId=${dsToRestore.versNum}`)
+                restoredDataset = response.data[0]
+            } catch (error: any) {
+                this.store.setError({ title: this.$t('common.error.generic'), msg: error.message })
+            } finally {
+                this.loadingVersion = false
+                this.$emit('olderVersionLoaded', restoredDataset)
             }
-
-            if (item != undefined) {
-                this.dataset.catTypeVn = item.catTypeVn
-                this.dataset.catTypeId = Number(item.catTypeId)
-                this.dataset.xslSheetNumber = Number(1)
-                this.dataset.skipRows = Number(item.skipRows)
-                this.dataset.limitRows = Number(null)
-            } else {
-                this.dataset.catTypeVn = ''
-                this.dataset.catTypeId = null
-                this.dataset.xslSheetNumber = null
-                this.dataset.skipRows = null
-                this.dataset.limitRows = null
-            }
-
-            this.dataset.id = item != undefined ? item.id : ''
-            this.dataset.label = item != undefined ? item.label : ''
-            this.dataset.name = item != undefined ? item.name : ''
-            this.dataset.description = item != undefined ? item.description : ''
-            this.dataset.meta = item != undefined ? item.meta : []
-
-            this.dataset.fileUploaded = false
         },
         searchTag(val, update) {
             if (val === '') {
