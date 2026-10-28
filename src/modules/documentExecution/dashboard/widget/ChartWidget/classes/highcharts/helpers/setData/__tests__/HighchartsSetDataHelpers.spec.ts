@@ -129,6 +129,6 @@ describe('setGroupedByCategoriesData', () => {
             []
         )
 
-        expect(model.series.map((series: { name: string }) => series.name)).toEqual(['2026', '2025'])
+        expect(model.series.map((series: { name: string }) => series.name)).toEqual(['sales - 2026', 'sales - 2025'])
     })
 })

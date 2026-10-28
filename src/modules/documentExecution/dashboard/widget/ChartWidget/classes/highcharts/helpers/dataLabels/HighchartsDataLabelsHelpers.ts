@@ -46,7 +46,7 @@ const getColumnAliasToReplace = (columnName: string, columnAliases: { column: IW
 
 const updateSpecificSeriesLabelSettings = (model: any, serieName: string, seriesSettings: IHighchartsSeriesLabelsSetting) => {
     if (!model.series) return
-    const index = model.series.findIndex((serie: any) => serie.name === serieName)
+    const index = model.series.findIndex((serie: any) => serie.name === serieName || serie.custom?.groupingValue === serieName)
     if (index !== undefined && index !== -1) updateSeriesDataWithSerieSettings(model, model.series[index], seriesSettings)
 }
 
