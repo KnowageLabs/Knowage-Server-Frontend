@@ -79,11 +79,30 @@ export default defineComponent({
             bsDescriptor,
             metaObserve: {} as any,
             saving: false,
-            tmpBusinessDomain: { id: null, name: '', description: '', uniqueName: null, tables: [] as string[] } as iBusinessDomain,
-            businessElementOptions: [] as { label: string; value: string }[]
+            tmpBusinessDomain: { id: null, name: '', description: '', uniqueName: null, tables: [] as string[] } as iBusinessDomain
         }
     },
     computed: {
+        businessElementOptions(): { label: string; value: string }[] {
+            if (!this.meta) return []
+
+            const selectedDomainKey = this.selectedBusinessDomain?.uniqueName ?? this.selectedBusinessDomain?.id ?? this.selectedBusinessDomain?.name
+            const assignedEntities = new Set(
+                (this.meta.businessDomains ?? [])
+                    .filter((domain: iBusinessDomain) => !this.selectedBusinessDomain || (domain.uniqueName ?? domain.id ?? domain.name) !== selectedDomainKey)
+                    .flatMap((domain: iBusinessDomain) => domain.tables ?? [])
+            )
+            const businessModels = (this.meta.businessModels ?? []).map((businessModel: any) => ({
+                label: `${businessModel.name} (${this.$t('metaweb.businessModel.businessClass')})`,
+                value: businessModel.uniqueName
+            }))
+            const businessViews = (this.meta.businessViews ?? []).map((businessView: any) => ({
+                label: `${businessView.name} (${this.$t('metaweb.businessModel.businessView')})`,
+                value: businessView.uniqueName
+            }))
+
+            return [...businessModels, ...businessViews].filter((entity) => !assignedEntities.has(entity.value))
+        },
         buttonDisabled(): boolean {
             return this.saving || this.v$.$invalid || this.tmpBusinessDomain.tables.length === 0
         }
@@ -91,7 +110,6 @@ export default defineComponent({
     watch: {
         meta() {
             this.loadMeta()
-            this.loadBusinessElementOptions()
         },
         selectedBusinessDomain: {
             handler() {
@@ -102,7 +120,6 @@ export default defineComponent({
     },
     created() {
         this.loadMeta()
-        this.loadBusinessElementOptions()
         this.loadBusinessDomain()
     },
     validations() {
@@ -121,23 +138,6 @@ export default defineComponent({
             if (this.meta) {
                 this.metaObserve = this.meta
             }
-        },
-        loadBusinessElementOptions() {
-            if (!this.meta) {
-                this.businessElementOptions = []
-                return
-            }
-
-            const businessModels = (this.meta.businessModels ?? []).map((businessModel: any) => ({
-                label: `${businessModel.name} (${this.$t('metaweb.businessModel.businessClass')})`,
-                value: businessModel.uniqueName
-            }))
-            const businessViews = (this.meta.businessViews ?? []).map((businessView: any) => ({
-                label: `${businessView.name} (${this.$t('metaweb.businessModel.businessView')})`,
-                value: businessView.uniqueName
-            }))
-
-            this.businessElementOptions = [...businessModels, ...businessViews]
         },
         loadBusinessDomain() {
             if (!this.selectedBusinessDomain) {
