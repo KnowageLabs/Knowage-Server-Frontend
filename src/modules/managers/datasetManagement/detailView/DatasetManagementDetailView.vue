@@ -503,9 +503,15 @@ export default defineComponent({
             this.tablesToRemove = event
             this.$emit('touched')
         },
-        onOlderVersionLoaded(event) {
-            this.$emit('olderVersionLoaded')
-            this.selectedDataset = { ...event }
+        async onOlderVersionLoaded(event) {
+            try {
+                if (event) await this.getAllDatasetData()
+            } catch (error: any) {
+                this.setError({ title: this.$t('common.error.generic'), msg: error.message })
+            } finally {
+                this.loading = false
+                this.$emit('olderVersionLoaded')
+            }
         },
         toggleMenu(event: Event, dataset: any): void {
             this.menuButtons = [] as any
