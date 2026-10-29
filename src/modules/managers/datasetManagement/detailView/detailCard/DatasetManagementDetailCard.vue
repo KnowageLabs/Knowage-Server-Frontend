@@ -138,7 +138,7 @@
                         <q-btn v-if="props.row.versNum !== 0" flat round size="sm" icon="fas fa-retweet" :disable="loadingVersion" :aria-label="$t('managers.datasetManagement.restoreTitle')" :data-test="`restore-version-${props.row.versNum}`" @click.stop="restoreVersionConfirm(props.row)">
                             <q-tooltip>{{ $t('managers.datasetManagement.restoreTitle') }}</q-tooltip>
                         </q-btn>
-                        <q-btn v-if="props.row.versNum !== 0" flat round size="sm" icon="pi pi-trash" :disable="loadingVersion" :aria-label="$t('common.delete')" :data-test="`delete-version-${props.row.versNum}`" @click.stop="deleteConfirm('deleteOne', props.row)">
+                        <q-btn v-if="props.row.versNum !== 0" flat round size="sm" icon="delete" :disable="loadingVersion" :aria-label="$t('common.delete')" :data-test="`delete-version-${props.row.versNum}`" @click.stop="deleteConfirm('deleteOne', props.row)">
                             <q-tooltip>{{ $t('common.delete') }}</q-tooltip>
                         </q-btn>
                     </q-td>
@@ -150,7 +150,7 @@
                         <q-td key="dateIn" :props="props">{{ formatDate(props.row.dateIn) }}</q-td>
                         <q-td auto-width>
                             <q-btn v-if="props.row.versNum !== 0" flat round dense icon="fas fa-retweet" @click.stop="restoreVersionConfirm(props.row)" />
-                            <q-btn v-if="props.row.versNum !== 0" flat round dense icon="pi pi-trash" @click.stop="deleteConfirm('deleteOne', props.row)" />
+                            <q-btn v-if="props.row.versNum !== 0" flat round dense icon="delete" @click.stop="deleteConfirm('deleteOne', props.row)" />
                         </q-td>
                     </q-tr>
                 </template>
