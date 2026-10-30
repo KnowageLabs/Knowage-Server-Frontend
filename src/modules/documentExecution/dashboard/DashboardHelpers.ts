@@ -71,6 +71,7 @@ export const normalizeDashboardSheetLayouts = (dashboard: IDashboard) => {
 
 export const createNewDashboardModel = () => {
     const dashboardModel = deepcopy(descriptor.newDashboardModel) as IDashboard
+    dashboardModel.version = import.meta.env.PACKAGE_VERSION
     if (store.isEnterprise) dashboardModel.configuration.theme = { id: null, config: getDefaultDashboardThemeConfig() }
     dashboardModel.configuration.id = crypto.randomUUID()
 
@@ -257,6 +258,7 @@ const deleteWidgetFromSheets = (dashboard: IDashboard, widgetId: string) => {
 }
 
 export const formatDashboardForSave = (dashboard: IDashboard) => {
+    dashboard.version = import.meta.env.PACKAGE_VERSION
     normalizeDashboardSheetLayouts(dashboard)
     dashboard.widgets.forEach((widget: IWidget) => synchronizeTableWidgetHeaderVariableLabels(widget, dashboard.configuration?.variables))
 
