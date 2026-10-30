@@ -3241,6 +3241,232 @@
             "width": "Window width",
             "widthHelp": "Width in px of the popup window."
         },
+        "documentationManagement": {
+            "title": "Documentation",
+            "toggleDrawer": "Show or hide the menu",
+            "loadError": "The documentation could not be loaded.",
+            "discard": "Discard",
+            "discardAll": "Discard all",
+            "discardAllTitle": "Discard all changes?",
+            "discardAllMessage": "Every unsaved change goes back to the saved version. This cannot be undone.",
+            "restoreItem": "Restore",
+            "storageWarning": "This browser cannot keep your unsaved changes. If you close the page, they are lost.",
+            "letters": {
+                "U": "New",
+                "M": "Modified",
+                "R": "Renamed",
+                "D": "Deleted"
+            },
+            "legend": {
+                "dot": "Changes inside"
+            },
+            "toolbar": {
+                "saved": "All changes saved",
+                "unsaved": "{n} unsaved change | {n} unsaved changes",
+                "unsavedHint": "Kept in this browser until you save"
+            },
+            "noSite": {
+                "title": "No docs site yet",
+                "hint": "This tenant has no documentation site. Create one from a short template, then write over it.",
+                "create": "Create docs site"
+            },
+            "brokenConfig": {
+                "message": "config.json could not be read, so the docs site shows nothing. Fix it here.",
+                "open": "Open config.json",
+                "save": "Save config.json",
+                "saved": "config.json saved.",
+                "stillBroken": "config.json is still not valid: {message}"
+            },
+            "tree": {
+                "untitled": "Untitled",
+                "home": "Home",
+                "addTopLevel": "Add a top-level item",
+                "addPageHere": "Add a child page",
+                "uploadHere": "Add .md files as child pages…",
+                "startPage": "Start page (index.md)",
+                "delete": "Delete",
+                "moveTo": "Move to…",
+                "discard": "Discard changes",
+                "more": "More actions",
+                "newItem": "New item",
+                "newPage": "New page",
+                "empty": "The menu is empty. Add a top-level item.",
+                "deleteWithChildren": "\"{label}\" and everything below it will be deleted when you save. Continue?"
+            },
+            "orphans": {
+                "title": "Not in menu",
+                "empty": "Every page is in the menu."
+            },
+            "orphan": {
+                "title": "Page not in the menu",
+                "description": "This page is in the docs folder, but no menu item points to it. Readers can reach it only by its address.",
+                "addToMenu": "Add to menu",
+                "deleteFile": "Delete file",
+                "deleteMessage": "The file {path} will be deleted when you save. Continue?",
+                "deletedBanner": "Deleted. Save deletes the file."
+            },
+            "homePage": {
+                "noPage": "There is no index.md yet.",
+                "createPage": "Create index.md"
+            },
+            "section": {
+                "noPage": "This item has no page. It only opens and closes its branch of the menu.",
+                "createPage": "Create section page"
+            },
+            "site": {
+                "title": "Site settings",
+                "siteTitle": "Site title",
+                "logo": "Logo",
+                "logoTenant": "Tenant logo",
+                "logoNone": "No logo",
+                "logoCustom": "Image",
+                "logoUrl": "Image",
+                "logoUrlHint": "An http URL or a data URL. An image picked from docs/images is embedded as a data URL.",
+                "pickImage": "Pick from docs/images",
+                "dense": "Dense menu",
+                "menu": "Show the Knowage menu",
+                "menuHint": "Switch off to keep the Knowage menu hidden when the docs are embedded in another page.",
+                "blockHint": "Site settings · start page (index.md)",
+                "untitled": "Untitled site"
+            },
+            "node": {
+                "title": "Menu item",
+                "label": "Menu text",
+                "file": "Page file",
+                "noPage": "This item has no page.",
+                "renameWarning": "Links to the old address stop working.",
+                "visibility": "Visible to",
+                "visibilityHint": "Roles only hide menu items. They are not access control: a user who knows the file name can still open the page.",
+                "noRoles": "No roles were found.",
+                "allRoles": "Every role",
+                "hiddenBy": "Hidden by {label}",
+                "hiddenByParent": "A parent item hides this item from: {roles}. Those roles still cannot see it.",
+                "fileHint": "The path inside the docs folder. A new name for a saved page breaks links to the old address.",
+                "deletedBanner": "Deleted. Save removes it from the menu and deletes the file.",
+                "fileExtension": "The file must end with .md",
+                "fileInvalid": "Use only letters, numbers, spaces and , - _ ( ) . in the file name",
+                "fileExists": "A file with this name already exists"
+            },
+            "content": {
+                "replace": "Replace the text with a .md file",
+                "changes": "Changes",
+                "discardFile": "Discard this file",
+                "split": "Preview beside the file",
+                "preview": "Preview",
+                "focus": "Focus mode",
+                "exitFocus": "Exit focus mode",
+                "insert": {
+                    "bold": "Bold",
+                    "heading": "Heading",
+                    "list": "List",
+                    "link": "Link",
+                    "table": "Table",
+                    "image": "Image",
+                    "diagram": "Diagram"
+                },
+                "insertPlaceholder": {
+                    "bold": "bold text",
+                    "heading": "Heading",
+                    "item": "Item",
+                    "link": "link text"
+                }
+            },
+            "images": {
+                "title": "Images",
+                "upload": "Upload image",
+                "empty": "There are no images in docs/images yet."
+            },
+            "import": {
+                "button": "Import site",
+                "title": "Import site",
+                "drop": "Drop a site .zip here",
+                "choose": "Choose a .zip",
+                "note": "The zip is opened in your browser. Nothing is written to the server until you save, except the images.",
+                "counts": {
+                    "added": "New",
+                    "changed": "Changed",
+                    "removed": "Deleted",
+                    "skipped": "Skipped"
+                },
+                "deleteMissing": "Delete files that are not in the zip",
+                "skipped": "Skipped entries",
+                "skip": {
+                    "unsafePath": "Unsafe path",
+                    "badName": "Name not allowed by the server",
+                    "unsupported": "Not a page, a config or an image",
+                    "tooManyEntries": "More than 500 entries",
+                    "tooLarge": "More than 50 MB",
+                    "badConfig": "config.json is not valid"
+                },
+                "configReplaces": "The config.json of the zip replaces the menu and the site settings.",
+                "noConfig": "The zip has no config.json. The menu stays as it is, and the new pages go to Not in menu.",
+                "run": "Import into working copy",
+                "done": "Imported into the working copy. Review the changes, then save.",
+                "unreadable": "The zip could not be read. {message}"
+            },
+            "move": {
+                "title": "Move to…",
+                "topLevel": "Top level",
+                "hint": "The item goes to the end of the place you pick."
+            },
+            "preview": {
+                "button": "Preview as reader",
+                "title": "Reader preview",
+                "workingCopy": "Working copy",
+                "saved": "Saved",
+                "viewAs": "View as",
+                "exit": "Exit preview",
+                "nothing": "Nothing to show: this version has no menu for the chosen role.",
+                "pageMissing": "The page {path} does not exist in this version."
+            },
+            "save": {
+                "button": "Save ({n})",
+                "title": "Save {n} file | Save {n} files",
+                "saving": "Saving {current} of {total}",
+                "group": {
+                    "page": "Pages",
+                    "config": "Menu and settings",
+                    "delete": "Deletes"
+                },
+                "reason": {
+                    "new": "New file",
+                    "content": "Changed content",
+                    "renamed": "New file name",
+                    "settings": "Menu or site settings changed",
+                    "deletedNode": "Deleted from the menu",
+                    "removedFile": "File deleted"
+                },
+                "notTried": "Not tried",
+                "info": "Readers see the new version right away.",
+                "saveAll": "Save all",
+                "nothing": "There is nothing to save.",
+                "success": "The docs were saved.",
+                "failed": "The save stopped. The files that were saved are done; the rest stay in your working copy.",
+                "forbidden": "You do not have permission to change the docs."
+            },
+            "restore": {
+                "title": "Restore unsaved changes?",
+                "message": "Restore unsaved changes from {date}?",
+                "restore": "Restore",
+                "serverChanged": "These files changed on the server since then: {files}. Restoring keeps your version."
+            },
+            "tour": {
+                "treeTitle": "The menu tree",
+                "treeDescription": "This is the menu of the docs site. Drag a row by its handle to move it. Drop it in the middle of another row to put it inside. Letters show what changed.",
+                "menuTitle": "Row actions",
+                "menuDescription": "Add a child page, add .md files as child pages, move an item with the keyboard, discard its changes or delete it.",
+                "orphansTitle": "Not in menu",
+                "orphansDescription": "Pages that no menu item uses. Drag one into the tree or add it to the menu.",
+                "contentTitle": "The page",
+                "contentDescription": "Write the page in Markdown. The split button shows a preview that looks like the docs site beside the file. The Changes tab shows what you changed.",
+                "focusTitle": "Focus mode",
+                "focusDescription": "Give the editor the whole width. Press Esc to come back.",
+                "previewTitle": "Preview as reader",
+                "previewDescription": "See the whole site as a reader with a chosen role, with your working copy or with the saved version.",
+                "saveTitle": "Save",
+                "saveDescription": "Save writes every change at once. Readers see the new version right away."
+            }
+        },
         "dashboardThemeManager": {
             "addTheme": "Add a theme",
             "allWidgets": "All widgets",
