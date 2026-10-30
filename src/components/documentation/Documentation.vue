@@ -30,7 +30,8 @@
 <script setup lang="ts">
 import axios from 'axios'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
-import { findFoldersWithLabel, mapToQTreeNodes } from './DocumentationHelper'
+import { filterConfigByRoles, mapToQTreeNodes } from './DocumentationHelper'
+import { downloadText, findDocsFolder, getFolders } from './docsResourceApi'
 import mainStore from '@/App.store'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -100,9 +101,8 @@ onMounted(async () => {
     store.setLoading(true)
 
     try {
-        const foldersResponse = await axios.get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/2.0/resources/folders`)
-        const root = Array.isArray(foldersResponse.data.root) ? foldersResponse.data.root : Array.isArray(foldersResponse.data) ? foldersResponse.data : []
-        const folder = findFoldersWithLabel(root, 'docs')[0]
+        const folders = await getFolders()
+        const folder = findDocsFolder(folders)
         folderKey.value = folder ? folder.key : null
     } catch {
         folderKey.value = null
@@ -115,50 +115,10 @@ onMounted(async () => {
     }
 
     try {
-        const response = await axios.post(
-            import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/2.0/resources/files/download`,
-            { key: folderKey.value, selectedFilesNames: ['config.json'] },
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/zip; charset=utf-8'
-                }
-            }
-        )
+        const config = JSON.parse(await downloadText(folderKey.value, 'config.json'))
 
         const user = store.user
-        const sessionRole: string | undefined = user?.sessionRole
-        const defaultRole: string | undefined = user?.defaultRole
-        const userRoles: string[] = user?.roles ?? []
-        const activeRole = sessionRole || defaultRole
-
-        function filterNode(node: any): any | null {
-            if (node == null) return null
-            if (Array.isArray(node)) {
-                return node.map(filterNode).filter((n) => n !== null)
-            }
-            if (typeof node !== 'object') return node
-
-            if (Array.isArray(node.roles) && node.roles.length > 0) {
-                const canSee = activeRole ? node.roles.includes(activeRole) : userRoles.some((r) => node.roles.includes(r))
-                if (!canSee) return null
-            }
-
-            const newNode: any = { ...node }
-            if (Array.isArray(node.content)) {
-                const filteredContent = node.content.map(filterNode).filter((n) => n !== null)
-                if (filteredContent.length) {
-                    newNode.content = filteredContent
-                } else {
-                    delete newNode.content
-                    // nasconde solo i gruppi che avevano figli ma tutti filtrati per ruolo
-                    if (node.content.length > 0) return null
-                }
-            }
-            return newNode
-        }
-
-        const filtered = filterNode(response.data)
+        const filtered = filterConfigByRoles(config, { activeRole: user?.sessionRole || user?.defaultRole, userRoles: user?.roles ?? [] })
         if (!filtered) push404()
         else {
             config.value = filtered

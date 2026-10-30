@@ -29,6 +29,72 @@ export function findNodesByLabelPath(items: any[] | undefined, path: string[], i
     return result
 }
 
+export interface IDocsRoleContext {
+    // The role the reader is using. Without one, any of the user roles is enough.
+    activeRole?: string
+    userRoles?: string[]
+}
+
+// Hides the nodes the reader cannot see, with their subtree. A node whose children are all hidden is hidden too.
+export function filterConfigByRoles(config: any, { activeRole, userRoles = [] }: IDocsRoleContext): any | null {
+    const filterNode = (node: any): any | null => {
+        if (node == null) return null
+        if (Array.isArray(node)) return node.map(filterNode).filter((n) => n !== null)
+        if (typeof node !== 'object') return node
+
+        if (Array.isArray(node.roles) && node.roles.length > 0) {
+            const canSee = activeRole ? node.roles.includes(activeRole) : userRoles.some((r) => node.roles.includes(r))
+            if (!canSee) return null
+        }
+
+        const newNode: any = { ...node }
+        if (Array.isArray(node.content)) {
+            const filteredContent = node.content.map(filterNode).filter((n: any) => n !== null)
+            if (filteredContent.length) {
+                newNode.content = filteredContent
+            } else {
+                delete newNode.content
+                if (node.content.length > 0) return null
+            }
+        }
+        return newNode
+    }
+    return filterNode(config)
+}
+
+export function findSubfolder(folder: { children?: any[] } | null | undefined, segments: string[]): any | null {
+    let current: any = folder
+    for (const segment of segments) {
+        current = current?.children?.find((child: any) => child.label === segment)
+        if (!current) return null
+    }
+    return current ?? null
+}
+
+export function isRelativeUrl(url: string): boolean {
+    return !!url && !/^([a-z][a-z0-9+.-]*:|\/|#)/i.test(url)
+}
+
+// Resolves a link or an image of a page against the folder of that page. The result is relative to docs, or null when it leaves docs.
+export function resolveDocsPath(pageFolder: string, reference: string): string | null {
+    const clean = reference.split(/[?#]/)[0]
+    let decoded = clean
+    try {
+        decoded = decodeURIComponent(clean)
+    } catch {
+        // keep the raw text
+    }
+    const segments: string[] = pageFolder ? pageFolder.split('/').filter(Boolean) : []
+    for (const part of decoded.split('/')) {
+        if (!part || part === '.') continue
+        if (part === '..') {
+            if (!segments.length) return null
+            segments.pop()
+        } else segments.push(part)
+    }
+    return segments.length ? segments.join('/') : null
+}
+
 export function mapToQTreeNodes(items: any[], level = 1): any[] {
     if (!items) return []
     return items.map((item) => {
