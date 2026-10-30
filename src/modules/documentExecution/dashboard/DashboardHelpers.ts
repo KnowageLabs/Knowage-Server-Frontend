@@ -29,6 +29,7 @@ export const DATASET_EXPORT_FORMATS = ['csv', 'xls'] as string[]
 
 export const createNewDashboardModel = () => {
     const dashboardModel = deepcopy(descriptor.newDashboardModel) as IDashboard
+    dashboardModel.version = import.meta.env.PACKAGE_VERSION
     if (store.isEnterprise) dashboardModel.configuration.theme = { id: null, config: getDefaultDashboardThemeConfig() }
     dashboardModel.configuration.id = crypto.randomUUID()
 
@@ -238,6 +239,7 @@ const deleteWidgetFromSheets = (dashboard: IDashboard, widgetId: string) => {
 }
 
 export const formatDashboardForSave = (dashboard: IDashboard) => {
+    dashboard.version = import.meta.env.PACKAGE_VERSION
     for (let i = 0; i < dashboard.widgets.length; i++) {
         dashboard.widgets[i] = formatWidgetForSave(dashboard.widgets[i]) as IWidget
     }
