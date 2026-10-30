@@ -3,25 +3,23 @@
     <q-btn round flat icon="link" @click="copyLink" class="copyButton">
         <q-tooltip :delay="500">{{ $t('documentExecution.main.copyLink') }}</q-tooltip>
     </q-btn>
-    <vue-markdown-it v-if="markdown" :source="markdown" :options="{ html: true }" class="markdownContent"> </vue-markdown-it>
+    <DocsMarkdown v-if="markdown" :source="markdown" :page-folder="pageFolder" class="markdownContent" />
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick } from 'vue'
-import { VueMarkdownIt } from '@f3ve/vue-markdown-it'
-import { findNodesByLabelPath } from './DocumentationHelper'
-import axios from 'axios'
+import { ref, onMounted, watch, computed } from 'vue'
+import { findSubfolder } from './DocumentationHelper'
+import { downloadText, findDocsFolder, getFolders } from './docsResourceApi'
+import DocsMarkdown from './DocsMarkdown.vue'
 import mainStore from '@/App.store'
 import { useQuasar } from 'quasar'
 import i18n from '@/App.i18n'
-import mermaid from 'mermaid'
 
 const { t } = i18n.global
 const $q = useQuasar()
 const store = mainStore()
 
 const markdown = ref<string | null>(null)
-const folderKey = ref<string | null>(null)
 
 const props = defineProps<{ path?: string[] }>()
 
@@ -29,11 +27,8 @@ const emit = defineEmits<{
     (e: 'toggle-drawer'): void
 }>()
 
-mermaid.initialize({
-    startOnLoad: false,
-    theme: 'default',
-    securityLevel: 'loose'
-})
+// The folder of the page, relative to docs: the relative images of the page start from here.
+const pageFolder = computed(() => (props.path ? props.path.slice(0, -1).join('/') : ''))
 
 onMounted(async () => {
     await loadMarkdown()
@@ -46,63 +41,18 @@ watch(
     }
 )
 
-async function renderMermaidDiagrams() {
-    await nextTick()
-    const mermaidElements = document.querySelectorAll('.markdownContent pre code.language-mermaid')
-
-    mermaidElements.forEach(async (element, index) => {
-        const code = element.textContent || ''
-        const id = `mermaid-${Date.now()}-${index}`
-
-        try {
-            const { svg } = await mermaid.render(id, code)
-            const pre = element.closest('pre')
-            if (pre) {
-                const container = document.createElement('div')
-                container.className = 'mermaid-container'
-                container.innerHTML = svg
-                pre.replaceWith(container)
-            }
-        } catch (error) {
-            console.error('Errore nel rendering del diagramma Mermaid:', error)
-        }
-    })
-}
-
 async function loadMarkdown() {
     store.setLoading(true)
-
-    const folders = ['docs', ...(props.path ? props.path.slice(0, -1) : [])]
-    await axios
-        .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/2.0/resources/folders`)
-        .then((response: any) => {
-            const root = Array.isArray(response.data.root) ? response.data.root : Array.isArray(response.data) ? response.data : []
-            const folder = findNodesByLabelPath(root, folders)[0]
-            folderKey.value = folder ? folder.key : null
-        })
-        .catch(() => {
-            folderKey.value = null
-        })
-
-    const fileName = `${props.path ? props.path[props.path.length - 1] : 'index.md'}`
-    await axios
-        .post(
-            import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/2.0/resources/files/download`,
-            { key: folderKey.value, selectedFilesNames: [fileName] },
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/zip; charset=utf-8'
-                }
-            }
-        )
-        .then((response: any) => {
-            markdown.value = response.data
-        })
-        .finally(async () => {
-            store.setLoading(false)
-            await renderMermaidDiagrams()
-        })
+    try {
+        const docs = findDocsFolder(await getFolders())
+        const folder = props.path && props.path.length > 1 ? findSubfolder(docs, props.path.slice(0, -1)) : docs
+        const fileName = `${props.path ? props.path[props.path.length - 1] : 'index.md'}`
+        markdown.value = folder ? await downloadText(folder.key, fileName) : null
+    } catch {
+        markdown.value = null
+    } finally {
+        store.setLoading(false)
+    }
 }
 
 function copyLink() {
@@ -139,52 +89,9 @@ function toggleDrawer() {
     position: relative;
     width: 100%;
     top: 0;
-    background: var(--kn-documentation-content-background);
-    color: var(--kn-documentation-content-color);
-    font-family: var(--kn-documentation-content-font-family);
-    font-size: var(--kn-documentation-content-font-size);
     margin-top: 0;
     padding-left: 20%;
     padding-right: 20%;
-    &:deep(h1),
-    &:deep(h2),
-    &:deep(h3) {
-        color: var(--kn-documentation-content-heading-color);
-    }
-    &:deep(a) {
-        color: var(--kn-documentation-content-link-color);
-    }
-    &:deep(pre) {
-        border-radius: var(--kn-documentation-content-code-border-radius);
-        border: 1px solid #ccc;
-        padding: 4px;
-        background-color: var(--kn-documentation-content-code-background);
-        color: var(--kn-documentation-content-code-color);
-    }
-    &:deep(table) {
-        border-collapse: collapse;
-        td,
-        th {
-            border: 1px solid #ccc;
-            padding: 6px 8px;
-        }
-    }
-    &:deep(h1:first-of-type) {
-        padding-top: 10px;
-        margin-top: 0;
-    }
-    &:deep(.mermaid-container) {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin: 20px 0;
-        padding: 10px;
-        background-color: var(--kn-documentation-content-background);
-        svg {
-            max-width: 100%;
-            height: auto;
-        }
-    }
 }
 
 @media screen and (max-width: 1200px) {
