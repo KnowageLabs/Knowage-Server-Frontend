@@ -1,5 +1,5 @@
 import { IDashboardTheme, IDashboardThemeBackground } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
-import { themeHasBackground } from '@/modules/managers/dashboardThemeManagement/DashboardThemeHelper'
+import { migrateTitleAlignment, themeHasBackground } from '@/modules/managers/dashboardThemeManagement/DashboardThemeHelper'
 import { IBackground, IWidget } from '../../Dashboard'
 import deepcopy from 'deepcopy'
 
@@ -67,7 +67,8 @@ export const applyStylesToWidget = (widget, theme: IDashboardTheme, themeStyle) 
     for (const styleProp in themeStyle.style) {
         if (styleProp === 'title') {
             const originalText = widgetStyle[styleProp].text
-            const { text, ...rest } = themeStyle.style[styleProp]
+            const { text, ...rest } = deepcopy(themeStyle.style[styleProp])
+            migrateTitleAlignment(rest)
             widgetStyle[styleProp] = { ...rest, text: originalText }
         } else if (styleProp === 'colors') {
             widget.settings.chart.colors = deepcopy(themeStyle.style[styleProp])
