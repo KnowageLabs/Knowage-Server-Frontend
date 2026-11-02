@@ -95,18 +95,52 @@ export function resolveDocsPath(pageFolder: string, reference: string): string |
     return segments.length ? segments.join('/') : null
 }
 
-export function mapToQTreeNodes(items: any[], level = 1): any[] {
-    if (!items) return []
-    return items.map((item) => {
-        const id = crypto.randomUUID()
-        const isSection = level === 1 || item.header === true
-        return {
-            id,
-            label: item.label,
-            path: item.path,
-            level,
-            ...(isSection ? { header: 'section' } : {}),
-            ...(item.content?.length ? { children: mapToQTreeNodes(item.content, level + 1) } : {})
-        }
-    })
+export interface IDocsSiteNode {
+    // The index path in the menu ("0.2.1"): stable while the config does not change.
+    key: string
+    label: string
+    // Relative to docs, without the leading slash. Empty: the node only opens and closes its branch.
+    path: string
+    // A node with children, or with "header": true, uses the section style.
+    section: boolean
+    children: IDocsSiteNode[]
+}
+
+export interface IDocsSitePage {
+    node: IDocsSiteNode
+    // The labels of the parents, from the top.
+    trail: string[]
+}
+
+// The menu of a filtered config, for the docs layout.
+export function toSiteTree(items: any[] | undefined, prefix = ''): IDocsSiteNode[] {
+    if (!Array.isArray(items)) return []
+    return items
+        .filter((item) => item && typeof item === 'object' && !Array.isArray(item))
+        .map((item, index) => {
+            const key = prefix ? `${prefix}.${index}` : String(index)
+            const children = toSiteTree(item.content, key)
+            return {
+                key,
+                label: typeof item.label === 'string' ? item.label : '',
+                path: typeof item.path === 'string' ? item.path.trim().replace(/^\/+/, '') : '',
+                section: children.length > 0 || item.header === true,
+                children
+            }
+        })
+}
+
+// The nodes with a page, in menu order (depth first): previous / next and search use this order.
+export function sitePages(nodes: IDocsSiteNode[], trail: string[] = []): IDocsSitePage[] {
+    return nodes.flatMap((node) => [...(node.path ? [{ node, trail }] : []), ...sitePages(node.children, [...trail, node.label])])
+}
+
+// The keys of the parents of the node that opens this path.
+export function siteAncestorKeys(nodes: IDocsSiteNode[], path: string, parents: string[] = []): string[] | null {
+    for (const node of nodes) {
+        if (node.path === path) return parents
+        const found = siteAncestorKeys(node.children, path, [...parents, node.key])
+        if (found) return found
+    }
+    return null
 }

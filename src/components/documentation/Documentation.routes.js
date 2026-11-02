@@ -1,21 +1,9 @@
 const routes = [
     {
-        path: `/docs`,
+        // /docs opens the start page, /docs/folder/page.md opens that page.
+        path: `/docs/:pathMatch(.*)*`,
         name: 'docs',
-        component: () => import('@/components/documentation/Documentation.vue'),
-        children: [
-            {
-                path: '',
-                name: 'docs-index',
-                component: () => import('@/components/documentation/DocumentationPage.vue')
-            },
-            {
-                path: ':pathMatch(.*)*',
-                name: 'docs-page',
-                props: (route) => ({ path: route.params.pathMatch || '', query: route.query }),
-                component: () => import('@/components/documentation/DocumentationPage.vue')
-            }
-        ]
+        component: () => import('@/components/documentation/Documentation.vue')
     }
 ]
 

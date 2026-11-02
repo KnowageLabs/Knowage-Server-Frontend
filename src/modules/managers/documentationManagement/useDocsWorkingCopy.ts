@@ -19,6 +19,7 @@ import {
     configToSite,
     dirname,
     fileLetter,
+    flattenFolders,
     folderForChildren,
     HOME_FILE,
     joinPath,
@@ -45,11 +46,7 @@ const STORAGE_PREFIX = 'kn-docs-manager'
 const IMAGE_FOLDER = 'images'
 const IMAGE_EXTENSIONS: Record<string, string> = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/gif': 'gif', 'image/svg+xml': 'svg', 'image/webp': 'webp' }
 
-const emptySite = (): iDocsSite => ({ title: '', logo: false, dense: false, menu: true })
-
-function flattenFolders(folder: IDocsFolder, prefix = ''): { path: string; key: string }[] {
-    return [{ path: prefix, key: folder.key }, ...(folder.children ?? []).flatMap((child) => flattenFolders(child, prefix ? `${prefix}/${child.label}` : child.label))]
-}
+const emptySite = (): iDocsSite => ({ title: '', logo: false, dense: false, menu: true, toc: true, prevNext: true, search: true, searchPosition: 'sidebar' })
 
 export function useDocsWorkingCopy() {
     const store = mainStore()
@@ -69,6 +66,8 @@ export function useDocsWorkingCopy() {
     const deletedPaths = ref<string[]>([])
     const roles = ref<string[]>([])
     const storageFailed = ref(false)
+    // Page file names that fail the check (node id → typed text). They are not in the working copy, but Discard must clear them and Save must wait for them.
+    const fileDrafts = ref<Record<string, string>>({})
 
     const state = computed<iDocsState>(() => ({
         baseConfig: baseConfig.value,
@@ -85,6 +84,8 @@ export function useDocsWorkingCopy() {
 
     const changes = computed<iDocsChange[]>(() => (status.value === 'ready' ? buildChangeList(state.value) : []))
     const hasChanges = computed(() => changes.value.length > 0)
+    // A deleted node does not block Save: its name is not written.
+    const draftCount = computed(() => Object.keys(fileDrafts.value).filter((id) => nodeById(id) && !nodeById(id)?.deleted).length)
     const letters = computed(() => {
         const map = new Map<string, iDocsLetter | ''>()
         nodes.value.forEach((node) => map.set(node.id, nodeLetter(state.value, node)))
@@ -381,6 +382,7 @@ export function useDocsWorkingCopy() {
         const base = baseNodes.value.find((b) => b.id === id)
         const node = nodeById(id)
         if (!node) return
+        delete fileDrafts.value[id]
         if (!base) return deleteNode(id)
         if (node.file !== base.file) {
             const current = node.file
@@ -414,6 +416,7 @@ export function useDocsWorkingCopy() {
     }
 
     function discardAll() {
+        fileDrafts.value = {}
         site.value = deepcopy(baseSite.value)
         nodes.value = deepcopy(baseNodes.value)
         contents.value = {}
@@ -606,7 +609,8 @@ export function useDocsWorkingCopy() {
             baseNodes.value = deepcopy(copy.baseNodes)
             nodes.value = deepcopy(copy.nodes)
         } else nodes.value = reconcileIds(deepcopy(copy.nodes), baseNodes.value)
-        site.value = deepcopy(copy.site)
+        // A copy from an older version has no page feature keys: they start as on.
+        site.value = { ...emptySite(), ...deepcopy(copy.site) }
         deletedPaths.value = [...copy.deletedPaths]
         contents.value = { ...copy.contents }
         // The letters compare with the saved text, so it must be known.
@@ -638,9 +642,11 @@ export function useDocsWorkingCopy() {
         deletedPaths,
         roles,
         storageFailed,
+        fileDrafts,
         state,
         changes,
         hasChanges,
+        draftCount,
         letters,
         dots,
         orphans,

@@ -152,7 +152,7 @@ function onDragStart(event: DragEvent, path: string) {
 .docs-orphan-row__name {
     flex: 1 1 auto;
     min-width: 0;
-    font-size: 0.8rem;
+    font-size: 13px;
 }
 
 .docs-orphan-row__name--deleted {

@@ -58,12 +58,12 @@ const letter = computed(() => (wc.siteChanged.value ? 'M' : wc.homeLetter.value)
 }
 
 .docs-site-block__title {
-    font-size: 0.875rem;
+    font-size: 14px;
     font-weight: 500;
 }
 
 .docs-site-block__sub {
-    font-size: 0.75rem;
+    font-size: 12px;
     color: rgba(0, 0, 0, 0.54);
 }
 

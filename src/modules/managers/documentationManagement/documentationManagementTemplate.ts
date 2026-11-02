@@ -58,6 +58,13 @@ You can write **bold**, *italic* and \`code\`. A link looks like [this](https://
 
 Use the image button of the toolbar, or paste a picture into the editor. The picture is uploaded to the \`images\` folder and a line like \`![name](images/name.png)\` is added.
 
+## Callouts
+
+A quote whose first line is a marker becomes a box. Use the callout button of the toolbar to insert one.
+
+> [!TIP]
+> The types are NOTE, TIP, IMPORTANT, WARNING and CAUTION.
+
 ## Diagrams
 
 \`\`\`mermaid

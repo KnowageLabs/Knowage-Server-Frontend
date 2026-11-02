@@ -76,6 +76,18 @@ describe('config round trip', () => {
         expect(nodes[1].roles).toEqual([])
     })
 
+    it('writes the page feature keys only when they are false (spec 14.5)', () => {
+        const config = sampleConfig()
+        const site = configToSite(config)
+        expect([site.toc, site.prevNext, site.search]).toEqual([true, true, true])
+        expect(nodesToConfig(config, site, configToNodes(config))).not.toHaveProperty('toc')
+        const off = nodesToConfig(config, { ...site, toc: false, search: false }, configToNodes(config))
+        expect(off.toc).toBe(false)
+        expect(off.search).toBe(false)
+        expect(off).not.toHaveProperty('prevNext')
+        expect(isConfigChanged({ ...config, toc: false }, configToSite({ ...config, toc: false }), configToNodes(config))).toBe(false)
+    })
+
     it('finds no change right after the load', () => {
         const config = { content: [{ label: 'A', path: 'a.md', roles: [], content: [] }] }
         expect(isConfigChanged(config, configToSite(config), configToNodes(config))).toBe(false)

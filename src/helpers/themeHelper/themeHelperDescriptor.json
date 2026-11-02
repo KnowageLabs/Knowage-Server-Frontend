@@ -183,88 +183,68 @@
         "label": "documentation",
         "properties": [
             {
-                "key": "--kn-documentation-drawer-color-background",
-                "label": "Drawer Background Color",
+                "key": "--kn-docs-primary",
+                "label": "Brand Color (active page, links)",
                 "type": "color"
             },
             {
-                "key": "--kn-documentation-drawer-color",
-                "label": "Drawer Text Color",
+                "key": "--kn-docs-text",
+                "label": "Text Color",
                 "type": "color"
             },
             {
-                "key": "--kn-documentation-drawer-color-active",
-                "label": "Drawer Active Link Color",
+                "key": "--kn-docs-text-muted",
+                "label": "Muted Text Color (menu pages)",
                 "type": "color"
             },
             {
-                "key": "--kn-documentation-drawer-font-family",
-                "label": "Drawer Font Family",
-                "type": "text"
-            },
-            {
-                "key": "--kn-documentation-drawer-font-size",
-                "label": "Drawer Font Size",
-                "type": "text"
-            },
-            {
-                "key": "--kn-documentation-drawer-header-color",
-                "label": "Drawer Header Color",
+                "key": "--kn-docs-background",
+                "label": "Page Background",
                 "type": "color"
             },
             {
-                "key": "--kn-documentation-drawer-header-font-family",
-                "label": "Drawer Header Font Family",
-                "type": "text"
-            },
-            {
-                "key": "--kn-documentation-drawer-header-font-size",
-                "label": "Drawer Header Font Size",
-                "type": "text"
-            },
-            {
-                "key": "--kn-documentation-content-background",
-                "label": "Content Background",
-                "type": "text"
-            },
-            {
-                "key": "--kn-documentation-content-color",
-                "label": "Content Text Color",
+                "key": "--kn-docs-sidebar-background",
+                "label": "Menu Background",
                 "type": "color"
             },
             {
-                "key": "--kn-documentation-content-font-family",
-                "label": "Content Font Family",
-                "type": "text"
-            },
-            {
-                "key": "--kn-documentation-content-font-size",
-                "label": "Content Font Size",
-                "type": "text"
-            },
-            {
-                "key": "--kn-documentation-content-heading-color",
-                "label": "Content Heading Color",
+                "key": "--kn-docs-border",
+                "label": "Border Color",
                 "type": "color"
             },
             {
-                "key": "--kn-documentation-content-code-background",
+                "key": "--kn-docs-font-family",
+                "label": "Font Family",
+                "type": "text"
+            },
+            {
+                "key": "--kn-docs-heading-font-family",
+                "label": "Heading Font Family",
+                "type": "text"
+            },
+            {
+                "key": "--kn-docs-mono-font-family",
+                "label": "Code Font Family",
+                "type": "text"
+            },
+            {
+                "key": "--kn-docs-font-size",
+                "label": "Text Size",
+                "type": "text"
+            },
+            {
+                "key": "--kn-docs-content-width",
+                "label": "Content Width",
+                "type": "text"
+            },
+            {
+                "key": "--kn-docs-code-background",
                 "label": "Code Background Color",
                 "type": "color"
             },
             {
-                "key": "--kn-documentation-content-code-color",
+                "key": "--kn-docs-code-color",
                 "label": "Code Text Color",
-                "type": "color"
-            },
-            {
-                "key": "--kn-documentation-content-code-border-radius",
-                "label": "Code Border Radius",
-                "type": "text"
-            },
-            {
-                "key": "--kn-documentation-content-link-color",
-                "label": "Link Color",
                 "type": "color"
             }
         ]
