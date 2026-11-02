@@ -95,9 +95,23 @@ const addUniqueChartWidgetStyles = (config: any) => {
     config.colors = ChartColorSettingsDescriptor.defaultColors as string[]
 }
 
+const TEXT_ALIGN_TO_JUSTIFY_CONTENT = { left: 'flex-start', center: 'center', right: 'flex-end' }
+
+// The widget title is a flex container, so only justify-content aligns it. Themes saved with the title toolbar
+// of the past stored the alignment as text-align only.
+export const migrateTitleAlignment = (title: any) => {
+    const properties = title?.properties
+    if (!properties || properties['justify-content']) return
+    const justifyContent = TEXT_ALIGN_TO_JUSTIFY_CONTENT[properties['text-align']]
+    if (justifyContent) properties['justify-content'] = justifyContent
+}
+
 export const themeBackwardsCompatibility = (theme: IDashboardThemeConfig) => {
     // Themes saved before the sheet background have none.
     theme.sheetBackground = { ...getDefaultSheetBackground(), ...(theme.sheetBackground ?? {}) }
+
+    Object.values(theme).forEach((typeConfig: any) => migrateTitleAlignment(typeConfig?.style?.title))
+    migrateTitleAlignment(theme.shared?.style?.title)
 
     if (theme.chart?.style) {
         const chartStyle = theme.chart.style as any

@@ -29,7 +29,7 @@ import PivotTableFieldsStyle from '@/modules/documentExecution/dashboard/widget/
 import ChartColorSettings from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/ChartWidget/common/ChartColorSettings.vue'
 import { PREVIEW_DASHBOARD_ID } from '../canvas/DashboardThemeMockWidgets'
 
-const TITLE_TOOLBAR_OPTIONS = [{ type: 'font-weight' }, { type: 'font-style' }, { type: 'font-size' }, { type: 'text-align' }, { type: 'font-family' }, { type: 'color' }, { type: 'background-color' }]
+const TITLE_TOOLBAR_OPTIONS = [{ type: 'font-weight' }, { type: 'font-style' }, { type: 'font-size' }, { type: 'justify-content' }, { type: 'font-family' }, { type: 'color' }, { type: 'background-color' }]
 
 export interface IThemeSection {
     component: Component
