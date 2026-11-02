@@ -1,18 +1,31 @@
 <template>
     <div ref="root" class="docs-markdown" @click="onClick">
-        <vue-markdown-it :source="source" :options="{ html: true }" />
+        <vue-markdown-it :source="source" :options="MARKDOWN_OPTIONS" :plugins="plugins" />
     </div>
 </template>
 
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { VueMarkdownIt } from '@f3ve/vue-markdown-it'
 import mermaid from 'mermaid'
 import { findSubfolder, isRelativeUrl, resolveDocsPath } from './DocumentationHelper'
 import { downloadBlob, findDocsFolder, getFolders } from './docsResourceApi'
+import { docsCallouts, docsHeadingAnchors, docsTables } from './docsMarkdownPlugins'
+import type { iDocsCalloutType, iDocsHeading } from './docsMarkdownPlugins'
 
 const props = withDefaults(defineProps<{ source: string; pageFolder?: string; interceptLinks?: boolean }>(), { pageFolder: '', interceptLinks: false })
-const emit = defineEmits<{ (e: 'navigate', path: string): void }>()
+const emit = defineEmits<{
+    (e: 'navigate', path: string): void
+    // The h2 and h3 headings after each render, for the "On this page" column.
+    (e: 'headings', headings: iDocsHeading[]): void
+    // A click on a "#" link. The renderer already scrolled to the heading.
+    (e: 'anchor', id: string): void
+}>()
+
+const { t } = useI18n()
+const MARKDOWN_OPTIONS = { html: true }
+const plugins: any[] = [[docsCallouts, { title: (type: iDocsCalloutType) => t(`documentation.callout.${type}`) }], docsHeadingAnchors, docsTables]
 
 const IMAGE_TYPES: Record<string, string> = { svg: 'image/svg+xml', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp', bmp: 'image/bmp' }
 
@@ -45,8 +58,29 @@ async function processContent() {
     await nextTick()
     if (!root.value || current !== renderCount) return
     await renderMermaid(current)
+    if (current !== renderCount) return
+    emit('headings', readHeadings())
     await loadImages(current)
 }
+
+function readHeadings(): iDocsHeading[] {
+    return Array.from(root.value?.querySelectorAll<HTMLElement>('h2[id], h3[id]') ?? []).map((heading) => ({
+        id: heading.id,
+        text: Array.from(heading.childNodes)
+            .filter((child) => !(child instanceof HTMLElement && child.classList.contains('docs-anchor')))
+            .map((child) => child.textContent)
+            .join('')
+            .trim(),
+        level: heading.tagName === 'H2' ? 2 : 3
+    }))
+}
+
+// Ids are unique inside one page only: two renderers can be on one screen, so search inside this root.
+function scrollToHeading(id: string) {
+    root.value?.querySelector(`[id="${CSS.escape(id)}"]`)?.scrollIntoView({ block: 'start' })
+}
+
+defineExpose({ scrollToHeading })
 
 async function renderMermaid(current: number) {
     const blocks = Array.from(root.value?.querySelectorAll('pre code.language-mermaid') ?? [])
@@ -110,9 +144,16 @@ async function loadImages(current: number) {
 }
 
 function onClick(event: MouseEvent) {
-    if (!props.interceptLinks) return
     const anchor = (event.target as HTMLElement).closest('a')
     const href = anchor?.getAttribute('href') ?? ''
+    if (anchor && href.startsWith('#') && href.length > 1) {
+        event.preventDefault()
+        const id = decodeURIComponent(href.slice(1))
+        scrollToHeading(id)
+        emit('anchor', id)
+        return
+    }
+    if (!props.interceptLinks) return
     if (!anchor || !isRelativeUrl(href)) return
     event.preventDefault()
     const path = resolveDocsPath(props.pageFolder, href)
@@ -121,40 +162,151 @@ function onClick(event: MouseEvent) {
 </script>
 
 <style lang="scss" scoped>
+// Content styles of the docs site (spec 14.3). The same in the viewer, the reader preview and the editor preview.
 .docs-markdown {
-    background: var(--kn-documentation-content-background);
-    color: var(--kn-documentation-content-color);
-    font-family: var(--kn-documentation-content-font-family);
-    font-size: var(--kn-documentation-content-font-size);
+    color: var(--kn-docs-text);
+    font-family: var(--kn-docs-font-family);
+    font-size: var(--kn-docs-font-size);
+    line-height: 1.7;
+    overflow-wrap: break-word;
+
     &:deep(h1),
     &:deep(h2),
+    &:deep(h3),
+    &:deep(h4) {
+        position: relative;
+        color: var(--kn-docs-text);
+        font-family: var(--kn-docs-heading-font-family);
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        // A global style capitalizes every word of a heading. The docs keep the case that the writer typed.
+        text-transform: none;
+        scroll-margin-top: 16px;
+    }
+    &:deep(h1) {
+        margin: 0 0 16px;
+        font-size: 32px;
+        line-height: 40px;
+    }
+    &:deep(h2) {
+        margin: 32px 0 12px;
+        padding-top: 20px;
+        border-top: 1px solid var(--kn-docs-border);
+        font-size: 24px;
+        line-height: 32px;
+    }
+    &:deep(h1 + h2),
+    &:deep(h2:first-child) {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: none;
+    }
     &:deep(h3) {
-        color: var(--kn-documentation-content-heading-color);
+        margin: 24px 0 8px;
+        font-size: 20px;
+        line-height: 28px;
+    }
+    &:deep(h4) {
+        margin: 20px 0 8px;
+        font-size: 18px;
+        line-height: 26px;
+    }
+    &:deep(.docs-anchor) {
+        position: absolute;
+        left: -0.9em;
+        padding-right: 0.25em;
+        color: var(--kn-docs-primary);
+        font-weight: 500;
+        text-decoration: none;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+    &:deep(h2:hover .docs-anchor),
+    &:deep(h3:hover .docs-anchor),
+    &:deep(h4:hover .docs-anchor),
+    &:deep(.docs-anchor:focus-visible) {
+        opacity: 1;
+    }
+    &:deep(p),
+    &:deep(ul),
+    &:deep(ol) {
+        margin: 0 0 16px;
+    }
+    &:deep(ul),
+    &:deep(ol) {
+        padding-left: 1.25em;
+    }
+    &:deep(li + li) {
+        margin-top: 4px;
     }
     &:deep(a) {
-        color: var(--kn-documentation-content-link-color);
+        color: var(--kn-docs-primary);
+        text-decoration: none;
+        &:hover {
+            text-decoration: underline;
+        }
     }
     &:deep(img) {
         max-width: 100%;
     }
-    &:deep(pre) {
-        border-radius: var(--kn-documentation-content-code-border-radius);
-        border: 1px solid #ccc;
-        padding: 4px;
-        background-color: var(--kn-documentation-content-code-background);
-        color: var(--kn-documentation-content-code-color);
+    &:deep(hr) {
+        margin: 24px 0;
+        border: none;
+        border-top: 1px solid var(--kn-docs-border);
     }
-    &:deep(table) {
-        border-collapse: collapse;
-        td,
-        th {
-            border: 1px solid #ccc;
-            padding: 6px 8px;
+    &:deep(code) {
+        padding: 2px 6px;
+        border-radius: 4px;
+        background: var(--kn-docs-code-background);
+        color: var(--kn-docs-code-color);
+        font-family: var(--kn-docs-mono-font-family);
+        font-size: 0.875em;
+    }
+    &:deep(pre) {
+        margin: 0 0 16px;
+        padding: 12px 16px;
+        border-radius: 8px;
+        background: var(--kn-docs-code-background);
+        color: var(--kn-docs-code-color);
+        overflow-x: auto;
+        code {
+            padding: 0;
+            background: none;
+            font-size: 13.5px;
+            line-height: 1.7;
         }
     }
-    &:deep(h1:first-of-type) {
-        padding-top: 10px;
-        margin-top: 0;
+    &:deep(blockquote) {
+        margin: 0 0 16px;
+        padding: 4px 16px;
+        border-left: 4px solid var(--kn-docs-border);
+        color: var(--kn-docs-text-muted);
+        > :last-child {
+            margin-bottom: 0;
+        }
+    }
+    &:deep(.docs-table) {
+        margin: 0 0 16px;
+        overflow-x: auto;
+    }
+    &:deep(table) {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+        line-height: 1.5;
+        th,
+        td {
+            padding: 8px 14px;
+            border: 1px solid var(--kn-docs-border);
+            text-align: left;
+        }
+        th {
+            background: var(--kn-docs-code-background);
+            font-weight: 600;
+        }
+        tbody tr:nth-child(even) td {
+            background: rgba(0, 0, 0, 0.015);
+        }
     }
     &:deep(.mermaid-container) {
         display: flex;
@@ -162,11 +314,62 @@ function onClick(event: MouseEvent) {
         align-items: center;
         margin: 20px 0;
         padding: 10px;
-        background-color: var(--kn-documentation-content-background);
         svg {
             max-width: 100%;
             height: auto;
         }
     }
+}
+
+// Callouts (spec 14.7): the type sets three variables, the rest is shared.
+.docs-markdown :deep(.docs-callout) {
+    --callout-color: var(--kn-docs-callout-note);
+    --callout-background: var(--kn-docs-callout-note-background);
+    --callout-icon: 'info';
+    padding: 12px 16px;
+    border-left: 4px solid var(--callout-color);
+    border-radius: 6px;
+    background: var(--callout-background);
+    color: var(--kn-docs-text);
+    font-size: 0.9375em;
+    line-height: 1.6;
+
+    .docs-callout__title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 4px;
+        font-size: 14px;
+        font-weight: 600;
+        &::before {
+            content: var(--callout-icon);
+            color: var(--callout-color);
+            font-family: 'Material Icons';
+            font-size: 20px;
+            font-weight: normal;
+            line-height: 1;
+            font-feature-settings: 'liga';
+        }
+    }
+}
+.docs-markdown :deep(.docs-callout--tip) {
+    --callout-color: var(--kn-docs-callout-tip);
+    --callout-background: var(--kn-docs-callout-tip-background);
+    --callout-icon: 'lightbulb';
+}
+.docs-markdown :deep(.docs-callout--important) {
+    --callout-color: var(--kn-docs-callout-important);
+    --callout-background: var(--kn-docs-callout-important-background);
+    --callout-icon: 'feedback';
+}
+.docs-markdown :deep(.docs-callout--warning) {
+    --callout-color: var(--kn-docs-callout-warning);
+    --callout-background: var(--kn-docs-callout-warning-background);
+    --callout-icon: 'warning_amber';
+}
+.docs-markdown :deep(.docs-callout--caution) {
+    --callout-color: var(--kn-docs-callout-caution);
+    --callout-background: var(--kn-docs-callout-caution-background);
+    --callout-icon: 'report';
 }
 </style>

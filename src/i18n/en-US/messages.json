@@ -2096,6 +2096,35 @@
         "title": "Document browser",
         "wholeBrowserSearch": "Search for document"
     },
+    "documentation": {
+        "callout": {
+            "note": "Note",
+            "tip": "Tip",
+            "important": "Important",
+            "warning": "Warning",
+            "caution": "Caution"
+        },
+        "viewer": {
+            "menu": "Menu",
+            "onThisPage": "On this page",
+            "backToTop": "Back to top",
+            "previous": "Previous",
+            "next": "Next",
+            "linkCopied": "Link copied",
+            "copyLink": "Copy the link to this page",
+            "pageMissing": "This page does not exist."
+        },
+        "search": {
+            "box": "Search the docs",
+            "placeholder": "Search the docs",
+            "loading": "Reading the pages…",
+            "empty": "Type to search the pages.",
+            "noResults": "No page contains \"{query}\".",
+            "move": "move",
+            "open": "open",
+            "close": "close"
+        }
+    },
     "documentExecution": {
         "documentDetails": {
             "dataLineage": {
@@ -3264,6 +3293,7 @@
                 "addTopLevel": "Add a top-level item",
                 "addPageHere": "Add a child page",
                 "uploadHere": "Add .md files as child pages…",
+                "hasPage": "This item has its own page ({file})",
                 "startPage": "Start page (index.md)",
                 "delete": "Delete",
                 "moveTo": "Move to…",
@@ -3306,7 +3336,25 @@
                 "pickImage": "Pick from docs/images",
                 "dense": "Dense menu",
                 "menu": "Show the Knowage menu",
-                "menuHint": "Switch off to keep the Knowage menu hidden when the docs are embedded in another page.",
+                "menuHint": "Off: the Knowage menu stays hidden when the docs are embedded.",
+                "toc": "On this page",
+                "tocHint": "The headings of the page, in a column on the right.",
+                "prevNext": "Previous and next links",
+                "prevNextHint": "Under each page, in the order of the menu.",
+                "search": "Search",
+                "searchHint": "A search box. Readers can also press Ctrl K.",
+                "denseHint": "Smaller rows in the menu tree.",
+                "readerGroup": "Reader features",
+                "menuGroup": "Menu",
+                "searchPosition": "Search position",
+                "position": {
+                    "header": "Top bar",
+                    "headerHint": "Centered in a bar above the page",
+                    "menu": "Above the menu",
+                    "menuHint": "A top bar with the logo, the search above the menu",
+                    "sidebar": "Sidebar",
+                    "sidebarHint": "No top bar: logo, title and search above the menu"
+                },
                 "blockHint": "Site settings · start page (index.md)",
                 "untitled": "Untitled site"
             },
@@ -3343,7 +3391,8 @@
                     "link": "Link",
                     "table": "Table",
                     "image": "Image",
-                    "diagram": "Diagram"
+                    "diagram": "Diagram",
+                    "callout": "Callout"
                 },
                 "insertPlaceholder": {
                     "bold": "bold text",
@@ -3356,6 +3405,20 @@
                 "title": "Images",
                 "upload": "Upload image",
                 "empty": "There are no images in docs/images yet."
+            },
+            "transfer": {
+                "button": "Import or export the site",
+                "importCaption": "Read a .zip into the working copy",
+                "exportCaption": "Download the saved site as a .zip"
+            },
+            "export": {
+                "button": "Export site",
+                "progress": "Downloading the saved files: {done} of {total}",
+                "done": "Exported {n} file. | Exported {n} files.",
+                "skipped": "{n} other file was left out. | {n} other files were left out.",
+                "unsaved": "The zip holds the saved site. Your {n} unsaved change is not in it. | The zip holds the saved site. Your {n} unsaved changes are not in it.",
+                "failedFile": "The export stopped: {path} could not be downloaded.",
+                "failed": "The export failed. {message}"
             },
             "import": {
                 "button": "Import site",
@@ -3402,6 +3465,7 @@
             },
             "save": {
                 "button": "Save ({n})",
+                "fixFile": "Fix the page file name before you save",
                 "title": "Save {n} file | Save {n} files",
                 "saving": "Saving {current} of {total}",
                 "group": {

@@ -170,7 +170,32 @@ function layout() {
     editor?.layout()
 }
 
-defineExpose({ insertAtCursor, wrapSelection, prefixLines, focus, layout })
+// A callout (spec 14.7): the marker line, then the selected lines as a quote. Without a selection, an empty quote line for the cursor.
+function insertCallout(type: string) {
+    if (!editor) return
+    const selection = editor.getSelection()
+    const model = editor.getModel()
+    if (!selection || !model) return
+    const marker = `> [!${type.toUpperCase()}]`
+    if (selection.isEmpty()) {
+        const line = selection.startLineNumber
+        const empty = !model.getLineContent(line).trim()
+        const column = empty ? 1 : model.getLineMaxColumn(line)
+        const text = (empty ? '' : '\n\n') + `${marker}\n> `
+        editor.executeEdits('toolbar', [{ range: new monaco.Range(line, column, line, model.getLineMaxColumn(line)), text, forceMoveMarkers: true }])
+        const end = model.getPositionAt(model.getOffsetAt({ lineNumber: line, column }) + text.length)
+        editor.setPosition(end)
+    } else {
+        const last = selection.endColumn === 1 && selection.endLineNumber > selection.startLineNumber ? selection.endLineNumber - 1 : selection.endLineNumber
+        const lines = []
+        for (let line = selection.startLineNumber; line <= last; line++) lines.push(model.getLineContent(line))
+        const range = new monaco.Range(selection.startLineNumber, 1, last, model.getLineMaxColumn(last))
+        editor.executeEdits('toolbar', [{ range, text: [marker, ...lines.map((line) => (line ? `> ${line}` : '>'))].join('\n'), forceMoveMarkers: true }])
+    }
+    editor.focus()
+}
+
+defineExpose({ insertAtCursor, wrapSelection, prefixLines, insertCallout, focus, layout })
 </script>
 
 <style scoped>

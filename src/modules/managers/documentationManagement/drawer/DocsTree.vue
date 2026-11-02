@@ -1,5 +1,6 @@
 <template>
-    <q-scroll-area class="docs-tree col" data-tour-id="docs-tree">
+    <!-- A fixed content width: the absolute content otherwise grows to the longest label, and the ellipsis never applies. -->
+    <q-scroll-area class="docs-tree col" data-tour-id="docs-tree" :content-style="contentStyle" :content-active-style="contentStyle">
         <div ref="listEl" class="docs-tree__list" @dragover="onDragOver" @dragleave="onDragLeave" @drop="onDrop">
             <q-tree v-if="treeNodes.length" :nodes="treeNodes" node-key="id" label-key="label" dense no-connectors no-selection-unset :selected="selectedId" :expanded="expanded" @update:selected="onSelected" @update:expanded="onExpanded">
                 <template #default-header="{ node: item }">
@@ -11,7 +12,9 @@
                             {{ item.label }}
                             <q-tooltip :delay="700" anchor="center right" self="center left">{{ item.label }}</q-tooltip>
                         </span>
-                        <q-icon v-if="item.children.length && item.node.file" name="description" size="15px" class="docs-row__icon" />
+                        <q-icon v-if="item.children.length && item.node.file" name="description" size="15px" class="docs-row__icon">
+                            <q-tooltip :delay="500">{{ $t('managers.documentationManagement.tree.hasPage', { file: item.node.file }) }}</q-tooltip>
+                        </q-icon>
                         <q-icon v-if="item.node.file === HOME_FILE" name="home" size="15px" class="docs-row__icon">
                             <q-tooltip :delay="500">{{ $t('managers.documentationManagement.tree.startPage') }}</q-tooltip>
                         </q-icon>
@@ -99,6 +102,8 @@ const emit = defineEmits<{
 const wc = useDocs()
 const { t } = useI18n()
 const $q = useQuasar()
+
+const contentStyle = { width: '100%' }
 
 // Collapsed nodes, so a new node starts expanded.
 const collapsed = ref<Set<string>>(new Set())
@@ -334,7 +339,7 @@ async function onDrop(event: DragEvent) {
 
 .docs-tree__empty {
     padding: 12px;
-    font-size: 0.8rem;
+    font-size: 13px;
     color: rgba(0, 0, 0, 0.54);
 }
 
@@ -411,10 +416,11 @@ async function onDrop(event: DragEvent) {
     visibility: hidden;
 }
 
+// px, not rem: the root font size of Knowage is 14px, so 0.875rem was about 12px.
 .docs-row__label {
     flex: 0 1 auto;
     min-width: 0;
-    font-size: 0.875rem;
+    font-size: 14px;
 }
 
 .docs-row__label--parent {

@@ -1,128 +1,68 @@
 <template>
-    <q-layout v-if="config" view="hHh lpR fFf" class="full-height">
-        <q-drawer v-model="drawer" side="left" bordered class="drawer">
-            <div class="q-pa-md">
-                <div class="full-width flex justify-center">
-                    <img v-if="logoSrc" :src="logoSrc" class="logo" @error="onLogoError" />
-                </div>
-                <h2 v-if="config?.title">{{ config.title }}</h2>
-                <q-tree :nodes="treeNodes" :dense="config.dense" node-key="id" no-connectors default-expand-all v-model:selected="selectedKey" no-selection-unset @update:selected="onNodeSelect">
-                    <template #header-section="prop">
-                        <span :class="['doc-menu-node', 'doc-menu-section', { active: selectedKey === prop.node.id, 'no-path': !prop.node.path }]">
-                            {{ prop.node.label }}
-                        </span>
-                    </template>
-                    <template #default-header="prop">
-                        <span :class="['doc-menu-node', { active: selectedKey === prop.node.id, 'no-path': !prop.node.path }]">
-                            {{ prop.node.label }}
-                        </span>
-                    </template>
-                </q-tree>
-            </div>
-        </q-drawer>
-
-        <q-page-container v-if="config" class="full-height scroll relative-position">
-            <router-view @toggle-drawer="toggleDrawer" />
-        </q-page-container>
-    </q-layout>
+    <DocsSiteLayout v-if="config" :config="config" :path="pagePath" :load-page="loadPage" :logo-src="logoSrc" :hash="hash" :missing-text="$t('documentation.viewer.pageMissing')" class="docs-viewer" @navigate="onNavigate" @heading="onHeading" @logo-error="onLogoError">
+        <template #header-actions>
+            <q-btn flat round dense icon="link" @click="copyLink(currentUrl())">
+                <q-tooltip :delay="500">{{ $t('documentation.viewer.copyLink') }}</q-tooltip>
+            </q-btn>
+        </template>
+    </DocsSiteLayout>
 </template>
 
 <script setup lang="ts">
 import axios from 'axios'
-import { onMounted, onUnmounted, ref, watch } from 'vue'
-import { filterConfigByRoles, mapToQTreeNodes } from './DocumentationHelper'
-import { downloadText, findDocsFolder, getFolders } from './docsResourceApi'
-import mainStore from '@/App.store'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useQuasar } from 'quasar'
+import { useI18n } from 'vue-i18n'
+import { filterConfigByRoles, findSubfolder } from './DocumentationHelper'
+import { downloadText, findDocsFolder, getFolders } from './docsResourceApi'
+import type { IDocsFolder } from './docsResourceApi'
+import DocsSiteLayout from './DocsSiteLayout.vue'
+import mainStore from '@/App.store'
+
+const HOME_FILE = 'index.md'
 
 const store = mainStore()
 const router = useRouter()
 const route = useRoute()
+const $q = useQuasar()
+const { t } = useI18n()
 
-const drawer = ref(true)
-const folderKey = ref<string | null>('')
+const docsFolder = ref<IDocsFolder | null>(null)
 const config = ref<any | null>(null)
 const logoWide = import.meta.env.VITE_PUBLIC_PATH + '/images/commons/knowage-black.svg'
 const logoSrc = ref<string | false>(false)
 let blobUrl: string | null = null
 
-const selectedKey = ref<string | null>(null)
-const treeNodes = ref<any[]>([])
-
-watch(
-    [() => route.path, treeNodes],
-    ([path]) => {
-        const docPath = (path as string).replace(/^\/docs/, '') || null
-        if (!docPath || !treeNodes.value.length) {
-            selectedKey.value = null
-            return
-        }
-        const node = findNodeByPath(treeNodes.value, docPath)
-        selectedKey.value = node?.id ?? null
-    },
-    { immediate: true }
-)
-
-function findNodeByKey(nodes: any[], key: string): any | null {
-    for (const node of nodes) {
-        if (node.id === key) return node
-        if (node.children) {
-            const found = findNodeByKey(node.children, key)
-            if (found) return found
-        }
-    }
-    return null
-}
-
-function findNodeByPath(nodes: any[], path: string): any | null {
-    for (const node of nodes) {
-        if (node.path === path) return node
-        if (node.children) {
-            const found = findNodeByPath(node.children, path)
-            if (found) return found
-        }
-    }
-    return null
-}
-
-function onNodeSelect(nodeId: string | null) {
-    if (!nodeId) return
-    const node = findNodeByKey(treeNodes.value, nodeId)
-    if (node?.path) {
-        const target = '/docs' + node.path
-        const query = config.value?.menu === false ? { ...route.query, menu: 'false' } : route.query
-        router.push({ path: target, query })
-    } else {
-        selectedKey.value = null
-    }
-}
+// /docs opens the start page. /docs/sales/dashboard.md opens sales/dashboard.md.
+const pagePath = computed(() => {
+    const match = route.params.pathMatch
+    const path = (Array.isArray(match) ? match.join('/') : match || '').replace(/^\/+/, '')
+    return path || HOME_FILE
+})
+const hash = computed(() => decodeURIComponent(route.hash.replace(/^#/, '')))
 
 onMounted(async () => {
     store.setLoading(true)
-
     try {
-        const folders = await getFolders()
-        const folder = findDocsFolder(folders)
-        folderKey.value = folder ? folder.key : null
+        docsFolder.value = findDocsFolder(await getFolders())
     } catch {
-        folderKey.value = null
+        docsFolder.value = null
     }
 
-    if (!folderKey.value) {
+    if (!docsFolder.value) {
         store.setLoading(false)
         push404()
         return
     }
 
     try {
-        const config = JSON.parse(await downloadText(folderKey.value, 'config.json'))
-
+        const parsed = JSON.parse(await downloadText(docsFolder.value.key, 'config.json'))
         const user = store.user
-        const filtered = filterConfigByRoles(config, { activeRole: user?.sessionRole || user?.defaultRole, userRoles: user?.roles ?? [] })
+        const filtered = filterConfigByRoles(parsed, { activeRole: user?.sessionRole || user?.defaultRole, userRoles: user?.roles ?? [] })
         if (!filtered) push404()
         else {
             config.value = filtered
-            treeNodes.value = mapToQTreeNodes(filtered.content ?? [])
             await loadLogo()
         }
     } catch {
@@ -132,25 +72,56 @@ onMounted(async () => {
     }
 })
 
+// The folder tree is read once: the search reads every page, and each page must not ask for the tree again.
+async function loadPage(path: string): Promise<string | null> {
+    const docs = docsFolder.value
+    if (!docs) return null
+    const segments = path.split('/')
+    const name = segments.pop() as string
+    const folder = segments.length ? findSubfolder(docs, segments) : docs
+    if (!folder) return null
+    try {
+        return await downloadText(folder.key, name)
+    } catch {
+        return null
+    }
+}
+
+// menu: false keeps ?menu=false in the links, so the Knowage menu stays hidden when the docs are embedded.
+function linkQuery() {
+    return config.value?.menu === false ? { ...route.query, menu: 'false' } : route.query
+}
+
+function onNavigate(path: string) {
+    const [file, anchor] = path.split('#')
+    if (!file.endsWith('.md')) return
+    router.push({ path: '/docs/' + file, query: linkQuery(), hash: anchor ? `#${anchor}` : '' })
+}
+
+function onHeading(id: string, copy: boolean) {
+    router.replace({ path: route.path, query: route.query, hash: id ? `#${id}` : '' })
+    if (copy) copyLink(new URL(router.resolve({ path: route.path, query: route.query, hash: `#${id}` }).href, window.location.origin).href)
+}
+
+function currentUrl() {
+    return window.location.href
+}
+
+function copyLink(url: string) {
+    navigator.clipboard.writeText(url)
+    $q.notify({ position: 'top', type: 'positive', message: t('documentation.viewer.linkCopied') })
+}
+
 function push404() {
     config.value = null
     router.push({ name: '404' })
 }
 
 async function loadLogo() {
-    if (!config.value) {
-        logoSrc.value = false
-        return
-    }
-    if (config.value.logo && typeof config.value.logo === 'string' && (config.value.logo.startsWith('http') || config.value.logo.startsWith('data:'))) {
-        logoSrc.value = config.value.logo
-        return
-    }
-    if (config.value.logo) {
-        await fetchTenantLogo()
-        return
-    }
-    logoSrc.value = false
+    const logo = config.value?.logo
+    if (typeof logo === 'string' && (logo.startsWith('http') || logo.startsWith('data:'))) logoSrc.value = logo
+    else if (logo) await fetchTenantLogo()
+    else logoSrc.value = false
 }
 
 async function fetchTenantLogo() {
@@ -169,60 +140,18 @@ async function fetchTenantLogo() {
     }
 }
 
-// handler per fallback immagine (per URL http esterne che falliscono)
-function onLogoError(event: Event) {
-    const img = event.target as HTMLImageElement | null
-    if (!img) return
-    if (img.src !== logoWide) img.src = logoWide
+// An external image that fails falls back to the Knowage logo.
+function onLogoError() {
+    if (logoSrc.value !== logoWide) logoSrc.value = logoWide
 }
 
 onUnmounted(() => {
     if (blobUrl) URL.revokeObjectURL(blobUrl)
 })
-
-function toggleDrawer() {
-    drawer.value = !drawer.value
-}
 </script>
 
 <style lang="scss" scoped>
-:deep(.q-drawer) {
-    background-color: var(--kn-documentation-drawer-color-background);
-    color: var(--kn-documentation-drawer-color);
-    font-family: var(--kn-documentation-drawer-font-family);
-    font-size: var(--kn-documentation-drawer-font-size);
-}
-.logo {
-    max-width: 100%;
-    max-height: 60px;
-    margin-bottom: 1rem;
-    display: block;
-    text-align: center;
-}
-:deep(.q-tree__node-header) {
-    padding: 2px 4px;
-}
-.doc-menu-node {
-    cursor: pointer;
-    color: var(--kn-documentation-drawer-color);
-    font-family: var(--kn-documentation-drawer-font-family);
-    font-size: var(--kn-documentation-drawer-font-size);
-    font-weight: 400;
-    &.no-path {
-        cursor: default;
-        pointer-events: none;
-    }
-    &.active {
-        color: var(--kn-documentation-drawer-color-active);
-        font-weight: 600;
-        border-left: 4px solid var(--kn-documentation-drawer-color-active);
-        padding-left: 4px;
-    }
-    &.doc-menu-section {
-        color: var(--kn-documentation-drawer-header-color);
-        font-family: var(--kn-documentation-drawer-header-font-family);
-        font-size: var(--kn-documentation-drawer-header-font-size);
-        font-weight: 600;
-    }
+.docs-viewer {
+    height: 100%;
 }
 </style>

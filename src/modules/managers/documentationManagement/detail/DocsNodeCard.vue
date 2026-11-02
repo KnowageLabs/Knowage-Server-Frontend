@@ -90,7 +90,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useDocs } from '../useDocsWorkingCopy'
 import { ancestorIds, HOME_FILE, isValidFileName } from '../documentationManagementHelpers'
@@ -103,7 +103,7 @@ const { t } = useI18n()
 
 const node = computed(() => wc.nodeById(props.id))
 const letter = computed(() => wc.letters.value.get(props.id) ?? '')
-const fileDraft = ref(node.value?.file ?? '')
+const fileDraft = ref(wc.fileDrafts.value[props.id] ?? node.value?.file ?? '')
 const fileError = ref('')
 
 watch(
@@ -113,6 +113,21 @@ watch(
         fileError.value = ''
     }
 )
+
+// Discard clears the invalid name in the working copy. The field then shows the file again.
+watch(
+    () => wc.fileDrafts.value[props.id],
+    (draft) => {
+        if (draft !== undefined) return
+        fileDraft.value = node.value?.file ?? ''
+        fileError.value = ''
+    }
+)
+
+// A card that opens on a node with an invalid name shows the error again.
+onMounted(() => {
+    if (wc.fileDrafts.value[props.id] !== undefined) fileError.value = validateFile(fileDraft.value.trim().replace(/^\/+/, ''))
+})
 
 const renamed = computed(() => {
     const base = wc.baseNodes.value.find((b) => b.id === props.id)
@@ -147,13 +162,23 @@ function validateFile(value: string): string {
 
 async function applyFile() {
     const current = node.value
-    if (!current || fileDraft.value === current.file) return
+    if (!current) return
+    if (fileDraft.value === current.file) {
+        delete wc.fileDrafts.value[current.id]
+        fileError.value = ''
+        return
+    }
     const value = fileDraft.value.trim().replace(/^\/+/, '')
     fileError.value = validateFile(value)
-    if (fileError.value) return
+    if (fileError.value) {
+        wc.fileDrafts.value[current.id] = fileDraft.value
+        return
+    }
     try {
         await wc.setNodeFile(current.id, value)
+        delete wc.fileDrafts.value[current.id]
     } catch (error: any) {
+        wc.fileDrafts.value[current.id] = fileDraft.value
         fileError.value = error?.message ?? t('common.error.generic')
     }
 }

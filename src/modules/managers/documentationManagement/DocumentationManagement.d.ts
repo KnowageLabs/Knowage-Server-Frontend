@@ -6,7 +6,15 @@ export interface iDocsSite {
     logo: boolean | string
     dense: boolean
     menu: boolean
+    // Page features of the viewer (spec 14.5). Absent in config.json means true.
+    toc: boolean
+    prevNext: boolean
+    search: boolean
+    // Where the search box goes: a top bar (header), above the menu under a top bar (menu), or above the menu with no top bar (sidebar).
+    searchPosition: iDocsSearchPosition
 }
+
+export type iDocsSearchPosition = 'header' | 'menu' | 'sidebar'
 
 export interface iDocsNode {
     // Generated on load. It is never written to config.json.
