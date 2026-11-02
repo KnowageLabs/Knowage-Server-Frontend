@@ -46,7 +46,7 @@
                 </q-select>
                 <q-tooltip max-width="250px">{{ $t('dashboard.widgetEditor.highcharts.legend.layoutHint') }}</q-tooltip>
             </div>
-            <div v-if="['area', 'bar', 'column', 'pie'].includes(chartType) && model.plotOptions.series" class="col-6 col-md-3 row items-center">
+            <div v-if="['area', 'bar', 'column', 'line', 'pie'].includes(chartType) && model.plotOptions.series" class="col-6 col-md-3 row items-center">
                 <q-toggle v-model="model.plotOptions.series.showCheckbox" :label="$t('dashboard.widgetEditor.highcharts.showChekboxes')" dense />
             </div>
         </div>
