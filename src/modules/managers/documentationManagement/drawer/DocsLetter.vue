@@ -12,7 +12,7 @@ defineProps<{ letter: iDocsLetter | '' }>()
 .docs-letter {
     display: inline-block;
     min-width: 14px;
-    font-size: 0.75rem;
+    font-size: 12px;
     font-weight: 700;
     text-align: center;
 }

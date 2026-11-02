@@ -203,7 +203,7 @@
     --kn-chatbot-assistant-bubble-color: #212121;
     --kn-chatbot-border-radius: 4px;
 
-    //DOCUMENTATION
+    //DOCUMENTATION (old keys: still read by saved tenant themes, the --kn-docs-* tokens below default to them)
     --kn-documentation-drawer-color-background: #ffffff;
     --kn-documentation-drawer-color: #000000;
     --kn-documentation-drawer-color-active: #c41b87;
@@ -212,15 +212,42 @@
     --kn-documentation-drawer-header-color: #000000;
     --kn-documentation-drawer-header-font-family: Roboto, 'Helvetica Neue', Arial, sans-serif;
     --kn-documentation-drawer-header-font-size: 14px;
-    --kn-documentation-content-background: linear-gradient(to bottom, #d28fba 0px, #d28fba 50px, transparent 50px);
-    --kn-documentation-content-color: #000000;
+    --kn-documentation-content-background: #ffffff;
+    --kn-documentation-content-color: #1f2328;
     --kn-documentation-content-font-family: Roboto, 'Helvetica Neue', Arial, sans-serif;
-    --kn-documentation-content-font-size: 14px;
-    --kn-documentation-content-heading-color: #000000;
-    --kn-documentation-content-code-background: #dddddd;
-    --kn-documentation-content-code-color: #2d2c2c;
+    --kn-documentation-content-font-size: 16px;
+    --kn-documentation-content-heading-color: #1f2328;
+    --kn-documentation-content-code-background: #f6f8fa;
+    --kn-documentation-content-code-color: #1f2328;
     --kn-documentation-content-code-border-radius: 4px;
     --kn-documentation-content-link-color: #c41b87;
+
+    //DOCUMENTATION SITE (Theme Management, spec 14.4)
+    --kn-docs-primary: var(--kn-documentation-drawer-color-active);
+    --kn-docs-text: var(--kn-documentation-content-color);
+    --kn-docs-text-muted: #59636e;
+    --kn-docs-background: #ffffff;
+    --kn-docs-sidebar-background: var(--kn-documentation-drawer-color-background);
+    --kn-docs-border: #e1e4e8;
+    --kn-docs-font-family: var(--kn-documentation-content-font-family);
+    --kn-docs-heading-font-family: var(--kn-docs-font-family);
+    --kn-docs-mono-font-family: 'Roboto Mono', Consolas, monospace;
+    --kn-docs-font-size: 16px;
+    --kn-docs-content-width: 720px;
+    --kn-docs-code-background: var(--kn-documentation-content-code-background);
+    --kn-docs-code-color: var(--kn-documentation-content-code-color);
+
+    //DOCUMENTATION SITE (callouts, fixed)
+    --kn-docs-callout-note: #0b6bcb;
+    --kn-docs-callout-note-background: #eef4fb;
+    --kn-docs-callout-tip: #2e7d32;
+    --kn-docs-callout-tip-background: #edf7ee;
+    --kn-docs-callout-important: #7b3fbf;
+    --kn-docs-callout-important-background: #f4effc;
+    --kn-docs-callout-warning: #b26a00;
+    --kn-docs-callout-warning-background: #fff6e5;
+    --kn-docs-callout-caution: #d32f2f;
+    --kn-docs-callout-caution-background: #fdeeee;
 
     //DOCUMENTATION MANAGER (change marks)
     --kn-docs-change-new: #2e7d32;

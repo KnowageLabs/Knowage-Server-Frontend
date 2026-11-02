@@ -7,8 +7,26 @@
                     <q-drawer v-model="drawerVisible" side="left" :width="drawerWidth" :breakpoint="0" show-if-above bordered class="docs-drawer column no-wrap">
                         <q-toolbar class="kn-toolbar kn-toolbar--primary">
                             <q-toolbar-title>{{ $t('managers.documentationManagement.title') }}</q-toolbar-title>
-                            <q-btn flat round dense icon="drive_folder_upload" :disable="!ready" data-tour-id="docs-import" @click="importOpen = true">
-                                <q-tooltip :delay="500">{{ $t('managers.documentationManagement.import.button') }}</q-tooltip>
+                            <q-btn flat round dense icon="import_export" :disable="!ready" :loading="exporting" data-tour-id="docs-import">
+                                <q-tooltip :delay="500">{{ $t('managers.documentationManagement.transfer.button') }}</q-tooltip>
+                                <q-menu auto-close anchor="bottom right" self="top right">
+                                    <q-list dense style="min-width: 260px">
+                                        <q-item clickable @click="importOpen = true">
+                                            <q-item-section avatar><q-icon name="drive_folder_upload" size="20px" /></q-item-section>
+                                            <q-item-section>
+                                                <q-item-label>{{ $t('managers.documentationManagement.import.button') }}…</q-item-label>
+                                                <q-item-label caption>{{ $t('managers.documentationManagement.transfer.importCaption') }}</q-item-label>
+                                            </q-item-section>
+                                        </q-item>
+                                        <q-item clickable @click="exportSite">
+                                            <q-item-section avatar><q-icon name="archive" size="20px" /></q-item-section>
+                                            <q-item-section>
+                                                <q-item-label>{{ $t('managers.documentationManagement.export.button') }}</q-item-label>
+                                                <q-item-label caption>{{ $t('managers.documentationManagement.transfer.exportCaption') }}</q-item-label>
+                                            </q-item-section>
+                                        </q-item>
+                                    </q-list>
+                                </q-menu>
                             </q-btn>
                             <q-btn flat round dense icon="add" :disable="!ready" data-tour-id="docs-add" @click="addTopLevel">
                                 <q-tooltip :delay="500">{{ $t('managers.documentationManagement.tree.addTopLevel') }}</q-tooltip>
@@ -33,20 +51,20 @@
                                 <q-toolbar-title class="docs-toolbar__title">
                                     <span>{{ detailTitle }}</span>
                                     <span v-if="ready" class="docs-toolbar__status">
-                                        · {{ wc.hasChanges.value ? $t('managers.documentationManagement.toolbar.unsaved', wc.changes.value.length) : $t('managers.documentationManagement.toolbar.saved') }}
-                                        <q-tooltip v-if="wc.hasChanges.value" :delay="500">{{ $t('managers.documentationManagement.toolbar.unsavedHint') }}</q-tooltip>
+                                        · {{ dirty ? $t('managers.documentationManagement.toolbar.unsaved', unsavedCount) : $t('managers.documentationManagement.toolbar.saved') }}
+                                        <q-tooltip v-if="dirty" :delay="500">{{ $t('managers.documentationManagement.toolbar.unsavedHint') }}</q-tooltip>
                                     </span>
                                 </q-toolbar-title>
                                 <template v-if="ready">
-                                    <q-btn flat round dense icon="undo" :disable="!wc.hasChanges.value" @click="confirmDiscardAll">
+                                    <q-btn flat round dense icon="undo" :disable="!dirty" @click="confirmDiscardAll">
                                         <q-tooltip :delay="500">{{ $t('managers.documentationManagement.discardAll') }}</q-tooltip>
                                     </q-btn>
                                     <q-btn flat round dense icon="visibility" data-tour-id="docs-preview-button" @click="previewOpen = true">
                                         <q-tooltip :delay="500">{{ $t('managers.documentationManagement.preview.button') }}</q-tooltip>
                                     </q-btn>
-                                    <q-btn flat round dense icon="save" :disable="!wc.hasChanges.value" data-tour-id="docs-save-button" data-test="save-button" @click="saveOpen = true">
+                                    <q-btn flat round dense icon="save" :disable="!wc.hasChanges.value || wc.draftCount.value > 0" data-tour-id="docs-save-button" data-test="save-button" @click="saveOpen = true">
                                         <q-badge v-if="wc.hasChanges.value" floating rounded class="docs-toolbar__badge">{{ wc.changes.value.length }}</q-badge>
-                                        <q-tooltip :delay="500">{{ $t('managers.documentationManagement.save.button', { n: wc.changes.value.length }) }}</q-tooltip>
+                                        <q-tooltip :delay="500">{{ wc.draftCount.value ? $t('managers.documentationManagement.save.fixFile') : $t('managers.documentationManagement.save.button', { n: wc.changes.value.length }) }}</q-tooltip>
                                     </q-btn>
                                 </template>
                             </q-toolbar>
@@ -126,6 +144,7 @@ import mainStore from '@/App.store'
 import { docsKey, useDocsWorkingCopy } from './useDocsWorkingCopy'
 import { startDocumentationManagementTour } from './DocumentationManagementTour'
 import { HOME_FILE } from './documentationManagementHelpers'
+import { buildDocsExport, DocsExportError, downloadZip, exportFileName } from './docsExport'
 import type { iDocsWorkingCopyStorage } from './DocumentationManagement'
 import DocsSiteBlock from './drawer/DocsSiteBlock.vue'
 import DocsTree from './drawer/DocsTree.vue'
@@ -165,12 +184,16 @@ const importOpen = ref(false)
 const moveOpen = ref(false)
 const moveNodeId = ref<string | null>(null)
 const creating = ref(false)
+const exporting = ref(false)
 const rawOpen = ref(false)
 const rawText = ref('')
 const savingRaw = ref(false)
 const contentCard = ref<InstanceType<typeof DocsContentCard> | null>(null)
 
 const ready = computed(() => wc.status.value === 'ready')
+// An invalid page file name is an unsaved edit too, although it is not in the change list.
+const dirty = computed(() => wc.hasChanges.value || wc.draftCount.value > 0)
+const unsavedCount = computed(() => wc.changes.value.length + wc.draftCount.value)
 const selectedNode = computed(() => (selection.value.kind === 'node' ? wc.nodeById(selection.value.id) : undefined))
 
 // The page that the content card shows: the page of the node, the start page, or a file that is not in the menu.
@@ -250,14 +273,14 @@ watch(
 )
 
 onBeforeRouteLeave((_to, _from, next) => {
-    if (!wc.hasChanges.value) return next()
+    if (!dirty.value) return next()
     $q.dialog({ title: t('common.toast.unsavedChangesHeader'), message: t('common.toast.unsavedChangesMessage'), cancel: true, persistent: true })
         .onOk(() => next())
         .onCancel(() => next(false))
 })
 
 function onBeforeUnload(event: BeforeUnloadEvent) {
-    if (!wc.hasChanges.value) return
+    if (!dirty.value) return
     event.preventDefault()
     event.returnValue = ''
 }
@@ -313,6 +336,27 @@ function confirmDiscardAll() {
         wc.discardAll()
         focusMode.value = false
     })
+}
+
+// Export site (spec 14.2): the saved site only, also when the working copy has changes (D30).
+async function exportSite() {
+    exporting.value = true
+    const progress = $q.notify({ group: false, timeout: 0, spinner: true, message: t('managers.documentationManagement.export.progress', { done: 0, total: '…' }) })
+    try {
+        const result = await buildDocsExport((done, total) => progress({ message: t('managers.documentationManagement.export.progress', { done, total }) }))
+        downloadZip(result.data, exportFileName(wc.baseSite.value.title))
+        progress()
+        const notes = [t('managers.documentationManagement.export.done', result.files)]
+        if (result.skipped) notes.push(t('managers.documentationManagement.export.skipped', result.skipped))
+        if (unsavedCount.value) notes.push(t('managers.documentationManagement.export.unsaved', unsavedCount.value))
+        $q.notify({ type: 'positive', message: notes.join(' '), timeout: unsavedCount.value ? 8000 : 5000 })
+    } catch (error: any) {
+        progress()
+        const message = error instanceof DocsExportError ? t('managers.documentationManagement.export.failedFile', { path: error.path }) : t('managers.documentationManagement.export.failed', { message: error?.message ?? '' })
+        $q.notify({ type: 'negative', message })
+    } finally {
+        exporting.value = false
+    }
 }
 
 async function createSite() {
@@ -398,6 +442,11 @@ function startTour() {
 <style lang="scss" scoped>
 .docs-manager {
     height: 100%;
+}
+
+// The drawer border is light. Next to the dark drawer toolbar it shows as a white line, so the top of the border takes the toolbar color.
+:deep(.q-drawer--bordered) {
+    border-image: linear-gradient(to bottom, var(--kn-toolbar-primary-background-color) 35px, var(--kn-color-borders) 35px) 1;
 }
 
 .docs-drawer__resize {

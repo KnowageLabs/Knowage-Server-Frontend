@@ -1,8 +1,12 @@
+import type { IDocsFolder } from '@/components/documentation/docsResourceApi'
 import type { iDocsChange, iDocsDropPosition, iDocsLetter, iDocsNode, iDocsSite, iDocsSkipReason, iDocsState, iDocsZipEntry, iDocsZipResult } from './DocumentationManagement'
 
 export const HOME_FILE = 'index.md'
 export const MAX_ZIP_ENTRIES = 500
 export const MAX_ZIP_BYTES = 50 * 1024 * 1024
+// The search positions of the viewer (spec 14.11). Absent in config.json: the sidebar.
+export const SEARCH_POSITIONS = ['header', 'menu', 'sidebar']
+export const DEFAULT_SEARCH_POSITION = 'sidebar'
 const IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp']
 // The server rule for upload names: [\w,\s\-_().]+
 const SERVER_NAME_RULE = /^[\w,\s\-_().]+$/
@@ -23,7 +27,11 @@ export function configToSite(config: any): iDocsSite {
         title: typeof config?.title === 'string' ? config.title : '',
         logo: logo === true ? true : typeof logo === 'string' && logo ? logo : false,
         dense: config?.dense === true,
-        menu: config?.menu !== false
+        menu: config?.menu !== false,
+        toc: config?.toc !== false,
+        prevNext: config?.prevNext !== false,
+        search: config?.search !== false,
+        searchPosition: SEARCH_POSITIONS.includes(config?.searchPosition) ? config.searchPosition : DEFAULT_SEARCH_POSITION
     }
 }
 
@@ -61,8 +69,13 @@ export function nodesToConfig(baseConfig: any, site: iDocsSite, nodes: iDocsNode
     else delete out.logo
     if (site.dense || 'dense' in base) out.dense = site.dense
     else delete out.dense
-    if (!site.menu || 'menu' in base) out.menu = site.menu
-    else delete out.menu
+    // These keys are true when absent: write them only when false, or when the file already has them (spec 14.5).
+    for (const key of ['menu', 'toc', 'prevNext', 'search'] as const) {
+        if (!site[key] || key in base) out[key] = site[key]
+        else delete out[key]
+    }
+    if (site.searchPosition !== DEFAULT_SEARCH_POSITION || 'searchPosition' in base) out.searchPosition = site.searchPosition
+    else delete out.searchPosition
 
     const live = nodes.filter((node) => !node.deleted)
     const build = (parentId: string | null): any[] =>
@@ -98,6 +111,11 @@ export function isConfigChanged(baseConfig: any, site: iDocsSite, nodes: iDocsNo
     const baseOut = nodesToConfig(baseConfig, configToSite(baseConfig), configToNodes(baseConfig))
     const current = nodesToConfig(baseConfig, site, nodes)
     return JSON.stringify(canonical(baseOut)) !== JSON.stringify(canonical(current))
+}
+
+// The docs folder and all its subfolders, with their paths relative to docs.
+export function flattenFolders(folder: IDocsFolder, prefix = ''): { path: string; key: string }[] {
+    return [{ path: prefix, key: folder.key }, ...(folder.children ?? []).flatMap((child) => flattenFolders(child, prefix ? `${prefix}/${child.label}` : child.label))]
 }
 
 // ── tree utilities (the flat list is in display order, a subtree is contiguous) ──

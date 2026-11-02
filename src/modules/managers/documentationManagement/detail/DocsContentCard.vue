@@ -47,6 +47,21 @@
                                 <q-tooltip :delay="500">{{ $t(`managers.documentationManagement.content.insert.${action.id}`) }}</q-tooltip>
                             </q-btn>
                         </template>
+                        <!-- Callouts (spec 14.7): one shortcut, the type comes from a micro menu. -->
+                        <q-btn flat dense size="sm" icon="campaign" class="docs-content__action" data-test="insert-callout">
+                            <q-tooltip :delay="500">{{ $t('managers.documentationManagement.content.insert.callout') }}</q-tooltip>
+                            <!-- no-refocus: the cursor must stay in the editor, so the user can type the callout text at once. -->
+                            <q-menu auto-close no-refocus anchor="bottom left" self="top left" @hide="editor?.focus()">
+                                <q-list dense style="min-width: 180px">
+                                    <q-item v-for="callout in CALLOUTS" :key="callout.type" clickable :data-test="`insert-callout-${callout.type}`" @click="insertCallout(callout.type)">
+                                        <q-item-section avatar class="docs-content__callout-icon">
+                                            <q-icon :name="callout.icon" size="20px" :style="{ color: `var(--kn-docs-callout-${callout.type})` }" />
+                                        </q-item-section>
+                                        <q-item-section>{{ $t(`documentation.callout.${callout.type}`) }}</q-item-section>
+                                    </q-item>
+                                </q-list>
+                            </q-menu>
+                        </q-btn>
                     </div>
                     <div class="docs-content__editor col">
                         <DocsMonacoEditor v-if="shownPath" ref="editor" :path="shownPath" :model-value="content" @change="(file, value) => wc.setContent(file, value)" @images="onImages" />
@@ -181,6 +196,20 @@ const insertActions = [
     { id: 'image', icon: 'image', run: () => (imageDialog.value = true) },
     { id: 'diagram', icon: 'account_tree', run: () => insertText(MERMAID_SNIPPET) }
 ]
+
+const CALLOUTS = [
+    { type: 'note', icon: 'info' },
+    { type: 'tip', icon: 'lightbulb' },
+    { type: 'important', icon: 'feedback' },
+    { type: 'warning', icon: 'warning_amber' },
+    { type: 'caution', icon: 'report' }
+]
+
+async function insertCallout(type: string) {
+    view.value = 'file'
+    await nextTick()
+    editor.value?.insertCallout(type)
+}
 
 function markdownImage(imagePath: string) {
     const alt = basename(imagePath).replace(/\.[^.]+$/, '')
@@ -337,8 +366,15 @@ div.docs-tab {
     min-height: 0;
 }
 
+// The width and the padding of the docs site, so the preview wraps lines where readers see them wrap.
 .docs-content__markdown {
-    padding: 8px 24px 24px;
+    max-width: calc(var(--kn-docs-content-width) + 64px);
+    margin: 0 auto;
+    padding: 16px 32px 32px;
+}
+
+.docs-content__callout-icon {
+    min-width: 32px;
 }
 
 .docs-content--focus {
