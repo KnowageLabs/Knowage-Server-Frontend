@@ -8,7 +8,7 @@
             </Toolbar>
         </template>
 
-        <WorkspaceFolderPickerTree v-if="folders && folders.children?.length > 0" :prop-folders="folders" @folderSelected="setSelectedParentFolder"></WorkspaceFolderPickerTree>
+        <WorkspaceFolderPickerTree v-if="folders && folders.children?.some((folder) => !isFavoritesFolder(folder))" :prop-folders="folders" @folderSelected="setSelectedParentFolder"></WorkspaceFolderPickerTree>
         <q-banner v-else rounded dense class="bg-warning q-mt-sm text-center">
             <template v-slot:avatar>
                 <q-icon name="warning" />
@@ -34,6 +34,7 @@ import Dialog from 'primevue/dialog'
 import descriptor from './WorkspaceFolderPickerDialogDescriptor.json'
 import mainStore from '@/App.store'
 import WorkspaceFolderPickerTree from '@/modules/workspace/genericComponents/WorkspaceFolderPickerTree.vue'
+import { isFavoritesFolder } from '@/modules/workspace/workspaceHelpers'
 
 export default defineComponent({
     name: 'workspace-folder-picker-dialog',
@@ -46,6 +47,7 @@ export default defineComponent({
     data() {
         return {
             descriptor,
+            isFavoritesFolder,
             folders: null as IFolder | null,
             nodes: [] as any[],
             parentFolderId: null as string | null

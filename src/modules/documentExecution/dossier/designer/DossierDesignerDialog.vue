@@ -1,5 +1,5 @@
 <template>
-    <q-dialog :model-value="visible" persistent :maximized="$q.screen.lt.md" @update:model-value="!$event && close()">
+    <q-dialog :model-value="visible" persistent :maximized="$q.screen.lt.md" class="dossier-designer-q-dialog" @update:model-value="!$event && close()">
         <q-card class="dossier-designer-dialog column no-wrap" data-test="dossier-designer-dialog">
             <q-toolbar class="kn-toolbar kn-toolbar--primary">
                 <q-toolbar-title>{{ $t('documentExecution.dossier.designer.title') }}</q-toolbar-title>
@@ -103,7 +103,8 @@ async function saveTemplate(target: any) {
 
 <style lang="scss" scoped>
 .dossier-designer-dialog {
-    width: 90vw;
+    // the page area beside the main menu, minus the dialog margins
+    width: calc(100vw - var(--kn-mainmenu-width) - 96px);
     max-width: 1400px;
     height: 85vh;
 }
@@ -112,5 +113,12 @@ async function saveTemplate(target: any) {
     width: 100%;
     height: 100%;
     max-width: none;
+}
+</style>
+
+<style lang="scss">
+// Unscoped: the inner box belongs to QDialog. The dialog centers in the page area beside the main menu.
+.q-dialog.dossier-designer-q-dialog .q-dialog__inner--minimized {
+    padding-left: calc(var(--kn-mainmenu-width) + 24px);
 }
 </style>

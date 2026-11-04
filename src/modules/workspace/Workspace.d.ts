@@ -24,6 +24,110 @@ export interface IFolder {
     children: IFolder[]
 }
 
+export type WsTab = 'documents' | 'data' | 'scheduled'
+export type WsScope = 'all' | 'recent' | 'fav' | 'mine'
+export type WsDataScope = 'all' | 'mine' | 'available'
+export type WsScheduledView = 'outputs' | 'jobs'
+
+// linkId: the SBI_VIEW_FOR_DOC id of a document link (views have no link id, only their one folder)
+export interface WsLink {
+    linkId?: string
+    folderId: string
+}
+
+export interface WsDocumentRow {
+    kind: 'DOCUMENT' | 'VIEW'
+    key: string
+    id: number | string
+    biObjectId: number
+    label: string
+    name: string
+    description?: string
+    typeCode: string
+    viewOf?: { biObjectId: number; name: string; label: string }
+    creationUser?: string
+    creationDate?: string
+    stateCode?: string
+    previewFile?: string
+    lastRun?: number
+    personal: boolean
+    links: WsLink[]
+}
+
+// A workspace folder flattened for lists and menus. path is "Parent › Child".
+export interface WsCollection {
+    id: string
+    name: string
+    description: string
+    parentId: string | null
+    depth: number
+    path: string
+    created?: string
+    progr: number
+    childCount: number
+}
+
+export interface WsDataRow {
+    kind: 'DATASET' | 'MODEL'
+    key: string
+    id: number
+    label?: string
+    name: string
+    description?: string
+    dsTypeCd?: string
+    category?: string
+    tags: string[]
+    owner?: string
+    modified?: string
+    dataSourceLabel?: string
+    mine: boolean
+    raw: any
+}
+
+export interface WsOutputRow {
+    key: string
+    snapshotId: number
+    biObjectId: number
+    documentName: string
+    jobName: string
+    jobGroup: string
+    name: string
+    created: number
+    contentType: string
+    format: string
+}
+
+export interface WsJobRow {
+    key: string
+    jobName: string
+    jobGroup: string
+    description: string
+    documents: string[]
+    triggers: ITrigger[]
+}
+
+export interface WsDocumentFilters {
+    scope: WsScope
+    types: string[]
+    collection: string | null
+    q: string
+}
+
+export interface WsDataFilters {
+    scope: WsDataScope
+    kinds: string[]
+    dsTypes: string[]
+    categories: string[]
+    q: string
+}
+
+export interface WsScheduledFilters {
+    view: WsScheduledView
+    jobs: string[]
+    formats: string[]
+    q: string
+}
+
 export interface IPackage {
     jobName: string
     jobGroup: string
