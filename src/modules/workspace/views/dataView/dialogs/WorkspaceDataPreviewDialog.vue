@@ -1,52 +1,35 @@
 <template>
-    <Dialog :style="workspaceDataPreviewDialogDescriptor.dialog.style" :content-style="workspaceDataPreviewDialogDescriptor.dialog.contentStyle" :visible="visible" :modal="true" class="p-fluid kn-dialog--toolbar--primary" :closable="false">
-        <template #header>
-            <Toolbar class="kn-toolbar kn-toolbar--primary p-col-12" :style="mainDescriptor.style.maxWidth">
-                <template #start>
-                    <span>{{ dataset?.label }}</span>
-                </template>
-                <template #end>
-                    <Button v-if="isParameterSidebarVisible" v-tooltip.bottom="$t('common.filter')" icon="pi pi-filter" class="p-button-text p-button-rounded p-button-plain" @click="parameterSidebarVisible = !parameterSidebarVisible" />
-                    <Button class="kn-button p-button-text p-button-plain" :label="$t('common.close')" @click="closeDialog"></Button>
-                </template>
-            </Toolbar>
-        </template>
+    <!-- Ported to Quasar in place (spec 8.3, 14.3): Dataset Management and the dataset editor preview use it. Same props, events and requests. -->
+    <q-dialog :model-value="visible" persistent @update:model-value="!$event && closeDialog()">
+        <q-card class="column no-wrap relative-position kn-ws-preview-card" data-ws-dialog="dataset-preview">
+            <div class="row items-center no-wrap kn-ws-preview-card__header">
+                <span class="text-subtitle1 ellipsis">{{ dataset?.label }}</span>
+                <q-space />
+                <q-btn v-if="isParameterSidebarVisible" flat round dense icon="filter_list" :aria-label="$t('common.filter')" @click="parameterSidebarVisible = !parameterSidebarVisible">
+                    <q-tooltip>{{ $t('common.filter') }}</q-tooltip>
+                </q-btn>
+                <q-btn flat round dense icon="close" :aria-label="$t('workspace.close')" data-ws-preview-close @click="closeDialog">
+                    <q-tooltip>{{ $t('workspace.close') }}</q-tooltip>
+                </q-btn>
+            </div>
+            <q-linear-progress v-if="loading" indeterminate color="primary" data-test="progress-bar" />
 
-        <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar p-ml-2" data-test="progress-bar" />
+            <div class="col column no-wrap relative-position workspace-scrollable-table">
+                <q-banner v-if="errorMessageVisible" dense class="q-ma-sm bg-warning">
+                    {{ errorMessage }}
+                </q-banner>
 
-        <div class="p-d-flex p-flex-column kn-flex workspace-scrollable-table">
-            <Message v-if="errorMessageVisible" class="p-m-2" severity="warn" :closable="false" :style="mainDescriptor.style.message">
-                {{ errorMessage }}
-            </Message>
-
-            <DatasetPreviewTable v-else class="p-d-flex p-flex-column kn-flex p-m-2" :preview-columns="columns" :preview-rows="rows" :pagination="pagination" :preview-type="previewType" @pageChanged="updatePagination($event)" @sort="onSort" @filter="onFilter"></DatasetPreviewTable>
-            <KnParameterSidebar
-                v-if="parameterSidebarVisible && dataset"
-                style="height: calc(100% - 35px)"
-                class="workspace-parameter-sidebar kn-overflow-y"
-                :filters-data="filtersData"
-                :prop-document="dataset"
-                :prop-mode="sidebarMode"
-                :prop-q-b-e-parameters="dataset.pars"
-                :user-role="userRole"
-                :dataset="dataset"
-                :load-from-dataset-management="loadFromDatasetManagement"
-                :correct-roles-for-execution="correctRolesForExecution"
-                @execute="onExecute"
-                @roleChanged="onRoleChange"
-            ></KnParameterSidebar>
-        </div>
-    </Dialog>
+                <DatasetPreviewTable v-else class="col column no-wrap q-ma-sm" :preview-columns="columns" :preview-rows="rows" :pagination="pagination" :preview-type="previewType" @pageChanged="updatePagination($event)" @sort="onSort" @filter="onFilter"></DatasetPreviewTable>
+                <KnParameterSidebar v-if="parameterSidebarVisible && dataset" class="kn-overflow-y" :filters-data="filtersData" :prop-document="dataset" :prop-mode="sidebarMode" :prop-q-b-e-parameters="dataset.pars" :user-role="userRole" :dataset="dataset" :load-from-dataset-management="loadFromDatasetManagement" :correct-roles-for-execution="correctRolesForExecution" @execute="onExecute" @roleChanged="onRoleChange"></KnParameterSidebar>
+            </div>
+        </q-card>
+    </q-dialog>
 </template>
-
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, PropType } from 'vue'
 import { AxiosResponse } from 'axios'
 import { mapActions } from 'pinia'
-import Dialog from 'primevue/dialog'
 import DatasetPreviewTable from '../tables/DatasetPreviewTable.vue'
-import Message from 'primevue/message'
-import mainDescriptor from '@/modules/workspace/WorkspaceDescriptor.json'
 import workspaceDataPreviewDialogDescriptor from './WorkspaceDataPreviewDialogDescriptor.json'
 import KnParameterSidebar from '@/components/UI/KnParameterSidebar/KnParameterSidebar.vue'
 import moment from 'moment'
@@ -54,7 +37,7 @@ import mainStore from '../../../../../App.store'
 
 export default defineComponent({
     name: 'kpi-scheduler-save-dialog',
-    components: { Dialog, DatasetPreviewTable, Message, KnParameterSidebar },
+    components: { DatasetPreviewTable, KnParameterSidebar },
     props: { visible: { type: Boolean }, propDataset: { type: Object }, previewType: String, loadFromDatasetManagement: Boolean, correctRolesForExecution: { type: Array as PropType<string[] | null> } },
     emits: ['close'],
     setup() {
@@ -63,7 +46,6 @@ export default defineComponent({
     },
     data() {
         return {
-            mainDescriptor,
             workspaceDataPreviewDialogDescriptor,
             dataset: null as any,
             columns: [] as any[],
@@ -369,30 +351,21 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
-.workspace-full-screen-dialog.p-dialog {
-    max-height: 100%;
+<style lang="scss" scoped>
+.kn-ws-preview-card {
+    width: 80vw;
+    max-width: 80vw;
+    min-width: min(600px, 100vw);
+    height: 90vh;
+    max-height: 90vh;
+    min-height: 435px;
 }
-.workspace-full-screen-dialog .p-dialog .p-dialog-content {
-    padding: 0;
+.kn-ws-preview-card__header {
+    padding: 8px 8px 8px var(--kn-ws-gutter);
+    border-bottom: 1px solid var(--kn-ws-line);
 }
 .workspace-scrollable-table {
-    height: 100%;
-    .p-datatable-wrapper {
-        position: relative;
-        flex: 1;
-        max-width: 96vw;
-        overflow-x: auto;
-    }
-    .p-datatable {
-        max-width: 96vw;
-    }
-}
-
-.workspace-parameter-sidebar {
-    top: 35px !important;
-}
-.workspace-parameter-sidebar .kn-parameter-sidebar-buttons {
-    margin-bottom: 45px !important;
+    min-height: 0;
+    overflow: auto;
 }
 </style>

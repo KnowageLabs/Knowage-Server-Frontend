@@ -5272,37 +5272,185 @@
         "outsideIframe": "You are not allowed to access Knowage from outside the application"
     },
     "workspace": {
+        "title": "My workspace",
+        "tabs": {
+            "documents": "Documents",
+            "data": "Data",
+            "scheduled": "Scheduled"
+        },
+        "scope": {
+            "label": "Scope",
+            "all": "All",
+            "recent": "Recent",
+            "favorites": "Favorites",
+            "mine": "Mine",
+            "available": "Available to me",
+            "outputs": "Latest outputs",
+            "jobs": "Jobs"
+        },
+        "filters": "Filters",
+        "clearFilters": "Clear filters",
+        "search": {
+            "documents": "Search by name",
+            "data": "Search by name",
+            "scheduled": "Search by name"
+        },
+        "filter": {
+            "type": "Type",
+            "collections": "Collections",
+            "anyCollection": "Any collection",
+            "kind": "Kind",
+            "datasetType": "Dataset type",
+            "category": "Category",
+            "job": "Job",
+            "format": "Format"
+        },
+        "types": {
+            "DASHBOARD": "Dashboard",
+            "DOCUMENT_COMPOSITE": "Cockpit",
+            "REPORT": "Report",
+            "KPI": "KPI",
+            "MAP": "Map",
+            "DOSSIER": "Dossier",
+            "DATAMART": "Registry",
+            "OLAP": "OLAP",
+            "OFFICE_DOC": "Office document",
+            "ETL": "ETL",
+            "VIEW": "View"
+        },
+        "columns": {
+            "name": "Name",
+            "type": "Type",
+            "owner": "Owner",
+            "lastRun": "Last run",
+            "collections": "Collections",
+            "kind": "Kind",
+            "category": "Category",
+            "tags": "Tags",
+            "modified": "Modified",
+            "description": "Description",
+            "dataSource": "Data source",
+            "document": "Document",
+            "job": "Job",
+            "produced": "Produced",
+            "format": "Format",
+            "documents": "Documents",
+            "triggers": "Triggers"
+        },
+        "viewOf": "View of {name}",
+        "neverRun": "Never run",
+        "savedView": "Saved view",
+        "newDocument": "New document",
+        "legacy": "Legacy",
+        "new": {
+            "dashboard": "Dashboard",
+            "dashboardHint": "Opens the dashboard designer",
+            "kpi": "KPI",
+            "kpiHint": "Opens the KPI designer",
+            "map": "Map",
+            "mapHint": "Geo-referenced document",
+            "dossier": "Dossier",
+            "dossierHint": "Document with chapters and templates",
+            "cockpit": "Cockpit",
+            "cockpitHint": "Old cockpit engine"
+        },
+        "addToFavorites": "Add to favorites",
+        "removeFromFavorites": "Remove from favorites",
+        "addToCollection": "Add to collection…",
+        "moveToCollection": "Move to collection…",
+        "newCollection": "New collection",
+        "editCollection": "Rename collection",
+        "manageCollections": "Manage collections…",
+        "manageCollectionsTitle": "Manage collections",
+        "newCollectionIn": "New collection in {name}",
+        "newCollectionInside": "New collection inside",
+        "moveTo": "Move to",
+        "topLevel": "Top level",
+        "notEmpty": "Not empty",
+        "collectionNotEmpty": "Not empty: {docs} documents, {views} views, {folders} folders",
+        "collectionName": "Name",
+        "collectionDescription": "Description",
+        "editDetails": "Edit details",
+        "renameView": "Rename",
+        "openDesigner": "Open designer",
+        "removeFromWorkspace": "Remove from workspace",
+        "removeFromWorkspaceMessage": "Remove \"{name}\" from every collection of your workspace? The document itself is not deleted.",
+        "uploadPreview": "Upload preview image",
+        "savedFrom": "Saved from",
+        "yourSavedViews": "Your saved views",
+        "scheduledOutputs": "Scheduled outputs",
+        "about": "About",
+        "created": "Created",
+        "noLabelError": "This document cannot be opened: its label is missing.",
+        "close": "Close",
+        "delete": "Delete",
+        "label": "Label",
+        "details": "Details",
+        "uploadFile": "Upload file",
+        "kind": {
+            "DATASET": "Dataset",
+            "MODEL": "Business model"
+        },
+        "openInQbe": "Open in QBE",
+        "exportXlsx": "Export XLSX",
+        "exportCsv": "Export CSV",
+        "downloadFile": "Download file",
+        "today": "Today",
+        "thisWeek": "This week",
+        "earlier": "Earlier",
+        "runNow": "Run now",
+        "allTriggers": "All triggers",
+        "download": "Download",
+        "noTriggers": "This job has no trigger to run.",
+        "wizard": {
+            "steps": {
+                "file": "File",
+                "columns": "Columns",
+                "preview": "Preview",
+                "details": "Details"
+            },
+            "csvOptions": "CSV options",
+            "excelOptions": "Excel options",
+            "uploadHint": "Upload a CSV or Excel file to continue.",
+            "details": "Details",
+            "persistence": "Persistence",
+            "persistLabel": "Save the data in a table"
+        },
+        "empty": {
+            "noMatch": "No documents match these filters.",
+            "noDataMatch": "Nothing matches these filters.",
+            "noOutputs": "No scheduled outputs.",
+            "noJobs": "No jobs.",
+            "workspaceTitle": "Your workspace is empty",
+            "workspaceHint": "Star a document to keep it in <b>Favorites</b>, group documents in <b>collections</b>, or create one with <b>New document</b>. Documents you run show up in <b>Recent</b>.",
+            "dataTitle": "No data yet",
+            "dataHint": "Upload a file to create your first dataset.",
+            "scheduledTitle": "Nothing scheduled",
+            "scheduledHint": "Scheduled outputs of your documents show up here. Jobs are created in the Scheduler."
+        },
+        "tour": {
+            "tabsTitle": "Documents, data and scheduled outputs",
+            "tabsText": "Your workspace has three tabs. Each one shows one list, with its total next to the name.",
+            "scopeTitle": "Scope",
+            "scopeDocuments": "Show all your documents, the ones you ran recently, your favorites, or only your own.",
+            "scopeData": "Show all the data you can use, only your own datasets, or the ones shared with you.",
+            "scopeScheduled": "Switch between the latest outputs of your jobs and the jobs themselves.",
+            "filtersTitle": "Filters",
+            "filtersDocuments": "Filter by type and by collection in one menu. The count on the button shows how many filters are on.",
+            "filtersData": "Filter by kind, dataset type and category.",
+            "filtersScheduled": "Filter the outputs by job and by format.",
+            "rowTitle": "A row",
+            "rowDocuments": "Star a document to add it to Favorites, run it with the play button, or click the row for its details.",
+            "rowData": "Preview a dataset, open it in QBE, or click the row for its details and actions.",
+            "rowScheduled": "Download an output, or run a job now.",
+            "newTitle": "Create",
+            "newDocuments": "Create a dashboard, a KPI, a map or a dossier.",
+            "newData": "Upload a CSV or Excel file as a new dataset."
+        },
         "addViewFolderHint": "Please add at least one folder in your workspace.",
         "advancedData": {
             "chooseDataset": "Choose dataset",
-            "noDatasetFound": "No dataset found",
-            "title": "Data preparation"
-        },
-        "buttonsTooltips": {
-            "deleteDoc": "Delete Document",
-            "editDoc": "Edit Document",
-            "executeDoc": "Execute Document",
-            "help": "Help Online",
-            "moveDoc": "Move Document",
-            "other": "Other Options",
-            "previewDs": "Preview Dataset"
-        },
-        "federationDefinition": {
-            "associationsEditor": "Associations Editor",
-            "associationsList": "Associations List",
-            "availableDatasets": "Available datasets",
-            "availableDatasetsMessage": "Click to add to federation",
-            "datasetDetail": "Dataset details",
-            "datasetNotInRelationshipError": "All selected datasets must be contained at least in one relationship!",
-            "noDatasetsSelectedError": "You didn't select any datasets!",
-            "onlyOneSelectedDatasetError": "Select at least two datasets!",
-            "relationshipAlreadyPresentError": "Relationship already exists",
-            "removeSelectedDatasetError": "You can't delete the dataset! It is used in a relationship! To delete this dataset you have to remove the relationship first.",
-            "saveFederation": "Save federation",
-            "savingFederation": "Saving Federation",
-            "selectedDatasets": "Selected datasets",
-            "selectedDatasetsMessage": "Click to remove from federation",
-            "title": "Federation definition"
+            "noDatasetFound": "No dataset found"
         },
         "gis": {
             "datasetJoinTitle": "Dataset Join",
@@ -5353,7 +5501,6 @@
             "save": "Save new map",
             "title": "GIS Document Designer"
         },
-        "hint": "Workspace is your personal space where you can find your documents and datasets. Click one of the items categories in the left list to select and interact with them.",
         "menuLabels": {
             "advanced": "Data Preparation",
             "menuTitle": "My Workspace",
@@ -5366,76 +5513,28 @@
             "schedulation": "Schedulation"
         },
         "myAnalysis": {
-            "editAnalysis": "Edit Analysis",
-            "geoRef": "Geo-referenced analysis",
             "menuItems": {
-                "clone": "Clone Document",
-                "delete": "Delete Document",
                 "edit": "Edit Document",
-                "editTemplate": "Edit template",
-                "share": "Share Document",
-                "showDsDetails": "Show dataset details",
-                "unshare": "Unshare Document",
-                "upload": "Upload preview file"
+                "editTemplate": "Edit template"
             }
         },
         "myData": {
-            "cloneDataset": "Clone",
             "clonedDatasetWizard": "Cloned Dataset Wizard",
-            "csvExport": "CSV",
-            "datasetPreview": "Dataset Preview",
-            "myDatasets": "My Datasets",
-            "enterprise": "Enterprise",
-            "shared": "Shared",
-            "allDatasets": "All Datasets",
-            "deleteDataset": "Delete",
-            "driverable": "Drivable",
             "exportSuccess": "The download has started in background. You will find the result file in your download page.",
-            "fileDownload": "Download Dataset file",
             "isPreparing": "Preparing dataset...",
-            "modified": "Modified",
             "monitoring": "Monitoring",
-            "openData": "Import Open Data",
-            "openDataPreparation": "Open in Data Preparation",
             "parametrical": "Parametrical",
             "parseError": "Impossible to parse file. Check its content and upload it again",
-            "prepareData": "Prepare Data",
-            "shareDataset": "Share/Unshare",
-            "shareDatasetHint": "By selecting a category from the combo box you are sharing the data set for all the users that are able to manage the specified data set category.",
-            "tablePrefix": "Table Prefix",
-            "title": "My Data",
-            "unshareDataset": "Unshare Dataset",
             "userRoleError": "User does not have valid roles for the execution of the selected model",
-            "wizardTitle": "Dataset Wizard",
-            "xlsxExport": "XLSX"
+            "wizardTitle": "Dataset Wizard"
         },
         "myModels": {
-            "deleteDataset": "Delete",
             "editDataset": "Edit",
             "openInQBE": "Open in QBE",
-            "showInfo": "Show info",
-            "title": "My Models",
             "userRoleError": "User does not have valid roles for the execution of the selected model"
         },
         "myRepository": {
-            "deleteView": "Delete View",
-            "destinationFolder": "Destination folder",
-            "folderCreatedMessage": "Folder is created and added to the current path",
-            "folderDeleteError": "Folder could not be deleted. It contains at least one subfolder or at least one document",
-            "moveDocument": "Move Document",
-            "moveView": "Move View",
-            "newFolderTitle": "Create new folder"
-        },
-        "recent": {
-            "sidebarLabels": {
-                "executionTime": "Execution Time"
-            }
-        },
-        "schedulation": {
-            "executedSchedulations": "Executed schedulations",
-            "oldSchedulationsMessage": "In the following table you will find all executed schedulations from selected job.",
-            "ranSchedulations": "View ran schedulations",
-            "title": "Schedulations"
+            "folderDeleteError": "Folder could not be deleted. It contains at least one subfolder or at least one document"
         }
     }
 }

@@ -1,0 +1,844 @@
+// My Workspace (spec 5, 12). Imported once, unscoped, by Workspace.vue. Values come from --kn-* tokens (_variables.scss).
+// Spacing follows the v4 mock: 22 px gutter, 10 px between toolbar controls, 14 px between toolbar and list.
+
+.kn-ws {
+    height: 100%;
+    min-height: 0;
+    background: var(--kn-color-background);
+}
+
+.kn-ws-header {
+    background: var(--kn-app-background-color);
+    border-bottom: 1px solid var(--kn-ws-line);
+}
+
+.kn-ws-title-row {
+    padding: 18px var(--kn-ws-gutter) 6px;
+    gap: 10px;
+    min-height: calc(var(--kn-ws-control-height) + 24px);
+}
+
+.kn-ws-title {
+    margin: 0;
+    font-size: var(--kn-ws-title-font-size);
+    font-weight: 500;
+    line-height: var(--kn-ws-control-height);
+    letter-spacing: normal;
+    // a global h1 rule capitalizes every word
+    text-transform: none;
+}
+
+// A tab has 14 px side padding; the strip starts 8 px in, so the first label (not its box) sits on the
+// 22 px gutter line, like the title and the toolbar (spec 12 rule 2).
+.kn-ws-tabs {
+    padding: 0 0 0 calc(var(--kn-ws-gutter) - 14px);
+    .q-tab {
+        padding: 0 14px;
+        min-height: 42px;
+    }
+    .q-tab__label {
+        font-weight: 500;
+    }
+    .q-tab:not(.q-tab--active) {
+        color: var(--kn-ws-muted-text);
+    }
+    .q-badge {
+        border-radius: var(--kn-ws-radius-sm);
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+// ---------- Tab body: toolbar and list ----------
+
+.kn-ws-tab {
+    min-height: 0;
+}
+
+.kn-ws-toolbar {
+    padding: 10px var(--kn-ws-gutter) 0;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.kn-ws-toolbar__end {
+    gap: 10px;
+    margin-left: auto;
+}
+
+// The list starts 14 px under the toolbar: 4 px progress slot + 10 px.
+.kn-ws-body {
+    min-height: 0;
+    padding: 14px var(--kn-ws-gutter) var(--kn-ws-gutter);
+}
+
+// The loading bar under the toolbar has a reserved slot, so the list does not move when it shows.
+// The reload bar sits right under the tabs, full width, in a reserved 4 px slot (the list does not move).
+.kn-ws-progress-slot {
+    height: 4px;
+}
+
+// One control height (spec 12 rule 3) and one radius for everything in the toolbar and the New button.
+.kn-ws-control.q-btn,
+.kn-ws-new.q-btn {
+    min-height: var(--kn-ws-control-height);
+    height: var(--kn-ws-control-height);
+    padding-top: 0;
+    padding-bottom: 0;
+    border-radius: var(--kn-ws-radius);
+}
+
+.kn-ws-new.q-btn {
+    padding: 0 14px;
+    .q-btn__content {
+        gap: 6px;
+    }
+    .q-icon.on-left {
+        margin-right: 0;
+    }
+}
+
+// White, outlined, like the scope control and the search.
+.kn-ws-control.q-btn {
+    padding: 0 8px 0 10px;
+    background: var(--kn-app-background-color);
+    border: 1px solid var(--kn-ws-control-border);
+    color: inherit;
+    font-weight: 500;
+    .q-btn__content {
+        gap: 6px;
+        flex-wrap: nowrap;
+    }
+    &.kn-ws-control--active {
+        border-color: var(--kn-color-primary);
+    }
+}
+
+.kn-ws-control__icon {
+    color: var(--kn-ws-muted-text);
+}
+
+.kn-ws-count {
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: var(--kn-ws-radius-sm);
+    background: var(--kn-color-primary);
+    color: var(--kn-button-primary-color);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 18px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+// Segmented scope control (spec 12 rule 5): outlined, light grey selected segment.
+.kn-ws-scope {
+    border: 1px solid var(--kn-ws-control-border);
+    border-radius: var(--kn-ws-radius);
+    background: var(--kn-app-background-color);
+    overflow: hidden;
+    .q-btn {
+        min-height: calc(var(--kn-ws-control-height) - 2px);
+        height: calc(var(--kn-ws-control-height) - 2px);
+        padding: 0 12px;
+        border-radius: 0;
+        .q-btn__content {
+            gap: 6px;
+        }
+        .q-icon.on-left {
+            margin-right: 0;
+        }
+    }
+    .q-btn + .q-btn {
+        border-left: 1px solid var(--kn-ws-control-border);
+    }
+    .q-btn .q-icon {
+        font-size: 18px;
+    }
+}
+
+.kn-ws-search {
+    width: 300px;
+    max-width: 100%;
+    .q-field__control {
+        background: var(--kn-app-background-color);
+        border-radius: var(--kn-ws-radius);
+        &:before {
+            border-color: var(--kn-ws-control-border);
+            border-radius: var(--kn-ws-radius);
+        }
+    }
+    .q-field__prepend .q-icon {
+        color: var(--kn-ws-muted-text);
+    }
+}
+
+// ---------- Menus: filters, row ⋮, collection picker, New ----------
+// Same look as the dashboard toolbar menu (DocumentExecutionToolbarMenu): 8 px card, 4 px inner padding,
+// rows with a 6 px hover highlight, muted outline icons. Rows are MainMenuPopupRow.
+
+.q-menu.kn-ws-menu {
+    border-radius: var(--kn-ws-radius-lg);
+    box-shadow: var(--kn-ws-menu-shadow);
+}
+
+.kn-ws-menu__list {
+    padding: 4px;
+}
+
+.q-menu.kn-ws-menu .kn-popup-row:hover,
+.q-menu.kn-ws-menu .kn-popup-row:focus-visible,
+.q-menu.kn-ws-menu .kn-popup-row--active {
+    background: var(--kn-ws-menu-hover-background);
+}
+
+// "active" marks the row whose sub-menu is open: highlight only, no colour change
+.q-menu.kn-ws-menu .kn-popup-row--active {
+    color: inherit;
+    font-weight: inherit;
+}
+
+.q-menu.kn-ws-menu .kn-popup-row__icon,
+.q-menu.kn-ws-menu .kn-popup-row__chevron {
+    color: var(--kn-ws-muted-text);
+}
+
+// a row without an icon has no icon slot (the filter values)
+.q-menu.kn-ws-menu .kn-popup-row__icon:empty {
+    display: none;
+}
+
+// Action menus (row ⋮, collection picker): the dashboard menu sizes.
+.q-menu.kn-ws-action-menu {
+    min-width: 220px;
+    .kn-popup-row {
+        height: 38px;
+        gap: 12px;
+        padding: 0 8px 0 6px;
+    }
+    .kn-popup-row__icon {
+        flex: 0 0 20px;
+        width: 20px;
+    }
+    // q-icon size="18px" is an inline style in MainMenuPopupRow: only !important overrides it (as in the dashboard menu)
+    .kn-popup-row__icon .q-icon,
+    .kn-popup-row__chevron {
+        font-size: 20px !important;
+    }
+    .kn-popup-row__label {
+        font-size: 14px;
+    }
+}
+
+// Filters: a compact list of values with the count and a check on the right.
+.q-menu.kn-ws-filters-menu {
+    width: 272px;
+    .kn-popup-row {
+        height: 34px;
+        padding: 0 10px;
+        gap: 10px;
+    }
+    .kn-popup-row__label {
+        font-size: 14px;
+    }
+    .kn-popup-row__meta {
+        min-width: 18px;
+        text-align: right;
+        font-size: 12px;
+        font-variant-numeric: tabular-nums;
+        opacity: 1;
+        color: var(--kn-ws-muted-text);
+    }
+    // value rows keep an empty check column, so the counts line up whether a value is checked or not
+    .kn-ws-menu__value:not(:has(.kn-popup-row__check))::after {
+        content: '';
+        flex: 0 0 18px;
+    }
+}
+
+.q-menu.kn-ws-filters-menu--pinned {
+    --kn-ws-menu-list-max-height: calc(65vh - 52px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    .kn-ws-menu__footer {
+        flex: none;
+        margin: 0 4px 4px;
+    }
+}
+
+.kn-ws-filters-menu__scroll {
+    flex: none;
+    // the content is absolutely positioned: without a width it takes the widest row (a long name pushes the counts out)
+    .q-scrollarea__content {
+        width: 100%;
+    }
+}
+
+.kn-ws-menu__header {
+    padding: 10px 10px 4px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--kn-ws-muted-text);
+}
+
+.kn-ws-menu__separator {
+    height: 1px;
+    margin: 4px 6px;
+    background: var(--kn-ws-line);
+}
+
+.kn-ws-menu__empty {
+    padding: 6px 10px;
+    font-size: 13px;
+    color: var(--kn-ws-muted-text);
+}
+
+.kn-ws-menu__footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 4px;
+    padding: 6px 2px 2px;
+    border-top: 1px solid var(--kn-ws-line);
+    .q-btn {
+        min-height: 28px;
+        padding: 0 10px;
+        border-radius: var(--kn-ws-radius);
+        color: var(--kn-ws-muted-text);
+        font-size: 13px;
+    }
+}
+
+// New document: two-line items (title + hint) in the same card.
+.q-menu.kn-ws-new-menu {
+    border-radius: var(--kn-ws-radius-lg);
+    .q-list {
+        padding: 4px;
+        min-width: 300px;
+    }
+    .q-item {
+        border-radius: var(--kn-ws-radius);
+        padding: 8px 10px;
+        min-height: 48px;
+    }
+    .q-item__section--avatar {
+        min-width: 32px;
+        color: var(--kn-ws-muted-text);
+    }
+    .q-item__label--caption {
+        color: var(--kn-ws-muted-text);
+    }
+    .q-badge {
+        border-radius: var(--kn-ws-radius-sm);
+    }
+}
+
+// Icon column of a plain q-item list (drawer lists, Manage collections).
+.kn-ws-item-icon.q-item__section--avatar {
+    min-width: 28px;
+    color: var(--kn-ws-muted-text);
+}
+
+// ---------- Tables ----------
+
+// The white card grows with its rows and stops at the space left on the page (WorkspaceTableFrame).
+.kn-ws-table-frame {
+    flex: 0 1 auto;
+    min-height: 0;
+    max-height: 100%;
+    border: 1px solid var(--kn-ws-line);
+    border-radius: var(--kn-ws-radius-lg);
+    background: var(--kn-app-background-color);
+    overflow: hidden;
+}
+
+.kn-ws-table.q-table__container {
+    background: transparent;
+    border-radius: 0;
+
+    // the scroll area scrolls, not the table (virtual-scroll-target): no own overflow, so the header sticks
+    .q-table__middle {
+        overflow: visible;
+        margin-bottom: 0;
+    }
+
+    thead tr {
+        height: var(--kn-ws-header-height);
+    }
+
+    thead tr th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        height: var(--kn-ws-header-height);
+        padding: 0 12px;
+        background: var(--kn-app-background-color);
+        border-bottom: 1px solid var(--kn-ws-line);
+        font-size: 11.5px;
+        font-weight: 500;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--kn-ws-muted-text);
+        .q-table__sort-icon {
+            font-size: 14px;
+        }
+    }
+
+    thead tr th.sorted,
+    thead tr th.sortable:hover {
+        color: inherit;
+    }
+
+    tbody tr {
+        height: var(--kn-ws-row-height);
+        cursor: pointer;
+    }
+
+    tbody td {
+        height: var(--kn-ws-row-height);
+        padding: 0 12px;
+        border-color: var(--kn-ws-line);
+    }
+
+    tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .q-table__bottom {
+        border-top: 0;
+    }
+
+    // Today / This week / Earlier band of the outputs list
+    tbody tr.kn-ws-group-row,
+    tbody tr.kn-ws-group-row td {
+        height: 34px;
+    }
+    .kn-ws-group-row td {
+        padding-top: 8px;
+        padding-bottom: 4px;
+        background: var(--kn-ws-group-background);
+        border-bottom: 1px solid var(--kn-ws-line);
+        font-size: 11.5px;
+        font-weight: 500;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--kn-ws-muted-text);
+        cursor: default;
+    }
+
+    // rows that open nothing on click (Scheduled)
+    &.kn-ws-table--static tbody tr {
+        cursor: default;
+    }
+}
+
+// Text buttons inside a row: Download, Run now.
+.kn-ws-row-btn.q-btn {
+    min-height: 30px;
+    padding: 0 10px;
+    border-radius: var(--kn-ws-radius);
+    color: var(--kn-ws-icon-color);
+    font-size: 13px;
+    .q-btn__content {
+        gap: 6px;
+        flex-wrap: nowrap;
+    }
+    .q-icon.on-left {
+        margin-right: 0;
+        font-size: 18px;
+    }
+}
+
+// Skeleton of the first load (WorkspaceTableFrame): the same header and row height as the real table.
+.kn-ws-table--skeleton.q-table__container {
+    // the star column has no label
+    th.kn-ws-skeleton-narrow {
+        width: 48px;
+    }
+    tbody tr {
+        cursor: default;
+    }
+    .q-skeleton {
+        background: var(--kn-ws-icon-background);
+    }
+}
+
+.kn-ws-skeleton-icon.q-skeleton {
+    flex: none;
+    width: 30px;
+    height: 30px;
+    border-radius: var(--kn-ws-radius);
+}
+
+.kn-ws-skeleton-lines {
+    flex: 1;
+    min-width: 0;
+    gap: 2px;
+}
+
+.kn-ws-skeleton-sub.q-skeleton {
+    height: 10px;
+}
+
+.kn-ws-no-data {
+    padding: 32px 16px;
+    color: var(--kn-ws-muted-text);
+}
+
+.kn-ws-name {
+    gap: 12px;
+    min-width: 0;
+}
+
+.kn-ws-name__icon {
+    flex: none;
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--kn-ws-radius);
+    background: var(--kn-ws-icon-background);
+    color: var(--kn-ws-icon-color);
+
+    &--view {
+        background: var(--kn-ws-view-icon-background);
+        color: var(--kn-ws-view-icon-color);
+    }
+}
+
+.kn-ws-name__text {
+    min-width: 0;
+    line-height: 1.35;
+}
+
+.kn-ws-name__title {
+    font-weight: 500;
+}
+
+.kn-ws-name__sub {
+    font-size: 12px;
+    color: var(--kn-ws-muted-text);
+}
+
+.kn-ws-muted {
+    color: var(--kn-ws-muted-text);
+}
+
+// Small grey tags: collections (Documents) and dataset tags (Data).
+.kn-ws-tags {
+    gap: 4px;
+    min-width: 0;
+}
+
+.kn-ws-tag {
+    max-width: 160px;
+    padding: 1px 7px;
+    border-radius: var(--kn-ws-radius-sm);
+    background: var(--kn-ws-icon-background);
+    font-size: 12px;
+    line-height: 18px;
+    white-space: nowrap;
+
+    &--more {
+        flex: none;
+        color: var(--kn-ws-muted-text);
+        cursor: default;
+    }
+}
+
+.kn-ws-star {
+    color: var(--kn-ws-muted-text);
+    &--on {
+        color: var(--kn-ws-star-color);
+    }
+}
+
+// Row actions are dim until the row is hovered, never hidden: a q-menu disappears when its anchor
+// is not visible (spec 12 rule 7, hand-off section 7 trap 1).
+.kn-ws-actions {
+    white-space: nowrap;
+    .q-btn {
+        color: var(--kn-ws-icon-color);
+        opacity: 0.35;
+        transition: opacity 0.12s;
+    }
+}
+.kn-ws-table tbody tr:hover .kn-ws-actions .q-btn,
+.kn-ws-table tbody tr:focus-within .kn-ws-actions .q-btn,
+.kn-ws-actions--open .q-btn {
+    opacity: 1;
+}
+@media (hover: none) {
+    .kn-ws-actions .q-btn {
+        opacity: 1;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .kn-ws-actions .q-btn {
+        transition: none;
+    }
+}
+
+// file format of a scheduled output: PDF, XLSX
+.kn-ws-format {
+    padding: 1px 6px;
+    border: 1px solid var(--kn-ws-line);
+    border-radius: var(--kn-ws-radius-sm);
+    color: var(--kn-ws-icon-color);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
+}
+
+// ---------- Small dialogs (forms) ----------
+
+// WorkspaceDialog: header and footer of the same height, each split from the body by a line.
+.kn-ws-dialog__card {
+    max-width: 95vw;
+    max-height: 90vh;
+    border-radius: var(--kn-ws-radius-lg);
+    &--sm {
+        width: min(480px, 95vw);
+    }
+    &--md {
+        width: min(640px, 95vw);
+    }
+    &--lg {
+        width: min(900px, 95vw);
+    }
+}
+
+.kn-ws-dialog__header,
+.kn-ws-dialog__footer {
+    flex: none;
+    min-height: var(--kn-ws-dialog-bar-height);
+    gap: 8px;
+}
+
+.kn-ws-dialog__header {
+    padding: 0 20px;
+}
+
+.kn-ws-dialog__title {
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.kn-ws-dialog__body {
+    min-height: 0;
+    padding: 20px;
+    overflow: auto;
+}
+
+.kn-ws-dialog__footer {
+    padding: 0 12px 0 20px;
+    justify-content: flex-end;
+}
+
+// Centered dialogs center in the page area beside the main menu, not in the whole window.
+.q-dialog.kn-ws-dialog .q-dialog__inner--minimized {
+    padding-left: calc(var(--kn-mainmenu-width) + 24px);
+    // Quasar caps a dialog at 560 px: the card sets its own width (sm, md, lg)
+    > div {
+        max-width: 95vw;
+    }
+}
+
+// Forms: two columns (Label | Name), wide fields on their own row.
+.kn-ws-dialog-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    &--single {
+        grid-template-columns: 1fr;
+    }
+}
+
+.kn-ws-dialog-form__full {
+    grid-column: 1 / -1;
+}
+
+.kn-ws-dialog-section-title {
+    margin: 4px 0 10px;
+    font-size: 11.5px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--kn-ws-muted-text);
+}
+
+.kn-ws-dialog-form + .kn-ws-dialog-section-title,
+.kn-ws-wizard-file + .kn-ws-dialog-section-title {
+    margin-top: 24px;
+}
+
+.kn-ws-dialog-list.q-list {
+    border-radius: var(--kn-ws-radius);
+}
+
+// Manage collections: + shows on hover (and on touch screens), the menu is always there.
+// Opacity, not visibility: a q-menu disappears when its anchor is hidden.
+.kn-ws-collection-actions__add.q-btn {
+    opacity: 0;
+    transition: opacity 0.12s;
+}
+.kn-ws-collection-row:hover .kn-ws-collection-actions__add.q-btn,
+.kn-ws-collection-row:focus-within .kn-ws-collection-actions__add.q-btn,
+.kn-ws-collection-actions--open .kn-ws-collection-actions__add.q-btn {
+    opacity: 1;
+}
+@media (hover: none) {
+    .kn-ws-collection-actions__add.q-btn {
+        opacity: 1;
+    }
+}
+
+// a disabled menu row lets the pointer through, so a tooltip on its wrapper can say why
+.q-menu.kn-ws-menu .kn-popup-row--disabled {
+    pointer-events: none;
+}
+
+// Dataset wizard (WorkspaceDatasetWizard*): fields keep their own height, nothing stretches.
+.kn-ws-wizard-file {
+    gap: 4px;
+}
+
+.kn-ws-wizard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    align-items: start;
+    gap: 12px;
+}
+
+// toggle on the left half, the table name on the right half (only when the toggle is on)
+.kn-ws-wizard-persist {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 16px;
+    min-height: 40px;
+}
+
+// ---------- Drawer (spec 9) ----------
+
+/* A Quasar dialog sits at z-index 6000 (.fullscreen). The main menu (.kn-main-menu) is 9000 and its popups 9100.
+   The drawer covers the whole page including the main menu (spec 9 item 4).
+   q-menus opened inside a modal q-dialog are teleported to the body: they get the class kn-ws-above-drawer. */
+.q-dialog.kn-ws-drawer,
+.q-dialog__backdrop.kn-ws-drawer {
+    z-index: 9200;
+}
+/* Confirmations and small dialogs opened from the drawer. A component q-dialog takes the class on its root;
+   $q.dialog({ class: 'kn-ws-above-drawer' }) puts it on its card, hence the :has() rule. */
+.q-dialog.kn-ws-above-drawer,
+.q-dialog:has(.q-dialog-plugin.kn-ws-above-drawer) {
+    z-index: 9300;
+}
+.q-menu.kn-ws-above-drawer {
+    z-index: 9300;
+}
+.kn-ws-drawer .q-dialog__backdrop {
+    background: var(--kn-editor-backdrop-color);
+}
+// full height: no dialog padding around the card
+.kn-ws-drawer .q-dialog__inner--right {
+    padding: 0;
+}
+.kn-ws-drawer .kn-ws-drawer__card {
+    width: min(var(--kn-ws-drawer-width), 100vw);
+    max-width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+}
+
+// One corner radius on the page: chips and tags as q-btn, nothing pill-shaped (spec 12 rule 4).
+.kn-ws .q-chip,
+.kn-ws-drawer .q-chip,
+.kn-ws .q-badge,
+.kn-ws-drawer .q-badge {
+    border-radius: var(--kn-ws-radius);
+}
+
+.kn-ws-drawer__header {
+    gap: 10px;
+    padding: 12px 8px 12px var(--kn-ws-gutter);
+}
+
+.kn-ws-drawer__name {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.kn-ws-drawer__section {
+    padding: 12px var(--kn-ws-gutter);
+    gap: 8px;
+}
+
+.kn-ws-drawer__section-title {
+    font-size: 11.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--kn-ws-muted-text);
+    font-weight: 500;
+}
+
+.kn-ws-drawer__preview {
+    margin: 12px var(--kn-ws-gutter) 0;
+    aspect-ratio: 16 / 9;
+    background: var(--kn-ws-icon-background);
+    color: var(--kn-ws-muted-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+.kn-ws-drawer__about {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    gap: 4px 10px;
+    font-size: 13px;
+    margin: 0;
+    dt {
+        color: var(--kn-ws-muted-text);
+    }
+    dd {
+        margin: 0;
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+}
+
+.kn-ws-chips {
+    gap: 6px;
+    .q-chip {
+        margin: 0;
+    }
+}
+
+.kn-ws-drawer__add.q-btn {
+    font-size: 13px;
+}
+
+// ---------- Small screens (spec 12 rule 12: 600 px) ----------
+
+@media (max-width: 600px) {
+    .kn-ws-toolbar__end {
+        width: 100%;
+    }
+    .kn-ws-search {
+        width: 100%;
+    }
+}
