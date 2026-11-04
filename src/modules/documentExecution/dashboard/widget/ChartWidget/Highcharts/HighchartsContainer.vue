@@ -81,6 +81,7 @@ import 'highcharts/esm/modules/annotations.js'
 import { getWidgetData } from '../../../DashboardDataProxy'
 import { getColumnAlias } from '../classes/highcharts/helpers/dataLabels/HighchartsDataLabelsHelpers'
 import { getDrilldownDataLabelColor } from './HighchartsDrilldownHelpers'
+import { getLocale } from '@/helpers/commons/localeHelper'
 
 export default defineComponent({
     name: 'highcharts-container',
@@ -246,8 +247,24 @@ export default defineComponent({
 
             const chartContainer = document.getElementById(this.chartID)
             if (!chartContainer) return
-
-            Highcharts.setOptions({ lang: { noData: this.chartModel.lang.noData } })
+            
+            //KNOWAGE-9994 START
+            //Highcharts.setOptions({ lang: { noData: this.chartModel.lang.noData } })
+            const numberParts = new Intl.NumberFormat(getLocale(true), {
+                useGrouping: true
+            }).formatToParts(1234567.89)
+ 
+            const decimalPoint = numberParts.find((part) => part.type === 'decimal')?.value ?? '.'
+            const thousandsSep = numberParts.find((part) => part.type === 'group')?.value ?? ','
+ 
+            Highcharts.setOptions({
+                lang: {
+                    noData: this.chartModel.lang.noData,
+                    decimalPoint,
+                    thousandsSep
+                }
+            })
+            //KNOWAGE-9994 END
             this.widgetModel.settings.chartModel.updateChartColorSettings(this.widgetModel)
 
             // Create a temporary widget model with selected measures from availableMeasures
