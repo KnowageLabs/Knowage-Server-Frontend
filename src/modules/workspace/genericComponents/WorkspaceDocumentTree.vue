@@ -5,19 +5,9 @@
             <div class="row full-width">
                 <q-icon :name="node.icon" class="q-mr-sm" />
                 <span class="col">{{ node.label }}</span>
-                <q-btn v-show="mode === 'select'" flat round dense size="xs" icon="add" @click.stop="createFolder(node)">
-                    <q-tooltip>{{ $t('common.add') }}</q-tooltip>
-                </q-btn>
-                <q-btn v-show="mode === 'select'" v-if="node.id" flat round dense size="xs" icon="edit" @click.stop="editFolder(node.data)">
-                    <q-tooltip>{{ $t('common.edit') }}</q-tooltip>
-                </q-btn>
-                <q-btn v-show="mode === 'select'" v-if="node.id" flat round dense size="xs" icon="delete" @click.stop="deleteFolderConfirm(node)">
-                    <q-tooltip class="text-capitalized">{{ $t('common.delete') }}</q-tooltip>
-                </q-btn>
             </div>
         </template>
     </q-tree>
-    <WorkspaceNewFolderDialog :visible="newFolderDialogVisible" :selected-folder="selectedFolderForEdit" :propFolders="folders" @close="onNewFolderDialogClose" @create="createNewFolder" @edit="onEditFolder"></WorkspaceNewFolderDialog>
 </template>
 
 <script lang="ts">
@@ -25,13 +15,12 @@ import { defineComponent } from 'vue'
 import { AxiosResponse } from 'axios'
 import { IFolder } from '../Workspace'
 import { mapActions } from 'pinia'
-import WorkspaceNewFolderDialog from './WorkspaceNewFolderDialog.vue'
 import workspaceDocumentTreeDescriptor from './WorkspaceDocumentTreeDescriptor.json'
 import mainStore from '@/App.store'
+import { isFavoritesFolder } from '../workspaceHelpers'
 
 export default defineComponent({
     name: 'workspace-document-tree',
-    components: { WorkspaceNewFolderDialog },
     props: { mode: { type: String }, selectedBreadcrumb: { type: Object }, selectedFolderId: { type: String } },
     emits: ['folderSelected', 'delete', 'createFolder'],
     data() {
@@ -42,8 +31,6 @@ export default defineComponent({
             selectedFolderKey: {},
             selectedFolder: null as any,
             buttonsVisible: {},
-            newFolderDialogVisible: false,
-            selectedFolderForEdit: null as any,
             loading: false
         }
     },
@@ -59,7 +46,7 @@ export default defineComponent({
         await this.loadData()
     },
     methods: {
-        ...mapActions(mainStore, ['setInfo', 'setError', 'setLoading']),
+        ...mapActions(mainStore, ['setLoading']),
         async loadData() {
             this.setLoading(true)
             this.loading = true
@@ -75,7 +62,8 @@ export default defineComponent({
             }
         },
         async getAllFolders() {
-            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/repository`).then((response: AxiosResponse<any>) => (this.folders = { ...response.data }))
+            // the Favorites folder of My Workspace is never a place to save into (spec 7.3 item 4)
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/repository`).then((response: AxiosResponse<any>) => (this.folders = { ...response.data, children: (response.data?.children ?? []).filter((folder: IFolder) => !isFavoritesFolder(folder)) }))
         },
         createNodeTree() {
             this.nodes = [] as any[]
@@ -154,72 +142,10 @@ export default defineComponent({
             this.selectedFolder = null
             this.$emit('folderSelected', this.selectedFolder)
         },
-        createFolder(folder: any) {
-            this.selectedFolder = folder
-            this.newFolderDialogVisible = true
-        },
-        editFolder(folder: any) {
-            this.selectedFolderForEdit = folder
-            this.newFolderDialogVisible = true
-        },
-        async createNewFolder(newFolder: any) {
-            newFolder.parentId = this.selectedFolder?.id
-            newFolder.progr = this.selectedFolder.children.length + 1
-            this.setLoading(true)
-            await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/repository', newFolder)
-                .then(async () => {
-                    this.setInfo({ title: this.$t('workspace.myRepository.folderCreatedMessage') })
-                    await this.loadData()
-                })
-                .catch((response: any) => this.setError({ title: this.$t('common.error.generic'), msg: response }))
-                .finally(() => this.onNewFolderDialogClose())
-            this.setLoading(false)
-        },
-        async onEditFolder(folder: any) {
-            this.setLoading(true)
-            const postData = { id: folder.id, name: folder.name, description: folder.description, parentId: folder.parentId, progr: folder.progr }
-            await this.$http
-                .put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/repository`, postData)
-                .then(async () => {
-                    this.setInfo({ title: this.$t('common.toast.updateTitle') })
-                    await this.loadData()
-                })
-                .catch((response: any) => this.setError({ title: this.$t('common.error.generic'), msg: response }))
-                .finally(() => this.onNewFolderDialogClose())
-            this.setLoading(false)
-        },
-        deleteFolderConfirm(folder: any) {
-            this.$confirm.require({
-                message: this.$t('common.toast.deleteMessage'),
-                header: this.$t('common.toast.deleteTitle'),
-                icon: 'pi pi-exclamation-triangle',
-                accept: async () => this.deleteFolder(folder)
-            })
-        },
-        async deleteFolder(folder: any) {
-            this.setLoading(true)
-            await this.$http
-                .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/repository/${folder.id}`, { headers: { 'X-Disable-Errors': 'true' } })
-                .then(async () => {
-                    this.setInfo({
-                        title: this.$t('common.toast.deleteTitle'),
-                        msg: this.$t('common.toast.success')
-                    })
-                    await this.loadData()
-                    this.$router.push('/workspace')
-                })
-                .catch((response: any) => this.setError({ title: this.$t('common.toast.deleteTitle'), msg: response.message === 'sbi.workspace.organizer.folder.error.delete' ? this.$t('workspace.myRepository.folderDeleteError') : response.message }))
-            this.setLoading(false)
-        },
         onBreadcrumbSelected() {
             this.selectedFolder = this.selectedBreadcrumb?.node
             this.selectedFolderKey = {}
             this.selectedFolderKey[this.selectedFolder.key] = true
-        },
-        onNewFolderDialogClose() {
-            this.newFolderDialogVisible = false
-            this.selectedFolderForEdit = null
         }
     }
 })

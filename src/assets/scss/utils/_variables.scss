@@ -79,6 +79,31 @@
     --kn-editor-action-icon-color: rgba(0, 0, 0, 0.6);
     --kn-editor-action-icon-hover-color: rgba(0, 0, 0, 0.87);
 
+    // MY WORKSPACE (src/modules/workspace/workspace.scss)
+    --kn-ws-gutter: 22px;
+    --kn-ws-control-height: 32px;
+    --kn-ws-row-height: 48px;
+    --kn-ws-header-height: 40px;
+    --kn-ws-line: #e0e0e0;
+    --kn-ws-control-border: #d6d9dd;
+    --kn-ws-muted-text: rgba(0, 0, 0, 0.6);
+    --kn-ws-icon-background: #eef1f5;
+    --kn-ws-icon-color: #4a5059;
+    --kn-ws-view-icon-background: #fff6e5;
+    --kn-ws-view-icon-color: #8a5a00;
+    --kn-ws-star-color: #c98a12;
+    --kn-ws-title-font-size: 20px;
+    --kn-ws-drawer-width: 360px;
+    --kn-ws-dialog-bar-height: 56px;
+    // controls, chips, badges, icon tiles and menu rows use one radius; the list card and menus the larger one
+    --kn-ws-radius: 6px;
+    --kn-ws-radius-lg: 8px;
+    // tags, count badges and the tab counters
+    --kn-ws-radius-sm: 4px;
+    --kn-ws-menu-shadow: 0 10px 28px rgba(30, 35, 45, 0.16);
+    --kn-ws-menu-hover-background: #f0f2f5;
+    --kn-ws-group-background: #fafbfc;
+
     // DRAG AND DROP (.kn-dropzone)
     --kn-dropzone-visible-background: rgba(0, 0, 0, 0.04);
     --kn-dropzone-active-background: #aec1d3;

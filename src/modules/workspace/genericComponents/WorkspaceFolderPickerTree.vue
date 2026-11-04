@@ -11,11 +11,10 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IFolder } from '../Workspace'
-import Tree from 'primevue/tree'
+import { isFavoritesFolder } from '../workspaceHelpers'
 
 export default defineComponent({
     name: 'workspace-document-tree',
-    components: { Tree },
     props: { propFolders: { type: Object as PropType<IFolder | null>, required: true } },
     emits: ['folderSelected'],
     data() {
@@ -40,7 +39,8 @@ export default defineComponent({
             this.createNodeTree()
         },
         getAllFolders() {
-            this.folders = this.propFolders ? { ...this.propFolders } : ({} as IFolder)
+            // the Favorites folder of My Workspace is never a place to add a document from here (spec 7.3 item 4)
+            this.folders = this.propFolders ? { ...this.propFolders, children: (this.propFolders.children ?? []).filter((folder: IFolder) => !isFavoritesFolder(folder)) } : ({} as IFolder)
         },
         createNodeTree() {
             if (this.folders && Array.isArray(this.folders.children) && this.folders.children.length > 0) {
