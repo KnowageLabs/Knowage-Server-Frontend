@@ -227,8 +227,8 @@ export default defineComponent({
         async handleEditAnalysis(analysis: any) {
             const formatedAnalysis = {
                 document: {
-                    name: analysis.label,
-                    label: analysis.name,
+                    name: analysis.name,
+                    label: analysis.label,
                     description: analysis.description,
                     id: analysis.id
                 },

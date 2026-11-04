@@ -63,11 +63,16 @@ export default defineComponent({
         async loadData() {
             this.setLoading(true)
             this.loading = true
-            await this.getAllFolders()
-            this.createNodeTree()
-            if (this.selectedFolderId) this.setSelectedFolderFromPropKey()
-            this.loading = false
-            this.setLoading(false)
+            try {
+                await this.getAllFolders()
+                this.createNodeTree()
+                if (this.selectedFolderId) this.setSelectedFolderFromPropKey()
+            } catch {
+                // the axios interceptor already shows the error
+            } finally {
+                this.loading = false
+                this.setLoading(false)
+            }
         },
         async getAllFolders() {
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/repository`).then((response: AxiosResponse<any>) => (this.folders = { ...response.data }))
@@ -78,7 +83,6 @@ export default defineComponent({
             if (this.mode === 'move') this.nodes = this.nodes[0].children
         },
         formatNodes(tree: any, parent: any) {
-            console.log(tree)
             return tree.map((node: any) => {
                 node = {
                     key: node.id,
