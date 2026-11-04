@@ -19,7 +19,7 @@
         <template #footer>
             <div class="p-d-flex p-flex-row p-jc-end">
                 <Button class="kn-button kn-button--primary" data-test="close-button" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
-                <Button class="kn-button kn-button--primary" :disabled="!parentFolder" data-test="save-button" @click="onSave">{{ $t('common.save') }}</Button>
+                <Button class="kn-button kn-button--primary" :disabled="!parentFolderId" data-test="save-button" @click="onSave">{{ $t('common.save') }}</Button>
             </div>
         </template>
     </Dialog>
@@ -48,7 +48,7 @@ export default defineComponent({
             descriptor,
             folders: null as IFolder | null,
             nodes: [] as any[],
-            parentFolder: null as IFolder | null
+            parentFolderId: null as string | null
         }
     },
     watch: {
@@ -63,25 +63,30 @@ export default defineComponent({
         ...mapActions(mainStore, ['setInfo', 'setError', 'setLoading']),
         async loadData() {
             this.setLoading(true)
-            await this.getAllFolders()
-            this.setLoading(false)
+            try {
+                await this.getAllFolders()
+            } catch {
+                // the axios interceptor already shows the error
+            } finally {
+                this.setLoading(false)
+            }
         },
         async getAllFolders() {
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/repository`).then((response: AxiosResponse<any>) => (this.folders = { ...response.data }))
         },
-        setSelectedParentFolder(folder: any) {
-            this.parentFolder = folder
+        // q-tree emits the selected node key, which is the folder id (null when deselected)
+        setSelectedParentFolder(folderId: string | null) {
+            this.parentFolderId = folderId
         },
         closeDialog() {
             this.$emit('close')
-            this.parentFolder = null
+            this.parentFolderId = null
             this.setLoading(false)
         },
         async onSave() {
-            debugger
-            if (!this.document || !this.parentFolder) return
+            if (!this.document || !this.parentFolderId) return
             this.setLoading(true)
-            const postData = { biObjectId: this.document.id, parentId: this.parentFolder }
+            const postData = { biObjectId: this.document.id, parentId: this.parentFolderId }
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/repository/document`, postData)
                 .then(() => {
