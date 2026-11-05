@@ -92,6 +92,8 @@ import { useI18n } from 'vue-i18n'
 import { useLoginConfig } from '@/composables/useLoginConfig'
 import { useTokenVerification } from '@/composables/useTokenVerification'
 import { useAuthFlows } from '@/composables/useAuthFlows'
+import { beginSamlLogin, exchangeSamlCode } from '@/helpers/commons/samlAuth'
+import mainStore from '@/App.store'
 import MfaVerification from './MfaVerification.vue'
 import ForgotPassword from './ForgotPassword.vue'
 import ResetPassword from './ResetPassword.vue'
@@ -101,16 +103,27 @@ const route = useRoute()
 const { t } = useI18n()
 const publicPath = import.meta.env.VITE_PUBLIC_PATH
 
-const { backgroundUrl, backgroundLoaded, loadLoginConfig, preloadImage, loginConfig } = useLoginConfig()
+const { backgroundUrl, backgroundLoaded, loadLoginConfig, preloadImage, loginConfig, samlActive } = useLoginConfig()
 const authFlows = useAuthFlows()
 const { resetToken, verifyResetToken, verifyRegistrationToken, exchangeAuthorizationCode, loginWithJwtFromSessionStorage } = useTokenVerification(authFlows.error, authFlows.success)
 
 const { username, password, isPwd, loading, error, success, showMfa, showForgotPassword, showResetPassword, showRegistration, mfaData, onSubmit, onMfaSuccess, onMfaError, onForgotPasswordBack, onForgotPasswordSuccess, onForgotPasswordError, onResetPasswordSuccess, onResetPasswordError, onRegistrationBack, onRegistrationSuccess, onRegistrationError, openForgotPassword, openResetPassword, openRegistration, completeLogin } = authFlows
 
-const hideLoginForm = ref(false)
+const hideLoginForm = ref(true)
 const hasAuthToken = ref(false)
 const hasUrlError = ref(false)
 const hasAuthCode = ref(false)
+
+const startSamlLogin = async () => {
+    loading.value = true
+    error.value = ''
+    try {
+        window.location.assign(await beginSamlLogin(loginConfig.value.items[0].samlLoginUrl))
+    } catch {
+        loading.value = false
+        error.value = t('common.loginPage.ssoError')
+    }
+}
 
 // Helper per convertire a base64url
 const toBase64Url = (base64: string): string => {
@@ -177,7 +190,7 @@ const containerStyles = computed(() => ({
     backgroundAttachment: 'fixed'
 }))
 
-const showLoginForm = computed(() => !hideLoginForm.value && !hasAuthToken.value && !hasUrlError.value && !hasAuthCode.value && !showMfa.value && !showForgotPassword.value && !showResetPassword.value && !showRegistration.value)
+const showLoginForm = computed(() => !samlActive.value && !hideLoginForm.value && !hasAuthToken.value && !hasUrlError.value && !hasAuthCode.value && !showMfa.value && !showForgotPassword.value && !showResetPassword.value && !showRegistration.value)
 
 onMounted(async () => {
     try {
@@ -189,7 +202,7 @@ onMounted(async () => {
     await loadLoginConfig()
 
     const ssoActive = String(loginConfig.value?.items?.[0]?.ssoActive).toLowerCase() === 'true'
-    hideLoginForm.value = ssoActive
+    hideLoginForm.value = ssoActive || samlActive.value
 
     const urlError = route.query.error as string
     const authToken = route.query.authToken as string
@@ -197,6 +210,47 @@ onMounted(async () => {
     const authState = route.query.state as string
     const logoutReason = route.query.logout as string
     const config = loginConfig.value?.items?.[0]
+
+    if (samlActive.value) {
+        const samlCallback = new URLSearchParams(window.location.hash.substring(1))
+        const hasSamlCallback = ['samlCode', 'samlError', 'samlLoggedOut'].some((key) => samlCallback.has(key))
+        if (hasSamlCallback) {
+            window.history.replaceState({}, document.title, window.location.pathname + window.location.search)
+            sessionStorage.removeItem('token')
+            sessionStorage.removeItem('knowage.saml')
+        }
+
+        if (samlCallback.has('samlError')) {
+            sessionStorage.removeItem('knowage.saml.verifier')
+            error.value = t('common.loginPage.ssoError')
+        } else if (samlCallback.has('samlLoggedOut') || logoutReason) {
+            sessionStorage.removeItem('knowage.saml.verifier')
+            if (logoutReason === 'sessionExpired') error.value = t('common.session.expired')
+        } else if (samlCallback.has('samlCode')) {
+            loading.value = true
+            hasAuthCode.value = true
+            try {
+                const token = await exchangeSamlCode(samlCallback.get('samlCode'), config.samlExchangeUrl)
+                localStorage.removeItem('sessionRole')
+                await mainStore().storeClearIndexedDBCache()
+                sessionStorage.setItem('knowage.saml', 'true')
+                await completeLogin(token, false)
+            } catch {
+                sessionStorage.removeItem('token')
+                sessionStorage.removeItem('knowage.saml')
+                error.value = t('common.loginPage.ssoError')
+                hasAuthCode.value = false
+            } finally {
+                loading.value = false
+            }
+        } else if (urlError) {
+            hasUrlError.value = true
+            error.value = urlError
+        } else {
+            await startSamlLogin()
+        }
+        return
+    }
 
     // Show session-expired banner when redirected from forced logout
     if (logoutReason === 'sessionExpired') {

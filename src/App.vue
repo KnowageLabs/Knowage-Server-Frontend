@@ -29,7 +29,7 @@ import auth from '@/helpers/commons/authHelper'
 import sessionTimeoutHelper from '@/helpers/commons/sessionTimeoutHelper'
 import { useServiceWorker } from '@/composables/useServiceWorker'
 import { decodeJWT, isTokenExpired } from '@/helpers/commons/jwtHelper'
-import { isAuthCallbackInProgress, isLoginRouteByLocation, markAuthReady } from '@/helpers/commons/authState'
+import { isAuthCallbackInProgress, isLoginRouteByLocation, isSamlCallbackInProgress, markAuthReady } from '@/helpers/commons/authState'
 
 export default defineComponent({
     components: { ConfirmDialog, KnOverlaySpinnerPanel, KnRotate, MainMenu, Toast },
@@ -155,6 +155,10 @@ export default defineComponent({
         let token = sessionStorage.getItem('token')
         const isLoginRoute = this.$route.name === 'login' || isLoginRouteByLocation()
         const isAuthCallbackRoute = isAuthCallbackInProgress()
+        if (isSamlCallbackInProgress()) {
+            sessionStorage.removeItem('token')
+            token = null
+        }
 
         // Gestione pagina pubblica
         if (!token && locationParams.get('public')) {
@@ -319,8 +323,10 @@ export default defineComponent({
         async loadUserConfigsAndInitialize() {
             if (this.postLoginInitDone) return
             this.postLoginInitDone = true
+            this.setLoading(true)
 
-            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/user-configs').then(async (response: any) => {
+            try {
+                const response = await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/user-configs')
                 this.checkTopLevelIframe(response.data)
                 this.setConfigurations(response.data)
                 this.checkOIDCSession(response.data)
@@ -331,18 +337,25 @@ export default defineComponent({
                 }
 
                 if (this.isEnterprise) {
-                    await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/license').then((response) => {
-                        this.setLicenses(response.data)
-                        if (!this.isEnterpriseValid) {
-                            this.$q.notify({
-                                position: 'top',
-                                type: 'warning',
-                                timeout: 0,
-                                closeBtn: this.$t('common.dismiss'),
-                                message: this.$t('common.error.licenseInvalid')
-                            })
-                        }
-                    })
+                    await this.$http
+                        .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/license')
+                        .then((response) => {
+                            this.setLicenses(response.data)
+                            if (!this.isEnterpriseValid) {
+                                this.$q.notify({
+                                    position: 'top',
+                                    type: 'warning',
+                                    timeout: 0,
+                                    closeBtn: this.$t('common.dismiss'),
+                                    message: this.$t('common.error.licenseInvalid')
+                                })
+                            }
+                        })
+                        .catch((error: any) => {
+                            const status = error.response?.status
+                            const permissionDenied = error.response?.data?.errors?.some((item) => item.message === 'not-enabled-to-call-service')
+                            if (status !== 403 && !(status === 400 && permissionDenied)) throw error
+                        })
 
                     // Carica tema personalizzato se enterprise
                     if (Object.keys(this.theme).length === 0) {
@@ -355,9 +368,14 @@ export default defineComponent({
                     }
                 }
 
-                this.onLoad()
+                await this.onLoad()
                 sessionTimeoutHelper.start(this.configurations)
-            })
+            } catch (error) {
+                this.postLoginInitDone = false
+                console.error('Errore inizializzazione utente:', error)
+            } finally {
+                this.setLoading(false)
+            }
         },
         closeDialog() {
             this.$emit('update:visibility', false)
@@ -425,14 +443,8 @@ export default defineComponent({
                         })
                     })
                     .catch((error) => {})
-                    .finally(() => {
-                        this.loadInternationalization()
-                        this.setLoading(false)
-                    })
-            } else {
-                this.loadInternationalization()
-                this.setLoading(false)
             }
+            await this.loadInternationalization()
         },
         async loadInternationalization() {
             let currentLocale = localStorage.getItem('locale') ? localStorage.getItem('locale') : this.locale

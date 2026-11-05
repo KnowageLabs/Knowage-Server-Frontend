@@ -56,6 +56,19 @@ describe('useLoginConfig — loadLoginConfig', () => {
         localStorage.clear()
     })
 
+    it.each([
+        [true, true],
+        ['true', true],
+        [false, false],
+        ['false', false],
+        [undefined, false]
+    ])('normalizes the SAML enable flag %s to %s', async (flag, enabled) => {
+        mockAxiosGet.mockResolvedValueOnce({ data: { items: [{ samlActive: flag }] } })
+        const { loadLoginConfig, samlActive } = useLoginConfig()
+        await loadLoginConfig()
+        expect(samlActive.value).toBe(enabled)
+    })
+
     it('calls the correct endpoint', async () => {
         mockAxiosGet.mockResolvedValueOnce({ data: { items: [] } })
 
@@ -145,7 +158,7 @@ describe('useLoginConfig — loadLoginConfig with custom background', () => {
         })
 
         const mockImage = { onload: null as any, onerror: null as any, src: '' }
-        vi.spyOn(global, 'Image').mockImplementation(() => {
+        vi.spyOn(global, 'Image').mockImplementation(function () {
             setTimeout(() => mockImage.onload?.(), 0)
             return mockImage as any
         })
@@ -163,7 +176,7 @@ describe('useLoginConfig — loadLoginConfig with custom background', () => {
         })
 
         const mockImage = { onload: null as any, onerror: null as any, src: '' }
-        vi.spyOn(global, 'Image').mockImplementation(() => {
+        vi.spyOn(global, 'Image').mockImplementation(function () {
             setTimeout(() => mockImage.onload?.(), 0)
             return mockImage as any
         })
@@ -180,7 +193,7 @@ describe('useLoginConfig — loadLoginConfig with custom background', () => {
         })
 
         const mockImage = { onload: null as any, onerror: null as any, src: '' }
-        vi.spyOn(global, 'Image').mockImplementation(() => {
+        vi.spyOn(global, 'Image').mockImplementation(function () {
             setTimeout(() => mockImage.onerror?.(), 0)
             return mockImage as any
         })
@@ -198,7 +211,7 @@ describe('useLoginConfig — loadLoginConfig with custom background', () => {
         })
 
         const mockImage = { onload: null as any, onerror: null as any, src: '' }
-        vi.spyOn(global, 'Image').mockImplementation(() => {
+        vi.spyOn(global, 'Image').mockImplementation(function () {
             setTimeout(() => mockImage.onerror?.(), 0)
             return mockImage as any
         })
@@ -213,7 +226,7 @@ describe('useLoginConfig — loadLoginConfig with custom background', () => {
 describe('useLoginConfig — preloadImage', () => {
     it('resolves when the image loads successfully', async () => {
         const mockImage = { onload: null as any, onerror: null as any, src: '' }
-        vi.spyOn(global, 'Image').mockImplementation(() => {
+        vi.spyOn(global, 'Image').mockImplementation(function () {
             setTimeout(() => mockImage.onload?.(), 0)
             return mockImage as any
         })
@@ -224,7 +237,7 @@ describe('useLoginConfig — preloadImage', () => {
 
     it('rejects when the image fails to load', async () => {
         const mockImage = { onload: null as any, onerror: null as any, src: '' }
-        vi.spyOn(global, 'Image').mockImplementation(() => {
+        vi.spyOn(global, 'Image').mockImplementation(function () {
             setTimeout(() => mockImage.onerror?.(), 0)
             return mockImage as any
         })
@@ -235,7 +248,7 @@ describe('useLoginConfig — preloadImage', () => {
 
     it('sets the src on the Image object', async () => {
         const mockImage = { onload: null as any, onerror: null as any, src: '' }
-        vi.spyOn(global, 'Image').mockImplementation(() => {
+        vi.spyOn(global, 'Image').mockImplementation(function () {
             setTimeout(() => mockImage.onload?.(), 0)
             return mockImage as any
         })

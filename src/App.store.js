@@ -131,7 +131,7 @@ const store = defineStore('store', {
             return this.locale
         },
         storeClearIndexedDBCache() {
-            indexedDB.widgetData.clear()
+            return indexedDB.widgetData.clear()
         },
         toggleMenuOpened() {
             this.menuOpened = !this.menuOpened

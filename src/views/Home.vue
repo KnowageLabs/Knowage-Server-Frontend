@@ -1,7 +1,7 @@
 encode<template>
     <iframe v-if="!homePage.loading && homePage.type === 'dynamic' && dynamicSrcdoc" ref="dynamicHomeFrame" :srcdoc="dynamicSrcdoc" style="border:0;width:100%;height:100%;" @load="bindDynamicHomeFrameInteractions"></iframe>
-    <img v-else-if="showImage" v-show="iframeLoaded" :src="completeUrl" class="homepage-image" @load="onIframeLoad" />
-    <iframe v-else-if="showIframe" v-show="iframeLoaded" :src="`${completeUrl}`" @load="onIframeLoad"></iframe>
+    <img v-else-if="showImage" v-show="iframeLoaded" :src="completeUrl" class="homepage-image" @load="onIframeLoad" @error="onHomeLoadError" />
+    <iframe v-else-if="showIframe" v-show="iframeLoaded" :src="`${completeUrl}`" @load="onIframeLoad" @error="onHomeLoadError"></iframe>
     <div v-if="showDefaultHome" class="homeContainer">
         <div class="upperSection p-d-flex">
             <div class="p-d-flex p-flex-column kn-flex">
@@ -333,6 +333,10 @@ export default defineComponent({
         onIframeLoad() {
             this.iframeLoaded = true
             this.stopGlobalLoading()
+        },
+        onHomeLoadError() {
+            this.stopGlobalLoading()
+            this.setHomePage({})
         },
         startGlobalLoading() {
             if (!this.isManagingGlobalLoading) {
