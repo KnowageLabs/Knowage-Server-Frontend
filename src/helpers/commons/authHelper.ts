@@ -2,6 +2,9 @@ import mainStore from '../../App.store'
 import pinia from '@/pinia'
 import axios from '@/axios.js'
 import router from '@/App.routes'
+import { isFederatedSession } from './samlAuth'
+
+let federatedLogoutPending = false
 
 function resolveLogoutRedirectURI(redirectURI?: string): string {
     if (!redirectURI) return ''
@@ -31,41 +34,71 @@ function resolveLogoutRedirectURI(redirectURI?: string): string {
     }
 }
 
-async function invalidateSession(jsps: string[] = [], redirectURI: string, query: string, redirectPath?: string): Promise<void> {
+async function invalidateSession(jsps: string[] = [], redirectURI: string, query: string, redirectPath: string | undefined, cleanup: () => void, samlRequest?: string): Promise<void> {
     const jspPromises = jsps.map((p) => {
         return axios.get(p)
     })
 
     await Promise.allSettled([...jspPromises])
-    if (redirectURI) window.location.href = redirectURI
+    cleanup()
+    if (samlRequest) {
+        const form = document.createElement('form')
+        form.method = 'POST'
+        form.action = redirectURI
+        const input = document.createElement('input')
+        input.type = 'hidden'
+        input.name = 'SAMLRequest'
+        input.value = samlRequest
+        form.appendChild(input)
+        document.body.appendChild(form)
+        form.submit()
+    } else if (redirectURI) window.location.href = redirectURI
     else {
         const loginQuery: Record<string, string> = { logout: query }
         if (redirectPath) loginQuery.redirect = redirectPath
-        router.replace({ path: '/login', query: loginQuery, hash: '' })
+        await router.replace({ path: '/login', query: loginQuery, hash: '' })
     }
 }
 
 export default {
     async logout(unauthorized, query, redirectPath?: string): Promise<void> {
+        if (federatedLogoutPending) return
         const store = mainStore(pinia)
+        const federated = isFederatedSession()
+        if (federated) federatedLogoutPending = true
         store.setLoading(true)
-        const host = window.location.origin
-        let endpoint = `${host}${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/logout`
-        if (unauthorized) endpoint = `${host}${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/logout/auto`
-        await axios
-            .post(endpoint)
-            .then((response) => {
-                invalidateSession(response.data.urlEnginesInvalidate, resolveLogoutRedirectURI(response.data.redirectUrl), query, redirectPath)
-            })
-            .finally(() => {
+        let leavingForIdp = false
+        let cleaned = false
+        const cleanup = () => {
+            if (!cleaned) {
+                cleaned = true
                 localStorage.clear()
                 sessionStorage.clear()
                 store.storeClearIndexedDBCache()
                 store.setUser({})
                 store.setLoading(false)
-            })
+            }
+        }
+        try {
+            if (federated && unauthorized) {
+                await invalidateSession([], '', query || 'sessionExpired', redirectPath, cleanup)
+                return
+            }
+            const host = window.location.origin
+            let endpoint = `${host}${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/logout`
+            if (unauthorized) endpoint = `${host}${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/logout/auto`
+            const response = await axios.post(endpoint)
+            const samlRequest = response.data.samlLogoutRequest
+            const target = samlRequest ? response.data.samlLogoutUrl : resolveLogoutRedirectURI(response.data.redirectUrl)
+            await invalidateSession(response.data.urlEnginesInvalidate, target, query, redirectPath, cleanup, samlRequest)
+            leavingForIdp = federated && !!target
+        } finally {
+            cleanup()
+            if (!leavingForIdp) federatedLogoutPending = false
+        }
     },
     handleUnauthorized(): void {
+        if (federatedLogoutPending) return
         let search = window.location.search ?? ''
         if (search && search.charAt(0) === '?') search = '&' + search.substring(1)
         this.logout(true, search)

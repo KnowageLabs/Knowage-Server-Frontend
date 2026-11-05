@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import axios from 'axios'
 import mainStore from '@/App.store'
@@ -9,6 +9,7 @@ export const useLoginConfig = () => {
     const store = mainStore()
 
     const loginConfig = ref<any>(null)
+    const samlActive = computed(() => String(loginConfig.value?.items?.[0]?.samlActive).toLowerCase() === 'true')
     const backgroundUrl = ref(`${import.meta.env.VITE_PUBLIC_PATH}images/home/home-background.jpg`)
     const backgroundLoaded = ref(true)
 
@@ -58,6 +59,7 @@ export const useLoginConfig = () => {
 
     return {
         loginConfig,
+        samlActive,
         backgroundUrl,
         backgroundLoaded,
         loadLoginConfig,

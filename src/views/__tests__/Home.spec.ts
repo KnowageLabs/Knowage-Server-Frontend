@@ -1,4 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { shallowMount } from '@vue/test-utils'
+import { createPinia } from 'pinia'
+import mainStore from '@/App.store'
 
 const { mockAxiosGet } = vi.hoisted(() => ({
     mockAxiosGet: vi.fn()
@@ -8,6 +11,10 @@ vi.mock('@/axios.js', () => ({
     default: {
         get: mockAxiosGet
     }
+}))
+
+vi.mock('/images/commons/logo_knowage_white.svg', () => ({
+    default: 'test-logo.svg'
 }))
 
 import Home from '../Home.vue'
@@ -259,5 +266,27 @@ describe('Home dynamic navigation', () => {
 
         expect(computed.showImage.call(context)).toBe(false)
         expect(computed.showIframe.call(context)).toBe(true)
+    })
+
+    it('falls back after an image error without clearing other operations loading', async () => {
+        const pinia = createPinia()
+        const store = mainStore(pinia)
+        store.setHomePage({ type: 'image', url: 'https://example.com/unavailable.png' })
+        store.setLoading(true)
+        store.setLoading(true)
+        const wrapper = shallowMount(
+            { ...Home, mounted() {} },
+            { global: { plugins: [pinia], mocks: { $t: (key: string) => key } } }
+        )
+
+        await wrapper.setData({ completeUrl: store.homePage.url, isManagingGlobalLoading: true })
+        await wrapper.get('img.homepage-image').trigger('error')
+
+        expect(store.loading).toBe(1)
+        expect(wrapper.find('.homeContainer').exists()).toBe(true)
+        expect((wrapper.vm as any).isManagingGlobalLoading).toBe(false)
+
+        wrapper.unmount()
+        expect(store.loading).toBe(1)
     })
 })

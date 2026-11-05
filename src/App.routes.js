@@ -14,7 +14,7 @@ import { loadLanguageAsync } from '@/App.i18n.js'
 import mainStore from '@/App.store'
 import pinia from '@/pinia'
 import axios from '@/axios.js'
-import { authReady } from '@/helpers/commons/authState'
+import { authReady, isSamlCallbackInProgress } from '@/helpers/commons/authState'
 
 const AUTH_READY_TIMEOUT_MS = 3000
 
@@ -91,6 +91,7 @@ const baseRoutes = [
     },
     {
         path: '/login',
+        alias: '/saml-login',
         name: 'login',
         component: () => import('@/views/login/Login.vue'),
         meta: { hideMenu: true, public: true }
@@ -130,6 +131,10 @@ router.beforeEach(async (to, from, next) => {
 
     const checkRequired = !('/' == to.fullPath && '/' == from.fullPath)
     let loggedIn = sessionStorage.getItem('token')
+    if (isSamlCallbackInProgress()) {
+        sessionStorage.removeItem('token')
+        loggedIn = null
+    }
 
     // Check custom session timeout before any API call so that the lastResponseTimestamp
     // is not refreshed by ensureUserLoaded before the check runs.
