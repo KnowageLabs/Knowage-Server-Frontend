@@ -62,6 +62,7 @@
             "python": "python"
         },
         "collapse": "collassa",
+        "columns": "Colonne",
         "comment": "commento",
         "confirmPassword": "Conferma Password",
         "continue": "continua",
@@ -876,7 +877,7 @@
                 "scatterchart": {
                     "dimensionsTableHint": "Click on exactly one attribute to define categories.",
                     "valuesTableHint": "Click on at least one measure to define series."
-                },
+                },    
                 "showChekboxes": "Show Checkboxes",
                 "solidGauge": {
                     "valuesTableHint": "Measures only."
@@ -1188,6 +1189,8 @@
                 "showIndexesColumn": "Show indexes column",
                 "title": "Rows"
             },
+            "searchInTableWidget": "Cerca nel widget tabella",
+            "searchInTableWidgetHint": "Seleziona le colonne e inserisci un valore da cercare nel widget tabella.", 
             "selectDataset": "Select Dataset",
             "selectedColumns": "Selected Columns",
             "selectorType": {
@@ -1532,11 +1535,10 @@
             "birtUpgradeConfirm": "Il template BIRT usa la versione obsoleta 3.0.0. Vuoi aggiornare la versione a 3.2.27 e salvare una nuova revisione del template prima di aprire il report? La revisione precedente verrà conservata.",
             "birtUpgradePermission": "Il template BIRT deve essere aggiornato dalla versione 3.0.0 alla 3.2.27. Contatta un utente con i permessi di modifica del documento.",
             "birtUpgradeError": "Impossibile verificare o aggiornare il template BIRT. Il report non è stato avviato. Riprova; se il problema persiste, contatta l'amministratore.",
-            "addToWorkspace": "aggiungi al mio workspace",
-            "addToWorkspaceError": "Il documento non può essere aggiunto nel workspace. Esiste già nella cartella padre dell'organizer.",
-            "addToWorkspaceHint": "Aggiungi il documento al tuo workspace per trovarlo facilmente più tardi nella sezione \"My Workspace\" dell'organizzatore workspace.",
-            "addToWorkspaceNoFolderError": "Non sono presenti cartelle nel tuo workspace. Aggiungine prima una per poter procedere",
-            "cacheCleared": "Cache cancellata correttamente",
+            "addToWorkspace": "aggiungi al mio spazio di lavoro",
+            "addToWorkspaceError": "Il documento non può essere aggiunto nello spazio di lavoro. Esiste già nella cartella padre dell'organizer.",
+            "addToWorkspaceHint": "Aggiungi il documento al tuo spazio di lavoro per trovarlo facilmente più tardi nella sezione \"Il mio spazio di lavoro\".",
+            "addToWorkspaceNoFolderError": "Non sono presenti cartelle nel tuo spazio di lavoro. Aggiungine prima una per poter procedere","cacheCleared": "Cache cancellata correttamente",
             "clearCache": "Cancella cache",
             "closeDocumentConfirmMessage": "Stai abbandonando la modalità modifica. Continuare?",
             "closeDocumentConfirmTitle": "Chiudi Documento",
