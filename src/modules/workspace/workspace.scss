@@ -117,6 +117,11 @@
     color: var(--kn-ws-muted-text);
 }
 
+// a long collection name on the Collection button (spec 6.4)
+.kn-ws-control__label {
+    max-width: 220px;
+}
+
 .kn-ws-count {
     min-width: 18px;
     height: 18px;
@@ -765,8 +770,41 @@
 }
 
 .kn-ws-drawer__header {
-    gap: 10px;
-    padding: 12px 8px 12px var(--kn-ws-gutter);
+    gap: 12px;
+    padding: 14px 8px 4px var(--kn-ws-gutter);
+}
+
+// 40 px tile: the type icon, or the preview image (spec 9)
+.kn-ws-drawer__tile {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--kn-ws-radius);
+    background: var(--kn-ws-icon-background);
+    color: var(--kn-ws-icon-color);
+    overflow: hidden;
+    &--view {
+        background: var(--kn-ws-view-icon-background);
+        color: var(--kn-ws-view-icon-color);
+    }
+    &--image.q-btn {
+        min-height: 40px;
+        cursor: zoom-in;
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+    }
+}
+
+.kn-ws-drawer__title {
+    min-width: 0;
+    padding-top: 1px;
 }
 
 .kn-ws-drawer__name {
@@ -776,9 +814,49 @@
     overflow-wrap: anywhere;
 }
 
+.kn-ws-drawer__sub {
+    font-size: 12.5px;
+    color: var(--kn-ws-muted-text);
+    overflow-wrap: anywhere;
+}
+
+.kn-ws-drawer__buttons {
+    margin-top: -2px;
+}
+
+.kn-ws-link {
+    color: var(--kn-color-primary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+// The split button: the main action fills the width, ▾ stays narrow.
+.kn-ws-drawer__action {
+    padding: 10px var(--kn-ws-gutter) 16px;
+    .q-btn-group {
+        width: 100%;
+        border-radius: var(--kn-ws-radius);
+    }
+    .q-btn-group > .q-btn:first-child {
+        flex: 1;
+    }
+    .q-btn-dropdown__arrow-container {
+        border-left: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+        padding: 0 8px;
+    }
+    .q-btn {
+        min-height: var(--kn-ws-control-height);
+    }
+    > .q-btn {
+        border-radius: var(--kn-ws-radius);
+    }
+}
+
+// Flat sections with a line between them (option A of the drawer review).
 .kn-ws-drawer__section {
-    padding: 12px var(--kn-ws-gutter);
+    padding: 14px var(--kn-ws-gutter);
     gap: 8px;
+    border-top: 1px solid var(--kn-ws-line);
 }
 
 .kn-ws-drawer__section-title {
@@ -789,19 +867,25 @@
     font-weight: 500;
 }
 
-.kn-ws-drawer__preview {
-    margin: 12px var(--kn-ws-gutter) 0;
-    aspect-ratio: 16 / 9;
-    background: var(--kn-ws-icon-background);
-    color: var(--kn-ws-muted-text);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
+.kn-ws-drawer__multiline {
+    white-space: pre-line;
+}
+
+.kn-ws-drawer__list {
+    margin: 0 -8px;
+    .q-item {
+        border-radius: var(--kn-ws-radius);
+        padding: 6px 8px;
+        min-height: 34px;
+    }
+}
+
+.kn-ws-image-card {
+    max-width: min(900px, 90vw);
     img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
+        display: block;
+        max-width: 100%;
+        max-height: 80vh;
     }
 }
 

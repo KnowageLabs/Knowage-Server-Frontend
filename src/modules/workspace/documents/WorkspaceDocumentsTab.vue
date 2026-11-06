@@ -12,7 +12,8 @@
 
         <WorkspaceToolbar :scope="query.scope" :scope-options="SCOPE_OPTIONS" :search="query.q" :search-placeholder="$t('workspace.search.documents')" @update:scope="update({ scope: $event })" @update:search="update({ q: $event })">
             <template #filters>
-                <WorkspaceFiltersButton :groups="filterGroups" @toggle="onFilterToggle" @clear="update({ type: [], collection: '' })" />
+                <WorkspaceFiltersButton v-if="collectionsAllowed" :groups="collectionGroups" icon="sym_o_folder" :label="$t('workspace.collection')" :active-label="activeCollectionName" :clearable="false" data-ws="collection" tour-id="ws-collection" @toggle="(_group, value) => update({ collection: value === activeCollection ? '' : value })" />
+                <WorkspaceFiltersButton :groups="typeGroups" @toggle="(_group, value) => toggleInList('type', value)" @clear="update({ type: [] })" />
             </template>
         </WorkspaceToolbar>
 
@@ -22,7 +23,7 @@
         </div>
 
         <WorkspaceDrawer v-model="drawerOpen">
-            <WorkspaceDocumentDrawer :row="drawerRow" :actions="actions" :type-label="typeLabel" @select="openDrawer" @new-collection="openNewCollection($event, true)" @download="downloadOutput" @removed="drawerOpen = false" />
+            <WorkspaceDocumentDrawer :row="drawerRow" :actions="actions" :type-label="typeLabel" @select="openDrawer" @new-collection="openNewCollection($event, true)" @removed="drawerOpen = false" />
         </WorkspaceDrawer>
 
         <WorkspaceCollectionDialog v-model="collectionDialog.open" :collection="collectionDialog.collection" :parent="collectionDialog.parent" :dialog-class="collectionDialog.aboveDrawer ? 'kn-ws-above-drawer' : undefined" @saved="onCollectionSaved" />
@@ -40,11 +41,9 @@ import { computed, onActivated, onDeactivated, onMounted, reactive, ref, watch }
 import { useI18n } from 'vue-i18n'
 import mainStore from '@/App.store'
 import KnHint from '@/components/UI/KnHint.vue'
-import { downloadDirectFromResponse } from '@/helpers/commons/fileHelper'
 import DocumentDetailDossierDesignerDialog from '@/modules/documentExecution/documentDetails/dialogs/dossierDesignerDialog/DocumentDetailDossierDesignerDialog.vue'
 import useWorkspaceStore from '../workspace.store'
-import { WsCollection, WsDocumentRow, WsOutputRow } from '../Workspace'
-import { downloadSnapshot } from '../workspaceApi'
+import { WsCollection, WsDocumentRow } from '../Workspace'
 import { canUseCollections, documentTypeIcon, documentTypeLabelKey, filterDocuments, inDocumentScope, rowTypeKey, sortDocumentsDefault } from '../workspaceHelpers'
 import { useWorkspaceQuery } from '../common/useWorkspaceQuery'
 import WorkspaceDrawer from '../common/WorkspaceDrawer.vue'
@@ -100,35 +99,32 @@ const rows = computed(() => sortDocumentsDefault(filterDocuments(store.documents
 const workspaceEmpty = computed(() => store.documentsLoaded && store.documents.length === 0)
 
 // The counts are for the current scope, before the filters (spec 6.2).
-const filterGroups = computed<WsFilterGroup[]>(() => {
+const typeGroups = computed<WsFilterGroup[]>(() => {
     const typeKeys = [...new Set(store.documents.map(rowTypeKey))].sort((a, b) => typeLabel(a).localeCompare(typeLabel(b)))
-    const groups: WsFilterGroup[] = [
+    return [
         {
             id: 'type',
             labelKey: 'workspace.filter.type',
             options: typeKeys.map((key) => ({ value: key, label: typeLabel(key), icon: documentTypeIcon(key), count: scopedRows.value.filter((r) => rowTypeKey(r) === key).length, selected: query.value.type.includes(key) }))
         }
     ]
-    if (collectionsAllowed.value) {
-        groups.push({
-            id: 'collection',
-            labelKey: 'workspace.filter.collections',
-            single: true,
-            noneValue: '',
-            options: [{ value: '', label: t('workspace.filter.anyCollection'), selected: !activeCollection.value }, ...store.collections.map((c) => ({ value: c.id, label: c.name, indent: c.depth, count: scopedRows.value.filter((r) => r.links.some((l) => l.folderId === c.id)).length, selected: activeCollection.value === c.id }))],
-            actions: [
-                { id: 'new', icon: 'sym_o_create_new_folder', labelKey: 'workspace.newCollection', run: () => openNewCollection(null) },
-                { id: 'manage', icon: 'sym_o_edit', labelKey: 'workspace.manageCollections', run: () => (manageOpen.value = true) }
-            ]
-        })
-    }
-    return groups
 })
 
-function onFilterToggle(groupId: string, value: string) {
-    if (groupId === 'type') toggleInList('type', value)
-    else if (groupId === 'collection') update({ collection: value === activeCollection.value ? '' : value })
-}
+// The Collection button (spec 6.4): one choice, the folder tree, New and Manage.
+const activeCollectionName = computed(() => store.collections.find((c) => c.id === activeCollection.value)?.name)
+const collectionGroups = computed<WsFilterGroup[]>(() => [
+    {
+        id: 'collection',
+        labelKey: 'workspace.filter.collections',
+        single: true,
+        noneValue: '',
+        options: [{ value: '', label: t('workspace.filter.anyCollection'), selected: !activeCollection.value }, ...store.collections.map((c) => ({ value: c.id, label: c.name, indent: c.depth, count: scopedRows.value.filter((r) => r.links.some((l) => l.folderId === c.id)).length, selected: activeCollection.value === c.id }))],
+        actions: [
+            { id: 'new', icon: 'sym_o_create_new_folder', labelKey: 'workspace.newCollection', run: () => openNewCollection(null) },
+            { id: 'manage', icon: 'sym_o_edit', labelKey: 'workspace.manageCollections', run: () => (manageOpen.value = true) }
+        ]
+    }
+])
 
 // The "no rows" button also resets the scope and the search (spec 11).
 const clearAll = () => update({ scope: 'all', type: [], collection: '', q: '' })
@@ -206,14 +202,6 @@ async function onPreviewPicked(event: Event) {
     try {
         await store.uploadPreview(previewRow.value, file)
         appStore.setInfo({ title: 'common.uploading', msg: 'common.toast.uploadSuccess' })
-    } catch {
-        // the axios interceptor shows the error
-    }
-}
-
-async function downloadOutput(output: WsOutputRow) {
-    try {
-        downloadDirectFromResponse(await downloadSnapshot(output.biObjectId, output.snapshotId))
     } catch {
         // the axios interceptor shows the error
     }
