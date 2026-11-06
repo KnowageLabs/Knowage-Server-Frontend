@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canSeeWorkspaceTab, compareDocumentsDefault, dataColumnSet, filterDocuments, findFavoritesFolder, flattenCollections, formatFromContentType, fromBe1, getExecutionRoute, getRouteDocumentType, isFavoriteRow, isMineRow, isOnlyLinked, mergeDocuments, outputGroup, parseServerDate, rowCollectionLinks, snapshotsToOutputs, sortDocumentsDefault } from '../workspaceHelpers'
+import { canSeeWorkspaceTab, compareDocumentsDefault, filterDocuments, findFavoritesFolder, flattenCollections, formatFromContentType, fromBe1, getExecutionRoute, getRouteDocumentType, isFavoriteRow, isMineRow, isOnlyLinked, mergeDocuments, outputGroup, parseServerDate, rowCollectionLinks, snapshotsToOutputs, sortDocumentsDefault } from '../workspaceHelpers'
 import { parseWorkspaceQuery, serializeWorkspaceQuery } from '../common/useWorkspaceQuery'
 
 const FAV = 'fav-folder'
@@ -176,18 +176,13 @@ describe('tabs, data and scheduled', () => {
     it('shows a tab with its functionality', () => {
         const user = (functionalities: string[], isSuperadmin = false) => ({ functionalities, isSuperadmin })
         expect(canSeeWorkspaceTab(user([]), 'documents')).toBe(true)
-        expect(canSeeWorkspaceTab(user([]), 'data')).toBe(false)
-        expect(canSeeWorkspaceTab(user(['BuildQbeQueriesFunctionality']), 'data')).toBe(true)
+        expect(canSeeWorkspaceTab(user([]), 'datasets')).toBe(false)
+        expect(canSeeWorkspaceTab(user(['SelfServiceDatasetManagement']), 'datasets')).toBe(true)
+        expect(canSeeWorkspaceTab(user(['BuildQbeQueriesFunctionality']), 'datasets')).toBe(false)
+        expect(canSeeWorkspaceTab(user(['BuildQbeQueriesFunctionality']), 'models')).toBe(true)
         expect(canSeeWorkspaceTab(user(['SeeSnapshotsFunctionality']), 'scheduled')).toBe(false)
         expect(canSeeWorkspaceTab(user(['SeeSnapshotsFunctionality', 'ViewScheduledWorkspace']), 'scheduled')).toBe(true)
         expect(canSeeWorkspaceTab(user([], true), 'scheduled')).toBe(true)
-    })
-
-    it('chooses the data column set from the Kind and Dataset type filters', () => {
-        expect(dataColumnSet({ kinds: [], dsTypes: [] })).toBe('both')
-        expect(dataColumnSet({ kinds: ['MODEL'], dsTypes: [] })).toBe('models')
-        expect(dataColumnSet({ kinds: ['DATASET'], dsTypes: [] })).toBe('datasets')
-        expect(dataColumnSet({ kinds: [], dsTypes: ['File'] })).toBe('datasets')
     })
 
     it('maps snapshots to outputs and groups them', () => {

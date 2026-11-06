@@ -19,6 +19,12 @@ const lastTabLocation = () => {
 
 const documents = (query = {}) => ({ path: '/workspace/documents', query })
 
+function dataTabRedirect(to) {
+    const { kind, ...rest } = to.query
+    if (kind === 'model') return { path: '/workspace/models', query: Object.fromEntries(Object.entries({ category: rest.category, q: rest.q }).filter(([, value]) => value)) }
+    return { path: '/workspace/datasets', query: rest }
+}
+
 const baseRoutes = [
     {
         path: '/workspace',
@@ -36,11 +42,18 @@ const baseRoutes = [
                 component: () => import('@/modules/workspace/documents/WorkspaceDocumentsTab.vue')
             },
             {
-                path: 'data',
-                name: 'workspace-data',
-                meta: { wsTab: 'data' },
-                beforeEnter: tabGuard('data'),
-                component: () => import('@/modules/workspace/data/WorkspaceDataTab.vue')
+                path: 'datasets',
+                name: 'workspace-datasets',
+                meta: { wsTab: 'datasets' },
+                beforeEnter: tabGuard('datasets'),
+                component: () => import('@/modules/workspace/data/WorkspaceDatasetsTab.vue')
+            },
+            {
+                path: 'models',
+                name: 'workspace-models',
+                meta: { wsTab: 'models' },
+                beforeEnter: tabGuard('models'),
+                component: () => import('@/modules/workspace/data/WorkspaceModelsTab.vue')
             },
             {
                 path: 'scheduled',
@@ -54,11 +67,11 @@ const baseRoutes = [
             { path: 'repository/:id', redirect: (to) => documents({ collection: to.params.id }) },
             { path: 'repository', redirect: () => documents() },
             { path: 'analysis', redirect: () => documents({ scope: 'mine' }) },
-            { path: 'models', redirect: () => ({ path: '/workspace/data', query: { kind: 'model' } }) },
             { path: 'models/federation-definition/:rest(.*)*', redirect: () => documents() },
             { path: 'schedulation', redirect: () => ({ path: '/workspace/scheduled' }) },
             { path: 'advanced', redirect: () => documents() },
-            { path: 'datasets', redirect: () => ({ path: '/workspace/data' }) }
+            // the round 1 Data tab (spec 5.3): kind=model alone opens Business models, anything else Datasets
+            { path: 'data', redirect: dataTabRedirect }
         ]
     }
 ]

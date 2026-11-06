@@ -1,8 +1,8 @@
 <template>
-    <div class="kn-ws-tab column no-wrap" data-ws-tab="data">
+    <div class="kn-ws-tab column no-wrap" data-ws-tab="datasets">
         <!-- kept alive: only the shown tab puts its New button in the shell -->
         <Teleport v-if="tabActive" defer to="#kn-ws-new-slot">
-            <q-btn v-if="datasetsAllowed" unelevated no-caps color="primary" icon="sym_o_upload_file" :label="$t('workspace.uploadFile')" class="kn-ws-new" data-ws="new" data-tour-id="ws-new" @click="openWizard(null)" />
+            <q-btn unelevated no-caps color="primary" icon="sym_o_upload_file" :label="$t('workspace.uploadFile')" class="kn-ws-new" data-ws="new" data-tour-id="ws-new" @click="openWizard(null)" />
         </Teleport>
 
         <!-- reload bar: right under the tabs, full width; the first load shows the skeleton instead -->
@@ -12,13 +12,13 @@
 
         <WorkspaceToolbar :scope="query.scope" :scope-options="scopeOptions" :search="query.q" :search-placeholder="$t('workspace.search.data')" @update:scope="update({ scope: $event as any })" @update:search="update({ q: $event })">
             <template #filters>
-                <WorkspaceFiltersButton :groups="filterGroups" @toggle="onFilterToggle" @clear="update({ kind: [], dstype: [], category: [] })" />
+                <WorkspaceFiltersButton :groups="filterGroups" @toggle="onFilterToggle" @clear="update({ dstype: [], category: [] })" />
             </template>
         </WorkspaceToolbar>
 
         <div class="col column no-wrap kn-ws-body">
             <KnHint v-if="dataEmpty" class="col" title="workspace.empty.dataTitle" hint="workspace.empty.dataHint" data-ws="empty" />
-            <WorkspaceDataTable v-else :rows="rows" :loading="scopeRows === null" :column-set="columnSet" :actions="actions" data-tour-id="ws-list" @open="openDrawer" @clear="clearAll" />
+            <WorkspaceDataTable v-else :rows="rows" :loading="scopeRows === null" column-set="datasets" :actions="actions" data-tour-id="ws-list" @open="openDrawer" @clear="clearAll" />
         </div>
 
         <WorkspaceDrawer v-model="drawerOpen">
@@ -48,7 +48,7 @@ import QBE from '@/modules/qbe/QBE.vue'
 import useWorkspaceStore from '../workspace.store'
 import { WsDataRow, WsDataScope } from '../Workspace'
 import * as api from '../workspaceApi'
-import { canSeeBusinessModels, canSeeDatasets, dataColumnSet, filterData } from '../workspaceHelpers'
+import { filterData } from '../workspaceHelpers'
 import { useWorkspaceQuery } from '../common/useWorkspaceQuery'
 import WorkspaceDrawer from '../common/WorkspaceDrawer.vue'
 import WorkspaceFiltersButton, { WsFilterGroup } from '../common/WorkspaceFiltersButton.vue'
@@ -66,7 +66,11 @@ const appStore = mainStore()
 const store = useWorkspaceStore()
 
 const tabActive = ref(true)
-onActivated(() => (tabActive.value = true))
+// a list dropped while the tab was hidden (QBE saved from a model) loads again
+onActivated(() => {
+    tabActive.value = true
+    load()
+})
 onDeactivated(() => (tabActive.value = false))
 
 const {
@@ -75,33 +79,23 @@ const {
     toggleInList
 } = useWorkspaceQuery({
     scope: { param: 'scope', kind: 'enum', values: ['all', 'mine', 'available'], default: 'all' },
-    kind: { param: 'kind', kind: 'list', values: ['DATASET', 'MODEL'], lowercase: true },
     dstype: { param: 'dstype', kind: 'list' },
     category: { param: 'category', kind: 'list' },
     q: { param: 'q', kind: 'string' }
 } as const)
 
-const datasetsAllowed = computed(() => canSeeDatasets(appStore.user))
-const modelsAllowed = computed(() => canSeeBusinessModels(appStore.user))
-const options = computed(() => ({ datasets: datasetsAllowed.value, models: modelsAllowed.value, userId: appStore.user?.userId }))
 const userRole = computed(() => (appStore.user?.sessionRole !== t('role.defaultRolePlaceholder') ? appStore.user?.sessionRole : null))
 
-// Mine is only datasets; a user without datasets has only the business models (no scope control).
-const scopeOptions = computed<WsScopeOption[]>(() =>
-    datasetsAllowed.value
-        ? [
-              { value: 'all', labelKey: 'workspace.scope.all' },
-              { value: 'mine', labelKey: 'workspace.scope.mine', icon: 'sym_o_person' },
-              { value: 'available', labelKey: 'workspace.scope.available', icon: 'sym_o_domain' }
-          ]
-        : []
-)
+const scopeOptions: WsScopeOption[] = [
+    { value: 'all', labelKey: 'workspace.scope.all' },
+    { value: 'mine', labelKey: 'workspace.scope.mine', icon: 'sym_o_person' },
+    { value: 'available', labelKey: 'workspace.scope.available', icon: 'sym_o_domain' }
+]
 
 const scope = computed(() => query.value.scope as WsDataScope)
-const scopeRows = computed(() => store.dataRows(scope.value, options.value))
-const filters = computed(() => ({ kinds: query.value.kind, dsTypes: query.value.dstype, categories: query.value.category, q: query.value.q }))
+const scopeRows = computed(() => store.datasets[scope.value])
+const filters = computed(() => ({ dsTypes: query.value.dstype, categories: query.value.category, q: query.value.q }))
 const rows = computed(() => [...filterData(scopeRows.value ?? [], filters.value)].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })))
-const columnSet = computed(() => dataColumnSet(filters.value))
 const dataEmpty = computed(() => scope.value === 'all' && scopeRows.value !== null && scopeRows.value.length === 0 && !filters.value.q)
 
 const countBy = (predicate: (row: WsDataRow) => boolean) => (scopeRows.value ?? []).filter(predicate).length
@@ -110,39 +104,26 @@ const countBy = (predicate: (row: WsDataRow) => boolean) => (scopeRows.value ?? 
 const filterGroups = computed<WsFilterGroup[]>(() => {
     const all = scopeRows.value ?? []
     const groups: WsFilterGroup[] = []
-    if (datasetsAllowed.value && modelsAllowed.value)
-        groups.push({
-            id: 'kind',
-            labelKey: 'workspace.filter.kind',
-            options: [
-                { value: 'DATASET', label: t('workspace.kind.DATASET'), icon: 'sym_o_database', count: countBy((r) => r.kind === 'DATASET'), selected: query.value.kind.includes('DATASET') },
-                { value: 'MODEL', label: t('workspace.kind.MODEL'), icon: 'sym_o_account_tree', count: countBy((r) => r.kind === 'MODEL'), selected: query.value.kind.includes('MODEL') }
-            ]
-        })
-    if (datasetsAllowed.value) {
-        const types = [...new Set([...all.filter((r) => r.kind === 'DATASET').map((r) => r.dsTypeCd ?? ''), ...query.value.dstype])].filter(Boolean).sort()
-        groups.push({ id: 'dstype', labelKey: 'workspace.filter.datasetType', options: types.map((type) => ({ value: type, label: type, count: countBy((r) => r.dsTypeCd === type), selected: query.value.dstype.includes(type) })) })
-    }
+    const types = [...new Set([...all.map((r) => r.dsTypeCd ?? ''), ...query.value.dstype])].filter(Boolean).sort()
+    groups.push({ id: 'dstype', labelKey: 'workspace.filter.datasetType', options: types.map((type) => ({ value: type, label: type, count: countBy((r) => r.dsTypeCd === type), selected: query.value.dstype.includes(type) })) })
     const categories = [...new Set([...all.map((r) => r.category ?? ''), ...query.value.category])].filter(Boolean).sort()
     groups.push({ id: 'category', labelKey: 'workspace.filter.category', options: categories.map((category) => ({ value: category, label: category, count: countBy((r) => r.category === category), selected: query.value.category.includes(category) })) })
     return groups
 })
 
 function onFilterToggle(groupId: string, value: string) {
-    if (groupId === 'kind') toggleInList('kind', value)
-    else if (groupId === 'dstype') toggleInList('dstype', value)
+    if (groupId === 'dstype') toggleInList('dstype', value)
     else if (groupId === 'category') toggleInList('category', value)
 }
 
-const clearAll = () => update({ scope: 'all', kind: [], dstype: [], category: [], q: '' })
+const clearAll = () => update({ scope: 'all', dstype: [], category: [], q: '' })
 
 // Each list is loaded once per visit; changes the page makes reload it (spec 5.4, 8.1).
-const load = (force = false) => store.loadData(scope.value, options.value, force).catch(() => {})
+const load = (force = false) => store.loadDatasets(scope.value, appStore.user?.userId, force).catch(() => {})
 function reload() {
     store.invalidateData()
-    store.models = null
     load(true)
-    if (scope.value !== 'all') store.loadData('all', options.value).catch(() => {})
+    if (scope.value !== 'all') store.loadDatasets('all', appStore.user?.userId).catch(() => {})
 }
 watch(scope, () => load())
 onMounted(() => load())
