@@ -26,6 +26,7 @@ interface IWorkspaceState {
     datasets: Record<WsDataScope, WsDataRow[] | null>
     datasetsLoading: boolean
     models: WsDataRow[] | null
+    modelsLoading: boolean
     datasetCategories: Record<number, string>
     modelCategories: Record<number, string>
     categoriesLoaded: boolean
@@ -47,6 +48,7 @@ const useWorkspaceStore = defineStore('workspace', {
         datasets: { all: null, mine: null, available: null },
         datasetsLoading: false,
         models: null,
+        modelsLoading: false,
         datasetCategories: {},
         modelCategories: {},
         categoriesLoaded: false,
@@ -105,22 +107,31 @@ const useWorkspaceStore = defineStore('workspace', {
             this.categoriesLoaded = true
         },
 
-        // Each list is loaded once per visit (spec 8.1). Models only with their functionality.
-        async loadData(scope: WsDataScope, options: { datasets: boolean; models: boolean; userId?: string }, force = false) {
-            const needDatasets = options.datasets && (force || this.datasets[scope] === null)
-            const needModels = options.models && scope !== 'mine' && (force || this.models === null)
-            if (!needDatasets && !needModels) return
-            return shared(`data-${scope}`, () => this.fetchData(scope, needDatasets, needModels, options.userId))
+        // Each list is loaded once per visit (spec 8.1). The tab guards check the functionalities.
+        async loadDatasets(scope: WsDataScope, userId?: string, force = false) {
+            if (!force && this.datasets[scope] !== null) return
+            return shared(`datasets-${scope}`, async () => {
+                this.datasetsLoading = true
+                try {
+                    await this.loadDataCategories()
+                    await this.fetchDatasets(scope, userId)
+                } finally {
+                    this.datasetsLoading = false
+                }
+            })
         },
 
-        async fetchData(scope: WsDataScope, needDatasets: boolean, needModels: boolean, userId?: string) {
-            this.datasetsLoading = true
-            try {
-                await this.loadDataCategories()
-                await Promise.all([needDatasets ? this.fetchDatasets(scope, userId) : null, needModels ? api.getBusinessModels().then((list) => (this.models = list.map((m: any) => businessModelToRow(m, this.modelCategories)))) : null])
-            } finally {
-                this.datasetsLoading = false
-            }
+        async loadModels(force = false) {
+            if (!force && this.models !== null) return
+            return shared('models', async () => {
+                this.modelsLoading = true
+                try {
+                    await this.loadDataCategories()
+                    this.models = (await api.getBusinessModels()).map((m: any) => businessModelToRow(m, this.modelCategories))
+                } finally {
+                    this.modelsLoading = false
+                }
+            })
         },
 
         // "All" is mydata plus the owned list: mydata leaves out owned datasets whose category the user
@@ -136,13 +147,6 @@ const useWorkspaceStore = defineStore('workspace', {
             const byId = new Map<number, WsDataRow>()
             ;[...toRows(all), ...(this.datasets.mine ?? [])].forEach((row) => byId.set(row.id, row))
             this.datasets.all = [...byId.values()]
-        },
-
-        dataRows(scope: WsDataScope, options: { datasets: boolean; models: boolean }): WsDataRow[] | null {
-            const datasets = options.datasets ? this.datasets[scope] : []
-            const models = options.models && scope !== 'mine' ? this.models : []
-            if (datasets === null || models === null) return null
-            return [...datasets, ...models]
         },
 
         invalidateData() {

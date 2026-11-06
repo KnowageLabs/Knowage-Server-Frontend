@@ -24,7 +24,7 @@ export interface IFolder {
     children: IFolder[]
 }
 
-export type WsTab = 'documents' | 'data' | 'scheduled'
+export type WsTab = 'documents' | 'datasets' | 'models' | 'scheduled'
 export type WsScope = 'all' | 'recent' | 'fav' | 'mine'
 export type WsDataScope = 'all' | 'mine' | 'available'
 export type WsScheduledView = 'outputs' | 'jobs'
@@ -115,7 +115,6 @@ export interface WsDocumentFilters {
 
 export interface WsDataFilters {
     scope: WsDataScope
-    kinds: string[]
     dsTypes: string[]
     categories: string[]
     q: string

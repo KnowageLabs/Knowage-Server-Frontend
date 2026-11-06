@@ -1,10 +1,9 @@
 <template>
-    <q-btn flat no-caps class="kn-ws-control" :class="{ 'kn-ws-control--active': activeCount > 0 }" data-ws="filters" data-tour-id="ws-filters">
-        <q-icon name="sym_o_filter_list" size="18px" class="kn-ws-control__icon" />
-        <span>{{ $t('workspace.filters') }}</span>
-        <span v-if="activeCount" class="kn-ws-count">{{ activeCount }}</span>
+    <q-btn flat no-caps class="kn-ws-control" :class="{ 'kn-ws-control--active': activeCount > 0 }" :data-ws="dataWs" :data-tour-id="tourId">
+        <q-icon :name="icon" size="18px" class="kn-ws-control__icon" />
+        <span class="ellipsis kn-ws-control__label">{{ activeLabel || label || $t('workspace.filters') }}</span>
+        <span v-if="activeCount && !activeLabel" class="kn-ws-count">{{ activeCount }}</span>
         <q-icon name="sym_o_expand_more" size="18px" class="kn-ws-control__icon" />
-        <!-- every value click writes the query (router.replace): no-route-dismiss keeps the menu open -->
         <!-- every value click writes the query (router.replace): no-route-dismiss keeps the menu open.
              The values scroll in a q-scroll-area as tall as its content (up to a cap); Clear filters stays at the bottom. -->
         <q-menu class="kn-ws-menu kn-ws-filters-menu kn-ws-filters-menu--pinned" anchor="bottom left" self="top left" :offset="[0, 4]" no-route-dismiss>
@@ -23,7 +22,7 @@
                     <q-resize-observer :debounce="0" @resize="(size) => size.height > 0 && (listHeight = Math.ceil(size.height))" />
                 </div>
             </q-scroll-area>
-            <div class="kn-ws-menu__footer">
+            <div v-if="clearable" class="kn-ws-menu__footer">
                 <q-btn flat dense no-caps :disable="activeCount === 0" :label="$t('workspace.clearFilters')" data-ws="clear-filters" @click="emit('clear')" />
             </div>
         </q-menu>
@@ -54,7 +53,16 @@ export interface WsFilterGroup {
     actions?: { id: string; icon: string; labelKey: string; run: () => void }[]
 }
 
-const props = defineProps<{ groups: WsFilterGroup[] }>()
+// Filters by default; the Documents tab also uses it as the Collection button (spec 6.4): its own icon and label,
+// the chosen value on the button instead of a count, and no Clear footer.
+const props = withDefaults(defineProps<{ groups: WsFilterGroup[]; icon?: string; label?: string; activeLabel?: string; clearable?: boolean; dataWs?: string; tourId?: string }>(), {
+    icon: 'sym_o_filter_list',
+    label: undefined,
+    activeLabel: undefined,
+    clearable: true,
+    dataWs: 'filters',
+    tourId: 'ws-filters'
+})
 const emit = defineEmits<{ toggle: [groupId: string, value: string]; clear: [] }>()
 
 // the list height, measured: the scroll area needs a height and should not be taller than its rows

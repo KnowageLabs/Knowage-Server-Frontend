@@ -1,7 +1,7 @@
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 import { IFolder, ITrigger, WsCollection, WsDataFilters, WsDataRow, WsDocumentFilters, WsDocumentRow, WsJobRow, WsLink, WsOutputRow, WsScheduledFilters, WsTab } from './Workspace'
 
-export const WORKSPACE_TABS: WsTab[] = ['documents', 'data', 'scheduled']
+export const WORKSPACE_TABS: WsTab[] = ['documents', 'datasets', 'models', 'scheduled']
 
 // The Favorites folder is a top-level workspace folder marked by its description (spec 7.3).
 export const FAVORITES_MARKER = 'kn:workspace:favorites'
@@ -15,7 +15,8 @@ const hasFunctionality = (user: any, functionality: string): boolean => !!user?.
 export function canSeeWorkspaceTab(user: any, tab: WsTab): boolean {
     if (!user) return false
     if (tab === 'documents') return true
-    if (tab === 'data') return !!user.isSuperadmin || hasFunctionality(user, F.SELF_SERVICE_DATASET_MANAGEMENT) || hasFunctionality(user, F.BUILD_QBE_QUERIES_FUNCTIONALITY)
+    if (tab === 'datasets') return canSeeDatasets(user)
+    if (tab === 'models') return canSeeBusinessModels(user)
     if (tab === 'scheduled') return !!user.isSuperadmin || (hasFunctionality(user, F.SEE_SNAPSHOTS_FUNCTIONALITY) && hasFunctionality(user, F.VIEW_SCHEDULED_WORKSPACE))
     return false
 }
@@ -356,18 +357,10 @@ export function dataMatchesSearch(row: WsDataRow, q: string): boolean {
 // Filters without the scope (the store gives the rows of the scope).
 export function filterData(rows: WsDataRow[], filters: Omit<WsDataFilters, 'scope'>): WsDataRow[] {
     return rows.filter((row) => {
-        if (filters.kinds.length && !filters.kinds.includes(row.kind)) return false
         if (filters.dsTypes.length && (row.kind !== 'DATASET' || !filters.dsTypes.includes(row.dsTypeCd ?? ''))) return false
         if (filters.categories.length && !filters.categories.includes(row.category ?? '')) return false
         return dataMatchesSearch(row, filters.q)
     })
-}
-
-// Which column set the Data table shows (spec 8.1).
-export function dataColumnSet(filters: Pick<WsDataFilters, 'kinds' | 'dsTypes'>): 'both' | 'datasets' | 'models' {
-    if (filters.dsTypes.length) return 'datasets'
-    if (filters.kinds.length === 1) return filters.kinds[0] === 'MODEL' ? 'models' : 'datasets'
-    return 'both'
 }
 
 // ---------- Scheduled (spec 10) ----------

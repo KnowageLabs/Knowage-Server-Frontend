@@ -34,7 +34,7 @@ import { usePageTour } from '@/composables/usePageTour'
 import { startWorkspaceTour } from './WorkspaceTour'
 import useWorkspaceStore from './workspace.store'
 import { WsTab } from './Workspace'
-import { canSeeBusinessModels, canSeeDatasets, canSeeWorkspaceTab, WORKSPACE_TABS } from './workspaceHelpers'
+import { canSeeWorkspaceTab, WORKSPACE_TABS } from './workspaceHelpers'
 
 const route = useRoute()
 const { t } = useI18n()
@@ -44,15 +44,15 @@ const store = useWorkspaceStore()
 // started from the ? button only, never by itself (spec 16)
 usePageTour(() => startWorkspaceTour(t, (route.meta.wsTab as WsTab) ?? 'documents'))
 
-const LABEL_KEYS: Record<WsTab, string> = { documents: 'workspace.tabs.documents', data: 'workspace.tabs.data', scheduled: 'workspace.tabs.scheduled' }
+const LABEL_KEYS: Record<WsTab, string> = { documents: 'workspace.tabs.documents', datasets: 'workspace.tabs.datasets', models: 'workspace.tabs.models', scheduled: 'workspace.tabs.scheduled' }
 
 const allowedTabs = computed(() => WORKSPACE_TABS.filter((tab) => canSeeWorkspaceTab(appStore.user, tab)))
-const dataOptions = computed(() => ({ datasets: canSeeDatasets(appStore.user), models: canSeeBusinessModels(appStore.user), userId: appStore.user?.userId }))
 
-// Tab counts are the unfiltered totals: documents and views, all data, latest outputs.
+// Tab counts are the unfiltered totals: documents and views, all datasets, business models, latest outputs.
 const counts = computed<Record<WsTab, number | null>>(() => ({
     documents: store.documentCount,
-    data: store.dataRows('all', dataOptions.value)?.length ?? null,
+    datasets: store.datasets.all?.length ?? null,
+    models: store.models?.length ?? null,
     scheduled: store.scheduledLoaded ? store.outputs.length : null
 }))
 
@@ -78,7 +78,8 @@ watch(
 // The store shares one request per list, so a tab and the shell never load the same list twice.
 onMounted(() => {
     if (allowedTabs.value.includes('documents')) store.loadDocuments().catch(() => {})
-    if (allowedTabs.value.includes('data')) store.loadData('all', dataOptions.value).catch(() => {})
+    if (allowedTabs.value.includes('datasets')) store.loadDatasets('all', appStore.user?.userId).catch(() => {})
+    if (allowedTabs.value.includes('models')) store.loadModels().catch(() => {})
     if (allowedTabs.value.includes('scheduled')) store.loadScheduled().catch(() => {})
 })
 </script>

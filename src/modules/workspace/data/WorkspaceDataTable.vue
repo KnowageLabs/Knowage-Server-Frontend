@@ -48,8 +48,8 @@ import WorkspaceActionMenu from '../common/WorkspaceActionMenu.vue'
 import WorkspaceTableFrame from '../common/WorkspaceTableFrame.vue'
 import { useDataActions } from './useDataActions'
 
-// Three column sets that follow the Kind filter (spec 8.1).
-const props = defineProps<{ rows: WsDataRow[]; loading: boolean; columnSet: 'both' | 'datasets' | 'models'; actions: ReturnType<typeof useDataActions> }>()
+// One column set per tab (spec 8.1).
+const props = defineProps<{ rows: WsDataRow[]; loading: boolean; columnSet: 'datasets' | 'models'; actions: ReturnType<typeof useDataActions> }>()
 const emit = defineEmits<{ open: [row: WsDataRow]; clear: [] }>()
 const { t } = useI18n()
 
@@ -58,7 +58,6 @@ const menuOpenKey = ref<string | null>(null)
 // first load: header and placeholder rows instead of an empty table
 const showSkeleton = computed(() => props.loading && !props.rows.length)
 
-const kindLabel = (row: WsDataRow) => (row.kind === 'MODEL' ? t('workspace.kind.MODEL') : `${t('workspace.kind.DATASET')} · ${row.dsTypeCd ?? ''}`)
 const sortText = (a: string, b: string) => (a ?? '').localeCompare(b ?? '', undefined, { sensitivity: 'base' })
 
 const columns = computed(() => {
@@ -67,7 +66,6 @@ const columns = computed(() => {
     const owner = { name: 'owner', label: t('workspace.columns.owner'), field: 'owner', align: 'left' as const, sortable: true, classes: 'kn-ws-muted' }
     const actions = { name: 'actions', label: '', field: 'key', align: 'right' as const }
     if (props.columnSet === 'datasets') return [name, { name: 'type', label: t('workspace.columns.type'), field: 'dsTypeCd', align: 'left' as const, sortable: true }, category, { name: 'tags', label: t('workspace.columns.tags'), field: 'tags', align: 'left' as const }, owner, actions]
-    if (props.columnSet === 'models') return [name, { name: 'description', label: t('workspace.columns.description'), field: 'description', align: 'left' as const, sortable: true, classes: 'kn-ws-muted ellipsis' }, category, { name: 'dataSource', label: t('workspace.columns.dataSource'), field: 'dataSourceLabel', align: 'left' as const, sortable: true }, actions]
-    return [name, { name: 'kind', label: t('workspace.columns.kind'), field: kindLabel, align: 'left' as const, sortable: true }, category, owner, actions]
+    return [name, { name: 'description', label: t('workspace.columns.description'), field: 'description', align: 'left' as const, sortable: true, classes: 'kn-ws-muted ellipsis' }, category, { name: 'dataSource', label: t('workspace.columns.dataSource'), field: 'dataSourceLabel', align: 'left' as const, sortable: true }, actions]
 })
 </script>
