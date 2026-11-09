@@ -9,7 +9,10 @@
         <div class="q-mb-sm">
             <q-select v-model="responsiveModel.excludedFromSubTotals" :options="rowFields" :label="$t('dashboard.widgetEditor.pivot.configuration.excludedFromSubTotals')" option-label="alias" option-value="id" multiple emit-value map-options outlined dense />
         </div>
-        <q-toggle v-model="responsiveModel.rowsExpanded" :label="$t('dashboard.widgetEditor.pivot.configuration.rowsExpanded')" dense />
+        <div class="column q-gutter-y-sm">
+            <q-toggle v-model="responsiveModel.rowsExpanded" :label="$t('dashboard.widgetEditor.pivot.configuration.rowsExpanded')" dense />
+            <q-toggle :model-value="responsiveModel.wordWrapEnabled !== false" :label="$t('dashboard.widgetEditor.pivot.configuration.wordWrapEnabled')" dense @update:model-value="responsiveModel.wordWrapEnabled = $event" />
+        </div>
     </div>
 </template>
 
