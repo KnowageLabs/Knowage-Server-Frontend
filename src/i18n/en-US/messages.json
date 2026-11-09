@@ -2400,6 +2400,8 @@
             "linkToDocument ": "Link to document",
             "newSavedView": "New Saved View",
             "parameterClearTooltip": "Reset to default value",
+            "dateOutsideMax": "The value of \"{parameter}\" has been cleared because it exceeds the new maximum date.",
+            "maxDateError": "Unable to update the maximum date. Change the parent parameter to retry.",
             "publicExecution": "Public Execution",
             "publicUrlExecutionDisabled": "Current document cannot be executed by public user",
             "rankSaveSucces": "Rating Saved.Thanks for your feedback",
