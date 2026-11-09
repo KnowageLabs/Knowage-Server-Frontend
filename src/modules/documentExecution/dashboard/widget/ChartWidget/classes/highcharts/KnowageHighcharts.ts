@@ -149,7 +149,7 @@ export class KnowageHighcharts {
             return hasError
         } else {
             try {
-                const fn = eval(`(${formattedTextValue})`)
+                const fn = new Function('Highcharts', `"use strict"; return (${formattedTextValue})`)(Highcharts)
                 if (typeof fn === 'function') object[formatterProperty] = fn
                 object[formatterErrorProperty] = ''
             } catch (error) {
