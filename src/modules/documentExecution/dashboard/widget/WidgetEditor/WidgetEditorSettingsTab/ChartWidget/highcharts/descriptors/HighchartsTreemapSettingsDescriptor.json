@@ -53,6 +53,11 @@
         ],
         "Interactions": [
             {
+                "title": "dashboard.widgetEditor.drilldown.title",
+                "type": "TreemapDrilldown",
+                "toggleOnly": true
+            },
+            {
                 "title": "dashboard.widgetEditor.interactions.selection",
                 "type": "Selection"
             },
