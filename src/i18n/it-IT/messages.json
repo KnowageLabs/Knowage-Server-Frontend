@@ -2377,24 +2377,24 @@
       "Sabato"
     ],
     "dayNamesMin": [
-      "Su",
-      "Mo",
-      "Tu",
-      "We",
-      "Th",
-      "Fr",
+      "Do",
+      "Lu",
+      "Ma",
+      "Me",
+      "Gi",
+      "Ve",
       "Sa"
     ],
     "dayNamesShort": [
-      "Sun",
-      "Mon",
-      "Tue",
-      "Wed",
-      "Thu",
-      "Fri",
-      "Sat"
+      "Dom",
+      "Lun",
+      "Mar",
+      "Mer",
+      "Gio",
+      "Ven",
+      "Sab"
     ],
-    "firstDayOfWeek": 0,
+    "firstDayOfWeek": 1,
     "monthNames": [
       "Gennaio",
       "Febbraio",
@@ -2410,21 +2410,22 @@
       "Dicembre"
     ],
     "monthNamesShort": [
-      "Jan",
+      "Gen",
       "Feb",
       "Mar",
       "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
+      "Mag",
+      "Giu",
+      "Lug",
+      "Ago",
+      "Set",
+      "Ott",
       "Nov",
-      "Dec"
+      "Dic"
     ],
-    "today": "Today",
-    "weekHeader": "Wk"
+    "today": "Oggi",
+    "clear": "Cancella",
+    "weekHeader": "Sett"
   },
   "managers": {
     "ai": {

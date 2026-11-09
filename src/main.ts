@@ -37,6 +37,7 @@ import ConfirmationService from 'primevue/confirmationservice'
 import internationalizationPlugin from './plugins/internationalization.js'
 
 import i18n from '@/App.i18n'
+import { registerPrimeVueConfig } from '@/helpers/commons/primeVueLocaleHelper'
 
 import QBEOperator from './modules/qbe/qbeDialogs/qbeAdvancedFilterDialog/QBEOperator.vue'
 
@@ -86,6 +87,8 @@ app.use(VueAxios, interceptor)
     .component('QBEOperator', QBEOperator)
     .component('GridLayout', GridLayout)
     .component('GridItem', GridItem)
+
+registerPrimeVueConfig(app.config.globalProperties.$primevue.config)
 
 app.config.globalProperties.$t = i18n.global.t.bind(i18n.global)
 
