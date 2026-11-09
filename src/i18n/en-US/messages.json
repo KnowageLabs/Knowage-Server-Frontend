@@ -1415,7 +1415,8 @@
                     "rowsExpanded": "Rows Expanded",
                     "showFieldPicker": "Show Integrated Field Picker",
                     "subTotalLabel": "Labels for SubTotals",
-                    "subtotal": "Show Subtotals"
+                    "subtotal": "Show Subtotals",
+                    "wordWrapEnabled": "Wrap Header Text"
                 },
                 "style": {
                     "columnHeaders": "Column Headers",

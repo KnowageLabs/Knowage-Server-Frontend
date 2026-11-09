@@ -21,6 +21,11 @@
                 <q-checkbox v-model="responsiveModel.rowsExpanded" :label="$t('dashboard.widgetEditor.pivot.configuration.rowsExpanded')" dense />
             </div>
         </div>
+        <div class="p-col-12 p-grid p-d-flex p-flex-row p-jc-start p-pt-3">
+            <div class="p-sm-12 p-md-2">
+                <q-checkbox :model-value="responsiveModel.wordWrapEnabled !== false" :label="$t('dashboard.widgetEditor.pivot.configuration.wordWrapEnabled')" dense @update:model-value="responsiveModel.wordWrapEnabled = $event" />
+            </div>
+        </div>
     </div>
 </template>
 
