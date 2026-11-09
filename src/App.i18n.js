@@ -1,4 +1,5 @@
 import { createI18n } from 'vue-i18n'
+import { applyPrimeVueLocale } from '@/helpers/commons/primeVueLocaleHelper'
 
 const currentLocale = localStorage.getItem('locale') || 'en-US'
 
@@ -42,6 +43,8 @@ export async function loadLanguageAsync(lang) {
 
     i18n.global.setLocaleMessage(lang, messages.default)
     i18n.global.mergeLocaleMessage(lang, helperMessages.default)
+
+    applyPrimeVueLocale(lang, messages.default)
 
     loadedLanguages.push(lang)
     setI18nLanguage(lang)
