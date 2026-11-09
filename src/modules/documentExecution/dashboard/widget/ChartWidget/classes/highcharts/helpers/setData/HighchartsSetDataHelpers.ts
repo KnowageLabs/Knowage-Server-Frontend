@@ -259,15 +259,18 @@ const removeXAxisCategories = (model: any) => {
     if (model.xAxis && model.xAxis[0]) delete model.xAxis[0].categories
 }
 
-export const setGroupedBySeriesData = (model: any, data: any, attributeColumns: any[], measureColumns: any[]) => {
+export const setGroupedBySeriesData = (model: any, data: any, attributeColumns: any[], measureColumns: any[], widgetModel: IWidget, variables: IVariable[]) => {
     if (!data || !attributeColumns[0] || measureColumns.length < 2) return
     const attributeColumn = attributeColumns[0]
     const firstMeasureColumn = measureColumns[0]
     const secondMeasureColumn = measureColumns[1]
     const categoryValueMap = {} as Record<string, Record<string, number | null>>
+    const categoryColors = new Map<string, string>()
     const measureNames = [] as string[]
     data.rows.forEach((row: any) => {
         const attributeValue = row[attributeColumn.metadata.dataIndex]
+        const categoryColor = getColumnConditionalStyles(widgetModel, attributeColumn.column.id, attributeValue, variables)?.color
+        if (categoryColor) categoryColors.set(String(attributeValue), categoryColor)
         const firstMeasureValue = row[firstMeasureColumn.metadata.dataIndex]
         const measureName = '' + firstMeasureValue
         const secondMeasureValue = normalizeHighchartsNumericValue(row[secondMeasureColumn.metadata.dataIndex])
@@ -277,12 +280,12 @@ export const setGroupedBySeriesData = (model: any, data: any, attributeColumns: 
         if (!hasOwnProperty(categoryValueMap[attributeValue], measureName) || categoryValueMap[attributeValue][measureName] === null) categoryValueMap[attributeValue][measureName] = secondMeasureValue
     })
 
-    addSeriesFromCategoryValuesMapForGroupedBySeriesData(model, categoryValueMap, measureNames)
+    addSeriesFromCategoryValuesMapForGroupedBySeriesData(model, categoryValueMap, measureNames, categoryColors)
 }
 
-const addSeriesFromCategoryValuesMapForGroupedBySeriesData = (model: any, categoryValueMap: any, measureNames: string[]) => {
+const addSeriesFromCategoryValuesMapForGroupedBySeriesData = (model: any, categoryValueMap: any, measureNames: string[], categoryColors: Map<string, string>) => {
     Object.keys(categoryValueMap).forEach((key: string, index: number) => {
-        const serieElement = { id: index, name: key, data: [] as any[], connectNulls: true }
+        const serieElement = { id: index, name: key, color: categoryColors.get(key), data: [] as any[], connectNulls: true }
         measureNames.forEach((measureName: string) => {
             const temp = { name: measureName } as { name: string; y?: number | null }
             if (categoryValueMap[key] && hasOwnProperty(categoryValueMap[key], measureName)) temp.y = categoryValueMap[key][measureName]
@@ -300,6 +303,7 @@ export const setGroupedByCategoriesData = (model: any, data: any, attributeColum
     const categoryValueMap = {} as Record<string, Record<string, { y: number | null; color?: string }>>
     const categoryValuesOrder = [] as string[]
     const uniqueCategoryValues = [] as string[]
+    const categoryColors = new Map<string, string>()
 
     data.rows.forEach((row: any) => {
         const firstAttributeValue = row[firstAttributeColumn.metadata.dataIndex]
@@ -308,6 +312,7 @@ export const setGroupedByCategoriesData = (model: any, data: any, attributeColum
         const measureForGroupingValue = normalizeHighchartsNumericValue(row[measureForGrouping.metadata.dataIndex])
         const firstAttributeConditionalStyle = getColumnConditionalStyles(widgetModel, firstAttributeColumn.column.id, firstAttributeValue, variables)
         const secondAttributeConditionalStyle = getColumnConditionalStyles(widgetModel, secondAttributeColumn.column.id, secondAttributeValue, variables)
+        if (secondAttributeConditionalStyle?.color) categoryColors.set(String(secondAttributeValue), secondAttributeConditionalStyle.color)
         const measureConditionalStyle = getColumnConditionalStyles(widgetModel, measureForGrouping.column.id, row[measureForGrouping.metadata.dataIndex], variables)
         const conditionalColor = measureConditionalStyle?.color || secondAttributeConditionalStyle?.color || firstAttributeConditionalStyle?.color
 
@@ -340,7 +345,7 @@ export const setGroupedByCategoriesData = (model: any, data: any, attributeColum
 
     const measureSerieElementValueMap = {} as any
     const measureAlias = getColumnAlias(measureForGrouping.column, widgetModel.settings?.series?.aliases ?? [])
-    createSeriesForGroupedByCategoriesData(model, categoryValueMap, categoryValuesOrder, measureSerieElementValueMap, measureAlias)
+    createSeriesForGroupedByCategoriesData(model, categoryValueMap, categoryValuesOrder, measureSerieElementValueMap, measureAlias, categoryColors)
     removeXAxisCategories(model)
 }
 
@@ -352,9 +357,9 @@ const setUniqueCategoriesValuesFromCategoryValueMap = (uniqueCategoryValues: str
     })
 }
 
-const createSeriesForGroupedByCategoriesData = (model: any, categoryValueMap: any, categoryValuesOrder: string[], measureSerieElementValueMap: any, measureAlias: string) => {
+const createSeriesForGroupedByCategoriesData = (model: any, categoryValueMap: any, categoryValuesOrder: string[], measureSerieElementValueMap: any, measureAlias: string, categoryColors: Map<string, string>) => {
     categoryValuesOrder.forEach((key: string, index: number) => {
-        const serieElement = { id: index, name: `${measureAlias} - ${key}`, custom: { groupingValue: key }, data: [] as any[], connectNulls: true }
+        const serieElement = { id: index, name: `${measureAlias} - ${key}`, custom: { groupingValue: key }, color: categoryColors.get(key), data: [] as any[], connectNulls: true }
         Object.keys(categoryValueMap[key]).forEach((tempKey: string) => {
             const tempData = { name: tempKey } as { name: string; y?: number | null; color?: string }
             if (hasOwnProperty(categoryValueMap[key], tempKey)) {
