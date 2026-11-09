@@ -40,8 +40,31 @@ export interface IDashboardConfiguration {
     selections: ISelection[]
     theme: any
     background: IBackground
+    // The sheet tab bar. Missing = the default look (see SheetTabsHelper). themeId connects it to a theme, as for the background.
+    sheetTabs?: IDashboardSheetTabs & { themeId?: string | number | null }
     menuWidgets: IMenuAndWidgets
     customHeader?: IWidget | null
+}
+
+export type IDashboardSheetTabsLook = 'lightUnderline' | 'lightThemedTab' | 'tinted' | 'blend' | 'themedBar' | 'themedLine'
+
+export interface IDashboardSheetTabs {
+    look: IDashboardSheetTabsLook
+    height: number
+    tabWidth: 'fit' | 'equal'
+    fontSize: number
+    showIcons: boolean
+    indicator: 'short' | 'full' | 'none'
+    indicatorWidth: number
+    activeBold: boolean
+    // Colors: '' = the default of the look, which may use the UI theme variables.
+    background: string
+    borderColor: string
+    color: string
+    hoverBackground: string
+    indicatorColor: string
+    activeColor: string
+    activeBackground: string
 }
 
 export interface IDatasetParameter {

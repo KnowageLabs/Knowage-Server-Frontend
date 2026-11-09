@@ -1,6 +1,7 @@
 import { IDashboardTheme, IDashboardThemeBackground } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
 import { migrateTitleAlignment, themeHasBackground } from '@/modules/managers/dashboardThemeManagement/DashboardThemeHelper'
-import { IBackground, IWidget } from '../../Dashboard'
+import { IBackground, IDashboardConfiguration, IWidget } from '../../Dashboard'
+import { normalizeSheetTabs } from '../../sheetTabs/SheetTabsHelper'
 import deepcopy from 'deepcopy'
 
 export const applySelectedThemeToWidgets = (widgets: IWidget[], selectedTheme: IDashboardTheme, filterType: 'allWidgets' | 'withThemes' | 'withoutThemes' = 'allWidgets') => {
@@ -106,4 +107,18 @@ export const updateBackgroundFromTheme = (background: IBackground | undefined, t
     if (background?.themeId == null) return
     const theme = themes.find((theme: IDashboardTheme) => theme.id === background.themeId)
     if (theme) copySheetBackground(background, theme.config?.sheetBackground)
+}
+
+// The sheet tab bar. A theme always has one (a theme saved before this feature counts as the default look),
+// so applying a theme always connects it. The dashboard object is replaced: General settings rebuild their form from it.
+export const applyThemeSheetTabs = (configuration: IDashboardConfiguration | undefined, theme: IDashboardTheme | undefined) => {
+    if (!configuration || !theme) return
+    configuration.sheetTabs = { ...normalizeSheetTabs(theme.config?.sheetTabs), themeId: theme.id }
+}
+
+// On load, connected sheet tabs get the current theme values again. A deleted theme keeps the saved values.
+export const updateSheetTabsFromTheme = (configuration: IDashboardConfiguration | undefined, themes: IDashboardTheme[]) => {
+    if (configuration?.sheetTabs?.themeId == null) return
+    const theme = themes.find((theme: IDashboardTheme) => theme.id === configuration.sheetTabs?.themeId)
+    if (theme) applyThemeSheetTabs(configuration, theme)
 }

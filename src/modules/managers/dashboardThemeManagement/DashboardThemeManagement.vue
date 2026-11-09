@@ -26,6 +26,7 @@
 
         <q-drawer v-model="panelOpen" side="right" overlay :width="PANEL_WIDTH" :breakpoint="0" bordered class="theme-management__panel">
             <DashboardThemeBackgroundPanel v-if="selectedTheme && panelOpen && panelBackground" :theme="selectedTheme" :dirty="dirty" @close="closePanel" @discard="discardChanges" />
+            <DashboardThemeSheetTabsPanel v-else-if="selectedTheme && panelOpen && panelSheetTabs" :theme="selectedTheme" :dirty="dirty" @close="closePanel" @discard="discardChanges" />
             <DashboardThemeStylePanel v-else-if="selectedTheme && panelOpen" :theme="selectedTheme" :widget-type="panelType" :all-widgets="panelAllWidgets" :focus-section="panelFocusSection" :dirty="dirty" @close="closePanel" @discard="discardChanges" @section-opened="onSectionOpened" @form-mounting="onFormMounting" @form-mounted="onFormMounted" />
         </q-drawer>
 
@@ -54,6 +55,11 @@
                             <button class="kn-canvas-controls__button" :class="{ 'kn-canvas-controls__button--active': panelOpen && panelBackground }" type="button" data-tour-id="theme-background" @click="openBackgroundPanel">
                                 <q-icon name="wallpaper" />
                                 {{ $t('managers.dashboardThemeManager.background') }}
+                                <span class="kn-canvas-controls__badge">{{ $t('managers.dashboardThemeManager.newBadge') }}</span>
+                            </button>
+                            <button class="kn-canvas-controls__button" :class="{ 'kn-canvas-controls__button--active': panelOpen && panelSheetTabs }" type="button" data-tour-id="theme-sheet-tabs" @click="openSheetTabsPanel">
+                                <q-icon name="tab" />
+                                {{ $t('dashboard.sheetTabs.title') }}
                                 <span class="kn-canvas-controls__badge">{{ $t('managers.dashboardThemeManager.newBadge') }}</span>
                             </button>
                             <button class="kn-canvas-controls__button" type="button" data-tour-id="theme-edit-all" @click="openAllWidgetsPanel">
@@ -98,6 +104,7 @@ import DashboardThemeList from './DashboardThemeList.vue'
 import DashboardThemeCanvas from './canvas/DashboardThemeCanvas.vue'
 import DashboardThemeStylePanel from './panel/DashboardThemeStylePanel.vue'
 import DashboardThemeBackgroundPanel from './panel/DashboardThemeBackgroundPanel.vue'
+import DashboardThemeSheetTabsPanel from './panel/DashboardThemeSheetTabsPanel.vue'
 import { startDashboardThemeTour } from './DashboardThemeTour'
 import { usePageTour } from '@/composables/usePageTour'
 import { IDashboardTheme } from './DashboardThememanagement'
@@ -121,6 +128,7 @@ const panelOpen = ref(false)
 const panelType = ref<IEditorWidgetType | null>(null)
 const panelAllWidgets = ref(false)
 const panelBackground = ref(false)
+const panelSheetTabs = ref(false)
 const panelFocusSection = ref<string | null>(null)
 const selectorVariant = ref<ISelectorVariant>('singleValue')
 const activeSelectionsVariant = ref<IActiveSelectionsVariant>('list')
@@ -223,6 +231,7 @@ function openTypePanel(type: IEditorWidgetType) {
     panelType.value = type
     panelAllWidgets.value = false
     panelBackground.value = false
+    panelSheetTabs.value = false
     panelFocusSection.value = null
     panelOpen.value = true
 }
@@ -231,6 +240,7 @@ function openAllWidgetsPanel() {
     panelType.value = null
     panelAllWidgets.value = true
     panelBackground.value = false
+    panelSheetTabs.value = false
     panelFocusSection.value = null
     panelOpen.value = true
 }
@@ -240,6 +250,17 @@ function openBackgroundPanel() {
     panelType.value = null
     panelAllWidgets.value = false
     panelBackground.value = true
+    panelSheetTabs.value = false
+    panelFocusSection.value = null
+    panelOpen.value = true
+}
+
+// The sheet tab bar panel. It ends the widget focus, as the background panel does.
+function openSheetTabsPanel() {
+    panelType.value = null
+    panelAllWidgets.value = false
+    panelBackground.value = false
+    panelSheetTabs.value = true
     panelFocusSection.value = null
     panelOpen.value = true
 }
@@ -249,6 +270,7 @@ function closePanel() {
     panelType.value = null
     panelAllWidgets.value = false
     panelBackground.value = false
+    panelSheetTabs.value = false
     panelFocusSection.value = null
 }
 
