@@ -1309,7 +1309,8 @@
           "grandTotalLabel": "Labels for Totals",
           "showFieldPicker": "Show Integrated Field Picker",
           "subTotalLabel": "Labels for SubTotals",
-          "subtotal": "Show Subtotals"
+          "subtotal": "Show Subtotals",
+          "wordWrapEnabled": "A capo automatico intestazioni"
         },
         "style": {
           "columnHeaders": "Column Headers",

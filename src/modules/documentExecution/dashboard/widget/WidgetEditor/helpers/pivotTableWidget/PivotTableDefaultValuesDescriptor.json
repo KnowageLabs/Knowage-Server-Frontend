@@ -93,7 +93,8 @@
         "rowsExpanded": false,
         "subTotal": false,
         "subTotalLabel": "",
-        "excludedFromSubTotals": []
+        "excludedFromSubTotals": [],
+        "wordWrapEnabled": true
     },
     "defaultTotals": {
         "enabled": false,

@@ -92,6 +92,7 @@ export interface IPivotRowsConfiguration {
     subTotalLabel: string
     rowsExpanded?: boolean
     excludedFromSubTotals?: string[]
+    wordWrapEnabled?: boolean
 }
 
 export interface IPivotColumnsConfiguration {
@@ -101,6 +102,7 @@ export interface IPivotColumnsConfiguration {
     subTotalLabel: string
     colsExpanded?: boolean
     excludedFromSubTotals?: string[]
+    wordWrapEnabled?: boolean
 }
 
 export interface IPivotFieldPicker {
