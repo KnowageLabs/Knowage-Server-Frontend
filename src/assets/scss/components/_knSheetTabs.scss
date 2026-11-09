@@ -1,0 +1,202 @@
+// The sheet tab bar of a dashboard (KnDashboardTabsPanel) and its static previews (KnSheetTabsPreview).
+// Every color and size comes from the --kn-sheet-tabs-* variables that getSheetTabsStyle (SheetTabsHelper.ts) sets on the bar.
+.kn-sheet-tabs {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    flex: none;
+    height: var(--kn-sheet-tabs-height, 36px);
+    padding: 0 6px 0 4px;
+    border-top: 1px solid var(--kn-sheet-tabs-border, #e3e3e3);
+    background: var(--kn-sheet-tabs-background, #ffffff);
+    color: var(--kn-sheet-tabs-color, #6b6b6b);
+    font-size: var(--kn-sheet-tabs-font-size, 13px);
+    line-height: 1;
+
+    .kn-sheet-tabs__list {
+        display: flex;
+        align-items: stretch;
+        min-width: 0;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-width: none;
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
+
+    .kn-sheet-tabs__tab {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex: none;
+        max-width: 250px;
+        padding: 0 6px 0 12px;
+        color: inherit;
+        white-space: nowrap;
+        text-decoration: none;
+        cursor: pointer;
+        user-select: none;
+        &:hover {
+            background: var(--kn-sheet-tabs-hover, rgba(0, 0, 0, 0.04));
+        }
+        &:focus-visible {
+            outline: 2px solid var(--kn-sheet-tabs-indicator, currentColor);
+            outline-offset: -2px;
+        }
+        // Without a ⋮ button (viewers, previews) the label keeps the same space on both sides.
+        &.kn-sheet-tabs__tab--plain {
+            padding-right: 12px;
+        }
+    }
+
+    .kn-sheet-tabs__tab--active {
+        color: var(--kn-sheet-tabs-active-color, #1f1f1f);
+        background: var(--kn-sheet-tabs-active-background, transparent);
+        font-weight: var(--kn-sheet-tabs-active-weight, 500);
+        &:hover {
+            background: var(--kn-sheet-tabs-active-background, transparent);
+        }
+    }
+
+    // The indicator sits on the edge that touches the sheet (the bar is at the bottom).
+    &[data-indicator='short'] .kn-sheet-tabs__tab--active::before,
+    &[data-indicator='full'] .kn-sheet-tabs__tab--active::before {
+        content: '';
+        position: absolute;
+        // Inside the tab: the tab list clips what is outside it.
+        top: 0;
+        left: 8px;
+        right: 8px;
+        height: var(--kn-sheet-tabs-indicator-width, 2px);
+        border-radius: 0 0 2px 2px;
+        background: var(--kn-sheet-tabs-indicator, currentColor);
+    }
+    &[data-indicator='full'] .kn-sheet-tabs__tab--active::before {
+        left: 0;
+        right: 0;
+        border-radius: 0;
+    }
+
+    // Equal width: every tab 200 px; when the bar is too narrow they shrink together.
+    &[data-tab-width='equal'] .kn-sheet-tabs__tab {
+        // A width, not only a flex basis: the tab list takes its size from the tab widths.
+        flex: 0 1 auto;
+        width: 200px;
+        min-width: 72px;
+    }
+
+    .kn-sheet-tabs__label {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    &[data-tab-width='equal'] .kn-sheet-tabs__label {
+        flex: 1;
+    }
+
+    .kn-sheet-tabs__icon {
+        flex: none;
+        font-size: 14px;
+    }
+    .kn-sheet-tabs__image {
+        flex: none;
+        width: 16px;
+        height: 16px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+    &[data-icons='off'] {
+        .kn-sheet-tabs__icon,
+        .kn-sheet-tabs__image {
+            display: none;
+        }
+    }
+
+    .kn-sheet-tabs__rename {
+        width: 140px;
+        padding: 3px 6px;
+        border: 1px solid var(--kn-sheet-tabs-indicator, #999999);
+        border-radius: 4px;
+        background: #ffffff;
+        color: #1f1f1f;
+        font: inherit;
+        font-weight: 400;
+        outline: none;
+    }
+
+    // ⋮ on the active tab and on hover only.
+    .kn-sheet-tabs__more {
+        visibility: hidden;
+        flex: none;
+        color: inherit;
+        opacity: 0.8;
+        // After the menu closes the button keeps the focus; show the circle only on hover.
+        &:not(:hover) .q-focus-helper {
+            display: none;
+        }
+    }
+    .kn-sheet-tabs__tab:hover .kn-sheet-tabs__more,
+    .kn-sheet-tabs__tab--active .kn-sheet-tabs__more,
+    .kn-sheet-tabs__more[aria-expanded='true'] {
+        visibility: visible;
+    }
+
+    .kn-sheet-tabs__add {
+        align-self: center;
+        flex: none;
+        margin-left: 4px;
+        color: inherit;
+        opacity: 0.8;
+        &:hover {
+            opacity: 1;
+        }
+    }
+
+    .kn-sheet-tabs__end {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        flex: none;
+        margin-left: auto;
+        padding-left: 8px;
+    }
+
+    // Small buttons in the bar (add, the screen size control) take the bar colors.
+    .kn-sheet-tabs__button.q-btn {
+        min-height: 0;
+        height: 26px;
+        padding: 0 8px;
+        border-radius: 6px;
+        color: inherit;
+        font-size: 11.5px;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        .q-btn__content {
+            gap: 5px;
+        }
+    }
+}
+
+@media all and (max-width: 600px) {
+    .kn-sheet-tabs {
+        height: 50px;
+        max-width: calc(100vw - var(--kn-mainmenu-offset));
+        .kn-sheet-tabs__list {
+            flex: 1;
+        }
+        .kn-sheet-tabs__tab {
+            flex: 1 0 0;
+            max-width: unset;
+            justify-content: center;
+            .kn-sheet-tabs__icon {
+                font-size: 1.6rem;
+            }
+            .kn-sheet-tabs__label--has-icon {
+                display: none;
+            }
+        }
+    }
+}

@@ -1,4 +1,4 @@
-import { ITableWidgetStyle } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IDashboardSheetTabs, ITableWidgetStyle } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IDiscoveryWidgetStyle } from '@/modules/documentExecution/dashboard/interfaces/DashboardDiscoveryWidget'
 import { ISelectionWidgetStyle } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectionsWidget'
 import { ISelectorWidgetStyle } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectorWidget'
@@ -34,6 +34,8 @@ export interface IDashboardThemeConfig {
     shared?: { style: IGenericStyle }
     // Not `background`: every widget type and the shared layer already have a `style.background`.
     sheetBackground?: IDashboardThemeBackground
+    // The sheet tab bar. Dashboards get it with Apply theme, as the background.
+    sheetTabs?: IDashboardSheetTabs
     text: IDashboardThemeTypeConfig<IGenericStyle>
     image: IDashboardThemeTypeConfig<IGenericStyle>
     chart: IDashboardThemeTypeConfig<IGenericStyle>

@@ -1,59 +1,37 @@
 <template>
     <div class="sheets-container">
-        <div v-if="(edit && sheets && sheets.length >= 1) || (!edit && sheets && sheets.length > 1)" class="sheets-list" :class="labelPosition" role="tablist" data-tour-id="dashboard-sheets">
-            <a v-for="(sheet, index) in sheets" :key="index" class="sheet-label" :class="{ active: currentPage === index, hidden: sheets.length <= 1 }" @touchstart.passive="setPage(index)" @click="setPage(index)" @dblclick.stop="renameSheet(index)">
-                <slot name="label" v-bind="sheet">
-                    <template v-if="sheet.icon">
-                        <i v-if="sheet.icon.className" :class="sheet.icon.className" class="p-mr-1"></i>
-                        <div v-if="sheet.icon.category === 'custom'" class="custom-image" :style="{ 'background-image': `url(${sheet.icon.image})` }"></div>
-                    </template>
-                    <input v-if="index === sheetToRenameIndex" v-model="tempLabel" :ref="`input_${index}`" type="text" @click.stop="" @blur="saveRename(index, $event)" @keyup.enter="saveRename(index, $event)" />
-                    <span v-else class="kn-truncated sheet-label-text" :title="sheet.label" :class="{ hasIcon: sheet.icon }">{{ sheet.label }}</span>
-                    <Button v-if="edit" icon="fa-solid fa-ellipsis-vertical" class="p-button-text p-button-rounded p-button-plain" :class="`sheet_menu_${index}`" @click="toggleMenu($event, index)" />
-                    <q-menu :ref="`menu_${index}`" :target="`.sheet_menu_${index}`" data-test="menu">
-                        <q-list style="min-width: 100px" dense>
-                            <q-item clickable v-close-popup @click="renameSheet(index)">
-                                <q-item-section avatar>
-                                    <q-icon size="xs" name="edit" />
-                                </q-item-section>
-                                <q-item-section>{{ $t('dashboard.sheets.rename') }}</q-item-section>
-                            </q-item>
-                            <q-item clickable v-close-popup @click="manageIcon(index)">
-                                <q-item-section avatar>
-                                    <q-icon size="xs" name="fa-solid fa-icons" />
-                                </q-item-section>
-                                <q-item-section>{{ $t('dashboard.sheets.manageIcon') }}</q-item-section>
-                            </q-item>
-                            <q-item clickable v-close-popup @click="clone(index)">
-                                <q-item-section avatar>
-                                    <q-icon size="xs" name="content_copy" />
-                                </q-item-section>
-                                <q-item-section>{{ $t('dashboard.sheets.clone') }}</q-item-section>
-                            </q-item>
-                            <q-item v-if="sheets.length > 1 && index !== sheets.length - 1" clickable v-close-popup @click="move('right', index)">
-                                <q-item-section avatar>
-                                    <q-icon size="xs" name="turn_right" />
-                                </q-item-section>
-                                <q-item-section>{{ $t('dashboard.sheets.moveRight') }}</q-item-section>
-                            </q-item>
-                            <q-item v-if="sheets.length > 1 && index !== 0" clickable v-close-popup @click="move('left', index)">
-                                <q-item-section avatar>
-                                    <q-icon size="xs" name="turn_left" />
-                                </q-item-section>
-                                <q-item-section>{{ $t('dashboard.sheets.moveLeft') }}</q-item-section>
-                            </q-item>
-                            <q-separator v-if="sheets.length > 1" />
-                            <q-item v-if="sheets.length > 1" clickable v-close-popup @click="deleteSheet(index)">
-                                <q-item-section avatar>
-                                    <q-icon size="xs" name="delete" />
-                                </q-item-section>
-                                <q-item-section>{{ $t('dashboard.sheets.delete') }}</q-item-section>
-                            </q-item>
-                        </q-list>
-                    </q-menu>
-                </slot>
-            </a>
-            <a v-if="edit" class="sheet-label" :title="$t('dashboard.sheets.add')" @click="addSheet"><i class="fa-solid fa-circle-plus"></i></a>
+        <div v-if="(edit && sheets && sheets.length >= 1) || (!edit && sheets && sheets.length > 1)" class="sheets-list kn-sheet-tabs" :class="labelPosition" :style="tabsStyle?.vars" :data-indicator="tabsStyle?.indicator ?? 'short'" :data-tab-width="tabsStyle?.tabWidth ?? 'fit'" :data-icons="tabsStyle?.showIcons === false ? 'off' : 'on'" data-tour-id="dashboard-sheets">
+            <div class="kn-sheet-tabs__list" role="tablist">
+                <a v-for="(sheet, index) in sheets" :key="index" class="sheet-label kn-sheet-tabs__tab" :class="{ 'kn-sheet-tabs__tab--active': currentPage === index, 'kn-sheet-tabs__tab--plain': !edit, hidden: sheets.length <= 1 }" role="tab" :aria-selected="currentPage === index" tabindex="0" @touchstart.passive="setPage(index)" @click="setPage(index)" @keydown.enter="setPage(index)" @dblclick.stop="renameSheet(index)">
+                    <slot name="label" v-bind="sheet">
+                        <template v-if="sheet.icon">
+                            <i v-if="sheet.icon.className" :class="sheet.icon.className" class="kn-sheet-tabs__icon"></i>
+                            <div v-if="sheet.icon.category === 'custom'" class="kn-sheet-tabs__image" :style="{ 'background-image': `url(${sheet.icon.image})` }"></div>
+                        </template>
+                        <input v-if="index === sheetToRenameIndex" v-model="tempLabel" :ref="`input_${index}`" type="text" class="kn-sheet-tabs__rename" @click.stop="" @blur="saveRename(index, $event)" @keyup.enter="saveRename(index, $event)" />
+                        <span v-else class="kn-sheet-tabs__label sheet-label-text" :title="sheet.label" :class="{ 'kn-sheet-tabs__label--has-icon': sheet.icon }">{{ sheet.label }}</span>
+                        <q-btn v-if="edit" flat round dense size="sm" icon="more_vert" class="kn-sheet-tabs__more" :aria-label="$t('common.menu')" data-test="sheet-menu-button" @click.stop @dblclick.stop>
+                            <q-menu class="kn-toolbar-menu" anchor="top right" self="bottom right" :offset="[0, 4]" data-test="menu">
+                                <div class="kn-toolbar-menu__list">
+                                    <MainMenuPopupRow v-close-popup icon="sym_o_edit" :label="$t('dashboard.sheets.rename')" @activate="renameSheet(index)" />
+                                    <MainMenuPopupRow v-close-popup icon="sym_o_interests" :label="$t('dashboard.sheets.manageIcon')" @activate="manageIcon(index)" />
+                                    <MainMenuPopupRow v-close-popup icon="sym_o_content_copy" :label="$t('dashboard.sheets.clone')" @activate="clone(index)" />
+                                    <MainMenuPopupRow v-if="sheets.length > 1 && index !== 0" v-close-popup icon="sym_o_arrow_back" :label="$t('dashboard.sheets.moveLeft')" @activate="move('left', index)" />
+                                    <MainMenuPopupRow v-if="sheets.length > 1 && index !== sheets.length - 1" v-close-popup icon="sym_o_arrow_forward" :label="$t('dashboard.sheets.moveRight')" @activate="move('right', index)" />
+                                    <template v-if="sheets.length > 1">
+                                        <q-separator class="q-my-xs" />
+                                        <MainMenuPopupRow v-close-popup icon="sym_o_delete" :label="$t('dashboard.sheets.delete')" danger @activate="deleteSheet(index)" />
+                                    </template>
+                                </div>
+                            </q-menu>
+                        </q-btn>
+                    </slot>
+                </a>
+            </div>
+            <q-btn v-if="edit" flat dense class="kn-sheet-tabs__button kn-sheet-tabs__add" icon="sym_o_add" :aria-label="$t('dashboard.sheets.add')" data-test="add-sheet-button" @click="addSheet">
+                <q-tooltip :delay="500">{{ $t('dashboard.sheets.add') }}</q-tooltip>
+            </q-btn>
+            <div v-if="$slots.end" class="kn-sheet-tabs__end"><slot name="end"></slot></div>
         </div>
         <kn-icon-picker v-if="iconPickerVisible" :enable-base64="true" :sets="['fontawesome']" :current-icon="sheets[iconPickerVisible - 1].icon" @save="saveIcon" @close="closeIcon"></kn-icon-picker>
 
@@ -70,11 +48,13 @@ import { defineComponent } from 'vue'
 import type { PropType } from 'vue'
 import type { IDashboardSheet, ISheet } from '@/modules/documentExecution/dashboard/Dashboard'
 import KnIconPicker from '@/components/UI/KnIconPicker/KnIconPicker.vue'
+import MainMenuPopupRow from '@/modules/mainMenu/MainMenuPopupRow.vue'
+import type { ISheetTabsStyle } from '@/modules/documentExecution/dashboard/sheetTabs/SheetTabsHelper'
 import deepcopy from 'deepcopy'
 
 export default defineComponent({
     name: 'kn-dashboard-tabs-panel',
-    components: { KnIconPicker },
+    components: { KnIconPicker, MainMenuPopupRow },
     props: {
         edit: { type: Boolean, default: false },
         sheets: {
@@ -87,6 +67,11 @@ export default defineComponent({
         },
         activeDashboardSheet: {
             type: Object as PropType<IDashboardSheet>
+        },
+        // From getSheetTabsStyle (SheetTabsHelper). Without it the bar uses the defaults of _knSheetTabs.scss.
+        tabsStyle: {
+            type: Object as PropType<ISheetTabsStyle | null>,
+            default: null
         }
     },
     emits: ['sheetChange', 'update:sheets', 'sheetDeleted', 'sheetCloned'],
@@ -268,13 +253,6 @@ export default defineComponent({
                 this.dpr = 1
             }
         },
-        toggleMenu(e, index) {
-            e.preventDefault()
-            e.stopImmediatePropagation()
-            // eslint-disable-next-line
-            // @ts-ignore
-            this.$refs[`menu_${index}`][0].show()
-        },
         loadActiveSheetFromQuery() {
             if (this.initialLoad && this.$route.query.sheet !== undefined && this.$route.query.sheet !== null && this.sheets?.length > +this.$route.query.sheet) {
                 this.setPage(+this.$route.query.sheet)
@@ -297,6 +275,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+// The bar itself is styled by the global _knSheetTabs.scss (shared with the previews).
 .sheets-container {
     width: 100%;
     height: 100%;
@@ -317,68 +296,9 @@ export default defineComponent({
     }
 
     .sheets-list {
-        position: relative;
-        height: 35px;
-        margin: 0;
-        padding: 0 4px;
-        border-bottom: 1px solid #ccc;
-        list-style: none;
-        display: inline-flex;
         order: 0;
-        background-color: #f1f1f1;
         &.bottom {
             order: 2;
-            border-top: 1px solid #e4e4e4;
-            border-bottom: 0;
-        }
-        .sheet-label {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: auto;
-            max-width: 250px;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            height: 100%;
-            position: relative;
-            padding: 0 16px;
-            background: white;
-            color: #999;
-            cursor: pointer;
-            text-decoration: none;
-            &:hover {
-                background-color: #999;
-                color: #000;
-            }
-            &:focus {
-                outline: none;
-            }
-            &.active {
-                color: #000;
-                font-weight: 900;
-                border-top: 2px solid var(--kn-toolbar-primary-background-color);
-            }
-        }
-    }
-}
-
-@media all and (max-width: 600px) {
-    .sheets-container {
-        .sheets-list {
-            height: 50px;
-            max-width: calc(100vw - var(--kn-mainmenu-offset));
-        }
-        .sheet-label {
-            flex: 1 0 0;
-            max-width: unset;
-            i {
-                font-size: 2rem;
-            }
-            .sheet-label-text.hasIcon {
-                display: none;
-            }
         }
     }
 }

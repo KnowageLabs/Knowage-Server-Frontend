@@ -17,10 +17,8 @@
                             </div>
                         </div>
                     </component>
-                    <div v-if="laptopMode" class="theme-canvas__laptop-tabs" :style="{ height: `${LAPTOP_TABS_HEIGHT}px` }">
-                        <span class="theme-canvas__laptop-tab theme-canvas__laptop-tab--active">{{ $t('managers.dashboardThemeManager.canvas.sheetName', { number: 1 }) }}</span>
-                        <span class="theme-canvas__laptop-tab">{{ $t('managers.dashboardThemeManager.canvas.sheetName', { number: 2 }) }}</span>
-                    </div>
+                    <!-- The same bar as the dashboard, with the sheet tabs of the theme (its height comes from the theme). -->
+                    <KnSheetTabsPreview v-if="laptopMode" :tabs-style="laptopTabsStyle" :tabs="laptopTabs" />
                 </div>
             </div>
         </div>
@@ -101,7 +99,9 @@ import { applyStylesToWidget } from '@/modules/documentExecution/dashboard/gener
 import { IDashboardTheme } from '../DashboardThememanagement'
 import { IEditorWidgetType } from '../DashboardThemeHelper'
 import { getSheetBackgroundStyle } from '@/modules/documentExecution/dashboard/generalSettings/background/DashboardBackgroundHelper'
-import { ACTIVE_SELECTIONS_SECTION_VARIANTS, ACTIVE_SELECTIONS_VARIANTS, CANVAS_LAYOUT, CANVAS_SIZE, createMockWidget, createPreviewDashboard, createSelectorMock, IActiveSelectionsVariant, IMockWidget, ISelectorVariant, LAPTOP_SCREEN, LAPTOP_SCROLLBAR_WIDTH, LAPTOP_SHEET, LAPTOP_SHEET_GUTTER, LAPTOP_TABS_HEIGHT, LAPTOP_TOOLBAR_HEIGHT, FRAME_TOP, MOCK_ACTIVE_SELECTIONS, MOCK_IMAGE_URL, MOCK_MAP_URL, PREVIEW_DASHBOARD_ID, SELECTOR_SECTION_VARIANTS, SELECTOR_VARIANTS, SHEET_PADDING } from './DashboardThemeMockWidgets'
+import { getSheetTabsStyle } from '@/modules/documentExecution/dashboard/sheetTabs/SheetTabsHelper'
+import KnSheetTabsPreview from '@/components/UI/KnDashboardTabs/KnSheetTabsPreview.vue'
+import { ACTIVE_SELECTIONS_SECTION_VARIANTS, ACTIVE_SELECTIONS_VARIANTS, CANVAS_LAYOUT, CANVAS_SIZE, createMockWidget, createPreviewDashboard, createSelectorMock, IActiveSelectionsVariant, IMockWidget, ISelectorVariant, LAPTOP_SCREEN, LAPTOP_SCROLLBAR_WIDTH, LAPTOP_SHEET, LAPTOP_SHEET_GUTTER, LAPTOP_TOOLBAR_HEIGHT, FRAME_TOP, MOCK_ACTIVE_SELECTIONS, MOCK_IMAGE_URL, MOCK_MAP_URL, PREVIEW_DASHBOARD_ID, SELECTOR_SECTION_VARIANTS, SELECTOR_VARIANTS, SHEET_PADDING } from './DashboardThemeMockWidgets'
 import { ICanvasRect, useCanvasPanZoom } from './useCanvasPanZoom'
 
 interface ICanvasTile {
@@ -216,6 +216,8 @@ const canvasStyle = computed(() => ({
 
 // Laptop mode is a viewer aid and is not saved.
 const laptopMode = ref(false)
+const laptopTabsStyle = computed(() => getSheetTabsStyle(props.theme.config.sheetTabs, props.theme.config.sheetBackground?.sheetsBackgroundColor ?? ''))
+const laptopTabs = computed(() => [1, 2].map((number) => ({ label: t('managers.dashboardThemeManager.canvas.sheetName', { number }) })))
 const sheetScrollTop = ref(0)
 
 // In laptop mode the widths follow the sheet width and the heights stay, as in the dashboard grid (100 columns in %, 30 px rows).
@@ -461,29 +463,6 @@ defineExpose({ fit, setLaptopMode })
 .theme-canvas__laptop-toolbar {
     flex: none;
     background-color: var(--kn-toolbar-primary-background-color);
-}
-
-.theme-canvas__laptop-tabs {
-    flex: none;
-    display: flex;
-    gap: 2px;
-    padding: 0 4px;
-    border-top: 1px solid #cccccc;
-    background-color: #f1f1f1;
-}
-
-.theme-canvas__laptop-tab {
-    display: flex;
-    align-items: center;
-    padding: 0 16px;
-    font-size: 0.8rem;
-    color: #555555;
-
-    &--active {
-        font-weight: 900;
-        background-color: #ffffff;
-        border-top: 2px solid var(--kn-toolbar-primary-background-color);
-    }
 }
 
 .theme-canvas__frame-label {

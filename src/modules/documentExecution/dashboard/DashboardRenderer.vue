@@ -1,5 +1,5 @@
 <template>
-    <KnDashboardTabsPanel v-if="dashboardModel.sheets" v-model:sheets="dashboardModel.sheets" :active-dashboard-sheet="activeDashboardSheet" :current-screen-size="currentScreenSize" class="test" label-position="bottom" :edit="canEditDashboard(document)" @sheet-change="sheetChange($event)" @sheetDeleted="onSheetDeleted" @sheet-cloned="onSheetCloned">
+    <KnDashboardTabsPanel v-if="dashboardModel.sheets" v-model:sheets="dashboardModel.sheets" :active-dashboard-sheet="activeDashboardSheet" :current-screen-size="currentScreenSize" class="test" label-position="bottom" :edit="canEditDashboard(document)" :tabs-style="sheetTabsStyle" @sheet-change="sheetChange($event)" @sheetDeleted="onSheetDeleted" @sheet-cloned="onSheetCloned">
         <div v-if="dashboardCssImportsTag" class="dashboard-css-imports" v-html="dashboardCssImportsTag" />
         <div v-if="dashboardCssTag" class="dashboard-css" v-html="dashboardCssTag" />
         <div v-if="activeDashboardSheet" ref="sheetContainer" class="sheet-container" :class="{ 'sheet-container--preview': previewSize }" :style="[backgroundStyle, previewSheetStyle]">
@@ -18,23 +18,25 @@
             </GridLayout>
             <img v-if="configurations?.['KNOWAGE.WATERMARK']" :src="poweredBy" class="powered" />
         </div>
+        <template #end>
+            <q-btn v-if="canEditDashboard(document)" flat dense no-caps class="kn-sheet-tabs__button dashboard-screen-size" :class="{ 'dashboard-screen-size--preview': previewSize }" data-test="screen-size-button">
+                <q-icon :name="getCurrentScreenSizeIcon" size="16px" />
+                <span class="text-uppercase">{{ currentScreenSize }}</span>
+                <span v-if="previewSize" class="dashboard-screen-size__width">{{ previewSize.screen }} × {{ previewSize.screenHeight }}</span>
+                <q-tooltip v-if="!screenSizeMenuOpen" anchor="top middle" self="bottom middle" :delay="300">{{ previewSize ? $t('dashboard.screenSize.previewing', { size: `${previewSize.screen} × ${previewSize.screenHeight}` }) : $t(`dashboard.breakpoints.${currentScreenSize}`) }}</q-tooltip>
+                <q-menu v-model="screenSizeMenuOpen" class="kn-toolbar-menu" anchor="top right" self="bottom right" :offset="[0, 4]" @before-show="measureAvailableSpace">
+                    <div class="kn-toolbar-menu__list" data-test="screen-size-menu">
+                        <q-item-label header class="dashboard-screen-size__header">{{ $t('dashboard.screenSize.title') }}</q-item-label>
+                        <MainMenuPopupRow icon="sym_o_fit_screen" :label="$t('dashboard.screenSize.fitWindow')" :checked="!previewSize" @activate="setPreviewSize(null)" />
+                        <div v-for="size in screenSizes" :key="size.screen">
+                            <MainMenuPopupRow :icon="size.icon" :label="$t(size.labelKey)" :meta="`${size.screen} × ${size.height} · ${size.breakpoint.toUpperCase()}`" :checked="previewSize?.screen === size.screen" :disabled="!size.fits" @activate="setPreviewSize(size)" />
+                            <q-tooltip v-if="!size.fits" anchor="center left" self="center right">{{ $t('dashboard.screenSize.tooWide', { width: size.screen }) }}</q-tooltip>
+                        </div>
+                    </div>
+                </q-menu>
+            </q-btn>
+        </template>
     </KnDashboardTabsPanel>
-    <q-btn v-if="canEditDashboard(document)" flat dense no-caps class="responsive-device" :class="{ 'responsive-device--preview': previewSize }" data-test="screen-size-button">
-        <q-icon :name="getCurrentScreenSizeIcon" size="16px" />
-        <span class="text-uppercase">{{ currentScreenSize }}</span>
-        <span v-if="previewSize" class="responsive-device__width">{{ previewSize.screen }} × {{ previewSize.screenHeight }}</span>
-        <q-tooltip v-if="!screenSizeMenuOpen" anchor="top middle" self="bottom middle" :delay="300">{{ previewSize ? $t('dashboard.screenSize.previewing', { size: `${previewSize.screen} × ${previewSize.screenHeight}` }) : $t(`dashboard.breakpoints.${currentScreenSize}`) }}</q-tooltip>
-        <q-menu v-model="screenSizeMenuOpen" class="kn-toolbar-menu" anchor="top right" self="bottom right" :offset="[0, 4]" @before-show="measureAvailableSpace">
-            <div class="kn-toolbar-menu__list" data-test="screen-size-menu">
-                <q-item-label header class="dashboard-screen-size__header">{{ $t('dashboard.screenSize.title') }}</q-item-label>
-                <MainMenuPopupRow icon="sym_o_fit_screen" :label="$t('dashboard.screenSize.fitWindow')" :checked="!previewSize" @activate="setPreviewSize(null)" />
-                <div v-for="size in screenSizes" :key="size.screen">
-                    <MainMenuPopupRow :icon="size.icon" :label="$t(size.labelKey)" :meta="`${size.screen} × ${size.height} · ${size.breakpoint.toUpperCase()}`" :checked="previewSize?.screen === size.screen" :disabled="!size.fits" @activate="setPreviewSize(size)" />
-                    <q-tooltip v-if="!size.fits" anchor="center left" self="center right">{{ $t('dashboard.screenSize.tooWide', { width: size.screen }) }}</q-tooltip>
-                </div>
-            </div>
-        </q-menu>
-    </q-btn>
 </template>
 
 <script lang="ts">
@@ -55,6 +57,7 @@ import { splitDashboardCssForContainer } from './helpers/common/DashboardCssHelp
 import { getSheetBackgroundStyle } from './generalSettings/background/DashboardBackgroundHelper'
 import MainMenuPopupRow from '@/modules/mainMenu/MainMenuPopupRow.vue'
 import { screenSizeFromWidth } from './widget/SelectorWidget/SelectorWidgetLayoutHelper'
+import { getSheetTabsStyle, ISheetTabsStyle } from './sheetTabs/SheetTabsHelper'
 
 // Screens an editor can preview the sheet at (16:9). Common desktop and laptop sizes, Windows scaling included;
 // 1152 is the one that gives the md layout. The sheet is narrower than the screen by the main menu, and shorter
@@ -114,6 +117,10 @@ export default defineComponent({
         ...mapState(mainStore, ['configurations']),
         newDashboard(): boolean {
             return this.$router.currentRoute.value.name === 'new-dashboard'
+        },
+        // The sheet tab bar: its own settings, or the default look. The "blend" look takes the sheet color.
+        sheetTabsStyle(): ISheetTabsStyle {
+            return getSheetTabsStyle(this.dashboardModel?.configuration?.sheetTabs, this.dashboardModel?.configuration?.background?.sheetsBackgroundColor ?? '')
         },
         backgroundStyle(): any {
             if (!this.dashboardModel.configuration) return ''
@@ -326,29 +333,13 @@ export default defineComponent({
     }
 }
 
-.responsive-device.q-btn {
-    position: absolute;
-    bottom: 1px;
-    right: 8px;
-    z-index: 999;
-    min-height: 0;
-    padding: 4px 8px;
-    border: 1px solid #ccc;
-    border-radius: 0;
-    background-color: #cccccc6e;
-    font-size: 0.7rem;
-    line-height: 1;
-    .q-btn__content {
-        gap: 4px;
-    }
-    &.responsive-device--preview {
-        border-color: var(--q-primary);
-        background-color: var(--q-primary);
-        color: #fff;
-    }
-    .responsive-device__width {
-        opacity: 0.85;
-    }
+// The screen size control sits in the sheet tab bar and takes its colors; a preview shows it filled.
+.dashboard-screen-size.q-btn.dashboard-screen-size--preview {
+    background: var(--kn-sheet-tabs-indicator, var(--q-primary));
+    color: #ffffff;
+}
+.dashboard-screen-size__width {
+    opacity: 0.85;
 }
 .dashboard-screen-size__header {
     padding: 8px 8px 4px;

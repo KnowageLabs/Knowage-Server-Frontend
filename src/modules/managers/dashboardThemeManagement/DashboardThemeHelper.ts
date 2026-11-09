@@ -12,6 +12,7 @@ import * as selectorWidgetDefaultValues from '@/modules/documentExecution/dashbo
 import * as selectionsWidgetDefaultValues from '@/modules/documentExecution/dashboard/widget/WidgetEditor/helpers/selectionsWidget/SelectionsWidgetDefaultValues'
 import * as pivotWidgetDefaultValues from '@/modules/documentExecution/dashboard/widget/WidgetEditor/helpers/pivotTableWidget/PivotTableDefaultValues'
 import { IPivotTableStyle } from '@/modules/documentExecution/dashboard/interfaces/pivotTable/DashboardPivotTableWidget'
+import { getDefaultSheetTabs, normalizeSheetTabs } from '@/modules/documentExecution/dashboard/sheetTabs/SheetTabsHelper'
 import ChartColorSettingsDescriptor from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/ChartWidget/common/ChartColorSettingsDescriptor.json'
 
 export const getDefaultDashboardThemeConfig = () => {
@@ -27,6 +28,7 @@ export const getDefaultDashboardThemeConfig = () => {
     addUniqueSelectorWidgetStyles(defaultDashboardThemeConfig.selector.style)
     addUniqueChartWidgetStyles(defaultDashboardThemeConfig.chart.style)
     defaultDashboardThemeConfig.sheetBackground = getDefaultSheetBackground()
+    defaultDashboardThemeConfig.sheetTabs = getDefaultSheetTabs()
 
     return defaultDashboardThemeConfig
 }
@@ -109,6 +111,8 @@ export const migrateTitleAlignment = (title: any) => {
 export const themeBackwardsCompatibility = (theme: IDashboardThemeConfig) => {
     // Themes saved before the sheet background have none.
     theme.sheetBackground = { ...getDefaultSheetBackground(), ...(theme.sheetBackground ?? {}) }
+    // Themes saved before the sheet tabs have none: they get the default look.
+    theme.sheetTabs = normalizeSheetTabs(theme.sheetTabs)
 
     Object.values(theme).forEach((typeConfig: any) => migrateTitleAlignment(typeConfig?.style?.title))
     migrateTitleAlignment(theme.shared?.style?.title)

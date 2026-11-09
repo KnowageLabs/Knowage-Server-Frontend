@@ -18,6 +18,7 @@
                             <DashboardVariables v-if="selectedOption === 'Variables'" :dashboard-id="dashboardId" :prop-variables="variables" :selected-datasets="selectedDatasets" :selected-datasets-columns-map="selectedDatasetColumnsMap" :profile-attributes="profileAttributes" />
                             <DashboardInformation v-if="selectedOption === 'Information'" :dashboard-model-prop="dashboardModel" />
                             <DashboardBackground v-if="selectedOption === 'Background'" :dashboard-model-prop="dashboardModel" />
+                            <DashboardSheetTabs v-if="selectedOption === 'SheetTabs'" :dashboard-model-prop="dashboardModel" />
                             <MenuWidgets v-if="selectedOption === 'MenuWidgets'" :menu-widgets-config-prop="menuWidgetsConfig" :dashboard-id="dashboardId" :variables="variables" />
                             <CssEditor v-if="selectedOption === 'CSS'" :dashboard-model-prop="dashboardModel" />
                             <DashboardThemes v-if="isEnterprise && selectedOption === 'Themes'" :dashboard-model-prop="dashboardModel" />
@@ -48,6 +49,7 @@ import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import DashboardGeneralSettingsList from './DashboardGeneralSettingsList.vue'
 import DashboardInformation from './information/DashboardInformation.vue'
 import DashboardBackground from './background/DashboardBackground.vue'
+import DashboardSheetTabs from './sheetTabs/DashboardSheetTabs.vue'
 import CssEditor from './cssEditor/DashboardCssEditor.vue'
 import MenuWidgets from './menu&widgets/Menu&Widgets.vue'
 import DashboardVariables from './DashboardVariables.vue'
@@ -70,7 +72,7 @@ import { startGeneralSettingsTour } from './DashboardGeneralSettingsTour'
 
 export default defineComponent({
     name: 'dashboard-general-settings',
-    components: { DashboardGeneralSettingsList, DashboardVariables, DashboardInformation, DashboardBackground, MenuWidgets, CssEditor, DashboardThemes, WidgetEditor, AiSettings, KnHint, DashboardCrossNavigation, InputSwitch },
+    components: { DashboardGeneralSettingsList, DashboardVariables, DashboardInformation, DashboardBackground, DashboardSheetTabs, MenuWidgets, CssEditor, DashboardThemes, WidgetEditor, AiSettings, KnHint, DashboardCrossNavigation, InputSwitch },
     props: {
         dashboardId: { type: String, required: true },
         datasets: { type: Array as PropType<IDataset[]>, required: true },

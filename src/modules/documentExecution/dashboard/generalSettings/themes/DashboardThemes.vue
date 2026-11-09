@@ -47,11 +47,24 @@
                                 <q-item-label v-if="!selectedThemeHasBackground" caption>{{ $t('dashboard.generalSettings.themes.noBackground') }}</q-item-label>
                             </q-item-section>
                         </q-item>
+                        <!-- Every theme has sheet tabs (an older theme counts as the default look), so this is never disabled. -->
+                        <q-item clickable @click="applySheetTabs = !applySheetTabs">
+                            <q-item-section side><q-checkbox :model-value="applySheetTabs" dense class="no-pointer-events" /></q-item-section>
+                            <q-item-section>
+                                <q-item-label>{{ $t('dashboard.generalSettings.themes.alsoApplySheetTabs') }}</q-item-label>
+                            </q-item-section>
+                        </q-item>
                         <q-separator />
                         <q-item clickable v-close-popup :disable="!selectedThemeHasBackground" @click="applyThemeBackgroundOnly">
                             <q-item-section side><q-icon name="wallpaper" size="xs" /></q-item-section>
                             <q-item-section>
                                 <q-item-label>{{ $t('dashboard.generalSettings.themes.onlyBackground') }}</q-item-label>
+                            </q-item-section>
+                        </q-item>
+                        <q-item clickable v-close-popup @click="applyThemeSheetTabsOnly">
+                            <q-item-section side><q-icon name="tab" size="xs" /></q-item-section>
+                            <q-item-section>
+                                <q-item-label>{{ $t('dashboard.generalSettings.themes.onlySheetTabs') }}</q-item-label>
                             </q-item-section>
                         </q-item>
                     </q-list>
@@ -68,7 +81,7 @@ import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.stor
 import { mapActions } from 'pinia'
 import KnHint from '@/components/UI/KnHint.vue'
 import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
-import { applySelectedThemeToWidgets, applyThemeBackground } from './ThemesHelper'
+import { applySelectedThemeToWidgets, applyThemeBackground, applyThemeSheetTabs } from './ThemesHelper'
 import { themeHasBackground } from '@/modules/managers/dashboardThemeManagement/DashboardThemeHelper'
 
 export default defineComponent({
@@ -89,7 +102,8 @@ export default defineComponent({
             dashboardModel: {} as any,
             document: {} as any,
             availableThemes: [] as any,
-            applyBackground: true
+            applyBackground: true,
+            applySheetTabs: true
         }
     },
     computed: {
@@ -123,11 +137,16 @@ export default defineComponent({
                 if (selectedTheme) this.dashboardModel.configuration.theme = { ...selectedTheme }
                 applySelectedThemeToWidgets(this.dashboardModel.widgets, this.dashboardModel.configuration.theme, filterType)
                 if (this.applyBackground) applyThemeBackground(this.dashboardModel.configuration.background, selectedTheme)
+                if (this.applySheetTabs) applyThemeSheetTabs(this.dashboardModel.configuration, selectedTheme)
             }
         },
         applyThemeBackgroundOnly() {
             if (this.dashboardModel.configuration.theme?.id == null) return
             applyThemeBackground(this.dashboardModel.configuration.background, this.getSelectedTheme(this.dashboardModel.configuration.theme.id))
+        },
+        applyThemeSheetTabsOnly() {
+            if (this.dashboardModel.configuration.theme?.id == null) return
+            applyThemeSheetTabs(this.dashboardModel.configuration, this.getSelectedTheme(this.dashboardModel.configuration.theme.id))
         }
     }
 })

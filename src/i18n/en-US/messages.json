@@ -704,6 +704,7 @@
             "selectDataset": "Select Dataset",
             "themes": {
                 "alsoApplyBackground": "Also apply the sheet background",
+                "alsoApplySheetTabs": "Also apply the sheet tabs",
                 "applyTheme": "Apply Theme",
                 "dashboardTheme": "Dashboard Theme",
                 "dashboardThemeHint": "Work in progress, themes preview will be soon visible here",
@@ -711,6 +712,7 @@
                 "info": "Theme is a collection of styles that will be applied to all widgets. You can select a one from the available ones or create a new one in Dashboard Theme Manager",
                 "noBackground": "This theme has no background",
                 "onlyBackground": "Only the sheet background",
+                "onlySheetTabs": "Only the sheet tabs",
                 "toAllWidgets": "to all widgets",
                 "toWidgetsWithThemes": "to widgets with themes",
                 "toWidgetsWithoutThemes": "to widgets without themes"
@@ -816,6 +818,62 @@
             "showValueWithDescription": "Show Value Alongside Description"
         },
         "sheet": "Sheet",
+        "sheetTabs": {
+            "activeBackground": "Active fill",
+            "activeBold": "Bold active label",
+            "activeColor": "Active text",
+            "background": "Bar color",
+            "borderColor": "Top line",
+            "color": "Text",
+            "backToLook": "Back to the color of the look",
+            "colorHint": "Empty colors come from the look and follow the UI theme.",
+            "fontSize": "Font size",
+            "fromLook": "From the look",
+            "groups": {
+                "activeTab": "Active tab",
+                "bar": "Bar",
+                "tabs": "Tabs"
+            },
+            "height": "Height",
+            "heights": {
+                "compact": "Compact",
+                "default": "Default",
+                "large": "Large"
+            },
+            "hoverBackground": "Hover",
+            "indicator": "Indicator",
+            "indicatorColor": "Indicator color",
+            "indicatorWidth": "Thickness",
+            "indicators": {
+                "full": "Full line",
+                "none": "None",
+                "short": "Short line"
+            },
+            "look": "Look",
+            "lookTag": "Look",
+            "looks": {
+                "blend": "Blend with the sheet",
+                "lightThemedTab": "Light bar, themed tab",
+                "lightUnderline": "Light underline",
+                "themedBar": "Themed bar",
+                "themedLine": "Themed, line only",
+                "tinted": "Tinted"
+            },
+            "showIcons": "Sheet icons",
+            "sizes": {
+                "large": "L",
+                "medium": "M",
+                "small": "S"
+            },
+            "tabWidth": "Tab width",
+            "tabWidths": {
+                "equal": "Equal width",
+                "fit": "Fit the name"
+            },
+            "themeConnected": "These sheet tabs come from the theme \"{theme}\". If you change a value, they are no longer connected to the theme.",
+            "themeDisconnected": "The sheet tabs are no longer connected to the theme. To connect them again, go to Themes and use Apply theme.",
+            "title": "Sheet tabs"
+        },
         "sheets": {
             "add": "Add Sheet",
             "clone": "Clone Sheet",
@@ -3581,6 +3639,7 @@
             "sharedStyle": "Shared style",
             "sheetBackground": "Sheet background",
             "sheetBackgroundCaption": "Applies to every sheet of the dashboards that use this theme",
+            "sheetTabsCaption": "The bar with the sheet names at the bottom of the dashboards that use this theme",
             "showWidgets": "Widgets",
             "title": "Dashboard Themes",
             "toggleList": "Show or hide the theme list",

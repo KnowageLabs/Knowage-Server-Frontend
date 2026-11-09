@@ -64,6 +64,11 @@
             "value": "Background"
         },
         {
+            "icon": "fa-solid fa-layer-group",
+            "label": "dashboard.sheetTabs.title",
+            "value": "SheetTabs"
+        },
+        {
             "icon": "fa-solid fa-bars",
             "label": "dashboard.generalSettings.menuWidgets.title",
             "value": "MenuWidgets"
