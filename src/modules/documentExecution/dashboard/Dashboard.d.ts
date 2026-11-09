@@ -518,7 +518,10 @@ export interface IWidgetResponsive {
     md: boolean
     lg: boolean
     columnLayout?: Record<string, { x: number; y: number; w: number; h: number }>
+    // old: keyed by the breakpoint of the widget width; read only (see SelectorWidgetLayoutHelper)
     columnLayouts?: Partial<Record<'lg' | 'md' | 'sm' | 'xs' | 'xxs', Record<string, { x: number; y: number; w: number; h: number }>>>
+    // keyed by the dashboard breakpoint, with the column count of the layout
+    columnLayoutsByScreen?: Partial<Record<'lg' | 'md' | 'sm' | 'xs' | 'xxs', { cols: number; items: Record<string, { x: number; y: number; w: number; h: number }> }>>
 }
 
 export interface IWidgetColumn {

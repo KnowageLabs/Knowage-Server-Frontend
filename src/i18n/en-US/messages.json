@@ -610,6 +610,15 @@
             "xs": "Extra small Device, ie: Phablet",
             "xxs": "XXS Device, ie: Smartphone"
         },
+        "screenSize": {
+            "title": "Preview screen size",
+            "fitWindow": "Fit window",
+            "fullHd": "Full HD",
+            "laptop": "Laptop",
+            "smallLaptop": "Small laptop",
+            "previewing": "Preview of a {size} screen. Click to change.",
+            "tooWide": "Your window is too narrow to preview a {width} px screen."
+        },
         "confirm": {
             "deleteWidget": "Are you sure you do want to delete selected widget?"
         },
