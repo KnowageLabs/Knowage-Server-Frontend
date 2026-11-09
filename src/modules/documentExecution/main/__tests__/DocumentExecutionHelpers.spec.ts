@@ -122,6 +122,43 @@ describe('createToolbarMenuItems', () => {
 
         expect(toolbarMenuItems.find((menuItem: any) => menuItem.label === 'common.settings')).toBeUndefined()
     })
+
+    describe('lock / unlock all widgets', () => {
+        const lockLabels = ['dashboard.lockAllWidgets', 'dashboard.unlockAllWidgets']
+        const getLockItems = (user: any, document: any) => {
+            const canSeeEditorActions = canSeeDashboardEditorActions(user, document, false, false)
+            const items = createToolbarMenuItems(document, createFunctions(), [] as iExporter[], user, false, 'dashboard', t, false, { filterStatus: [], isReadyForExecution: true }, true, canSeeEditorActions)
+            return items.filter((menuItem: any) => lockLabels.includes(menuItem.label))
+        }
+
+        it('hides them from a plain user', () => {
+            expect(getLockItems(createUser(), createDocument({ creationUser: 'different-user' }))).toHaveLength(0)
+        })
+
+        it('hides them when the user id and the creator are both missing', () => {
+            const user = { ...createUser(), userId: undefined }
+
+            expect(getLockItems(user, createDocument())).toHaveLength(0)
+        })
+
+        it('hides them from a DEV manager who cannot move widgets', () => {
+            const user = createUser()
+            user.functionalities = [UserFunctionalitiesConstants.DOCUMENT_DEV_MANAGEMENT] as any
+
+            expect(getLockItems(user, createDocument({ creationUser: 'different-user', stateCode: 'DEV' }))).toHaveLength(0)
+        })
+
+        it('shows them to the document creator', () => {
+            expect(getLockItems(createUser(), createDocument({ creationUser: 'test-user' }))).toHaveLength(2)
+        })
+
+        it('shows them to an admin', () => {
+            const user = createUser()
+            user.functionalities = [UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT] as any
+
+            expect(getLockItems(user, createDocument({ creationUser: 'different-user' }))).toHaveLength(2)
+        })
+    })
 })
 
 describe('getCurrentDocumentBreadcrumb', () => {

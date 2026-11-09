@@ -4,6 +4,7 @@ import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 import deepcopy from 'deepcopy'
 import { parameterSidebarEmitter } from '@/components/UI/KnParameterSidebar/KnParameterSidebarHelper'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
+import { isDashboardEditor } from '@/modules/documentExecution/dashboard/DashboardPermissions'
 import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
 import store from '@/App.store.js'
 
@@ -97,7 +98,8 @@ export function createToolbarMenuItems(document: any, functions: any, exporters:
     if (mode === 'dashboard' && user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) && (showDashboardEditorActions || document?.seeAsFinalUser)) toolbarMenuItems.push({ icon: 'fa-solid fa-users-viewfinder', label: document.seeAsFinalUser ? $t('documentExecution.main.seeAsEditor') : $t('documentExecution.main.seeAsFinalUser'), command: () => functions.toggleFinalUser() })
     toolbarMenuItems.push({ icon: 'fa-solid fa-expand', label: $t('documentExecution.main.seeInFullscreen'), command: () => functions.fullScreen() })
 
-    if (mode === 'dashboard' && dashboardReady) {
+    // Locking only matters to those who can move widgets, so it follows the same rule as the widgets (canEditDashboard)
+    if (mode === 'dashboard' && dashboardReady && showDashboardEditorActions && isDashboardEditor(user, document)) {
         toolbarMenuItems.push({ icon: 'fa-solid fa-lock', label: $t('dashboard.lockAllWidgets'), command: () => emitter.emit('lockAllWidgets', true) })
         toolbarMenuItems.push({ icon: 'fa-solid fa-lock-open', label: $t('dashboard.unlockAllWidgets'), command: () => emitter.emit('unlockAllWidgets', false) })
     }
