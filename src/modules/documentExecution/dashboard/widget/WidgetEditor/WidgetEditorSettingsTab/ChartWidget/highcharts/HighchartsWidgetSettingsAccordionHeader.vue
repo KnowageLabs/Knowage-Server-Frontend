@@ -92,6 +92,11 @@ export default defineComponent({
                     return this.widgetModel.settings.style.shadows
                 case 'Drilldown':
                     return this.widgetModel.settings.interactions.drilldown
+                case 'TreemapDrilldown': {
+                    const series = this.widgetModel.settings.chartModel.model?.plotOptions?.series
+                    if (series && series.allowTraversingTree == null) series.allowTraversingTree = true
+                    return series
+                }
                 case 'Selection':
                     return this.widgetModel.settings.interactions.selection
                 case 'CrossNavigation':
@@ -120,10 +125,14 @@ export default defineComponent({
             }
         },
         updateModel() {
+            this.property = this.type === 'TreemapDrilldown' ? 'allowTraversingTree' : 'enabled'
             this.model = this.loadModel()
         },
         onModelChange() {
             switch (this.type) {
+                case 'TreemapDrilldown':
+                    emitter.emit('refreshChart', { id: this.widgetModel.id })
+                    break
                 case 'ConfigurationOf3D':
                 case 'AccessibilitySettings':
                 case 'Legend':

@@ -34,6 +34,7 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
 
     setPlotOptions() {
         this.model.plotOptions.series.turboThreshold = 15000
+        this.model.plotOptions.series.allowTraversingTree = true
     }
 
     setData(data: any, widgetModel: IWidget, variables: IVariable[]) {
@@ -65,14 +66,15 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
     }
 
     createSerieElement(measureColumn: any, interactionsEnabled: boolean) {
+        const allowTraversingTree = this.model.plotOptions.series.allowTraversingTree ?? true
         const serieElement = {
             id: 0,
             name: measureColumn.column.columnName,
             data: [] as any[],
             type: 'treemap',
             layoutAlgorithm: 'squarified',
-            allowDrillToNode: !interactionsEnabled,
-            allowTraversingTree: true,
+            allowDrillToNode: !interactionsEnabled && allowTraversingTree,
+            allowTraversingTree,
             alternateStartingDirection: true,
             showInLegend: false,
             animationLimit: 1000,
