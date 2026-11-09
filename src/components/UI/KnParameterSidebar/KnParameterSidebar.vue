@@ -87,6 +87,7 @@
                         :data-test="'parameter-date-input-' + parameter.id"
                         @change="updateDependency(parameter)"
                         @date-select="updateDependency(parameter)"
+                        @clear-click="updateDependency(parameter)"
                     />
                 </div>
                 <div v-if="parameter.selectionType === 'LIST' && parameter.showOnPanel === 'true' && parameter.visible" class="p-field p-my-1 p-p-2">
@@ -199,8 +200,9 @@ import { AxiosResponse } from 'axios'
 import { formatDate, luxonFormatDate } from '@/helpers/commons/localeHelper'
 import { iDocument, iParameter, iAdmissibleValues } from './KnParameterSidebar'
 import { setVisualDependency, updateVisualDependency } from './KnParameterSidebarVisualDependency'
-import { setDataDependency, updateDataDependency } from './KnParameterSidebarDataDependency'
+import { getFormattedParameters, setDataDependency, updateDataDependency } from './KnParameterSidebarDataDependency'
 import { setLovsDependency, updateLovDependency } from './KnParameterSidebarLovsDependency'
+import { getValidDate } from '@/modules/documentExecution/main/DocumentExecutionHelpers'
 import Calendar from 'primevue/calendar'
 import Chip from 'primevue/chip'
 import Chips from 'primevue/chips'
@@ -252,6 +254,11 @@ export default defineComponent({
             user: null as any,
             role: null as string | null,
             loading: false,
+            dependencyUpdatesPending: 0,
+            maxValueRequestKeys: {} as Record<string, string>,
+            maxValueRefreshPromise: null as Promise<boolean> | null,
+            maxValueRefreshError: false,
+            maxValueParametersReady: true,
             updateVisualDependency,
             mode: 'execution',
             qbeParameters: [] as any,
@@ -267,7 +274,7 @@ export default defineComponent({
             return (this.store.$state as any).user.sessionRole
         },
         buttonsDisabled(): boolean {
-            return this.loading || this.requiredFiledMissing()
+            return this.loading || this.dependencyUpdatesPending > 0 || !!this.maxValueRefreshPromise || this.maxValueRefreshError || (this.mode === 'execution' && !this.maxValueParametersReady) || this.requiredFiledMissing()
         },
         positionClass(): string {
             return this.document?.parametersRegion ? 'kn-parameter-sidebar-' + this.document.parametersRegion : 'kn-parameter-sidebar'
@@ -279,9 +286,9 @@ export default defineComponent({
             this.role = ''
             this.parameters = { isReadyForExecution: false, filterStatus: [] }
         },
-        propDocument() {
+        propDocument(document, previousDocument) {
             this.loadDocument()
-            this.loadParameters()
+            this.loadParameters(document?.label === previousDocument?.label)
             this.loadAvailableRolesForExecution()
         },
         filtersData() {
@@ -315,8 +322,8 @@ export default defineComponent({
         this.role = this.userRole as string
         this.loadAvailableRolesForExecution()
         this.loadDocument()
-        this.loadParameters()
         this.userDateFormat = this.dateFormat as string
+        this.loadParameters()
     },
     unmounted() {
         this.removeEventListeners()
@@ -359,7 +366,10 @@ export default defineComponent({
         loadAvailableRolesForExecution() {
             this.availableRolesForExecution = this.correctRolesForExecution
         },
-        loadParameters() {
+        loadParameters(refreshMaxValues = true) {
+            this.maxValueParametersReady = refreshMaxValues
+            this.maxValueRequestKeys = {}
+            this.maxValueRefreshError = false
             this.parameters.isReadyForExecution = this.filtersData?.isReadyForExecution
             this.parameters.filterStatus = []
 
@@ -387,6 +397,7 @@ export default defineComponent({
             this.parameters?.filterStatus.forEach((el: any) => setDataDependency(this.parameters, el))
             this.parameters?.filterStatus.forEach((el: any) => setLovsDependency(this.parameters, el))
             this.parameters?.filterStatus.forEach((el: any) => this.updateVisualDependency(el))
+            if (refreshMaxValues) this.refreshMaxValues()
         },
         resetParameterValue(parameter: any) {
             if (!parameter.driverDefaultValue) {
@@ -450,6 +461,7 @@ export default defineComponent({
             parameter.dependentParameters?.forEach((el: any) => this.updateDependency(el, true))
             parameter.dataDependentParameters?.forEach((el: any) => this.updateDependency(el, true))
             parameter.lovDependentParameters?.forEach((el: any) => this.updateDependency(el, true))
+            this.refreshMaxValues()
         },
         onResetAllParameters() {
             this.parameters.filterStatus.forEach((el: any) => this.resetParameterValue(el))
@@ -574,18 +586,85 @@ export default defineComponent({
         },
         onTreeSave(parameter: iParameter) {
             this.updateVisualDependency(parameter)
+            this.refreshMaxValues()
             this.treeDialogVisible = false
         },
-        async updateDependency(parameter: iParameter, resetValue = false) {
+        async updateDependency(parameter: iParameter, resetValue = false, refreshMaxValues = true) {
             this.loading = true
+            this.dependencyUpdatesPending++
             const role = this.sessionRole && this.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.sessionRole : this.role
-            this.updateVisualDependency(parameter)
-            await updateDataDependency(this.parameters, parameter, this.loading, this.document, role, this.$http, this.mode, resetValue, this.userDateFormat)
-            await updateLovDependency(this.parameters, parameter, this.loading, this.document, role, this.$http, this.mode, resetValue, this.userDateFormat)
-            this.$emit('parametersChanged', { parameters: this.parameters, document: this.propDocument })
-            this.loading = false
+            try {
+                this.updateVisualDependency(parameter)
+                await updateDataDependency(this.parameters, parameter, this.loading, this.document, role, this.$http, this.mode, resetValue, this.userDateFormat)
+                await updateLovDependency(this.parameters, parameter, this.loading, this.document, role, this.$http, this.mode, resetValue, this.userDateFormat)
+                if (refreshMaxValues) await this.refreshMaxValues()
+                this.$emit('parametersChanged', { parameters: this.parameters, document: this.propDocument })
+            } finally {
+                this.dependencyUpdatesPending--
+                this.loading = this.dependencyUpdatesPending > 0
+            }
         },
-        fillParameterForm(viewpoint: any) {
+        getMaxValueRequestKey(parameter: iParameter) {
+            const parameters = getFormattedParameters(this.parameters, this.userDateFormat || this.dateFormat || '')
+            const role = this.sessionRole && this.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.sessionRole : this.role
+            return JSON.stringify([this.document?.label, role, parameter.dependencies.maxValue?.map((urlName: string) => parameters.find((value: any) => value.urlName === urlName)?.value)])
+        },
+        async refreshMaxValues(): Promise<boolean> {
+            if (this.mode !== 'execution') return true
+            if (this.maxValueRefreshPromise) return this.maxValueRefreshPromise
+            this.maxValueRefreshPromise = this.recalculateMaxValues().finally(() => (this.maxValueRefreshPromise = null))
+            return this.maxValueRefreshPromise
+        },
+        async recalculateMaxValues(): Promise<boolean> {
+            this.maxValueRefreshError = false
+            try {
+                while (true) {
+                    if (this.mode !== 'execution') return true
+                    if (!this.maxValueParametersReady) return false
+                    const parameter = this.parameters.filterStatus.find((el: iParameter) => el.type === 'DATE' && !el.selectionType && el.valueSelection === 'man_in' && el.dependencies?.maxValue?.length && this.maxValueRequestKeys[el.urlName] !== this.getMaxValueRequestKey(el))
+                    if (!parameter) return true
+                    const key = this.getMaxValueRequestKey(parameter)
+                    const role = this.sessionRole && this.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.sessionRole : this.role
+                    const postData = { label: this.document?.label, role, paramId: parameter.urlName, parameters: getFormattedParameters(this.parameters, this.userDateFormat || this.dateFormat || '') }
+                    let response: AxiosResponse<{ maxValue: string | null }>
+                    try {
+                        response = await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/documentExeParameters/maxValue', postData)
+                    } catch (error) {
+                        if (this.mode !== 'execution') return true
+                        if (!this.maxValueParametersReady) return false
+                        if (!this.parameters.filterStatus.includes(parameter) || key !== this.getMaxValueRequestKey(parameter)) continue
+                        throw error
+                    }
+                    // A parent can change while its previous maximum is still being calculated.
+                    if (this.mode !== 'execution') return true
+                    if (!this.maxValueParametersReady) return false
+                    if (!this.parameters.filterStatus.includes(parameter) || key !== this.getMaxValueRequestKey(parameter)) continue
+                    const maxValue = response.data.maxValue
+                    if (maxValue !== null && typeof maxValue !== 'string') throw new Error(this.$t('documentExecution.main.maxDateError'))
+                    const maxDate = maxValue == null ? null : getValidDate('' + maxValue, this.dateFormat || '')
+                    if (maxDate === '') throw new Error(this.$t('documentExecution.main.maxDateError'))
+                    parameter.driverMaxValue = maxValue
+                    parameter.driverMaxDateValue = maxDate
+                    this.maxValueRequestKeys[parameter.urlName] = key
+                    const value = parameter.parameterValue?.[0]?.value
+                    const selectedDate = value instanceof Date ? value : value ? getValidDate('' + value, this.dateFormat || '') : null
+                    if (maxDate && selectedDate instanceof Date && new Date(selectedDate).setHours(0, 0, 0, 0) > new Date(maxDate).setHours(0, 0, 0, 0)) {
+                        parameter.parameterValue = [{ value: null, description: '' }]
+                        this.store.setInfo({ title: this.$t('common.info.info'), msg: this.$t('documentExecution.main.dateOutsideMax', { parameter: parameter.label }) })
+                        await this.updateDependency(parameter, false, false)
+                        if (this.requiredFiledMissing()) {
+                            this.parameters.isReadyForExecution = false
+                            if (this.filtersData) this.filtersData.isReadyForExecution = false
+                        }
+                    }
+                }
+            } catch {
+                this.maxValueRefreshError = true
+                this.store.setError({ title: this.$t('common.error.generic'), msg: this.$t('documentExecution.main.maxDateError') })
+                return false
+            }
+        },
+        async fillParameterForm(viewpoint: any) {
             const tempParameters = this.decodeViewpointPrameterValues(viewpoint.vpValueParams)
 
             Object.keys(tempParameters)?.forEach((key: any) => {
@@ -619,6 +698,7 @@ export default defineComponent({
             })
             // Recompute conditional visibility of dependent drivers after all saved values are applied
             this.parameters.filterStatus.forEach((el: any) => this.updateVisualDependency(el))
+            await this.refreshMaxValues()
         },
         getFormattedDate(date: any, format: any) {
             return formatDate(date, 'l', format)
@@ -632,9 +712,9 @@ export default defineComponent({
             }
             return parametersJson
         },
-        executeViewpoint(viewpoint: any) {
-            this.fillParameterForm(viewpoint)
-            this.$emit('execute')
+        async executeViewpoint(viewpoint: any) {
+            await this.fillParameterForm(viewpoint)
+            if (!this.buttonsDisabled) this.$emit('execute')
             this.savedParametersDialogVisible = false
         },
         async deleteViewpoint(viewpoint: any) {

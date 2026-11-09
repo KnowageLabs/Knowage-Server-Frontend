@@ -75,6 +75,7 @@
 
             <Button v-if="isParameterSidebarVisible && !newDashboardMode && !$route.query.hideParameters" class="kn-param-sidebar-toggle-button" :class="parameterSidebarVisible ? 'kn-param-sidebar-visible' : 'kn-param-sidebar-hidden'" :icon="paramSidebarIcon" v-tooltip.left="$t('common.parameters')" data-test="parameter-sidebar-icon" @click="toggleParamSidebar()"></Button>
             <KnParameterSidebar
+                ref="parameterSidebar"
                 v-show="parameterSidebarVisible"
                 class="document-execution-parameter-sidebar kn-overflow-y"
                 :filters-data="filtersData"
@@ -942,7 +943,10 @@ export default defineComponent({
                 // A saved View belongs to its own document only; never re-apply it onto a cross-navigation target.
                 if (this.dashboardView && !this.document.navigationFromDashboard) formatDriversUsingDashboardView(this.filtersData, this.dashboardView)
                 else if (this.cockpitViewForExecution && !this.document.navigationFromDashboard) formatDriversUsingDashboardView(this.filtersData, this.cockpitViewForExecution)
-                if (this.filtersData?.isReadyForExecution) {
+                await this.$nextTick()
+                const sidebar = this.$refs.parameterSidebar as any
+                const maxValuesValid = await sidebar?.refreshMaxValues()
+                if (this.filtersData?.isReadyForExecution && maxValuesValid !== false) {
                     this.parameterSidebarVisible = false
                     await this.loadURL(null, documentLabel, crossNavigationPopupMode)
                     await this.loadExporters()
@@ -1210,6 +1214,11 @@ export default defineComponent({
                 .catch(() => {})
         },
         async onExecute() {
+            const sidebar = this.$refs.parameterSidebar as any
+            if (sidebar && (!(await sidebar.refreshMaxValues()) || sidebar.buttonsDisabled)) {
+                this.parameterSidebarVisible = true
+                return
+            }
             this.loading = true
             this.filtersData.isReadyForExecution = true
             if (this.documentExecution?.parameterValuesMap[this.document.label + '-' + this.tabKey]) {

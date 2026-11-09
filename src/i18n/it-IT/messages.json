@@ -1768,6 +1768,8 @@
       "linkToDocument ": "collegamento al documento",
       "newSavedView": "Nuova vista salvata",
       "parameterClearTooltip": "Reimposta al valore di default",
+      "dateOutsideMax": "Il valore di \"{parameter}\" e' stato cancellato perche' supera la nuova data massima.",
+      "maxDateError": "Impossibile aggiornare la data massima. Modifica il parametro padre per riprovare.",
       "publicExecution": "Esecuzione Pubblica",
       "publicUrlExecutionDisabled": "il documento attuale non può essere eseguito da un utente pubblico",
       "rankSaveSucces": "valutazione salvata. grazie per il tuo feedback",
