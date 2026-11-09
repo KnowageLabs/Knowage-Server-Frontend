@@ -1,6 +1,6 @@
 <template>
     <div class="selector-widget-container" @mouseenter="isWidgetHovered = true" @mouseleave="isWidgetHovered = false">
-        <GridLayout :key="gridLayoutKey" v-model:layout="responsiveLayouts[currentScreenSize]" :responsive-layouts="responsiveLayouts" :cols="colSizes" :row-height="30" :is-draggable="!isFinalUser" :is-resizable="!isFinalUser" :vertical-compact="false" :use-css-transforms="false" :margin="[0, 0]" :responsive="true" :auto-size="false" @breakpoint-changed="onBreakpointChanged" @layout-updated="onLayoutUpdated">
+        <GridLayout v-if="layoutReady" :key="gridLayoutKey" v-model:layout="layout" :col-num="colNum" :row-height="30" :is-draggable="!isFinalUser" :is-resizable="!isFinalUser" :vertical-compact="false" :prevent-collision="true" :use-css-transforms="false" :margin="[0, 0]" :auto-size="false" @layout-updated="onLayoutUpdated">
             <template #item="{ item }">
                 <div class="selector-column-wrapper" @mouseenter="onColumnMouseEnter(item.columnName)" @mouseleave="onColumnMouseLeave(item.columnName)" @mousemove="onColumnMouseMove(item.columnName)" @scroll.capture="onColumnScroll(item.columnName)" @contextmenu.prevent="onColumnRightClick(item.columnName)">
                     <SelectorWidget :prop-widget="getSingleColumnWidget(item.columnName)" :data-to-show="getColumnData(item.columnName)" :widget-initial-data="getColumnInitialData(item.columnName)" :prop-active-selections="getColumnSelections(item.columnName)" :editor-mode="false" :dashboard-id="dashboardId" :datasets="datasets" :selection-is-locked="selectionIsLocked" :local-mode="true" @selection-changed="onColumnSelectionChanged" />
@@ -43,11 +43,16 @@ import mainStore from '@/App.store'
 import deepcopy from 'deepcopy'
 import { getSelectorWidgetData } from './SelectorWidgetDataProxy'
 import { emitter } from '../../DashboardHelpers'
+import { getLegacyColumnLayout, getNearestScreenColumnLayout, getScreenColumnLayout, ISelectorColumnLayout, NEW_COLUMN_COUNT, sameColumnLayout, ScreenSize, screenSizeFromWidth } from './SelectorWidgetLayoutHelper'
 
 export default defineComponent({
     name: 'selector-widget-container',
     components: { SelectorWidget },
-    inject: ['document'],
+    inject: {
+        document: { default: null },
+        // the breakpoint of the dashboard sheet (DashboardRenderer), not of this widget
+        dashboardScreenSize: { default: null }
+    },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         dataToShow: { type: Object as any, required: true },
@@ -61,9 +66,12 @@ export default defineComponent({
     data() {
         return {
             localSelections: {} as any,
-            responsiveLayouts: { lg: [], md: [], sm: [], xs: [], xxs: [] } as any,
-            currentScreenSize: 'lg' as string,
-            colSizes: { lg: 120, md: 100, sm: 70, xs: 40, xxs: 20 } as any,
+            layout: [] as any[],
+            colNum: NEW_COLUMN_COUNT,
+            layoutReady: false,
+            widthObserver: null as ResizeObserver | null,
+            // the column layout on screen, to save only real changes (the grid also emits layout-updated on mount)
+            shownColumnLayout: null as ISelectorColumnLayout | null,
             gridLayoutKey: 0,
             localWidgetData: {} as any,
             unlockedColumnName: null as string | null,
@@ -82,6 +90,9 @@ export default defineComponent({
         }),
         isFinalUser(): boolean {
             return !!(this.document as any)?.seeAsFinalUser
+        },
+        screenSize(): ScreenSize {
+            return ((this.dashboardScreenSize as any)?.value as ScreenSize) ?? screenSizeFromWidth(window.innerWidth)
         },
         gridItems(): { columnName: string; isTreeGroup: boolean; treeColumns: any[] }[] {
             const globalModality = this.propWidget.settings?.configuration?.selectorType?.modality
@@ -120,8 +131,10 @@ export default defineComponent({
             await this.refreshLocalWidgetData() // refresh data to reflect store selection changes from other widgets
         },
         propWidget() {
-            this.initializeGridLayout()
-            this.gridLayoutKey++
+            if (this.layoutReady) this.initializeGridLayout()
+        },
+        screenSize() {
+            if (this.layoutReady) this.initializeGridLayout()
         },
         dataToShow() {
             this.localWidgetData = deepcopy(this.dataToShow)
@@ -130,12 +143,25 @@ export default defineComponent({
     created() {
         this.setEventListeners()
         this.loadActiveSelectionsIntoLocal()
-        this.currentScreenSize = this.getBreakpointFromWidth(window.innerWidth)
-        this.initializeGridLayout()
         this.localWidgetData = deepcopy(this.dataToShow)
+    },
+    mounted() {
+        // An old saved layout is chosen by the width of this widget, so wait until the widget has a width.
+        // It is chosen once: resizing the widget later does not change the layout.
+        if ((this.$el as HTMLElement).clientWidth > 0) this.initializeGridLayout()
+        else {
+            this.widthObserver = new ResizeObserver(() => {
+                if ((this.$el as HTMLElement).clientWidth === 0) return
+                this.widthObserver?.disconnect()
+                this.widthObserver = null
+                this.initializeGridLayout()
+            })
+            this.widthObserver.observe(this.$el as HTMLElement)
+        }
     },
     unmounted() {
         this.removeEventListeners()
+        this.widthObserver?.disconnect()
         Object.values(this.debounceTimers).forEach((timer) => clearTimeout(timer))
         Object.values(this.hoverTimers).forEach((timer) => clearTimeout(timer))
     },
@@ -253,52 +279,44 @@ export default defineComponent({
         //#endregion =============================================================================
 
         //#region ===================== Grid Layout ===============================================
-        getBreakpointFromWidth(width: number): string {
-            if (width >= 1200) return 'lg'
-            else if (width >= 996) return 'md'
-            else if (width >= 768) return 'sm'
-            else if (width >= 480) return 'xs'
-            else return 'xxs'
-        },
-        onBreakpointChanged(breakpoint: string) {
-            this.currentScreenSize = breakpoint
-        },
         onLayoutUpdated(newLayout: any[]) {
-            if (!this.propWidget.settings?.responsive) return
-            if (!this.propWidget.settings.responsive.columnLayouts) {
-                this.propWidget.settings.responsive.columnLayouts = {}
-            }
-            const columnLayout: Record<string, { x: number; y: number; w: number; h: number }> = {}
+            const responsive = this.propWidget.settings?.responsive
+            if (!responsive) return
+            const items: ISelectorColumnLayout['items'] = {}
             newLayout.forEach((item: any) => {
-                if (item.columnName) {
-                    columnLayout[item.columnName] = { x: item.x, y: item.y, w: item.w, h: item.h }
-                }
+                if (item.columnName) items[item.columnName] = { x: item.x, y: item.y, w: item.w, h: item.h }
             })
-            this.propWidget.settings.responsive.columnLayouts[this.currentScreenSize] = columnLayout
+            const columnLayout: ISelectorColumnLayout = { cols: this.colNum, items }
+            if (this.shownColumnLayout && sameColumnLayout(this.shownColumnLayout, columnLayout)) return
+            // saved under the dashboard breakpoint; the old columnLayouts stay as they are
+            if (!responsive.columnLayoutsByScreen) responsive.columnLayoutsByScreen = {}
+            responsive.columnLayoutsByScreen[this.screenSize] = columnLayout
+            this.shownColumnLayout = columnLayout
         },
         initializeGridLayout() {
-            const breakpoints = ['lg', 'md', 'sm', 'xs', 'xxs'] as const
-            const hasColumnLayouts = !!this.propWidget.settings?.responsive?.columnLayouts
-            const legacyLayout = hasColumnLayouts ? null : (this.propWidget.settings?.responsive?.columnLayout ?? null)
+            const responsive = this.propWidget.settings?.responsive
+            // 1. saved for this dashboard breakpoint, 2. saved before this change (keyed by the widget width), 3. saved for another dashboard breakpoint, 4. two per row
+            const widgetWidth = (this.$el as HTMLElement)?.clientWidth || window.innerWidth
+            const columnLayout = getScreenColumnLayout(responsive, this.screenSize) ?? getLegacyColumnLayout(responsive, widgetWidth) ?? getNearestScreenColumnLayout(responsive, this.screenSize)
+            this.colNum = columnLayout?.cols ?? NEW_COLUMN_COUNT
+            const halfCols = Math.floor(this.colNum / 2)
 
-            breakpoints.forEach((bp) => {
-                const savedLayout = hasColumnLayouts ? (this.propWidget.settings?.responsive?.columnLayouts?.[bp] ?? null) : bp === 'lg' ? legacyLayout : null
-                const halfCols = Math.floor(this.colSizes[bp] / 2)
-
-                this.responsiveLayouts[bp] = this.gridItems.map((item: any, index: number) => {
-                    const saved = savedLayout?.[item.columnName]
-                    return {
-                        x: saved?.x ?? (index % 2) * halfCols,
-                        y: saved?.y ?? Math.floor(index / 2) * 2,
-                        w: saved?.w ?? halfCols,
-                        h: saved?.h ?? 2,
-                        i: item.columnName,
-                        columnName: item.columnName,
-                        static: false,
-                        dragIgnoreFrom: '.q-slider__thumb, .q-range__thumb'
-                    }
-                })
+            this.layout = this.gridItems.map((item: any, index: number) => {
+                const saved = columnLayout?.items[item.columnName]
+                return {
+                    x: saved?.x ?? (index % 2) * halfCols,
+                    y: saved?.y ?? Math.floor(index / 2) * 2,
+                    w: saved?.w ?? halfCols,
+                    h: saved?.h ?? 2,
+                    i: item.columnName,
+                    columnName: item.columnName,
+                    static: false,
+                    dragIgnoreFrom: '.q-slider__thumb, .q-range__thumb'
+                }
             })
+            this.shownColumnLayout = { cols: this.colNum, items: Object.fromEntries(this.layout.map((item: any) => [item.columnName, { x: item.x, y: item.y, w: item.w, h: item.h }])) }
+            this.layoutReady = true
+            this.gridLayoutKey++
         },
         //#endregion =============================================================================
 
@@ -458,6 +476,9 @@ export default defineComponent({
 
     :deep(.vgl-layout) {
         overflow-y: auto;
+        // grid-layout-plus rounds left and width apart, so the last column can end 1px past the edge;
+        // without clip that 1px adds a horizontal scrollbar, which then also forces a vertical one (as .sheet-container)
+        overflow-x: clip;
     }
 
     :deep(.vgl-item--placeholder) {
