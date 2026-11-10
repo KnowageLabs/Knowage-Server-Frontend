@@ -3,6 +3,7 @@ import { useI18n } from 'vue-i18n'
 import axios from 'axios'
 import mainStore from '@/App.store'
 import { loadLanguageAsync } from '@/App.i18n.js'
+import { applyLoginFavicon, defaultLoginBranding, isLoginImageUrl } from '@/helpers/commons/loginBranding'
 
 export const useLoginConfig = () => {
     const { locale } = useI18n()
@@ -10,14 +11,25 @@ export const useLoginConfig = () => {
 
     const loginConfig = ref<any>(null)
     const samlActive = computed(() => String(loginConfig.value?.items?.[0]?.samlActive).toLowerCase() === 'true')
-    const backgroundUrl = ref(`${import.meta.env.VITE_PUBLIC_PATH}images/home/home-background.jpg`)
+    const backgroundUrl = ref(defaultLoginBranding.backgroundUrl)
+    const logoUrl = ref(defaultLoginBranding.logoUrl)
     const backgroundLoaded = ref(true)
 
     const preloadImage = (url: string): Promise<void> => {
         return new Promise((resolve, reject) => {
             const img = new Image()
-            img.onload = () => resolve()
-            img.onerror = () => reject()
+            const timeout = setTimeout(() => {
+                img.onload = img.onerror = null
+                reject()
+            }, 5000)
+            img.onload = () => {
+                clearTimeout(timeout)
+                resolve()
+            }
+            img.onerror = () => {
+                clearTimeout(timeout)
+                reject()
+            }
             img.src = url
         })
     }
@@ -30,22 +42,26 @@ export const useLoginConfig = () => {
             sessionStorage.setItem('oidcClientId', loginConfig.value.items[0].clientId)
         }
 
-        // Imposta il background personalizzato se presente
-        if (loginConfig.value?.items?.[0]?.backgroundUrl) {
-            const customBg = loginConfig.value.items[0].backgroundUrl
-            backgroundLoaded.value = false
-
-            try {
-                // Precarica l'immagine in background
-                await preloadImage(customBg)
-                backgroundUrl.value = customBg
-            } catch (err) {
-                console.warn('Failed to load custom background, using default', err)
-                // Se fallisce, rimane con il default
-            } finally {
-                backgroundLoaded.value = true
-            }
-        }
+        backgroundUrl.value = defaultLoginBranding.backgroundUrl
+        logoUrl.value = defaultLoginBranding.logoUrl
+        applyLoginFavicon()
+        const branding = loginConfig.value?.items?.[0] || {}
+        backgroundLoaded.value = !branding.backgroundUrl
+        await Promise.all(
+            ['backgroundUrl', 'logoUrl', 'faviconUrl'].map(async (field) => {
+                const url = branding[field]
+                if (typeof url !== 'string' || !url || !isLoginImageUrl(url)) return
+                try {
+                    await preloadImage(url)
+                    if (field === 'backgroundUrl') backgroundUrl.value = url
+                    else if (field === 'logoUrl') logoUrl.value = url
+                    else applyLoginFavicon(url)
+                } catch {
+                    console.warn(`Failed to load custom ${field}, using default`)
+                }
+            })
+        )
+        backgroundLoaded.value = true
 
         // Imposta la lingua di default se presente
         if (loginConfig.value?.items?.[0]?.defaultLanguage) {
@@ -61,6 +77,7 @@ export const useLoginConfig = () => {
         loginConfig,
         samlActive,
         backgroundUrl,
+        logoUrl,
         backgroundLoaded,
         loadLoginConfig,
         preloadImage
