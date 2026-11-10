@@ -81,9 +81,7 @@
                         :class="{
                             'p-invalid': v$.configuration.category.$invalid && v$.configuration.category.$dirty
                         }"
-                        :options="configurationManagementDescriptor.category"
-                        option-label="name"
-                        option-value="value"
+                        :options="categoryOptions"
                         @before-show="v$.configuration.category.$touch()"
                     />
                     <label for="category" class="kn-material-input-label"> {{ $t('managers.configurationManagement.headers.category') }} * </label>
@@ -141,6 +139,10 @@ export default defineComponent({
         model: {
             type: Object,
             requried: false
+        },
+        categories: {
+            type: Array as () => string[],
+            default: () => []
         }
     },
     emits: ['close', 'created'],
@@ -170,6 +172,11 @@ export default defineComponent({
         },
         buttonDisabled(): any {
             return this.v$.$invalid
+        },
+        // The categories come from the data, so a category missing from a fixed list still shows.
+        categoryOptions(): string[] {
+            const all = [...this.categories, this.configuration.category].filter((category) => !!category) as string[]
+            return [...new Set(all)].sort((a, b) => a.localeCompare(b))
         }
     },
     watch: {

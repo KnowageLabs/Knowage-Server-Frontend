@@ -5,7 +5,7 @@
                 {{ $t('managers.domainsManagement.title') }}
             </template>
             <template #end>
-                <KnFabButton icon="fas fa-plus" data-test="new-button" @click="showForm()"></KnFabButton>
+                <KnFabButton v-if="canWrite" icon="fas fa-plus" data-test="new-button" @click="showForm()"></KnFabButton>
             </template>
         </Toolbar>
         <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
@@ -59,7 +59,7 @@
                             <span :title="slotProps.data[col.field]">{{ slotProps.data[col.field] }}</span>
                         </template>
                     </Column>
-                    <Column :style="domainsManagementDescriptor.table.iconColumn.style">
+                    <Column v-if="canWrite" :style="domainsManagementDescriptor.table.iconColumn.style">
                         <template #body="slotProps">
                             <Button icon="pi pi-trash" class="p-button-link" :data-test="'delete-button'" @click="deleteDomainConfirm(slotProps.data.valueId)" />
                         </template>
@@ -68,7 +68,7 @@
             </div>
 
             <div v-if="formVisible">
-                <DomainsManagementDialog :model="selectedDomain" data-test="domain-form" @created="reloadDomains" @close="closeForm"></DomainsManagementDialog>
+                <DomainsManagementDialog :model="selectedDomain" :read-only="!canWrite" data-test="domain-form" @created="reloadDomains" @close="closeForm"></DomainsManagementDialog>
             </div>
         </div>
     </div>
@@ -129,6 +129,13 @@ export default defineComponent({
             formVisible: false,
             loading: false,
             selectedDomain: null as iDomain | null
+        }
+    },
+    computed: {
+        // Reading needs DomainManagement (the route), writing needs DomainWrite (the backend).
+        canWrite(): boolean {
+            const user = this.store.user as any
+            return !!user?.isSuperadmin || !!user?.functionalities?.includes('DomainWrite')
         }
     },
     created() {

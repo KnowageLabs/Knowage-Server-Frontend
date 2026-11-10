@@ -68,7 +68,7 @@
                 </DataTable>
             </div>
             <div v-if="formVisible">
-                <ConfigurationManagementDialog :model="selectedConfiguration" data-test="configuration-form" @created="reload" @close="closeForm"></ConfigurationManagementDialog>
+                <ConfigurationManagementDialog :model="selectedConfiguration" :categories="categories" data-test="configuration-form" @created="reload" @close="closeForm"></ConfigurationManagementDialog>
             </div>
         </div>
     </div>
@@ -129,6 +129,11 @@ export default defineComponent({
                     constraints: [filterDefault]
                 }
             } as Object
+        }
+    },
+    computed: {
+        categories(): string[] {
+            return [...new Set(this.configurations.map((configuration) => configuration.category).filter((category) => !!category))]
         }
     },
     created() {
