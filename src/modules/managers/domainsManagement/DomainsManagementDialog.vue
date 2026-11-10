@@ -102,7 +102,7 @@
 
         <template #footer>
             <Button class="kn-button kn-button--secondary" :label="$t('common.close')" data-test="close-button" @click="closeTemplate"></Button>
-            <Button class="kn-button kn-button--primary" :label="$t('common.save')" :disabled="buttonDisabled" data-test="submit-button" @click="handleSubmit"></Button>
+            <Button v-if="!readOnly" class="kn-button kn-button--primary" :label="$t('common.save')" :disabled="buttonDisabled" data-test="submit-button" @click="handleSubmit"></Button>
         </template>
     </Dialog>
 </template>
@@ -125,6 +125,10 @@ export default defineComponent({
         model: {
             type: Object,
             requried: false
+        },
+        readOnly: {
+            type: Boolean,
+            default: false
         }
     },
     emits: ['close', 'created'],

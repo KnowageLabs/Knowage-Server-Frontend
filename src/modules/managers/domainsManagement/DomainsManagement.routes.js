@@ -2,7 +2,7 @@ const routes = [
     {
         path: '/domains-management',
         name: 'domains-management',
-        meta: { functionality: 'DomainWrite' },
+        meta: { functionality: 'DomainManagement' },
         component: () => import('@/modules/managers/domainsManagement/DomainsManagement.vue')
     }
 ]

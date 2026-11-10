@@ -1,63 +1,5 @@
 {
     "bannedConfigurations": ["changepwdmodule.len_min", "changepwdmodule.special_char", "changepwdmodule.upper_char", "changepwdmodule.lower_char", "changepwdmodule.number", "changepwdmodule.alphabetical"],
-    "category": [
-        {
-            "name": "SECURITY",
-            "value": "SECURITY"
-        },
-        {
-            "name": "GENERIC_CONFIGURATION",
-            "value": "GENERIC_CONFIGURATION"
-        },
-        {
-            "name": "DATE-FORMAT",
-            "value": "DATE-FORMAT"
-        },
-        {
-            "name": "ORGANIZATIONAL-UNIT",
-            "value": "ORGANIZATIONAL-UNIT"
-        },
-        {
-            "name": "THEMES",
-            "value": "THEMES"
-        },
-        {
-            "name": "LANGUAGE_SUPPORTED",
-            "value": "LANGUAGE_SUPPORTED"
-        },
-        {
-            "name": "SCRIPT_LANGUAGE",
-            "value": "SCRIPT_LANGUAGE"
-        },
-        {
-            "name": "MAIL",
-            "value": "MAIL"
-        },
-        {
-            "name": "SOCIAL_CONFIGURATION",
-            "value": "SOCIAL_CONFIGURATION"
-        },
-        {
-            "name": "IMAGE_GALLERY",
-            "value": "IMAGE_GALLERY"
-        },
-        {
-            "name": "PYTHON_CONFIGURATION",
-            "value": "PYTHON_CONFIGURATION"
-        },
-        {
-            "name": "R_CONFIGURATION",
-            "value": "R_CONFIGURATION"
-        },
-        {
-            "name": "SOLR_CONFIGURATION",
-            "value": "SOLR_CONFIGURATION"
-        },
-        {
-            "name": "REST_CONFIGURATION",
-            "value": "REST_CONFIGURATION"
-        }
-    ],
     "columns": [
         {
             "field": "name",
@@ -88,7 +30,7 @@
             "width": "60vw"
         }
     },
-    "globalFilterFields": ["label", "name", "category", "value", "active"],
+    "globalFilterFields": ["label", "name", "category", "valueCheck", "active"],
     "isActive": [
         {
             "name": "True",
