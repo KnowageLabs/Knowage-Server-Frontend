@@ -31,6 +31,7 @@ const MODULE_ICON_MAP: Record<string, string> = {
     '/users-management': 'sym_o_group',
     '/menu-management': 'sym_o_menu',
     '/functionalities-management': 'sym_o_toggle_on',
+    '/login-page-management': 'sym_o_login',
     // Behavioural model
     '/lovs-management': 'sym_o_list',
     '/drivers-management': 'sym_o_filter_alt',
@@ -52,6 +53,7 @@ const MODULE_ICON_MAP: Record<string, string> = {
     '/alert': 'sym_o_notifications_active',
     '/news-management': 'sym_o_campaign',
     '/resource-management': 'sym_o_inventory_2',
+    '/documentation-management': 'sym_o_edit_document',
     '/log-management': 'sym_o_receipt_long',
     // Kpi Model
     '/kpi-definition': 'sym_o_speed',

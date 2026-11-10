@@ -4193,6 +4193,29 @@
             "synchronize": "Synchronize",
             "technical": "Technical"
         },
+        "loginPageManagement": {
+            "title": "Login Page Management",
+            "configuration": "Configuration",
+            "hint": "Global login appearance, managed by the superadmin. Upload an image or use an HTTP(S) URL or path starting with /, accessible without authentication.",
+            "upload": "Upload image",
+            "uploadHint": "PNG, JPG, GIF, SVG or ICO; maximum 5 MB. Save to apply.",
+            "invalidImage": "Select a non-empty PNG, JPG, GIF, SVG or ICO image no larger than 5 MB.",
+            "uploadError": "Unable to upload the image. Check its format and content, then try again.",
+            "desktop": "Desktop",
+            "tablet": "Tablet",
+            "mobile": "Mobile",
+            "backgroundUrl": "Background URL",
+            "logoUrl": "Logo URL",
+            "faviconUrl": "Favicon URL (optional)",
+            "defaultHint": "Leave empty to use the default.",
+            "invalidUrl": "Enter an HTTP(S) URL or a path starting with /.",
+            "tooLong": "The configuration exceeds 1000 characters. Use shorter URLs.",
+            "preview": "Preview",
+            "reset": "Restore defaults (save to apply)",
+            "saveSuccess": "Login appearance saved successfully.",
+            "saveError": "Unable to save login appearance.",
+            "loadError": "Unable to load login appearance. Reload the page to try again."
+        },
         "homeManagement": {
             "configuration": "Configuration",
             "defaultDescription": "The default home configured for the platform will be shown.",
@@ -5158,6 +5181,7 @@
         }
     },
     "menu": {
+        "loginPageManagement": "Login Page Management",
         "AiManagement": "AI Management",
         "Categories": "Categories",
         "DashboardThemeManagement": "Dashboard Themes",

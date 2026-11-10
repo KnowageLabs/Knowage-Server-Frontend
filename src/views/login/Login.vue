@@ -1,88 +1,72 @@
 <template>
-    <div class="login-container" :class="{ 'bg-loading': !backgroundLoaded }" :style="containerStyles">
-        <!-- Spinner di caricamento del background -->
-        <q-linear-progress v-if="!backgroundLoaded" indeterminate color="primary" class="bg-loading-progress" />
+    <LoginLayout :background-url="backgroundUrl" :logo-url="logoUrl" :background-loaded="backgroundLoaded">
+        <!-- Success/Error banner unificato -->
+        <q-card-section v-if="success" class="q-pt-none q-pb-none">
+            <q-banner class="bg-positive text-white" rounded dense>
+                <template v-slot:avatar>
+                    <q-icon name="check_circle" color="white" />
+                </template>
+                {{ success }}
+            </q-banner>
+        </q-card-section>
 
-        <q-scroll-area class="login-scroll">
-            <div class="login-inner">
-                <q-card class="login-card">
-                    <!-- Logo sempre visibile -->
-                    <q-card-section class="text-center q-pb-none">
-                        <div class="logo-container">
-                            <img :src="`${publicPath}/images/commons/knowage-black.svg`" alt="Knowage" class="logo" />
-                        </div>
-                    </q-card-section>
+        <q-card-section v-if="error" class="q-pt-none q-pb-none">
+            <q-banner class="bg-negative text-white" rounded dense>
+                <template v-slot:avatar>
+                    <q-icon name="error" color="white" />
+                </template>
+                {{ error }}
+            </q-banner>
+        </q-card-section>
 
-                    <!-- Success/Error banner unificato -->
-                    <q-card-section v-if="success" class="q-pt-none q-pb-none">
-                        <q-banner class="bg-positive text-white" rounded dense>
-                            <template v-slot:avatar>
-                                <q-icon name="check_circle" color="white" />
-                            </template>
-                            {{ success }}
-                        </q-banner>
-                    </q-card-section>
+        <!-- MFA Verification -->
+        <MfaVerification v-if="showMfa" :tokenMfa="mfaData.tokenMfa" :secret="mfaData.secret" :qrCodeUrl="mfaData.qrCodeUrl" @success="onMfaSuccess" @error="onMfaError" />
 
-                    <q-card-section v-if="error" class="q-pt-none q-pb-none">
-                        <q-banner class="bg-negative text-white" rounded dense>
-                            <template v-slot:avatar>
-                                <q-icon name="error" color="white" />
-                            </template>
-                            {{ error }}
-                        </q-banner>
-                    </q-card-section>
+        <!-- Forgot Password -->
+        <ForgotPassword v-else-if="showForgotPassword" @back="onForgotPasswordBack" @success="onForgotPasswordSuccess" @error="onForgotPasswordError" />
 
-                    <!-- MFA Verification -->
-                    <MfaVerification v-if="showMfa" :tokenMfa="mfaData.tokenMfa" :secret="mfaData.secret" :qrCodeUrl="mfaData.qrCodeUrl" @success="onMfaSuccess" @error="onMfaError" />
+        <!-- Reset Password -->
+        <ResetPassword v-else-if="showResetPassword" :token="resetToken" @success="onResetPasswordSuccess" @error="onResetPasswordError" />
 
-                    <!-- Forgot Password -->
-                    <ForgotPassword v-else-if="showForgotPassword" @back="onForgotPasswordBack" @success="onForgotPasswordSuccess" @error="onForgotPasswordError" />
+        <!-- Registration -->
+        <Registration v-else-if="showRegistration" @back="onRegistrationBack" @success="onRegistrationSuccess" @error="onRegistrationError" />
 
-                    <!-- Reset Password -->
-                    <ResetPassword v-else-if="showResetPassword" :token="resetToken" @success="onResetPasswordSuccess" @error="onResetPasswordError" />
+        <!-- Login Form -->
+        <template v-else-if="showLoginForm">
+            <q-card-section>
+                <q-form @submit="onSubmit" class="login-form">
+                    <q-input v-model="username" :label="$t('common.loginPage.username')" outlined :rules="[(val) => !!val || $t('common.loginPage.usernameRequired')]" autocomplete="username">
+                        <template v-slot:prepend>
+                            <q-icon name="person" />
+                        </template>
+                    </q-input>
 
-                    <!-- Registration -->
-                    <Registration v-else-if="showRegistration" @back="onRegistrationBack" @success="onRegistrationSuccess" @error="onRegistrationError" />
+                    <q-input v-model="password" :type="isPwd ? 'password' : 'text'" :label="$t('common.loginPage.password')" outlined :rules="[(val) => !!val || $t('common.loginPage.passwordRequired')]" autocomplete="current-password">
+                        <template v-slot:prepend>
+                            <q-icon name="lock" />
+                        </template>
+                        <template v-slot:append>
+                            <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPwd = !isPwd" />
+                        </template>
+                    </q-input>
 
-                    <!-- Login Form -->
-                    <template v-else-if="showLoginForm">
-                        <q-card-section>
-                            <q-form @submit="onSubmit" class="q-gutter-md">
-                                <q-input v-model="username" :label="$t('common.loginPage.username')" outlined :rules="[(val) => !!val || $t('common.loginPage.usernameRequired')]" autocomplete="username">
-                                    <template v-slot:prepend>
-                                        <q-icon name="person" />
-                                    </template>
-                                </q-input>
+                    <div>
+                        <q-btn :label="$t('common.loginPage.signIn')" type="submit" color="primary" class="full-width" :loading="loading" />
+                    </div>
+                </q-form>
+            </q-card-section>
 
-                                <q-input v-model="password" :type="isPwd ? 'password' : 'text'" :label="$t('common.loginPage.password')" outlined :rules="[(val) => !!val || $t('common.loginPage.passwordRequired')]" autocomplete="current-password">
-                                    <template v-slot:prepend>
-                                        <q-icon name="lock" />
-                                    </template>
-                                    <template v-slot:append>
-                                        <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPwd = !isPwd" />
-                                    </template>
-                                </q-input>
-
-                                <div>
-                                    <q-btn :label="$t('common.loginPage.signIn')" type="submit" color="primary" class="full-width" :loading="loading" />
-                                </div>
-                            </q-form>
-                        </q-card-section>
-
-                        <q-card-section class="text-center q-pt-none">
-                            <div class="text-caption text-grey-7 q-mb-sm">
-                                <a href="#" class="text-primary" @click.prevent="openForgotPassword">{{ $t('common.loginPage.forgotPassword') }}</a>
-                            </div>
-                            <div class="text-caption text-grey-7">
-                                {{ $t('common.loginPage.noAccount') }}
-                                <a href="#" class="text-primary" @click.prevent="openRegistration">{{ $t('common.loginPage.registerNow') }}</a>
-                            </div>
-                        </q-card-section>
-                    </template>
-                </q-card>
-            </div>
-        </q-scroll-area>
-    </div>
+            <q-card-section class="text-center q-pt-none">
+                <div class="text-caption text-grey-7 q-mb-sm">
+                    <a href="#" class="text-primary" @click.prevent="openForgotPassword">{{ $t('common.loginPage.forgotPassword') }}</a>
+                </div>
+                <div class="text-caption text-grey-7">
+                    {{ $t('common.loginPage.noAccount') }}
+                    <a href="#" class="text-primary" @click.prevent="openRegistration">{{ $t('common.loginPage.registerNow') }}</a>
+                </div>
+            </q-card-section>
+        </template>
+    </LoginLayout>
 </template>
 
 <script setup lang="ts">
@@ -98,12 +82,11 @@ import MfaVerification from './MfaVerification.vue'
 import ForgotPassword from './ForgotPassword.vue'
 import ResetPassword from './ResetPassword.vue'
 import Registration from './Registration.vue'
+import LoginLayout from './LoginLayout.vue'
 
 const route = useRoute()
 const { t } = useI18n()
-const publicPath = import.meta.env.VITE_PUBLIC_PATH
-
-const { backgroundUrl, backgroundLoaded, loadLoginConfig, preloadImage, loginConfig, samlActive } = useLoginConfig()
+const { backgroundUrl, logoUrl, backgroundLoaded, loadLoginConfig, preloadImage, loginConfig, samlActive } = useLoginConfig()
 const authFlows = useAuthFlows()
 const { resetToken, verifyResetToken, verifyRegistrationToken, exchangeAuthorizationCode, loginWithJwtFromSessionStorage } = useTokenVerification(authFlows.error, authFlows.success)
 
@@ -182,13 +165,6 @@ const redirectToOIDC = async () => {
 
     window.location.href = `${config.authorizeUrl}?${params.toString()}`
 }
-
-const containerStyles = computed(() => ({
-    backgroundImage: `url('${backgroundUrl.value}')`,
-    backgroundRepeat: 'no-repeat',
-    backgroundSize: 'cover',
-    backgroundAttachment: 'fixed'
-}))
 
 const showLoginForm = computed(() => !samlActive.value && !hideLoginForm.value && !hasAuthToken.value && !hasUrlError.value && !hasAuthCode.value && !showMfa.value && !showForgotPassword.value && !showResetPassword.value && !showRegistration.value)
 
@@ -381,81 +357,3 @@ onMounted(async () => {
     }
 })
 </script>
-
-<style scoped lang="scss">
-.login-container {
-    height: 100vh;
-    position: relative;
-    transition: background-image 0.3s ease-in-out;
-
-    &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(255, 255, 255, 0.1);
-        z-index: 0;
-    }
-
-    &.bg-loading {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-
-        &::before {
-            background-color: rgba(255, 255, 255, 0.3);
-        }
-    }
-}
-
-.bg-loading-progress {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 10;
-}
-
-.login-scroll {
-    height: 100vh;
-    width: 100%;
-}
-
-.login-inner {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    padding: 20px;
-}
-
-.login-card {
-    width: 100%;
-    max-width: 450px;
-    margin: auto 0;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-    border-radius: 12px;
-    position: relative;
-    z-index: 1;
-    padding-bottom: 8px;
-}
-
-.logo-container {
-    display: flex;
-    justify-content: center;
-    padding: 10px 0;
-}
-
-.logo {
-    max-width: 250px;
-    height: auto;
-}
-
-:deep(.q-btn) {
-    height: 48px;
-    font-weight: 600;
-    text-transform: none;
-    font-size: 16px;
-}
-</style>

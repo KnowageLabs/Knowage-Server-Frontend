@@ -3028,6 +3028,29 @@
       "synchronize": "Synchronize",
       "technical": "Technical"
     },
+    "loginPageManagement": {
+      "title": "Gestione pagina di login",
+      "configuration": "Configurazione",
+      "hint": "Aspetto della login globale, gestito dal superadmin. Carica un'immagine oppure usa URL HTTP(S) o percorsi che iniziano con /, accessibili senza autenticazione.",
+      "upload": "Carica immagine",
+      "uploadHint": "PNG, JPG, GIF, SVG o ICO; massimo 5 MB. Salva per applicare.",
+      "invalidImage": "Seleziona un'immagine PNG, JPG, GIF, SVG o ICO non vuota e di massimo 5 MB.",
+      "uploadError": "Impossibile caricare l'immagine. Verifica formato e contenuto, poi riprova.",
+      "desktop": "Desktop",
+      "tablet": "Tablet",
+      "mobile": "Mobile",
+      "backgroundUrl": "URL sfondo",
+      "logoUrl": "URL logo",
+      "faviconUrl": "URL favicon (opzionale)",
+      "defaultHint": "Lascia vuoto per usare il valore predefinito.",
+      "invalidUrl": "Inserisci un URL HTTP(S) o un percorso che inizia con /.",
+      "tooLong": "La configurazione supera i 1000 caratteri. Usa URL piu corti.",
+      "preview": "Anteprima",
+      "reset": "Ripristina predefiniti (salva per applicare)",
+      "saveSuccess": "Aspetto della login salvato correttamente.",
+      "saveError": "Impossibile salvare l'aspetto della login.",
+      "loadError": "Impossibile caricare l'aspetto della login. Ricarica la pagina per riprovare."
+    },
     "homeManagement": {
       "configuration": "Configurazione",
       "defaultDescription": "Verra mostrata la home predefinita configurata per la piattaforma.",
@@ -3807,6 +3830,7 @@
     }
   },
   "menu": {
+    "loginPageManagement": "Gestione pagina di login",
     "DashboardThemeManagement": "Temi della dashboard",
     "ThemeManagement": "Temi",
     "group": {

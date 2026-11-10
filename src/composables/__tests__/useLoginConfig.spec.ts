@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 // ─── Hoisted mock variables ────────────────────────────────────────────────────
 
@@ -29,6 +29,13 @@ vi.mock('@/App.i18n.js', () => ({
 // ─── Import after mocks ────────────────────────────────────────────────────────
 
 import { useLoginConfig } from '../useLoginConfig'
+import { defaultLoginBranding } from '@/helpers/commons/loginBranding'
+
+afterEach(() => {
+    vi.restoreAllMocks()
+    vi.unstubAllGlobals()
+    vi.useRealTimers()
+})
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
@@ -258,5 +265,68 @@ describe('useLoginConfig — preloadImage', () => {
         await preloadImage(url)
 
         expect(mockImage.src).toBe(url)
+    })
+})
+
+describe('useLoginConfig branding', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+        document.querySelectorAll('link[rel="icon"]').forEach((link) => link.remove())
+        const icon = document.createElement('link')
+        icon.rel = 'icon'
+        icon.href = '/original.ico'
+        document.head.appendChild(icon)
+        vi.stubGlobal('Image', class {
+            onload: (() => void) | null = null
+            onerror: (() => void) | null = null
+            set src(url: string) {
+                queueMicrotask(() => url.includes('missing') ? this.onerror?.() : this.onload?.())
+            }
+        })
+    })
+
+    it('loads all branding images and restores defaults when the configuration is cleared', async () => {
+        mockAxiosGet.mockResolvedValueOnce({ data: { items: [{ backgroundUrl: '/bg.jpg', logoUrl: '/logo.svg', faviconUrl: '/custom.ico' }] } })
+        const { loadLoginConfig, backgroundUrl, logoUrl } = useLoginConfig()
+        await loadLoginConfig()
+        expect(backgroundUrl.value).toBe('/bg.jpg')
+        expect(logoUrl.value).toBe('/logo.svg')
+        expect(document.querySelector('link[rel="icon"]')?.getAttribute('href')).toBe('/custom.ico')
+
+        mockAxiosGet.mockResolvedValueOnce({ data: { items: [{}] } })
+        await loadLoginConfig()
+        expect(backgroundUrl.value).toBe(defaultLoginBranding.backgroundUrl)
+        expect(logoUrl.value).toBe(defaultLoginBranding.logoUrl)
+        expect(document.querySelector('link[rel="icon"]')?.getAttribute('href')).toBe('/original.ico')
+    })
+
+    it('keeps defaults for failed logo and favicon without discarding a valid background', async () => {
+        mockAxiosGet.mockResolvedValueOnce({ data: { items: [{ backgroundUrl: '/bg.jpg', logoUrl: '/missing.svg', faviconUrl: '/missing.ico' }] } })
+        const { loadLoginConfig, backgroundUrl, logoUrl, backgroundLoaded } = useLoginConfig()
+        await loadLoginConfig()
+        expect(backgroundUrl.value).toBe('/bg.jpg')
+        expect(logoUrl.value).toBe(defaultLoginBranding.logoUrl)
+        expect(document.querySelector('link[rel="icon"]')?.getAttribute('href')).toBe('/original.ico')
+        expect(backgroundLoaded.value).toBe(true)
+    })
+
+    it('does not load unsupported image URLs', async () => {
+        const image = vi.spyOn(global, 'Image')
+        mockAxiosGet.mockResolvedValueOnce({ data: { items: [{ logoUrl: 'javascript:alert(1)', faviconUrl: '//example.com/favicon.ico' }] } })
+        const { loadLoginConfig, logoUrl } = useLoginConfig()
+        await loadLoginConfig()
+        expect(image).not.toHaveBeenCalled()
+        expect(logoUrl.value).toBe(defaultLoginBranding.logoUrl)
+    })
+
+    it('does not block login indefinitely if an image server never responds', async () => {
+        vi.useFakeTimers()
+        vi.stubGlobal('Image', class {})
+        mockAxiosGet.mockResolvedValueOnce({ data: { items: [{ logoUrl: '/unresponsive.svg' }] } })
+        const { loadLoginConfig, logoUrl } = useLoginConfig()
+        const loading = loadLoginConfig()
+        await vi.advanceTimersByTimeAsync(5000)
+        await loading
+        expect(logoUrl.value).toBe(defaultLoginBranding.logoUrl)
     })
 })
