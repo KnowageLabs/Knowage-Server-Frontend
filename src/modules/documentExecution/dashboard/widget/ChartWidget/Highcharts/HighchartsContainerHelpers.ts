@@ -143,7 +143,10 @@ const setPropertyValueToChartModel = (modelToRender: any, properties: string[], 
         }
 
         if (!(property in currentModelToRender)) {
-            const defaultOptionValue = getDefaultOptionValue(properties.slice(0, i + 1))
+            // A series inherits data-label options; these objects need not exist on it.
+            // The series index has already been validated while traversing the array.
+            const isSeriesDataLabelObject = properties[0] === 'series' && /^\d+$/.test(properties[1]) && properties[2] === 'dataLabels' && (i === 2 || (i === 3 && property === 'style'))
+            const defaultOptionValue = isSeriesDataLabelObject ? {} : getDefaultOptionValue(properties.slice(0, i + 1))
             if (defaultOptionValue && typeof defaultOptionValue === 'object' && !Array.isArray(defaultOptionValue)) {
                 currentModelToRender[property] = deepcopy(defaultOptionValue)
             } else {
@@ -164,17 +167,19 @@ const setPropertyValueToChartModel = (modelToRender: any, properties: string[], 
 
     return false
 }
-
 const applyAdvancedDataLabelSettingToSeries = (modelToRender: any, properties: string[], propertyValue: string) => {
-    if (properties[0] !== 'plotOptions' || properties[2] !== 'dataLabels' || properties.length < 4 || !Array.isArray(modelToRender.series)) return
-
+    if (properties[2] !== 'dataLabels' || properties.length < 4 || !Array.isArray(modelToRender.series)) return
+ 
+    const isIndexedSeries = properties[0] === 'series' && /^\d+$/.test(properties[1])
+    if (properties[0] !== 'plotOptions' && !isIndexedSeries) return
+ 
     const seriesType = properties[1]
     const dataLabelProperties = properties.slice(3)
     const formattedPropertyValue = getFormattedPropertyValue(propertyValue)
-
-    modelToRender.series.forEach((serie: any) => {
-        if ((serie.type ?? modelToRender.chart?.type) !== seriesType) return
-
+ 
+    modelToRender.series.forEach((serie: any, index: number) => {
+        if (isIndexedSeries ? index !== Number(properties[1]) : (serie.type ?? modelToRender.chart?.type) !== seriesType) return
+ 
         if (serie.dataLabels && typeof serie.dataLabels === 'object') setNestedPropertyValue(serie.dataLabels, dataLabelProperties, formattedPropertyValue)
         serie.data?.forEach((point: any) => {
             if (point?.dataLabels && typeof point.dataLabels === 'object') setNestedPropertyValue(point.dataLabels, dataLabelProperties, formattedPropertyValue)
