@@ -22,15 +22,32 @@
             <q-btn v-if="canEditDashboard(document)" flat dense no-caps class="kn-sheet-tabs__button dashboard-screen-size" :class="{ 'dashboard-screen-size--preview': previewSize }" data-test="screen-size-button">
                 <q-icon :name="getCurrentScreenSizeIcon" size="16px" />
                 <span class="text-uppercase">{{ currentScreenSize }}</span>
-                <span v-if="previewSize" class="dashboard-screen-size__width">{{ previewSize.screen }} × {{ previewSize.screenHeight }}</span>
-                <q-tooltip v-if="!screenSizeMenuOpen" anchor="top middle" self="bottom middle" :delay="300">{{ previewSize ? $t('dashboard.screenSize.previewing', { size: `${previewSize.screen} × ${previewSize.screenHeight}` }) : $t(`dashboard.breakpoints.${currentScreenSize}`) }}</q-tooltip>
-                <q-menu v-model="screenSizeMenuOpen" class="kn-toolbar-menu" anchor="top right" self="bottom right" :offset="[0, 4]" @before-show="measureAvailableSpace">
+                <span v-if="previewSize" class="dashboard-screen-size__width">{{ previewSizeText }}</span>
+                <q-tooltip v-if="!screenSizeMenuOpen" anchor="top middle" self="bottom middle" :delay="300">{{ previewSize ? $t('dashboard.screenSize.previewing', { size: previewSizeText }) : $t(`dashboard.breakpoints.${currentScreenSize}`) }}</q-tooltip>
+                <q-menu v-model="screenSizeMenuOpen" class="kn-toolbar-menu" anchor="top right" self="bottom right" :offset="[0, 4]" @before-show="onMenuShow">
                     <div class="kn-toolbar-menu__list" data-test="screen-size-menu">
                         <q-item-label header class="dashboard-screen-size__header">{{ $t('dashboard.screenSize.title') }}</q-item-label>
                         <MainMenuPopupRow icon="sym_o_fit_screen" :label="$t('dashboard.screenSize.fitWindow')" :checked="!previewSize" @activate="setPreviewSize(null)" />
-                        <div v-for="size in screenSizes" :key="size.screen">
-                            <MainMenuPopupRow :icon="size.icon" :label="$t(size.labelKey)" :meta="`${size.screen} × ${size.height} · ${size.breakpoint.toUpperCase()}`" :checked="previewSize?.screen === size.screen" :disabled="!size.fits" @activate="setPreviewSize(size)" />
-                            <q-tooltip v-if="!size.fits" anchor="center left" self="center right">{{ $t('dashboard.screenSize.tooWide', { width: size.screen }) }}</q-tooltip>
+                        <div v-for="size in breakpointSizes" :key="size.breakpoint">
+                            <MainMenuPopupRow :icon="size.icon" :label="$t(size.labelKey)" :meta="`${size.width} px · ${size.breakpoint.toUpperCase()}`" :checked="previewSize?.mode === 'breakpoint' && previewSize.breakpoint === size.breakpoint" :disabled="!size.fits" @activate="setPreviewSize({ mode: 'breakpoint', breakpoint: size.breakpoint, width: size.width, height: null })" />
+                            <q-tooltip v-if="!size.fits" anchor="center left" self="center right">{{ $t('dashboard.screenSize.tooWide', { width: size.width }) }}</q-tooltip>
+                        </div>
+                        <q-separator class="q-my-xs" />
+                        <div data-test="screen-size-custom">
+                            <MainMenuPopupRow icon="sym_o_aspect_ratio" :label="$t('dashboard.screenSize.custom')" :meta="previewSize?.mode === 'custom' ? previewSizeText : ''" :active="previewSize?.mode === 'custom'" trailing-icon="chevron_left" />
+                            <q-menu class="kn-toolbar-menu" anchor="top left" self="top right" :offset="[6, 0]" @before-show="onMenuShow">
+                                <div class="dashboard-screen-size__custom" @keydown.enter.prevent="applyCustomSize">
+                                    <div class="dashboard-screen-size__custom-fields">
+                                        <input v-model.number="customWidth" type="text" inputmode="numeric" class="dashboard-screen-size__custom-input" :class="{ 'dashboard-screen-size__custom-input--invalid': !!customError }" :placeholder="$t('dashboard.screenSize.width')" data-test="screen-size-width" />
+                                        <span class="dashboard-screen-size__custom-x">×</span>
+                                        <input v-model.number="customHeight" type="text" inputmode="numeric" class="dashboard-screen-size__custom-input" :class="{ 'dashboard-screen-size__custom-input--invalid': !!customError }" :placeholder="$t('dashboard.screenSize.height')" data-test="screen-size-height" />
+                                    </div>
+                                    <div class="dashboard-screen-size__custom-footer">
+                                        <span class="dashboard-screen-size__custom-hint" :class="{ 'dashboard-screen-size__custom-hint--error': !!customError }">{{ customError || $t('dashboard.screenSize.customBreakpoint', { breakpoint: customBreakpoint.toUpperCase() }) }}</span>
+                                        <q-btn unelevated dense no-caps color="primary" class="dashboard-screen-size__apply" :disable="!!customError" :label="$t('common.apply')" data-test="screen-size-apply" @click="applyCustomSize" />
+                                    </div>
+                                </div>
+                            </q-menu>
                         </div>
                     </div>
                 </q-menu>
@@ -59,23 +76,32 @@ import MainMenuPopupRow from '@/modules/mainMenu/MainMenuPopupRow.vue'
 import { screenSizeFromWidth } from './widget/SelectorWidget/SelectorWidgetLayoutHelper'
 import { getSheetTabsStyle, ISheetTabsStyle } from './sheetTabs/SheetTabsHelper'
 
-// Screens an editor can preview the sheet at (16:9). Common desktop and laptop sizes, Windows scaling included;
-// 1152 is the one that gives the md layout. The sheet is narrower than the screen by the main menu, and shorter
-// by the browser and the taskbar (BROWSER_UI_HEIGHT) and by the dashboard toolbar and the sheet tabs (measured).
-const PREVIEW_SCREENS = [
-    { screen: 1920, height: 1080, labelKey: 'dashboard.screenSize.fullHd', icon: 'sym_o_desktop_windows' },
-    { screen: 1536, height: 864, labelKey: 'dashboard.screenSize.laptop', icon: 'sym_o_laptop' },
-    { screen: 1366, height: 768, labelKey: 'dashboard.screenSize.laptop', icon: 'sym_o_laptop' },
-    { screen: 1152, height: 648, labelKey: 'dashboard.screenSize.smallLaptop', icon: 'sym_o_laptop' }
+// The sheet widths that give each dashboard breakpoint (the lower edge of its range in grid-layout-plus).
+const BREAKPOINT_PREVIEWS = [
+    { breakpoint: 'lg', width: 1200, labelKey: 'dashboard.screenSize.desktop', icon: 'sym_o_desktop_windows' },
+    { breakpoint: 'md', width: 996, labelKey: 'dashboard.screenSize.laptop', icon: 'sym_o_laptop' },
+    { breakpoint: 'sm', width: 768, labelKey: 'dashboard.screenSize.tablet', icon: 'sym_o_tablet' }
 ]
-// Windows taskbar (48) + browser tabs and address bar (about 72)
-const BROWSER_UI_HEIGHT = 120
+const MIN_PREVIEW_SIZE = 200
+const CUSTOM_PREVIEW_STORAGE_KEY = 'knowage.dashboard.customPreviewSize'
 
+// A null height keeps the height of the window.
 interface IPreviewSize {
-    screen: number
-    screenHeight: number
-    sheetWidth: number
-    sheetHeight: number
+    mode: 'breakpoint' | 'custom'
+    breakpoint?: string
+    width: number
+    height: number | null
+}
+
+const loadCustomPreviewSize = (): { width: number | null; height: number | null } => {
+    try {
+        const saved = JSON.parse(localStorage.getItem(CUSTOM_PREVIEW_STORAGE_KEY) ?? 'null')
+        const width = Number(saved?.width)
+        const height = Number(saved?.height)
+        return { width: width >= MIN_PREVIEW_SIZE ? width : null, height: height >= MIN_PREVIEW_SIZE ? height : null }
+    } catch {
+        return { width: null, height: null }
+    }
 }
 
 export default defineComponent({
@@ -106,7 +132,10 @@ export default defineComponent({
             previewSize: null as IPreviewSize | null,
             screenSizeMenuOpen: false,
             availableWidth: 0,
-            availableHeight: 0
+            availableHeight: 0,
+            MIN_PREVIEW_SIZE,
+            customWidth: null as number | null,
+            customHeight: null as number | null
         }
     },
     computed: {
@@ -146,20 +175,44 @@ export default defineComponent({
             if (['md'].includes(this.currentScreenSize)) return 'laptop'
             else return 'desktop_windows'
         },
-        screenSizes(): { screen: number; height: number; labelKey: string; icon: string; sheetWidth: number; breakpoint: string; fits: boolean }[] {
-            const menuWidth = this.mainMenuWidth()
-            return PREVIEW_SCREENS.map((size) => {
-                const sheetWidth = size.screen - menuWidth
-                return { ...size, sheetWidth, breakpoint: screenSizeFromWidth(sheetWidth), fits: sheetWidth <= this.availableWidth }
-            })
+        breakpointSizes(): { breakpoint: string; width: number; labelKey: string; icon: string; cols: number; fits: boolean }[] {
+            return BREAKPOINT_PREVIEWS.map((size) => ({ ...size, cols: this.colSizes[size.breakpoint], fits: size.width <= this.availableWidth }))
         },
-        // The sheet scrolls, so a fixed width and height show what fits on that screen.
+        // The size the sheet really gets: a custom size is limited to the space the sheet has.
+        previewDimensions(): { width: number; height: number | null } | null {
+            if (!this.previewSize) return null
+            const width = this.availableWidth ? Math.min(this.previewSize.width, this.availableWidth) : this.previewSize.width
+            const height = this.previewSize.height && this.availableHeight ? Math.min(this.previewSize.height, this.availableHeight) : this.previewSize.height
+            return { width, height }
+        },
+        previewSizeText(): string {
+            const size = this.previewDimensions
+            if (!size) return ''
+            return size.height ? `${size.width} × ${size.height}` : `${size.width} px`
+        },
+        customBreakpoint(): string {
+            return screenSizeFromWidth(this.customWidth ?? 0)
+        },
+        customError(): string {
+            const rawHeight = this.customHeight as number | string | null
+            const width = Number(this.customWidth)
+            const height = rawHeight === null || rawHeight === '' ? null : Number(rawHeight)
+            if (!Number.isFinite(width) || width < MIN_PREVIEW_SIZE || (height !== null && (!Number.isFinite(height) || height < MIN_PREVIEW_SIZE))) return this.$t('dashboard.screenSize.customTooSmall', { min: MIN_PREVIEW_SIZE })
+            if (this.availableWidth && width > this.availableWidth) return this.$t('dashboard.screenSize.customTooWide', { max: this.availableWidth })
+            return ''
+        },
+        // The sheet scrolls, so a fixed width (and height) show what fits at that size.
         previewSheetStyle(): Record<string, string> {
-            if (!this.previewSize) return {}
-            const width = `${this.previewSize.sheetWidth}px`
-            // min-height too: the sheet background style sets min-height: 100%
-            const height = `${this.previewSize.sheetHeight}px`
-            return { flex: '0 0 auto', width, minWidth: width, maxWidth: width, height, minHeight: height, maxHeight: height, margin: '0 auto' }
+            const size = this.previewDimensions
+            if (!size) return {}
+            const width = `${size.width}px`
+            const style: Record<string, string> = { flex: '0 0 auto', width, minWidth: width, maxWidth: width, margin: '0 auto' }
+            if (size.height) {
+                // min-height too: the sheet background style sets min-height: 100%
+                const height = `${size.height}px`
+                Object.assign(style, { height, minHeight: height, maxHeight: height })
+            }
+            return style
         },
         getGridStyle() {
             if (canEditDashboard(this.document) && this.dashboardModel?.configuration?.background?.showGrid) {
@@ -177,6 +230,9 @@ export default defineComponent({
     },
     created() {
         this.currentScreenSize = this.currentBreakpoint()
+        const savedCustomSize = loadCustomPreviewSize()
+        this.customWidth = savedCustomSize.width
+        this.customHeight = savedCustomSize.height
         window.addEventListener('resize', this.onWindowResize)
     },
     unmounted() {
@@ -220,35 +276,40 @@ export default defineComponent({
         breakpointChangedEvent(size: string) {
             this.currentScreenSize = size
         },
-        mainMenuWidth(): number {
-            const value = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--kn-mainmenu-width'))
-            return Number.isFinite(value) ? value : 58
-        },
         // The parent of the sheet keeps the full size while the sheet itself is resized for a preview.
         measureAvailableSpace() {
             const parent = (this.$refs.sheetContainer as HTMLElement | undefined)?.parentElement
             this.availableWidth = parent?.clientWidth ?? 0
             this.availableHeight = parent?.clientHeight ?? 0
         },
-        // The sheet gets the size it has on that screen; grid-layout-plus then picks the breakpoint from its own width.
-        setPreviewSize(size: { screen: number; height: number; sheetWidth: number } | null) {
-            if (!size) this.previewSize = null
-            else {
-                this.measureAvailableSpace()
-                // what the page shows above and below the sheet (dashboard toolbar, sheet tabs)
-                const pageChrome = window.innerHeight - this.availableHeight
-                // a screen taller than the window cannot show: the sheet then keeps the window height
-                const sheetHeight = Math.min(this.availableHeight, size.height - BROWSER_UI_HEIGHT - pageChrome)
-                this.previewSize = { screen: size.screen, screenHeight: size.height, sheetWidth: size.sheetWidth, sheetHeight }
+        onMenuShow() {
+            this.measureAvailableSpace()
+            if (this.previewSize?.mode === 'custom') {
+                this.customWidth = this.previewSize.width
+                this.customHeight = this.previewSize.height
             }
+        },
+        // The sheet gets that width; grid-layout-plus then picks the breakpoint from its own width.
+        setPreviewSize(size: IPreviewSize | null) {
+            if (size) this.measureAvailableSpace()
+            this.previewSize = size
             this.screenSizeMenuOpen = false
+        },
+        applyCustomSize() {
+            if (this.customError) return
+            const height = this.customHeight === null || (this.customHeight as any) === '' ? null : Number(this.customHeight)
+            try {
+                localStorage.setItem(CUSTOM_PREVIEW_STORAGE_KEY, JSON.stringify({ width: Number(this.customWidth), height }))
+            } catch {
+                // storage can be unavailable; the size still applies for this session
+            }
+            this.setPreviewSize({ mode: 'custom', width: Number(this.customWidth), height })
         },
         onWindowResize() {
             if (!this.previewSize) return
-            const size = this.screenSizes.find((item) => item.screen === this.previewSize?.screen)
             this.measureAvailableSpace()
-            if (!size || size.sheetWidth > this.availableWidth) this.previewSize = null
-            else this.setPreviewSize(size)
+            // a breakpoint width that does not fit anymore would give another breakpoint, so the preview ends
+            if (this.previewSize.mode === 'breakpoint' && this.previewSize.width > this.availableWidth) this.previewSize = null
         },
         getImageSource(chartValue: string) {
             return `${import.meta.env.VITE_PUBLIC_PATH}${chartValue}`
@@ -343,6 +404,64 @@ export default defineComponent({
 }
 .dashboard-screen-size__header {
     padding: 8px 8px 4px;
+}
+.dashboard-screen-size__custom {
+    width: 232px;
+    padding: 10px;
+    font-size: 14px;
+    .dashboard-screen-size__custom-fields {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .dashboard-screen-size__custom-x {
+        opacity: 0.6;
+        font-size: 12.5px;
+    }
+    .dashboard-screen-size__custom-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-top: 8px;
+    }
+    .dashboard-screen-size__custom-hint {
+        flex: 1 1 auto;
+        min-width: 0;
+        font-size: 12px;
+        line-height: 1.3;
+        opacity: 0.65;
+        &--error {
+            color: var(--q-negative);
+            opacity: 1;
+        }
+    }
+    .dashboard-screen-size__apply {
+        flex: 0 0 auto;
+        padding: 0 12px;
+    }
+    .dashboard-screen-size__custom-input {
+        flex: 1 1 0;
+        min-width: 0;
+        height: 30px;
+        padding: 0 8px;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        font-size: 13px;
+        outline: none;
+        &::placeholder {
+            opacity: 0.55;
+        }
+        &:focus {
+            border-color: var(--kn-mainmenu-highlight-color, var(--q-primary));
+        }
+        &--invalid:not(:placeholder-shown) {
+            border-color: var(--q-negative);
+        }
+    }
 }
 // the edges of the previewed screen
 .sheet-container.sheet-container--preview {
