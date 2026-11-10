@@ -118,4 +118,44 @@ describe('applyAdvancedSettingsToModelForRender', () => {
         expect(model.xAxis).toHaveLength(2)
         expect(model.yAxis[0].labels).not.toHaveProperty('missing')
     })
+
+      it.each(['column', 'line', 'bar'])('applies indexed series label styles and point overrides for %s', (type) => {
+        const model: any = {
+            chart: { type },
+            series: [
+                { data: [{ y: 1, dataLabels: { style: { fontSize: '14px' }, enabled: true } }, { y: 2 }] },
+                { dataLabels: { style: { fontSize: '14px' } }, data: [] }
+            ]
+        }
+        applyAdvancedSettingsToModelForRender(model, [
+            { propertyPath: 'series[0].dataLabels.style.fontSize', propertyValue: '20px' },
+            { propertyPath: 'series[0].dataLabels.style.fontFamily', propertyValue: 'Courier New' },
+            { propertyPath: 'series[0].dataLabels.style.textOutline', propertyValue: '2px red' }
+        ])
+        const expected = { fontSize: '20px', fontFamily: 'Courier New', textOutline: '2px red' }
+        expect(model.series[0].dataLabels.style).toEqual(expected)
+        expect(model.series[0].data[0].dataLabels.style).toEqual(expected)
+        expect(model.series[0].data[0].dataLabels.enabled).toBe(true)
+        expect(model.series[0].data[1]).not.toHaveProperty('dataLabels')
+        expect(model.series[1].dataLabels.style.fontSize).toBe('14px')
+        expect(showDashboardWidgetError).not.toHaveBeenCalled()
+    })
+ 
+    it('creates a missing series label style without replacing other label settings', () => {
+        const model: any = { series: [{ dataLabels: { enabled: true, format: '{y}' }, data: [] }] }
+        applyAdvancedSettingsToModelForRender(model, [{ propertyPath: 'series[0].dataLabels.style.fontSize', propertyValue: '10px' }])
+        expect(model.series[0].dataLabels).toEqual({ enabled: true, format: '{y}', style: { fontSize: '10px' } })
+        expect(showDashboardWidgetError).not.toHaveBeenCalled()
+    })
+ 
+    it('still rejects missing series indexes and invalid intermediate label paths', () => {
+        const model: any = { series: [{ dataLabels: { style: {} } }] }
+        applyAdvancedSettingsToModelForRender(model, [
+            { propertyPath: 'series[1].dataLabels.style.fontSize', propertyValue: '20px' },
+            { propertyPath: 'series[0].dataLabels.missing.fontSize', propertyValue: '20px' }
+        ])
+        expect(showDashboardWidgetError).toHaveBeenCalledTimes(2)
+        expect(model.series).toHaveLength(1)
+        expect(model.series[0].dataLabels).not.toHaveProperty('missing')
+    })
 })
