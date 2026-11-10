@@ -613,11 +613,17 @@
         "screenSize": {
             "title": "Preview screen size",
             "fitWindow": "Fit window",
-            "fullHd": "Full HD",
+            "desktop": "Desktop",
             "laptop": "Laptop",
-            "smallLaptop": "Small laptop",
-            "previewing": "Preview of a {size} screen. Click to change.",
-            "tooWide": "Your window is too narrow to preview a {width} px screen."
+            "tablet": "Tablet",
+            "custom": "Custom size",
+            "width": "Width",
+            "height": "Height",
+            "customBreakpoint": "Uses the {breakpoint} layout",
+            "customTooWide": "Width is larger than the available space ({max} px)",
+            "customTooSmall": "Minimum size is {min} px",
+            "previewing": "Previewing a {size} sheet. Click to change.",
+            "tooWide": "Your window is too narrow to preview a {width} px wide sheet."
         },
         "confirm": {
             "deleteWidget": "Are you sure you do want to delete selected widget?"
