@@ -1,0 +1,94 @@
+// Configuration and Domains (spec config-domains-redesign 6): the parts My workspace does not have.
+// Unscoped: tooltip and menu content is teleported. Imported by both pages.
+.kn-mgr__title-row.kn-ws-title-row {
+    // Workspace has tabs under the title; these pages do not
+    padding-bottom: 14px;
+}
+
+.kn-mgr__tenant {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 22px;
+    padding: 0 7px;
+    border-radius: var(--kn-ws-radius-sm);
+    background: var(--kn-ws-icon-background);
+    color: var(--kn-ws-muted-text);
+    font-size: 12px;
+    cursor: default;
+}
+
+.kn-mgr__cell {
+    max-width: 380px;
+}
+
+.kn-mgr__mono {
+    font-family: var(--kn-docs-mono-font-family);
+    font-size: 12px;
+}
+
+.kn-mgr__tooltip {
+    font-family: var(--kn-docs-mono-font-family);
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.kn-mgr__empty {
+    color: var(--kn-ws-muted-text);
+    font-style: italic;
+}
+
+.kn-mgr__tag-off {
+    color: var(--kn-ws-muted-text);
+}
+
+// ---------- Edit dialog ----------
+
+.kn-mgr-dialog__mono input,
+.kn-mgr-dialog__mono textarea {
+    font-family: var(--kn-docs-mono-font-family);
+    font-size: 13px;
+}
+
+// a switch as a form row: label and caption on the left, the toggle on the right
+.kn-mgr-switch-row {
+    gap: 16px;
+    padding: 4px 0;
+    cursor: pointer;
+}
+
+.kn-mgr-switch-row__caption,
+.kn-mgr-dialog__note,
+.kn-mgr-dialog__hint {
+    font-size: 12px;
+    color: var(--kn-ws-muted-text);
+}
+
+.kn-mgr-dialog__note {
+    gap: 6px;
+    margin-right: auto;
+}
+
+.kn-mgr-dialog__hint {
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.kn-mgr-value-switch {
+    min-height: 40px;
+    padding: 0 4px 0 12px;
+    border: 1px solid var(--kn-ws-control-border);
+    border-radius: var(--kn-ws-radius-sm);
+}
+
+// ---------- Domains ----------
+
+.kn-mgr__band-code {
+    font-family: var(--kn-docs-mono-font-family);
+    letter-spacing: 0;
+}
+
+// an i18n key without a translation: the amber of the Workspace view tile
+.kn-mgr__missing {
+    color: var(--kn-ws-view-icon-color);
+}

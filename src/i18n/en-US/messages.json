@@ -3261,7 +3261,24 @@
             "type": "Type"
         },
         "configurationManagement": {
+            "allCategories": "All categories",
+            "allTenants": "All tenants",
+            "allTenantsHint": "Settings are global: a change applies to every tenant.",
+            "appliesToEveryTenant": "Applies to every tenant",
+            "copied": "Label copied",
+            "copyLabel": "Copy label",
             "createNewHeader": "Create new configuration",
+            "delete": "Delete",
+            "deleteMessage": "“{label}” is deleted for every tenant. Features that read it fall back to their default or stop working.",
+            "deleteTitle": "Delete this setting?",
+            "edit": "Edit",
+            "empty": "empty",
+            "filter": {
+                "emptyValue": "Empty",
+                "hasValue": "Has a value",
+                "status": "Status",
+                "value": "Value"
+            },
             "headers": {
                 "active": "Is active",
                 "category": "Category",
@@ -3270,7 +3287,29 @@
                 "name": "Name",
                 "valueCheck": "Value"
             },
-            "title": "Configuration Management"
+            "hidePassword": "Hide password",
+            "labelExists": "A setting with this label already exists",
+            "labelLocked": "Knowage reads the setting by its label, so the label cannot change.",
+            "newCategoryHint": "Pick a category, or type a new one and press Enter",
+            "newSetting": "New setting",
+            "noMatch": "No settings match these filters.",
+            "searchCategories": "Find a category",
+            "searchPlaceholder": "Search by name, label or value",
+            "showPassword": "Show password",
+            "title": "Configuration",
+            "tour": {
+                "filtersText": "Show only active or inactive settings, or the settings without a value.",
+                "filtersTitle": "Filters",
+                "groupText": "Pick a category to see only its settings.",
+                "groupTitle": "Categories",
+                "newText": "Add a setting. Its label cannot change after you create it.",
+                "newTitle": "New setting",
+                "rowText": "Click a row to edit the setting. The ⋮ menu has Copy label and Delete.",
+                "rowTitle": "Settings",
+                "tenantText": "Settings are global: every tenant sees your change.",
+                "tenantTitle": "All tenants"
+            },
+            "uncategorized": "Uncategorized"
         },
         "constraintManagement": {
             "dateValue": "Date value format",
@@ -3884,12 +3923,50 @@
             "viewSQLButton": "View SQL Query"
         },
         "domainsManagement": {
+            "allDomains": "All domains",
+            "allTenantsHint": "Domains are global: a change applies to every tenant.",
+            "close": "Close",
+            "codeExists": "This domain already has a value with this code",
+            "copied": "Code copied",
+            "copyCode": "Copy code",
+            "deleteMessage": "“{code}” is deleted for every tenant. Features that read it fall back to their default or stop working.",
+            "deleteTitle": "Delete this value?",
+            "domain": "Domain",
             "domainCode": "Domain code",
             "domainName": "Domain name",
-            "title": "Domains Management",
+            "filter": {
+                "i18nKey": "i18n key",
+                "missingTranslation": "Key without a translation",
+                "name": "Name",
+                "plainText": "Plain text"
+            },
+            "keyLocked": "Knowage reads the value by its domain and code, so these cannot change.",
+            "newDomain": "New domain…",
+            "newValue": "New value",
+            "noMatch": "No values match these filters.",
+            "noTranslation": "No translation for this key",
+            "noTranslationYet": "No translation for this key yet",
+            "readOnly": "Read only: editing needs the Domain write permission",
+            "searchDomains": "Find a domain",
+            "searchPlaceholder": "Search by name or code",
+            "shownAs": "Shown as “{text}”",
+            "title": "Domains",
+            "tour": {
+                "filtersText": "Find the names that are i18n keys, plain text, or keys without a translation.",
+                "filtersTitle": "Filters",
+                "groupText": "Pick a domain to see only its values.",
+                "groupTitle": "Domains",
+                "newText": "Add a value to a domain. Its code cannot change after you create it.",
+                "newTitle": "New value",
+                "rowText": "Click a row to edit the value. The ⋮ menu has Copy code and Delete.",
+                "rowTitle": "Values",
+                "tenantText": "Domains are global: every tenant sees your change.",
+                "tenantTitle": "All tenants"
+            },
             "valueCode": "Value code",
             "valueDescription": "Value description",
-            "valueName": "Value name"
+            "valueName": "Value name",
+            "view": "View"
         },
         "driversManagement": {
             "add": "Add",
