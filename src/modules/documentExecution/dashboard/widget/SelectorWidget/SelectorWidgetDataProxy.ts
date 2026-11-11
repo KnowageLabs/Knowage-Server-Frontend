@@ -42,7 +42,8 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
 
                 await Promise.all(
                     overrideColumns.map(async (column: any) => {
-                        const singleColumnWidget = { ...widget, columns: [column] }
+                        const descriptionColumn = widget.columns.find((candidate) => candidate.columnName === column.descriptionColumn)
+                        const singleColumnWidget = { ...widget, columns: descriptionColumn ? [column, descriptionColumn] : [column] }
                         const postData = formatSelectorWidgetModelForService(dashboardId, dashboardConfig, singleColumnWidget, selectedDataset, initialCall, selections, associativeResponseSelections)
                         const dataHash = md5(JSON.stringify(postData))
                         const cachedData = await indexedDB.widgetData.get(dataHash)
@@ -69,7 +70,7 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
                             }
                         }
 
-                        result[column.columnName] = tempResponse
+                        result[column.columnName] = formatReponseWithTheExternalSortingColumn(tempResponse, column, postData.aggregations.categories)
                     })
                 )
             }
@@ -129,9 +130,7 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
             }
         }
 
-        if (column.orderColumn && column.orderColumn !== column.columnName && tempResponse?.metaData?.fields?.length > 2) {
-            tempResponse = formatReponseWithTheExternalSortingColumn(tempResponse, column.orderType)
-        }
+        tempResponse = formatReponseWithTheExternalSortingColumn(tempResponse, column, postData.aggregations.categories)
 
         return [column.columnName, tempResponse]
     }
@@ -207,24 +206,32 @@ const formatSelectorWidgetModelForService = (dashboardId: any, dashboardConfig: 
         }
     })
 
+    widget.columns.forEach((column) => {
+        if (column.fieldType !== 'ATTRIBUTE' || !column.orderColumn || dataToSend.aggregations.categories.some((category) => category.columnName === column.orderColumn)) return
+
+        dataToSend.aggregations.categories.push({ id: column.orderColumn, alias: column.orderColumn, columnName: column.orderColumn, orderColumn: '', orderType: '', funct: 'NONE' })
+    })
+
     return dataToSend
 }
 
-const formatReponseWithTheExternalSortingColumn = (tempResponse: any, sortingOrder: 'ASC' | 'DESC' = 'ASC') => {
-    const dataType = getDataType(tempResponse.rows, 'column_2')
-    if (!dataType) return
+const formatReponseWithTheExternalSortingColumn = (tempResponse: any, column: IWidgetColumn, categories: { columnName: string }[]) => {
+    if (!column.orderColumn || column.orderColumn === column.columnName || !tempResponse?.rows?.length) return tempResponse
 
-    const grouped = groupData(tempResponse.rows, sortingOrder, dataType)
-    if (!grouped) return
+    const sortingColumnIndex = categories.findIndex((category) => category.columnName === column.orderColumn)
+    if (sortingColumnIndex === -1) return tempResponse
 
-    const sortedRows = formatAndSortData(grouped, sortingOrder, dataType)
-    tempResponse.rows = sortedRows
+    const sortingColumn = `column_${sortingColumnIndex + 1}`
+    const dataType = getDataType(tempResponse.rows, sortingColumn)
+    if (!dataType) return tempResponse
 
-    return tempResponse
+    const sortingOrder = column.orderType === 'DESC' ? 'DESC' : 'ASC'
+    const grouped = groupData(tempResponse.rows, sortingOrder, dataType, sortingColumn)
+    return { ...tempResponse, rows: formatAndSortData(grouped, sortingOrder, dataType) }
 }
 
 export const getDataType = (rows: any, sortingColmnIndex: string): DataType | null => {
-    if (!rows || !rows[0] || !rows[0][sortingColmnIndex]) return null
+    if (!rows || !rows[0] || rows[0][sortingColmnIndex] === undefined || rows[0][sortingColmnIndex] === null || rows[0][sortingColmnIndex] === '') return null
 
     const dateFormats = [DataType.DATE_LONG, DataType.DATE_SHORT]
     for (const format of dateFormats) {
@@ -240,33 +247,26 @@ export const getDataType = (rows: any, sortingColmnIndex: string): DataType | nu
     return DataType.STRING
 }
 
-const groupData = (data: any, sortingOrder: 'ASC' | 'DESC' = 'ASC', dataType: DataType) => {
-    const grouped: { [key: string]: any } = {}
+const groupData = (data: any, sortingOrder: 'ASC' | 'DESC' = 'ASC', dataType: DataType, sortingColumn: string) => {
+    const grouped = new Map<unknown, { row: any; value: any }>()
 
     data.forEach((item: any) => {
         const group = item.column_1
-        const value = parseValue(item.column_2, dataType)
+        const value = parseValue(item[sortingColumn], dataType)
 
         if (value === null) return
 
-        if (!grouped[group]) {
-            grouped[group] = value
-        } else {
-            grouped[group] = compareValues(grouped[group], value, sortingOrder, dataType)
-        }
+        const previous = grouped.get(group)
+        if (!previous || compareValuesForSort(value, previous.value, sortingOrder, dataType) < 0) grouped.set(group, { row: item, value })
     })
 
     return grouped
 }
 
-const formatAndSortData = (groupedData: any, sortingOrder: 'ASC' | 'DESC' = 'ASC', dataType: DataType) => {
-    const dataArray = Object.keys(groupedData).map((key) => ({
-        column_1: key,
-        column_2: groupedData[key]
-    }))
-
-    const sortedDataArray = dataArray.sort((a, b) => compareValuesForSort(a.column_2, b.column_2, sortingOrder, dataType))
-    return sortedDataArray
+const formatAndSortData = (groupedData: Map<unknown, { row: any; value: any }>, sortingOrder: 'ASC' | 'DESC' = 'ASC', dataType: DataType) => {
+    return Array.from(groupedData.values())
+        .sort((a, b) => compareValuesForSort(a.value, b.value, sortingOrder, dataType))
+        .map((item) => item.row)
 }
 
 const parseValue = (value: string, dataType: DataType) => {
