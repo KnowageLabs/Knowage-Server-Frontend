@@ -943,7 +943,7 @@
         "wrongType": "Ha elegido un tipo de licencia incorrecto"
     },
     "locale": {
-        "dateFormat": "mm/dd/aa",
+        "dateFormat": "mm/dd/yy",
         "dayNames": [
             "Domingo",
             "Lunes",
@@ -954,24 +954,24 @@
             "Sábado"
         ],
         "dayNamesMin": [
-            "Su",
-            "M",
-            "TTU",
-            "Nosotros",
-            "H",
-            "Fr",
-            "SA"
+            "Do",
+            "Lu",
+            "Ma",
+            "Mi",
+            "Ju",
+            "Vi",
+            "Sá"
         ],
         "dayNamesShort": [
-            "Sol",
-            "LON",
-            "Tue",
+            "Dom",
+            "Lun",
+            "Mar",
             "Mié",
             "Jue",
-            "Fri",
-            "Sat"
+            "Vie",
+            "Sáb"
         ],
-        "firstDayOfWeek": 0,
+        "firstDayOfWeek": 1,
         "monthNames": [
             "Enero",
             "Febrero",
@@ -987,11 +987,11 @@
             "Diciembre"
         ],
         "monthNamesShort": [
-            "Jan",
-            "Feb.",
+            "Ene",
+            "Feb",
             "Mar",
-            "Abr.",
-            "Mayo",
+            "Abr",
+            "May",
             "Jun",
             "Jul",
             "Ago",
@@ -1001,7 +1001,8 @@
             "Dic"
         ],
         "today": "Hoy",
-        "weekHeader": "Wk"
+        "clear": "Borrar",
+        "weekHeader": "Sem"
     },
     "managers": {
         "bml": {
