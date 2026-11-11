@@ -259,6 +259,30 @@ export const formatStreamgraphChart = (formattedChartModel: IHighchartsChartMode
 export const formatVariables = (formattedChartModel: IHighchartsChartModel, variables: IVariable[]) => {
     formatVariablesForAxis(formattedChartModel, variables, 'xAxis')
     formatVariablesForAxis(formattedChartModel, variables, 'yAxis')
+    formattedChartModel.series?.forEach((series) => {
+        const template = series.custom?.seriesNameTemplate ?? series.name
+        if (typeof template !== 'string' || !template.includes('$V{')) return
+
+        series.custom = { ...series.custom, seriesNameTemplate: template }
+        series.name = replaceVariablesPlaceholdersByVariableName(template, variables)
+    })
+}
+
+export const updateHighchartsSeriesAliases = (chart: Highcharts.Chart, variables: IVariable[]) => {
+    let changed = false
+    chart.series.forEach((series) => {
+        const template = series.options.custom?.seriesNameTemplate
+        if (typeof template !== 'string') return
+
+        const name = String(replaceVariablesPlaceholdersByVariableName(template, variables))
+        if (name === series.name) return
+
+        // setName updates the legend without reinitializing series or discarding their interaction state.
+        const namedSeries = series as Highcharts.Series & { setName: (name: string) => void }
+        namedSeries.setName(name)
+        changed = true
+    })
+    if (changed) chart.redraw(false)
 }
 
 const DEFAULT_LEFT_AXIS_LABEL_GAP = 12

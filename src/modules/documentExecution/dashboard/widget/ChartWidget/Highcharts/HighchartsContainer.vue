@@ -50,7 +50,7 @@ import { IHighchartsChartModel } from '../../../interfaces/highcharts/DashboardH
 import { mapActions, mapState } from 'pinia'
 import { updateStoreSelections, executeChartCrossNavigation } from '../../interactionsHelpers/InteractionHelper'
 import { openNewLinkChartWidget } from '../../interactionsHelpers/InteractionLinkHelper'
-import { addCategoryXAxisLabelTooltips, formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSankeyChart, formatSplineChart, formatPictorialChart, formatStreamgraphChart, formatPackedBubble, formatVariables, getHighchartsLocaleOptions, getPictorialFillRule, normalizeCategoryXAxisLabels, normalizeLegendItemColors, normalizeTooltipSettings, normalizeYAxisLabelsAlignment, updateAxisLabelFormatters, updateHighchartsLocale } from './HighchartsModelFormattingHelpers'
+import { addCategoryXAxisLabelTooltips, formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSankeyChart, formatSplineChart, formatPictorialChart, formatStreamgraphChart, formatPackedBubble, formatVariables, getHighchartsLocaleOptions, getPictorialFillRule, normalizeCategoryXAxisLabels, normalizeLegendItemColors, normalizeTooltipSettings, normalizeYAxisLabelsAlignment, updateAxisLabelFormatters, updateHighchartsLocale, updateHighchartsSeriesAliases } from './HighchartsModelFormattingHelpers'
 import { applyAdvancedSettingsToModelForRender, formatChartAnnotations, formatForCrossNavigation, getFormattedChartValues } from './HighchartsContainerHelpers'
 import { showDashboardWidgetError } from '@/modules/documentExecution/dashboard/helpers/DashboardToastHelper'
 import HighchartsSonificationControls from './HighchartsSonificationControls.vue'
@@ -131,6 +131,13 @@ export default defineComponent({
         }
     },
     watch: {
+        propVariables: {
+            handler() {
+                this.loadVariables()
+                if (this.highchartsInstance?.series) updateHighchartsSeriesAliases(this.highchartsInstance, this.variables)
+            },
+            deep: true
+        },
         locale() {
             if (!this.highchartsInstance?.update) return
             updateHighchartsLocale(this.highchartsInstance, getLocale(true))
@@ -612,7 +619,10 @@ export default defineComponent({
             this.drillLevel = event.seriesOptions._levelNumber
             this.drilldown = this.drilldown.slice(0, this.drillLevel)
             this.setSeriesEvents()
-            setTimeout(() => this.normalizeDrilldownPresentation(), 0)
+            setTimeout(() => {
+                if (this.highchartsInstance?.series) updateHighchartsSeriesAliases(this.highchartsInstance, this.variables)
+                this.normalizeDrilldownPresentation()
+            }, 0)
         },
         getActiveChartInteractions(event: any): string[] {
             const active: string[] = []
@@ -666,8 +676,8 @@ export default defineComponent({
             if (!event.point || numberOfAttributeColumns - 1 === this.drillLevel) return
             const dashboardDatasets = this.getDashboardDatasets(this.dashboardId)
             this.drillLevel++
-            if (this.drillLevel === 1 && event.point.series.name) {
-                this.currentDrillNavigationItem = event.point.series.name
+            if (this.drillLevel === 1) {
+                this.currentDrillNavigationItem = event.point.series.options.custom?.seriesNameTemplate ?? event.point.series.name
             }
             const category = this.widgetModel.columns[this.drillLevel - 1]
 
