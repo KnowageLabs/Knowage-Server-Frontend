@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canSeeWorkspaceTab, compareDocumentsDefault, filterDocuments, findFavoritesFolder, flattenCollections, formatFromContentType, fromBe1, getExecutionRoute, getRouteDocumentType, isFavoriteRow, isMineRow, isOnlyLinked, mergeDocuments, outputGroup, parseServerDate, rowCollectionLinks, snapshotsToOutputs, sortDocumentsDefault } from '../workspaceHelpers'
+import { businessModelToRow, canSeeWorkspaceTab, compareDocumentsDefault, filterDocuments, findFavoritesFolder, flattenCollections, formatFromContentType, fromBe1, getExecutionRoute, getRouteDocumentType, isFavoriteRow, isMineRow, isOnlyLinked, mergeDocuments, outputGroup, parseServerDate, rowCollectionLinks, snapshotsToOutputs, sortDocumentsDefault } from '../workspaceHelpers'
 import { parseWorkspaceQuery, serializeWorkspaceQuery } from '../common/useWorkspaceQuery'
 
 const FAV = 'fav-folder'
@@ -40,6 +40,19 @@ const rows = mergeDocuments(recents, personal, contents)
 const byKey = (key: string) => rows.find((r) => r.key === key)!
 const ctx = { favoritesFolderId: FAV, userId: 'me' }
 const filters = (patch: any = {}) => ({ scope: 'all', types: [], collection: null, q: '', ...patch })
+
+describe('businessModelToRow', () => {
+    it('marks the model for QBE role checks without mutating the API response', () => {
+        const model = { id: 9, name: 'Foodmart no driver', category: 13, dataSourceId: 3, dataSourceLabel: 'foodmart_demo', drivers: [] }
+
+        const row = businessModelToRow(model, { 13: 'Default Model Category' })
+
+        expect(row.kind).toBe('MODEL')
+        expect(row.category).toBe('Default Model Category')
+        expect(row.raw).toEqual({ ...model, type: 'businessModel' })
+        expect(model).not.toHaveProperty('type')
+    })
+})
 
 describe('mergeDocuments', () => {
     it('keeps one row for a document found in recents, the personal folder and two collections', () => {
