@@ -342,7 +342,7 @@ export function businessModelToRow(model: any, categories: Record<number, string
         tags: [],
         dataSourceLabel: model.dataSourceLabel,
         mine: false,
-        raw: model
+        raw: { ...model, type: 'businessModel' }
     }
 }
 
