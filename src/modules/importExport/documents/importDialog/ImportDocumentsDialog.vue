@@ -407,7 +407,10 @@ export default defineComponent({
             if (this.step === 1) return this.uploadedFiles.length == 0
         },
         disableStep4() {
-            if (this.step === 4) return this.hasEmptyDatasource(this.importData.datasources.associatedDatasources)
+            if (this.step === 4) {
+                const { exportedDatasources, associatedDatasources } = this.importData.datasources
+                return exportedDatasources.length > 0 && this.hasEmptyDatasource(associatedDatasources)
+            }
         }
     },
     created() {},
