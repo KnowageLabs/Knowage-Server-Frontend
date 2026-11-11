@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import Highcharts from 'highcharts/esm/highcharts.js'
 import { KnowageHighcharts } from '../../classes/highcharts/KnowageHighcharts'
-import { addCategoryXAxisLabelTooltips, formatVariables, normalizeCategoryXAxisLabels, updateAxisLabelFormatters } from '../HighchartsModelFormattingHelpers'
+import { addCategoryXAxisLabelTooltips, formatVariables, normalizeCategoryXAxisLabels, normalizeLegendItemColors, updateAxisLabelFormatters } from '../HighchartsModelFormattingHelpers'
 
 const createModel = (categories: string[], labels: Record<string, any> = {}) =>
     ({
@@ -18,6 +18,51 @@ const updateFormatters = (model: any, variables: any[] = []) => {
     const highchartsModel = new KnowageHighcharts()
     return updateAxisLabelFormatters(model, highchartsModel.updateFormatterSettings.bind(highchartsModel), variables)
 }
+
+describe('legend hover colors', () => {
+    it.each([
+        { backgroundColor: '#ffffff', color: 'contrast' },
+        { backgroundColor: '#222222', color: 'contrast' },
+        { backgroundColor: '#ffffff', color: '#123456' }
+    ])('keeps legend text readable on hover with $backgroundColor background and $color text', ({ backgroundColor, color }) => {
+        const model = {
+            chart: { backgroundColor, animation: false, width: 500, height: 300 },
+            accessibility: { enabled: false },
+            legend: { itemStyle: { color } },
+            series: [{ name: '2026', data: [1, 2] }]
+        } as any
+        normalizeLegendItemColors(model)
+        const container = document.createElement('div')
+        document.body.appendChild(container)
+        const chart = Highcharts.chart(container, model)
+
+        try {
+            const legendItem = chart.series[0].legendItem!
+            const label = legendItem.label!.element
+            const normalColor = label.getAttribute('fill')
+
+            legendItem.group!.element.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }))
+            expect(label.textContent).toBe('2026')
+            expect(label.getAttribute('fill')).toBe(normalColor)
+
+            legendItem.group!.element.dispatchEvent(new MouseEvent('mouseout', { bubbles: true }))
+            expect(label.getAttribute('fill')).toBe(normalColor)
+        } finally {
+            chart.destroy()
+            container.remove()
+        }
+    })
+
+    it('preserves custom hover styling and fills only a missing hover color', () => {
+        const model = { legend: { itemStyle: { color: '#123456' }, itemHoverStyle: { textDecoration: 'underline' } } } as any
+        normalizeLegendItemColors(model)
+        expect(model.legend.itemHoverStyle).toEqual({ color: '#123456', textDecoration: 'underline' })
+
+        model.legend.itemHoverStyle.color = '#ff0000'
+        normalizeLegendItemColors(model)
+        expect(model.legend.itemHoverStyle).toEqual({ color: '#ff0000', textDecoration: 'underline' })
+    })
+})
 
 describe('categorical X-axis labels', () => {
     it('leaves short labels unchanged while applying one-line ellipsis settings', () => {

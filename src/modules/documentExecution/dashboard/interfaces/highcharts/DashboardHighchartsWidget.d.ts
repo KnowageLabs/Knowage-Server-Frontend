@@ -257,6 +257,9 @@ export interface IHighchartsLegend {
         fontWeight: string
         color: string
     }
+    itemHoverStyle?: {
+        color?: string
+    }
     borderWidth: number
     backgroundColor: string
     borderColor: string

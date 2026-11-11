@@ -12,8 +12,8 @@ const createLegacyLineChartTemplate = (axisOverrides?: { xAxis?: Record<string, 
     }
 })
 
-describe('KnowageHighchartsLineChart grouped measure aliases', () => {
-    it('uses each widget measure alias when grouping is enabled, disabled and enabled again', () => {
+describe('KnowageHighchartsLineChart grouped category labels', () => {
+    it('uses category values while grouped and the measure alias when grouping is disabled', () => {
         const createWidget = (columnName: string, alias: string): IWidget => {
             const columns = [
                 { id: 'month', columnName: 'MESE', fieldType: 'ATTRIBUTE' },
@@ -51,8 +51,8 @@ describe('KnowageHighchartsLineChart grouped measure aliases', () => {
         requestsChart.setData(createData('NUMERO_RICHIESTE', 10), requestsWidget, [])
         servicesChart.setData(servicesData, servicesWidget, [])
 
-        expect(requestsChart.getModel().series.map((series) => series.name)).toEqual(['Richieste - 2026', 'Richieste - 2025'])
-        expect(servicesChart.getModel().series.map((series) => series.name)).toEqual(['Prestazioni - 2026', 'Prestazioni - 2025'])
+        expect(requestsChart.getModel().series.map((series) => series.name)).toEqual(['2026', '2025'])
+        expect(servicesChart.getModel().series.map((series) => series.name)).toEqual(['2026', '2025'])
         expect(servicesChart.getModel().series[0]).toMatchObject({ custom: { groupingValue: '2026' }, data: [{ name: '01', y: 20 }] })
 
         servicesChart.updateSerieAccessibilitySettings('2026', { enabled: true, description: 'Current year', exposeAsGroupOnly: false, keyboardNavigation: { enabled: true } })
@@ -64,7 +64,7 @@ describe('KnowageHighchartsLineChart grouped measure aliases', () => {
 
         servicesWidget.settings.configuration.grouping.secondDimension.enabled = true
         servicesChart.setData(servicesData, servicesWidget, [])
-        expect(servicesChart.getModel().series.map((series) => series.name)).toEqual(['Prestazioni - 2026', 'Prestazioni - 2025'])
+        expect(servicesChart.getModel().series.map((series) => series.name)).toEqual(['2026', '2025'])
     })
 })
 
