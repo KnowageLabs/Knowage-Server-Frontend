@@ -95,6 +95,7 @@ export default defineComponent({
             widgetModel: null as any,
             widgetInitialData: {} as any,
             widgetData: {} as any,
+            widgetDataRequestId: 0,
             selectedWidgetId: '' as string,
             selectedDataset: {} as any,
             widgetEditorVisible: false,
@@ -186,6 +187,7 @@ export default defineComponent({
         this.setWidgetLoading(false)
     },
     unmounted() {
+        this.widgetDataRequestId++
         this.removeEventListeners()
     },
     methods: {
@@ -196,7 +198,6 @@ export default defineComponent({
             emitter.on('selectionsChanged', this.loadActiveSelections)
             emitter.on('selectionsDeleted', this.onSelectionsDeleted)
             emitter.on('widgetUpdatedFromStore', this.onWidgetUpdated)
-            emitter.on('associativeSelectionsLoaded', this.onAssociativeSelectionsLoaded)
             emitter.on('datasetRefreshed', this.onDatasetRefresh)
             emitter.on('setWidgetLoading', this.setWidgetLoading)
             emitter.on('chartTypeChanged', this.onWidgetUpdated)
@@ -210,7 +211,6 @@ export default defineComponent({
             emitter.off('selectionsChanged', this.loadActiveSelections)
             emitter.off('selectionsDeleted', this.onSelectionsDeleted)
             emitter.off('widgetUpdatedFromStore', this.onWidgetUpdated)
-            emitter.off('associativeSelectionsLoaded', this.onAssociativeSelectionsLoaded)
             emitter.off('datasetRefreshed', this.onDatasetRefresh)
             emitter.off('setWidgetLoading', this.setWidgetLoading)
             emitter.off('chartTypeChanged', this.onWidgetUpdated)
@@ -446,40 +446,50 @@ export default defineComponent({
         async loadInitialData() {
             if (!this.widgetModel || this.widgetModel.type === 'selection') return
 
+            const requestId = ++this.widgetDataRequestId
+            this.widgetLoading = true
             this.setWidgetLoading(true)
-            const widgetId = this.widgetModel?.id
-            const selectorWidgetsData = this.selectorWidgetsInitialData as SelectorDataMap
-            let isInitialCall = true
+            try {
+                const widgetId = this.widgetModel?.id
+                const selectorWidgetsData = this.selectorWidgetsInitialData as SelectorDataMap
+                let isInitialCall = true
 
-            if (this.widgetModel.type === 'selector') {
-                this.widgetData = await this.loadSelectorInitialData()
-                isInitialCall = false
+                if (this.widgetModel.type === 'selector') {
+                    const initialData = await this.loadSelectorInitialData()
+                    if (requestId !== this.widgetDataRequestId) return
+                    this.widgetData = initialData
+                    isInitialCall = false
 
-                if (this.getSelections(this.dashboardId).length === 0) {
-                    this.setWidgetLoading(false)
-                    return
+                    if (this.getSelections(this.dashboardId).length === 0) return
                 }
+
+                let widgetData
+                if (this.updateFromSelections) {
+                    this.getSelectionsFromStore()
+                    const associativeSelections = this.getAssociativeSelectionsFromStoreIfDatasetIsBeingUsedInAssociation()
+
+                    if (selectorWidgetsData[widgetId]?.initialData) widgetData = selectorWidgetsData[widgetId].widgetData
+                    else widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, isInitialCall, this.activeSelections, this.search, this.dashboards[this.dashboardId].configuration, associativeSelections, false)
+                } else {
+                    if (selectorWidgetsData[widgetId]?.initialData) widgetData = selectorWidgetsData[widgetId].widgetData
+                    else widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, isInitialCall, [], this.search, this.dashboards[this.dashboardId].configuration, null, false)
+                }
+
+                if (requestId === this.widgetDataRequestId) this.widgetData = widgetData
+            } finally {
+                this.setWidgetLoading(false)
+                if (requestId === this.widgetDataRequestId) this.widgetLoading = false
             }
-
-            if (this.updateFromSelections) {
-                this.getSelectionsFromStore()
-                const associativeSelections = this.getAssociativeSelectionsFromStoreIfDatasetIsBeingUsedInAssociation()
-
-                if (selectorWidgetsData[widgetId]?.initialData) this.widgetData = selectorWidgetsData[widgetId].widgetData
-                else this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, isInitialCall, this.activeSelections, this.search, this.dashboards[this.dashboardId].configuration, associativeSelections, false)
-            } else {
-                if (selectorWidgetsData[widgetId]?.initialData) this.widgetData = selectorWidgetsData[widgetId].widgetData
-                else this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, isInitialCall, [], this.search, this.dashboards[this.dashboardId].configuration, null, false)
-            }
-
-            this.setWidgetLoading(false)
         },
-        async loadActiveSelections() {
+        async loadActiveSelections(event?: unknown) {
+            const selectionEvent = event as { dashboardId?: string; associationsCleared?: boolean } | undefined
+            if (selectionEvent?.dashboardId && selectionEvent.dashboardId !== this.dashboardId) return
             if (!this.updateFromSelections) return
+            const previousSelections = this.activeSelections
             this.getSelectionsFromStore()
             if (this.widgetModel.type === 'selection') return
             const associativeSelectionsFromStore = this.getAssociativeSelectionsFromStoreIfDatasetIsBeingUsedInAssociation()
-            if (this.widgetUsesSelections(this.activeSelections) || associativeSelectionsFromStore) await this.reloadWidgetData(associativeSelectionsFromStore ?? null)
+            if (selectionEvent?.associationsCleared || this.widgetUsesSelections(previousSelections) || this.widgetUsesSelections(this.activeSelections) || associativeSelectionsFromStore) await this.reloadWidgetData(associativeSelectionsFromStore ?? null)
         },
         getSelectionsFromStore() {
             if (!this.updateFromSelections) {
@@ -508,14 +518,19 @@ export default defineComponent({
         },
         async reloadWidgetData(associativeResponseSelections: any, resetPagination?: boolean) {
             if (this.widgetModel.type === 'selection') return
+            const requestId = ++this.widgetDataRequestId
             this.widgetLoading = true
-            let associativeSelectionsFromStore = null
-            if (!associativeResponseSelections) {
-                this.getSelectionsFromStore()
-                associativeSelectionsFromStore = this.getAssociativeSelectionsFromStoreIfDatasetIsBeingUsedInAssociation()
+            try {
+                let associativeSelectionsFromStore = null
+                if (!associativeResponseSelections) {
+                    this.getSelectionsFromStore()
+                    associativeSelectionsFromStore = this.getAssociativeSelectionsFromStoreIfDatasetIsBeingUsedInAssociation()
+                }
+                const widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, false, this.activeSelections, this.search, this.dashboards[this.dashboardId].configuration, associativeResponseSelections ?? associativeSelectionsFromStore, resetPagination)
+                if (requestId === this.widgetDataRequestId) this.widgetData = widgetData
+            } finally {
+                if (requestId === this.widgetDataRequestId) this.widgetLoading = false
             }
-            this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, false, this.activeSelections, this.search, this.dashboards[this.dashboardId].configuration, associativeResponseSelections ?? associativeSelectionsFromStore, resetPagination)
-            this.widgetLoading = false
         },
         widgetUsesSelections(selections: ISelection[]) {
             if (this.widget.type === 'map') return this.checkIfMapWidgetUsesSelection(selections)
@@ -570,11 +585,6 @@ export default defineComponent({
             const index = datasets.findIndex((datasetLabel: string) => datasetLabel === dataset?.label)
             return index !== -1 ? associativeSelections : null
         },
-        async onAssociativeSelectionsLoaded() {
-            if (!this.updateFromSelections) return
-            const associativeSelectionsFromStore = this.getAssociativeSelectionsFromStoreIfDatasetIsBeingUsedInAssociation()
-            if (associativeSelectionsFromStore) await this.reloadWidgetData(associativeSelectionsFromStore)
-        },
         async onDatasetRefresh(modelDatasetId: any) {
             if (!this.hasSameDatasetId(this.widgetModel.dataset, modelDatasetId)) return
             if (this.activeSelections.length > 0 && datasetIsUsedInAssociations(modelDatasetId, this.dashboards[this.dashboardId].configuration.associations)) {
@@ -616,13 +626,13 @@ export default defineComponent({
                 const columnTypeConfigs: any[] = this.widget.settings?.configuration?.columnTypeConfigs ?? []
                 const containerIsUsed = columnTypeConfigs.some((cfg: any) => cfg.selectorType !== 'tree' && cfg.selectorType !== 'multiTree' && cfg.columns?.some((colName: string) => this.widget.columns.some((c: any) => c.columnName === colName)))
                 if (containerIsUsed) {
-                    emitter.emit('applySelectionsForMultiColumnSelector', { widgetId: this.widget.id })
+                    emitter.emit('applySelectionsForMultiColumnSelector', { widgetId: this.widget.id, dashboardId: this.dashboardId })
                 } else {
                     this.setSelections(this.dashboardId, this.activeSelections, this.$http)
                 }
             } else if (this.widget?.type === 'selector' && this.widget?.columns?.length > 1) {
                 // For other multi-column selectors, emit event for local selection handling
-                emitter.emit('applySelectionsForMultiColumnSelector', { widgetId: this.widget.id })
+                emitter.emit('applySelectionsForMultiColumnSelector', { widgetId: this.widget.id, dashboardId: this.dashboardId })
             } else {
                 // For other widgets or single-column selectors, apply selections from store
                 this.setSelections(this.dashboardId, this.activeSelections, this.$http)

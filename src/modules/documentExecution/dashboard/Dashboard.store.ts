@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { SHEET_WIDGET_SIZES, addNewWidgetToSheets, cloneWidgetInSheet, deleteWidgetHelper, emitter, loadCustomChartGallery, loadHtmlGallery, loadPythonGallery, moveWidgetToSheet, updateWidgetHelper } from './DashboardHelpers'
 import { IDashboardDriver, IDashboardSheet, IDashboardView, IDataset, ISelection, IWidget, IWidgetSheetItem } from './Dashboard'
 import { selectionsUseDatasetWithAssociation } from './widget/interactionsHelpers/DatasetAssociationsHelper'
-import { loadAssociativeSelections } from './widget/interactionsHelpers/InteractionHelper'
+import { invalidateAssociativeSelections, loadAssociativeSelections } from './widget/interactionsHelpers/InteractionHelper'
 import { recreateKnowageChartModel } from './widget/WidgetEditor/helpers/WidgetEditorHelpers'
 import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
 import { iPythonConfiguration } from '../../managers/functionsCatalog/FunctionsCatalog'
@@ -109,12 +109,15 @@ const store = defineStore('dashboardStore', {
             this.internationalization = internationalization
         },
         async setSelections(dashboardId: string, selections: ISelection[], $http: any) {
-            if (this.dashboards[dashboardId]) this.dashboards[dashboardId].selections = selections
             if (!this.dashboards[dashboardId]) return
+            invalidateAssociativeSelections(this.dashboards[dashboardId])
+            this.dashboards[dashboardId].selections = selections
             if (selections.length > 0 && selectionsUseDatasetWithAssociation(selections, this.dashboards[dashboardId].configuration.associations)) {
                 await loadAssociativeSelections(dashboardId, this.dashboards[dashboardId], this.allDatasets, selections, $http)
             } else {
-                emitter.emit('selectionsChanged', { dashboardId: dashboardId, selections: this.dashboards[dashboardId].selections })
+                const associationsCleared = Object.keys(this.getAssociations(dashboardId) ?? {}).length > 0
+                this.setAssociations(dashboardId, {})
+                emitter.emit('selectionsChanged', { dashboardId: dashboardId, selections: this.dashboards[dashboardId].selections, associationsCleared })
             }
         },
         removeSelection(payload: { datasetId: number; columnName: string }, dashboardId: string, $http: any, forceDelete?: boolean) {
@@ -122,11 +125,7 @@ const store = defineStore('dashboardStore', {
             if (index !== -1 && (!this.dashboards[dashboardId].selections[index].locked || forceDelete)) {
                 const tempSelection = deepcopy(this.dashboards[dashboardId].selections[index])
                 this.dashboards[dashboardId].selections.splice(index, 1)
-                if (selectionsUseDatasetWithAssociation([tempSelection], this.dashboards[dashboardId].configuration.associations) && this.dashboards[dashboardId].selections.length > 0) {
-                    loadAssociativeSelections(dashboardId, this.dashboards[dashboardId], this.allDatasets, this.dashboards[dashboardId].selections, $http)
-                } else {
-                    emitter.emit('selectionsChanged', { dashboardId: dashboardId, selections: this.dashboards[dashboardId].selections })
-                }
+                this.setSelections(dashboardId, this.dashboards[dashboardId].selections, $http)
                 emitter.emit('selectionsDeleted', [tempSelection])
             }
         },
@@ -140,8 +139,7 @@ const store = defineStore('dashboardStore', {
                 }
             })
             if (removedSelections.length > 0) {
-                if (selectionsUseDatasetWithAssociation(removedSelections, this.dashboards[dashboardId].configuration.associations) && this.dashboards[dashboardId].selections.length > 0) loadAssociativeSelections(dashboardId, this.dashboards[dashboardId], this.allDatasets, this.dashboards[dashboardId].selections, $http)
-                else if (this.dashboards[dashboardId].selections.length === 0) this.setAssociations(dashboardId, {})
+                this.setSelections(dashboardId, this.dashboards[dashboardId].selections, $http)
             }
             emitter.emit('selectionsDeleted', removedSelections)
         },
