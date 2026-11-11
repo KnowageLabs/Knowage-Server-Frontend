@@ -224,6 +224,9 @@ const getFilters = (propWidget: IWidget, datasetLabel: string) => {
     if (propWidget.type === 'static-pivot-table') {
         const modelFields = propWidget.fields
         columns = modelFields?.columns.concat(modelFields.rows, modelFields.data, modelFields.filters)
+    } else if (propWidget.type === 'map') {
+        const layer = propWidget.layers?.find((layer) => layer.type === 'dataset' && layer.label === datasetLabel)
+        columns = layer?.columns?.filter((column) => !column.deleted && column.fieldType !== 'SPATIAL_ATTRIBUTE') ?? []
     } else columns = propWidget.columns
 
     const activeFilters = {} as any
@@ -242,7 +245,7 @@ const getFilters = (propWidget: IWidget, datasetLabel: string) => {
             }
             const filterData = { filterOperator: column.filter.operator, filterVals }
             if (column.filter?.value2) filterData.filterVals.push(`('${column.filter.value2}')`)
-            createNestedObject(activeFilters, [datasetLabel, column.columnName], filterData)
+            createNestedObject(activeFilters, [datasetLabel, propWidget.type === 'map' ? column.name : column.columnName], filterData)
         }
     })
 

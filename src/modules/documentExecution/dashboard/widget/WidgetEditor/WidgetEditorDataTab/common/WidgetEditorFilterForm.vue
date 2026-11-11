@@ -1,6 +1,6 @@
 <template>
-    <div v-if="column" class="filter-form">
-        <div class="filter-form__band row items-center no-wrap">
+    <div v-if="column?.filter" class="filter-form">
+        <div v-if="showHeader" class="filter-form__band row items-center no-wrap">
             <q-toggle v-model="column.filter.enabled" dense :label="$t('dashboard.widgetEditor.enableFilter')" @update:model-value="selectedColumnUpdated" />
             <q-space />
             <q-icon name="help_outline" size="18px" class="kn-editor-card-hint">
@@ -45,17 +45,23 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IWidgetColumnFilter } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '../../../../DashboardHelpers'
 import commonDescriptor from './WidgetCommonDescriptor.json'
 
+interface IFilterColumn {
+    fieldType: string
+    filter?: IWidgetColumnFilter
+}
+
 export default defineComponent({
     name: 'widget-editor-filter-form',
-    props: { propColumn: { type: Object as PropType<IWidgetColumn | null>, required: true } },
+    props: { propColumn: { type: Object as PropType<IFilterColumn | null>, required: true }, showHeader: { type: Boolean, default: true } },
+    emits: ['filterChanged'],
     data() {
         return {
             commonDescriptor,
-            column: null as IWidgetColumn | null,
+            column: null as IFilterColumn | null,
             filterValueTimer: undefined as ReturnType<typeof setTimeout> | undefined,
             inFilterInput: ''
         }
@@ -90,6 +96,7 @@ export default defineComponent({
         },
         selectedColumnUpdated() {
             emitter.emit('selectedColumnUpdated', this.column)
+            this.$emit('filterChanged', this.column)
         },
         getColumnFilterOptions() {
             return this.column?.fieldType === 'ATTRIBUTE' ? this.commonDescriptor.attributeColumnFilterOperators : this.commonDescriptor.measureColumnFilterOperators
