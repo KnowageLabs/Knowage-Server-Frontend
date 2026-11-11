@@ -556,6 +556,7 @@ export default defineComponent({
         },
         setSeriesEvents() {
             const normalizeTreemapDataLabels = this.normalizeTreemapDataLabels
+            const configureTreemapInteractions = this.configureTreemapInteractions
             const alignWaterfallConnectors = this.alignWaterfallConnectors
             const pointEvents = { ...(this.chartModel.plotOptions.series.point?.events ?? {}) }
             delete pointEvents.mouseOver
@@ -568,6 +569,7 @@ export default defineComponent({
                 click: this.executeInteractions,
                 checkboxClick: this.onCheckboxClicked,
                 render: function () {
+                    configureTreemapInteractions(this)
                     normalizeTreemapDataLabels(this)
                     alignWaterfallConnectors(this)
                 }
@@ -591,6 +593,19 @@ export default defineComponent({
                 }
                 if (this.chartModel.chart.type === 'sunburst') this.chartModel.plotOptions.series.events.legendItemClick = this.onSunburstLegendItemClick
             }
+        },
+        configureTreemapInteractions(chart: any) {
+            if (this.editorMode) return
+            chart.series?.forEach((series: any) => {
+                if (series.type === 'treemap' && typeof series.onClickDrillToNode === 'function') {
+                    // The interaction chooser owns clicks; explicit traversal and breadcrumbs stay enabled.
+                    Highcharts.removeEvent(series, 'click', series.onClickDrillToNode)
+                }
+            })
+        },
+        getTreemapDrilldownPoint(event: any) {
+            const point = event.point
+            return point?.series?.options?.allowTraversingTree && typeof point.drillId === 'string' ? point : null
         },
         alignWaterfallConnectors(chart: any) {
             if (chart?.inverted) return
@@ -628,7 +643,9 @@ export default defineComponent({
             const active: string[] = []
             const interactions = this.widgetModel.settings.interactions
 
-            if (interactions.drilldown?.enabled) {
+            if (this.chartModel.chart.type === 'treemap') {
+                if (this.getTreemapDrilldownPoint(event)) active.push('drilldown')
+            } else if (interactions.drilldown?.enabled) {
                 const numberOfAttributeColumns = this.getNumberOfAttributeColumnsFromWidgetModel()
                 if (event.point && numberOfAttributeColumns - 1 > this.drillLevel) active.push('drilldown')
             }
@@ -671,6 +688,14 @@ export default defineComponent({
             }
         },
         async executeDrilldown(event: any) {
+            if (this.chartModel.chart.type === 'treemap') {
+                const point = this.getTreemapDrilldownPoint(event)
+                if (point) {
+                    point.setState('')
+                    point.series.setRootNode(point.drillId, true)
+                }
+                return
+            }
             const tempDataLabelSettings = this.widgetModel.settings.chartModel?.model?.series[0] && this.widgetModel.settings.chartModel.model.series[0].data[0] ? this.widgetModel.settings.chartModel.model.series[0].data[0].dataLabels : null
             const numberOfAttributeColumns = this.getNumberOfAttributeColumnsFromWidgetModel()
             if (!event.point || numberOfAttributeColumns - 1 === this.drillLevel) return

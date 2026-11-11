@@ -10,8 +10,8 @@
                     <template #prepend><q-icon name="search" size="16px" /></template>
                 </q-input>
                 <q-separator vertical />
-                <q-btn class="q-ml-sm" flat round dense icon="delete" color="negative" :disable="loading || deleting || selectedTemplateIds.length === 0" :loading="deleting" :aria-label="$t('documentExecution.documentDetails.history.deleteSelectedTemplates', { count: selectedTemplateIds.length })" data-test="delete-selected-templates" @click="deleteSelectedTemplatesConfirm">
-                    <q-badge v-if="selectedTemplateIds.length > 0" color="negative" floating>{{ selectedTemplateIds.length }}</q-badge>
+                <q-btn class="q-ml-sm" flat dense icon="delete" color="negative" :disable="loading || deleting || selectedTemplateIds.length === 0" :loading="deleting" :aria-label="$t('documentExecution.documentDetails.history.deleteSelectedTemplates', { count: selectedTemplateIds.length })" data-test="delete-selected-templates" @click="deleteSelectedTemplatesConfirm">
+                    <q-badge v-if="selectedTemplateIds.length > 0" class="dd-template-count q-ml-xs" color="negative" rounded>{{ selectedTemplateIds.length }}</q-badge>
                     <q-tooltip>{{ $t('documentExecution.documentDetails.history.deleteSelectedTemplates', { count: selectedTemplateIds.length }) }}</q-tooltip>
                 </q-btn>
                 <q-btn class="q-ml-sm" unelevated dense icon="upload" color="accent" :disable="deleting" @click="triggerFileUpload">
@@ -406,6 +406,15 @@ export default defineComponent({
 })
 </script>
 <style lang="scss" scoped>
+.dd-template-count {
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    font-size: 10px;
+    line-height: 1;
+    justify-content: center;
+}
+
 .dd-history-editor-col {
     display: flex;
     flex-direction: column;
