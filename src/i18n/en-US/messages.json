@@ -2251,6 +2251,10 @@
                 "visualizationTitle": "Driver Visualization"
             },
             "history": {
+                "deleteSelectedTemplates": "Delete selected templates ({count})",
+                "deleteTemplatesMessage": "Delete the {count} selected templates? This action cannot be undone.",
+                "deleteTemplatesSuccess": "{count} templates deleted.",
+                "selectAllTemplates": "Select all inactive templates shown",
                 "activeButton": "Set active Template",
                 "activeError": "An error occured while setting active template",
                 "activeOk": "Active template changed",

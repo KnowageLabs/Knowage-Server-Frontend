@@ -364,6 +364,10 @@
                 "visualizationTitle": "Visualização do Motorista "
             },
             "history": {
+                "deleteSelectedTemplates": "Delete selected templates ({count})",
+                "deleteTemplatesMessage": "Delete the {count} selected templates? This action cannot be undone.",
+                "deleteTemplatesSuccess": "{count} templates deleted.",
+                "selectAllTemplates": "Select all inactive templates shown",
                 "activeButton": "Configurar Gabarito ativo ",
                 "activeError": "Um erro ocorreu ao configurar o template ativo ",
                 "activeOk": "Modelo ativo alterado ",

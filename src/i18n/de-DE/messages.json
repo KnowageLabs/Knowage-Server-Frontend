@@ -364,6 +364,10 @@
                 "visualizationTitle": "Treiberdarstellung "
             },
             "history": {
+                "deleteSelectedTemplates": "Delete selected templates ({count})",
+                "deleteTemplatesMessage": "Delete the {count} selected templates? This action cannot be undone.",
+                "deleteTemplatesSuccess": "{count} templates deleted.",
+                "selectAllTemplates": "Select all inactive templates shown",
                 "activeButton": "Aktive Vorlage festlegen ",
                 "activeError": "Beim Festlegen der aktiven Schablone ist ein Fehler aufgetreten. ",
                 "activeOk": "Aktive Schablone geändert ",

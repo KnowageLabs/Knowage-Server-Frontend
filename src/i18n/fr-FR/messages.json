@@ -364,6 +364,10 @@
                 "visualizationTitle": "Visualisation du pilote "
             },
             "history": {
+                "deleteSelectedTemplates": "Delete selected templates ({count})",
+                "deleteTemplatesMessage": "Delete the {count} selected templates? This action cannot be undone.",
+                "deleteTemplatesSuccess": "{count} templates deleted.",
+                "selectAllTemplates": "Select all inactive templates shown",
                 "activeButton": "Définir le modèle actif ",
                 "activeError": "Une erreur s'est produite lors de la définition du modèle actif ",
                 "activeOk": "Le modèle actif a été modifié ",

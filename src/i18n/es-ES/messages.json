@@ -364,6 +364,10 @@
                 "visualizationTitle": "Visualización del controlador"
             },
             "history": {
+                "deleteSelectedTemplates": "Delete selected templates ({count})",
+                "deleteTemplatesMessage": "Delete the {count} selected templates? This action cannot be undone.",
+                "deleteTemplatesSuccess": "{count} templates deleted.",
+                "selectAllTemplates": "Select all inactive templates shown",
                 "activeButton": "Establecer plantilla activa",
                 "activeError": "Se ha producido un error al establecer la plantilla activa",
                 "activeOk": "La plantilla activa ha cambiado",

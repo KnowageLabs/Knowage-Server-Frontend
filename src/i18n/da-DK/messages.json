@@ -364,6 +364,10 @@
                 "visualizationTitle": "Drivervisualisering "
             },
             "history": {
+                "deleteSelectedTemplates": "Delete selected templates ({count})",
+                "deleteTemplatesMessage": "Delete the {count} selected templates? This action cannot be undone.",
+                "deleteTemplatesSuccess": "{count} templates deleted.",
+                "selectAllTemplates": "Select all inactive templates shown",
                 "activeButton": "Angiv aktiv skabelon ",
                 "activeError": "Der er opstået en fejl under angivelse af aktiv skabelon ",
                 "activeOk": "Aktiv skabelon ændret ",

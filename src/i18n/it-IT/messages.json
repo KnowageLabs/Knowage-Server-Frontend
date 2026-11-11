@@ -1623,6 +1623,10 @@
         "visualizationTitle": "visualizzazione del driver"
       },
       "history": {
+        "deleteSelectedTemplates": "Elimina template selezionati ({count})",
+        "deleteTemplatesMessage": "Eliminare i {count} template selezionati? Questa operazione non si può annullare.",
+        "deleteTemplatesSuccess": "{count} template eliminati.",
+        "selectAllTemplates": "Seleziona tutti i template non attivi visualizzati",
         "activeButton": "imposta un template attivo",
         "activeError": "errore durante l'impostazione del template attivo",
         "activeOk": "template attivo cambiato",

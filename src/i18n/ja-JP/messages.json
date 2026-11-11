@@ -364,6 +364,10 @@
                 "visualizationTitle": "ドライバーの可視化"
             },
             "history": {
+                "deleteSelectedTemplates": "Delete selected templates ({count})",
+                "deleteTemplatesMessage": "Delete the {count} selected templates? This action cannot be undone.",
+                "deleteTemplatesSuccess": "{count} templates deleted.",
+                "selectAllTemplates": "Select all inactive templates shown",
                 "activeButton": "アクティブなテンプレートの設定",
                 "activeError": "アクティブ・テンプレートの設定中にエラーが発生",
                 "activeOk": "アクティブなテンプレートの変更",

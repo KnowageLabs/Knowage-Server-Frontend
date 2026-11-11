@@ -3,11 +3,18 @@
         <!-- LEFT: list -->
         <div class="dd-tab-list-col">
             <div class="dd-list-header row items-center q-px-sm q-py-xs">
+                <q-checkbox :model-value="templateSelectionState" dense :disable="loading || deleting || selectableTemplates.length === 0" :aria-label="$t('documentExecution.documentDetails.history.selectAllTemplates')" data-test="select-all-templates" @update:model-value="toggleAllTemplates">
+                    <q-tooltip>{{ $t('documentExecution.documentDetails.history.selectAllTemplates') }}</q-tooltip>
+                </q-checkbox>
                 <q-input v-model="searchText" :placeholder="$t('common.search')" dense borderless clearable class="col q-pr-xs">
                     <template #prepend><q-icon name="search" size="16px" /></template>
                 </q-input>
                 <q-separator vertical />
-                <q-btn class="q-ml-sm" unelevated dense icon="upload" color="accent" @click="triggerFileUpload">
+                <q-btn class="q-ml-sm" flat round dense icon="delete" color="negative" :disable="loading || deleting || selectedTemplateIds.length === 0" :loading="deleting" :aria-label="$t('documentExecution.documentDetails.history.deleteSelectedTemplates', { count: selectedTemplateIds.length })" data-test="delete-selected-templates" @click="deleteSelectedTemplatesConfirm">
+                    <q-badge v-if="selectedTemplateIds.length > 0" color="negative" floating>{{ selectedTemplateIds.length }}</q-badge>
+                    <q-tooltip>{{ $t('documentExecution.documentDetails.history.deleteSelectedTemplates', { count: selectedTemplateIds.length }) }}</q-tooltip>
+                </q-btn>
+                <q-btn class="q-ml-sm" unelevated dense icon="upload" color="accent" :disable="deleting" @click="triggerFileUpload">
                     <q-tooltip>{{ $t('documentExecution.documentDetails.info.uploadTemplate') }}</q-tooltip>
                 </q-btn>
                 <input ref="fileInput" type="file" style="display: none" @change="startTemplateUpload" />
@@ -17,6 +24,9 @@
                 <q-linear-progress v-if="loading" indeterminate color="primary" />
                 <q-list separator class="dd-list">
                     <q-item v-for="tmpl in filteredTemplates" :key="tmpl.id" clickable :active="selectedTemplate === tmpl" active-class="kn-list-item--selected" @click="selectTemplate(tmpl)">
+                        <q-item-section side @click.stop>
+                            <q-checkbox v-model="selectedTemplateIds" :val="tmpl.id" dense :disable="tmpl.active || loading || deleting" :aria-label="tmpl.name" data-test="template-checkbox" />
+                        </q-item-section>
                         <q-item-section avatar>
                             <q-avatar size="32px" :style="tmpl.active ? 'background:#74a748' : 'background:#ffc107'" text-color="white">
                                 <q-icon :name="tmpl.active ? 'fas fa-check' : 'fas fa-history'" size="14px" />
@@ -27,7 +37,7 @@
                             <q-item-label caption>{{ formatDate(tmpl.creationDate) }}</q-item-label>
                         </q-item-section>
                         <q-item-section side>
-                            <q-btn flat round dense icon="more_vert" size="sm" @click.stop>
+                            <q-btn flat round dense icon="more_vert" size="sm" :disable="deleting" @click.stop>
                                 <q-menu anchor="bottom right" self="top right">
                                     <q-list dense style="min-width: 190px">
                                         <q-item v-if="!tmpl.active" clickable v-close-popup @click="setActiveTemplate(tmpl)">
@@ -64,12 +74,12 @@
                     <q-btn v-if="designerButtonVisible" flat dense no-caps size="sm" color="accent" icon="design_services" :label="$t('documentExecution.olap.openDesigner')" class="q-ma-none q-py-none q-px-xs" data-test="open-designer-button" @click="openDesignerConfirm" />
                     <q-space />
                     <template v-if="!isEditMode">
-                        <q-btn flat round dense icon="fa-solid fa-pen-to-square" size="sm" @click="enterEditMode">
+                        <q-btn flat round dense icon="fa-solid fa-pen-to-square" size="sm" :disable="deleting" @click="enterEditMode">
                             <q-tooltip>{{ $t('workspace.myAnalysis.menuItems.editTemplate') }}</q-tooltip>
                         </q-btn>
                     </template>
                     <template v-else>
-                        <q-btn flat round dense icon="save" color="primary" @click="saveEditedTemplate">
+                        <q-btn flat round dense icon="save" color="primary" :disable="deleting" @click="saveEditedTemplate">
                             <q-tooltip>{{ $t('common.save') }}</q-tooltip>
                         </q-btn>
                         <q-btn flat round dense icon="close" @click="cancelEdit">
@@ -113,10 +123,12 @@ export default defineComponent({
         return {
             searchText: '',
             selectedTemplate: {} as iTemplate,
+            selectedTemplateIds: [] as number[],
             listOfTemplates: [] as iTemplate[],
             selectedTemplateFileType: null as string | null,
             selectedTemplateContent: '' as any,
             loading: false,
+            deleting: false,
             isEditMode: false,
             originalTemplateContent: '' as string
         }
@@ -126,6 +138,14 @@ export default defineComponent({
             if (!this.searchText) return this.listOfTemplates
             const needle = this.searchText.toLowerCase()
             return this.listOfTemplates.filter((t) => t.name?.toLowerCase().includes(needle))
+        },
+        selectableTemplates(): iTemplate[] {
+            return this.filteredTemplates.filter((template) => !template.active)
+        },
+        templateSelectionState(): boolean | null {
+            const count = this.selectableTemplates.filter((template) => this.selectedTemplateIds.includes(template.id)).length
+            if (count === 0) return false
+            return count === this.selectableTemplates.length ? true : null
         },
         showTemplateContent(): boolean {
             return ['xml', 'xls', 'rptdesign', 'sbicockpit', 'json', 'sbigeoreport'].includes(this.selectedTemplateFileType ?? '')
@@ -165,18 +185,30 @@ export default defineComponent({
         triggerFileUpload() {
             ;(this.$refs.fileInput as HTMLInputElement).click()
         },
+        toggleAllTemplates(selected: boolean) {
+            const ids = new Set(this.selectedTemplateIds)
+            this.selectableTemplates.forEach((template) => (selected ? ids.add(template.id) : ids.delete(template.id)))
+            this.selectedTemplateIds = [...ids]
+        },
         async getAllTemplates() {
             this.loading = true
             return this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/templates`)
                 .then((response: AxiosResponse<any>) => {
                     this.listOfTemplates = response.data as iTemplate[]
+                    this.selectedTemplateIds = this.selectedTemplateIds.filter((id) => this.listOfTemplates.some((template) => template.id === id && !template.active))
+                    if (this.selectedTemplate.id != null) {
+                        const selected = this.listOfTemplates.find((template) => template.id === this.selectedTemplate.id)
+                        if (selected) this.selectedTemplate = selected
+                        else this.clearSelectedTemplate()
+                    }
                     return response.data
                 })
                 .finally(() => (this.loading = false))
         },
         async getSelectedTemplate(templateId: number) {
             this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/templates/selected/${templateId}`, { headers: { 'X-Disable-Errors': 'true' } }).then((response: AxiosResponse<any>) => {
+                if (this.selectedTemplate.id !== templateId) return
                 const content = this.selectedTemplateFileType == 'sbicockpit' || this.selectedTemplateFileType == 'json' || this.selectedTemplateFileType == 'sbigeoreport' ? JSON.stringify(response.data, null, 4) : response.data
                 this.selectedTemplateContent = content
                 this.originalTemplateContent = content
@@ -193,6 +225,13 @@ export default defineComponent({
             this.setFileType(template)
             this.isEditMode = false
             this.getSelectedTemplate(template.id)
+        },
+        clearSelectedTemplate() {
+            this.selectedTemplate = {} as iTemplate
+            this.selectedTemplateFileType = null
+            this.selectedTemplateContent = ''
+            this.originalTemplateContent = ''
+            this.isEditMode = false
         },
         startTemplateUpload(event: Event) {
             const file = (event.target as HTMLInputElement).files?.[0]
@@ -258,14 +297,51 @@ export default defineComponent({
                 })
                 .onOk(() => this.deleteTemplate(template))
         },
-        async deleteTemplate(template: iTemplate) {
-            await this.$http
-                .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/templates/${template.id}`, { headers: { 'X-Disable-Errors': 'true' } })
-                .then(() => {
-                    this.store.setInfo({ title: this.$t('common.toast.deleteTitle'), msg: this.$t('common.toast.deleteSuccess') })
-                    this.getAllTemplates()
+        deleteSelectedTemplatesConfirm() {
+            if (this.deleting) return
+            const templates = this.listOfTemplates.filter((template) => !template.active && this.selectedTemplateIds.includes(template.id))
+            if (templates.length === 0) return
+            this.$q
+                .dialog({
+                    title: this.$t('common.toast.deleteConfirmTitle'),
+                    message: templates.length === 1 ? this.$t('common.toast.deleteMessage') : this.$t('documentExecution.documentDetails.history.deleteTemplatesMessage', { count: templates.length }),
+                    cancel: true,
+                    persistent: true
                 })
-                .catch((error) => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: error.message }))
+                .onOk(() => this.deleteTemplates(templates))
+        },
+        async deleteTemplate(template: iTemplate) {
+            await this.deleteTemplates([template])
+        },
+        async deleteTemplates(templates: iTemplate[]) {
+            if (this.deleting) return
+            const targets = this.listOfTemplates.filter((template) => !template.active && templates.some((selected) => selected.id === template.id))
+            if (targets.length === 0) return
+            this.deleting = true
+            const deletedIds: number[] = []
+            const errors: string[] = []
+            try {
+                for (const template of targets) {
+                    try {
+                        await this.$http.delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/templates/${template.id}`, { headers: { 'X-Disable-Errors': 'true' } })
+                        deletedIds.push(template.id)
+                    } catch (error: any) {
+                        errors.push(`${template.name}: ${error.message}`)
+                    }
+                }
+                this.listOfTemplates = this.listOfTemplates.filter((template) => !deletedIds.includes(template.id))
+                this.selectedTemplateIds = this.selectedTemplateIds.filter((id) => !deletedIds.includes(id))
+                if (deletedIds.includes(this.selectedTemplate.id)) this.clearSelectedTemplate()
+                try {
+                    await this.getAllTemplates()
+                } catch (error: any) {
+                    errors.push(error.message)
+                }
+                if (errors.length > 0) this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: errors.join('\n') })
+                else this.store.setInfo({ title: this.$t('common.toast.deleteTitle'), msg: deletedIds.length === 1 ? this.$t('common.toast.deleteSuccess') : this.$t('documentExecution.documentDetails.history.deleteTemplatesSuccess', { count: deletedIds.length }) })
+            } finally {
+                this.deleting = false
+            }
         },
         openDesignerConfirm() {
             this.$q

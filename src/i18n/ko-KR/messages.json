@@ -348,6 +348,10 @@
                 "visualizationTitle": "드라이버 시각화"
             },
             "history": {
+                "deleteSelectedTemplates": "Delete selected templates ({count})",
+                "deleteTemplatesMessage": "Delete the {count} selected templates? This action cannot be undone.",
+                "deleteTemplatesSuccess": "{count} templates deleted.",
+                "selectAllTemplates": "Select all inactive templates shown",
                 "activeButton": "활성 템플리트 설정",
                 "activeError": "활성 템플리트를 설정하는 중에 오류가 발생했습니다.",
                 "activeOk": "활성 템플리트 변경",
