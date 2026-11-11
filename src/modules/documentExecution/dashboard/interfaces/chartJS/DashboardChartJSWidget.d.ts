@@ -36,6 +36,7 @@ export interface IChartJSChartModel {
 }
 
 export interface IChartJSOptions {
+    locale?: string
     plugins: {
         title: { display: boolean }
         tooltip: IChartJSTooltipSettings

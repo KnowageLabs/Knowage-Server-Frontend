@@ -37,6 +37,9 @@ export default defineComponent({
         }
     },
     watch: {
+        locale() {
+            this.loadHTML()
+        },
         widgetData() {
             this.loadDataToShow()
         },
@@ -62,7 +65,8 @@ export default defineComponent({
         this.loadDataToShow()
     },
     computed: {
-        ...mapState(store, ['dashboards'])
+        ...mapState(store, ['dashboards']),
+        ...mapState(appStore, ['locale'])
     },
     methods: {
         ...mapActions(store, ['getInternationalization', 'setSelections', 'getAllDatasets', 'getDashboardDrivers']),

@@ -111,6 +111,9 @@ export default defineComponent({
         }
     },
     watch: {
+        'appStore.locale'() {
+            this.gridApi?.redrawRows()
+        },
         propWidget: {
             handler() {
                 this.loadWidgetModel()

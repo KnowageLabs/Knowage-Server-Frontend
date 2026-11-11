@@ -1,5 +1,6 @@
 import moment from 'moment'
 import { DateTime } from 'luxon'
+import { getActivePinia } from 'pinia'
 import store from '@/App.store.js'
 
 import formats from '@/helpers/commons/localeDateFormats.json'
@@ -8,9 +9,8 @@ import timezones from '@/helpers/commons/localeTimeZones.json'
 export let fallbackLocale = 'en_US'
 
 export function getLocale(js?: boolean): string {
-    let locale = ''
-    if (localStorage.getItem('locale')) locale = localStorage.getItem('locale') || ''
-    else locale = store.locale ? store.local : fallbackLocale
+    const currentLocale = getActivePinia() ? store().locale : ''
+    const locale = localStorage.getItem('locale') || currentLocale || fallbackLocale
     return js ? locale.replace('_', '-') : locale
 }
 

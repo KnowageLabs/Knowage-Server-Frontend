@@ -5,6 +5,25 @@ import { replaceVariablesPlaceholdersByVariableName } from '../../interactionsHe
 import { getRGBColorFromString } from '../../WidgetEditor/helpers/WidgetEditorHelpers'
 import Highcharts from 'highcharts/esm/highcharts.js'
 
+export const getHighchartsLocaleOptions = (locale: string): Highcharts.LangOptions => {
+    const normalizedLocale = locale.replace('_', '-')
+    const parts = new Intl.NumberFormat(normalizedLocale, { useGrouping: true }).formatToParts(1234567.89)
+    return {
+        locale: normalizedLocale,
+        decimalPoint: parts.find((part) => part.type === 'decimal')?.value ?? '.',
+        thousandsSep: parts.find((part) => part.type === 'group')?.value ?? ','
+    }
+}
+
+export const updateHighchartsLocale = (chart: Highcharts.Chart, locale: string) => {
+    const lang = getHighchartsLocaleOptions(locale)
+    Highcharts.setOptions({ lang })
+    chart.update({ lang }, false)
+    // Rebuilding the legend also marks the axes and visible series for redraw, preserving their state.
+    chart.legend.update({}, false)
+    chart.redraw(false)
+}
+
 export const formatActivityGauge = (formattedChartModel: IHighchartsChartModel, widgetModel: IWidget) => {
     formattedChartModel.chart.type = 'solidgauge'
     const colors = widgetModel.settings.chart.colors
