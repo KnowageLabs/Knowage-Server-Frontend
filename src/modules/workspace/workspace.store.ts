@@ -75,7 +75,7 @@ const useWorkspaceStore = defineStore('workspace', {
             return this.folderTree
         },
 
-        // The only place that knows the three sources of the Documents list (plan section 4).
+        // The backend aggregates documents; the legacy loader is an explicit opt-out.
         async loadDocuments(force = false) {
             if (this.documentsLoaded && !force) return
             return shared('documents', () => this.fetchDocuments())
@@ -84,11 +84,12 @@ const useWorkspaceStore = defineStore('workspace', {
         async fetchDocuments() {
             this.documentsLoading = true
             try {
-                const tree = await this.loadFolders()
-                if (import.meta.env.VITE_WORKSPACE_BE1 === 'true') {
-                    this.documents = fromBe1(await api.getWorkspaceDocuments())
+                if (import.meta.env.VITE_WORKSPACE_BE1 !== 'false') {
+                    const [, documents] = await Promise.all([this.loadFolders(), api.getWorkspaceDocuments()])
+                    this.documents = fromBe1(documents)
                     this.documentSource = 'be1'
                 } else {
+                    const tree = await this.loadFolders()
                     const [recents, personal, contents] = await Promise.all([api.getRecents().catch(() => []), api.getPersonalDocuments().catch(() => []), Promise.all(allFolderIds(tree).map(async (folderId) => ({ folderId, content: await api.getFolderContent(folderId).catch(() => []) })))])
                     this.documents = mergeDocuments(recents, personal, contents)
                     this.documentSource = 'fallback'
