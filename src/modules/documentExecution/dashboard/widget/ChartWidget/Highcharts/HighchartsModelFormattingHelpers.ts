@@ -60,6 +60,22 @@ export const formatRadar = (formattedChartModel: IHighchartsChartModel) => {
     formattedChartModel.chart.polar = true
 }
 
+export const formatSankeyChart = (formattedChartModel: IHighchartsChartModel) => {
+    const beforeRender = formattedChartModel.chart.events?.beforeRender
+    formattedChartModel.chart.events = {
+        ...formattedChartModel.chart.events,
+        beforeRender: function (this: Highcharts.Chart, event: Event) {
+            beforeRender?.call(this, event)
+            this.series.forEach((series) => {
+                if (!['sankey', 'dependencywheel'].includes(series.type)) return
+                const sankeySeries = series as Highcharts.Series & { mapOptionsToLevel?: Record<number, unknown> }
+                // Highcharts builds the point legend before Sankey.translate initializes level styles.
+                sankeySeries.mapOptionsToLevel ??= {}
+            })
+        }
+    }
+}
+
 export const formatBubble = (formattedChartModel: IHighchartsChartModel) => {
     if (formattedChartModel.yAxis[0]) delete formattedChartModel.yAxis[0].type
     formatBubbleTooltips(formattedChartModel)
