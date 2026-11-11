@@ -35,6 +35,7 @@ vi.mock('../widget/interactionsHelpers/DatasetAssociationsHelper', () => ({
 }))
 
 vi.mock('../widget/interactionsHelpers/InteractionHelper', () => ({
+    invalidateAssociativeSelections: vi.fn(),
     loadAssociativeSelections: vi.fn(async () => {})
 }))
 
@@ -44,6 +45,9 @@ vi.mock('../widget/WidgetEditor/helpers/WidgetEditorHelpers', () => ({
 
 // ─── Import after mocks ────────────────────────────────────────────────────────
 import useDashboardStore from '../Dashboard.store'
+import { emitter } from '../DashboardHelpers'
+import { selectionsUseDatasetWithAssociation } from '../widget/interactionsHelpers/DatasetAssociationsHelper'
+import { invalidateAssociativeSelections, loadAssociativeSelections } from '../widget/interactionsHelpers/InteractionHelper'
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
@@ -241,6 +245,8 @@ describe('dashboardStore — selections', () => {
     let store: ReturnType<typeof useDashboardStore>
 
     beforeEach(() => {
+        vi.clearAllMocks()
+        vi.mocked(selectionsUseDatasetWithAssociation).mockReturnValue(false)
         setActivePinia(createPinia())
         store = useDashboardStore()
         store.setDashboard('dash1', makeDashboard())
@@ -248,6 +254,38 @@ describe('dashboardStore — selections', () => {
 
     it('getSelections returns empty array initially', () => {
         expect(store.getSelections('dash1')).toEqual([])
+    })
+
+    it('invalidates pending associations and clears stale results when selections are reset', async () => {
+        store.setAssociations('dash1', { Sales: { city: ["('old')"] } })
+
+        await store.setSelections('dash1', [], null)
+
+        expect(invalidateAssociativeSelections).toHaveBeenCalledWith(store.getDashboard('dash1'))
+        expect(store.getAssociations('dash1')).toEqual({})
+        expect(emitter.emit).toHaveBeenCalledWith('selectionsChanged', { dashboardId: 'dash1', selections: [], associationsCleared: true })
+    })
+
+    it('delegates associative notifications until the matching request completes', async () => {
+        vi.mocked(selectionsUseDatasetWithAssociation).mockReturnValueOnce(true)
+        const selections = [makeSelection(1, 'city', ['Roma'])]
+
+        await store.setSelections('dash1', selections, null)
+
+        expect(loadAssociativeSelections).toHaveBeenCalledWith('dash1', store.getDashboard('dash1'), store.allDatasets, selections, null)
+        expect(emitter.emit).not.toHaveBeenCalled()
+    })
+
+    it('invalidates pending requests and emits the normal change event when the last selection is deleted', () => {
+        const selection = makeSelection(1, 'city')
+        store.setDashboard('dash1', { ...makeDashboard(), selections: [selection], associations: { Sales: { city: ["('old')"] } } })
+
+        store.removeSelections([selection], 'dash1', null)
+
+        expect(invalidateAssociativeSelections).toHaveBeenCalledOnce()
+        expect(store.getAssociations('dash1')).toEqual({})
+        expect(emitter.emit).toHaveBeenCalledWith('selectionsChanged', { dashboardId: 'dash1', selections: [], associationsCleared: true })
+        expect(emitter.emit).toHaveBeenCalledWith('selectionsDeleted', [selection])
     })
 
     it('removeSelection removes an unlocked selection by datasetId + columnName', () => {

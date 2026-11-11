@@ -4,6 +4,7 @@ import { getAssociativeSelections } from './DatasetAssociationsHelper'
 import { emitter } from '../../DashboardHelpers'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import moment from 'moment'
+import deepcopy from 'deepcopy'
 import { IMapWidgetCrossNavigation, IMapWidgetCrossNavigationVisualizationTypeConfig } from '../../interfaces/mapWidget/DashboardMapWidget'
 
 interface IClickedValue {
@@ -11,13 +12,33 @@ interface IClickedValue {
     type: string
 }
 
+const associativeSelectionRequests = new WeakMap<IDashboard, object>()
+let pendingAssociativeSelections = 0
+
+export const invalidateAssociativeSelections = (model: IDashboard) => {
+    associativeSelectionRequests.delete(model)
+}
+
 export const loadAssociativeSelections = async (dashboardId: string, model: IDashboard, datasets: IDataset[], selections: ISelection[], $http: any) => {
     const dStore = dashboardStore()
+    const request = {}
+    associativeSelectionRequests.set(model, request)
+    pendingAssociativeSelections++
 
-    const tempResponse = await getAssociativeSelections(model, datasets, selections, $http)
-    if (tempResponse) {
-        dStore.setAssociations(dashboardId, tempResponse)
-        emitter.emit('associativeSelectionsLoaded')
+    try {
+        emitter.emit('setWidgetLoading', true)
+        const tempResponse = await getAssociativeSelections(model, datasets, deepcopy(selections), $http)
+        if (associativeSelectionRequests.get(model) !== request || dStore.getDashboard(dashboardId) !== model) return
+
+        if (tempResponse) {
+            dStore.setAssociations(dashboardId, tempResponse)
+            emitter.emit('associativeSelectionsLoaded', { dashboardId })
+            emitter.emit('selectionsChanged', { dashboardId, selections: dStore.getSelections(dashboardId) })
+        }
+    } finally {
+        if (associativeSelectionRequests.get(model) === request) associativeSelectionRequests.delete(model)
+        pendingAssociativeSelections--
+        if (pendingAssociativeSelections === 0) emitter.emit('setWidgetLoading', false)
     }
 }
 

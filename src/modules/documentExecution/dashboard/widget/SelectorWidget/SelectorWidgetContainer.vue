@@ -81,6 +81,7 @@ export default defineComponent({
             rightClickColumn: null as string | null,
             ctrlPressed: false,
             loading: false,
+            dataRequestId: 0,
             isWidgetHovered: false
         }
     },
@@ -137,7 +138,9 @@ export default defineComponent({
             if (this.layoutReady) this.initializeGridLayout()
         },
         dataToShow() {
+            this.dataRequestId++
             this.localWidgetData = deepcopy(this.dataToShow)
+            this.loading = false
         }
     },
     created() {
@@ -160,6 +163,7 @@ export default defineComponent({
         }
     },
     unmounted() {
+        this.dataRequestId++
         this.removeEventListeners()
         this.widthObserver?.disconnect()
         Object.values(this.debounceTimers).forEach((timer) => clearTimeout(timer))
@@ -409,6 +413,7 @@ export default defineComponent({
             }
         },
         async refreshLocalWidgetData() {
+            const requestId = ++this.dataRequestId
             this.loading = true
             try {
                 const selectionsArray = Object.values(this.localSelections).filter((sel: any) => sel !== undefined) as any as ISelection[]
@@ -425,18 +430,22 @@ export default defineComponent({
                     }
                 }
 
-                this.localWidgetData = await getSelectorWidgetData(this.dashboardId, dashboard.configuration, this.propWidget, dashboard.configuration?.datasets, this.$http, false, selectionsArray, associativeResponseSelections, this.unlockedColumnName ?? undefined)
+                const widgetData = await getSelectorWidgetData(this.dashboardId, dashboard.configuration, this.propWidget, dashboard.configuration?.datasets, this.$http, false, selectionsArray, associativeResponseSelections, this.unlockedColumnName ?? undefined)
+                if (requestId === this.dataRequestId) this.localWidgetData = widgetData
             } catch (error) {
                 console.error('[SelectorWidgetContainer] Error refreshing widget data:', error)
             } finally {
-                this.loading = false
+                if (requestId === this.dataRequestId) this.loading = false
             }
         },
-        async onPlayClicked() {
-            const selectionsArray = Object.values(this.localSelections).filter((sel: any) => sel !== undefined) as any as ISelection[]
-            if (selectionsArray.length > 0) {
-                await this.setSelections(this.dashboardId, selectionsArray, this.$http)
-            }
+        async onPlayClicked(event: unknown) {
+            const selectionEvent = event as { widgetId?: string; dashboardId?: string } | undefined
+            if (selectionEvent?.widgetId !== this.propWidget.id || (selectionEvent?.dashboardId && selectionEvent.dashboardId !== this.dashboardId)) return
+
+            const widgetColumns = new Set(this.propWidget.columns.map((column) => column.columnName))
+            const otherSelections = (this.dashboards[this.dashboardId]?.selections ?? []).filter((selection: ISelection) => String(selection.datasetId) !== String(this.propWidget.dataset) || !widgetColumns.has(selection.columnName))
+            const selectionsArray = Object.values(this.localSelections).filter((selection: any) => selection && widgetColumns.has(selection.columnName)) as ISelection[]
+            await this.setSelections(this.dashboardId, deepcopy([...otherSelections, ...selectionsArray]), this.$http)
         }
         //#endregion =============================================================================
     }

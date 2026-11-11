@@ -1,6 +1,5 @@
 import { IAssociation, IAssociationField, IDashboard, IDataset, IDashboardDataset, IDashboardDatasetParameter, ISelection, IWidget, IWidgetColumn, IWidgetColumnFilter } from '../../Dashboard'
 import { AxiosResponse } from 'axios'
-import { emitter } from '../../DashboardHelpers'
 import { clearDatasetInterval } from '../../helpers/datasetRefresh/DatasetRefreshHelpers'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 
@@ -17,7 +16,6 @@ interface IFormattedFilter {
 let datasetMapById = {}
 
 export const getAssociativeSelections = async (model: IDashboard, datasets: IDataset[], selections: ISelection[], $http: any) => {
-    emitter.emit('setWidgetLoading', true)
     loadDatasetLabelIdMap(datasets)
 
     const tempDatasets = getDatasetsInfoFromModelDatasets(model.configuration.datasets, datasets)
@@ -45,7 +43,6 @@ export const getAssociativeSelections = async (model: IDashboard, datasets: IDat
         .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/associativeSelections/`, postData)
         .then((response: AxiosResponse<any>) => (tempResponse = response.data))
         .catch(() => {})
-    emitter.emit('setWidgetLoading', false)
     return tempResponse
 }
 
