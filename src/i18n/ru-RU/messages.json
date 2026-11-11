@@ -348,6 +348,10 @@
                 "visualizationTitle": "Визуализация драйвера "
             },
             "history": {
+                "deleteSelectedTemplates": "Delete selected templates ({count})",
+                "deleteTemplatesMessage": "Delete the {count} selected templates? This action cannot be undone.",
+                "deleteTemplatesSuccess": "{count} templates deleted.",
+                "selectAllTemplates": "Select all inactive templates shown",
                 "activeButton": "Задать активный шаблон ",
                 "activeError": "Ошибка при задании активного шаблона ",
                 "activeOk": "Изменен активный шаблон ",

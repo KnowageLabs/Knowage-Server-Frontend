@@ -364,6 +364,10 @@
                 "visualizationTitle": "رؤية السائق"
             },
             "history": {
+                "deleteSelectedTemplates": "Delete selected templates ({count})",
+                "deleteTemplatesMessage": "Delete the {count} selected templates? This action cannot be undone.",
+                "deleteTemplatesSuccess": "{count} templates deleted.",
+                "selectAllTemplates": "Select all inactive templates shown",
                 "activeButton": "تحديد قالب فعال",
                 "activeError": "حدث خطأ أثناء تحديد القالب الفعال",
                 "activeOk": "تم تغيير القالب الفعال",

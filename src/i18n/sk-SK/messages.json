@@ -1350,6 +1350,10 @@
                 "visualizationTitle": "Vizualizácia ovládača"
             },
             "history": {
+                "deleteSelectedTemplates": "Delete selected templates ({count})",
+                "deleteTemplatesMessage": "Delete the {count} selected templates? This action cannot be undone.",
+                "deleteTemplatesSuccess": "{count} templates deleted.",
+                "selectAllTemplates": "Select all inactive templates shown",
                 "activeButton": "Nastaviť aktívnu šablónu",
                 "activeError": "Pri nastavovaní aktívnej šablóny sa vyskytla chyba",
                 "activeOk": "Aktívna šablóna zmenená",

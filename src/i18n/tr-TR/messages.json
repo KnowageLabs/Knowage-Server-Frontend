@@ -364,6 +364,10 @@
                 "visualizationTitle": "Sürücü Görselleştirmesi "
             },
             "history": {
+                "deleteSelectedTemplates": "Delete selected templates ({count})",
+                "deleteTemplatesMessage": "Delete the {count} selected templates? This action cannot be undone.",
+                "deleteTemplatesSuccess": "{count} templates deleted.",
+                "selectAllTemplates": "Select all inactive templates shown",
                 "activeButton": "Etkin Şablonu Ayarla ",
                 "activeError": "Etkin şablon belirlenirken bir hata oluştu ",
                 "activeOk": "Etkin şablon değiştirildi ",

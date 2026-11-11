@@ -364,6 +364,10 @@
                 "visualizationTitle": "ויזואליזציה של נהג "
             },
             "history": {
+                "deleteSelectedTemplates": "Delete selected templates ({count})",
+                "deleteTemplatesMessage": "Delete the {count} selected templates? This action cannot be undone.",
+                "deleteTemplatesSuccess": "{count} templates deleted.",
+                "selectAllTemplates": "Select all inactive templates shown",
                 "activeButton": "הגדרת תבנית פעילה ",
                 "activeError": "אירעה שגיאה בהגדרת תבנית פעילה. ",
                 "activeOk": "התבנית הפעילה השתנתה ",

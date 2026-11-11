@@ -364,6 +364,10 @@
                 "visualizationTitle": "驱动程序可视化"
             },
             "history": {
+                "deleteSelectedTemplates": "Delete selected templates ({count})",
+                "deleteTemplatesMessage": "Delete the {count} selected templates? This action cannot be undone.",
+                "deleteTemplatesSuccess": "{count} templates deleted.",
+                "selectAllTemplates": "Select all inactive templates shown",
                 "activeButton": "设置活动模板",
                 "activeError": "设置活动模板时发生错误",
                 "activeOk": "已更改活动模板",
