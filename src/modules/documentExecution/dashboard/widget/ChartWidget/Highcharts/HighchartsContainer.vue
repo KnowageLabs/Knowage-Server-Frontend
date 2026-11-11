@@ -50,7 +50,7 @@ import { IHighchartsChartModel } from '../../../interfaces/highcharts/DashboardH
 import { mapActions, mapState } from 'pinia'
 import { updateStoreSelections, executeChartCrossNavigation } from '../../interactionsHelpers/InteractionHelper'
 import { openNewLinkChartWidget } from '../../interactionsHelpers/InteractionLinkHelper'
-import { addCategoryXAxisLabelTooltips, formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSankeyChart, formatSplineChart, formatPictorialChart, formatStreamgraphChart, formatPackedBubble, formatVariables, getPictorialFillRule, normalizeCategoryXAxisLabels, normalizeLegendItemColors, normalizeTooltipSettings, normalizeYAxisLabelsAlignment, updateAxisLabelFormatters } from './HighchartsModelFormattingHelpers'
+import { addCategoryXAxisLabelTooltips, formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSankeyChart, formatSplineChart, formatPictorialChart, formatStreamgraphChart, formatPackedBubble, formatVariables, getHighchartsLocaleOptions, getPictorialFillRule, normalizeCategoryXAxisLabels, normalizeLegendItemColors, normalizeTooltipSettings, normalizeYAxisLabelsAlignment, updateAxisLabelFormatters, updateHighchartsLocale } from './HighchartsModelFormattingHelpers'
 import { applyAdvancedSettingsToModelForRender, formatChartAnnotations, formatForCrossNavigation, getFormattedChartValues } from './HighchartsContainerHelpers'
 import { showDashboardWidgetError } from '@/modules/documentExecution/dashboard/helpers/DashboardToastHelper'
 import HighchartsSonificationControls from './HighchartsSonificationControls.vue'
@@ -131,6 +131,11 @@ export default defineComponent({
         }
     },
     watch: {
+        locale() {
+            if (!this.highchartsInstance?.update) return
+            updateHighchartsLocale(this.highchartsInstance, getLocale(true))
+            this.scheduleDrilldownPresentationNormalization()
+        },
         dataToShow() {
             // Reset cached data when original data changes
             this.cachedData = null
@@ -158,6 +163,7 @@ export default defineComponent({
     },
     computed: {
         ...mapState(store, ['dashboards']),
+        ...mapState(mainStore, ['locale']),
         panelStyle() {
             return {
                 transform: `translate(${this.panelPosition.x}px, ${this.panelPosition.y}px)`
@@ -248,23 +254,12 @@ export default defineComponent({
             const chartContainer = document.getElementById(this.chartID)
             if (!chartContainer) return
             
-            //KNOWAGE-9994 START
-            //Highcharts.setOptions({ lang: { noData: this.chartModel.lang.noData } })
-            const numberParts = new Intl.NumberFormat(getLocale(true), {
-                useGrouping: true
-            }).formatToParts(1234567.89)
- 
-            const decimalPoint = numberParts.find((part) => part.type === 'decimal')?.value ?? '.'
-            const thousandsSep = numberParts.find((part) => part.type === 'group')?.value ?? ','
- 
             Highcharts.setOptions({
                 lang: {
                     noData: this.chartModel.lang.noData,
-                    decimalPoint,
-                    thousandsSep
+                    ...getHighchartsLocaleOptions(getLocale(true))
                 }
             })
-            //KNOWAGE-9994 END
             this.widgetModel.settings.chartModel.updateChartColorSettings(this.widgetModel)
 
             // Create a temporary widget model with selected measures from availableMeasures

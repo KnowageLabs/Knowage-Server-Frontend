@@ -2,8 +2,9 @@ import { describe, expect, it } from 'vitest'
 import Highcharts from 'highcharts/esm/highcharts.js'
 import 'highcharts/esm/modules/sankey.js'
 import 'highcharts/esm/modules/dependency-wheel.js'
+import 'highcharts/esm/modules/drilldown.js'
 import { KnowageHighcharts } from '../../classes/highcharts/KnowageHighcharts'
-import { addCategoryXAxisLabelTooltips, formatSankeyChart, formatVariables, normalizeCategoryXAxisLabels, normalizeLegendItemColors, updateAxisLabelFormatters } from '../HighchartsModelFormattingHelpers'
+import { addCategoryXAxisLabelTooltips, formatSankeyChart, formatVariables, normalizeCategoryXAxisLabels, normalizeLegendItemColors, updateAxisLabelFormatters, updateHighchartsLocale } from '../HighchartsModelFormattingHelpers'
 
 const createModel = (categories: string[], labels: Record<string, any> = {}) =>
     ({
@@ -20,6 +21,82 @@ const updateFormatters = (model: any, variables: any[] = []) => {
     const highchartsModel = new KnowageHighcharts()
     return updateAxisLabelFormatters(model, highchartsModel.updateFormatterSettings.bind(highchartsModel), variables)
 }
+
+describe('live chart locale formatting', () => {
+    it('updates rendered labels, axes and tooltips without replacing the chart data or visibility state', () => {
+        const previousLang = { ...Highcharts.getOptions().lang }
+        const container = document.createElement('div')
+        document.body.appendChild(container)
+        const chart = Highcharts.chart(container, {
+            chart: { type: 'column', animation: false, width: 500, height: 300 },
+            accessibility: { enabled: false },
+            yAxis: { min: 0, max: 2000, tickInterval: 1000, labels: { format: '{value:,.2f}' } },
+            tooltip: { valueDecimals: 2 },
+            plotOptions: { series: { animation: false, dataLabels: { enabled: true, format: '{point.y:,.2f}' } } },
+            series: [
+                { type: 'column', data: [1234.5] },
+                { type: 'column', visible: false, data: [1500] }
+            ]
+        })
+
+        try {
+            const series = chart.series[0]
+            const point = series.points[0]
+            chart.yAxis[0].setExtremes(0, 2000, false)
+
+            for (const [locale, expected, axisLabel] of [
+                ['en-US', '1,234.50', '1,000.00'],
+                ['it-IT', '1.234,50', '1.000,00'],
+                ['en-US', '1,234.50', '1,000.00']
+            ]) {
+                updateHighchartsLocale(chart, locale)
+                expect(chart.series[0]).toBe(series)
+                expect(series.points[0]).toBe(point)
+                expect(chart.series[1].visible).toBe(false)
+                expect(chart.yAxis[0].getExtremes()).toMatchObject({ userMin: 0, userMax: 2000 })
+                expect(container.querySelector('.highcharts-data-label text')?.textContent).toBe(expected)
+                expect(container.querySelector('.highcharts-yaxis-labels')?.textContent).toContain(axisLabel)
+                expect(Highcharts.numberFormat(1234.5, 2)).toBe(expected)
+                chart.tooltip.refresh(point)
+                expect(chart.tooltip.getLabel().element.textContent).toContain(expected)
+            }
+        } finally {
+            chart.destroy()
+            container.remove()
+            Highcharts.setOptions({ lang: previousLang })
+        }
+    })
+
+    it('keeps the active drilldown series and breadcrumb history when changing locale', () => {
+        const previousLang = { ...Highcharts.getOptions().lang }
+        const container = document.createElement('div')
+        document.body.appendChild(container)
+        const chart = Highcharts.chart(container, {
+            chart: { type: 'column', animation: false, width: 500, height: 300 },
+            accessibility: { enabled: false },
+            series: [{ type: 'column', data: [{ name: 'Quarter', y: 1234.5, drilldown: 'quarter' }] }],
+            drilldown: { animation: false }
+        })
+
+        try {
+            chart.addSeriesAsDrilldown(chart.series[0].points[0], { type: 'column', name: 'Family', data: [1234.5] })
+            const series = chart.series[0]
+
+            updateHighchartsLocale(chart, 'it-IT')
+            expect(chart.series[0]).toBe(series)
+            expect(chart.series[0].name).toBe('Family')
+            expect(chart.numberFormatter(1234.5, 2)).toBe('1.234,50')
+
+            chart.drillUp()
+            expect(chart.series[0].points[0].name).toBe('Quarter')
+            expect(chart.numberFormatter(1234.5, 2)).toBe('1.234,50')
+        } finally {
+            chart.destroy()
+            container.remove()
+            Highcharts.setOptions({ lang: previousLang })
+        }
+    })
+})
 
 describe('Sankey point legends', () => {
     it.each([

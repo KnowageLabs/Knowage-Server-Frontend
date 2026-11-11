@@ -11,9 +11,10 @@ import { Pie, Bar, Line } from 'vue-chartjs'
 import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement, CategoryScale, LinearScale, BarElement, PointElement, LineElement } from 'chart.js'
 import { IWidget, IWidgetColumn, ISelection } from '../../../Dashboard'
 import { IChartJSChartModel, IChartJSData, IChartJSOptions } from '../../../interfaces/chartJS/DashboardChartJSWidget'
-import { mapActions } from 'pinia'
+import { mapActions, mapState } from 'pinia'
 import { updateStoreSelections, executeChartCrossNavigation } from '../../interactionsHelpers/InteractionHelper'
 import store from '../../../Dashboard.store'
+import mainStore from '@/App.store'
 import { formatForCrossNavigation } from './ChartJSContainerHelper'
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale, LinearScale, BarElement, PointElement, LineElement)
@@ -41,6 +42,7 @@ export default defineComponent({
         }
     },
     computed: {
+        ...mapState(mainStore, ['locale']),
         myStyles(): any {
             return {
                 height: '100%',
@@ -52,6 +54,9 @@ export default defineComponent({
         }
     },
     watch: {
+        locale() {
+            this.updateChartOptions()
+        },
         dataToShow() {
             this.onRefreshChart()
         },
@@ -91,6 +96,7 @@ export default defineComponent({
         updateChartOptions() {
             this.chartOptions = {
                 ...this.chartModel.options,
+                locale: this.locale.replace('_', '-'),
                 responsive: true,
                 maintainAspectRatio: false,
                 events: ['click', 'mousemove'],
