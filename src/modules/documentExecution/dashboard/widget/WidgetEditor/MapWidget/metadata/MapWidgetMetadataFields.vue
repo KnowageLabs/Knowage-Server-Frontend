@@ -17,7 +17,15 @@
                         <span class="text-caption q-mr-xs">{{ $t('dashboard.widgetEditor.map.metadata.aggregateBy') }}</span>
                         <q-toggle v-model="field.properties.aggregateBy" dense @update:model-value="onFieldConfigurationChanged" />
                     </div>
+                    <q-toggle v-if="selectedLayer?.type === 'dataset' && field.fieldType !== 'SPATIAL_ATTRIBUTE' && field.filter" v-model="field.filter.enabled" dense icon="filter_alt" :aria-label="$t('dashboard.widgetEditor.enableFilter')" data-test="field-filter-toggle" @update:model-value="onFieldConfigurationChanged">
+                        <q-tooltip>{{ $t('dashboard.widgetEditor.columnFilterHint') }}</q-tooltip>
+                    </q-toggle>
                 </div>
+                <q-slide-transition>
+                    <div v-if="selectedLayer?.type === 'dataset' && field.fieldType !== 'SPATIAL_ATTRIBUTE' && field.filter?.enabled" class="map-field-filter q-mt-sm q-pt-sm">
+                        <WidgetEditorFilterForm :prop-column="field" :show-header="false" @filter-changed="onFieldConfigurationChanged" />
+                    </div>
+                </q-slide-transition>
             </div>
             <div class="kn-action-handle row items-center justify-center">
                 <q-btn v-if="field.formula" flat round dense icon="edit" size="sm" @click="editField(field)" />
@@ -39,10 +47,11 @@ import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import descriptor from './MapWidgetMetadataDescriptor.json'
 import MapWidgetMetadataNewFieldDialog from './MapWidgetMetadataNewFieldDialog.vue'
 import KnBlockly from '@/components/UI/KnBlockly/KnBlockly.vue'
+import WidgetEditorFilterForm from '../../WidgetEditorDataTab/common/WidgetEditorFilterForm.vue'
 
 export default defineComponent({
     name: 'map-widget-metadata-fields',
-    components: { MapWidgetMetadataNewFieldDialog, KnBlockly },
+    components: { MapWidgetMetadataNewFieldDialog, KnBlockly, WidgetEditorFilterForm },
     props: {
         propFields: {
             type: Array as PropType<IWidgetMapLayerColumn[]>,
@@ -105,6 +114,9 @@ export default defineComponent({
             }
 
             if (field.fieldType === 'MEASURE' && !field.aggregationSelected) field.aggregationSelected = 'NONE'
+            if (this.selectedLayer?.type === 'dataset' && field.fieldType !== 'SPATIAL_ATTRIBUTE' && !field.filter) {
+                field.filter = { enabled: false, operator: '', value: '' }
+            }
         },
         showAggregateByToggle(field: IWidgetMapLayerColumn) {
             return this.selectedLayer?.type === 'dataset' && field.fieldType !== 'MEASURE'
@@ -197,6 +209,7 @@ export default defineComponent({
                     blocklyXml: calcFieldOutput.state,
                     isCalculatedField: true
                 }
+                this.initializeFieldConfiguration(newCalculatedField)
                 this.fields.push(newCalculatedField)
             }
 
@@ -212,5 +225,9 @@ export default defineComponent({
     border: 1px solid #e0e0e0;
     border-radius: 4px;
     overflow: hidden;
+}
+
+.map-field-filter {
+    border-top: 1px solid #e0e0e0;
 }
 </style>

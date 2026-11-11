@@ -1,4 +1,4 @@
-import { IWidgetInteractions, IWidgetResponsive, IWidgetTitle, IWidgetBordersStyle, IWidgetBackgroundStyle, IWidgetPaddingStyle, IWidgetShadowsStyle, IWidgetExports, IDataset, IIcon, ITableWidgetLink } from './../../Dashboard.d'
+import { IWidgetInteractions, IWidgetResponsive, IWidgetTitle, IWidgetBordersStyle, IWidgetBackgroundStyle, IWidgetPaddingStyle, IWidgetShadowsStyle, IWidgetExports, IDataset, IIcon, ITableWidgetLink, IWidgetColumnFilter } from './../../Dashboard.d'
 
 export interface IMapWidgetSettings {
     configuration: IMapWidgetConfiguration
@@ -366,6 +366,7 @@ export interface IWidgetMapLayerColumn {
     subjectId: boolean
     aliasToShow: string
     aggregationSelected?: string
+    filter?: IWidgetColumnFilter
     deleted?: boolean
     formula?: string
     formulaEditor?: string
