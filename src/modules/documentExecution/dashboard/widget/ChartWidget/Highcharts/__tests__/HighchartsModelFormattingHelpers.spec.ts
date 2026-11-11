@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import Highcharts from 'highcharts/esm/highcharts.js'
+import 'highcharts/esm/modules/sankey.js'
+import 'highcharts/esm/modules/dependency-wheel.js'
 import { KnowageHighcharts } from '../../classes/highcharts/KnowageHighcharts'
-import { addCategoryXAxisLabelTooltips, formatVariables, normalizeCategoryXAxisLabels, normalizeLegendItemColors, updateAxisLabelFormatters } from '../HighchartsModelFormattingHelpers'
+import { addCategoryXAxisLabelTooltips, formatSankeyChart, formatVariables, normalizeCategoryXAxisLabels, normalizeLegendItemColors, updateAxisLabelFormatters } from '../HighchartsModelFormattingHelpers'
 
 const createModel = (categories: string[], labels: Record<string, any> = {}) =>
     ({
@@ -18,6 +20,54 @@ const updateFormatters = (model: any, variables: any[] = []) => {
     const highchartsModel = new KnowageHighcharts()
     return updateAxisLabelFormatters(model, highchartsModel.updateFormatterSettings.bind(highchartsModel), variables)
 }
+
+describe('Sankey point legends', () => {
+    it.each([
+        { type: 'sankey', inverted: false },
+        { type: 'sankey', inverted: true },
+        { type: 'dependencywheel', inverted: false }
+    ])('renders $type with inverted=$inverted and keeps its point legend after updating data', ({ type, inverted }) => {
+        let beforeRenderChart: Highcharts.Chart | undefined
+        const model = {
+            chart: {
+                type,
+                inverted,
+                animation: false,
+                width: 500,
+                height: 300,
+                events: {
+                    beforeRender: function (this: Highcharts.Chart) {
+                        beforeRenderChart = this
+                    }
+                }
+            },
+            accessibility: { enabled: false },
+            plotOptions: { series: { animation: false, showInLegend: true, legendType: 'point' } },
+            series: [{ data: [{ from: 'A', to: 'B', weight: 10, name: 'A -> B' }] }]
+        } as any
+        formatSankeyChart(model)
+        const container = document.createElement('div')
+        document.body.appendChild(container)
+        let chart: Highcharts.Chart | undefined
+
+        try {
+            chart = Highcharts.chart(container, model)
+            expect(beforeRenderChart).toBe(chart)
+            const point = chart.series[0].points[0] as Highcharts.Point & { legendItem?: Highcharts.LegendItemObject }
+            expect(point.graphic).toBeDefined()
+            expect(chart.legend.allItems.map((item) => item.name)).toEqual(['A -> B'])
+            expect(point.legendItem?.symbol?.attr('fill')).toBe(point.color)
+
+            chart.series[0].setData([{ from: 'B', to: 'C', weight: 5, name: 'B -> C' }] as any)
+
+            expect(chart.series[0].points[0].graphic).toBeDefined()
+            expect(chart.legend.allItems.map((item) => item.name)).toEqual(['B -> C'])
+        } finally {
+            chart?.destroy()
+            container.remove()
+        }
+    })
+})
 
 describe('legend hover colors', () => {
     it.each([

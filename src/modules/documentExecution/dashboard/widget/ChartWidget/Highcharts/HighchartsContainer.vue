@@ -50,7 +50,7 @@ import { IHighchartsChartModel } from '../../../interfaces/highcharts/DashboardH
 import { mapActions, mapState } from 'pinia'
 import { updateStoreSelections, executeChartCrossNavigation } from '../../interactionsHelpers/InteractionHelper'
 import { openNewLinkChartWidget } from '../../interactionsHelpers/InteractionLinkHelper'
-import { addCategoryXAxisLabelTooltips, formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart, formatPictorialChart, formatStreamgraphChart, formatPackedBubble, formatVariables, getPictorialFillRule, normalizeCategoryXAxisLabels, normalizeLegendItemColors, normalizeTooltipSettings, normalizeYAxisLabelsAlignment, updateAxisLabelFormatters } from './HighchartsModelFormattingHelpers'
+import { addCategoryXAxisLabelTooltips, formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSankeyChart, formatSplineChart, formatPictorialChart, formatStreamgraphChart, formatPackedBubble, formatVariables, getPictorialFillRule, normalizeCategoryXAxisLabels, normalizeLegendItemColors, normalizeTooltipSettings, normalizeYAxisLabelsAlignment, updateAxisLabelFormatters } from './HighchartsModelFormattingHelpers'
 import { applyAdvancedSettingsToModelForRender, formatChartAnnotations, formatForCrossNavigation, getFormattedChartValues } from './HighchartsContainerHelpers'
 import { showDashboardWidgetError } from '@/modules/documentExecution/dashboard/helpers/DashboardToastHelper'
 import HighchartsSonificationControls from './HighchartsSonificationControls.vue'
@@ -797,6 +797,8 @@ export default defineComponent({
                 formatHeatmap(formattedChartModel)
             } else if (formattedChartModel.chart.type === 'radar') {
                 formatRadar(formattedChartModel)
+            } else if (['sankey', 'dependencywheel'].includes(formattedChartModel.chart.type)) {
+                formatSankeyChart(formattedChartModel)
             } else if (formattedChartModel.chart.type === 'bubble') {
                 formatBubble(formattedChartModel)
             } else if (formattedChartModel.chart.type === 'spline') {
