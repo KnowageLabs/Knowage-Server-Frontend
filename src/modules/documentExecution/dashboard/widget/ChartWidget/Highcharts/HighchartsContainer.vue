@@ -50,7 +50,7 @@ import { IHighchartsChartModel } from '../../../interfaces/highcharts/DashboardH
 import { mapActions, mapState } from 'pinia'
 import { updateStoreSelections, executeChartCrossNavigation } from '../../interactionsHelpers/InteractionHelper'
 import { openNewLinkChartWidget } from '../../interactionsHelpers/InteractionLinkHelper'
-import { addCategoryXAxisLabelTooltips, formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart, formatPictorialChart, formatStreamgraphChart, formatPackedBubble, formatVariables, getPictorialFillRule, normalizeCategoryXAxisLabels, normalizeTooltipSettings, normalizeYAxisLabelsAlignment, updateAxisLabelFormatters } from './HighchartsModelFormattingHelpers'
+import { addCategoryXAxisLabelTooltips, formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart, formatPictorialChart, formatStreamgraphChart, formatPackedBubble, formatVariables, getPictorialFillRule, normalizeCategoryXAxisLabels, normalizeLegendItemColors, normalizeTooltipSettings, normalizeYAxisLabelsAlignment, updateAxisLabelFormatters } from './HighchartsModelFormattingHelpers'
 import { applyAdvancedSettingsToModelForRender, formatChartAnnotations, formatForCrossNavigation, getFormattedChartValues } from './HighchartsContainerHelpers'
 import { showDashboardWidgetError } from '@/modules/documentExecution/dashboard/helpers/DashboardToastHelper'
 import HighchartsSonificationControls from './HighchartsSonificationControls.vue'
@@ -369,7 +369,7 @@ export default defineComponent({
                 if (axis?.labels?.style && !axis.labels.style.color) axis.labels.style.color = 'contrast'
                 if (axis?.title?.style && !axis.title.style.color) axis.title.style.color = 'contrast'
             })
-            if (model.legend?.itemStyle && !model.legend.itemStyle.color) model.legend.itemStyle.color = 'contrast'
+            normalizeLegendItemColors(model)
         },
         addAditionalCSSClasses(modelToRender: IHighchartsChartModel) {
             if (!modelToRender.plotOptions?.series?.showCheckbox || !modelToRender.legend) return

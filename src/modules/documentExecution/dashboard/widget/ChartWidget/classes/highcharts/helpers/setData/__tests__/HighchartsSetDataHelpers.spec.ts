@@ -118,6 +118,7 @@ describe('category colors', () => {
         })
 
         try {
+            expect(chart.series.map((series) => series.legendItem?.label?.element.textContent)).toEqual(['Food', 'Drink', 'Other'])
             expect(chart.series.map((series) => series.color)).toEqual(['#00aa00', '#0000ff', '#999999'])
             chart.series.forEach((series) => {
                 expect(series.legendItem?.symbol?.attr('fill')).toBe(series.color)
@@ -139,7 +140,7 @@ describe('category colors', () => {
 
         model.series.forEach((series) => {
             const expectedColor = { Food: '#00aa00', Drink: '#0000ff' }[series.custom.groupingValue]
-            expect(series.name).toBe(`Units sold - ${series.custom.groupingValue}`)
+            expect(series.name).toBe(series.custom.groupingValue)
             expect(series.color).toBe(expectedColor)
             series.data.filter((point) => point.y !== null).forEach((point) => expect(point.color).toBe(expectedColor))
         })
@@ -274,6 +275,6 @@ describe('setGroupedByCategoriesData', () => {
             []
         )
 
-        expect(model.series.map((series: { name: string }) => series.name)).toEqual(['sales - 2026', 'sales - 2025'])
+        expect(model.series.map((series: { name: string }) => series.name)).toEqual(['2026', '2025'])
     })
 })

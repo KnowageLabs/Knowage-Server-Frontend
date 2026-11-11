@@ -296,6 +296,16 @@ export const normalizeYAxisLabelsAlignment = (formattedChartModel: IHighchartsCh
     })
 }
 
+export const normalizeLegendItemColors = (formattedChartModel: IHighchartsChartModel) => {
+    const legend = formattedChartModel.legend
+    if (!legend) return
+
+    if (legend.itemStyle && !legend.itemStyle.color) legend.itemStyle.color = 'contrast'
+    if (!legend.itemHoverStyle?.color) {
+        legend.itemHoverStyle = { ...legend.itemHoverStyle, color: legend.itemStyle?.color || 'contrast' }
+    }
+}
+
 export const normalizeTooltipSettings = (formattedChartModel: IHighchartsChartModel) => {
     const tooltip = formattedChartModel.tooltip as any
     if (!tooltip) return
