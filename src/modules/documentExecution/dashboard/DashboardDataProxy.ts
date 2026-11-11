@@ -202,7 +202,7 @@ const getFormattedAssociativeSelections = (associativeResponseSelections: any, d
     const filteredSelections = {}
 
     Object.keys(datasetSelections).forEach((columnName) => {
-        if (!columnName.startsWith('$P{')) filteredSelections[columnName] = datasetSelections[columnName]
+        if (!columnName.startsWith('$P{')) filteredSelections[columnName] = deepcopy(datasetSelections[columnName])
     })
 
     return { [datasetLabel]: filteredSelections }
