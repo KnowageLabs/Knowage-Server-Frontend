@@ -228,7 +228,7 @@ export interface IHighchartsChartSerie {
     accessibility?: IHighchartsSerieAccessibility
     colorByPoint?: boolean
     groupingFunction?: string
-    custom?: { groupingValue?: string }
+    custom?: { groupingValue?: string; seriesNameTemplate?: string }
 }
 
 export interface IHighchartsChartSerieData {

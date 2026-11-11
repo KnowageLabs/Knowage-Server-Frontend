@@ -3,8 +3,10 @@ import Highcharts from 'highcharts/esm/highcharts.js'
 import 'highcharts/esm/modules/sankey.js'
 import 'highcharts/esm/modules/dependency-wheel.js'
 import 'highcharts/esm/modules/drilldown.js'
+import deepcopy from 'deepcopy'
 import { KnowageHighcharts } from '../../classes/highcharts/KnowageHighcharts'
-import { addCategoryXAxisLabelTooltips, formatSankeyChart, formatVariables, normalizeCategoryXAxisLabels, normalizeLegendItemColors, updateAxisLabelFormatters, updateHighchartsLocale } from '../HighchartsModelFormattingHelpers'
+import { KnowageHighchartsLineChart } from '../../classes/highcharts/KnowageHighchartsLineChart'
+import { addCategoryXAxisLabelTooltips, formatSankeyChart, formatVariables, normalizeCategoryXAxisLabels, normalizeLegendItemColors, updateAxisLabelFormatters, updateHighchartsLocale, updateHighchartsSeriesAliases } from '../HighchartsModelFormattingHelpers'
 
 const createModel = (categories: string[], labels: Record<string, any> = {}) =>
     ({
@@ -21,6 +23,113 @@ const updateFormatters = (model: any, variables: any[] = []) => {
     const highchartsModel = new KnowageHighcharts()
     return updateAxisLabelFormatters(model, highchartsModel.updateFormatterSettings.bind(highchartsModel), variables)
 }
+
+describe('variable-backed series aliases', () => {
+    it('renders a configured alias and updates its legend without replacing series or saved expressions', () => {
+        const measure = { id: 'sales', columnName: 'Sales', fieldType: 'MEASURE' }
+        const widget = {
+            columns: [{ id: 'quarter', columnName: 'Quarter', fieldType: 'ATTRIBUTE' }, measure],
+            settings: { configuration: {}, interactions: {}, series: { aliases: [{ column: measure, alias: 'Revenue ($V{currency})' }] } }
+        } as any
+        const chartModel = new KnowageHighchartsLineChart(null)
+        chartModel.setData(
+            {
+                metaData: { fields: [{ header: 'Quarter', dataIndex: 'quarter' }, { header: 'Sales', dataIndex: 'sales' }] },
+                rows: [{ quarter: 'Q1', sales: 100 }]
+            },
+            widget,
+            []
+        )
+        const variables = [{ name: 'currency', value: 'EUR' }] as any
+        const model = deepcopy(chartModel.getModel())
+        formatVariables(model, variables)
+        const container = document.createElement('div')
+        document.body.appendChild(container)
+        const chart = Highcharts.chart(container, {
+            ...model,
+            chart: { type: 'line', animation: false, width: 500, height: 300 },
+            accessibility: { enabled: false }
+        } as any)
+
+        try {
+            const series = chart.series[0]
+            const point = series.points[0]
+            expect(series.legendItem?.label?.element.textContent).toBe('Revenue (EUR)')
+            point.select(true, false)
+            series.setVisible(false, false)
+
+            variables[0].value = 'USD'
+            updateHighchartsSeriesAliases(chart, variables)
+
+            expect(chart.series[0]).toBe(series)
+            expect(series.points[0]).toBe(point)
+            expect(point.selected).toBe(true)
+            expect(series.visible).toBe(false)
+            expect(series.legendItem?.label?.element.textContent).toBe('Revenue (USD)')
+            expect(series.options.custom?.seriesNameTemplate).toBe('Revenue ($V{currency})')
+            expect(point.name).toBe('Q1')
+            expect(chartModel.getModel().series[0].name).toBe('Revenue ($V{currency})')
+            expect(widget.settings.series.aliases[0].alias).toBe('Revenue ($V{currency})')
+        } finally {
+            chart.destroy()
+            container.remove()
+        }
+    })
+
+    it('supports multiple placeholders and zero values without changing category labels or grouping metadata', () => {
+        const model = {
+            xAxis: [],
+            yAxis: [],
+            series: [
+                { name: '$V{caption}: $V{year}', custom: { groupingValue: 'Food' }, data: [{ name: '$V{caption}', y: 1 }] },
+                { name: 'Static alias', data: [] }
+            ]
+        } as any
+
+        formatVariables(model, [{ name: 'caption', value: 'Revenue' }, { name: 'year', value: 0 }] as any)
+        expect(model.series[0]).toMatchObject({
+            name: 'Revenue: 0',
+            custom: { groupingValue: 'Food', seriesNameTemplate: '$V{caption}: $V{year}' },
+            data: [{ name: '$V{caption}', y: 1 }]
+        })
+        expect(model.series[1].name).toBe('Static alias')
+
+        formatVariables(model, [{ name: 'caption', value: 'Sales' }, { name: 'year', value: 2026 }] as any)
+        expect(model.series[0].name).toBe('Sales: 2026')
+    })
+
+    it('resolves the latest variable value after returning from drilldown', () => {
+        const model = {
+            chart: { type: 'column', animation: false, width: 500, height: 300 },
+            xAxis: [{}],
+            yAxis: [{}],
+            accessibility: { enabled: false },
+            series: [{ name: '$V{caption}', type: 'column', data: [{ name: 'Q1', y: 100, drilldown: 'quarter' }] }],
+            drilldown: { animation: false }
+        } as any
+        const variables = [{ name: 'caption', value: 'Revenue' }] as any
+        formatVariables(model, variables)
+        const container = document.createElement('div')
+        document.body.appendChild(container)
+        const chart = Highcharts.chart(container, model)
+
+        try {
+            expect(chart.series[0].options.custom?.seriesNameTemplate).toBe('$V{caption}')
+            chart.addSeriesAsDrilldown(chart.series[0].points[0], { type: 'column', name: 'Q1', data: [50, 50] })
+            variables[0].value = 'Sales'
+            updateHighchartsSeriesAliases(chart, variables)
+            expect(chart.series[0].name).toBe('Q1')
+
+            chart.drillUp()
+            updateHighchartsSeriesAliases(chart, variables)
+            expect(chart.series[0].name).toBe('Sales')
+            expect(chart.series[0].points[0].name).toBe('Q1')
+        } finally {
+            chart.destroy()
+            container.remove()
+        }
+    })
+})
 
 describe('live chart locale formatting', () => {
     it('updates rendered labels, axes and tooltips without replacing the chart data or visibility state', () => {
