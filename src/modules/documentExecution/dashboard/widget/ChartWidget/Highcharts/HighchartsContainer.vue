@@ -81,6 +81,7 @@ import 'highcharts/esm/modules/annotations.js'
 import { getWidgetData } from '../../../DashboardDataProxy'
 import { getColumnAlias } from '../classes/highcharts/helpers/dataLabels/HighchartsDataLabelsHelpers'
 import { getDrilldownDataLabelColor } from './HighchartsDrilldownHelpers'
+import { getLocale } from '@/helpers/commons/localeHelper'
 
 export default defineComponent({
     name: 'highcharts-container',
