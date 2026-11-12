@@ -190,7 +190,7 @@ export default defineConfig((command, mode) => {
         base: env.VITE_PUBLIC_PATH,
         build: {
             outDir: `./target/knowage-vue`,
-            sourcemap: true,
+            sourcemap: 'hidden',
             rollupOptions: {
                 output: {
                     chunkFileNames: 'assets/js/[name]-[hash].js',
