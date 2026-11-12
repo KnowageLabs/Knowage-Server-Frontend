@@ -94,4 +94,4 @@ export const getSnapshotsOfJob = async (jobName: string): Promise<any> => (await
 export const runTriggers = (triggers: { jobName: string; jobGroup: string; triggerName: string; triggerGroup: string }[]) => axios.post(`${REST}/scheduleree/executeMultipleTrigger`, triggers)
 
 export const downloadSnapshot = (biObjectId: number, snapshotId: number) =>
-    axios.get(`${REST}/2.0/snapshotsContent?OBJECT_ID=${biObjectId}&SNAPSHOT_ID=${snapshotId}`, { responseType: 'blob', headers: { Accept: 'text/html,application/xhtml+xml,application/xml;application/pdf' } })
+    axios.get(`${REST}/2.0/snapshotsContent?OBJECT_ID=${biObjectId}&SNAPSHOT_ID=${snapshotId}`, { responseType: 'blob', headers: { Accept: '*/*' } })

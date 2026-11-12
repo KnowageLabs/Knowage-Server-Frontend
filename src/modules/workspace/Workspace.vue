@@ -68,8 +68,11 @@ const visibleTabs = computed(() =>
 
 watch(
     () => [route.meta.wsTab, route.query] as const,
-    ([tab, query]) => {
+    ([tab, query], previous) => {
         if (tab) store.rememberTab(tab as WsTab, query)
+        if (tab === 'documents' && (previous?.[0] !== tab || (query.scope === 'recent' && previous?.[1]?.scope !== 'recent'))) {
+            store.loadDocuments(true).catch(() => {})
+        }
     },
     { immediate: true, deep: true }
 )
