@@ -3,6 +3,7 @@ import { flushPromises } from '@vue/test-utils'
 import Highcharts from 'highcharts/esm/highcharts.js'
 import HighchartsContainer from '../HighchartsContainer.vue'
 import { getWidgetData } from '../../../../DashboardDataProxy'
+import { updateStoreSelections } from '../../../interactionsHelpers/InteractionHelper'
 
 vi.mock('@/App.store', () => ({ default: () => ({ setError: vi.fn() }) }))
 vi.mock('@/App.i18n', () => ({ default: { global: { t: (key: string) => key } } }))
@@ -133,6 +134,58 @@ describe('treemap interaction choice', () => {
             expect(controller.setSelection).toHaveBeenCalledOnce()
             expect(controller.interactionMenuVisible).toBe(false)
             expect(treemap.series.rootNode).toBe('')
+        } finally {
+            treemap.destroy()
+        }
+    })
+
+    it.each([false, true])('selects the clicked node attribute with native drilldown %s', async (drilldown) => {
+        const controller = createController()
+        controller.widgetModel.dataset = 1
+        controller.widgetModel.columns = [
+            { columnName: 'Sales', fieldType: 'MEASURE' },
+            { columnName: 'PRODUCT_FAMILY', fieldType: 'ATTRIBUTE' },
+            { columnName: 'PRODUCT_CATEGORY', fieldType: 'ATTRIBUTE' }
+        ]
+        controller.getDatasetLabel = () => 'Products'
+        controller.propActiveSelections = []
+        controller.dashboardId = 'dashboard'
+        controller.setSelections = vi.fn()
+        controller.$http = {}
+        controller.setSelection = HighchartsContainer.methods!.setSelection.bind(controller)
+        controller.createNewSelection = HighchartsContainer.methods!.createNewSelection.bind(controller)
+        const treemap = renderTreemap(controller)
+        try {
+            if (drilldown) {
+                treemap.click()
+                await flushPromises()
+                await controller.interactionsMenuItems[0].command()
+                expect(treemap.series.rootNode).toBe('group')
+            }
+
+            const point = treemap.series.points.find((point: any) => point.id === 'a')
+            await controller.executeInteractions({ point })
+
+            expect(updateStoreSelections).toHaveBeenLastCalledWith(
+                expect.objectContaining({ datasetId: 1, columnName: 'PRODUCT_CATEGORY', value: ['A'] }),
+                controller.propActiveSelections,
+                controller.dashboardId,
+                controller.setSelections,
+                controller.$http
+            )
+
+            if (drilldown) treemap.series.drillUp()
+            treemap.click()
+            await flushPromises()
+            await controller.interactionsMenuItems[1].command()
+
+            expect(updateStoreSelections).toHaveBeenLastCalledWith(
+                expect.objectContaining({ datasetId: 1, columnName: 'PRODUCT_FAMILY', value: ['Group'] }),
+                controller.propActiveSelections,
+                controller.dashboardId,
+                controller.setSelections,
+                controller.$http
+            )
         } finally {
             treemap.destroy()
         }
