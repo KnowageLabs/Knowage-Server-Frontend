@@ -160,4 +160,45 @@ describe('treemap interaction choice', () => {
 
         expect(controller.getActiveChartInteractions({ point: {} })).toEqual(['drilldown', 'selection'])
     })
+
+    it('hides unreadable labels before drawing and restores them when tiles grow', () => {
+        const treemap = renderTreemap(createController())
+        try {
+            treemap.series.update({ dataLabels: { enabled: true, style: { fontSize: '13px' } } })
+            treemap.series.setData([
+                { id: 'group', name: 'Group' },
+                { id: 'a', name: 'A very long category label', parent: 'group', value: 1 },
+                { id: 'b', name: 'B', parent: 'group', value: 10000 }
+            ])
+            const smallPoint = treemap.series.points.find((point: any) => point.id === 'a')
+            expect(smallPoint.dlOptions.enabled).toBe(false)
+
+            treemap.series.setData([
+                { id: 'group', name: 'Group' },
+                { id: 'a', name: 'A very long category label', parent: 'group', value: 10000 },
+                { id: 'b', name: 'B', parent: 'group', value: 10000 }
+            ])
+            const largerPoint = treemap.series.points.find((point: any) => point.id === 'a')
+            expect(largerPoint.dataLabel.options.enabled).toBe(true)
+            expect(largerPoint.dataLabel.options.style).toMatchObject({ whiteSpace: 'normal', textOverflow: 'ellipsis', lineClamp: 2 })
+        } finally {
+            treemap.destroy()
+        }
+    })
+
+    it('contrasts treemap labels against their own background when configured', () => {
+        const label = { options: { backgroundColor: '#ffffff' }, css: vi.fn() }
+        const chart = {
+            options: { chart: { type: 'treemap' } },
+            renderer: { getContrast: (color: string) => color === '#ffffff' ? '#000000' : '#ffffff' },
+            series: [{ points: [{ color: '#000000', dataLabel: label }] }]
+        }
+
+        HighchartsContainer.methods!.normalizeTreemapDataLabels(chart)
+        expect(label.css).toHaveBeenLastCalledWith({ color: '#000000', textOutline: 'none' })
+
+        label.options.backgroundColor = 'transparent'
+        HighchartsContainer.methods!.normalizeTreemapDataLabels(chart)
+        expect(label.css).toHaveBeenLastCalledWith({ color: '#ffffff', textOutline: 'none' })
+    })
 })

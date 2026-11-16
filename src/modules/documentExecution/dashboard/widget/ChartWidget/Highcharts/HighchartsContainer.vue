@@ -81,6 +81,7 @@ import 'highcharts/esm/modules/annotations.js'
 import { getWidgetData } from '../../../DashboardDataProxy'
 import { getColumnAlias } from '../classes/highcharts/helpers/dataLabels/HighchartsDataLabelsHelpers'
 import { getDrilldownDataLabelColor } from './HighchartsDrilldownHelpers'
+import { fitTreemapDataLabels } from './HighchartsTreemapHelpers'
 import { getLocale } from '@/helpers/commons/localeHelper'
 
 export default defineComponent({
@@ -409,7 +410,11 @@ export default defineComponent({
                     if (typeof color !== 'string' || !color) return
 
                     const labels = [point.dataLabel, ...(point.dataLabels ?? [])].filter((label, index, all) => label && all.indexOf(label) === index)
-                    labels.forEach((label: any) => label.css({ color: getContrast(color), textOutline: 'none' }))
+                    labels.forEach((label: any) => {
+                        const backgroundColor = label.options?.backgroundColor
+                        const contrastSource = typeof backgroundColor === 'string' && backgroundColor && backgroundColor !== 'transparent' ? backgroundColor : color
+                        label.css({ color: getContrast(contrastSource), textOutline: 'none' })
+                    })
                 })
             })
         },
@@ -577,7 +582,10 @@ export default defineComponent({
             if (this.chartModel.plotOptions.series) {
                 this.chartModel.plotOptions.series.events = {
                     click: this.executeInteractions,
-                    checkboxClick: this.onCheckboxClicked
+                    checkboxClick: this.onCheckboxClicked,
+                    drawDataLabels: function () {
+                        fitTreemapDataLabels(this)
+                    }
                 }
                 this.chartModel.plotOptions.series.point = {
                     ...this.chartModel.plotOptions.series.point,

@@ -83,6 +83,7 @@ export const updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable = (model: a
     const seriesLabelSetting = widgetModel.settings.series.seriesSettings[0]
     if (!seriesLabelSetting.label.enabled) return
     model.series.forEach((serie: any) => {
+        const treemapParents = model.chart?.type === 'treemap' ? new Set(serie.data?.map((point: any) => point.parent)) : null
         serie.data?.forEach((data: any) => {
             data.dataLabels = {
                 alignTo: 'plotEdges',
@@ -117,9 +118,18 @@ export const updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable = (model: a
                 delete data.dataLabels.alignTo
             }
             if (model?.chart?.type === 'treemap') {
+                const isHeader = treemapParents?.has(data.id) ?? false
                 data.dataLabels.format = '{point.name}'
+                data.dataLabels.padding = isHeader ? 6 : 5
+                data.dataLabels.align = isHeader ? 'left' : 'center'
+                data.dataLabels.allowOverlap = false
                 data.dataLabels.style.color = 'contrast'
+                data.dataLabels.style.fontSize ||= '13px'
+                data.dataLabels.style.fontWeight ||= isHeader ? 'bold' : 'normal'
                 data.dataLabels.style.textOutline = 'none'
+                data.dataLabels.style.textOverflow = 'ellipsis'
+                data.dataLabels.style.whiteSpace = isHeader ? 'nowrap' : 'normal'
+                data.dataLabels.style.lineClamp = isHeader ? 1 : 2
             }
         })
     })

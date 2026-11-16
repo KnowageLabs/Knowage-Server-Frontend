@@ -54,4 +54,30 @@ describe('KnowageHighchartsTreemapChart', () => {
             }
         })
     })
+
+    it('keeps configured fonts while distinguishing group headers from tile labels', () => {
+        const chart = new KnowageHighchartsTreemapChart(null)
+        const serie = chart.createSerieElement({ column: { columnName: 'Sales' } }, false)
+        serie.data = [
+            { id: 'group', name: 'Group' },
+            { id: 'leaf', parent: 'group', name: 'A long category name', value: 10 }
+        ]
+        chart.model.series = [serie]
+        chart.updateSeriesLabelSettings({
+            settings: {
+                series: {
+                    seriesSettings: [{ label: { enabled: true, style: { fontSize: '18px', fontFamily: 'Arial', fontWeight: '' } } }]
+                }
+            }
+        } as any)
+
+        expect(serie.data[0].dataLabels).toMatchObject({
+            align: 'left',
+            style: { fontSize: '18px', fontFamily: 'Arial', fontWeight: 'bold', whiteSpace: 'nowrap', lineClamp: 1 }
+        })
+        expect(serie.data[1].dataLabels).toMatchObject({
+            align: 'center',
+            style: { fontSize: '18px', fontFamily: 'Arial', fontWeight: 'normal', whiteSpace: 'normal', lineClamp: 2 }
+        })
+    })
 })
