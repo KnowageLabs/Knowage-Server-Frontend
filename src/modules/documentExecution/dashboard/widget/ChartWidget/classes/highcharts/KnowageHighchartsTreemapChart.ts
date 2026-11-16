@@ -75,15 +75,26 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
             layoutAlgorithm: 'squarified',
             allowDrillToNode: !interactionsEnabled && allowTraversingTree,
             allowTraversingTree,
+            levelIsConstant: false,
             alternateStartingDirection: true,
+            borderColor: '#ffffff',
+            borderWidth: 1,
+            groupPadding: 3,
             showInLegend: false,
             animationLimit: 1000,
             dataLabels: {
                 enabled: false,
                 format: '{point.name}',
+                padding: 5,
+                allowOverlap: false,
                 style: {
                     color: 'contrast',
-                    textOutline: 'none'
+                    fontSize: '13px',
+                    fontWeight: 'normal',
+                    textOutline: 'none',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'normal',
+                    lineClamp: 2
                 }
             },
             levels: [
@@ -93,14 +104,19 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
                         enabled: true,
                         headers: true,
                         format: '{point.name}',
+                        align: 'left',
+                        padding: 6,
                         style: {
                             color: 'contrast',
-                            fontSize: '',
-                            textOutline: 'none'
+                            fontSize: '13px',
+                            fontWeight: 'bold',
+                            textOutline: 'none',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            lineClamp: 1
                         }
                     },
-                    borderWidth: 3,
-                    levelIsConstant: false
+                    borderWidth: 2
                 },
                 {
                     level: 2,
