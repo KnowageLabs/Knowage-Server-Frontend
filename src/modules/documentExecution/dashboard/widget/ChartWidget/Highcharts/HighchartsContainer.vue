@@ -780,7 +780,8 @@ export default defineComponent({
             if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap', 'funnel', 'dumbbell', 'streamgraph', 'waterfall', 'wordcloud'].includes(this.chartModel.chart.type)) {
                 const serieClicked = event.point?.options
                 if (!serieClicked || !serieClicked.name) return
-                updateStoreSelections(this.createNewSelection([serieClicked.name]), this.propActiveSelections, this.dashboardId, this.setSelections, this.$http)
+                const attributeIndex = this.chartModel.chart.type === 'treemap' ? (event.point.node?.level ?? 1) - 1 : 0
+                updateStoreSelections(this.createNewSelection([serieClicked.name], attributeIndex), this.propActiveSelections, this.dashboardId, this.setSelections, this.$http)
             } else if (['pictorial', 'spline', 'packedbubble'].includes(this.chartModel.chart.type)) {
                 this.setPictorialSelection(event)
             } else {
@@ -801,8 +802,8 @@ export default defineComponent({
             const value = serieClicked.id ?? serieClicked.from
             updateStoreSelections(this.createNewSelection([value]), this.propActiveSelections, this.dashboardId, this.setSelections, this.$http)
         },
-        createNewSelection(value: (string | number)[]) {
-            const attributeColumn = this.widgetModel.columns.find((column: IWidgetColumn) => column.fieldType === 'ATTRIBUTE')
+        createNewSelection(value: (string | number)[], attributeIndex = 0) {
+            const attributeColumn = this.widgetModel.columns.filter((column: IWidgetColumn) => column.fieldType === 'ATTRIBUTE')[attributeIndex]
             const selection = {
                 datasetId: this.widgetModel.dataset as number,
                 datasetLabel: this.getDatasetLabel(this.widgetModel.dataset as number),
