@@ -3,7 +3,7 @@
         <div v-if="dashboardCssImportsTag" class="dashboard-css-imports" v-html="dashboardCssImportsTag" />
         <div v-if="dashboardCssTag" class="dashboard-css" v-html="dashboardCssTag" />
         <div v-if="activeDashboardSheet" ref="sheetContainer" class="sheet-container" :class="{ 'sheet-container--preview': previewSize }" :style="[backgroundStyle, previewSheetStyle]">
-            <GridLayout v-model:layout="activeDashboardSheet.widgets[currentScreenSize]" :responsive-layouts="activeDashboardSheet.widgets" :responsive="true" :cols="colSizes" :row-height="30" :is-draggable="canEditDashboard(document)" :is-resizable="canEditDashboard(document)" :vertical-compact="false" :use-css-transforms="false" :margin="[0, 0]" :style="getGridStyle" @breakpoint-changed="breakpointChangedEvent">
+            <GridLayout v-if="windowChromeWidth !== null" v-model:layout="activeDashboardSheet.widgets[currentScreenSize]" :responsive-layouts="activeDashboardSheet.widgets" :responsive="true" :cols="colSizes" :breakpoints="gridBreakpoints" :row-height="30" :is-draggable="canEditDashboard(document)" :is-resizable="canEditDashboard(document)" :vertical-compact="false" :use-css-transforms="false" :margin="[0, 0]" :style="getGridStyle" @breakpoint-changed="breakpointChangedEvent">
                 <WidgetController v-for="item in activeDashboardSheet.widgets[currentScreenSize]" :key="item.i" data-tour-id="dashboard-widget" :active-sheet="activeDashboardSheet" :document="document" :widget="currentWidget(item.id)" :item="item" :datasets="datasets" :dashboard-id="dashboardId" :variables="variables" :model="model"></WidgetController>
                 <div v-if="canEditDashboard(document) && newDashboard" class="emptyDashboardWizard">
                     <div v-if="dashboardModel?.configuration?.datasets.length === 0" class="dashboardWizardContainer" data-test="new-button" @click="addDataset">
@@ -76,7 +76,9 @@ import MainMenuPopupRow from '@/modules/mainMenu/MainMenuPopupRow.vue'
 import { screenSizeFromWidth } from './widget/SelectorWidget/SelectorWidgetLayoutHelper'
 import { getSheetTabsStyle, ISheetTabsStyle } from './sheetTabs/SheetTabsHelper'
 
-// The sheet widths that give each dashboard breakpoint (the lower edge of its range in grid-layout-plus).
+// The lower edge of the width range of each dashboard breakpoint.
+const BREAKPOINT_MIN_WIDTHS = { lg: 1200, md: 996, sm: 768, xs: 480 }
+// The sheet widths that give each dashboard breakpoint.
 const BREAKPOINT_PREVIEWS = [
     { breakpoint: 'lg', width: 1200, labelKey: 'dashboard.screenSize.desktop', icon: 'sym_o_desktop_windows' },
     { breakpoint: 'md', width: 996, labelKey: 'dashboard.screenSize.laptop', icon: 'sym_o_laptop' },
@@ -133,6 +135,9 @@ export default defineComponent({
             screenSizeMenuOpen: false,
             availableWidth: 0,
             availableHeight: 0,
+            // width taken by the vertical scrollbar of the sheet, and by what surrounds the sheet inside the window (null until measured)
+            scrollbarWidth: 0,
+            windowChromeWidth: null as number | null,
             MIN_PREVIEW_SIZE,
             customWidth: null as number | null,
             customHeight: null as number | null
@@ -174,6 +179,15 @@ export default defineComponent({
             if (['sm'].includes(this.currentScreenSize)) return 'tablet'
             if (['md'].includes(this.currentScreenSize)) return 'laptop'
             else return 'desktop_windows'
+        },
+        // grid-layout-plus picks a breakpoint when the grid width is strictly greater than its threshold, and the grid is
+        // narrower than the window (menu) or the preview width (scrollbar). The thresholds are moved so that a window or a
+        // preview of at least BREAKPOINT_MIN_WIDTHS gives that breakpoint.
+        gridBreakpoints(): Record<string, number> {
+            const offset = this.previewSize ? this.scrollbarWidth : (this.windowChromeWidth ?? 0) + this.scrollbarWidth
+            const breakpoints: Record<string, number> = { xxs: 0 }
+            Object.entries(BREAKPOINT_MIN_WIDTHS).forEach(([breakpoint, width]) => (breakpoints[breakpoint] = Math.max(1, width - offset - 1)))
+            return breakpoints
         },
         breakpointSizes(): { breakpoint: string; width: number; labelKey: string; icon: string; cols: number; fits: boolean }[] {
             return BREAKPOINT_PREVIEWS.map((size) => ({ ...size, cols: this.colSizes[size.breakpoint], fits: size.width <= this.availableWidth }))
@@ -223,6 +237,9 @@ export default defineComponent({
     watch: {
         model() {
             this.loadDashboardModel()
+        },
+        previewSize(value) {
+            if (!value) this.$nextTick(() => this.measureBreakpointOffsets())
         }
     },
     mounted() {
@@ -247,6 +264,7 @@ export default defineComponent({
             if (this.dashboardModel.sheets.length === 0) this.dashboardModel.sheets.push({ label: this.$t('dashboard.sheets.newSheet'), widgets: { lg: [], md: [], sm: [], xs: [], xxs: [] } })
             normalizeDashboardSheetLayouts(this.dashboardModel)
             this.activeDashboardSheet = this.dashboardModel.sheets[this.selectedSheetIndex || 0] || this.dashboardModel.sheets[0]
+            this.$nextTick(() => this.measureBreakpointOffsets())
             if (fullGridWidgets && fullGridWidgets.length > 0) {
                 ;['lg', 'md', 'sm', 'xs', 'xxs'].forEach((size) => {
                     if (this.activeDashboardSheet?.widgets[size] && this.activeDashboardSheet?.widgets[size].some((widget) => widget.id === fullGridWidgets[0].id)) {
@@ -282,6 +300,13 @@ export default defineComponent({
             this.availableWidth = parent?.clientWidth ?? 0
             this.availableHeight = parent?.clientHeight ?? 0
         },
+        // The window chrome can only be measured while the sheet fills the window, not while it has a preview size.
+        measureBreakpointOffsets() {
+            const sheet = this.$refs.sheetContainer as HTMLElement | undefined
+            if (!sheet) return
+            this.scrollbarWidth = sheet.offsetWidth - sheet.clientWidth
+            if (!this.previewSize || this.windowChromeWidth === null) this.windowChromeWidth = Math.max(0, window.innerWidth - sheet.offsetWidth)
+        },
         onMenuShow() {
             this.measureAvailableSpace()
             if (this.previewSize?.mode === 'custom') {
@@ -306,7 +331,7 @@ export default defineComponent({
             this.setPreviewSize({ mode: 'custom', width: Number(this.customWidth), height })
         },
         onWindowResize() {
-            if (!this.previewSize) return
+            if (!this.previewSize) return this.measureBreakpointOffsets()
             this.measureAvailableSpace()
             // a breakpoint width that does not fit anymore would give another breakpoint, so the preview ends
             if (this.previewSize.mode === 'breakpoint' && this.previewSize.width > this.availableWidth) this.previewSize = null
@@ -350,6 +375,8 @@ export default defineComponent({
     height: 100%;
     min-width: 100%;
     overflow-y: auto;
+    // the scrollbar always takes its space, so the grid width (and its breakpoint) does not depend on the content height
+    scrollbar-gutter: stable;
     overflow-x: clip;
     .powered {
         position: absolute;
