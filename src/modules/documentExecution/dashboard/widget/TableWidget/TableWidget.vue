@@ -586,7 +586,8 @@ export default defineComponent({
                 const colConditions = visCond.conditions.filter((condition) => condition.target.includes(colId))
                 //We always take the 1st condition as a priority for the column and use that one.
                 if (colConditions[0]) {
-                    if (colConditions[0].condition.type === 'always') {
+                    // saved dashboards can contain 'Always' (capitalized), created by the "Add condition" button
+                    if (colConditions[0].condition.type?.toLowerCase() === 'always') {
                         columnHidden = colConditions[0][propertyToReturn]
                     } else {
                         const dashboardDrivers = this.getDashboardDrivers(this.dashboardId)

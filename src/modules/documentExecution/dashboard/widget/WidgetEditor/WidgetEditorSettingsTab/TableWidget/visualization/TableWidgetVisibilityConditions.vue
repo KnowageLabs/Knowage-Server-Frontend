@@ -123,6 +123,8 @@ export default defineComponent({
             if (this.widgetModel.settings?.visualization?.visibilityConditions) {
                 this.visibilityConditionsModel = this.widgetModel.settings.visualization.visibilityConditions
                 this.visibilityConditionsModel?.conditions.forEach((visibilityCondition: ITableWidgetVisibilityCondition) => {
+                    // conditions added with the "Add condition" button used to be saved as 'Always'
+                    if (visibilityCondition.condition.type === 'Always') visibilityCondition.condition.type = 'always'
                     if (visibilityCondition.condition.type === 'variable' && visibilityCondition.condition.variableKey) this.setVisibilityConditionPivotedValues(visibilityCondition)
                 })
             }
@@ -182,7 +184,7 @@ export default defineComponent({
                 hide: false,
                 hidePdf: false,
                 hideFromSummary: false,
-                condition: { type: 'Always' }
+                condition: { type: 'always' }
             })
         },
         removeVisibilityCondition(index: number) {
