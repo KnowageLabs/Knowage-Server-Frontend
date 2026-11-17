@@ -204,7 +204,9 @@ export default class CellRenderer {
 
         const linkStyleActive = isCellLinkStyleActive()
 
-        if (visType.type) {
+        // Visualization types apply to data columns only; the icon column must always render its clickable interaction icons
+        if (params.colId === 'iconColumn') createIconColumnIcons()
+        else if (visType.type) {
             if (visType.type.toLowerCase() === 'text' || visType.type.toLowerCase() === 'multiline text') {
                 const content = `${visType.prefix}${setCellContent()}${visType.suffix}`
                 this.eGui.innerHTML = linkStyleActive ? wrapWithLinkStyle(content) : content
@@ -226,13 +228,12 @@ export default class CellRenderer {
                                         <div class="innerBar" style="color: black;width:${percentage}%;background-color:${applyConditionalStyleToBar ? styleObject.color : visType.color};text-align:${visType['alignment']}">${visType.prefix}${setCellContent()}${visType.suffix}</div>
                                       </div>`
             }
-        } else if (params.colId === 'iconColumn') createIconColumnIcons()
-        else {
+        } else {
             const content = setCellContent()
             this.eGui.innerHTML = linkStyleActive ? wrapWithLinkStyle(content) : content
         }
 
-        truncateCellContent(this.eGui)
+        if (params.colId !== 'iconColumn') truncateCellContent(this.eGui)
 
         function invokeParentMethod(interaction, params, index) {
             const clickedInteraction = { type: interaction.interactionType, index: index, icon: interaction.icon, node: params }
