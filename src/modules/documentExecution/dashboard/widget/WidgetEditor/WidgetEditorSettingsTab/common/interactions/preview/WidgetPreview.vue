@@ -35,8 +35,8 @@
           outlined
           dense
           clearable
-          :label="$t('dashboard.generalSettings.menuWidgets.exportFileName')"
-          :hint="$t('dashboard.generalSettings.menuWidgets.exportFileNameHint')"
+          :label="$t('common.fileName')"
+          :hint="$t('dashboard.widgetEditor.interactions.previewExportFileNameHint', { driver: '$P{driver}', variable: '$V{variable}' })"
           :disable="previewDisabled"
         />
         <div
@@ -63,6 +63,9 @@
             <!-- Parameters -->
             <template v-if="previewModel.parameters && previewModel.parameters.length > 0">
                 <div class="col-12"><q-separator /></div>
+        <div class="col-12 text-caption text-grey-7">
+          {{ $t('dashboard.widgetEditor.interactions.previewParametersHint') }}
+        </div>
                 <div class="col-12">
                     <TableWidgetPreviewParameterList :widget-model="widgetModel" :prop-parameters="previewModel.parameters" :selected-datasets-columns-map="selectedDatasetColumnNameMap" :dashboard-id="dashboardId" :disabled="previewDisabled" @change="onParametersChanged" />
                 </div>

@@ -53,7 +53,7 @@ import { IDashboardSheet, IDataset, IMenuItem, ISelection, IVariable, IWidget, I
 import { emitter, canEditDashboard, DATASET_EXPORT_FORMATS } from '../DashboardHelpers'
 import { showDashboardActionToast, showDashboardWidgetError } from '../helpers/DashboardToastHelper'
 import { mapState, mapActions } from 'pinia'
-import { getWidgetData } from '../DashboardDataProxy'
+import { addParametersToData, getWidgetData } from '../DashboardDataProxy'
 import store from '../Dashboard.store'
 import mainStore from '@/App.store'
 import WidgetRenderer from './WidgetRenderer.vue'
@@ -703,7 +703,9 @@ export default defineComponent({
             }
 
             if (this.selectedDataset.parameters.length > 0) {
-                this.selectedDataset.parameters.forEach((parameter) => formatParameterForPreview(event, parameter, this.widget.type, this.dashboardId))
+                const inheritedParameters = { parameters: {} }
+                addParametersToData({ parameters: this.selectedDataset.modelParams ?? [] }, this.dashboardId, inheritedParameters, undefined, this.dashboards[this.dashboardId].drivers)
+                this.selectedDataset.parameters.forEach((parameter) => formatParameterForPreview(event, parameter, this.widget.type, this.dashboardId, inheritedParameters.parameters))
             }
 
             if (this.selectedDataset.drivers && this.selectedDataset.modelDrivers) {

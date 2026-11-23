@@ -93,6 +93,10 @@
     ],
     "previewParameterTypeOptions": [
         {
+            "label": "dashboard.widgetEditor.interactions.previewDatasetParameters",
+            "value": ""
+        },
+        {
             "label": "dashboard.widgetEditor.interactions.static",
             "value": "static"
         },

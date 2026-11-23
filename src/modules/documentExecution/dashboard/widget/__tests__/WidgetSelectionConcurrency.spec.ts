@@ -1,13 +1,15 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import WidgetController from '../WidgetController.vue'
 import SelectorWidgetContainer from '../SelectorWidget/SelectorWidgetContainer.vue'
-import { getWidgetData } from '../../DashboardDataProxy'
+import { addParametersToData, getWidgetData } from '../../DashboardDataProxy'
 import { getSelectorWidgetData } from '../SelectorWidget/SelectorWidgetDataProxy'
 import { createDatasetExportBody } from '../../helpers/DashboardExportHelper'
+import { getActiveInteractions } from '../TableWidget/TableWidgetHelper'
+import { formatParameterForPreview } from '../interactionsHelpers/PreviewHelper'
 
 vi.mock('@/App.store', () => ({ default: () => ({}) }))
 vi.mock('../../Dashboard.store', () => ({ default: () => ({}) }))
-vi.mock('../../DashboardDataProxy', () => ({ getWidgetData: vi.fn() }))
+vi.mock('../../DashboardDataProxy', () => ({ addParametersToData: vi.fn(), getWidgetData: vi.fn() }))
 vi.mock('../../DashboardHelpers', () => ({ emitter: { on: vi.fn(), off: vi.fn(), emit: vi.fn() }, canEditDashboard: vi.fn(), DATASET_EXPORT_FORMATS: [] }))
 vi.mock('../../helpers/DashboardToastHelper', () => ({ showDashboardActionToast: vi.fn(), showDashboardWidgetError: vi.fn() }))
 vi.mock('../SelectorWidget/SelectorWidgetDataProxy', () => ({ getSelectorWidgetData: vi.fn() }))
@@ -62,8 +64,69 @@ const createController = () => {
 }
 
 describe('Dataset Preview direct downloads', () => {
+    let buildBody: typeof createDatasetExportBody
+    let inheritParameters: typeof addParametersToData
+    let formatParameter: typeof formatParameterForPreview
+
+    beforeAll(async () => {
+        const [exports, dataProxy, preview] = await Promise.all([
+            vi.importActual<typeof import('../../helpers/DashboardExportHelper')>('../../helpers/DashboardExportHelper'),
+            vi.importActual<typeof import('../../DashboardDataProxy')>('../../DashboardDataProxy'),
+            vi.importActual<typeof import('../interactionsHelpers/PreviewHelper')>('../interactionsHelpers/PreviewHelper')
+        ])
+        buildBody = exports.createDatasetExportBody
+        inheritParameters = dataProxy.addParametersToData
+        formatParameter = preview.formatParameterForPreview
+    }, 30000)
+
     beforeEach(() => {
         vi.clearAllMocks()
+        vi.mocked(createDatasetExportBody).mockReset()
+        vi.mocked(addParametersToData).mockReset()
+        vi.mocked(formatParameterForPreview).mockReset()
+    })
+
+    it.each(['csv', 'xls'])('resolves the filename from the real table interaction through the %s request', async (format) => {
+        vi.mocked(createDatasetExportBody).mockImplementationOnce(buildBody)
+        vi.mocked(addParametersToData).mockImplementationOnce(inheritParameters)
+        vi.mocked(formatParameterForPreview).mockImplementationOnce(formatParameter)
+        const dashboard = {
+            drivers: [{ urlName: 'par_year', value: '2026' }],
+            configuration: { datasets: [{ id: 12, parameters: [{ name: 'par_year', value: '$P{par_year}' }], drivers: [] }] }
+        }
+        const controller = {
+            dashboardId: 'dashboard',
+            dashboards: { dashboard },
+            dashStore: { $state: { dashboards: { dashboard } } },
+            variables: [{ name: 'current_year', value: 2026 }, { name: 'previous_year', value: 2025 }],
+            datasets: [{ id: { dsId: 12 }, parameters: [{ name: 'par_year', defaultValue: '2020', multiValue: false }], drivers: [] }],
+            widget: { type: 'table' },
+            selectedDataset: null,
+            datasetExportFileName: '',
+            $http: { post: vi.fn().mockResolvedValue({}) },
+            $t: (key: string) => key
+        } as any
+        for (const name of ['previewInteractionDataset', 'directDownloadDataset', 'getPreviewDrivers']) controller[name] = WidgetController.methods![name].bind(controller)
+        const [previewSettings] = getActiveInteractions({ colDef: {} }, {
+            preview: { enabled: true, type: 'allRow', dataset: 12, directDownload: true, parameters: [{ name: 'par_year', enabled: true, type: '' }], exportFileName: 'nsdznd $P{par_year} $V{current_year} $V{previous_year}' }
+        } as any)
+
+        await controller.previewInteractionDataset({ previewSettings, directDownloadFormat: format })
+
+        expect(controller.$http.post.mock.calls[0][0]).toContain(`/2.0/export/dataset/12/${format}`)
+        expect(controller.$http.post.mock.calls[0][1].fileName).toBe('nsdznd 2026 2026 2025')
+        expect(controller.$http.post.mock.calls[0][1].parameters).toEqual([{ name: 'par_year', multiValue: false, value: '2026' }])
+
+        vi.mocked(createDatasetExportBody).mockImplementationOnce(buildBody)
+        vi.mocked(addParametersToData).mockImplementationOnce(inheritParameters)
+        vi.mocked(formatParameterForPreview).mockImplementationOnce(formatParameter)
+        dashboard.drivers[0].value = '2027'
+        controller.variables[0].value = 2027
+        controller.variables[1].value = 2026
+        await controller.previewInteractionDataset({ previewSettings, directDownloadFormat: format })
+        expect(controller.$http.post.mock.calls[1][1].fileName).toBe('nsdznd 2027 2027 2026')
+        expect(controller.$http.post.mock.calls[1][1].parameters[0].value).toBe('2027')
+        expect(dashboard.configuration.datasets[0].parameters[0].value).toBe('$P{par_year}')
     })
 
     it('passes the configured filename and runtime context to the export request', async () => {

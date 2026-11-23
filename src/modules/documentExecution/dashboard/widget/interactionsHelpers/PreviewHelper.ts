@@ -4,10 +4,11 @@ import { IChartInteractionValues } from '../../interfaces/chartJS/DashboardChart
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import { getActiveSelectionByDatasetAndColumn } from './InteractionHelper'
 
-export const formatParameterForPreview = (event: any, parameter: any, widgetType: string, dashboardId: string) => {
-    parameter.value = parameter.defaultValue ?? ''
-    const parameterSettings = event.previewSettings.parameters.find((tempParameter: IWidgetInteractionParameter) => tempParameter.name === parameter.name)
-    if (!parameterSettings || !parameterSettings.enabled) return
+export const formatParameterForPreview = (event: any, parameter: any, widgetType: string, dashboardId: string, inheritedParameters: Record<string, any> = {}) => {
+    const inheritedValue = Object.prototype.hasOwnProperty.call(inheritedParameters, parameter.name) ? inheritedParameters[parameter.name] : undefined
+    parameter.value = inheritedValue ?? parameter.defaultValue ?? ''
+    const parameterSettings = event.previewSettings.parameters?.find((tempParameter: IWidgetInteractionParameter) => tempParameter.name === parameter.name)
+    if (!parameterSettings?.enabled || !parameterSettings.type) return
     switch (widgetType) {
         case 'highcharts':
             formatChartParameterValue(parameter, parameterSettings, event.formattedChartValues, dashboardId)
@@ -98,7 +99,7 @@ const updateParameterValueFromDriver = (parameter: any, parameterSettings: IWidg
     const drivers = dashStore.getDashboardDrivers(dashboardId)
     const driver = drivers.find((driver: IDashboardDriver) => driver.name === parameterSettings.driver)
 
-    if (!parameterSettings.driver || !driversValuesMap[driver.urlName]) return
+    if (!driver || !driversValuesMap[driver.urlName]) return
     else parameter.value = driversValuesMap[driver.urlName].value
 }
 
