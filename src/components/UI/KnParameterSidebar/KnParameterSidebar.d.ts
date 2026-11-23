@@ -23,6 +23,7 @@ export interface iParameter {
         data: any[]
         visual: any[]
         lov: any[]
+        defaultValue?: string[]
         maxValue?: string[]
     }
     selectionType: string
