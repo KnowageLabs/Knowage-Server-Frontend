@@ -197,11 +197,12 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { AxiosResponse } from 'axios'
-import { formatDate, luxonFormatDate } from '@/helpers/commons/localeHelper'
+import { formatDate } from '@/helpers/commons/localeHelper'
 import { iDocument, iParameter, iAdmissibleValues } from './KnParameterSidebar'
 import { setVisualDependency, updateVisualDependency } from './KnParameterSidebarVisualDependency'
 import { getFormattedParameters, setDataDependency, updateDataDependency } from './KnParameterSidebarDataDependency'
 import { setLovsDependency, updateLovDependency } from './KnParameterSidebarLovsDependency'
+import { applyRecalculatedDefaultValues, getDefaultValueDependencyOrder, type DefaultValue } from './KnParameterSidebarDefaultValuesDependency'
 import { getValidDate } from '@/modules/documentExecution/main/DocumentExecutionHelpers'
 import Calendar from 'primevue/calendar'
 import Chip from 'primevue/chip'
@@ -255,6 +256,9 @@ export default defineComponent({
             role: null as string | null,
             loading: false,
             dependencyUpdatesPending: 0,
+            defaultValueRequestKeys: {} as Record<string, string>,
+            defaultValueRefreshPromise: null as Promise<boolean> | null,
+            defaultValueRefreshError: false,
             maxValueRequestKeys: {} as Record<string, string>,
             maxValueRefreshPromise: null as Promise<boolean> | null,
             maxValueRefreshError: false,
@@ -274,7 +278,7 @@ export default defineComponent({
             return (this.store.$state as any).user.sessionRole
         },
         buttonsDisabled(): boolean {
-            return this.loading || this.dependencyUpdatesPending > 0 || !!this.maxValueRefreshPromise || this.maxValueRefreshError || (this.mode === 'execution' && !this.maxValueParametersReady) || this.requiredFiledMissing()
+            return this.loading || this.dependencyUpdatesPending > 0 || !!this.defaultValueRefreshPromise || this.defaultValueRefreshError || !!this.maxValueRefreshPromise || this.maxValueRefreshError || (this.mode === 'execution' && !this.maxValueParametersReady) || this.requiredFiledMissing()
         },
         positionClass(): string {
             return this.document?.parametersRegion ? 'kn-parameter-sidebar-' + this.document.parametersRegion : 'kn-parameter-sidebar'
@@ -370,13 +374,14 @@ export default defineComponent({
             this.maxValueParametersReady = refreshMaxValues
             this.maxValueRequestKeys = {}
             this.maxValueRefreshError = false
+            this.defaultValueRefreshError = false
             this.parameters.isReadyForExecution = this.filtersData?.isReadyForExecution
             this.parameters.filterStatus = []
 
             this.filtersData?.filterStatus?.forEach((el: iParameter) => {
                 if (el.selectionType == 'LIST' && el.showOnPanel == 'true' && el.multivalue) {
                     this.selectedParameterCheckbox[el.id] = el.parameterValue?.map((parameterValue: any) => parameterValue.value)
-                } else if (el.type === 'STRING' && el.valueSelection == 'man_in' && el.showOnPanel == 'true') {
+                } else if ((el.type === 'STRING' || el.type === 'NUM') && el.valueSelection == 'man_in' && el.showOnPanel == 'true') {
                     el.initialValue = el.parameterValue && el.parameterValue[0] ? el.parameterValue[0].value : ''
                 }
                 if (!this.parameters.filterStatus.find((p: iParameter) => p.urlName === el.urlName)) {
@@ -397,10 +402,11 @@ export default defineComponent({
             this.parameters?.filterStatus.forEach((el: any) => setDataDependency(this.parameters, el))
             this.parameters?.filterStatus.forEach((el: any) => setLovsDependency(this.parameters, el))
             this.parameters?.filterStatus.forEach((el: any) => this.updateVisualDependency(el))
+            this.cacheDefaultValueRequestKeys()
             if (refreshMaxValues) this.refreshMaxValues()
         },
         resetParameterValue(parameter: any) {
-            if (!parameter.driverDefaultValue) {
+            if (!parameter.driverDefaultValue?.length) {
                 if (parameter.multivalue) {
                     parameter.parameterValue = []
                     this.selectedParameterCheckbox[parameter.id] = []
@@ -445,9 +451,9 @@ export default defineComponent({
                     return { value: valueIndex ? el[valueIndex] : '', description: descriptionIndex ? el[descriptionIndex] : '' }
                 })
             } else if (parameter.type === 'DATE' && parameter.showOnPanel === 'true') {
-                if (parameter.driverDefaultValue[0].desc?.split('#')[0]) {
-                    parameter.parameterValue[0].value = luxonFormatDate(parameter.driverDefaultValue[0].desc?.split('#')[0], parameter.driverDefaultValue[0].desc?.split('#')[1])
-                }
+                const defaultValue = parameter.driverDefaultValue[0]
+                const value = defaultValue.value ?? defaultValue[valueIndex] ?? defaultValue.desc
+                parameter.parameterValue = [{ value: value == null ? null : getValidDate('' + value, this.dateFormat || ''), description: defaultValue.desc ?? defaultValue[descriptionIndex] ?? '' }]
             } else {
                 if (!parameter.parameterValue[0]) {
                     parameter.parameterValue[0] = { value: '', description: '' }
@@ -458,10 +464,11 @@ export default defineComponent({
             this.updateParameterDependencyAfterParameterResetDefaultValue(parameter)
         },
         updateParameterDependencyAfterParameterResetDefaultValue(parameter: any) {
+            parameter.initialValue = parameter.parameterValue[0]?.value
             parameter.dependentParameters?.forEach((el: any) => this.updateDependency(el, true))
             parameter.dataDependentParameters?.forEach((el: any) => this.updateDependency(el, true))
             parameter.lovDependentParameters?.forEach((el: any) => this.updateDependency(el, true))
-            this.refreshMaxValues()
+            this.refreshDefaultValues().then(() => this.refreshMaxValues())
         },
         onResetAllParameters() {
             this.parameters.filterStatus.forEach((el: any) => this.resetParameterValue(el))
@@ -585,11 +592,10 @@ export default defineComponent({
             this.popupDialogVisible = false
         },
         onTreeSave(parameter: iParameter) {
-            this.updateVisualDependency(parameter)
-            this.refreshMaxValues()
+            this.updateDependency(parameter)
             this.treeDialogVisible = false
         },
-        async updateDependency(parameter: iParameter, resetValue = false, refreshMaxValues = true) {
+        async updateDependency(parameter: iParameter, resetValue = false, refreshMaxValues = true, refreshDefaults = true) {
             this.loading = true
             this.dependencyUpdatesPending++
             const role = this.sessionRole && this.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.sessionRole : this.role
@@ -597,11 +603,62 @@ export default defineComponent({
                 this.updateVisualDependency(parameter)
                 await updateDataDependency(this.parameters, parameter, this.loading, this.document, role, this.$http, this.mode, resetValue, this.userDateFormat)
                 await updateLovDependency(this.parameters, parameter, this.loading, this.document, role, this.$http, this.mode, resetValue, this.userDateFormat)
+                if (refreshDefaults) await this.refreshDefaultValues()
                 if (refreshMaxValues) await this.refreshMaxValues()
                 this.$emit('parametersChanged', { parameters: this.parameters, document: this.propDocument })
             } finally {
                 this.dependencyUpdatesPending--
                 this.loading = this.dependencyUpdatesPending > 0
+            }
+        },
+        getDefaultValueRequestKey(parameter: iParameter) {
+            const parameters = getFormattedParameters(this.parameters, this.userDateFormat || this.dateFormat || '')
+            const role = this.sessionRole && this.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.sessionRole : this.role
+            return JSON.stringify([this.document?.label, role, parameter.dependencies.defaultValue?.map((urlName: string) => parameters.find((value: any) => value.urlName === urlName)?.value)])
+        },
+        cacheDefaultValueRequestKeys() {
+            this.defaultValueRequestKeys = {}
+            this.parameters.filterStatus.forEach((parameter) => {
+                if (!parameter.selectionType && parameter.valueSelection === 'man_in') parameter.initialValue = parameter.parameterValue[0]?.value
+                if (parameter.dependencies?.defaultValue?.length) this.defaultValueRequestKeys[parameter.urlName] = this.getDefaultValueRequestKey(parameter)
+            })
+        },
+        async refreshDefaultValues(): Promise<boolean> {
+            if (this.mode !== 'execution') return true
+            if (this.defaultValueRefreshPromise) return this.defaultValueRefreshPromise
+            this.defaultValueRefreshPromise = this.recalculateDefaultValues().finally(() => (this.defaultValueRefreshPromise = null))
+            return this.defaultValueRefreshPromise
+        },
+        async recalculateDefaultValues(): Promise<boolean> {
+            this.defaultValueRefreshError = false
+            try {
+                while (this.mode === 'execution' && this.maxValueParametersReady) {
+                    const parameter = getDefaultValueDependencyOrder(this.parameters.filterStatus).find((candidate) => this.defaultValueRequestKeys[candidate.urlName] !== this.getDefaultValueRequestKey(candidate))
+                    if (!parameter) return true
+                    const key = this.getDefaultValueRequestKey(parameter)
+                    const role = this.sessionRole && this.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.sessionRole : this.role
+                    const postData = { label: this.document?.label, role, paramId: parameter.urlName, parameters: getFormattedParameters(this.parameters, this.userDateFormat || this.dateFormat || '') }
+                    let response: AxiosResponse<{ defaultValues: DefaultValue[] }>
+                    try {
+                        response = await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/documentExeParameters/defaultValues', postData)
+                    } catch (error) {
+                        if (this.mode !== 'execution' || !this.maxValueParametersReady) return true
+                        if (!this.parameters.filterStatus.includes(parameter) || key !== this.getDefaultValueRequestKey(parameter)) continue
+                        throw error
+                    }
+                    if (this.mode !== 'execution' || !this.maxValueParametersReady) return true
+                    if (!this.parameters.filterStatus.includes(parameter) || key !== this.getDefaultValueRequestKey(parameter)) continue
+                    if (!Array.isArray(response.data.defaultValues)) throw new Error(this.$t('common.error.generic'))
+                    applyRecalculatedDefaultValues(parameter, response.data.defaultValues, this.dateFormat || '')
+                    this.selectedParameterCheckbox[parameter.id] = parameter.parameterValue.map((value) => value.value)
+                    this.defaultValueRequestKeys[parameter.urlName] = key
+                    await this.updateDependency(parameter, false, false, false)
+                }
+                return true
+            } catch (error: any) {
+                this.defaultValueRefreshError = true
+                this.store.setError({ title: this.$t('common.error.generic'), msg: error?.message || this.$t('common.error.generic') })
+                return false
             }
         },
         getMaxValueRequestKey(parameter: iParameter) {
@@ -698,6 +755,7 @@ export default defineComponent({
             })
             // Recompute conditional visibility of dependent drivers after all saved values are applied
             this.parameters.filterStatus.forEach((el: any) => this.updateVisualDependency(el))
+            this.cacheDefaultValueRequestKeys()
             await this.refreshMaxValues()
         },
         getFormattedDate(date: any, format: any) {
@@ -770,6 +828,7 @@ export default defineComponent({
         },
         onInputTextChanged(parameter: any) {
             if (parameter.parameterValue[0] && parameter.initialValue === parameter.parameterValue[0]?.value) return
+            parameter.initialValue = parameter.parameterValue[0]?.value
             this.updateDependency(parameter)
         },
         executionMenuDisabled() {
