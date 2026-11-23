@@ -1,11 +1,11 @@
 import { fallbackLocale, getFormattedDateTimeUsingToLocaleString, getLocale } from '@/helpers/commons/localeHelper'
-import { IDashboardDriver, IDataset, ISelection, IVariable } from '../Dashboard'
+import { IDashboardDataset, IDashboardDriver, IDataset, ISelection, IVariable } from '../Dashboard'
 import { getVariableData } from '../DataProxyHelper'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import { DateTime } from 'luxon'
 
-export const setVariableValueFromDataset = async (variable: IVariable, datasets: IDataset[], $http: any) => {
-    const variableData = await getVariableData(variable, datasets, $http)
+export const setVariableValueFromDataset = async (variable: IVariable, datasets: IDataset[], $http: any, dashboardDatasets: IDashboardDataset[] = [], documentDrivers: IDashboardDriver[] = []) => {
+    const variableData = await getVariableData(variable, datasets, $http, dashboardDatasets, documentDrivers)
     if (!variableData) return (variable.value = '')
     variable.column ? setVariableValueFromColumn(variable, variableData) : setVariablePivotedValues(variable, variableData)
 }

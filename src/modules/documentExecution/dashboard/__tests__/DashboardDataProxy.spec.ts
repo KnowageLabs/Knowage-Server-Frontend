@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import deepcopy from 'deepcopy'
 import { addSelectionsToData, getWidgetData } from '../DashboardDataProxy'
+import { setVariableValueFromDataset } from '../generalSettings/VariablesHelper'
+import { showDashboardWidgetError } from '../helpers/DashboardToastHelper'
+import { luxonFormatDate } from '@/helpers/commons/localeHelper'
 
 const { dashboard, widgetData } = vi.hoisted(() => ({
     dashboard: { dataProxyQueue: {} },
@@ -13,6 +16,7 @@ vi.mock('../Dashboard.store', () => ({ default: () => dashboard }))
 vi.mock('@/idb', () => ({ indexedDB: { widgetData } }))
 vi.mock('@/helpers/commons/localeHelper', () => ({ luxonFormatDate: vi.fn() }))
 vi.mock('../helpers/DashboardToastHelper', () => ({ showDashboardWidgetError: vi.fn() }))
+vi.mock('../helpers/datasetRefresh/DatasetRefreshHelpers', () => ({ setDatasetInterval: vi.fn(), clearDatasetInterval: vi.fn() }))
 vi.mock('../widget/SelectorWidget/SelectorWidgetDataProxy', () => ({ getSelectorWidgetData: vi.fn() }))
 vi.mock('../widget/WebComponent/WebComponentDataProxy', () => ({ getWebComponentWidgetData: vi.fn() }))
 vi.mock('../widget/MapWidget/MapWidgetDataProxy', () => ({ getMapWidgetData: vi.fn() }))
@@ -95,5 +99,87 @@ describe('dashboard widget filter isolation', () => {
         })
         expect(repeatedRequest.selections).toEqual(firstRequest.selections)
         expect(associativeSelections).toEqual(originalSelections)
+    })
+})
+
+describe('dataset variable execution context', () => {
+    const datasets = [{ id: { dsId: 7 }, label: 'DS_CHART' }] as any
+    const dashboardDatasets = [
+        { id: 8, parameters: [{ name: 'year', value: 'wrong dataset' }] },
+        {
+            id: 7,
+            parameters: [
+                { name: 'year', value: '$P{Year}' },
+                { name: 'region', value: 'EMEA' },
+                { name: 'countries', value: '$P{Countries}' },
+                { name: 'date', value: '$P{Date}' }
+            ],
+            drivers: [{ urlName: 'Country', parameterValue: ['IT', ''] }],
+            indexes: [{ fields: [{ store: 'DS_CHART', column: 'UNIT_SALES' }] }]
+        }
+    ] as any
+    const createDrivers = () =>
+        [
+            { urlName: 'Year', value: '2024', type: 'NUM' },
+            { urlName: 'Countries', value: 'IT, FR', type: 'STRING', multivalue: true },
+            { urlName: 'Date', value: '01/01/2024', type: 'DATE' }
+        ] as any
+
+    beforeEach(() => {
+        vi.clearAllMocks()
+        vi.mocked(luxonFormatDate).mockReturnValue('2024-01-01')
+    })
+
+    it('loads a column variable using configured parameters, current drivers and indexes before the dashboard is stored', async () => {
+        const variable = { name: 'previous_year', type: 'dataset', dataset: 7, column: 'UNIT_SALES', value: '' }
+        const http = {
+            post: vi.fn().mockImplementation((_url, body) => {
+                if (body.parameters.year !== '2024' || body.parameters.region !== 'EMEA' || !body.drivers.Country) return Promise.reject(new Error('Missing dataset execution context'))
+                return Promise.resolve({ data: { metaData: { fields: ['recNo', { header: 'UNIT_SALES', name: 'column_2' }] }, rows: [{ column_1: 'ignored', column_2: 42 }] } })
+            })
+        }
+
+        await setVariableValueFromDataset(variable, datasets, http, dashboardDatasets, createDrivers())
+
+        expect(variable.value).toBe(42)
+        expect(http.post).toHaveBeenCalledWith(
+            expect.stringContaining('/2.0/datasets/DS_CHART/data?'),
+            expect.objectContaining({
+                parameters: { year: '2024', region: 'EMEA', countries: ['IT', 'FR'], date: '2024-01-01' },
+                drivers: { Country: ['IT'] },
+                indexes: dashboardDatasets[1].indexes
+            }),
+            { headers: { 'X-Disable-Errors': 'true' } }
+        )
+        expect(showDashboardWidgetError).not.toHaveBeenCalled()
+    })
+
+    it('keeps whole-dataset variables pivoted while forwarding the execution context', async () => {
+        const variable = { name: 'sales', type: 'dataset', dataset: 7, value: '' } as any
+        const http = { post: vi.fn().mockResolvedValue({ data: { rows: [{ column_1: '2023', column_2: 10 }, { column_1: '2024', column_2: 20 }] } }) }
+
+        await setVariableValueFromDataset(variable, datasets, http, dashboardDatasets, createDrivers())
+
+        expect(variable.pivotedValues).toEqual({ 2023: 10, 2024: 20 })
+        expect(http.post.mock.calls[0][1].parameters.year).toBe('2024')
+    })
+
+    it('still loads variables without configured parameters or drivers', async () => {
+        const variable = { name: 'previous_year', type: 'dataset', dataset: 7, column: 'UNIT_SALES', value: '' }
+        const http = { post: vi.fn().mockResolvedValue({ data: { metaData: { fields: [{ header: 'UNIT_SALES', name: 'column_1' }] }, rows: [{ column_1: 0 }] } }) }
+
+        await setVariableValueFromDataset(variable, datasets, http)
+
+        expect(variable.value).toBe(0)
+    })
+
+    it('reports the dataset error without throwing a ReferenceError or interrupting variable loading', async () => {
+        const variable = { name: 'previous_year', type: 'dataset', dataset: 7, column: 'UNIT_SALES', value: 'stale' }
+        const http = { post: vi.fn().mockRejectedValue(new Error('Dataset unavailable')) }
+
+        await expect(setVariableValueFromDataset(variable, datasets, http, dashboardDatasets, createDrivers())).resolves.toBe('')
+
+        expect(variable.value).toBe('')
+        expect(showDashboardWidgetError).toHaveBeenCalledWith(undefined, 'Dataset unavailable', 'DS_CHART')
     })
 })

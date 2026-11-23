@@ -183,7 +183,7 @@ export default defineComponent({
 
             for (let i = 0; i < this.variables.length; i++) {
                 if (this.variables[i].type === 'dataset') {
-                    await setVariableValueFromDataset(this.variables[i], this.datasets, this.$http)
+                    await setVariableValueFromDataset(this.variables[i], this.datasets, this.$http, this.dashboardModel.configuration.datasets, this.dashboardModel.drivers)
                     refreshWidgets = true
                 }
             }

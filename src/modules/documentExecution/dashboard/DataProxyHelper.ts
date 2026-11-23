@@ -12,8 +12,8 @@ import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.stor
 import { AxiosResponse } from 'axios'
 import { setDatasetInterval, clearDatasetInterval } from './helpers/datasetRefresh/DatasetRefreshHelpers'
 import { aggregationRegex, aggregationsRegex, limitRegex, rowsRegex } from './helpers/common/DashboardRegexHelper'
-import { IDataset, ISelection, IVariable, IWidget, IDashboardDataset, IDashboardDatasetDriver } from './Dashboard'
-import { addParametersToData } from '@/modules/documentExecution/dashboard/DashboardDataProxy'
+import { IDataset, ISelection, IVariable, IWidget, IDashboardDataset, IDashboardDatasetDriver, IDashboardDriver } from './Dashboard'
+import { addDriversToData, addParametersToData, showGetDataError } from '@/modules/documentExecution/dashboard/DashboardDataProxy'
 
 const { t } = i18n.global
 const mainStore = store()
@@ -210,11 +210,16 @@ const resetDatasetInterval = (widget: IWidget) => {
     if (widget.dataset || widget.dataset === 0) setDatasetInterval(widget.dataset as number, 10000)
 }
 
-export const getVariableData = async (variable: IVariable, datasets: IDataset[], $http: any) => {
+export const getVariableData = async (variable: IVariable, datasets: IDataset[], $http: any, dashboardDatasets: IDashboardDataset[] = [], documentDrivers: IDashboardDriver[] = []) => {
     const selectedDataset = getVariableDatasetLabel(variable, datasets)
     if (!selectedDataset) return
+    const configuredDataset = dashboardDatasets.find((dataset: IDashboardDataset) => dataset.id === variable.dataset)
     const url = `/restful-services/2.0/datasets/${selectedDataset.label}/data?offset=-1&size=-1&widgetName=undefined`
-    const postData = { aggregations: { dataset: selectedDataset.label, measures: [], categories: [] }, parameters: {}, selections: {}, indexes: [] }
+    const postData = { aggregations: { dataset: selectedDataset.label, measures: [], categories: [] }, parameters: {}, drivers: {}, selections: {}, indexes: configuredDataset?.indexes ?? [] }
+    if (configuredDataset) {
+        addParametersToData(configuredDataset, undefined, postData, undefined, documentDrivers)
+        addDriversToData(configuredDataset, postData)
+    }
     let tempResponse = null as any
     await $http
         .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })

@@ -70,7 +70,8 @@ vi.mock('../widget/WidgetEditor/helpers/tableWidget/TableWidgetBackendSaveHelper
 }))
 
 // ─── Import after mocks ────────────────────────────────────────────────────────
-import { createNewDashboardModel, addNewWidgetToSheets, deleteWidgetHelper, addWidgetMenuConfig, addWidgetHelpConfig, getFormattedOutputParameters, applyDashboardViewToModel, addMissingMenuWidgetsConfiguration, normalizeDashboardSheetLayouts, SHEET_WIDGET_SIZES } from '../DashboardHelpers'
+import { createNewDashboardModel, addNewWidgetToSheets, deleteWidgetHelper, addWidgetMenuConfig, addWidgetHelpConfig, getFormattedOutputParameters, applyDashboardViewToModel, addMissingMenuWidgetsConfiguration, normalizeDashboardSheetLayouts, formatNewModel, SHEET_WIDGET_SIZES } from '../DashboardHelpers'
+import { setVariableValueFromDataset } from '../generalSettings/VariablesHelper'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -148,6 +149,23 @@ describe('createNewDashboardModel', () => {
         const m1 = createNewDashboardModel()
         const m2 = createNewDashboardModel()
         expect(m1.configuration.id).not.toBe(m2.configuration.id)
+    })
+})
+
+describe('saved dashboard dataset variables', () => {
+    it('passes dataset configuration and current drivers when reopening a converted dashboard', async () => {
+        mockStore.isEnterprise = false
+        const dashboard = makeDashboard()
+        const variable = { name: 'previous_year', type: 'dataset', dataset: 7, column: 'UNIT_SALES', value: '' }
+        dashboard.configuration.variables = [variable]
+        dashboard.configuration.datasets = [{ id: 7, dsLabel: 'DS_CHART', parameters: [{ name: 'year', value: '$P{Year}' }] }] as any
+        const datasets = [{ id: { dsId: 7 }, label: 'DS_CHART' }] as any
+        const drivers = [{ urlName: 'Year', value: '2024' }] as any
+        const http = { post: vi.fn() }
+
+        await formatNewModel(dashboard, datasets, http, [], drivers)
+
+        expect(setVariableValueFromDataset).toHaveBeenCalledWith(variable, datasets, http, dashboard.configuration.datasets, drivers)
     })
 })
 

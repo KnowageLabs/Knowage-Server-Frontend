@@ -301,7 +301,7 @@ export default defineComponent({
             }
 
             this.datasets = this.newDashboardMode ? [] : await loadDatasets(tempModel, this.appStore, this.setAllDatasets, this.$http)
-            this.model = (tempModel && this.newDashboardMode) || typeof tempModel.configuration?.id != 'undefined' ? await formatNewModel(tempModel, this.datasets, this.$http, this.dashboardThemes) : await (formatModel(tempModel, this.document, this.datasets, this.drivers, this.profileAttributes, this.$http, this.user) as any)
+            this.model = (tempModel && this.newDashboardMode) || typeof tempModel.configuration?.id != 'undefined' ? await formatNewModel(tempModel, this.datasets, this.$http, this.dashboardThemes, this.drivers) : await (formatModel(tempModel, this.document, this.datasets, this.drivers, this.profileAttributes, this.$http, this.user) as any)
             // A new dashboard starts with the background of its theme (the default one). Old dashboards without a theme keep theirs.
             if (this.newDashboardMode && this.model?.configuration?.theme?.id) {
                 const defaultTheme = this.dashboardThemes.find((theme: IDashboardTheme) => theme.id === this.model.configuration.theme.id)

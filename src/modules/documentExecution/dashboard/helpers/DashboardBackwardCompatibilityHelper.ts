@@ -51,6 +51,7 @@ const getDatasetId = (datasetLabel: string) => {
 }
 
 const getFormattedModelConfiguration = async (model: any, document: any, drivers: any[], profileAttributes: { name: string; value: string }[], datasets: IDataset[], $http: any) => {
+    const formattedDatasets = getFormattedDatasets(model)
     const formattedConfiguration = {
         id: document.id,
         name: document.name,
@@ -58,8 +59,8 @@ const getFormattedModelConfiguration = async (model: any, document: any, drivers
         description: document.description,
         cssToRender: model.configuration.cssToRender,
         associations: getFormattedAssociations(model),
-        datasets: getFormattedDatasets(model),
-        variables: await getFormattedVariables(model, drivers, profileAttributes, datasets, $http),
+        datasets: formattedDatasets,
+        variables: await getFormattedVariables(model, drivers, profileAttributes, datasets, $http, formattedDatasets),
         selections: getFormattedSelections(model),
         theme: {},
         background: getFormattedSheetBackground(model),
@@ -146,7 +147,7 @@ const getFormattedDatasetParameters = (dataset: any) => {
     return parameters
 }
 
-const getFormattedVariables = async (model: any, drivers: any[], profileAttributes: { name: string; value: string }[], datasets: IDataset[], $http: any) => {
+const getFormattedVariables = async (model: any, drivers: any[], profileAttributes: { name: string; value: string }[], datasets: IDataset[], $http: any, dashboardDatasets: IDashboardDataset[] = []) => {
     const formattedVariables = [] as IVariable[]
     if (!model.configuration || !model.configuration.variables) return formattedVariables
     for (let i = 0; i < model.configuration.variables.length; i++) {
@@ -159,7 +160,7 @@ const getFormattedVariables = async (model: any, drivers: any[], profileAttribut
             case 'dataset':
                 formattedVariable.dataset = tempVariable.dataset
                 formattedVariable.column = tempVariable.column
-                await setVariableValueFromDataset(formattedVariable, datasets, $http)
+                await setVariableValueFromDataset(formattedVariable, datasets, $http, dashboardDatasets, drivers)
                 break
             case 'driver':
                 formattedVariable.driver = tempVariable.driver

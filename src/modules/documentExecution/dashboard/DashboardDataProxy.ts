@@ -10,7 +10,7 @@ import deepcopy from 'deepcopy'
 import store from '@/App.store.js'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import { aggregationRegex, aggregationsRegex, limitRegex, rowsRegex } from './helpers/common/DashboardRegexHelper'
-import { ISelection, IWidget, IDashboardDataset, IDashboardDatasetDriver, IWidgetSearch, IDashboardConfiguration, IWidgetFunctionColumn } from './Dashboard'
+import { ISelection, IWidget, IDashboardDataset, IDashboardDatasetDriver, IDashboardDriver, IWidgetSearch, IDashboardConfiguration, IWidgetFunctionColumn } from './Dashboard'
 import { getTableWidgetData } from './widget/TableWidget/TableWidgetDataProxy'
 import { getSelectorWidgetData } from './widget/SelectorWidget/SelectorWidgetDataProxy'
 import { getWebComponentWidgetData } from './widget/WebComponent/WebComponentDataProxy'
@@ -99,7 +99,7 @@ const getFormattedDateParameter = (date: any, useDefaultFormat?: boolean): strin
     } else return formattedDate
 }
 
-export const addParametersToData = (dataset, dashboardId, dataToSend, associativeResponseSelections?) => {
+export const addParametersToData = (dataset, dashboardId, dataToSend, associativeResponseSelections?, drivers?: IDashboardDriver[]) => {
     const dashStore = dashboardStore()
 
     if (dataset.parameters && dataset.parameters.length > 0) {
@@ -107,7 +107,7 @@ export const addParametersToData = (dataset, dashboardId, dataToSend, associativ
         dataset.parameters.forEach((param: any) => {
             const matched = paramRegex.exec(param.value) //check if param is wrapped in $P{}, if it is, grab the value from drivers
             if (matched && matched[1]) {
-                const documentDrivers = dashStore.dashboards[dashboardId].drivers || []
+                const documentDrivers = drivers ?? dashStore.dashboards[dashboardId].drivers ?? []
                 for (let index = 0; index < documentDrivers.length; index++) {
                     const driver = documentDrivers[index]
                     if (driver.urlName == matched[1]) {

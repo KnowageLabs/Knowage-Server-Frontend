@@ -1,5 +1,5 @@
 import { getDefaultDashboardThemeConfig } from './../../managers/dashboardThemeManagement/DashboardThemeHelper'
-import { IDashboard, IDashboardConfiguration, IDashboardOutputParameter, IDashboardSheet, IDashboardView, IDataset, IVariable, IWidget, IWidgetColumn, IWidgetHelpSettings, IWidgetPreview, IWidgetSheetItem } from './Dashboard'
+import { IDashboard, IDashboardConfiguration, IDashboardDriver, IDashboardOutputParameter, IDashboardSheet, IDashboardView, IDataset, IVariable, IWidget, IWidgetColumn, IWidgetHelpSettings, IWidgetPreview, IWidgetSheetItem } from './Dashboard'
 import { formatWidgetForSave, recreateKnowageChartModel } from './widget/WidgetEditor/helpers/WidgetEditorHelpers'
 import { setVariableValueFromDataset } from './generalSettings/VariablesHelper'
 import mitt from 'mitt'
@@ -278,14 +278,14 @@ const formatVariablesForSave = (dashboardConfiguration: IDashboardConfiguration)
     dashboardConfiguration.variables.forEach((variable: IVariable) => delete variable.pivotedValues)
 }
 
-export const formatNewModel = async (dashboard: IDashboard, datasets: IDataset[], $http: any, themes: IDashboardTheme[]) => {
+export const formatNewModel = async (dashboard: IDashboard, datasets: IDataset[], $http: any, themes: IDashboardTheme[], drivers: IDashboardDriver[] = []) => {
     if (!dashboard.configuration.theme || !dashboard.configuration.theme.id) addDefaultThemeToTheDashboardModel(dashboard, themes)
 
     updateDatasetLabelsInDashboardConfiguration(dashboard.configuration, datasets)
     normalizeDashboardSheetLayouts(dashboard)
 
     for (let i = 0; i < dashboard.configuration.variables.length; i++) {
-        if (dashboard.configuration.variables[i].type === 'dataset') await setVariableValueFromDataset(dashboard.configuration.variables[i], datasets, $http)
+        if (dashboard.configuration.variables[i].type === 'dataset') await setVariableValueFromDataset(dashboard.configuration.variables[i], datasets, $http, dashboard.configuration.datasets, drivers)
     }
 
     for (let i = 0; i < dashboard.widgets.length; i++) {
