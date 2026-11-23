@@ -2,6 +2,7 @@ import deepcopy from 'deepcopy'
 import { IDashboard, IDashboardDataset, IDashboardDatasetDriver, IDashboardDriver, ISelection, IVariable, IWidget, IWidgetSearch } from '../Dashboard'
 import { getTableWidgetLikeSelections } from './tableWidget/TableWidgetSearchHelper'
 import { synchronizeTableWidgetHeaderVariableLabels } from './tableWidget/TableWidgetHeaderHelper'
+import { replaceVariablesAndDriversPlaceholders } from '../widget/interactionsHelpers/InteractionsParserHelper'
 
 type IDashboardExportState = Pick<IDashboard, 'configuration'> & {
     currentView?: unknown
@@ -103,6 +104,22 @@ export const getDashboardExportFileNameTemplate = (dashboard: Pick<IDashboard, '
 
 export const getDashboardExportVariables = (dashboard: Pick<IDashboard, 'configuration'> | null | undefined) => {
     return dashboard?.configuration?.variables ?? []
+}
+
+export const createDatasetExportBody = (previewData: Record<string, any>, fileNameTemplate: string | null | undefined, dashboard: IDashboardExportState | undefined, variables?: IVariable[]) => {
+    const body = deepcopy(previewData)
+    if ('pars' in body) {
+        body.parameters = body.pars
+        delete body.pars
+    }
+    if (Array.isArray(body.drivers)) {
+        body.drivers = Object.fromEntries(body.drivers.map((driver: IDashboardDatasetDriver) => [driver.urlName, driver.parameterValue]))
+    }
+
+    const fileName = replaceVariablesAndDriversPlaceholders(fileNameTemplate ?? '', variables ?? dashboard?.configuration?.variables ?? [], dashboard?.drivers ?? []).trim()
+    if (fileName) body.fileName = fileName
+
+    return body
 }
 
 export const createDashboardSpreadsheetExportBody = (dashboard: IDashboardExportState, locale?: string) => {

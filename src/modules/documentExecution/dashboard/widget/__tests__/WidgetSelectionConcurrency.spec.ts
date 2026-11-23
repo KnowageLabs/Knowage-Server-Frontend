@@ -3,6 +3,7 @@ import WidgetController from '../WidgetController.vue'
 import SelectorWidgetContainer from '../SelectorWidget/SelectorWidgetContainer.vue'
 import { getWidgetData } from '../../DashboardDataProxy'
 import { getSelectorWidgetData } from '../SelectorWidget/SelectorWidgetDataProxy'
+import { createDatasetExportBody } from '../../helpers/DashboardExportHelper'
 
 vi.mock('@/App.store', () => ({ default: () => ({}) }))
 vi.mock('../../Dashboard.store', () => ({ default: () => ({}) }))
@@ -22,7 +23,7 @@ vi.mock('../interactionsHelpers/DatasetAssociationsHelper', () => ({ datasetIsUs
 vi.mock('../interactionsHelpers/InteractionHelper', () => ({ loadAssociativeSelections: vi.fn() }))
 vi.mock('../interactionsHelpers/PreviewHelper', () => ({ formatParameterForPreview: vi.fn() }))
 vi.mock('../WidgetControllerHelpers', () => ({ quickWidgetCreateChartFromTable: vi.fn(), quickWidgetCreateTableFromChart: vi.fn() }))
-vi.mock('../../helpers/DashboardExportHelper', () => ({ createWidgetExportBody: vi.fn() }))
+vi.mock('../../helpers/DashboardExportHelper', () => ({ createDatasetExportBody: vi.fn(), createWidgetExportBody: vi.fn() }))
 vi.mock('../PivotWidget/PivotWidgetExportHelper', () => ({ enrichPivotWidgetWithSortState: vi.fn() }))
 vi.mock('@/helpers/commons/fileHelper', () => ({ downloadDirectFromResponse: vi.fn() }))
 vi.mock('dom-to-image-more', () => ({ default: {} }))
@@ -59,6 +60,60 @@ const createController = () => {
     for (const name of ['loadInitialData', 'reloadWidgetData', 'loadActiveSelections']) controller[name] = WidgetController.methods![name].bind(controller)
     return controller
 }
+
+describe('Dataset Preview direct downloads', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+    })
+
+    it('passes the configured filename and runtime context to the export request', async () => {
+        const dashboard = { drivers: [{ urlName: 'year', value: '2026' }], configuration: { variables: [] } }
+        const variables = [{ name: 'region', value: 'EMEA' }]
+        const body = { fileName: 'Sales 2026 EMEA', parameters: [{ name: 'country', value: 'IT' }] }
+        const controller = {
+            dashboardId: 'dashboard',
+            dashboards: { dashboard },
+            variables,
+            datasetExportFileName: 'Sales $P{year} $V{region}',
+            selectedDataset: { parameters: [{ name: 'country', value: 'IT', multiValue: false }] },
+            getPreviewDrivers: vi.fn(() => []),
+            $http: { post: vi.fn().mockResolvedValue({}) },
+            $t: (key: string) => key
+        }
+        vi.mocked(createDatasetExportBody).mockReturnValueOnce(body)
+
+        await WidgetController.methods!.directDownloadDataset.call(controller, 12, 'xls')
+
+        expect(createDatasetExportBody).toHaveBeenCalledWith(
+            { parameters: [{ name: 'country', value: 'IT', multiValue: false }] },
+            'Sales $P{year} $V{region}',
+            dashboard,
+            variables
+        )
+        expect(controller.$http.post.mock.calls[0][0]).toContain('/2.0/export/dataset/12/xls')
+        expect(controller.$http.post.mock.calls[0][1]).toBe(body)
+    })
+
+    it('loads the interaction filename and clears it for a subsequent unconfigured preview', async () => {
+        const controller = {
+            datasets: [{ id: { dsId: 12 }, parameters: [], drivers: [] }],
+            dashboardId: 'dashboard',
+            dashStore: { $state: { dashboards: { dashboard: { configuration: { datasets: [{ id: 12, parameters: [], drivers: [] }] } } } } },
+            widget: { type: 'table' },
+            datasetExportFileName: '',
+            selectedDataset: null,
+            directDownloadDataset: vi.fn()
+        }
+        const previewInteractionDataset = WidgetController.methods!.previewInteractionDataset.bind(controller)
+
+        await previewInteractionDataset({ previewSettings: { dataset: 12, directDownload: true, exportFileName: 'Sales $P{year}' }, directDownloadFormat: 'xls' })
+        expect(controller.datasetExportFileName).toBe('Sales $P{year}')
+        expect(controller.directDownloadDataset).toHaveBeenCalledWith(12, 'xls')
+
+        await previewInteractionDataset({ previewSettings: { dataset: 12, directDownload: true }, directDownloadFormat: 'csv' })
+        expect(controller.datasetExportFileName).toBe('')
+    })
+})
 
 describe('selection-driven widget concurrency', () => {
     beforeEach(() => {

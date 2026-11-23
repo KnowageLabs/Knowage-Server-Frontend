@@ -29,6 +29,36 @@
             <div class="col-12 q-pb-xs">
                 <q-toggle v-model="previewModel.directDownload" :label="$t('dashboard.widgetEditor.interactions.directDownload')" dense :disable="previewDisabled" />
             </div>
+      <div class="col-12">
+        <q-input
+          v-model="previewModel.exportFileName"
+          outlined
+          dense
+          clearable
+          :label="$t('dashboard.generalSettings.menuWidgets.exportFileName')"
+          :hint="$t('dashboard.generalSettings.menuWidgets.exportFileNameHint')"
+          :disable="previewDisabled"
+        />
+        <div
+          v-if="availableExportPlaceholders.length"
+          class="row q-gutter-xs q-mt-sm"
+        >
+          <q-chip
+            v-for="option in availableExportPlaceholders"
+            :key="option.placeholder"
+            clickable
+            outline
+            color="primary"
+            :disable="previewDisabled"
+            @click="appendExportPlaceholder(option.placeholder)"
+          >
+            {{ option.placeholder }}
+            <q-tooltip :delay="500">
+              {{ option.label }}
+            </q-tooltip>
+          </q-chip>
+        </div>
+      </div>
 
             <!-- Parameters -->
             <template v-if="previewModel.parameters && previewModel.parameters.length > 0">
@@ -69,6 +99,7 @@ import descriptor from '../WidgetInteractionsDescriptor.json'
 import dashboardStore from '../../../../../../Dashboard.store'
 import TableWidgetPreviewParameterList from './WidgetPreviewParameterList.vue'
 import WidgetEditorStyleToolbar from '../../styleToolbar/WidgetEditorStyleToolbar.vue'
+import { getDashboardParameterPlaceholderOptions, getDashboardVariablePlaceholderOptions } from '../../../../../../helpers/DashboardPlaceholderHelper'
 
 export default defineComponent({
     name: 'table-widget-preview',
@@ -101,6 +132,9 @@ export default defineComponent({
         },
         widgetType() {
             return this.widgetModel?.type
+        },
+        availableExportPlaceholders() {
+            return [...getDashboardParameterPlaceholderOptions(this.dashboardModel?.drivers ?? []), ...getDashboardVariablePlaceholderOptions(this.dashboardModel?.configuration?.variables ?? [])]
         }
     },
     watch: {
@@ -133,6 +167,12 @@ export default defineComponent({
         },
         loadPreviewModel() {
             if (this.widgetModel?.settings?.interactions?.preview) this.previewModel = this.widgetModel.settings.interactions.preview
+        },
+        appendExportPlaceholder(placeholder: string) {
+            if (!this.previewModel) return
+            const currentValue = this.previewModel.exportFileName ?? ''
+            const separator = currentValue && !/\s$/.test(currentValue) ? ' ' : ''
+            this.previewModel.exportFileName = `${currentValue}${separator}${placeholder}`
         },
         loadDashboardModel() {
             this.dashboardModel = this.store.getDashboard(this.dashboardId)

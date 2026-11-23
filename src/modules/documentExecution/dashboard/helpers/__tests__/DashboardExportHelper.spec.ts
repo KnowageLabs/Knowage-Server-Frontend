@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createDashboardSpreadsheetExportBody, createWidgetExportBody, getDashboardExportFileNameTemplate, getDashboardExportVariables, getDashboardXlsxStyleEnabled } from '../DashboardExportHelper'
+import { createDashboardSpreadsheetExportBody, createDatasetExportBody, createWidgetExportBody, getDashboardExportFileNameTemplate, getDashboardExportVariables, getDashboardXlsxStyleEnabled } from '../DashboardExportHelper'
 
 const createDashboard = (overrides = {}) =>
     ({
@@ -61,6 +61,52 @@ describe('getDashboardExportFileNameTemplate', () => {
 describe('getDashboardExportVariables', () => {
     it('returns the current dashboard variables', () => {
         expect(getDashboardExportVariables(createDashboard())).toEqual([{ name: 'region', type: 'static', value: 'EMEA' }])
+    })
+})
+
+describe('createDatasetExportBody', () => {
+    it('combines static text, document drivers and runtime variables', () => {
+        const body = createDatasetExportBody({}, 'Sales $P{year} $V{region}', createDashboard(), [{ name: 'region', value: 'APAC' } as any])
+
+        expect(body.fileName).toBe('Sales 2024 APAC')
+    })
+
+    it('uses the latest driver and variable values for each export', () => {
+        const dashboard = createDashboard()
+        expect(createDatasetExportBody({}, '$P{year}-$V{region}', dashboard).fileName).toBe('2024-EMEA')
+
+        dashboard.drivers[0].value = '2026'
+        dashboard.configuration.variables[0].value = 'APAC'
+        expect(createDatasetExportBody({}, '$P{year}-$V{region}', dashboard).fileName).toBe('2026-APAC')
+    })
+
+    it('resolves multivalue drivers, descriptions, zero and pivoted variables', () => {
+        const dashboard = createDashboard()
+        dashboard.drivers[0].value = ['2025', '2026']
+        dashboard.drivers[0].description = 'Selected years'
+        dashboard.configuration.variables = [{ name: 'totals', value: 0, pivotedValues: { sales: 42 } }]
+
+        expect(createDatasetExportBody({}, '$P{year} $P{year_description} $V{totals} $V{totals.sales}', dashboard).fileName).toBe('2025,2026 Selected years 0 42')
+    })
+
+    it.each([undefined, null, '', '  ', '$P{missing}$V{missing}'])('preserves default naming for an empty resolved template %s', (template) => {
+        expect(createDatasetExportBody({}, template, undefined)).not.toHaveProperty('fileName')
+    })
+
+    it('supports a static name without an execution context', () => {
+        expect(createDatasetExportBody({}, '  Sales export  ', undefined).fileName).toBe('Sales export')
+    })
+
+    it('normalizes preview parameters and driver lists without modifying preview state', () => {
+        const previewData = { pars: [{ name: 'country', value: 'IT' }], drivers: [{ urlName: 'country', parameterValue: [{ value: 'IT', description: 'Italy' }] }], start: 0 }
+        const original = JSON.parse(JSON.stringify(previewData))
+
+        const body = createDatasetExportBody(previewData, 'Sales', createDashboard())
+        expect(body.parameters).toEqual(previewData.pars)
+        expect(body.drivers).toEqual({ country: [{ value: 'IT', description: 'Italy' }] })
+        expect(body).not.toHaveProperty('pars')
+        body.parameters[0].value = 'US'
+        expect(previewData).toEqual(original)
     })
 })
 

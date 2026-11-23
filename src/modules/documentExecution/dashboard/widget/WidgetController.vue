@@ -33,7 +33,15 @@
     <ChangeWidgetDialog v-if="showChangeDialog" :widget-model="widgetModel" :widget-data="widgetData" @close="toggleChangeDialog" />
     <WidgetSearchDialog v-if="searchDialogVisible" :visible="searchDialogVisible" :widget="widget" :prop-search="search" @close="searchDialogVisible = false" @search="onSearch"></WidgetSearchDialog>
     <SheetPickerDialog v-if="sheetPickerDialogVisible" :visible="sheetPickerDialogVisible" :prop-sheets="dashboards && dashboards[dashboardId] ? dashboards[dashboardId].sheets : []" :active-sheet="activeSheet" @close="sheetPickerDialogVisible = false" @sheetSelected="onSheetSelected"></SheetPickerDialog>
-    <DatasetEditorPreview v-if="datasetPreviewShown" :visible="datasetPreviewShown" :prop-dataset="datasetToPreview" :dashboard-id="dashboardId" @close="datasetPreviewShown = false" />
+  <DatasetEditorPreview
+    v-if="datasetPreviewShown"
+    :visible="datasetPreviewShown"
+    :prop-dataset="datasetToPreview"
+    :dashboard-id="dashboardId"
+    :export-file-name="datasetExportFileName"
+    :variables="variables"
+    @close="datasetPreviewShown = false"
+  />
 </template>
 
 <script lang="ts">
@@ -65,7 +73,7 @@ import { downloadDirectFromResponse } from '@/helpers/commons/fileHelper'
 import DatasetEditorPreview from '../dataset/DatasetEditorDataTab/DatasetEditorPreview.vue'
 import { formatParameterForPreview } from '@/modules/documentExecution/dashboard/widget/interactionsHelpers/PreviewHelper'
 import { quickWidgetCreateChartFromTable, quickWidgetCreateTableFromChart } from './WidgetControllerHelpers'
-import { createWidgetExportBody } from '../helpers/DashboardExportHelper'
+import { createDatasetExportBody, createWidgetExportBody } from '../helpers/DashboardExportHelper'
 import { enrichPivotWidgetWithSortState } from '@/modules/documentExecution/dashboard/widget/PivotWidget/PivotWidgetExportHelper'
 
 export default defineComponent({
@@ -118,6 +126,7 @@ export default defineComponent({
             sheetPickerDialogVisible: false,
             datasetToPreview: {} as any,
             datasetPreviewShown: false,
+            datasetExportFileName: '',
             directDownloadMenuItems: [] as any[],
             widgetHighlighted: false,
             widgetHighlightTimeout: null as any
@@ -680,6 +689,7 @@ export default defineComponent({
 
             if (!previewSettings.dataset || previewSettings.dataset < 0) return
 
+            this.datasetExportFileName = previewSettings.exportFileName ?? ''
             this.selectedDataset = deepcopy(this.datasets.find((dataset) => dataset.id.dsId === previewSettings.dataset))
 
             const storeDashboardDatasets = this.dashStore.$state.dashboards[this.dashboardId].configuration.datasets
@@ -741,7 +751,7 @@ export default defineComponent({
                     }
                 })
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/export/dataset/${datasetId}/${format}`, tempParams, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/export/dataset/${datasetId}/${format}`, createDatasetExportBody(tempParams, this.datasetExportFileName, this.dashboards[this.dashboardId], this.variables), { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
                 .then(() => showDashboardActionToast('success', this.$t('common.toast.updateTitle'), this.$t('workspace.myData.exportSuccess')))
                 .catch(() => {})
         },

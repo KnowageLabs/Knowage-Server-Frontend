@@ -300,6 +300,7 @@ export interface IWidgetPreview {
     datasetLabel?: string
     column?: string
     directDownload: boolean
+    exportFileName?: string
     icon?: string
     multiselection?: {
         enabled: boolean

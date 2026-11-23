@@ -35,7 +35,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, PropType } from 'vue'
 import { AxiosResponse } from 'axios'
 import DatasetPreviewTable from '@/modules/workspace/views/dataView/tables/DatasetPreviewTable.vue'
 import mainDescriptor from '@/modules/workspace/WorkspaceDescriptor.json'
@@ -43,6 +43,8 @@ import workspaceDataPreviewDialogDescriptor from '@/modules/workspace/views/data
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import mainStore from '@/App.store'
 import { DATASET_EXPORT_FORMATS } from '@/modules/documentExecution/dashboard/DashboardHelpers'
+import { IVariable } from '../../Dashboard'
+import { createDatasetExportBody } from '../../helpers/DashboardExportHelper'
 
 import deepcopy from 'deepcopy'
 import { mapActions, mapState } from 'pinia'
@@ -50,7 +52,7 @@ import { mapActions, mapState } from 'pinia'
 export default defineComponent({
     name: 'kpi-scheduler-save-dialog',
     components: { DatasetPreviewTable },
-    props: { visible: { type: Boolean }, propDataset: { type: Object }, previewType: String, dashboardId: { type: String, required: true } },
+    props: { visible: { type: Boolean }, propDataset: { type: Object }, previewType: String, dashboardId: { type: String, required: true }, exportFileName: { type: String, default: '' }, variables: { type: Array as PropType<IVariable[]>, default: undefined } },
     emits: ['close'],
     data() {
         return {
@@ -178,9 +180,7 @@ export default defineComponent({
             this.$emit('close')
         },
         async exportDataset(format) {
-            let body = this.postData
-            body.parameters = body.pars
-            delete body.pars
+            const body = createDatasetExportBody(this.postData, this.exportFileName, this.dashboards[this.dashboardId], this.variables)
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/export/dataset/${this.dataset.id}/${format}`, body)
                 .then((response: AxiosResponse<any>) => {
