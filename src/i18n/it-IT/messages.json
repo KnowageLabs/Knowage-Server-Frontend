@@ -3618,6 +3618,22 @@
       "title": "Tenant Management"
     },
     "themeManagement": {
+      "birt": {
+        "title": "BIRT",
+        "hint": "I font sono condivisi tra tutti i tenant e gestibili solo dal super amministratore. Carica file TTF o OTF (massimo 10 MB). Nel report BIRT usa la famiglia del font definita nel file, non il nome del file. File e percorsi vengono salvati automaticamente, indipendentemente dal tema selezionato.",
+        "restart": "Le modifiche diventano effettive dopo il riavvio dell'applicazione BIRT. Pianifica le rimozioni quando non ci sono report in esecuzione. In un cluster, le resources devono essere condivise e montate allo stesso percorso assoluto su tutti i nodi BIRT; riavvia ogni nodo.",
+        "upload": "Carica font",
+        "directory": "Cartella globale dei font",
+        "configuration": "Configurazione font BIRT",
+        "path": "Percorso assoluto del font",
+        "invalidFont": "Carica un font TTF o OTF valido, non vuoto, di massimo 10 MB, con un nome semplice (lettere, numeri, spazi, punti, trattini o underscore).",
+        "duplicate": "Esiste già un font con questo nome. Nessun file è stato sovrascritto.",
+        "loadError": "Impossibile caricare l'elenco dei font BIRT.",
+        "uploadError": "Impossibile caricare il font BIRT.",
+        "deleteError": "Impossibile eliminare il font BIRT.",
+        "refreshError": "La modifica è stata salvata, ma non è stato possibile aggiornare l'elenco. Aggiorna la pagina prima di altre modifiche.",
+        "deleteMessage": "Eliminare il font \"{name}\" per tutti i tenant? I report che lo usano potrebbero cambiare dopo il riavvio BIRT."
+      },
       "download": "Scarica Tema",
       "hint": "La gestione temi permette di create un tema, cambiando le combinazioni di colori/dimensioni di default degli elementi di Knowage. E' anche possibile creare più di un tema e cambiarli a necessità. Cliccando su un elemento esistente della lista o premento il bottone \"+\" sarà possibile la modifica.",
       "import": "Importa Tema esistente",

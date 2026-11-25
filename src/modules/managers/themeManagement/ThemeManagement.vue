@@ -1,94 +1,101 @@
 <template>
-    <div class="kn-page--row p-grid p-m-0 kn-theme-management">
-        <div class="kn-list--column kn-page p-col-12 p-sm-4 p-md-3 p-p-0">
-            <Toolbar class="kn-toolbar kn-toolbar--primary">
-                <template #start>
-                    {{ $t('managers.themeManagement.title') }}
-                </template>
-                <template #end>
-                    <FabButton icon="fas fa-plus" @click="toggleAdd" />
-                    <Menu ref="menu" :model="addMenuItems" :popup="true" style="width: 240px" data-test="menu"></Menu>
-                </template>
-            </Toolbar>
-            <KnInputFile label="" :change-function="uploadTheme" accept="application/json,application/zip" :trigger-input="triggerInput" />
-            <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
-            <KnListBox :options="availableThemes" :selected="selectedTheme" :settings="descriptor.knListSettings" @click="selectTheme" @delete.stop="deleteThemeConfirm" />
-        </div>
-
-        <div class="p-col p-p-0 p-m-0 kn-page">
-            <KnHint v-if="!selectedTheme.themeName" :title="$t('managers.themeManagement.title')" :hint="$t('managers.themeManagement.hint')"></KnHint>
-            <ThemeManagementExamples v-else :properties="selectedTheme.config"></ThemeManagementExamples>
-        </div>
-
-        <div v-if="selectedTheme.themeName" class="kn-list--column kn-page p-col-12 p-sm-4 p-md-3 p-p-0 theme-settings-panel">
-            <Toolbar class="kn-toolbar kn-toolbar--secondary">
-                <template #start>
-                    {{ themeToSend.themeName }}
-                </template>
-                <template #end>
-                    <Button v-if="selectedTheme.id" icon="pi pi-download" class="p-button-text p-button-rounded p-button-plain" @click="downloadTheme" :title="$t('managers.themeManagement.download')" />
-                    <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" data-test="save-button" @click="handleSave" :title="$t('managers.themeManagement.save')" />
-                </template>
-            </Toolbar>
-            <div class="theme-settings-header p-p-3">
-                <q-input v-model="themeToSend.themeName" class="kn-flex" dense outlined square hide-bottom-space :label="$t('common.name')" />
-                <div class="theme-active-switch">
-                    <q-toggle v-model="themeToSend.active" dense :label="$t('common.active')" />
-                </div>
-            </div>
-            <Divider class="p-my-0" />
-            <div class="theme-settings-search p-px-3 p-pt-3">
-                <q-input v-model="settingsSearch" class="kn-width-full" dense outlined square clearable hide-bottom-space type="search" :placeholder="$t('common.search')" @clear="clearSettingsSearch">
-                    <template #prepend>
-                        <q-icon name="search" />
+    <div class="kn-page kn-theme-management-sections">
+        <q-tabs v-if="user.isSuperadmin" v-model="section" dense align="left">
+            <q-tab name="themes" :label="$t('managers.themeManagement.title')" />
+            <q-tab name="birt" :label="$t('managers.themeManagement.birt.title')" />
+        </q-tabs>
+        <div v-if="section === 'themes'" class="kn-page--row p-grid p-m-0 kn-theme-management">
+            <div class="kn-list--column kn-page p-col-12 p-sm-4 p-md-3 p-p-0">
+                <Toolbar class="kn-toolbar kn-toolbar--primary">
+                    <template #start>
+                        {{ $t('managers.themeManagement.title') }}
                     </template>
-                </q-input>
+                    <template #end>
+                        <FabButton icon="fas fa-plus" @click="toggleAdd" />
+                        <Menu ref="menu" :model="addMenuItems" :popup="true" style="width: 240px" data-test="menu"></Menu>
+                    </template>
+                </Toolbar>
+                <KnInputFile label="" :change-function="uploadTheme" accept="application/json,application/zip" :trigger-input="triggerInput" />
+                <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
+                <KnListBox :options="availableThemes" :selected="selectedTheme" :settings="descriptor.knListSettings" @click="selectTheme" @delete.stop="deleteThemeConfirm" />
             </div>
-            <div class="theme-settings-content p-p-3 kn-page-content">
-                <template v-for="(value, key) in filteredThemeSettings" :key="key">
-                    <section class="theme-settings-section">
-                        <button class="theme-settings-section-header" type="button" :aria-expanded="isSettingsSectionExpanded(key)" @click="toggleSettingsSection(key)">
-                            <q-icon :name="isSettingsSectionExpanded(key) ? 'remove' : 'add'" size="16px" />
-                            <span>{{ value.label }} ({{ value.properties.length }})</span>
-                        </button>
-                        <div v-if="isSettingsSectionExpanded(key)" class="theme-settings-section-content">
-                            <div v-for="property in value.properties" :key="property.key" class="theme-setting-field">
-                            <label :for="`theme-setting-${property.key}`" class="theme-setting-label">{{ property.label }}</label>
-                            <div v-if="property.type === 'color'" class="theme-setting-control">
-                                <q-input :id="`theme-setting-${property.key}`" v-model="selectedTheme.config[property.key]" dense outlined square hide-bottom-space @update:model-value="updateModelToSend(property.key)" />
-                                <label class="theme-color-picker" :for="`theme-color-${property.key}`" :style="{ backgroundColor: selectedTheme.config[property.key], color: getColorPickerIconColor(selectedTheme.config[property.key]) }" :title="property.label">
-                                    <q-icon name="palette" size="16px" />
-                                    <input :id="`theme-color-${property.key}`" v-model="selectedTheme.config[property.key]" class="theme-color-picker-input" type="color" :aria-label="property.label" @change="updateModelToSend(property.key)" />
-                                </label>
+
+            <div class="p-col p-p-0 p-m-0 kn-page">
+                <KnHint v-if="!selectedTheme.themeName" :title="$t('managers.themeManagement.title')" :hint="$t('managers.themeManagement.hint')"></KnHint>
+                <ThemeManagementExamples v-else :properties="selectedTheme.config"></ThemeManagementExamples>
+            </div>
+
+            <div v-if="selectedTheme.themeName" class="kn-list--column kn-page p-col-12 p-sm-4 p-md-3 p-p-0 theme-settings-panel">
+                <Toolbar class="kn-toolbar kn-toolbar--secondary">
+                    <template #start>
+                        {{ themeToSend.themeName }}
+                    </template>
+                    <template #end>
+                        <Button v-if="selectedTheme.id" icon="pi pi-download" class="p-button-text p-button-rounded p-button-plain" @click="downloadTheme" :title="$t('managers.themeManagement.download')" />
+                        <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" data-test="save-button" @click="handleSave" :title="$t('managers.themeManagement.save')" />
+                    </template>
+                </Toolbar>
+                <div class="theme-settings-header p-p-3">
+                    <q-input v-model="themeToSend.themeName" class="kn-flex" dense outlined square hide-bottom-space :label="$t('common.name')" />
+                    <div class="theme-active-switch">
+                        <q-toggle v-model="themeToSend.active" dense :label="$t('common.active')" />
+                    </div>
+                </div>
+                <Divider class="p-my-0" />
+                <div class="theme-settings-search p-px-3 p-pt-3">
+                    <q-input v-model="settingsSearch" class="kn-width-full" dense outlined square clearable hide-bottom-space type="search" :placeholder="$t('common.search')" @clear="clearSettingsSearch">
+                        <template #prepend>
+                            <q-icon name="search" />
+                        </template>
+                    </q-input>
+                </div>
+                <div class="theme-settings-content p-p-3 kn-page-content">
+                    <template v-for="(value, key) in filteredThemeSettings" :key="key">
+                        <section class="theme-settings-section">
+                            <button class="theme-settings-section-header" type="button" :aria-expanded="isSettingsSectionExpanded(key)" @click="toggleSettingsSection(key)">
+                                <q-icon :name="isSettingsSectionExpanded(key) ? 'remove' : 'add'" size="16px" />
+                                <span>{{ value.label }} ({{ value.properties.length }})</span>
+                            </button>
+                            <div v-if="isSettingsSectionExpanded(key)" class="theme-settings-section-content">
+                                <div v-for="property in value.properties" :key="property.key" class="theme-setting-field">
+                                <label :for="`theme-setting-${property.key}`" class="theme-setting-label">{{ property.label }}</label>
+                                <div v-if="property.type === 'color'" class="theme-setting-control">
+                                    <q-input :id="`theme-setting-${property.key}`" v-model="selectedTheme.config[property.key]" dense outlined square hide-bottom-space @update:model-value="updateModelToSend(property.key)" />
+                                    <label class="theme-color-picker" :for="`theme-color-${property.key}`" :style="{ backgroundColor: selectedTheme.config[property.key], color: getColorPickerIconColor(selectedTheme.config[property.key]) }" :title="property.label">
+                                        <q-icon name="palette" size="16px" />
+                                        <input :id="`theme-color-${property.key}`" v-model="selectedTheme.config[property.key]" class="theme-color-picker-input" type="color" :aria-label="property.label" @change="updateModelToSend(property.key)" />
+                                    </label>
+                                </div>
+                                <q-input v-else-if="property.type === 'text'" :id="`theme-setting-${property.key}`" v-model="selectedTheme.config[property.key]" dense outlined square hide-bottom-space @update:model-value="updateModelToSend(property.key)" />
+                                <div v-else-if="property.type === 'icon'" class="theme-setting-control">
+                                    <q-input :id="`theme-setting-${property.key}`" v-model="selectedTheme.config[property.key]" dense outlined square hide-bottom-space @update:model-value="updateModelToSend(property.key)" />
+                                    <q-btn outline dense class="theme-icon-picker-button" :aria-label="property.label" @click="openIconPicker(property.key)">
+                                        <q-icon v-if="String(selectedTheme.config[property.key]).startsWith('sym_o_')" :name="selectedTheme.config[property.key]" size="20px" />
+                                        <i v-else :class="selectedTheme.config[property.key] || 'pi pi-image'"></i>
+                                    </q-btn>
+                                </div>
+                                <q-toggle
+                                    v-else-if="property.type === 'toggle'"
+                                    :id="`theme-setting-${property.key}`"
+                                    v-model="selectedTheme.config[property.key]"
+                                    dense
+                                    :true-value="property.trueValue"
+                                    :false-value="property.falseValue"
+                                    :aria-label="property.label"
+                                    @update:model-value="updateModelToSend(property.key)"
+                                />
+                                </div>
                             </div>
-                            <q-input v-else-if="property.type === 'text'" :id="`theme-setting-${property.key}`" v-model="selectedTheme.config[property.key]" dense outlined square hide-bottom-space @update:model-value="updateModelToSend(property.key)" />
-                            <div v-else-if="property.type === 'icon'" class="theme-setting-control">
-                                <q-input :id="`theme-setting-${property.key}`" v-model="selectedTheme.config[property.key]" dense outlined square hide-bottom-space @update:model-value="updateModelToSend(property.key)" />
-                                <q-btn outline dense class="theme-icon-picker-button" :aria-label="property.label" @click="openIconPicker(property.key)">
-                                    <q-icon v-if="String(selectedTheme.config[property.key]).startsWith('sym_o_')" :name="selectedTheme.config[property.key]" size="20px" />
-                                    <i v-else :class="selectedTheme.config[property.key] || 'pi pi-image'"></i>
-                                </q-btn>
-                            </div>
-                            <q-toggle
-                                v-else-if="property.type === 'toggle'"
-                                :id="`theme-setting-${property.key}`"
-                                v-model="selectedTheme.config[property.key]"
-                                dense
-                                :true-value="property.trueValue"
-                                :false-value="property.falseValue"
-                                :aria-label="property.label"
-                                @update:model-value="updateModelToSend(property.key)"
-                            />
-                            </div>
-                        </div>
-                    </section>
-                </template>
-                <div v-if="!hasThemeSettings" class="theme-settings-empty">
-                    {{ $t('common.info.noDataFound') }}
+                        </section>
+                    </template>
+                    <div v-if="!hasThemeSettings" class="theme-settings-empty">
+                        {{ $t('common.info.noDataFound') }}
+                    </div>
                 </div>
             </div>
+            <kn-icon-picker v-if="iconPickerVisible" :current-icon="selectedTheme.config[currentIconProp]" @save="onChoosenIcon" @close="closeIconPicker"></kn-icon-picker>
         </div>
-        <kn-icon-picker v-if="iconPickerVisible" :current-icon="selectedTheme.config[currentIconProp]" @save="onChoosenIcon" @close="closeIconPicker"></kn-icon-picker>
+        <BirtFontManagement v-else-if="user.isSuperadmin" />
     </div>
 </template>
 
@@ -98,6 +105,7 @@ import { defineComponent } from 'vue'
 import FabButton from '@/components/UI/KnFabButton.vue'
 import ThemeManagementDescriptor from '@/modules/managers/themeManagement/ThemeManagementDescriptor.json'
 import ThemeManagementExamples from '@/modules/managers/themeManagement/ThemeManagementExamples.vue'
+import BirtFontManagement from './BirtFontManagement.vue'
 import themeHelper from '@/helpers/themeHelper/themeHelper'
 import KnInputFile from '@/components/UI/KnInputFile.vue'
 import { downloadDirect } from '@/helpers/commons/fileHelper'
@@ -109,7 +117,7 @@ import { mapActions, mapState } from 'pinia'
 import mainStore from '../../../App.store'
 import KnIconPicker from '@/components/UI/KnIconPicker/KnIconPicker.vue'
 import deepcopy from 'deepcopy'
-import { QIcon, QInput, QToggle } from 'quasar'
+import { QIcon, QInput, QToggle, QTab, QTabs } from 'quasar'
 
 interface IThemeProperty {
     key: string
@@ -133,7 +141,7 @@ interface IThemeHelper {
 
 export default defineComponent({
     name: 'theme-management',
-    components: { Divider, FabButton, Menu, KnHint, KnInputFile, KnListBox, ThemeManagementExamples, KnIconPicker, QIcon, QInput, QToggle },
+    components: { Divider, FabButton, Menu, KnHint, KnInputFile, KnListBox, ThemeManagementExamples, BirtFontManagement, KnIconPicker, QIcon, QInput, QToggle, QTab, QTabs },
     data() {
         return {
             descriptor: ThemeManagementDescriptor,
@@ -143,6 +151,7 @@ export default defineComponent({
             availableThemes: [] as any[],
             triggerInput: false,
             loading: false,
+            section: 'themes',
             themeHelper: new themeHelper() as unknown as IThemeHelper,
             addMenuItems: [] as any[],
             iconPickerVisible: false,
@@ -170,7 +179,7 @@ export default defineComponent({
         ]
     },
     computed: {
-        ...mapState(mainStore, ['defaultTheme']),
+        ...mapState(mainStore, ['defaultTheme', 'user']),
         filteredThemeSettings(): Record<string, IThemeSettingsSection> {
             const searchTerm = this.settingsSearch.trim().toLocaleLowerCase()
 
@@ -355,6 +364,15 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
+.kn-theme-management-sections {
+    > .kn-page,
+    > .kn-page--row {
+        flex: 1;
+        min-height: 0;
+        height: auto;
+    }
+}
+
 .kn-theme-management {
     .p-fieldset-content {
         padding: 0.5rem;

@@ -2032,6 +2032,22 @@
             "title": "Bérlőkezelés "
         },
         "themeManagement": {
+            "birt": {
+                "title": "BIRT",
+                "hint": "Fonts are shared by all tenants and can only be managed by the super administrator. Upload TTF or OTF files (maximum 10 MB). Use the font family defined inside the file in your BIRT report, not its filename. Files and their paths are saved automatically, independently of the selected theme.",
+                "restart": "Changes take effect after restarting the BIRT application. Schedule removals when no reports are running. In a cluster, resources must be shared and mounted at the same absolute path on every BIRT node; restart every node.",
+                "upload": "Upload font",
+                "directory": "Global font directory",
+                "configuration": "BIRT font configuration",
+                "path": "Absolute font path",
+                "invalidFont": "Upload a valid, non-empty TTF or OTF font up to 10 MB, with a simple filename (letters, numbers, spaces, dots, hyphens or underscores).",
+                "duplicate": "A font with this filename already exists. No file has been overwritten.",
+                "loadError": "Unable to load BIRT fonts.",
+                "uploadError": "Unable to upload the BIRT font.",
+                "deleteError": "Unable to delete the BIRT font.",
+                "refreshError": "The change was saved, but the list could not be refreshed. Refresh the page before making further changes.",
+                "deleteMessage": "Delete font \"{name}\" for all tenants? Reports using it may change after the BIRT restart."
+            },
             "hint": "A téma kezelése lehetővé teszi egy téma létrehozását, a különböző felületi elemek alapértelmezett színeinek/dimenzióinak módosítását.  Egynél több témát is létrehozhat, és úgy cserélheti, ahogy szeretné.  Kattintson egy meglévő elemre a listából, vagy nyomja meg a \"+\" gombot az egyik hozzáadásához. ",
             "title": "Téma kezelése "
         },
