@@ -45,8 +45,17 @@
                 </q-input>
             </div>
             <div class="theme-settings-content p-p-3 kn-page-content">
-                <template v-for="(value, key) in filteredThemeSettings" :key="key">
-                    <section class="theme-settings-section">
+                <template v-for="(value, key) in sortedThemeSettings" :key="key">
+                    <section v-if="key === 'birt'" class="theme-settings-section" data-test="birt-accordion">
+                        <button class="theme-settings-section-header" type="button" :aria-expanded="isSettingsSectionExpanded('birt')" aria-controls="theme-settings-birt" @click="toggleSettingsSection('birt')">
+                            <q-icon :name="isSettingsSectionExpanded('birt') ? 'remove' : 'add'" size="16px" />
+                            <span>{{ value.label }}</span>
+                        </button>
+                        <div v-if="isSettingsSectionExpanded('birt')" id="theme-settings-birt" class="theme-settings-section-content">
+                            <BirtFontManagement />
+                        </div>
+                    </section>
+                    <section v-else class="theme-settings-section">
                         <button class="theme-settings-section-header" type="button" :aria-expanded="isSettingsSectionExpanded(key)" @click="toggleSettingsSection(key)">
                             <q-icon :name="isSettingsSectionExpanded(key) ? 'remove' : 'add'" size="16px" />
                             <span>{{ value.label }} ({{ value.properties.length }})</span>
@@ -83,15 +92,6 @@
                         </div>
                     </section>
                 </template>
-                <section v-if="showBirtSettings" class="theme-settings-section" data-test="birt-accordion">
-                    <button class="theme-settings-section-header" type="button" :aria-expanded="isSettingsSectionExpanded('birt')" aria-controls="theme-settings-birt" @click="toggleSettingsSection('birt')">
-                        <q-icon :name="isSettingsSectionExpanded('birt') ? 'remove' : 'add'" size="16px" />
-                        <span>{{ $t('managers.themeManagement.birt.title') }}</span>
-                    </button>
-                    <div v-if="isSettingsSectionExpanded('birt')" id="theme-settings-birt" class="theme-settings-section-content">
-                        <BirtFontManagement />
-                    </div>
-                </section>
                 <div v-if="!hasThemeSettings" class="theme-settings-empty">
                     {{ $t('common.info.noDataFound') }}
                 </div>
@@ -198,8 +198,13 @@ export default defineComponent({
         showBirtSettings(): boolean {
             return !!this.user.isSuperadmin && this.$t('managers.themeManagement.birt.title').toLocaleLowerCase().includes(this.settingsSearch.trim().toLocaleLowerCase())
         },
+        sortedThemeSettings(): Record<string, IThemeSettingsSection> {
+            const sections = { ...this.filteredThemeSettings }
+            if (this.showBirtSettings) sections.birt = { label: this.$t('managers.themeManagement.birt.title'), properties: [] }
+            return Object.fromEntries(Object.entries(sections).sort(([, left], [, right]) => left.label.localeCompare(right.label, undefined, { sensitivity: 'base' })))
+        },
         hasThemeSettings(): boolean {
-            return Object.keys(this.filteredThemeSettings).length > 0 || this.showBirtSettings
+            return Object.keys(this.sortedThemeSettings).length > 0
         }
     },
     watch: {

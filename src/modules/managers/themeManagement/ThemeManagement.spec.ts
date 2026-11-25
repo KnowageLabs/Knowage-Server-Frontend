@@ -56,11 +56,13 @@ describe('BIRT section in theme management', () => {
         await wrapper.setData({ selectedTheme: theme, themeToSend: theme })
         const headers = wrapper.findAll('.theme-settings-section-header')
         expect(headers).toHaveLength(2)
-        await headers[0].trigger('click')
-        await headers[1].trigger('click')
-        expect(headers[0].attributes('aria-expanded')).toBe('true')
+        const themeHeader = wrapper.get('.theme-settings-section:not([data-test="birt-accordion"]) .theme-settings-section-header')
+        const birtHeader = wrapper.get('[data-test="birt-accordion"] .theme-settings-section-header')
+        await themeHeader.trigger('click')
+        await birtHeader.trigger('click')
+        expect(themeHeader.attributes('aria-expanded')).toBe('true')
         expect(wrapper.findComponent({ name: 'birt-font-management' }).exists()).toBe(true)
-        await headers[1].trigger('click')
+        await birtHeader.trigger('click')
         expect(wrapper.vm.selectedTheme).toEqual(theme)
         expect(wrapper.vm.themeToSend).toEqual(theme)
         expect(wrapper.findComponent({ name: 'ThemeManagementExamples' }).exists()).toBe(true)
@@ -74,5 +76,20 @@ describe('BIRT section in theme management', () => {
         await wrapper.setData({ settingsSearch: 'unknown settings' })
         expect(wrapper.find('[data-test="birt-accordion"]').exists()).toBe(false)
         expect(wrapper.text()).toContain('common.info.noDataFound')
+    })
+
+    it.each([true, false])('sorts accordion labels alphabetically with superadmin=%s', async (isSuperadmin) => {
+        await mountPage(isSuperadmin)
+        await wrapper.setData({ selectedTheme: { themeName: 'Theme', config: {} } })
+        wrapper.vm.themeHelper.descriptor = {
+            buttons: { label: 'Buttons', properties: [] },
+            breadcrumbs: { label: 'breadcrumbs', properties: [] },
+            background: { label: 'Background', properties: [] }
+        }
+        await flushPromises()
+        const labels = wrapper.findAll('.theme-settings-section-header').map((header) => header.text())
+        expect(labels).toEqual(isSuperadmin
+            ? ['Background (0)', 'Birt', 'breadcrumbs (0)', 'Buttons (0)']
+            : ['Background (0)', 'breadcrumbs (0)', 'Buttons (0)'])
     })
 })
