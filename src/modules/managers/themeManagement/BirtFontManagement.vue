@@ -1,12 +1,11 @@
 <template>
-    <div v-if="user.isSuperadmin" class="kn-page">
-        <q-toolbar class="kn-toolbar kn-toolbar--primary">
-            <q-toolbar-title>{{ $t('managers.themeManagement.birt.title') }}</q-toolbar-title>
+    <div v-if="user.isSuperadmin">
+        <q-toolbar class="q-pa-none justify-end">
             <q-btn flat round dense icon="refresh" :disable="busy" :title="$t('common.refresh')" @click="loadFonts" />
-            <q-btn flat round dense icon="file_upload" :disable="busy || !loaded" :title="$t('managers.themeManagement.birt.upload')" @click="pickFont" />
+            <q-btn flat dense icon="file_upload" :disable="busy || !loaded" :label="$t('managers.themeManagement.birt.upload')" @click="pickFont" />
         </q-toolbar>
         <q-linear-progress v-if="busy" indeterminate />
-        <div class="q-pa-md kn-page-content">
+        <div>
             <q-banner class="bg-blue-1 q-mb-md">
                 {{ $t('managers.themeManagement.birt.hint') }}
             </q-banner>
@@ -21,7 +20,7 @@
                 <dt>{{ $t('managers.themeManagement.birt.configuration') }}</dt>
                 <dd>{{ configurationPath }}</dd>
             </dl>
-            <q-table v-if="loaded" flat bordered :rows="fonts" :columns="columns" row-key="name" :no-data-label="$t('common.info.noDataFound')">
+            <q-table v-if="loaded" flat bordered dense wrap-cells :rows="fonts" :columns="columns" row-key="name" :no-data-label="$t('common.info.noDataFound')">
                 <template #body-cell-actions="props">
                     <q-td :props="props">
                         <q-btn flat round dense icon="delete" :disable="busy" :aria-label="`${$t('common.delete')}: ${props.row.name}`" @click="confirmDelete(props.row.name)" />
@@ -35,7 +34,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { mapState } from 'pinia'
-import { QBanner, QBtn, QFile, QLinearProgress, QTable, QTd, QToolbar, QToolbarTitle } from 'quasar'
+import { QBanner, QBtn, QFile, QLinearProgress, QTable, QTd, QToolbar } from 'quasar'
 import type { QTableColumn } from 'quasar'
 import axios from '@/axios.js'
 import mainStore from '@/App.store'
@@ -50,7 +49,7 @@ const endpoint = `${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/birt/
 
 export default defineComponent({
     name: 'birt-font-management',
-    components: { QBanner, QBtn, QFile, QLinearProgress, QTable, QTd, QToolbar, QToolbarTitle },
+    components: { QBanner, QBtn, QFile, QLinearProgress, QTable, QTd, QToolbar },
     data() {
         return {
             fonts: [] as BirtFont[],

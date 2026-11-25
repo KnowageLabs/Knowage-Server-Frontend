@@ -3178,7 +3178,7 @@
         },
         "themeManagement": {
             "birt": {
-                "title": "BIRT",
+                "title": "Birt",
                 "hint": "Fonts are shared by all tenants and can only be managed by the super administrator. Upload TTF or OTF files (maximum 10 MB). Use the font family defined inside the file in your BIRT report, not its filename. Files and their paths are saved automatically, independently of the selected theme.",
                 "restart": "Changes take effect after restarting the BIRT application. Schedule removals when no reports are running. In a cluster, resources must be shared and mounted at the same absolute path on every BIRT node; restart every node.",
                 "upload": "Upload font",

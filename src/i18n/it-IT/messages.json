@@ -3619,7 +3619,7 @@
     },
     "themeManagement": {
       "birt": {
-        "title": "BIRT",
+        "title": "Birt",
         "hint": "I font sono condivisi tra tutti i tenant e gestibili solo dal super amministratore. Carica file TTF o OTF (massimo 10 MB). Nel report BIRT usa la famiglia del font definita nel file, non il nome del file. File e percorsi vengono salvati automaticamente, indipendentemente dal tema selezionato.",
         "restart": "Le modifiche diventano effettive dopo il riavvio dell'applicazione BIRT. Pianifica le rimozioni quando non ci sono report in esecuzione. In un cluster, le resources devono essere condivise e montate allo stesso percorso assoluto su tutti i nodi BIRT; riavvia ogni nodo.",
         "upload": "Carica font",
